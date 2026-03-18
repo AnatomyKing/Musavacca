@@ -25,6 +25,7 @@ This project is set up to keep datagen consistent across all supported Minecraft
 
 - **Blocks**
     - [`ModBlocks`](src/main/java/space/anatomyuniverse/musavacca/block/ModBlocks.java) registers all mod blocks and can auto-define item registries for them with an optional blacklist.
+    - [`ModBlockEntities`](src/main/java/space/anatomyuniverse/musavacca/block/ModBlocks.java) registers all block entities.
 
 - **Renderers**
     - [`MusaRenderLayers`](src/main/java/space/anatomyuniverse/musavacca/client/render/MusaRenderLayers.java) is where cutout, translucent, and AO properties are assigned for mod blocks.

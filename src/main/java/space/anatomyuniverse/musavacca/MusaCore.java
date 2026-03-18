@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.particle.ModParticleProviders;
-import space.anatomyuniverse.musavacca.particle.ModParticles;
 import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.item.ModCreativeTabs;

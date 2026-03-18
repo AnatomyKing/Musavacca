@@ -7,7 +7,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 
-import java.util.Set;
 import java.util.function.Supplier;
 
 public final class ModBlockEntities {
