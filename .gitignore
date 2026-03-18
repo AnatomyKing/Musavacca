@@ -11,11 +11,7 @@ eclipse/
 
 # IntelliJ IDEA
 out/
-.idea/*
-!.idea/runConfigurations/
-.idea/runConfigurations/*
-!.idea/runConfigurations/runDatagenActive.run.xml
-!.idea/runConfigurations/runDatagenAll.run.xml
+.idea/
 *.iml
 *.ipr
 *.iws
