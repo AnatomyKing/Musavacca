@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "musavacca:block/small_banana_pearl_block_top",
+    "side": "musavacca:block/small_banana_pearl_block"
+  }
+}

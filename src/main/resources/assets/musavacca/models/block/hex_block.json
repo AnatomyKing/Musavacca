@@ -1,0 +1,6 @@
+{
+  "parent": "musavacca:block/custom_parent/cube_all_tinted",
+  "textures": {
+    "all": "musavacca:block/hex_block"
+  }
+}

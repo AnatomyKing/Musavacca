@@ -1,0 +1,24 @@
+license = "CC0-1.0"
+
+modLoader="javafml"
+loaderVersion="[1,)"
+
+[[mods]]
+modId = "${id}"
+displayName = "${name}"
+version = "${version}"
+authors = "AnatomyKing"
+description = "Cosmetic technology mod, that introduces an infinite parallel mirror variant of the trail chambers, completely made out of Anythomitium that is filled with acid."
+
+logoFile = "assets/${id}/icon.png"
+
+#displayURL = "..."
+#issueTrackerUrl = "..."
+
+
+[[dependencies."${id}"]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft}"
+ordering = "NONE"
+side = "BOTH"

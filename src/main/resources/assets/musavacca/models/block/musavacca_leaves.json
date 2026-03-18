@@ -1,0 +1,7 @@
+{
+  "parent": "musavacca:block/custom_parent/cube_column_tinted",
+  "textures": {
+    "end": "musavacca:block/musavacca_leaves_top",
+    "side": "musavacca:block/musavacca_leaves"
+  }
+}

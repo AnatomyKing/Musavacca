@@ -1,0 +1,56 @@
+
+# Eclipse / VSCode
+bin/
+*.launch
+.settings/
+.vscode/
+.metadata/
+.classpath
+.project
+eclipse/
+
+# IntelliJ IDEA
+out/
+.idea/*
+!.idea/runConfigurations/
+.idea/runConfigurations/*
+!.idea/runConfigurations/runDatagenActive.run.xml
+!.idea/runConfigurations/runDatagenAll.run.xml
+*.iml
+*.ipr
+*.iws
+
+# Build tools / outputs
+
+# Gradle
+.gradle/
+build/
+classes/
+
+# Runtime / dev folders
+run/
+run-data/
+logs/
+
+# Forge MDK
+forge*changelog.txt
+
+# Generated resources cache (root)
+src/generated/resources/.cache/
+
+# Generated resources (all versions)
+versions/*/src/
+
+# Build folders (all versions)
+versions/*/build/
+# OS junk
+
+*.DS_Store
+
+# Java crash / profiling logs
+
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr
+
