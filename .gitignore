@@ -1,24 +1,52 @@
-# Compiled class file
-*.class
 
-# Log file
-*.log
+# Eclipse / VSCode
+bin/
+*.launch
+.settings/
+.vscode/
+.metadata/
+.classpath
+.project
+eclipse/
 
-# BlueJ files
-*.ctxt
+# IntelliJ IDEA
+out/
+.idea/
+*.iml
+*.ipr
+*.iws
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# Build tools / outputs
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+# Gradle
+.gradle/
+build/
+classes/
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# Runtime / dev folders
+run/
+run-data/
+logs/
+
+# Forge MDK
+forge*changelog.txt
+
+# Generated resources cache (root)
+src/generated/resources/.cache/
+
+# Generated resources (all versions)
+versions/*/src/
+
+# Build folders (all versions)
+versions/*/build/
+# OS junk
+
+*.DS_Store
+
+# Java crash / profiling logs
+
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr
+
