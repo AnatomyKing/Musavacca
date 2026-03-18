@@ -40,8 +40,8 @@ This project is set up to keep datagen consistent across all supported Minecraft
 
 - **Models / Blockstates**
     - [`ModelSets`](src/main/java/space/anatomyuniverse/musavacca/data/models/ModelSets.java) defines models / blockstates and generates them with helper utilities.
-    - Block model helpers live in [`data/models/block/helpers`](src/main/java/space/anatomyuniverse/musavacca/data/models/block/helpers).
-    - Item model helpers live in [`data/models/item/helpers`](src/main/java/space/anatomyuniverse/musavacca/data/models/item/helpers).
+    - Block model helpers live in [`data/models/block/helpers`](src/main/java/space/anatomyuniverse/musavacca/data/models/block).
+    - Item model helpers live in [`data/models/item/helpers`](src/main/java/space/anatomyuniverse/musavacca/data/models/item).
 
 - **Recipes**
     - [`RecipeDSL`](src/main/java/space/anatomyuniverse/musavacca/data/recipes/RecipeDSL.java) makes shaped, shapeless, cooking, stonecutting, and smithing generation readable and version-safe.
