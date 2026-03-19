@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.entity.HexBlockEntity;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
 public class HexBlock extends Block implements EntityBlock {
 
@@ -26,19 +27,19 @@ public class HexBlock extends Block implements EntityBlock {
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
 
+        if (level.isClientSide()) {
+            return;
+        }
+
         if (oldState.is(state.getBlock())) {
             return;
         }
 
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof HexBlockEntity hexBe)) {
-            return;
-        }
-
-        if (level.isClientSide()) {
-            hexBe.applyClientPredictionIfPresent();
-        } else {
-            hexBe.initializeServerFallbackColorIfNeeded();
+        if (be instanceof HexBlockEntity hexBe) {
+            if (!hexBe.hasHexColor()) {
+                hexBe.setHexColor(HexBlockEntity.createRandomHexColor());
+            }
         }
     }
 
@@ -50,9 +51,14 @@ public class HexBlock extends Block implements EntityBlock {
             return;
         }
 
+        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+        if (savedHex == null) {
+            return;
+        }
+
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HexBlockEntity hexBe) {
-            hexBe.applyServerPredictedPlacementColor();
+            hexBe.setHexColor(savedHex);
         }
     }
 }

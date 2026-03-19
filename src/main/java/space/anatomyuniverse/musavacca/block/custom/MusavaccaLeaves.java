@@ -40,14 +40,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Barrel-style oriented leaves with crop-like stages:
- * - FACING: full 6-way facing (UP/DOWN/NORTH/SOUTH/WEST/EAST)
- * - AGE: 0..2
- * - grows only by bonemeal
- * - can be reverted by right-clicking with shears
- * - keeps vanilla leaf states from super (distance/persistent/waterlogged)
- */
+
 public class MusavaccaLeaves
         //? if <1.21.5 {
         /*extends LeavesBlock
@@ -118,10 +111,7 @@ public class MusavaccaLeaves
     }
     //?}
 
-    /**
-     * Right-click with shears to revert one stage:
-     * 2 -> 1 -> 0
-     */
+
     @Override
             //? if <1.21.2 {
     /*protected ItemInteractionResult useItemOn(

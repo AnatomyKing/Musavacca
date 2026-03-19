@@ -21,7 +21,7 @@ public class StrippableLogBlock extends RotatedPillarBlock {
     @Override
     public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext ctx, ItemAbility ability, boolean simulate) {
         if (ability == ItemAbilities.AXE_STRIP) {
-            // Copies shared properties (like AXIS) from the current state onto the stripped block's state.
+
             return stripped.get().withPropertiesOf(state);
         }
         return super.getToolModifiedState(state, ctx, ability, simulate);

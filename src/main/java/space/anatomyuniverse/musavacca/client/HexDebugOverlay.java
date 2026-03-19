@@ -1,10 +1,7 @@
-
 package space.anatomyuniverse.musavacca.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,29 +17,21 @@ public final class HexDebugOverlay {
     @SubscribeEvent
     public static void onDebugText(CustomizeGuiOverlayEvent.DebugText event) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || mc.hitResult == null) {
+        if (mc.level == null || !(mc.hitResult instanceof BlockHitResult hit)) {
             return;
         }
-
-        HitResult hit = mc.hitResult;
-        if (!(hit instanceof BlockHitResult blockHit)) {
-            return;
-        }
-
-        BlockEntity be = mc.level.getBlockEntity(blockHit.getBlockPos());
 
         int hex;
-        if (be instanceof HexBlockEntity hexBe) {
-            hex = hexBe.getHexColor();
-        } else if (be instanceof HardHexBlockEntity hardHexBe) {
-            hex = hardHexBe.getHexColor();
+        if (mc.level.getBlockEntity(hit.getBlockPos()) instanceof HexBlockEntity be) {
+            if (!be.hasHexColor()) return;
+            hex = be.getHexColor();
+        } else if (mc.level.getBlockEntity(hit.getBlockPos()) instanceof HardHexBlockEntity be) {
+            hex = be.getHexColor();
         } else {
             return;
         }
 
-        String hexText = String.format("#%06X", hex & 0xFFFFFF);
-
         event.getRight().add("hex_color: " + hex);
-        event.getRight().add("HexColorDisplay: " + hexText);
+        event.getRight().add(String.format("HexColorDisplay: #%06X", hex & 0xFFFFFF));
     }
 }

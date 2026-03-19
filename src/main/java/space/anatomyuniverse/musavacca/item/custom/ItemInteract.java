@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/custom/ItemInteract.java
+
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.core.BlockPos;
@@ -21,7 +21,6 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.menu.ItemInteractMenu;
-import space.anatomyuniverse.musavacca.tint.HexColorLcg;
 
 public class ItemInteract extends FlintAndSteelItem {
 
@@ -50,7 +49,7 @@ public class ItemInteract extends FlintAndSteelItem {
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = level.getBlockState(clickedPos);
 
-        // Keep normal "lightable block" behavior for campfires/candles/etc.
+        // Keep the "light campfire / candle / etc." style behavior if the clicked block supports it.
         BlockState modifiedState = clickedState.getToolModifiedState(
                 context,
                 ItemAbilities.FIRESTARTER_LIGHT,
@@ -65,35 +64,30 @@ public class ItemInteract extends FlintAndSteelItem {
                     stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
                 }
             }
-
             return InteractionResult.SUCCESS;
         }
 
-        // Otherwise place HexBlock in the adjacent position, like flint-and-steel would place fire.
+        // Otherwise, place your HexBlock instead of fire.
         BlockPos placePos = clickedPos.relative(context.getClickedFace());
 
         if (!level.getBlockState(placePos).canBeReplaced()) {
             return InteractionResult.FAIL;
         }
 
-        // Anti-flicker: reserve the predicted client color before the server places the block.
-        if (level.isClientSide()) {
-            HexColorLcg.reserveClientPlacementPrediction(placePos);
-            return InteractionResult.SUCCESS;
-        }
-
         BlockState placeState = ModBlocks.HEX_BLOCK.get().defaultBlockState();
-        boolean placed = level.setBlockAndUpdate(placePos, placeState);
 
-        if (!placed) {
-            return InteractionResult.FAIL;
-        }
+        if (!level.isClientSide()) {
+            boolean placed = level.setBlockAndUpdate(placePos, placeState);
+            if (!placed) {
+                return InteractionResult.FAIL;
+            }
 
-        // Make sure your HexBlock still runs its normal placement hooks.
-        placeState.getBlock().setPlacedBy(level, placePos, placeState, player, stack);
+            // Make sure your HexBlock still receives normal placed-by logic.
+            placeState.getBlock().setPlacedBy(level, placePos, placeState, player, stack);
 
-        if (player != null) {
-            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+            if (player != null) {
+                stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+            }
         }
 
         return InteractionResult.SUCCESS;

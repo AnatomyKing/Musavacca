@@ -35,7 +35,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.MUSAVACCA_EGG.get()
         );
 
-        dropSelfWithCopiedComponents(ModBlocks.HEX_BLOCK.get());
+        dropHexBlockSilkTouchKeepsColor(ModBlocks.HEX_BLOCK.get());
         dropSelfWithCopiedComponents(ModBlocks.HARD_HEX_BLOCK.get());
 
         this.add(
@@ -71,6 +71,36 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                                                 .copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
                                                                                 .include(ModDataComponents.HEX_COLOR.get())
                                                                 )
+                                                )
+                                        )
+                        )
+        );
+    }
+
+    private void dropHexBlockSilkTouchKeepsColor(Block block) {
+        this.add(
+                block,
+                LootTable.lootTable()
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .add(
+                                                this.applyExplosionCondition(
+                                                        block,
+                                                        LootItem.lootTableItem(block)
+                                                                .when(this.hasSilkTouch())
+                                                                .apply(
+                                                                        CopyComponentsFunction
+                                                                                .copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                                                .include(ModDataComponents.HEX_COLOR.get())
+                                                                )
+                                                )
+                                        )
+                                        .add(
+                                                this.applyExplosionCondition(
+                                                        block,
+                                                        LootItem.lootTableItem(block)
+                                                                .when(this.doesNotHaveSilkTouch())
                                                 )
                                         )
                         )

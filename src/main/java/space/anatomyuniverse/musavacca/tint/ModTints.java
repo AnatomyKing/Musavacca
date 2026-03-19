@@ -43,11 +43,6 @@ public final class ModTints {
                         if (level.getBlockEntity(pos) instanceof HexBlockEntity hexBe && hexBe.hasHexColor()) {
                             return TintColorUtil.opaqueRgb(hexBe.getHexColor());
                         }
-
-                        int predicted = HexColorLcg.getClientPlacementPrediction(pos);
-                        if (predicted != HexColorLcg.NO_COLOR) {
-                            return TintColorUtil.opaqueRgb(predicted);
-                        }
                     }
 
                     return TintColorUtil.defaultHexBlockTint();
