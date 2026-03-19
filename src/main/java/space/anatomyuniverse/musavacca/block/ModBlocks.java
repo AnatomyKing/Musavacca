@@ -13,7 +13,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.custom.*;
-import space.anatomyuniverse.musavacca.item.custom.HexBlockItem;
 
 import java.util.Set;
 
