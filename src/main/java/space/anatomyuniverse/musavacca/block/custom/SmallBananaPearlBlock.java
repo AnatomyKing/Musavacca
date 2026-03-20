@@ -32,8 +32,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.particle.ModParticles;
+import net.neoforged.neoforge.common.extensions.IBlockExtension;
 
-public class SmallBananaPearlBlock extends FallingBlock {
+public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtension {
 
     public static final MapCodec<SmallBananaPearlBlock> CODEC = simpleCodec(SmallBananaPearlBlock::new);
 
@@ -144,7 +145,17 @@ public class SmallBananaPearlBlock extends FallingBlock {
         }
     }
 
-    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, @Nullable Player player, boolean willHarvest, FluidState fluid) {
+    @Override
+    public boolean onDestroyedByPlayer(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            //? if >=1.21.10
+            //ItemStack toolStack,
+            boolean willHarvest,
+            FluidState fluid
+    ) {
         if (player != null && player.getAbilities().instabuild) {
             level.setBlock(pos, fluid.createLegacyBlock(), 3);
             return true;
@@ -154,8 +165,13 @@ public class SmallBananaPearlBlock extends FallingBlock {
 
         if (amount > 1) {
             if (!level.isClientSide() && willHarvest) {
-                ItemStack tool = (player == null) ? ItemStack.EMPTY : player.getMainHandItem();
-                Block.dropResources(state, (ServerLevel) level, pos, null, player, tool);
+                //? if >=1.21.10 {
+                /*ItemStack effectiveTool = toolStack;
+                *///?} else {
+                ItemStack effectiveTool = player == null ? ItemStack.EMPTY : player.getMainHandItem();
+                //?}
+
+                Block.dropResources(state, (ServerLevel) level, pos, null, player, effectiveTool);
             }
 
             level.setBlock(pos, state.setValue(SMALL_PEARL_AMOUNT, amount - 1), 3);
