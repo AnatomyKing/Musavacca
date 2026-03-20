@@ -4,6 +4,9 @@ package space.anatomyuniverse.musavacca.tint;
 import net.minecraft.world.level.FoliageColor;
 
 public final class TintColorUtil {
+    public static final int NO_TINT = 0xFFFFFFFF;
+    private static final int RGB_MASK = 0xFFFFFF;
+
     private TintColorUtil() {}
 
     public static int defaultFoliageItemTint() {
@@ -14,11 +17,15 @@ public final class TintColorUtil {
         //?}
     }
 
+    public static int rgb(int rgb) {
+        return rgb & RGB_MASK;
+    }
+
     public static int opaqueRgb(int rgb) {
-        return 0xFF000000 | (rgb & 0xFFFFFF);
+        return 0xFF000000 | rgb(rgb);
     }
 
     public static int defaultHexBlockTint() {
-        return 0xFFFFFFFF;
+        return NO_TINT;
     }
 }

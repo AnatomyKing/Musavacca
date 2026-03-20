@@ -24,6 +24,7 @@ public class HexBlockEntity extends BlockEntity {
 
     public static final String TAG_HEX_COLOR = "hex_color";
     public static final int UNSET_HEX_COLOR = -1;
+    public static final int WHITE_HEX_COLOR = 0xFFFFFF;
 
     private int hexColor = UNSET_HEX_COLOR;
 
@@ -81,8 +82,6 @@ public class HexBlockEntity extends BlockEntity {
 
         BlockPos pos = this.getBlockPos();
         BlockState state = this.getBlockState();
-
-        this.requestModelDataUpdate();
 
         level.sendBlockUpdated(
                 pos,
