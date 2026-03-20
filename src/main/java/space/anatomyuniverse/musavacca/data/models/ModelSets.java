@@ -1,10 +1,13 @@
+
 package space.anatomyuniverse.musavacca.data.models;
 
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.entity.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.data.models.block.BarrelCropOwnTintedFoliage;
 import space.anatomyuniverse.musavacca.data.models.block.BreakBlockOwn;
+import space.anatomyuniverse.musavacca.data.models.block.CubeOwnTintedHexColor;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 import java.util.Map;
@@ -36,8 +39,19 @@ public final class ModelSets {
 
     public static Map<Block, String> cubeOwnModels() {
         return Map.of(
-                ModBlocks.HEX_BLOCK.get(), "musavacca:block/hex_block",
-                ModBlocks.HARD_HEX_BLOCK.get(), "musavacca:block/hex_block"
+        );
+    }
+
+    public static Map<Block, CubeOwnTintedHexColor.Entry> cubeOwnTintedHexColorModels() {
+        return Map.of(
+                ModBlocks.HEX_BLOCK.get(),
+                CubeOwnTintedHexColor.Entry.dynamic("musavacca:block/lopha_blossom"),
+
+                ModBlocks.HARD_HEX_BLOCK.get(),
+                CubeOwnTintedHexColor.Entry.constant(
+                        "musavacca:block/hex_block",
+                        HardHexBlockEntity.HARD_HEX_COLOR
+                )
         );
     }
 

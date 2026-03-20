@@ -7,9 +7,15 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.HexBlockEntity;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
+
+//? if >=1.21.4 {
+import net.minecraft.resources.ResourceLocation;
+//?}
 
 public final class ModTints {
     private ModTints() {}
@@ -19,7 +25,9 @@ public final class ModTints {
 
         //? if <1.21.4 {
         /*modBus.addListener(ModTints::registerItemColorHandlers);
-         *///?}
+         *///?} else {
+        modBus.addListener(ModTints::registerItemTintSources);
+        //?}
     }
 
     public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
@@ -65,13 +73,45 @@ public final class ModTints {
     //? if <1.21.4 {
     /*public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
         event.register((stack, tintIndex) -> {
-                    if (tintIndex == 0) {
-                        return TintColorUtil.defaultFoliageItemTint();
+                    if (tintIndex != 0) {
+                        return TintColorUtil.NO_TINT;
                     }
-                    return TintColorUtil.NO_TINT;
+                    return TintColorUtil.defaultFoliageItemTint();
                 },
                 ModBlocks.MUSAVACCA_LEAVES.get()
         );
+
+        event.register((stack, tintIndex) -> {
+                    if (tintIndex != 0) {
+                        return TintColorUtil.NO_TINT;
+                    }
+
+                    Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+                    if (savedHex != null) {
+                        return TintColorUtil.rgb(savedHex);
+                    }
+
+                    return TintColorUtil.defaultHexBlockItemTint();
+                },
+                ModBlocks.HEX_BLOCK.get()
+        );
+
+        event.register((stack, tintIndex) -> {
+                    if (tintIndex != 0) {
+                        return TintColorUtil.NO_TINT;
+                    }
+
+                    return TintColorUtil.rgb(HardHexBlockEntity.HARD_HEX_COLOR);
+                },
+                ModBlocks.HARD_HEX_BLOCK.get()
+        );
     }
-    *///?}
+    *///?} else {
+    public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
+        event.register(
+                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "hex_color"),
+                HexColorItemTintSource.MAP_CODEC
+        );
+    }
+    //?}
 }

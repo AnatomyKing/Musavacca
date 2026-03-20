@@ -25,6 +25,10 @@ public final class TintColorUtil {
         return 0xFF000000 | rgb(rgb);
     }
 
+    public static int defaultHexBlockItemTint() {
+        return 0xFFFFFF;
+    }
+
     public static int defaultHexBlockTint() {
         return NO_TINT;
     }

@@ -53,7 +53,8 @@ public final class MusaRenderLayers {
 
     private static final Set<Block> CUTOUT_BLOCKS = Sets.newHashSet(
 
-            ModBlocks.MUSAVACCA_EGG.get()
+            ModBlocks.MUSAVACCA_EGG.get(),
+            ModBlocks.HEX_BLOCK.get()
     );
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(
@@ -61,7 +62,7 @@ public final class MusaRenderLayers {
     );
 
     private static final Set<Block> NO_AO_BLOCKS = Sets.newHashSet(
-            // none
+            ModBlocks.HEX_BLOCK.get()
     );
 
     private MusaRenderLayers() {

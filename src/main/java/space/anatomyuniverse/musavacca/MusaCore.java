@@ -10,13 +10,14 @@ import org.slf4j.Logger;
 
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
-import space.anatomyuniverse.musavacca.client.HexDebugOverlay;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.item.ModCreativeTabs;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.menu.ModMenus;
+import space.anatomyuniverse.musavacca.particle.ModParticleProviders;
+import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
+import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.screen.ModMenuScreens;
 import space.anatomyuniverse.musavacca.tint.ModTints;
 
@@ -35,36 +36,32 @@ public final class MusaCore {
     public static final String MINECRAFT = /*$ minecraft*/ "1.21.8";
 
     public MusaCore(IEventBus modBus, ModContainer container) {
-        // Registries
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
         ModDataComponents.register(modBus);
         ModBlockEntities.register(modBus);
         ModMenus.register(modBus);
+        ModParticleTypes.register(modBus);
 
-        // Common lifecycle
         modBus.addListener(this::commonSetup);
-
-        // Datagen hook (MUST be unconditional)
         modBus.addListener(ModDataGenerators::gatherData);
 
-        // Client-only hooks
         //? if <1.21.9 {
         if (FMLLoader.getDist() == Dist.CLIENT) {
             ModTints.register(modBus);
             modBus.addListener(MusaRenderLayers::onModifyBakingResult);
             modBus.addListener(ModMenuScreens::register);
-//            modBus.addListener(ModParticleProviders::registerParticleProviders);
+            ModParticleProviders.register(modBus);
         }
         //?} else {
         /*if (FMLEnvironment.getDist() == Dist.CLIENT) {
             ModTints.register(modBus);
             modBus.addListener(MusaRenderLayers::onModifyBakingResult);
             modBus.addListener(ModMenuScreens::register);
-            modBus.addListener(HexDebugOverlay::registerDebugEntries);
+            ModParticleProviders.register(modBus);
         }
-*///?}
+        *///?}
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {}

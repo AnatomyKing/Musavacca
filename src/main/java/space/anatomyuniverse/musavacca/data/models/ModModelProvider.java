@@ -9,6 +9,7 @@ import space.anatomyuniverse.musavacca.data.models.block.Chapiter;
 import space.anatomyuniverse.musavacca.data.models.block.CubeAll;
 import space.anatomyuniverse.musavacca.data.models.block.CubeCrafterLike;
 import space.anatomyuniverse.musavacca.data.models.block.CubeOwn;
+import space.anatomyuniverse.musavacca.data.models.block.CubeOwnTintedHexColor;
 import space.anatomyuniverse.musavacca.data.models.block.Log;
 import space.anatomyuniverse.musavacca.data.models.block.SmallBananaPearlOwn;
 import space.anatomyuniverse.musavacca.data.models.block.Stairs;
@@ -39,14 +40,16 @@ import net.minecraft.client.data.models.ModelProvider;
         // -------------------------
         registerBlockModels(this);
 
+        // Existing custom foliage block models with tinted block-items / client items
+        BarrelCropOwnTintedFoliage.generate(this, ModelSets.barrelCropOwnTintedFoliageModels());
+
+        // Existing custom hex block models
+        CubeOwnTintedHexColor.generate(this, ModelSets.cubeOwnTintedHexColorModels());
+
         // -------------------------
         // Item section
         // -------------------------
         registerItemModels(itemModels());
-
-        // Pre-1.21.4 foliage block items still use normal block item models here.
-        // Runtime tinting happens in your ModTints class.
-        // CubeOwnTintedFoliage.generate(this, ModelSets.cubeOwnTintedFoliageModels());
     }
 
     private static void registerBlockModels(BlockStateProvider blocks) {
@@ -63,10 +66,6 @@ import net.minecraft.client.data.models.ModelProvider;
 
         BananaPearlChaliceOwn.generate(blocks, ModelSets.bananaPearlChaliceBlocks());
         BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());
-
-        // Leaves / foliage custom-model blocks
-        // CubeOwnTintedFoliage.generate(blocks, ModelSets.cubeOwnTintedFoliageModels());
-        BarrelCropOwnTintedFoliage.generate(blocks, ModelSets.barrelCropOwnTintedFoliageModels());
     }
 
     private static void registerItemModels(ItemModelProvider items) {
@@ -89,8 +88,10 @@ public final class ModModelProvider extends ModelProvider {
         registerBlockModels(blocks);
 
         // Existing custom foliage block models with tinted block-items / client items
-        // CubeOwnTintedFoliage.generate(blocks, items, ModelSets.cubeOwnTintedFoliageModels());
         BarrelCropOwnTintedFoliage.generate(blocks, items, ModelSets.barrelCropOwnTintedFoliageModels());
+
+        // Existing custom hex block models with tinted block-items / client items
+        CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());
 
         // -------------------------
         // Item section
