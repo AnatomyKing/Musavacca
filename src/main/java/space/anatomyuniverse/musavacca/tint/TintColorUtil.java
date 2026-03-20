@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/TintColorUtil.java
+
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.world.level.FoliageColor;

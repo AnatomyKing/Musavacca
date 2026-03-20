@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/HexBlock.java
+
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.entity.HexBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.item.custom.HexBlockItem;
 
 public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
@@ -40,15 +39,9 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
             return;
         }
 
-        // Item placement should not randomize here.
-        // /setblock, structures, world placement should stay random.
-        if (HexBlockItem.isForcingWhitePlacement()) {
-            return;
-        }
-
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof HexBlockEntity hexBe && !hexBe.hasHexColor()) {
-            hexBe.setHexColor(HexBlockEntity.createRandomHexColor());
+        if (be instanceof HexBlockEntity hexBe) {
+            hexBe.ensureRandomHexColor();
         }
     }
 
@@ -60,25 +53,15 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
             return;
         }
 
-        if (!(stack.getItem() instanceof HexBlockItem)) {
+        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+        if (savedHex == null) {
             return;
         }
 
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof HexBlockEntity hexBe)) {
-            return;
-        }
-
-        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-
-        // Silk-touched / preserved colored item: restore that exact color.
-        if (savedHex != null) {
+        if (be instanceof HexBlockEntity hexBe) {
             hexBe.setHexColor(savedHex);
-            return;
         }
-
-        // Normal HexBlockItem with no saved color: place white.
-        hexBe.setHexColor(HexBlockEntity.WHITE_HEX_COLOR);
     }
 
     @Override

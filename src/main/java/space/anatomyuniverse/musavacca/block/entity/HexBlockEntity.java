@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/HexBlockEntity.java
+
 package space.anatomyuniverse.musavacca.block.entity;
 
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,6 @@ public class HexBlockEntity extends BlockEntity {
 
     public static final String TAG_HEX_COLOR = "hex_color";
     public static final int UNSET_HEX_COLOR = -1;
-    public static final int WHITE_HEX_COLOR = 0xFFFFFF;
 
     private int hexColor = UNSET_HEX_COLOR;
 
@@ -42,10 +41,18 @@ public class HexBlockEntity extends BlockEntity {
 
     public void setHexColor(int hexColor) {
         int normalized = normalizeHex(hexColor);
-        if (this.hexColor != normalized) {
-            this.hexColor = normalized;
-            this.setChanged();
-            this.syncToClientAndRerender();
+        if (this.hexColor == normalized) {
+            return;
+        }
+
+        this.hexColor = normalized;
+        this.setChanged();
+        this.syncToClientAndRerender();
+    }
+
+    public void ensureRandomHexColor() {
+        if (!this.hasHexColor()) {
+            this.setHexColor(createRandomHexColor());
         }
     }
 

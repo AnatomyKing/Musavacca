@@ -13,7 +13,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.custom.*;
-import space.anatomyuniverse.musavacca.item.custom.HexBlockItem;
 
 import java.util.Set;
 
@@ -185,14 +184,14 @@ public final class ModBlocks {
                             .noOcclusion()
                             .pushReaction(PushReaction.NORMAL)));
 
-    public static final DeferredItem<HexBlockItem> HEX_BLOCK_ITEM =
-            ITEMS.registerItem(
-                    "hex_block",
-                    props -> new HexBlockItem(
-                            HEX_BLOCK.get(),
-                            props.useBlockDescriptionPrefix()
-                    )
-            );
+//    public static final DeferredItem<HexBlockItem> HEX_BLOCK_ITEM =
+//            ITEMS.registerItem(
+//                    "hex_block",
+//                    props -> new HexBlockItem(
+//                            HEX_BLOCK.get(),
+//                            props.useBlockDescriptionPrefix()
+//                    )
+//            );
 
     public static final DeferredBlock<HardHexBlock> HARD_HEX_BLOCK =
             BLOCKS.registerBlock("hard_hex_block",
@@ -205,7 +204,7 @@ public final class ModBlocks {
 
 
     private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
-            HEX_BLOCK
+//            HEX_BLOCK
     );
 
     static {

@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.data.loot;
 
 import net.minecraft.core.HolderLookup;
@@ -8,6 +9,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -32,11 +34,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.MUSAVACCA_PLANKS.get(),
                 ModBlocks.MUSAVACCA_LEAVES.get(),
-                ModBlocks.MUSAVACCA_EGG.get()
+                ModBlocks.MUSAVACCA_EGG.get(),
+                ModBlocks.HARD_HEX_BLOCK.get()
         );
 
-        dropHexBlockSilkTouchKeepsColor(ModBlocks.HEX_BLOCK.get());
-        dropSelfWithCopiedComponents(ModBlocks.HARD_HEX_BLOCK.get());
+        SilkTouchHexBlockWithAssignedHexColor(ModBlocks.HEX_BLOCK.get(), 0xFFFFFF);
 
         this.add(
                 ModBlocks.BANANA_PEARL_CHALICE.get(),
@@ -55,29 +57,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         }
     }
 
-    private void dropSelfWithCopiedComponents(Block block) {
-        this.add(
-                block,
-                LootTable.lootTable()
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                this.applyExplosionCondition(
-                                                        block,
-                                                        LootItem.lootTableItem(block)
-                                                                .apply(
-                                                                        CopyComponentsFunction
-                                                                                .copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                                                                                .include(ModDataComponents.HEX_COLOR.get())
-                                                                )
-                                                )
-                                        )
-                        )
-        );
-    }
-
-    private void dropHexBlockSilkTouchKeepsColor(Block block) {
+    private void SilkTouchHexBlockWithAssignedHexColor(Block block, int AssignedHexColor) {
         this.add(
                 block,
                 LootTable.lootTable()
@@ -101,6 +81,12 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                         block,
                                                         LootItem.lootTableItem(block)
                                                                 .when(this.doesNotHaveSilkTouch())
+                                                                .apply(
+                                                                        SetComponentsFunction.setComponent(
+                                                                                ModDataComponents.HEX_COLOR.get(),
+                                                                                AssignedHexColor
+                                                                        )
+                                                                )
                                                 )
                                         )
                         )
