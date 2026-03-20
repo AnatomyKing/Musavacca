@@ -5,7 +5,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import org.lwjgl.glfw.GLFW;
 import space.anatomyuniverse.musavacca.menu.ItemInteractMenu;
 
 public class ItemInteractScreen extends AbstractContainerScreen<ItemInteractMenu> {
@@ -51,15 +50,5 @@ public class ItemInteractScreen extends AbstractContainerScreen<ItemInteractMenu
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         super.render(graphics, mouseX, mouseY, partialTick);
-    }
-
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-            this.onClose();
-            return true;
-        }
-
-        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 }

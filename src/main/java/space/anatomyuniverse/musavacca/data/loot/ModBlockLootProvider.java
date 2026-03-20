@@ -8,7 +8,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+//? if <1.21.9 {
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+ //?} else {
+/*import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+*///?}
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
@@ -38,7 +43,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.HARD_HEX_BLOCK.get()
         );
 
-        SilkTouchHexBlockWithAssignedHexColor(ModBlocks.HEX_BLOCK.get(), 0xFFFFFF);
+        silkTouchHexBlockWithAssignedHexColor(ModBlocks.HEX_BLOCK.get(), 0xFFFFFF);
 
         this.add(
                 ModBlocks.BANANA_PEARL_CHALICE.get(),
@@ -57,7 +62,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         }
     }
 
-    private void SilkTouchHexBlockWithAssignedHexColor(Block block, int AssignedHexColor) {
+    private void silkTouchHexBlockWithAssignedHexColor(Block block, int assignedHexColor) {
         this.add(
                 block,
                 LootTable.lootTable()
@@ -70,9 +75,17 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                         LootItem.lootTableItem(block)
                                                                 .when(this.hasSilkTouch())
                                                                 .apply(
-                                                                        CopyComponentsFunction
-                                                                                .copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                                        //? if <1.21.9 {
+                                                                    CopyComponentsFunction
+                                                                            .copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                                            .include(ModDataComponents.HEX_COLOR.get())
+                                                                    //?} else {
+                                                                        /*CopyComponentsFunction
+                                                                                .copyComponentsFromBlockEntity(
+                                                                                        LootContext.BlockEntityTarget.BLOCK_ENTITY.getParam()
+                                                                                )
                                                                                 .include(ModDataComponents.HEX_COLOR.get())
+                                                                        *///?}
                                                                 )
                                                 )
                                         )
@@ -84,7 +97,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                                 .apply(
                                                                         SetComponentsFunction.setComponent(
                                                                                 ModDataComponents.HEX_COLOR.get(),
-                                                                                AssignedHexColor
+                                                                                assignedHexColor
                                                                         )
                                                                 )
                                                 )

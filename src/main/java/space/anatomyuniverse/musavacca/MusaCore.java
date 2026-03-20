@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
+import space.anatomyuniverse.musavacca.client.HexDebugOverlay;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
@@ -61,8 +62,9 @@ public final class MusaCore {
             ModTints.register(modBus);
             modBus.addListener(MusaRenderLayers::onModifyBakingResult);
             modBus.addListener(ModMenuScreens::register);
+            modBus.addListener(HexDebugOverlay::registerDebugEntries);
         }
-        *///?}
+*///?}
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {}

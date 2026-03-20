@@ -61,7 +61,7 @@ public class ItemInteract extends FlintAndSteelItem {
                 level.setBlockAndUpdate(clickedPos, modifiedState);
 
                 if (player != null) {
-                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+                    stack.hurtAndBreak(1, player, context.getHand());
                 }
             }
             return InteractionResult.SUCCESS;
@@ -86,7 +86,7 @@ public class ItemInteract extends FlintAndSteelItem {
             placeState.getBlock().setPlacedBy(level, placePos, placeState, player, stack);
 
             if (player != null) {
-                stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+                stack.hurtAndBreak(1, player, context.getHand());
             }
         }
 

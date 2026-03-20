@@ -144,7 +144,6 @@ public class SmallBananaPearlBlock extends FallingBlock {
         }
     }
 
-    @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, @Nullable Player player, boolean willHarvest, FluidState fluid) {
         if (player != null && player.getAbilities().instabuild) {
             level.setBlock(pos, fluid.createLegacyBlock(), 3);
@@ -154,7 +153,7 @@ public class SmallBananaPearlBlock extends FallingBlock {
         int amount = state.getValue(SMALL_PEARL_AMOUNT);
 
         if (amount > 1) {
-            if (!level.isClientSide && willHarvest) {
+            if (!level.isClientSide() && willHarvest) {
                 ItemStack tool = (player == null) ? ItemStack.EMPTY : player.getMainHandItem();
                 Block.dropResources(state, (ServerLevel) level, pos, null, player, tool);
             }
