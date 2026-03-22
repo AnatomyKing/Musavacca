@@ -48,5 +48,9 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.MUSAVACCA_PLANKS.get()
         );
+
+        tag(BlockTags.FIRE).add(
+                ModBlocks.PEARL_FIRE.get()
+        );
     }
 }

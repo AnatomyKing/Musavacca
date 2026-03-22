@@ -100,6 +100,17 @@ public final class ModBlocks {
                             .pushReaction(PushReaction.NORMAL)
                     ));
 
+    public static final DeferredBlock<PearlFireBlock> PEARL_FIRE =
+            BLOCKS.registerBlock("pearl_fire",
+                    props -> new PearlFireBlock(props
+                            .mapColor(MapColor.FIRE)
+                            .replaceable()
+                            .noCollission()
+                            .instabreak()
+                            .lightLevel(state -> 15)
+                            .sound(SoundType.WOOL)
+                            .pushReaction(PushReaction.DESTROY)
+                            .noLootTable()));
 
 //    public static final DeferredBlock<SlabBlock> MUSAVACCA_SLAB =
 //            BLOCKS.registerBlock("musavacca_slab",
@@ -203,8 +214,11 @@ public final class ModBlocks {
                             .pushReaction(PushReaction.NORMAL)));
 
 
+
+
     private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
 //            HEX_BLOCK
+            PEARL_FIRE
     );
 
     static {

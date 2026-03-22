@@ -8,6 +8,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.item.custom.ItemInteract;
 import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
 
@@ -39,7 +40,7 @@ public final class ModItems {
 
     public static final DeferredItem<Item> FLINT_AND_PEARL =
             ITEMS.registerItem("flint_and_pearl",
-                    props -> new FlintAndSteelItem(
+                    props -> new FlintAndPearlItem(
                             props.durability(64).rarity(Rarity.COMMON)
                     ));
 

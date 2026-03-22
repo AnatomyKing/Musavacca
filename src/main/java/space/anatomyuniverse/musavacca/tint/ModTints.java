@@ -1,4 +1,4 @@
-
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/ModTints.java
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.client.renderer.BiomeColors;
@@ -9,8 +9,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.block.entity.HardHexBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.HexBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
 //? if >=1.21.4 {
@@ -34,6 +35,7 @@ public final class ModTints {
         event.register(ModTints::getMusavaccaLeavesTint, ModBlocks.MUSAVACCA_LEAVES.get());
         event.register(ModTints::getHexBlockTint, ModBlocks.HEX_BLOCK.get());
         event.register(ModTints::getHardHexBlockTint, ModBlocks.HARD_HEX_BLOCK.get());
+        event.register(ModTints::getPearlFireTint, ModBlocks.PEARL_FIRE.get());
     }
 
     private static int getMusavaccaLeavesTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
@@ -70,6 +72,19 @@ public final class ModTints {
         return TintColorUtil.opaqueRgb(HardHexBlockEntity.HARD_HEX_COLOR);
     }
 
+    private static int getPearlFireTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
+        if (tintIndex != 0) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        if (level != null && pos != null
+                && level.getBlockEntity(pos) instanceof PearlFireBlockEntity pearlFireBe) {
+            return TintColorUtil.opaqueRgb(pearlFireBe.getHexColor());
+        }
+
+        return TintColorUtil.opaqueRgb(PearlFireBlockEntity.PEARL_FIRE_COLOR);
+    }
+
     //? if <1.21.4 {
     /*public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
         event.register((stack, tintIndex) -> {
@@ -104,6 +119,21 @@ public final class ModTints {
                     return TintColorUtil.rgb(HardHexBlockEntity.HARD_HEX_COLOR);
                 },
                 ModBlocks.HARD_HEX_BLOCK.get()
+        );
+
+        event.register((stack, tintIndex) -> {
+                    if (tintIndex != 0) {
+                        return TintColorUtil.NO_TINT;
+                    }
+
+                    Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+                    if (savedHex != null) {
+                        return TintColorUtil.rgb(savedHex);
+                    }
+
+                    return TintColorUtil.rgb(PearlFireBlockEntity.PEARL_FIRE_COLOR);
+                },
+                ModBlocks.PEARL_FIRE.get()
         );
     }
     *///?} else {

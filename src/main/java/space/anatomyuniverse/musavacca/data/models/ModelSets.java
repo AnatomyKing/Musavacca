@@ -4,9 +4,10 @@ package space.anatomyuniverse.musavacca.data.models;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.block.entity.HardHexBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.data.models.block.BarrelCropOwnTintedFoliage;
 import space.anatomyuniverse.musavacca.data.models.block.BreakBlockOwn;
+import space.anatomyuniverse.musavacca.data.models.block.CubeFireBlock;
 import space.anatomyuniverse.musavacca.data.models.block.CubeOwnTintedHexColor;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
@@ -74,6 +75,20 @@ public final class ModelSets {
                         "musavacca:block/musavacca_leaves",
                         "musavacca:block/musavacca_leaves_crown",
                         "musavacca:block/musavacca_leaves_cross"
+                )
+        );
+    }
+
+    public static Map<Block, CubeFireBlock.Entry> cubeFireBlockModels() {
+        return Map.of(
+                ModBlocks.PEARL_FIRE.get(),
+                CubeFireBlock.Entry.auto(
+                        "pearl_fire",
+                        "musavacca:block/custom_parent/tinted_template_fire_up",
+                        "musavacca:block/custom_parent/tinted_template_fire_side",
+                        "musavacca:block/custom_parent/tinted_template_fire_side_alt",
+                        "musavacca:block/custom_parent/tinted_template_fire_floor",
+                        "musavacca:block/custom_parent/tinted_template_fire_up_alt"
                 )
         );
     }

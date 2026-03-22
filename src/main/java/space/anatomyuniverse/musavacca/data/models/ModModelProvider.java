@@ -2,17 +2,7 @@ package space.anatomyuniverse.musavacca.data.models;
 
 import net.minecraft.data.PackOutput;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.data.models.block.BananaPearlChaliceOwn;
-import space.anatomyuniverse.musavacca.data.models.block.BarrelCropOwnTintedFoliage;
-import space.anatomyuniverse.musavacca.data.models.block.BreakBlockOwn;
-import space.anatomyuniverse.musavacca.data.models.block.Chapiter;
-import space.anatomyuniverse.musavacca.data.models.block.CubeAll;
-import space.anatomyuniverse.musavacca.data.models.block.CubeCrafterLike;
-import space.anatomyuniverse.musavacca.data.models.block.CubeOwn;
-import space.anatomyuniverse.musavacca.data.models.block.CubeOwnTintedHexColor;
-import space.anatomyuniverse.musavacca.data.models.block.Log;
-import space.anatomyuniverse.musavacca.data.models.block.SmallBananaPearlOwn;
-import space.anatomyuniverse.musavacca.data.models.block.Stairs;
+import space.anatomyuniverse.musavacca.data.models.block.*;
 import space.anatomyuniverse.musavacca.data.models.item.FlatItems;
 import space.anatomyuniverse.musavacca.data.models.item.HandheldItems;
 
@@ -63,6 +53,7 @@ import net.minecraft.client.data.models.ModelProvider;
 
         // Existing custom block model ids
         CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
+        CubeFireBlock.generate(blocks, ModelSets.cubeFireBlockModels());
 
         BananaPearlChaliceOwn.generate(blocks, ModelSets.bananaPearlChaliceBlocks());
         BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());
@@ -110,6 +101,7 @@ public final class ModModelProvider extends ModelProvider {
 
         // Existing custom block model ids
         CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
+        CubeFireBlock.generate(blocks, ModelSets.cubeFireBlockModels());
 
         BananaPearlChaliceOwn.generate(blocks, ModelSets.bananaPearlChaliceBlocks());
         BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());

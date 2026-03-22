@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import space.anatomyuniverse.musavacca.block.entity.HardHexBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
 public class HardHexBlock extends Block implements EntityBlock {

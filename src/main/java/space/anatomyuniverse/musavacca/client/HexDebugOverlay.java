@@ -1,17 +1,19 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/client/HexDebugOverlay.java
 package space.anatomyuniverse.musavacca.client;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.block.entity.HardHexBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.HexBlockEntity;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
 //? if <1.21.9 {
 import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
- //?} else {
+//?} else {
 /*import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.resources.ResourceLocation;
@@ -30,19 +32,13 @@ public final class HexDebugOverlay {
             return null;
         }
 
-        int hex;
-        if (mc.level.getBlockEntity(hit.getBlockPos()) instanceof HexBlockEntity be) {
-            if (!be.hasHexColor()) {
-                return null;
-            }
-            hex = be.getHexColor();
-        } else if (mc.level.getBlockEntity(hit.getBlockPos()) instanceof HardHexBlockEntity be) {
-            hex = be.getHexColor();
-        } else {
+        BlockEntity be = mc.level.getBlockEntity(hit.getBlockPos());
+        if (be == null) {
             return null;
         }
 
-        return hex;
+        DataComponentMap components = be.collectComponents();
+        return components.get(ModDataComponents.HEX_COLOR.get());
     }
 
     //? if <1.21.9 {
