@@ -62,7 +62,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         super(properties);
         this.registerDefaultState(
                 this.stateDefinition.any()
-                        .setValue(CLIPPED, false)
+                        .setValue(CLIPPED, true)
         );
     }
 
@@ -278,11 +278,14 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     }
 
     private static boolean canGrowIntoEggPair(LevelReader level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
         BlockState aboveState = level.getBlockState(pos.above());
         BlockPos belowPos = pos.below();
 
-        return !isHexStem(aboveState)
-                && Block.canSupportCenter(level, pos.above(), Direction.DOWN)
+        return state.hasProperty(CLIPPED)
+                && !state.getValue(CLIPPED)
+                && !isHexStem(aboveState)
+                && aboveState.is(ModBlocks.MUSAVACCA_STEM.get())
                 && level.getBlockState(belowPos).isAir()
                 && !level.isWaterAt(belowPos);
     }
@@ -301,7 +304,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         BlockPos belowPos = pos.below();
 
         level.setBlock(pos, BreakBlock.makeAttachedStem(ModBlocks.MUSAVACCA_EGG.get()), Block.UPDATE_ALL);
-        level.setBlock(belowPos, this.defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(belowPos, this.defaultBlockState().setValue(CLIPPED, false), Block.UPDATE_ALL);
 
         if (savedHex == null) {
             return;
