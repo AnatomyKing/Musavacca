@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/HexBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;
@@ -34,6 +33,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
@@ -72,8 +72,31 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     }
 
     @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(CLIPPED);
+    }
+
+    //? if <1.21.2 {
+    /*private static ItemInteractionResult passToDefault() {
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    private static ItemInteractionResult successResult() {
+        return ItemInteractionResult.SUCCESS;
+    }
+    *///?} else {
+    private static InteractionResult passToDefault() {
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
+    }
+
+    private static InteractionResult successResult() {
+        return InteractionResult.SUCCESS;
+    }
+    //?}
+
+    @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        return Block.canSupportCenter(level, pos.above(), Direction.DOWN) && !level.isWaterAt(pos);
+        return hasValidSupportAbove(level, pos) && !level.isWaterAt(pos);
     }
 
     @Override
@@ -96,29 +119,6 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(CLIPPED);
-    }
-
-    //? if <1.21.2 {
-    /*private static ItemInteractionResult passToDefault() {
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-    }
-
-    private static ItemInteractionResult successResult() {
-        return ItemInteractionResult.SUCCESS;
-    }
-    *///?} else {
-    private static InteractionResult passToDefault() {
-        return InteractionResult.TRY_WITH_EMPTY_HAND;
-    }
-
-    private static InteractionResult successResult() {
-        return InteractionResult.SUCCESS;
-    }
-    //?}
 
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
@@ -268,6 +268,51 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         return TintColorUtil.defaultHexBlockItemTint();
     }
 
+    private static boolean hasValidSupportAbove(LevelReader level, BlockPos pos) {
+        BlockState aboveState = level.getBlockState(pos.above());
+        return isHexStem(aboveState) || Block.canSupportCenter(level, pos.above(), Direction.DOWN);
+    }
+
+    private static boolean isHexStem(BlockState state) {
+        return BreakBlock.isAttachedStem(state, ModBlocks.MUSAVACCA_EGG.get());
+    }
+
+    private static boolean canGrowIntoEggPair(LevelReader level, BlockPos pos) {
+        BlockState aboveState = level.getBlockState(pos.above());
+        BlockPos belowPos = pos.below();
+
+        return !isHexStem(aboveState)
+                && Block.canSupportCenter(level, pos.above(), Direction.DOWN)
+                && level.getBlockState(belowPos).isAir()
+                && !level.isWaterAt(belowPos);
+    }
+
+    private static Integer getStoredHexColor(Level level, BlockPos pos) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof HexBlockEntity hexBe && hexBe.hasHexColor()) {
+            return hexBe.getHexColor();
+        }
+
+        return null;
+    }
+
+    private void growIntoEggPair(ServerLevel level, BlockPos pos) {
+        Integer savedHex = getStoredHexColor(level, pos);
+        BlockPos belowPos = pos.below();
+
+        level.setBlock(pos, BreakBlock.makeAttachedStem(ModBlocks.MUSAVACCA_EGG.get()), Block.UPDATE_ALL);
+        level.setBlock(belowPos, this.defaultBlockState(), Block.UPDATE_ALL);
+
+        if (savedHex == null) {
+            return;
+        }
+
+        BlockEntity be = level.getBlockEntity(belowPos);
+        if (be instanceof HexBlockEntity hexBe) {
+            hexBe.setHexColor(savedHex);
+        }
+    }
+
     @Override
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
         return true;
@@ -282,6 +327,11 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
         if (state.getValue(CLIPPED)) {
             level.setBlock(pos, state.setValue(CLIPPED, false), Block.UPDATE_ALL);
+            return;
+        }
+
+        if (canGrowIntoEggPair(level, pos)) {
+            this.growIntoEggPair(level, pos);
             return;
         }
 

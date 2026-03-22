@@ -21,6 +21,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -32,10 +33,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 
-public class BreakBlock extends Block {
+public class BreakBlock extends Block implements BonemealableBlock {
 
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 2);
     public static final BooleanProperty ATTACHED = BlockStateProperties.ATTACHED;
+    public static final int MAX_AGE = 2;
 
     private static final VoxelShape SHAPE_STAGE0 = Block.box(5.0, 0.0, 5.0, 11.0, 7.0, 11.0);
     private static final VoxelShape SHAPE_STAGE1 = Block.box(3.0, 0.0, 3.0, 13.0, 11.0, 13.0);
@@ -55,6 +57,28 @@ public class BreakBlock extends Block {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(AGE, ATTACHED);
+    }
+
+    public static boolean isAttachedStem(BlockState state) {
+        return state.getBlock() instanceof BreakBlock
+                && state.hasProperty(AGE)
+                && state.hasProperty(ATTACHED)
+                && state.getValue(AGE) == 0
+                && state.getValue(ATTACHED);
+    }
+
+    public static boolean isAttachedStem(BlockState state, Block expectedBlock) {
+        return state.is(expectedBlock) && isAttachedStem(state);
+    }
+
+    public static BlockState makeAttachedStem(Block block) {
+        if (!(block instanceof BreakBlock)) {
+            throw new IllegalArgumentException("Block must be a BreakBlock");
+        }
+
+        return block.defaultBlockState()
+                .setValue(AGE, 0)
+                .setValue(ATTACHED, true);
     }
 
     @Nullable
@@ -134,7 +158,7 @@ public class BreakBlock extends Block {
                     .getOrThrow(Enchantments.SILK_TOUCH);
 
             boolean hasSilkTouch = tool.getEnchantmentLevel(silkTouch) > 0;
-            boolean ripe = state.getValue(AGE) == 2;
+            boolean ripe = state.getValue(AGE) == MAX_AGE;
 
             if (!hasSilkTouch && ripe) {
                 serverLevel.getServer().execute(() -> {
@@ -144,6 +168,29 @@ public class BreakBlock extends Block {
         }
 
         return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+        return state.getValue(AGE) < MAX_AGE;
+    }
+
+    @Override
+    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+        return state.getValue(AGE) < MAX_AGE;
+    }
+
+    @Override
+    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+        int age = state.getValue(AGE);
+        if (age < MAX_AGE) {
+            level.setBlock(pos, state.setValue(AGE, age + 1), Block.UPDATE_ALL);
+        }
+    }
+
+    @Override
+    public BonemealableBlock.Type getType() {
+        return BonemealableBlock.Type.GROWER;
     }
 
     private static <T extends Entity> void spawnEntitySafely(ServerLevel level, BlockPos pos, boolean attached, EntityType<T> type) {
