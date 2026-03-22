@@ -149,25 +149,26 @@ public class BreakBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (level instanceof ServerLevel serverLevel) {
-            ItemStack tool = player.getMainHandItem();
+    protected void spawnAfterBreak(BlockState state, ServerLevel level, BlockPos pos, ItemStack stack, boolean dropExperience) {
+        super.spawnAfterBreak(state, level, pos, stack, dropExperience);
 
-            Holder<Enchantment> silkTouch = serverLevel.registryAccess()
-                    .lookupOrThrow(Registries.ENCHANTMENT)
-                    .getOrThrow(Enchantments.SILK_TOUCH);
-
-            boolean hasSilkTouch = tool.getEnchantmentLevel(silkTouch) > 0;
-            boolean ripe = state.getValue(AGE) == MAX_AGE;
-
-            if (!hasSilkTouch && ripe) {
-                serverLevel.getServer().execute(() -> {
-                    spawnEntitySafely(serverLevel, pos, state.getValue(ATTACHED), EntityType.COW);
-                });
-            }
+        if (state.getValue(AGE) != MAX_AGE) {
+            return;
         }
 
-        return super.playerWillDestroy(level, pos, state, player);
+        Holder<Enchantment> silkTouch = level.registryAccess()
+                .lookupOrThrow(Registries.ENCHANTMENT)
+                .getOrThrow(Enchantments.SILK_TOUCH);
+
+        if (stack.getEnchantmentLevel(silkTouch) > 0) {
+            return;
+        }
+
+        boolean attached = state.getValue(ATTACHED);
+
+        level.getServer().execute(() ->
+                spawnEntitySafely(level, pos, attached, EntityType.COW)
+        );
     }
 
     @Override
