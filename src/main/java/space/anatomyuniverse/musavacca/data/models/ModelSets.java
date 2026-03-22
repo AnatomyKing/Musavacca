@@ -5,10 +5,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
-import space.anatomyuniverse.musavacca.data.models.block.BarrelCropOwnTintedFoliage;
-import space.anatomyuniverse.musavacca.data.models.block.BreakBlockOwn;
-import space.anatomyuniverse.musavacca.data.models.block.CubeFireBlock;
-import space.anatomyuniverse.musavacca.data.models.block.CubeOwnTintedHexColor;
+import space.anatomyuniverse.musavacca.data.models.block.*;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 import java.util.Map;
@@ -43,10 +40,21 @@ public final class ModelSets {
         );
     }
 
-    public static Map<Block, CubeOwnTintedHexColor.Entry> cubeOwnTintedHexColorModels() {
+
+    public static Map<Block, CubeOwnTintedHexColorClipped.Entry> cubeOwnTintedHexColorClippedModels() {
         return Map.of(
                 ModBlocks.HEX_BLOCK.get(),
-                CubeOwnTintedHexColor.Entry.dynamic("musavacca:block/lopha_blossom"),
+                CubeOwnTintedHexColorClipped.Entry.dynamic(
+                        "musavacca:block/lopha_blossom",
+                        "musavacca:block/clipped_lopha_blossom"
+                )
+        );
+    }
+
+    public static Map<Block, CubeOwnTintedHexColor.Entry> cubeOwnTintedHexColorModels() {
+        return Map.of(
+//                ModBlocks.HEX_BLOCK.get(),
+//                CubeOwnTintedHexColor.Entry.dynamic("musavacca:block/lopha_blossom"),
 
                 ModBlocks.HARD_HEX_BLOCK.get(),
                 CubeOwnTintedHexColor.Entry.constant(
@@ -139,7 +147,11 @@ public final class ModelSets {
                 ModItems.SMALL_BANANA_PEARL.get(),
                 ModItems.FLINT_AND_PEARL.get(),
                 ModItems.BANANA.get(),
-                ModItems.ITEM_INTERACT.get()
+                ModItems.ITEM_INTERACT.get(),
+                ModBlocks.UNRIPE_MUSAVACCA_EGG.get(),
+                ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
+                ModBlocks.RIPE_MUSAVACCA_EGG.get(),
+
         };
     }
 

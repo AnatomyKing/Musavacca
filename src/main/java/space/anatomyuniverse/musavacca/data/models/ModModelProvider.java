@@ -83,6 +83,7 @@ public final class ModModelProvider extends ModelProvider {
 
         // Existing custom hex block models with tinted block-items / client items
         CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());
+        CubeOwnTintedHexColorClipped.generate(blocks, items, ModelSets.cubeOwnTintedHexColorClippedModels());
 
         // -------------------------
         // Item section
@@ -101,6 +102,8 @@ public final class ModModelProvider extends ModelProvider {
 
         // Existing custom block model ids
         CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
+
+
         CubeFireBlock.generate(blocks, ModelSets.cubeFireBlockModels());
 
         BananaPearlChaliceOwn.generate(blocks, ModelSets.bananaPearlChaliceBlocks());

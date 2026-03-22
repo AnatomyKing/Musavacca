@@ -1,13 +1,24 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/HexBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+//? if <1.21.2 {
+/*import net.minecraft.world.ItemInteractionResult;
+ *///?}
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -18,6 +29,9 @@ import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
@@ -28,11 +42,16 @@ import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
 public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     public static final MapCodec<HexBlock> CODEC = simpleCodec(HexBlock::new);
+    public static final BooleanProperty CLIPPED = BooleanProperty.create("clipped");
+
     private static final VoxelShape SHAPE = Block.column(9.0, 8.0, 16.0);
 
     private static final int ADD_PARTICLE_ATTEMPTS = 14;
     private static final int PARTICLE_XZ_RADIUS = 10;
     private static final int PARTICLE_Y_MAX = 10;
+
+    private static final int FALLING_PARTICLE_CHANCE = 4;
+    private static final int FALLING_PARTICLE_COLOR = 0xFFFFFF;
 
     @Override
     public MapCodec<HexBlock> codec() {
@@ -41,6 +60,10 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
     public HexBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState(
+                this.stateDefinition.any()
+                        .setValue(CLIPPED, false)
+        );
     }
 
     @Override
@@ -73,6 +96,29 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(CLIPPED);
+    }
+
+    //? if <1.21.2 {
+    /*private static ItemInteractionResult passToDefault() {
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    private static ItemInteractionResult successResult() {
+        return ItemInteractionResult.SUCCESS;
+    }
+    *///?} else {
+    private static InteractionResult passToDefault() {
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
+    }
+
+    private static InteractionResult successResult() {
+        return InteractionResult.SUCCESS;
+    }
+    //?}
 
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
@@ -112,22 +158,84 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     }
 
     @Override
+            //? if <1.21.2 {
+    /*protected ItemInteractionResult useItemOn(
+     *///?} else {
+    protected InteractionResult useItemOn(
+            //?}
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BlockHitResult hit
+    ) {
+        if (!stack.is(Items.SHEARS)) {
+            return passToDefault();
+        }
+
+        if (state.getValue(CLIPPED)) {
+            return passToDefault();
+        }
+
+        if (!level.isClientSide()) {
+            level.setBlock(pos, state.setValue(CLIPPED, true), Block.UPDATE_ALL);
+
+            stack.hurtAndBreak(
+                    1,
+                    player,
+                    hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND
+            );
+
+            level.playSound(
+                    null,
+                    pos,
+                    SoundEvents.SHEEP_SHEAR,
+                    SoundSource.BLOCKS,
+                    1.0F,
+                    1.0F
+            );
+
+            level.playSound(
+                    null,
+                    pos,
+                    SoundEvents.AMETHYST_CLUSTER_BREAK,
+                    SoundSource.BLOCKS,
+                    1.0F,
+                    1.0F
+            );
+        }
+
+        return successResult();
+    }
+
+    @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        if (state.getValue(CLIPPED)) {
+            return;
+        }
+
         int i = pos.getX();
         int j = pos.getY();
         int k = pos.getZ();
 
         int rgb = getParticleRgb(level, pos);
 
-        double d0 = (double) i + random.nextDouble();
-        double d1 = (double) j + 0.7;
-        double d2 = (double) k + random.nextDouble();
+        if (random.nextInt(FALLING_PARTICLE_CHANCE) == 0) {
+            double d0 = (double) i + 0.35 + random.nextDouble() * 0.30;
+            double d1 = (double) j + 0.72;
+            double d2 = (double) k + 0.35 + random.nextDouble() * 0.30;
 
-        level.addParticle(
-                new HexColorParticleOptions(ModParticleTypes.HEX_FALLING_SPORE_BLOSSOM.get(), rgb),
-                d0, d1, d2,
-                0.0, 0.0, 0.0
-        );
+            level.addParticle(
+                    new HexColorParticleOptions(
+                            ModParticleTypes.HEX_FALLING_SPORE_BLOSSOM.get(),
+                            FALLING_PARTICLE_COLOR
+                    ),
+                    d0, d1, d2,
+                    0.0, 0.0, 0.0
+            );
+        }
 
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
@@ -172,6 +280,11 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
     @Override
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+        if (state.getValue(CLIPPED)) {
+            level.setBlock(pos, state.setValue(CLIPPED, false), Block.UPDATE_ALL);
+            return;
+        }
+
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HexBlockEntity hexBe) {
             hexBe.setHexColor(random.nextInt(0x1000000));

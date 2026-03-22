@@ -34,39 +34,33 @@ public final class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         final String modid = MusaCore.MOD_ID;
+        final java.util.Set<String> generatedKeys = new java.util.HashSet<>();
 
-        // 1) Blocks -> block.anynology.<id> = Human Name (skip if overridden)
         for (Block b : BuiltInRegistries.BLOCK) {
             ResourceLocation id = BuiltInRegistries.BLOCK.getKey(b);
             if (id == null || !modid.equals(id.getNamespace())) continue;
 
-            String path = id.getPath();
-            String key = "block." + modid + "." + path;
+            String key = b.getDescriptionId();
+            if (OVERRIDES.containsKey(key) || !generatedKeys.add(key)) continue;
 
-            if (OVERRIDES.containsKey(key)) continue; // avoid duplicates; overrides win
-            add(key, humanize(path));
+            add(key, humanize(id.getPath()));
         }
 
-        // 2) Items (non-BlockItems) -> item.anynology.<id> = Human Name (skip if overridden)
         for (Item it : BuiltInRegistries.ITEM) {
             ResourceLocation id = BuiltInRegistries.ITEM.getKey(it);
             if (id == null || !modid.equals(id.getNamespace())) continue;
-            if (it instanceof BlockItem) continue;
 
-            String path = id.getPath();
-            String key = "item." + modid + "." + path;
+            String key = it.getDescriptionId();
+            if (OVERRIDES.containsKey(key) || !generatedKeys.add(key)) continue;
 
-            if (OVERRIDES.containsKey(key)) continue; // avoid duplicates; overrides win
-            add(key, humanize(path));
+            add(key, humanize(id.getPath()));
         }
 
-        // 3) Creative tab name: only add a default if NOT overridden
         String tabKey = "itemGroup." + modid + ".musavacca_tab";
         if (!OVERRIDES.containsKey(tabKey)) {
             add(tabKey, "Musavacca");
         }
 
-        // 4) Apply overrides last (safe: we skipped any auto-generated keys that collide)
         OVERRIDES.forEach(this::add);
     }
 

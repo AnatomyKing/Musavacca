@@ -1,22 +1,25 @@
-
 package space.anatomyuniverse.musavacca.data.loot;
 
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 //? if <1.21.9 {
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
- //?} else {
+//?} else {
 /*import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 *///?}
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
@@ -39,10 +42,10 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.MUSAVACCA_PLANKS.get(),
                 ModBlocks.MUSAVACCA_LEAVES.get(),
-                ModBlocks.MUSAVACCA_EGG.get(),
                 ModBlocks.HARD_HEX_BLOCK.get()
         );
 
+        silkTouchMusavaccaEggByAge(ModBlocks.MUSAVACCA_EGG.get());
         silkTouchHexBlockWithAssignedHexColor(ModBlocks.HEX_BLOCK.get(), 0xFFFFFF);
 
         this.add(
@@ -62,6 +65,35 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         }
     }
 
+    private void silkTouchMusavaccaEggByAge(Block block) {
+        this.add(
+                block,
+                LootTable.lootTable()
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .add(eggDropEntry(block, 0, ModBlocks.UNRIPE_MUSAVACCA_EGG.get()))
+                                        .add(eggDropEntry(block, 1, ModBlocks.RIPENING_MUSAVACCA_EGG.get()))
+                                        .add(eggDropEntry(block, 2, ModBlocks.RIPE_MUSAVACCA_EGG.get()))
+                        )
+        );
+    }
+
+    private LootItem.Builder<?> eggDropEntry(Block block, int age, Item item) {
+        return this.applyExplosionCondition(
+                block,
+                LootItem.lootTableItem(item)
+                        .when(this.hasSilkTouch())
+                        .when(
+                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                        .setProperties(
+                                                StatePropertiesPredicate.Builder.properties()
+                                                        .hasProperty(BreakBlock.AGE, age)
+                                        )
+                        )
+        );
+    }
+
     private void silkTouchHexBlockWithAssignedHexColor(Block block, int assignedHexColor) {
         this.add(
                 block,
@@ -76,10 +108,10 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                                 .when(this.hasSilkTouch())
                                                                 .apply(
                                                                         //? if <1.21.9 {
-                                                                    CopyComponentsFunction
-                                                                            .copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                                                                            .include(ModDataComponents.HEX_COLOR.get())
-                                                                    //?} else {
+                                                                        CopyComponentsFunction
+                                                                                .copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                                                .include(ModDataComponents.HEX_COLOR.get())
+                                                                        //?} else {
                                                                         /*CopyComponentsFunction
                                                                                 .copyComponentsFromBlockEntity(
                                                                                         LootContext.BlockEntityTarget.BLOCK_ENTITY.getParam()

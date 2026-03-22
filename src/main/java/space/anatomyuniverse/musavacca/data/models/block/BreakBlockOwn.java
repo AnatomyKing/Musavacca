@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +33,9 @@ public final class BreakBlockOwn {
      * age0 / age1 / age2           -> ATTACHED = false
      * attachedAge0/1/2             -> ATTACHED = true
      *
-     * Item model defaults to age0 (unattached), same style as your other helpers.
+     * No item model is generated here.
+     * This is intentional so blocks with multiple custom BlockItems
+     * (like unripe/ripening/ripe variants) do not collide in item datagen.
      */
     public record AgeModels(
             String age0,
@@ -53,10 +54,6 @@ public final class BreakBlockOwn {
                         default -> throw new IllegalArgumentException("Unsupported age: " + age);
                     }
             );
-        }
-
-        public ResourceLocation itemModel() {
-            return ResourceLocation.parse(age0);
         }
     }
 
@@ -80,10 +77,7 @@ public final class BreakBlockOwn {
                         .build();
             });
 
-            gen.simpleBlockItem(
-                    block,
-                    gen.models().getExistingFile(ageModels.itemModel())
-            );
+            // Intentionally no simpleBlockItem(...) here.
         });
     }
     *///?} else {
@@ -127,7 +121,7 @@ public final class BreakBlockOwn {
             gen.blockStateOutput.accept(multi);
             //?}
 
-            gen.registerSimpleItemModel(block, ageModels.itemModel());
+            // Intentionally no registerSimpleItemModel(...) here.
         });
     }
 

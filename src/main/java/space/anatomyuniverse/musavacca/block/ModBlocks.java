@@ -1,7 +1,10 @@
 package space.anatomyuniverse.musavacca.block;
 
 
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -45,8 +48,31 @@ public final class ModBlocks {
                             .strength(0.1F, 6.0F)
                             .sound(SoundType.HONEY_BLOCK)
                             .noOcclusion()
-                            .requiresCorrectToolForDrops()
                             .pushReaction(PushReaction.NORMAL)));
+
+    private static DeferredItem<BlockItem> MusavaccaEggItems(String name, int age) {
+        return ITEMS.registerItem(
+                name,
+                props -> new BlockItem(
+                        MUSAVACCA_EGG.get(),
+                        props.useBlockDescriptionPrefix()
+                                .component(
+                                        DataComponents.BLOCK_STATE,
+                                        BlockItemStateProperties.EMPTY.with(BreakBlock.AGE, age)
+                                )
+                )
+        );
+    }
+    public static final DeferredItem<BlockItem> UNRIPE_MUSAVACCA_EGG =
+            MusavaccaEggItems("unripe_musavacca_egg", 0);
+
+    public static final DeferredItem<BlockItem> RIPENING_MUSAVACCA_EGG =
+            MusavaccaEggItems("ripening_musavacca_egg", 1);
+
+    public static final DeferredItem<BlockItem> RIPE_MUSAVACCA_EGG =
+            MusavaccaEggItems("ripe_musavacca_egg", 2);
+
+
 
     public static final DeferredBlock<Block> BANANA_PEARL_CHAPITER =
             BLOCKS.registerBlock("banana_pearl_chapiter",
@@ -218,7 +244,8 @@ public final class ModBlocks {
 
     private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
 //            HEX_BLOCK
-            PEARL_FIRE
+            PEARL_FIRE,
+            MUSAVACCA_EGG
     );
 
     static {
