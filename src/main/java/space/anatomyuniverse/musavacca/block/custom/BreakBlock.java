@@ -58,14 +58,22 @@ public class BreakBlock extends Block implements BonemealableBlock {
         super.createBlockStateDefinition(builder);
         builder.add(AGE, ATTACHED);
     }
-
+    // BLOCK EGG CHAIN ALTOGETHER
     public static boolean isAttachedStem(BlockState state) {
         return state.getBlock() instanceof BreakBlock
-                && state.hasProperty(AGE)
                 && state.hasProperty(ATTACHED)
-                && state.getValue(AGE) == 0
                 && state.getValue(ATTACHED);
     }
+    // ALLOW EGG CHAIN AT STAGE 2
+//    public static boolean isAttachedStem(BlockState state) {
+//        return state.getBlock() instanceof BreakBlock
+//                && state.hasProperty(AGE)
+//                && state.hasProperty(ATTACHED)
+//                && state.getValue(ATTACHED)
+//                && state.getValue(AGE) < MAX_AGE;
+//    }
+
+
 
     public static boolean isAttachedStem(BlockState state, Block expectedBlock) {
         return state.is(expectedBlock) && isAttachedStem(state);
