@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import space.anatomyuniverse.musavacca.block.ModBlocks;
 
 import javax.annotation.Nullable;
 
@@ -127,7 +128,15 @@ public class BreakBlock extends Block implements BonemealableBlock {
             BlockState neighborState,
             RandomSource random
     ) {
-        return getConnectedDirection(state).getOpposite() == direction && !state.canSurvive(level, pos)
+        boolean supportBroken =
+                getConnectedDirection(state).getOpposite() == direction && !state.canSurvive(level, pos);
+
+        boolean hexBelowBroken =
+                state.getValue(ATTACHED)
+                        && direction == Direction.DOWN
+                        && !(neighborState.getBlock() instanceof HexBlock);
+
+        return supportBroken || hexBelowBroken
                 ? Blocks.AIR.defaultBlockState()
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
@@ -179,18 +188,27 @@ public class BreakBlock extends Block implements BonemealableBlock {
         );
     }
 
+    private static boolean canBeBonemealed(LevelReader level, BlockPos pos) {
+        return level.getBlockState(pos.below()).getBlock() instanceof HexBlock
+                && level.getBlockState(pos.above()).is(ModBlocks.MUSAVACCA_STEM.get());
+    }
+
     @Override
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
-        return state.getValue(AGE) < MAX_AGE;
+        return state.getValue(AGE) < MAX_AGE && canBeBonemealed(level, pos);
     }
 
     @Override
     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
-        return state.getValue(AGE) < MAX_AGE;
+        return state.getValue(AGE) < MAX_AGE && canBeBonemealed(level, pos);
     }
 
     @Override
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+        if (!canBeBonemealed(level, pos)) {
+            return;
+        }
+
         int age = state.getValue(AGE);
         if (age < MAX_AGE) {
             level.setBlock(pos, state.setValue(AGE, age + 1), Block.UPDATE_ALL);
