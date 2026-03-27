@@ -3,18 +3,17 @@ package space.anatomyuniverse.musavacca.data.models;
 import net.minecraft.data.PackOutput;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.data.models.block.*;
-import space.anatomyuniverse.musavacca.data.models.item.FlatItems;
-import space.anatomyuniverse.musavacca.data.models.item.HandheldItems;
+import space.anatomyuniverse.musavacca.data.models.item.*;
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+
 *///?} else {
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
-import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
 //?}
 
 public final class ModModelProvider

@@ -17,6 +17,21 @@ public final class HexFallingSporeBlossomProvider implements ParticleProvider<He
         this.sprites = sprites;
     }
 
+    private static final class HexGlowParticle extends GlowParticle {
+        public HexGlowParticle(
+                ClientLevel level,
+                double x,
+                double y,
+                double z,
+                double xd,
+                double yd,
+                double zd,
+                SpriteSet sprites
+        ) {
+            super(level, x, y, z, xd, yd, zd, sprites);
+        }
+    }
+
     private Particle createInternal(
             HexColorParticleOptions options,
             ClientLevel level,
@@ -24,7 +39,7 @@ public final class HexFallingSporeBlossomProvider implements ParticleProvider<He
             double y,
             double z
     ) {
-        GlowParticle particle = new GlowParticle(
+        GlowParticle particle = new HexGlowParticle(
                 level,
                 x,
                 y,

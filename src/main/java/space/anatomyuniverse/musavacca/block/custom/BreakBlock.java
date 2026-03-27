@@ -171,10 +171,17 @@ public class BreakBlock extends Block implements BonemealableBlock {
         return shapeFor(state);
     }
 
-    @Override
-    protected VoxelShape getOcclusionShape(BlockState state) {
+    //? if <1.21.2 {
+    /*@Override
+    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
         return Shapes.empty();
     }
+*///?} else {
+@Override
+protected VoxelShape getOcclusionShape(BlockState state) {
+    return Shapes.empty();
+}
+//?}
 
     @Override
     protected void spawnAfterBreak(BlockState state, ServerLevel level, BlockPos pos, ItemStack stack, boolean dropExperience) {

@@ -125,17 +125,17 @@ public class BananaPearlChaliceBlock extends Block {
         };
     }
 
-    //? if <1.21.4 {
+    //? if <1.21.2 {
     /*@Override
     protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
         return Shapes.empty();
     }
-    *///?} else {
-    @Override
-    protected VoxelShape getOcclusionShape(BlockState state) {
-        return Shapes.empty();
-    }
-    //?}
+*///?} else {
+@Override
+protected VoxelShape getOcclusionShape(BlockState state) {
+    return Shapes.empty();
+}
+//?}
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

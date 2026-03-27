@@ -31,11 +31,14 @@ public class HexSporeBlossomAirParticle extends SuspendedParticle {
             double z,
             HexColorParticleOptions options
     ) {
-        //? if <1.21.9 {
+        //? if <1.21.4 {
+        /*super(level, sprites, x, y, z);
+        this.setParticleSpeed(0.0, -0.8, 0.0);
+        *///?} else if <1.21.9 {
         super(level, sprites, x, y, z, 0.0, -0.8, 0.0);
         //?} else {
         /*super(level, x, y, z, 0.0, -0.8, 0.0, sprites.first());
-        *///?}
+         *///?}
 
         this.sprites = sprites;
         this.lifetime = Mth.randomBetweenInclusive(level.getRandom(), 500, 1000);

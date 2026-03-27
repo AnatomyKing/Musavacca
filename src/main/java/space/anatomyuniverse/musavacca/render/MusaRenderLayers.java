@@ -103,8 +103,8 @@ public final class MusaRenderLayers {
                 final ModelResourceLocation mrl = BlockModelShaper.stateToModelLocation(state);
                 models.computeIfPresent(mrl, (k, original) -> new ForcePropsBakedModel(original, forcedType, forcedAO));
             }
-        }^/
-        //?} else {
+        }
+        ^///?} else {
         Map<ModelResourceLocation, BakedModel> models = event.getBakingResult().blockStateModels();
         if (models == null || models.isEmpty()) return;
 
@@ -182,7 +182,7 @@ public final class MusaRenderLayers {
             if (forcedAO != TriState.DEFAULT) return forcedAO;
             return super.useAmbientOcclusion(state, data, renderType);
         }
-    }
+    }}
     ^///?} else {
     private static final class ForcePropsBakedModel extends DelegateBakedModel {
         private final RenderType forcedTypeOrNull;
