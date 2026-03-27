@@ -14,6 +14,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
+import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
 //?}
 
 //? if <1.21.4 {
@@ -62,6 +63,7 @@ import net.minecraft.client.data.models.ModelProvider;
     private static void registerItemModels(ItemModelProvider items) {
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());
+        SpawnEggItems.generate(items, ModelSets.spawnEggItems());
     }
 }
 *///?} else {
@@ -113,6 +115,7 @@ public final class ModModelProvider extends ModelProvider {
     private static void registerItemModels(ItemModelGenerators items) {
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());
+        SpawnEggItems.generate(items, ModelSets.spawnEggItems());
     }
 }
 //?}

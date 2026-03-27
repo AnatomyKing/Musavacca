@@ -4,10 +4,12 @@ import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SpawnEggItem;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.item.custom.ItemInteract;
 import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
@@ -26,6 +28,10 @@ public final class ModItems {
                     props -> new SmallBananaPearlItem(
                             props.rarity(Rarity.RARE)
                     ));
+
+    public static final DeferredItem<SpawnEggItem> BANANA_COW_SPAWN_EGG =
+            ITEMS.registerItem("banana_cow_spawn_egg",
+                    props -> new SpawnEggItem(ModEntities.BANANA_COW.get(), props));
 
     public static final DeferredItem<Item> BANANA =
             ITEMS.registerItem("banana",

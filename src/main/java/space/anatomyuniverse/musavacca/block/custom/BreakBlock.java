@@ -31,6 +31,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.entity.ModEntities;
 
 import javax.annotation.Nullable;
 
@@ -184,7 +185,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
         boolean attached = state.getValue(ATTACHED);
 
         level.getServer().execute(() ->
-                spawnEntitySafely(level, pos, attached, EntityType.COW)
+                spawnEntitySafely(level, pos, attached, ModEntities.BANANA_COW.get())
         );
     }
 

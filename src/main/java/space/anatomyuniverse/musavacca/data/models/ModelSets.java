@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.Block;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.data.models.block.*;
+import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 import java.util.Map;
@@ -128,18 +129,30 @@ public final class ModelSets {
         };
     }
 
-    /** Crafter-like cube blocks (6 textures: _bottom/_top/_north/_south/_west/_east). */
+
     public static Block[] cubeCrafterLikeBlocks() {
         return new Block[] {
         };
     }
 
-    /** Back-compat alias so old Musavacca provider files do not instantly break while you switch over. */
+
     public static Block[] CubeCrafterLikeBlocks() {
         return cubeCrafterLikeBlocks();
     }
 
-    /** Non-block items that need item/generated models. */
+
+
+    public static SpawnEggItems.Entry[] spawnEggItems() {
+        return new SpawnEggItems.Entry[] {
+                SpawnEggItems.of(
+                        ModItems.BANANA_COW_SPAWN_EGG.get(),
+                        0xE4C64A,
+                        0x7A4A1F
+                )
+        };
+    }
+
+
     public static ItemLike[] flatItems() {
         return new ItemLike[] {
                 ModItems.BANANA_PEARL.get(),

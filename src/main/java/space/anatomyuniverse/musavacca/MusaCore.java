@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca;
 
 import com.mojang.logging.LogUtils;
@@ -7,12 +8,13 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.slf4j.Logger;
-
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
+import space.anatomyuniverse.musavacca.entity.ModEntities;
+import space.anatomyuniverse.musavacca.entity.ModEntityRenderers;
 import space.anatomyuniverse.musavacca.item.ModCreativeTabs;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.menu.ModMenus;
@@ -44,6 +46,7 @@ public final class MusaCore {
         ModBlockEntities.register(modBus);
         ModMenus.register(modBus);
         ModParticleTypes.register(modBus);
+        ModEntities.register(modBus);
 
         modBus.addListener(this::commonSetup);
         modBus.addListener(ModDataGenerators::gatherData);
@@ -53,6 +56,8 @@ public final class MusaCore {
             ModTints.register(modBus);
             modBus.addListener(MusaRenderLayers::onModifyBakingResult);
             modBus.addListener(ModMenuScreens::register);
+            modBus.addListener(ModEntityRenderers::registerRenderers);
+            modBus.addListener(ModEntityRenderers::registerLayerDefinitions);
             ModParticleProviders.register(modBus);
         }
         //?} else {
@@ -60,6 +65,8 @@ public final class MusaCore {
             ModTints.register(modBus);
             modBus.addListener(MusaRenderLayers::onModifyBakingResult);
             modBus.addListener(ModMenuScreens::register);
+            modBus.addListener(ModEntityRenderers::registerRenderers);
+            modBus.addListener(ModEntityRenderers::registerLayerDefinitions);
             ModParticleProviders.register(modBus);
         }
         *///?}
