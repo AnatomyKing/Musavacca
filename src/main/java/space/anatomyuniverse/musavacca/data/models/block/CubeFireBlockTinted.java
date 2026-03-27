@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/models/block/CubeFireBlockTinted.java
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,10 +35,6 @@ import net.minecraft.client.renderer.block.model.VariantMutator;
 
 public final class CubeFireBlockTinted {
     private CubeFireBlockTinted() {}
-
-    //? if >=1.21.4 {
-    private static final TextureSlot WHITE = TextureSlot.create("white");
-     //?}
 
     public record Entry(
             String modelStem,
@@ -84,23 +81,21 @@ public final class CubeFireBlockTinted {
 
             ResourceLocation tex0 = texture(ns, entry.textureStem(), 0);
             ResourceLocation tex1 = texture(ns, entry.textureStem(), 1);
-            ResourceLocation white0 = whiteTexture(ns, entry.textureStem(), 0);
-            ResourceLocation white1 = whiteTexture(ns, entry.textureStem(), 1);
 
-            ModelFile floor0 = tintedFireModel(gen, entry.modelStem() + "_floor0", entry.floorParent(), tex0, white0);
-            ModelFile floor1 = tintedFireModel(gen, entry.modelStem() + "_floor1", entry.floorParent(), tex1, white1);
+            ModelFile floor0 = fireModel(gen, entry.modelStem() + "_floor0", entry.floorParent(), tex0);
+            ModelFile floor1 = fireModel(gen, entry.modelStem() + "_floor1", entry.floorParent(), tex1);
 
-            ModelFile side0 = tintedFireModel(gen, entry.modelStem() + "_side0", entry.sideParent(), tex0, white0);
-            ModelFile side1 = tintedFireModel(gen, entry.modelStem() + "_side1", entry.sideParent(), tex1, white1);
+            ModelFile side0 = fireModel(gen, entry.modelStem() + "_side0", entry.sideParent(), tex0);
+            ModelFile side1 = fireModel(gen, entry.modelStem() + "_side1", entry.sideParent(), tex1);
 
-            ModelFile sideAlt0 = tintedFireModel(gen, entry.modelStem() + "_side_alt0", entry.sideAltParent(), tex0, white0);
-            ModelFile sideAlt1 = tintedFireModel(gen, entry.modelStem() + "_side_alt1", entry.sideAltParent(), tex1, white1);
+            ModelFile sideAlt0 = fireModel(gen, entry.modelStem() + "_side_alt0", entry.sideAltParent(), tex0);
+            ModelFile sideAlt1 = fireModel(gen, entry.modelStem() + "_side_alt1", entry.sideAltParent(), tex1);
 
-            ModelFile up0 = tintedFireModel(gen, entry.modelStem() + "_up0", entry.upParent(), tex0, white0);
-            ModelFile up1 = tintedFireModel(gen, entry.modelStem() + "_up1", entry.upParent(), tex1, white1);
+            ModelFile up0 = fireModel(gen, entry.modelStem() + "_up0", entry.upParent(), tex0);
+            ModelFile up1 = fireModel(gen, entry.modelStem() + "_up1", entry.upParent(), tex1);
 
-            ModelFile upAlt0 = tintedFireModel(gen, entry.modelStem() + "_up_alt0", entry.upAltParent(), tex0, white0);
-            ModelFile upAlt1 = tintedFireModel(gen, entry.modelStem() + "_up_alt1", entry.upAltParent(), tex1, white1);
+            ModelFile upAlt0 = fireModel(gen, entry.modelStem() + "_up_alt0", entry.upAltParent(), tex0);
+            ModelFile upAlt1 = fireModel(gen, entry.modelStem() + "_up_alt1", entry.upAltParent(), tex1);
 
             MultiPartBlockStateBuilder multipart = gen.getMultipartBuilder(block);
 
@@ -134,25 +129,19 @@ public final class CubeFireBlockTinted {
         });
     }
 
-    private static ModelFile tintedFireModel(
+    private static ModelFile fireModel(
             BlockStateProvider gen,
             String name,
             String parentModelId,
-            ResourceLocation fireTex,
-            ResourceLocation whiteTex
+            ResourceLocation fireTex
     ) {
         return gen.models()
                 .withExistingParent(name, ResourceLocation.parse(parentModelId))
-                .texture("fire", fireTex)
-                .texture("white", whiteTex);
+                .texture("fire", fireTex);
     }
 
     private static ResourceLocation texture(String namespace, String textureStem, int frame) {
         return ResourceLocation.fromNamespaceAndPath(namespace, "block/" + textureStem + "_" + frame);
-    }
-
-    private static ResourceLocation whiteTexture(String namespace, String textureStem, int frame) {
-        return ResourceLocation.fromNamespaceAndPath(namespace, "block/" + textureStem + "_" + frame + "_white");
     }
 
     private static void addWhen(
@@ -371,21 +360,15 @@ public final class CubeFireBlockTinted {
         return new ModelTemplate(
                 Optional.of(ResourceLocation.parse(parentModelId)),
                 Optional.empty(),
-                TextureSlot.FIRE,
-                WHITE
+                TextureSlot.FIRE
         );
     }
 
     private static TextureMapping fireTexture(String namespace, String textureStem, int frame) {
-        return new TextureMapping()
-                .put(
-                        TextureSlot.FIRE,
-                        ResourceLocation.fromNamespaceAndPath(namespace, "block/" + textureStem + "_" + frame)
-                )
-                .put(
-                        WHITE,
-                        ResourceLocation.fromNamespaceAndPath(namespace, "block/" + textureStem + "_" + frame + "_white")
-                );
+        return new TextureMapping().put(
+                TextureSlot.FIRE,
+                ResourceLocation.fromNamespaceAndPath(namespace, "block/" + textureStem + "_" + frame)
+        );
     }
 
     private static ResourceLocation modelId(String namespace, String stem, String suffix) {

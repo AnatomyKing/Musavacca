@@ -18,6 +18,7 @@ import java.util.*;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -93,8 +94,8 @@ public final class MusaRenderLayers {
         for (Block block : touched) {
             final RenderType forcedType =
                     CUTOUT_BLOCKS.contains(block) ? RenderType.cutout() :
-                            TRANSLUCENT_BLOCKS.contains(block) ? RenderType.translucent() :
-                                    null;
+                    TRANSLUCENT_BLOCKS.contains(block) ? RenderType.translucent() :
+                    null;
 
             final TriState forcedAO = NO_AO_BLOCKS.contains(block) ? TriState.FALSE : TriState.DEFAULT;
             if (forcedType == null && forcedAO == TriState.DEFAULT) continue;
@@ -178,6 +179,25 @@ public final class MusaRenderLayers {
         }
 
         @Override
+        public List<net.minecraft.client.renderer.block.model.BakedQuad> getQuads(
+                BlockState state,
+                Direction side,
+                RandomSource rand,
+                ModelData data,
+                RenderType renderType
+        ) {
+            if (forcedTypeOrNull == null) {
+                return super.getQuads(state, side, rand, data, renderType);
+            }
+
+            if (renderType != null && !renderType.equals(forcedTypeOrNull)) {
+                return Collections.emptyList();
+            }
+
+            return super.getQuads(state, side, rand, data, null);
+        }
+
+        @Override
         public TriState useAmbientOcclusion(BlockState state, ModelData data, RenderType renderType) {
             if (forcedAO != TriState.DEFAULT) return forcedAO;
             return super.useAmbientOcclusion(state, data, renderType);
@@ -201,19 +221,38 @@ public final class MusaRenderLayers {
         }
 
         @Override
+        public List<net.minecraft.client.renderer.block.model.BakedQuad> getQuads(
+                BlockState state,
+                Direction side,
+                RandomSource rand,
+                ModelData data,
+                RenderType renderType
+        ) {
+            if (forcedTypeOrNull == null) {
+                return super.getQuads(state, side, rand, data, renderType);
+            }
+
+            if (renderType != null && !renderType.equals(forcedTypeOrNull)) {
+                return Collections.emptyList();
+            }
+
+            return super.getQuads(state, side, rand, data, null);
+        }
+
+        @Override
         public TriState useAmbientOcclusion(BlockState state, ModelData data, RenderType renderType) {
             if (forcedAO != TriState.DEFAULT) return forcedAO;
             return super.useAmbientOcclusion(state, data, renderType);
         }
-    }
-        //?}
+    }}
+//?}
 
-        *///?} <1.21.5
+*///?} <1.21.5
 
 // =========================================================================
 // 1.21.5+ : BlockStateModel pipeline
 // =========================================================================
-        //? if >=1.21.5 {
+//? if >=1.21.5 {
 
     private static void onModifyBakingResultNewPipeline(ModelEvent.ModifyBakingResult event) {
         Map<BlockState, BlockStateModel> models = event.getBakingResult().blockStateModels();

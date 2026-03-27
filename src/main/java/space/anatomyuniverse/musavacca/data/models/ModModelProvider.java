@@ -9,7 +9,6 @@ import space.anatomyuniverse.musavacca.data.models.item.*;
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-
 *///?} else {
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -19,7 +18,7 @@ import net.minecraft.client.data.models.ModelProvider;
 public final class ModModelProvider
         //? if <1.21.4 {
         /*extends BlockStateProvider
-        *///?} else {
+         *///?} else {
         extends ModelProvider
         //?}
 {
@@ -47,13 +46,10 @@ public final class ModModelProvider
     private static void registerAll(
             //? if <1.21.4 {
             /*BlockStateProvider blocks, ItemModelProvider items
-            *///?} else {
+             *///?} else {
             BlockModelGenerators blocks, ItemModelGenerators items
             //?}
     ) {
-        // -------------------------
-        // Standard block helpers
-        // -------------------------
         CubeAll.generate(blocks, ModelSets.cubeAllBlocks());
         Chapiter.generate(blocks, ModelSets.chapiterBlocks());
         Log.generate(blocks, ModelSets.logBlocks());
@@ -62,20 +58,14 @@ public final class ModModelProvider
 
         SmallBananaPearlOwn.generate(blocks, ModelSets.smallBananaPearlBlocks());
         CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
-        CubeFireBlock.generate(blocks, ModelSets.cubeFireBlockModels());
+        CubeFireBlockTinted.generate(blocks, ModelSets.cubeFireBlockTintedModels());
         BananaPearlChaliceOwn.generate(blocks, ModelSets.bananaPearlChaliceBlocks());
         BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());
 
-        // -------------------------
-        // Special tinted/custom block item handling
-        // -------------------------
         BarrelCropOwnTintedFoliage.generate(blocks, items, ModelSets.barrelCropOwnTintedFoliageModels());
         CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());
         CubeOwnTintedHexColorClipped.generate(blocks, items, ModelSets.cubeOwnTintedHexColorClippedModels());
 
-        // -------------------------
-        // Item helpers
-        // -------------------------
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());
         SpawnEggItems.generate(items, ModelSets.spawnEggItems());

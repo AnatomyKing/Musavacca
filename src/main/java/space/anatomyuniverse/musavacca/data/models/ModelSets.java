@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.data.models;
 
 import net.minecraft.world.level.ItemLike;
@@ -41,7 +40,6 @@ public final class ModelSets {
         );
     }
 
-
     public static Map<Block, CubeOwnTintedHexColorClipped.Entry> cubeOwnTintedHexColorClippedModels() {
         return Map.of(
                 ModBlocks.HEX_BLOCK.get(),
@@ -54,9 +52,6 @@ public final class ModelSets {
 
     public static Map<Block, CubeOwnTintedHexColor.Entry> cubeOwnTintedHexColorModels() {
         return Map.of(
-//                ModBlocks.HEX_BLOCK.get(),
-//                CubeOwnTintedHexColor.Entry.dynamic("musavacca:block/lopha_blossom"),
-
                 ModBlocks.HARD_HEX_BLOCK.get(),
                 CubeOwnTintedHexColor.Entry.constant(
                         "musavacca:block/hex_block",
@@ -88,10 +83,10 @@ public final class ModelSets {
         );
     }
 
-    public static Map<Block, CubeFireBlock.Entry> cubeFireBlockModels() {
+    public static Map<Block, CubeFireBlockTinted.Entry> cubeFireBlockTintedModels() {
         return Map.of(
                 ModBlocks.PEARL_FIRE.get(),
-                CubeFireBlock.Entry.auto(
+                CubeFireBlockTinted.Entry.auto(
                         "pearl_fire",
                         "musavacca:block/custom_parent/tinted_template_fire_up",
                         "musavacca:block/custom_parent/tinted_template_fire_side",
@@ -101,14 +96,6 @@ public final class ModelSets {
                 )
         );
     }
-
-    /*
-    public static Map<Block, String> cubeOwnTintedFoliageModels() {
-        return Map.of(
-                // ModBlocks.SOME_LEAVES.get(), "musavacca:block/some_leaves"
-        );
-    }
-    */
 
     public static Block[] chapiterBlocks() {
         return new Block[] {
@@ -129,18 +116,14 @@ public final class ModelSets {
         };
     }
 
-
     public static Block[] cubeCrafterLikeBlocks() {
         return new Block[] {
         };
     }
 
-
     public static Block[] CubeCrafterLikeBlocks() {
         return cubeCrafterLikeBlocks();
     }
-
-
 
     public static SpawnEggItems.Entry[] spawnEggItems() {
         return new SpawnEggItems.Entry[] {
@@ -151,7 +134,6 @@ public final class ModelSets {
                 )
         };
     }
-
 
     public static ItemLike[] flatItems() {
         return new ItemLike[] {
@@ -164,11 +146,9 @@ public final class ModelSets {
                 ModBlocks.UNRIPE_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPE_MUSAVACCA_EGG.get(),
-
         };
     }
 
-    /** Non-block items that need item/handheld models. */
     public static ItemLike[] handheldItems() {
         return new ItemLike[] {
         };
