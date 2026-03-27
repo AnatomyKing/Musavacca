@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -195,22 +194,8 @@ public final class CubeFireBlockTinted {
             ModelFile model,
             int yRot
     ) {
-        var part = multipart.part().modelFile(model);
-        if (yRot != 0) {
-            part = part.rotationY(yRot);
-        }
-
-        part.addModel()
-                .condition(property, true)
-                .useOr()
-                .nestedGroup()
-                .condition(FireBlock.EAST, false)
-                .condition(FireBlock.NORTH, false)
-                .condition(FireBlock.SOUTH, false)
-                .condition(FireBlock.UP, false)
-                .condition(FireBlock.WEST, false)
-                .endNestedGroup()
-                .end();
+        addWhen(multipart, property, model, yRot);
+        addNoFaces(multipart, model, yRot);
     }
     *///?} else {
     public static void generate(BlockModelGenerators gen, Map<Block, Entry> entries) {

@@ -72,7 +72,7 @@ public final class BananaPearlChaliceOwn {
                     case TILT -> tiltModel(block, facing);
                 };
 
-                ModelFile model = gen.models().getExistingFile(modelId);
+                ModelFile model = new ModelFile.UncheckedModelFile(modelId);
 
                 return ConfiguredModel.builder()
                         .modelFile(model)
@@ -81,7 +81,7 @@ public final class BananaPearlChaliceOwn {
 
             gen.simpleBlockItem(
                     block,
-                    gen.models().getExistingFile(itemModel(block))
+                    new ModelFile.UncheckedModelFile(itemModel(block))
             );
         }
     }
