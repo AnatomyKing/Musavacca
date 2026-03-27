@@ -44,7 +44,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     public static final MapCodec<HexBlock> CODEC = simpleCodec(HexBlock::new);
     public static final BooleanProperty CLIPPED = BooleanProperty.create("clipped");
 
-    private static final VoxelShape SHAPE = Block.column(9.0, 8.0, 16.0);
+    private static final VoxelShape SHAPE = Block.box(3.5, 8.0, 3.5, 12.5, 16.0, 12.5);
 
     private static final int ADD_PARTICLE_ATTEMPTS = 14;
     private static final int PARTICLE_XZ_RADIUS = 10;

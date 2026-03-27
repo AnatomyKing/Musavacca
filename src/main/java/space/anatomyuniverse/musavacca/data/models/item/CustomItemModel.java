@@ -3,6 +3,7 @@ package space.anatomyuniverse.musavacca.data.models.item;
 
 //? if <1.21.4 {
 /*import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 *///?}

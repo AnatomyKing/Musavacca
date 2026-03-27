@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.core.Direction;
@@ -78,11 +77,10 @@ public final class SmallBananaPearlOwn {
             if (!(block instanceof SmallBananaPearlBlock)) continue;
 
             //? if <1.21.5 {
-            /*PropertyDispatch<Variant> dispatch =
-                    PropertyDispatch.properties(
-                            SmallBananaPearlBlock.SMALL_PEARL_AMOUNT,
-                            SmallBananaPearlBlock.FACING
-                    );
+            /*var dispatch = PropertyDispatch.properties(
+                    SmallBananaPearlBlock.SMALL_PEARL_AMOUNT,
+                    SmallBananaPearlBlock.FACING
+            );
 
             for (int amount = 1; amount <= SmallBananaPearlBlock.MAX_SMALL_PEARL_AMOUNT; amount++) {
                 ResourceLocation model = modelForAmount(block, amount);
@@ -177,7 +175,6 @@ public final class SmallBananaPearlOwn {
             return ResourceLocation.fromNamespaceAndPath(ns, "block/small_banana_pearl_block");
         }
 
-        // Ground pearls: 1..15
         if (amount <= 15) {
             return ResourceLocation.fromNamespaceAndPath(
                     ns,
@@ -185,7 +182,6 @@ public final class SmallBananaPearlOwn {
             );
         }
 
-        // Height 3
         if (amount == 16) {
             return ResourceLocation.fromNamespaceAndPath(
                     ns,
@@ -199,7 +195,6 @@ public final class SmallBananaPearlOwn {
             );
         }
 
-        // Height 6
         if (amount == 32) {
             return ResourceLocation.fromNamespaceAndPath(
                     ns,
@@ -213,7 +208,6 @@ public final class SmallBananaPearlOwn {
             );
         }
 
-        // Height 9
         if (amount == 48) {
             return ResourceLocation.fromNamespaceAndPath(
                     ns,
@@ -227,7 +221,6 @@ public final class SmallBananaPearlOwn {
             );
         }
 
-        // Height 12
         if (amount == 64) {
             return ResourceLocation.fromNamespaceAndPath(
                     ns,

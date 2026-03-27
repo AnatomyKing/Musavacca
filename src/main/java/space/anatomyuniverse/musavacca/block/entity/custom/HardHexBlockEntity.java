@@ -3,7 +3,9 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+//? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
+ //?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -13,8 +15,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+//? if <1.21.6 {
+//?} else {
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+//?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
@@ -46,6 +51,14 @@ public class HardHexBlockEntity extends BlockEntity {
         }
     }
 
+    private static int readIntOr(CompoundTag tag, String key, int fallback) {
+        //? if <1.21.5 {
+        /*return tag.contains(key) ? tag.getInt(key) : fallback;
+        *///?} else {
+        return tag.getIntOr(key, fallback);
+        //?}
+    }
+
     private void syncToClientAndRerender() {
         Level level = this.getLevel();
         if (level == null) {
@@ -63,11 +76,25 @@ public class HardHexBlockEntity extends BlockEntity {
         );
     }
 
+    //? if <1.21.6 {
+    /*@Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+
+        readIntOr(tag, TAG_HEX_COLOR, HARD_HEX_COLOR);
+        this.hexColor = HARD_HEX_COLOR;
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putInt(TAG_HEX_COLOR, HARD_HEX_COLOR);
+    }
+    *///?} else {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
-        // Even if loaded from disk, this block always resolves to the hardcoded color.
         input.getIntOr(TAG_HEX_COLOR, HARD_HEX_COLOR);
         this.hexColor = HARD_HEX_COLOR;
     }
@@ -77,16 +104,25 @@ public class HardHexBlockEntity extends BlockEntity {
         super.saveAdditional(output);
         output.putInt(TAG_HEX_COLOR, HARD_HEX_COLOR);
     }
+    //?}
 
+    //? if <1.21.5 {
+    /*@Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
+        super.applyImplicitComponents(input);
+
+        input.get(ModDataComponents.HEX_COLOR.get());
+        this.hexColor = HARD_HEX_COLOR;
+    }
+    *///?} else {
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
 
-        // We still read the component path so the BE -> item -> BE flow stays the same,
-        // but this block always resolves to the same fixed color.
         input.get(ModDataComponents.HEX_COLOR.get());
         this.hexColor = HARD_HEX_COLOR;
     }
+    //?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {

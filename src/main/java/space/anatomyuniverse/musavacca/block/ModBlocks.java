@@ -131,7 +131,11 @@ public final class ModBlocks {
                     props -> new PearlFireBlock(props
                             .mapColor(MapColor.FIRE)
                             .replaceable()
+                            //? if <1.21.10 {
                             .noCollission()
+                            //?} else {
+                            /*.noCollision()
+                            *///?}
                             .instabreak()
                             .lightLevel(state -> 15)
                             .sound(SoundType.WOOL)

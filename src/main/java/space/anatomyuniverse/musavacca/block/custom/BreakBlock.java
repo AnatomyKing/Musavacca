@@ -66,6 +66,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
                 && state.hasProperty(ATTACHED)
                 && state.getValue(ATTACHED);
     }
+
     // ALLOW EGG CHAIN AT STAGE 2
 //    public static boolean isAttachedStem(BlockState state) {
 //        return state.getBlock() instanceof BreakBlock
@@ -74,8 +75,6 @@ public class BreakBlock extends Block implements BonemealableBlock {
 //                && state.getValue(ATTACHED)
 //                && state.getValue(AGE) < MAX_AGE;
 //    }
-
-
 
     public static boolean isAttachedStem(BlockState state, Block expectedBlock) {
         return state.is(expectedBlock) && isAttachedStem(state);
@@ -108,10 +107,20 @@ public class BreakBlock extends Block implements BonemealableBlock {
         return null;
     }
 
+    private static boolean canSupportBreakBlock(LevelReader level, BlockPos supportPos, Direction supportFace) {
+        BlockState supportState = level.getBlockState(supportPos);
+
+        return supportState.getBlock() instanceof BreakBlock
+                || Block.canSupportCenter(level, supportPos, supportFace);
+    }
+
     @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         Direction direction = getConnectedDirection(state).getOpposite();
-        return Block.canSupportCenter(level, pos.relative(direction), direction.getOpposite());
+        BlockPos supportPos = pos.relative(direction);
+        Direction supportFace = direction.getOpposite();
+
+        return canSupportBreakBlock(level, supportPos, supportFace);
     }
 
     protected static Direction getConnectedDirection(BlockState state) {
@@ -135,7 +144,8 @@ public class BreakBlock extends Block implements BonemealableBlock {
         boolean hexBelowBroken =
                 state.getValue(ATTACHED)
                         && direction == Direction.DOWN
-                        && !(neighborState.getBlock() instanceof HexBlock);
+                        && !(neighborState.getBlock() instanceof HexBlock)
+                        && !(neighborState.getBlock() instanceof BreakBlock);
 
         return supportBroken || hexBelowBroken
                 ? Blocks.AIR.defaultBlockState()
@@ -248,7 +258,12 @@ public class BreakBlock extends Block implements BonemealableBlock {
     }
 
     private static boolean trySpawn(ServerLevel level, Entity entity, double x, double y, double z, float yaw) {
+        //? if <1.21.5 {
+        /*entity.moveTo(x, y, z, yaw, 0.0F);
+        *///?} else {
         entity.snapTo(x, y, z, yaw, 0.0F);
+        //?}
+
         if (!level.noCollision(entity)) return false;
 
         level.addFreshEntity(entity);

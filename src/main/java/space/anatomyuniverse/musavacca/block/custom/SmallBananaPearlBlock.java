@@ -31,7 +31,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.particle.ModParticles;
+
 import net.neoforged.neoforge.common.extensions.IBlockExtension;
 
 public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtension {
@@ -181,22 +181,6 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
         level.setBlock(pos, fluid.createLegacyBlock(), 3);
         return true;
     }
-
-//    @Override
-//    public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-//        super.stepOn(level, pos, state, entity);
-//
-//        if (!(level instanceof ServerLevel server) || !(entity instanceof LivingEntity living)) return;
-//        if (!living.isSprinting() || !entity.onGround() || server.random.nextInt(4) != 0) return;
-//
-//        server.sendParticles(
-//                ModParticles.SMALL_PEARL.get(),
-//                pos.getX() + 0.5, pos.getY() + 0.2, pos.getZ() + 0.5,
-//                2,
-//                0.25, 0.05, 0.25,
-//                0.06
-//        );
-//    }
 
 
     private static VoxelShape shapeForAmount(int amount) {

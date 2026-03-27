@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.core.Direction;
@@ -13,6 +12,7 @@ import java.util.Map;
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 *///?} else {
 import net.minecraft.client.color.item.Constant;
@@ -21,12 +21,13 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
 
 //? if <1.21.5 {
-/*import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+/*import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.blockstates.Variant;
 import net.minecraft.client.data.models.blockstates.VariantProperties;
 *///?} else {
-import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import com.mojang.math.Quadrant;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.client.renderer.block.model.VariantMutator;
 //?}
@@ -35,13 +36,6 @@ import net.minecraft.client.renderer.block.model.VariantMutator;
 public final class BarrelCropOwnTintedFoliage {
     private BarrelCropOwnTintedFoliage() {}
 
-    /**
-     * age0 = first stage model
-     * age1 = second stage model
-     * age2 = third stage model
-     *
-     * The block item model uses age0 by default.
-     */
     public record AgeModels(String age0, String age1, String age2) {
         public String forAge(int age) {
             return switch (age) {
@@ -57,18 +51,25 @@ public final class BarrelCropOwnTintedFoliage {
         }
     }
 
-    //? if <1.21.4 {
-    /*public static void generate(BlockStateProvider gen, Map<Block, AgeModels> models) {
+    public static void generate(
+            //? if <1.21.4 {
+            /*BlockStateProvider blocks, ItemModelProvider items,
+            *///?} else {
+            BlockModelGenerators blocks, ItemModelGenerators items,
+            //?}
+            Map<Block, AgeModels> models
+    ) {
         if (models == null || models.isEmpty()) return;
 
-        models.forEach((block, ageModels) -> {
+        //? if <1.21.4 {
+        /*models.forEach((block, ageModels) -> {
             if (block == null || ageModels == null) return;
 
-            ModelFile age0 = gen.models().getExistingFile(ResourceLocation.parse(ageModels.age0()));
-            ModelFile age1 = gen.models().getExistingFile(ResourceLocation.parse(ageModels.age1()));
-            ModelFile age2 = gen.models().getExistingFile(ResourceLocation.parse(ageModels.age2()));
+            ModelFile age0 = blocks.models().getExistingFile(ResourceLocation.parse(ageModels.age0()));
+            ModelFile age1 = blocks.models().getExistingFile(ResourceLocation.parse(ageModels.age1()));
+            ModelFile age2 = blocks.models().getExistingFile(ResourceLocation.parse(ageModels.age2()));
 
-            gen.getVariantBuilder(block).forAllStates(state -> {
+            blocks.getVariantBuilder(block).forAllStates(state -> {
                 Direction facing = state.getValue(BlockStateProperties.FACING);
                 int age = state.getValue(MusavaccaLeaves.AGE);
 
@@ -87,30 +88,9 @@ public final class BarrelCropOwnTintedFoliage {
             });
 
             // Pre-1.21.4 item tint is handled at runtime in ModTints
-            gen.simpleBlockItem(block, age0);
+            blocks.simpleBlockItem(block, age0);
         });
-    }
-
-    private static int xRot(Direction facing) {
-        return switch (facing) {
-            case UP -> 0;
-            case DOWN -> 180;
-            case NORTH, SOUTH, WEST, EAST -> 90;
-        };
-    }
-
-    private static int yRot(Direction facing) {
-        return switch (facing) {
-            case UP, DOWN, NORTH -> 0;
-            case SOUTH -> 180;
-            case WEST -> 270;
-            case EAST -> 90;
-        };
-    }
-    *///?} else {
-    public static void generate(BlockModelGenerators blocks, ItemModelGenerators items, Map<Block, AgeModels> models) {
-        if (models == null || models.isEmpty()) return;
-
+        *///?} else {
         final int foliageTint = TintColorUtil.defaultFoliageItemTint();
 
         models.forEach((block, ageModels) -> {
@@ -173,7 +153,6 @@ public final class BarrelCropOwnTintedFoliage {
             blocks.blockStateOutput.accept(multi);
             //?}
 
-            // Item client definition (1.21.4+) -> use age0 model + foliage tint
             items.itemModelOutput.accept(
                     block.asItem(),
                     new BlockModelWrapper.Unbaked(
@@ -182,9 +161,29 @@ public final class BarrelCropOwnTintedFoliage {
                     )
             );
         });
+        //?}
     }
 
-    //? if <1.21.5 {
+    //? if <1.21.4 {
+    /*private static int xRot(Direction facing) {
+        return switch (facing) {
+            case UP -> 0;
+            case DOWN -> 180;
+            case NORTH, SOUTH, WEST, EAST -> 90;
+        };
+    }
+
+    private static int yRot(Direction facing) {
+        return switch (facing) {
+            case UP, DOWN, NORTH -> 0;
+            case SOUTH -> 180;
+            case WEST -> 270;
+            case EAST -> 90;
+        };
+    }
+    *///?}
+
+    //? if >=1.21.4 <1.21.5 {
     /*private static Variant variant(ResourceLocation modelId, int x, int y) {
         Variant v = Variant.variant().with(VariantProperties.MODEL, modelId);
         if (x != 0) v = v.with(VariantProperties.X_ROT, rot(x));
@@ -201,7 +200,9 @@ public final class BarrelCropOwnTintedFoliage {
             default -> throw new IllegalArgumentException("Unsupported rotation: " + deg);
         };
     }
-    *///?} else {
+    *///?}
+
+    //? if >=1.21.5 {
     private static MultiPartGenerator add(
             MultiPartGenerator gen,
             int age,
@@ -236,6 +237,5 @@ public final class BarrelCropOwnTintedFoliage {
             default -> throw new IllegalArgumentException("Unsupported rotation: " + deg);
         };
     }
-    //?}
     //?}
 }

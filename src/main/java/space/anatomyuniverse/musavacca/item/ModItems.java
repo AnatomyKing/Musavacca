@@ -31,7 +31,13 @@ public final class ModItems {
 
     public static final DeferredItem<SpawnEggItem> BANANA_COW_SPAWN_EGG =
             ITEMS.registerItem("banana_cow_spawn_egg",
-                    props -> new SpawnEggItem(ModEntities.BANANA_COW.get(), props));
+                    props ->
+                            //? if <1.21.9 {
+                            new SpawnEggItem(ModEntities.BANANA_COW.get(), props)
+                            //?} else {
+                            /*new SpawnEggItem(props.spawnEgg(ModEntities.BANANA_COW.get()))
+                    *///?}
+            );
 
     public static final DeferredItem<Item> BANANA =
             ITEMS.registerItem("banana",

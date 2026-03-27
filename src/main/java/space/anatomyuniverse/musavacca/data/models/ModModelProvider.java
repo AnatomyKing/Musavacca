@@ -17,83 +17,44 @@ import net.minecraft.client.data.models.ModelProvider;
 import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
 //?}
 
-//? if <1.21.4 {
-/*public final class ModModelProvider extends BlockStateProvider {
+public final class ModModelProvider
+        //? if <1.21.4 {
+        /*extends BlockStateProvider
+        *///?} else {
+        extends ModelProvider
+        //?}
+{
 
-    public ModModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
+    //? if <1.21.4 {
+    /*public ModModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
         super(output, MusaCore.MOD_ID, existingFileHelper);
     }
 
     @Override
     protected void registerStatesAndModels() {
-        // -------------------------
-        // Block section
-        // -------------------------
-        registerBlockModels(this);
-
-        // Existing custom foliage block models with tinted block-items / client items
-        BarrelCropOwnTintedFoliage.generate(this, ModelSets.barrelCropOwnTintedFoliageModels());
-
-        // Existing custom hex block models
-        CubeOwnTintedHexColor.generate(this, ModelSets.cubeOwnTintedHexColorModels());
-
-        // -------------------------
-        // Item section
-        // -------------------------
-        registerItemModels(itemModels());
+        registerAll(this, itemModels());
     }
-
-    private static void registerBlockModels(BlockStateProvider blocks) {
-        CubeAll.generate(blocks, ModelSets.cubeAllBlocks());
-        Chapiter.generate(blocks, ModelSets.chapiterBlocks());
-        Log.generate(blocks, ModelSets.logBlocks());
-        Stairs.generate(blocks, ModelSets.stairsBlocks());
-        CubeCrafterLike.generate(blocks, ModelSets.cubeCrafterLikeBlocks());
-
-        SmallBananaPearlOwn.generate(blocks, ModelSets.smallBananaPearlBlocks());
-
-        // Existing custom block model ids
-        CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
-        CubeFireBlock.generate(blocks, ModelSets.cubeFireBlockModels());
-
-        BananaPearlChaliceOwn.generate(blocks, ModelSets.bananaPearlChaliceBlocks());
-        BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());
-    }
-
-    private static void registerItemModels(ItemModelProvider items) {
-        FlatItems.generate(items, ModelSets.flatItems());
-        HandheldItems.generate(items, ModelSets.handheldItems());
-        SpawnEggItems.generate(items, ModelSets.spawnEggItems());
-    }
-}
-*///?} else {
-public final class ModModelProvider extends ModelProvider {
-
+    *///?} else {
     public ModModelProvider(PackOutput output) {
         super(output, MusaCore.MOD_ID);
     }
 
     @Override
     protected void registerModels(BlockModelGenerators blocks, ItemModelGenerators items) {
-        // -------------------------
-        // Block section
-        // -------------------------
-        registerBlockModels(blocks);
-
-        // Existing custom foliage block models with tinted block-items / client items
-        BarrelCropOwnTintedFoliage.generate(blocks, items, ModelSets.barrelCropOwnTintedFoliageModels());
-
-        // Existing custom hex block models with tinted block-items / client items
-        CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());
-        CubeOwnTintedHexColorClipped.generate(blocks, items, ModelSets.cubeOwnTintedHexColorClippedModels());
-
-        // -------------------------
-        // Item section
-        // -------------------------
-        registerItemModels(items);
+        registerAll(blocks, items);
     }
+    //?}
 
-    private static void registerBlockModels(BlockModelGenerators blocks) {
+    private static void registerAll(
+            //? if <1.21.4 {
+            /*BlockStateProvider blocks, ItemModelProvider items
+            *///?} else {
+            BlockModelGenerators blocks, ItemModelGenerators items
+            //?}
+    ) {
+        // -------------------------
+        // Standard block helpers
+        // -------------------------
         CubeAll.generate(blocks, ModelSets.cubeAllBlocks());
         Chapiter.generate(blocks, ModelSets.chapiterBlocks());
         Log.generate(blocks, ModelSets.logBlocks());
@@ -101,21 +62,23 @@ public final class ModModelProvider extends ModelProvider {
         CubeCrafterLike.generate(blocks, ModelSets.cubeCrafterLikeBlocks());
 
         SmallBananaPearlOwn.generate(blocks, ModelSets.smallBananaPearlBlocks());
-
-        // Existing custom block model ids
         CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
-
-
         CubeFireBlock.generate(blocks, ModelSets.cubeFireBlockModels());
-
         BananaPearlChaliceOwn.generate(blocks, ModelSets.bananaPearlChaliceBlocks());
         BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());
-    }
 
-    private static void registerItemModels(ItemModelGenerators items) {
+        // -------------------------
+        // Special tinted/custom block item handling
+        // -------------------------
+        BarrelCropOwnTintedFoliage.generate(blocks, items, ModelSets.barrelCropOwnTintedFoliageModels());
+        CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());
+        CubeOwnTintedHexColorClipped.generate(blocks, items, ModelSets.cubeOwnTintedHexColorClippedModels());
+
+        // -------------------------
+        // Item helpers
+        // -------------------------
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());
         SpawnEggItems.generate(items, ModelSets.spawnEggItems());
     }
 }
-//?}

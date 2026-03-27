@@ -1,5 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/models/block/CubeOwnTintedHexColor.java
-
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +10,7 @@ import java.util.Map;
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 *///?} else {
 import net.minecraft.client.color.item.Constant;
@@ -29,15 +28,6 @@ import net.minecraft.client.data.models.blockstates.VariantProperties;
 public final class CubeOwnTintedHexColor {
     private CubeOwnTintedHexColor() {}
 
-    /**
-     * modelId = existing block model location, e.g. "musavacca:block/hex_block"
-     *
-     * dynamicHexItemTint = true:
-     *   item uses the custom HexColor item tint source and reads ModDataComponents.HEX_COLOR
-     *
-     * dynamicHexItemTint = false:
-     *   item uses a constant tint color (useful for fixed-color variants like hard hex)
-     */
     public record Entry(String modelId, boolean dynamicHexItemTint, int constantItemTint) {
         public static Entry dynamic(String modelId) {
             return new Entry(modelId, true, TintColorUtil.defaultHexBlockItemTint());
@@ -52,32 +42,29 @@ public final class CubeOwnTintedHexColor {
         }
     }
 
-    //? if <1.21.4 {
-    /*public static void generate(BlockStateProvider blocks, Map<Block, Entry> entries) {
+    public static void generate(
+            //? if <1.21.4 {
+            /*BlockStateProvider blocks, ItemModelProvider items,
+            *///?} else {
+            BlockModelGenerators blocks, ItemModelGenerators items,
+            //?}
+            Map<Block, Entry> entries
+    ) {
         if (entries == null || entries.isEmpty()) return;
 
-        entries.forEach((block, entry) -> {
+        //? if <1.21.4 {
+        /*entries.forEach((block, entry) -> {
             if (block == null || entry == null || entry.modelId() == null || entry.modelId().isBlank()) return;
 
             ModelFile model = blocks.models().getExistingFile(entry.model());
-
-            // Pre-1.21.4 blockstate + normal block item
             blocks.simpleBlock(block, model);
             blocks.simpleBlockItem(block, model);
         });
-    }
-    *///?} else {
-    public static void generate(BlockModelGenerators blocks, ItemModelGenerators items, Map<Block, Entry> entries) {
-        if (entries == null || entries.isEmpty()) return;
-
+        *///?} else {
         entries.forEach((block, entry) -> {
             if (block == null || entry == null || entry.modelId() == null || entry.modelId().isBlank()) return;
 
             ResourceLocation model = entry.model();
-
-            // -------------------------
-            // Blockstate only
-            // -------------------------
 
             //? if <1.21.5 {
             /*blocks.blockStateOutput.accept(
@@ -92,10 +79,6 @@ public final class CubeOwnTintedHexColor {
             );
             //?}
 
-            // -------------------------
-            // Custom tinted item model
-            // -------------------------
-
             items.itemModelOutput.accept(
                     block.asItem(),
                     new BlockModelWrapper.Unbaked(
@@ -106,6 +89,6 @@ public final class CubeOwnTintedHexColor {
                     )
             );
         });
+        //?}
     }
-    //?}
 }

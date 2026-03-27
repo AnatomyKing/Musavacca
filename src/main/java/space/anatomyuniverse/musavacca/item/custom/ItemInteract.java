@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.core.BlockPos;
@@ -7,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.ItemStack;
@@ -30,6 +29,12 @@ public class ItemInteract extends FlintAndSteelItem {
         super(properties);
     }
 
+    private static EquipmentSlot slotForHand(InteractionHand hand) {
+        return hand == InteractionHand.MAIN_HAND
+                ? EquipmentSlot.MAINHAND
+                : EquipmentSlot.OFFHAND;
+    }
+
     private static void openGui(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(new SimpleMenuProvider(
@@ -49,7 +54,6 @@ public class ItemInteract extends FlintAndSteelItem {
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = level.getBlockState(clickedPos);
 
-        // Keep the "light campfire / candle / etc." style behavior if the clicked block supports it.
         BlockState modifiedState = clickedState.getToolModifiedState(
                 context,
                 ItemAbilities.FIRESTARTER_LIGHT,
@@ -61,13 +65,12 @@ public class ItemInteract extends FlintAndSteelItem {
                 level.setBlockAndUpdate(clickedPos, modifiedState);
 
                 if (player != null) {
-                    stack.hurtAndBreak(1, player, context.getHand());
+                    stack.hurtAndBreak(1, player, slotForHand(context.getHand()));
                 }
             }
             return InteractionResult.SUCCESS;
         }
 
-        // Otherwise, place your HexBlock instead of fire.
         BlockPos placePos = clickedPos.relative(context.getClickedFace());
 
         if (!level.getBlockState(placePos).canBeReplaced()) {
@@ -82,11 +85,10 @@ public class ItemInteract extends FlintAndSteelItem {
                 return InteractionResult.FAIL;
             }
 
-            // Make sure your HexBlock still receives normal placed-by logic.
             placeState.getBlock().setPlacedBy(level, placePos, placeState, player, stack);
 
             if (player != null) {
-                stack.hurtAndBreak(1, player, context.getHand());
+                stack.hurtAndBreak(1, player, slotForHand(context.getHand()));
             }
         }
 
@@ -97,7 +99,6 @@ public class ItemInteract extends FlintAndSteelItem {
     public @NotNull InteractionResult use(Level level, Player player, InteractionHand hand) {
         BlockHitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
 
-        // Only open GUI when aiming at nothing (air / sky).
         if (hitResult.getType() == HitResult.Type.MISS) {
             if (!level.isClientSide()) {
                 openGui(player);

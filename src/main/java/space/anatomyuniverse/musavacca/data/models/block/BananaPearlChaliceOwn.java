@@ -35,10 +35,6 @@ public final class BananaPearlChaliceOwn {
             Direction.WEST
     };
 
-    /**
-     * This order assumes vanilla skull-like 16-step rotation indexing.
-     * If your visual spin direction feels off in-game, only change this array order.
-     */
     private static final String[] SEGMENT_SUFFIXES = {
             "south",
             "south_22.5",
@@ -97,7 +93,7 @@ public final class BananaPearlChaliceOwn {
             if (!(block instanceof BananaPearlChaliceBlock)) continue;
 
             //? if <1.21.5 {
-            /*PropertyDispatch<Variant> dispatch = PropertyDispatch.properties(
+            /*var dispatch = PropertyDispatch.properties(
                     BananaPearlChaliceBlock.MODE,
                     BananaPearlChaliceBlock.ROTATION,
                     BananaPearlChaliceBlock.FACING

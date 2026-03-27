@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/custom/FlintAndPearlItem.java
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.advancements.CriteriaTriggers;
@@ -6,8 +5,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.ItemStack;
@@ -23,12 +23,14 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         super(properties);
     }
 
-    /**
-     * Your custom hook.
-     * Future subclasses can override this to place a different custom fire.
-     */
     protected BlockState getCustomFireState(Level level, BlockPos pos) {
         return ModBlocks.PEARL_FIRE.get().getPlacementState(level, pos);
+    }
+
+    private static EquipmentSlot slotForHand(InteractionHand hand) {
+        return hand == InteractionHand.MAIN_HAND
+                ? EquipmentSlot.MAINHAND
+                : EquipmentSlot.OFFHAND;
     }
 
     @Override
@@ -38,7 +40,6 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = level.getBlockState(clickedPos);
 
-        // Keep vanilla-style FIRESTARTER_LIGHT support first
         BlockState modifiedState = clickedState.getToolModifiedState(
                 context,
                 ItemAbilities.FIRESTARTER_LIGHT,
@@ -76,7 +77,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
                 stack.hurtAndBreak(
                         1,
                         serverPlayer,
-                        LivingEntity.getSlotForHand(context.getHand())
+                        slotForHand(context.getHand())
                 );
             }
 
@@ -98,7 +99,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
                 context.getItemInHand().hurtAndBreak(
                         1,
                         player,
-                        LivingEntity.getSlotForHand(context.getHand())
+                        slotForHand(context.getHand())
                 );
             }
 

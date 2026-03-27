@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/models/block/CubeOwnTintedHexColorClipped.java
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +11,7 @@ import java.util.Map;
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 *///?} else {
@@ -34,22 +34,6 @@ import net.minecraft.client.renderer.block.model.Variant;
 public final class CubeOwnTintedHexColorClipped {
     private CubeOwnTintedHexColorClipped() {}
 
-    /**
-     * normalModelId:
-     *   model used when clipped=false
-     *
-     * clippedModelId:
-     *   model used when clipped=true
-     *
-     * item model:
-     *   defaults to normalModelId
-     *
-     * dynamicHexItemTint = true:
-     *   item uses HexColorItemTintSource and reads ModDataComponents.HEX_COLOR
-     *
-     * dynamicHexItemTint = false:
-     *   item uses a constant tint color
-     */
     public record Entry(
             String normalModelId,
             String clippedModelId,
@@ -87,11 +71,18 @@ public final class CubeOwnTintedHexColorClipped {
         }
     }
 
-    //? if <1.21.4 {
-    /*public static void generate(BlockStateProvider blocks, Map<Block, Entry> entries) {
+    public static void generate(
+            //? if <1.21.4 {
+            /*BlockStateProvider blocks, ItemModelProvider items,
+            *///?} else {
+            BlockModelGenerators blocks, ItemModelGenerators items,
+            //?}
+            Map<Block, Entry> entries
+    ) {
         if (entries == null || entries.isEmpty()) return;
 
-        entries.forEach((block, entry) -> {
+        //? if <1.21.4 {
+        /*entries.forEach((block, entry) -> {
             if (block == null || entry == null) return;
             if (entry.normalModelId() == null || entry.normalModelId().isBlank()) return;
             if (entry.clippedModelId() == null || entry.clippedModelId().isBlank()) return;
@@ -113,11 +104,7 @@ public final class CubeOwnTintedHexColorClipped {
                     blocks.models().getExistingFile(entry.itemModel())
             );
         });
-    }
-    *///?} else {
-    public static void generate(BlockModelGenerators blocks, ItemModelGenerators items, Map<Block, Entry> entries) {
-        if (entries == null || entries.isEmpty()) return;
-
+        *///?} else {
         entries.forEach((block, entry) -> {
             if (block == null || entry == null) return;
             if (entry.normalModelId() == null || entry.normalModelId().isBlank()) return;
@@ -125,10 +112,6 @@ public final class CubeOwnTintedHexColorClipped {
 
             ResourceLocation normal = entry.normalModel();
             ResourceLocation clipped = entry.clippedModel();
-
-            // -------------------------
-            // Blockstate only
-            // -------------------------
 
             //? if <1.21.5 {
             /*blocks.blockStateOutput.accept(
@@ -154,10 +137,6 @@ public final class CubeOwnTintedHexColorClipped {
             blocks.blockStateOutput.accept(multi);
             //?}
 
-            // -------------------------
-            // Custom tinted item model
-            // -------------------------
-
             items.itemModelOutput.accept(
                     block.asItem(),
                     new BlockModelWrapper.Unbaked(
@@ -168,12 +147,12 @@ public final class CubeOwnTintedHexColorClipped {
                     )
             );
         });
+        //?}
     }
 
-    //? if <1.21.5 {
+    //? if >=1.21.4 <1.21.5 {
     /*private static Variant variant(ResourceLocation modelId) {
         return Variant.variant().with(VariantProperties.MODEL, modelId);
     }
     *///?}
-    //?}
 }

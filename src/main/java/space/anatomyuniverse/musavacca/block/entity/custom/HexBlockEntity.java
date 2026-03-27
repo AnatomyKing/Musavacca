@@ -3,7 +3,9 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+//? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
+ //?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -14,8 +16,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+//? if <1.21.6 {
+//?} else {
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+//?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
@@ -65,6 +70,14 @@ public class HexBlockEntity extends BlockEntity {
         return hexColor & 0xFFFFFF;
     }
 
+    private static int readIntOr(CompoundTag tag, String key, int fallback) {
+        //? if <1.21.5 {
+        /*return tag.contains(key) ? tag.getInt(key) : fallback;
+        *///?} else {
+        return tag.getIntOr(key, fallback);
+        //?}
+    }
+
     private void syncToClientAndRerender() {
         Level level = this.getLevel();
         if (level == null) {
@@ -99,6 +112,24 @@ public class HexBlockEntity extends BlockEntity {
         );
     }
 
+    //? if <1.21.6 {
+    /*@Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+
+        int loaded = readIntOr(tag, TAG_HEX_COLOR, UNSET_HEX_COLOR);
+        this.hexColor = loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+
+        if (this.hasHexColor()) {
+            tag.putInt(TAG_HEX_COLOR, this.hexColor);
+        }
+    }
+    *///?} else {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
@@ -115,7 +146,19 @@ public class HexBlockEntity extends BlockEntity {
             output.putInt(TAG_HEX_COLOR, this.hexColor);
         }
     }
+    //?}
 
+    //? if <1.21.5 {
+    /*@Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
+        super.applyImplicitComponents(input);
+
+        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
+        if (savedHex != null) {
+            this.hexColor = normalizeHex(savedHex);
+        }
+    }
+    *///?} else {
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
@@ -125,6 +168,7 @@ public class HexBlockEntity extends BlockEntity {
             this.hexColor = normalizeHex(savedHex);
         }
     }
+    //?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
@@ -145,6 +189,19 @@ public class HexBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if <1.21.6 {
+    /*@Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.handleUpdateTag(tag, registries);
+        this.rerenderClientNow();
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+        super.onDataPacket(connection, packet, registries);
+        this.rerenderClientNow();
+    }
+    *///?} else {
     @Override
     public void handleUpdateTag(ValueInput input) {
         super.handleUpdateTag(input);
@@ -156,4 +213,5 @@ public class HexBlockEntity extends BlockEntity {
         super.onDataPacket(connection, input);
         this.rerenderClientNow();
     }
+    //?}
 }

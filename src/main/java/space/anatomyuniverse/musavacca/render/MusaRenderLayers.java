@@ -18,7 +18,6 @@ import java.util.*;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -26,13 +25,11 @@ import net.neoforged.neoforge.common.util.TriState;
 
 //? if <1.21.4 {
 /^import net.neoforged.neoforge.client.model.BakedModelWrapper;
-^///?} else {
+ ^///?} else {
 import net.minecraft.client.resources.model.DelegateBakedModel;
-// If your 1.21.4 setup does NOT have net.minecraft...DelegateBakedModel,
-// change the line above to the package that exists in your mapped deps.
 //?}
 *///?} else {
-import net.minecraft.client.renderer.RenderType; // used for 1.21.5–1.21.7 render-type forcing
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -52,7 +49,6 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 public final class MusaRenderLayers {
 
     private static final Set<Block> CUTOUT_BLOCKS = Sets.newHashSet(
-
             ModBlocks.MUSAVACCA_EGG.get(),
             ModBlocks.HEX_BLOCK.get(),
             ModBlocks.PEARL_FIRE.get()
@@ -74,9 +70,9 @@ public final class MusaRenderLayers {
 
         //? if <1.21.5 {
         /*onModifyBakingResultOldPipeline(event);
-         *///?} else {
+        *///?} else {
         onModifyBakingResultNewPipeline(event);
-        //?}
+         //?}
     }
 
     // =========================================================================
@@ -85,13 +81,32 @@ public final class MusaRenderLayers {
     //? if <1.21.5 {
 
     /*private static void onModifyBakingResultOldPipeline(ModelEvent.ModifyBakingResult event) {
-        Map<Object, BakedModel> models = getAllBakedModelsCompat(event);
-        if (models == null || models.isEmpty()) return;
-
         final Set<Block> touched = new HashSet<>();
         touched.addAll(CUTOUT_BLOCKS);
         touched.addAll(TRANSLUCENT_BLOCKS);
         touched.addAll(NO_AO_BLOCKS);
+
+        //? if <1.21.4 {
+        /^Map<Object, BakedModel> models = getAllBakedModelsCompat(event);
+        if (models == null || models.isEmpty()) return;
+
+        for (Block block : touched) {
+            final RenderType forcedType =
+                    CUTOUT_BLOCKS.contains(block) ? RenderType.cutout() :
+                            TRANSLUCENT_BLOCKS.contains(block) ? RenderType.translucent() :
+                                    null;
+
+            final TriState forcedAO = NO_AO_BLOCKS.contains(block) ? TriState.FALSE : TriState.DEFAULT;
+            if (forcedType == null && forcedAO == TriState.DEFAULT) continue;
+
+            for (BlockState state : block.getStateDefinition().getPossibleStates()) {
+                final ModelResourceLocation mrl = BlockModelShaper.stateToModelLocation(state);
+                models.computeIfPresent(mrl, (k, original) -> new ForcePropsBakedModel(original, forcedType, forcedAO));
+            }
+        }^/
+        //?} else {
+        Map<ModelResourceLocation, BakedModel> models = event.getBakingResult().blockStateModels();
+        if (models == null || models.isEmpty()) return;
 
         for (Block block : touched) {
             final RenderType forcedType =
@@ -107,16 +122,11 @@ public final class MusaRenderLayers {
                 models.computeIfPresent(mrl, (k, original) -> new ForcePropsBakedModel(original, forcedType, forcedAO));
             }
         }
+        //?}
     }
 
-    /^*
-     * Works across small NeoForge API shifts:
-     * - some versions expose ModifyBakingResult#getModels()
-     * - others expose ModifyBakingResult#getBakingResult() then getModels()/models()
-     * <p>
-     * We only need a mutable Map we can replace values in.
-     ^/
-    @SuppressWarnings("unchecked")
+    //? if <1.21.4 {
+    /^@SuppressWarnings("unchecked")
     private static Map<Object, BakedModel> getAllBakedModelsCompat(ModelEvent.ModifyBakingResult event) {
         try {
             Method m = event.getClass().getMethod("getModels");
@@ -129,7 +139,6 @@ public final class MusaRenderLayers {
             Method m = event.getClass().getMethod("getBakingResult");
             Object bakingResult = m.invoke(event);
             if (bakingResult != null) {
-                // Try getModels()
                 try {
                     Method m2 = bakingResult.getClass().getMethod("getModels");
                     Object r2 = m2.invoke(bakingResult);
@@ -137,7 +146,6 @@ public final class MusaRenderLayers {
                 } catch (Throwable ignored) {
                 }
 
-                // Try models()
                 try {
                     Method m3 = bakingResult.getClass().getMethod("models");
                     Object r3 = m3.invoke(bakingResult);
@@ -150,6 +158,7 @@ public final class MusaRenderLayers {
 
         return Collections.emptyMap();
     }
+    ^///?}
 
     //? if <1.21.4 {
     /^private static final class ForcePropsBakedModel extends BakedModelWrapper<BakedModel> {
@@ -174,7 +183,6 @@ public final class MusaRenderLayers {
             return super.useAmbientOcclusion(state, data, renderType);
         }
     }
-}
     ^///?} else {
     private static final class ForcePropsBakedModel extends DelegateBakedModel {
         private final RenderType forcedTypeOrNull;
@@ -198,15 +206,14 @@ public final class MusaRenderLayers {
             return super.useAmbientOcclusion(state, data, renderType);
         }
     }
-}
-    //?}
+        //?}
 
-    *///?} <1.21.5
+        *///?} <1.21.5
 
-    // =========================================================================
-    // 1.21.5+ : BlockStateModel pipeline
-    // =========================================================================
-    //? if >=1.21.5 {
+// =========================================================================
+// 1.21.5+ : BlockStateModel pipeline
+// =========================================================================
+        //? if >=1.21.5 {
 
     private static void onModifyBakingResultNewPipeline(ModelEvent.ModifyBakingResult event) {
         Map<BlockState, BlockStateModel> models = event.getBakingResult().blockStateModels();
@@ -242,7 +249,7 @@ public final class MusaRenderLayers {
     }
 
     private static final class ForcePropsStateModel extends DelegateBlockStateModel {
-        private final Object forcedLayerOrNull; // RenderType (1.21.5–1.21.7) OR ChunkSectionLayer (1.21.8+)
+        private final Object forcedLayerOrNull;
         private final TriState forcedAO;
 
         ForcePropsStateModel(BlockStateModel delegate, Object forcedLayerOrNull, TriState forcedAO) {
@@ -308,6 +315,5 @@ public final class MusaRenderLayers {
         *///?}
     }
 }
-
     //?} >=1.21.5
 //}

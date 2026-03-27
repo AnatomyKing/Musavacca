@@ -1,4 +1,6 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/block/custom/PearlFireBlock.java
+
+
+
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -97,87 +99,96 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                 : Blocks.AIR.defaultBlockState();
     }
 
+    private static boolean shouldRunPearlFireTick(ServerLevel level, BlockPos pos) {
+        //? if <1.21.5 {
+        /*return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK);
+        *///?} else {
+        return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)
+                && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS)
+                || level.anyPlayerCloseEnoughForSpawning(pos));
+        //?}
+    }
+
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         level.scheduleTick(pos, this, getPearlFireTickDelay(level.random));
 
-        if (level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)
-                && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS)
-                || level.anyPlayerCloseEnoughForSpawning(pos))) {
+        if (!shouldRunPearlFireTick(level, pos)) {
+            return;
+        }
 
-            if (!state.canSurvive(level, pos)) {
-                level.removeBlock(pos, false);
-            }
+        if (!state.canSurvive(level, pos)) {
+            level.removeBlock(pos, false);
+        }
 
-            BlockState belowState = level.getBlockState(pos.below());
-            boolean eternalSource = belowState.isFireSource(level, pos.below(), Direction.UP);
-            int age = state.getValue(AGE);
+        BlockState belowState = level.getBlockState(pos.below());
+        boolean eternalSource = belowState.isFireSource(level, pos.below(), Direction.UP);
+        int age = state.getValue(AGE);
 
-            if (!eternalSource && level.isRaining() && this.isNearRain(level, pos)
-                    && random.nextFloat() < 0.2F + (float) age * 0.03F) {
-                level.removeBlock(pos, false);
+        if (!eternalSource && level.isRaining() && this.isNearRain(level, pos)
+                && random.nextFloat() < 0.2F + (float) age * 0.03F) {
+            level.removeBlock(pos, false);
+            return;
+        }
+
+        int newAge = Math.min(15, age + random.nextInt(3) / 2);
+        if (age != newAge) {
+            state = state.setValue(AGE, newAge);
+            level.setBlock(pos, state, 260);
+            age = newAge;
+        }
+
+        if (!eternalSource) {
+            if (!this.isValidPearlFireLocation(level, pos)) {
+                BlockPos belowPos = pos.below();
+                if (!level.getBlockState(belowPos).isFaceSturdy(level, belowPos, Direction.UP) || age > 3) {
+                    level.removeBlock(pos, false);
+                }
                 return;
             }
 
-            int newAge = Math.min(15, age + random.nextInt(3) / 2);
-            if (age != newAge) {
-                state = state.setValue(AGE, newAge);
-                level.setBlock(pos, state, 260);
-                age = newAge;
+            if (age == 15 && random.nextInt(4) == 0 && !this.canCatchFire(level, pos.below(), Direction.UP)) {
+                level.removeBlock(pos, false);
+                return;
             }
+        }
 
-            if (!eternalSource) {
-                if (!this.isValidPearlFireLocation(level, pos)) {
-                    BlockPos belowPos = pos.below();
-                    if (!level.getBlockState(belowPos).isFaceSturdy(level, belowPos, Direction.UP) || age > 3) {
-                        level.removeBlock(pos, false);
-                    }
-                    return;
-                }
+        boolean burnoutBiome = level.getBiome(pos).is(BiomeTags.INCREASED_FIRE_BURNOUT);
+        int biomeModifier = burnoutBiome ? -50 : 0;
 
-                if (age == 15 && random.nextInt(4) == 0 && !this.canCatchFire(level, pos.below(), Direction.UP)) {
-                    level.removeBlock(pos, false);
-                    return;
-                }
-            }
+        this.checkPearlBurnOut(level, pos.east(), 300 + biomeModifier, random, age, Direction.WEST);
+        this.checkPearlBurnOut(level, pos.west(), 300 + biomeModifier, random, age, Direction.EAST);
+        this.checkPearlBurnOut(level, pos.below(), 250 + biomeModifier, random, age, Direction.UP);
+        this.checkPearlBurnOut(level, pos.above(), 250 + biomeModifier, random, age, Direction.DOWN);
+        this.checkPearlBurnOut(level, pos.north(), 300 + biomeModifier, random, age, Direction.SOUTH);
+        this.checkPearlBurnOut(level, pos.south(), 300 + biomeModifier, random, age, Direction.NORTH);
 
-            boolean burnoutBiome = level.getBiome(pos).is(BiomeTags.INCREASED_FIRE_BURNOUT);
-            int biomeModifier = burnoutBiome ? -50 : 0;
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
-            this.checkPearlBurnOut(level, pos.east(), 300 + biomeModifier, random, age, Direction.WEST);
-            this.checkPearlBurnOut(level, pos.west(), 300 + biomeModifier, random, age, Direction.EAST);
-            this.checkPearlBurnOut(level, pos.below(), 250 + biomeModifier, random, age, Direction.UP);
-            this.checkPearlBurnOut(level, pos.above(), 250 + biomeModifier, random, age, Direction.DOWN);
-            this.checkPearlBurnOut(level, pos.north(), 300 + biomeModifier, random, age, Direction.SOUTH);
-            this.checkPearlBurnOut(level, pos.south(), 300 + biomeModifier, random, age, Direction.NORTH);
+        for (int dx = -1; dx <= 1; ++dx) {
+            for (int dz = -1; dz <= 1; ++dz) {
+                for (int dy = -1; dy <= 4; ++dy) {
+                    if (dx != 0 || dy != 0 || dz != 0) {
+                        int chanceDivisor = 100;
+                        if (dy > 1) {
+                            chanceDivisor += (dy - 1) * 100;
+                        }
 
-            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+                        mutable.setWithOffset(pos, dx, dy, dz);
+                        int igniteOdds = this.getPearlIgniteOdds(level, mutable);
 
-            for (int dx = -1; dx <= 1; ++dx) {
-                for (int dz = -1; dz <= 1; ++dz) {
-                    for (int dy = -1; dy <= 4; ++dy) {
-                        if (dx != 0 || dy != 0 || dz != 0) {
-                            int chanceDivisor = 100;
-                            if (dy > 1) {
-                                chanceDivisor += (dy - 1) * 100;
+                        if (igniteOdds > 0) {
+                            int spreadChance = (igniteOdds + 40 + level.getDifficulty().getId() * 7) / (age + 30);
+                            if (burnoutBiome) {
+                                spreadChance /= 2;
                             }
 
-                            mutable.setWithOffset(pos, dx, dy, dz);
-                            int igniteOdds = this.getPearlIgniteOdds(level, mutable);
+                            if (spreadChance > 0
+                                    && random.nextInt(chanceDivisor) <= spreadChance
+                                    && (!level.isRaining() || !this.isNearRain(level, mutable))) {
 
-                            if (igniteOdds > 0) {
-                                int spreadChance = (igniteOdds + 40 + level.getDifficulty().getId() * 7) / (age + 30);
-                                if (burnoutBiome) {
-                                    spreadChance /= 2;
-                                }
-
-                                if (spreadChance > 0
-                                        && random.nextInt(chanceDivisor) <= spreadChance
-                                        && (!level.isRaining() || !this.isNearRain(level, mutable))) {
-
-                                    int spreadAge = Math.min(15, age + random.nextInt(5) / 4);
-                                    level.setBlock(mutable, this.getPearlStateWithAge(level, mutable, spreadAge), 3);
-                                }
+                                int spreadAge = Math.min(15, age + random.nextInt(5) / 4);
+                                level.setBlock(mutable, this.getPearlStateWithAge(level, mutable, spreadAge), 3);
                             }
                         }
                     }

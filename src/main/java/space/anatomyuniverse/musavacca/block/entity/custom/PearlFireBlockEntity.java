@@ -1,9 +1,11 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/PearlFireBlockEntity.java
+
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+//? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
+ //?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -13,16 +15,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+//? if <1.21.6 {
+//?} else {
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+//?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
 public class PearlFireBlockEntity extends BlockEntity {
 
     public static final String TAG_HEX_COLOR = "hex_color";
-
-    // Change this to whatever pearl-fire tint you want.
     public static final int PEARL_FIRE_COLOR = 0xD5CD49;
 
     private int hexColor = PEARL_FIRE_COLOR;
@@ -48,6 +51,14 @@ public class PearlFireBlockEntity extends BlockEntity {
         }
     }
 
+    private static int readIntOr(CompoundTag tag, String key, int fallback) {
+        //? if <1.21.5 {
+        /*return tag.contains(key) ? tag.getInt(key) : fallback;
+        *///?} else {
+        return tag.getIntOr(key, fallback);
+        //?}
+    }
+
     private void syncToClientAndRerender() {
         Level level = this.getLevel();
         if (level == null) {
@@ -65,6 +76,21 @@ public class PearlFireBlockEntity extends BlockEntity {
         );
     }
 
+    //? if <1.21.6 {
+    /*@Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+
+        readIntOr(tag, TAG_HEX_COLOR, PEARL_FIRE_COLOR);
+        this.hexColor = PEARL_FIRE_COLOR;
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putInt(TAG_HEX_COLOR, PEARL_FIRE_COLOR);
+    }
+    *///?} else {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
@@ -78,7 +104,17 @@ public class PearlFireBlockEntity extends BlockEntity {
         super.saveAdditional(output);
         output.putInt(TAG_HEX_COLOR, PEARL_FIRE_COLOR);
     }
+    //?}
 
+    //? if <1.21.5 {
+    /*@Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
+        super.applyImplicitComponents(input);
+
+        input.get(ModDataComponents.HEX_COLOR.get());
+        this.hexColor = PEARL_FIRE_COLOR;
+    }
+    *///?} else {
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
@@ -86,6 +122,7 @@ public class PearlFireBlockEntity extends BlockEntity {
         input.get(ModDataComponents.HEX_COLOR.get());
         this.hexColor = PEARL_FIRE_COLOR;
     }
+    //?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
