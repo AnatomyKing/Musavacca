@@ -46,7 +46,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
     private static final VoxelShape SHAPE = Block.box(3.5, 8.0, 3.5, 12.5, 16.0, 12.5);
 
-    private static final int ADD_PARTICLE_ATTEMPTS = 14;
+    private static final int ADD_PARTICLE_ATTEMPTS = 10;
     private static final int PARTICLE_XZ_RADIUS = 10;
     private static final int PARTICLE_Y_MAX = 10;
 
