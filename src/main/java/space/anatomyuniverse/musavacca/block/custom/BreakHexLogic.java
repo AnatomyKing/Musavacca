@@ -52,11 +52,14 @@ public final class BreakHexLogic {
             return;
         }
 
-        Block block = aboveState.getBlock();
+        Block aboveBlock = aboveState.getBlock();
 
-        serverLevel.setBlock(abovePos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        boolean removed = serverLevel.destroyBlock(abovePos, false);
+        if (!removed) {
+            return;
+        }
 
-        if (block instanceof BreakBlock breakBlock) {
+        if (aboveBlock instanceof BreakBlock breakBlock) {
             breakBlock.spawnAfterBreak(aboveState, serverLevel, abovePos, ItemStack.EMPTY, false);
         }
     }
