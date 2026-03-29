@@ -1,8 +1,8 @@
+
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
@@ -51,7 +51,6 @@ public class BreakBlock extends Block implements BonemealableBlock {
 
     public BreakBlock(Properties properties) {
         super(properties);
-
         this.registerDefaultState(
                 this.stateDefinition.any()
                         .setValue(AGE, 0)
@@ -64,21 +63,12 @@ public class BreakBlock extends Block implements BonemealableBlock {
         super.createBlockStateDefinition(builder);
         builder.add(AGE, ATTACHED);
     }
-    // BLOCK EGG CHAIN ALTOGETHER
+
     public static boolean isAttachedStem(BlockState state) {
         return state.getBlock() instanceof BreakBlock
                 && state.hasProperty(ATTACHED)
                 && state.getValue(ATTACHED);
     }
-
-    // ALLOW EGG CHAIN AT STAGE 2
-//    public static boolean isAttachedStem(BlockState state) {
-//        return state.getBlock() instanceof BreakBlock
-//                && state.hasProperty(AGE)
-//                && state.hasProperty(ATTACHED)
-//                && state.getValue(ATTACHED)
-//                && state.getValue(AGE) < MAX_AGE;
-//    }
 
     public static boolean isAttachedStem(BlockState state, Block expectedBlock) {
         return state.is(expectedBlock) && isAttachedStem(state);
@@ -97,64 +87,34 @@ public class BreakBlock extends Block implements BonemealableBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        for (Direction direction : context.getNearestLookingDirections()) {
-            if (direction.getAxis() == Axis.Y) {
-                BlockState blockState = this.defaultBlockState()
-                        .setValue(ATTACHED, direction == Direction.UP);
+        BlockState state = this.defaultBlockState()
+                .setValue(ATTACHED, context.getClickedFace() == Direction.DOWN);
 
-                if (blockState.canSurvive(context.getLevel(), context.getClickedPos())) {
-                    return blockState;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static boolean canSupportBreakBlock(LevelReader level, BlockPos supportPos, Direction supportFace) {
-        BlockState supportState = level.getBlockState(supportPos);
-
-        return supportState.getBlock() instanceof BreakBlock
-                || Block.canSupportCenter(level, supportPos, supportFace);
+        return state.canSurvive(context.getLevel(), context.getClickedPos())
+                ? state
+                : null;
     }
 
     @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        Direction direction = getConnectedDirection(state).getOpposite();
-        BlockPos supportPos = pos.relative(direction);
-        Direction supportFace = direction.getOpposite();
-
-        return canSupportBreakBlock(level, supportPos, supportFace);
-    }
-
-    protected static Direction getConnectedDirection(BlockState state) {
-        return state.getValue(ATTACHED) ? Direction.DOWN : Direction.UP;
+        return BreakHexLogic.canBreakBlockSurvive(state, level, pos);
     }
 
     //? if <1.21.2 {
-/*@Override
-protected BlockState updateShape(
-        BlockState state,
-        Direction direction,
-        BlockState neighborState,
-        LevelAccessor level,
-        BlockPos pos,
-        BlockPos neighborPos
-) {
-    boolean supportBroken =
-            getConnectedDirection(state).getOpposite() == direction && !state.canSurvive(level, pos);
-
-    boolean hexBelowBroken =
-            state.getValue(ATTACHED)
-                    && direction == Direction.DOWN
-                    && !(neighborState.getBlock() instanceof HexBlock)
-                    && !(neighborState.getBlock() instanceof BreakBlock);
-
-    return supportBroken || hexBelowBroken
-            ? Blocks.AIR.defaultBlockState()
-            : super.updateShape(state, direction, neighborState, level, pos, neighborPos);
-}
-*///?} else {
+    /*@Override
+    protected BlockState updateShape(
+            BlockState state,
+            Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+    ) {
+        return BreakHexLogic.shouldBreakBreakBlockOnNeighborChange(state, direction, level, pos)
+                ? Blocks.AIR.defaultBlockState()
+                : super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
@@ -166,16 +126,7 @@ protected BlockState updateShape(
             BlockState neighborState,
             RandomSource random
     ) {
-        boolean supportBroken =
-                getConnectedDirection(state).getOpposite() == direction && !state.canSurvive(level, pos);
-
-        boolean hexBelowBroken =
-                state.getValue(ATTACHED)
-                        && direction == Direction.DOWN
-                        && !(neighborState.getBlock() instanceof HexBlock)
-                        && !(neighborState.getBlock() instanceof BreakBlock);
-
-        return supportBroken || hexBelowBroken
+        return BreakHexLogic.shouldBreakBreakBlockOnNeighborChange(state, direction, level, pos)
                 ? Blocks.AIR.defaultBlockState()
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
@@ -205,12 +156,12 @@ protected BlockState updateShape(
     protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
         return Shapes.empty();
     }
-*///?} else {
-@Override
-protected VoxelShape getOcclusionShape(BlockState state) {
-    return Shapes.empty();
-}
-//?}
+    *///?} else {
+    @Override
+    protected VoxelShape getOcclusionShape(BlockState state) {
+        return Shapes.empty();
+    }
+    //?}
 
     @Override
     protected void spawnAfterBreak(BlockState state, ServerLevel level, BlockPos pos, ItemStack stack, boolean dropExperience) {
@@ -235,24 +186,19 @@ protected VoxelShape getOcclusionShape(BlockState state) {
         );
     }
 
-    private static boolean canBeBonemealed(LevelReader level, BlockPos pos) {
-        return level.getBlockState(pos.below()).getBlock() instanceof HexBlock
-                && level.getBlockState(pos.above()).is(ModBlocks.MUSAVACCA_STEM.get());
-    }
-
     @Override
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
-        return state.getValue(AGE) < MAX_AGE && canBeBonemealed(level, pos);
+        return state.getValue(AGE) < MAX_AGE && BreakHexLogic.canBonemealBreakBlock(level, pos);
     }
 
     @Override
     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
-        return state.getValue(AGE) < MAX_AGE && canBeBonemealed(level, pos);
+        return state.getValue(AGE) < MAX_AGE && BreakHexLogic.canBonemealBreakBlock(level, pos);
     }
 
     @Override
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
-        if (!canBeBonemealed(level, pos)) {
+        if (!BreakHexLogic.canBonemealBreakBlock(level, pos)) {
             return;
         }
 
@@ -300,7 +246,7 @@ protected VoxelShape getOcclusionShape(BlockState state) {
     private static boolean trySpawn(ServerLevel level, Entity entity, double x, double y, double z, float yaw) {
         //? if <1.21.5 {
         /*entity.moveTo(x, y, z, yaw, 0.0F);
-        *///?} else {
+         *///?} else {
         entity.snapTo(x, y, z, yaw, 0.0F);
         //?}
 

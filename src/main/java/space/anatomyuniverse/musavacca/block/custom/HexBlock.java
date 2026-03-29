@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -37,7 +36,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
@@ -100,40 +98,40 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
     @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        return hasValidSupportAbove(level, pos) && !level.isWaterAt(pos);
+        return BreakHexLogic.canHexBlockSurvive(level, pos);
     }
 
     //? if <1.21.2 {
-/*@Override
-protected BlockState updateShape(
-        BlockState state,
-        Direction direction,
-        BlockState neighborState,
-        LevelAccessor level,
-        BlockPos pos,
-        BlockPos neighborPos
-) {
-    return direction == Direction.UP && !this.canSurvive(state, level, pos)
-            ? Blocks.AIR.defaultBlockState()
-            : super.updateShape(state, direction, neighborState, level, pos, neighborPos);
-}
-*///?} else {
+    /*@Override
+    protected BlockState updateShape(
+            BlockState state,
+            net.minecraft.core.Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+    ) {
+        return net.minecraft.core.Direction.UP == direction && !this.canSurvive(state, level, pos)
+                ? Blocks.AIR.defaultBlockState()
+                : super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
             LevelReader level,
             ScheduledTickAccess scheduledTickAccess,
             BlockPos pos,
-            Direction direction,
+            net.minecraft.core.Direction direction,
             BlockPos neighborPos,
             BlockState neighborState,
             RandomSource random
     ) {
-        return direction == Direction.UP && !this.canSurvive(state, level, pos)
+        return net.minecraft.core.Direction.UP == direction && !this.canSurvive(state, level, pos)
                 ? Blocks.AIR.defaultBlockState()
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
-//?}
+    //?}
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -230,6 +228,23 @@ protected BlockState updateShape(
         return successResult();
     }
 
+    //? if <1.21.5 {
+/*@Override
+protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    if (!state.is(newState.getBlock()) && newState.isAir()) {
+        BreakHexLogic.breakBreakBlockAboveIfPresent(level, pos);
+    }
+
+    super.onRemove(state, level, pos, newState, movedByPiston);
+}
+*///?} else {
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        BreakHexLogic.breakBreakBlockAboveIfPresent(level, pos);
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+    }
+//?}
+
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(CLIPPED)) {
@@ -288,54 +303,6 @@ protected BlockState updateShape(
         return TintColorUtil.defaultHexBlockItemTint();
     }
 
-    private static boolean hasValidSupportAbove(LevelReader level, BlockPos pos) {
-        BlockState aboveState = level.getBlockState(pos.above());
-        return isHexStem(aboveState) || Block.canSupportCenter(level, pos.above(), Direction.DOWN);
-    }
-
-    private static boolean isHexStem(BlockState state) {
-        return BreakBlock.isAttachedStem(state, ModBlocks.MUSAVACCA_EGG.get());
-    }
-
-    private static boolean canGrowIntoEggPair(LevelReader level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        BlockState aboveState = level.getBlockState(pos.above());
-        BlockPos belowPos = pos.below();
-
-        return state.hasProperty(CLIPPED)
-                && !state.getValue(CLIPPED)
-                && !isHexStem(aboveState)
-                && aboveState.is(ModBlocks.MUSAVACCA_STEM.get())
-                && level.getBlockState(belowPos).isAir()
-                && !level.isWaterAt(belowPos);
-    }
-
-    private static Integer getStoredHexColor(Level level, BlockPos pos) {
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof HexBlockEntity hexBe && hexBe.hasHexColor()) {
-            return hexBe.getHexColor();
-        }
-
-        return null;
-    }
-
-    private void growIntoEggPair(ServerLevel level, BlockPos pos) {
-        Integer savedHex = getStoredHexColor(level, pos);
-        BlockPos belowPos = pos.below();
-
-        level.setBlock(pos, BreakBlock.makeAttachedStem(ModBlocks.MUSAVACCA_EGG.get()), Block.UPDATE_ALL);
-        level.setBlock(belowPos, this.defaultBlockState().setValue(CLIPPED, false), Block.UPDATE_ALL);
-
-        if (savedHex == null) {
-            return;
-        }
-
-        BlockEntity be = level.getBlockEntity(belowPos);
-        if (be instanceof HexBlockEntity hexBe) {
-            hexBe.setHexColor(savedHex);
-        }
-    }
-
     @Override
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
         return true;
@@ -353,8 +320,8 @@ protected BlockState updateShape(
             return;
         }
 
-        if (canGrowIntoEggPair(level, pos)) {
-            this.growIntoEggPair(level, pos);
+        if (BreakHexLogic.canGrowHexIntoEggPair(level, pos, state)) {
+            BreakHexLogic.growHexIntoEggPair(level, pos, state);
             return;
         }
 
