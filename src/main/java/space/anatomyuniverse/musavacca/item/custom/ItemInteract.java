@@ -5,6 +5,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+//? if <1.21.2 {
+/*import net.minecraft.world.InteractionResultHolder;
+ *///?}
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -43,6 +46,11 @@ public class ItemInteract extends FlintAndSteelItem {
                     TITLE
             ));
         }
+    }
+
+    private static boolean shouldOpenGui(Level level, Player player) {
+        BlockHitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+        return hitResult.getType() == HitResult.Type.MISS;
     }
 
     @Override
@@ -95,11 +103,24 @@ public class ItemInteract extends FlintAndSteelItem {
         return InteractionResult.SUCCESS;
     }
 
+    //? if <1.21.2 {
+    /*@Override
+    public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
+        if (shouldOpenGui(level, player)) {
+            if (!level.isClientSide()) {
+                openGui(player);
+            }
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        }
+
+        return InteractionResultHolder.pass(stack);
+    }
+    *///?} else {
     @Override
     public @NotNull InteractionResult use(Level level, Player player, InteractionHand hand) {
-        BlockHitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-
-        if (hitResult.getType() == HitResult.Type.MISS) {
+        if (shouldOpenGui(level, player)) {
             if (!level.isClientSide()) {
                 openGui(player);
             }
@@ -108,4 +129,5 @@ public class ItemInteract extends FlintAndSteelItem {
 
         return InteractionResult.PASS;
     }
+    //?}
 }

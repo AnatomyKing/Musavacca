@@ -21,7 +21,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+//? if <1.21.2 {
+/*import net.minecraft.world.level.LevelAccessor;
+ *///?} else {
 import net.minecraft.world.level.ScheduledTickAccess;
+//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -99,6 +103,21 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         return hasValidSupportAbove(level, pos) && !level.isWaterAt(pos);
     }
 
+    //? if <1.21.2 {
+/*@Override
+protected BlockState updateShape(
+        BlockState state,
+        Direction direction,
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos
+) {
+    return direction == Direction.UP && !this.canSurvive(state, level, pos)
+            ? Blocks.AIR.defaultBlockState()
+            : super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+}
+*///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
@@ -114,6 +133,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
                 ? Blocks.AIR.defaultBlockState()
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
+//?}
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

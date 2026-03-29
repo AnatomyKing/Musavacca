@@ -8,7 +8,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+//? if <1.21.2 {
+/*import net.minecraft.world.level.LevelAccessor;
+ *///?} else {
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.level.ScheduledTickAccess;
+//?}
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +23,6 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -127,6 +131,30 @@ public class BreakBlock extends Block implements BonemealableBlock {
         return state.getValue(ATTACHED) ? Direction.DOWN : Direction.UP;
     }
 
+    //? if <1.21.2 {
+/*@Override
+protected BlockState updateShape(
+        BlockState state,
+        Direction direction,
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos
+) {
+    boolean supportBroken =
+            getConnectedDirection(state).getOpposite() == direction && !state.canSurvive(level, pos);
+
+    boolean hexBelowBroken =
+            state.getValue(ATTACHED)
+                    && direction == Direction.DOWN
+                    && !(neighborState.getBlock() instanceof HexBlock)
+                    && !(neighborState.getBlock() instanceof BreakBlock);
+
+    return supportBroken || hexBelowBroken
+            ? Blocks.AIR.defaultBlockState()
+            : super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+}
+*///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
@@ -151,6 +179,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
                 ? Blocks.AIR.defaultBlockState()
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
+    //?}
 
     private static VoxelShape shapeFor(BlockState state) {
         return switch (state.getValue(AGE)) {
@@ -239,7 +268,11 @@ protected VoxelShape getOcclusionShape(BlockState state) {
     }
 
     private static <T extends Entity> void spawnEntitySafely(ServerLevel level, BlockPos pos, boolean attached, EntityType<T> type) {
+        //? if <1.21.2 {
+        /*T entity = type.create(level);
+         *///?} else {
         T entity = type.create(level, EntitySpawnReason.TRIGGERED);
+        //?}
         if (entity == null) return;
 
         final double x = pos.getX() + 0.5D;

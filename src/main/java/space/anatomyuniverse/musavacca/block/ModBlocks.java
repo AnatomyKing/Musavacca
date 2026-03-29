@@ -55,11 +55,10 @@ public final class ModBlocks {
                 name,
                 props -> new BlockItem(
                         MUSAVACCA_EGG.get(),
-                        props.useBlockDescriptionPrefix()
-                                .component(
-                                        DataComponents.BLOCK_STATE,
-                                        BlockItemStateProperties.EMPTY.with(BreakBlock.AGE, age)
-                                )
+                        props.component(
+                                DataComponents.BLOCK_STATE,
+                                BlockItemStateProperties.EMPTY.with(BreakBlock.AGE, age)
+                        )
                 )
         );
     }

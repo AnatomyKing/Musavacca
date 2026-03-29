@@ -14,7 +14,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+//? if <1.21.2 {
+/*import net.minecraft.world.level.LevelAccessor;
+ *///?} else {
 import net.minecraft.world.level.ScheduledTickAccess;
+//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -83,6 +87,21 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         }
     }
 
+    //? if <1.21.2 {
+    /*@Override
+    protected BlockState updateShape(
+            BlockState state,
+            Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+    ) {
+        return this.canSurvive(state, level, pos)
+                ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
+                : Blocks.AIR.defaultBlockState();
+    }
+*///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
@@ -98,6 +117,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                 ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
                 : Blocks.AIR.defaultBlockState();
     }
+//?}
 
     private static boolean shouldRunPearlFireTick(ServerLevel level, BlockPos pos) {
         //? if <1.21.5 {

@@ -25,7 +25,11 @@ public final class ModEntities {
                     registryName -> EntityType.Builder
                             .of(BananaCow::new, MobCategory.CREATURE)
                             .sized(0.9F, 1.4F)
+                            //? if <1.21.2 {
+                            /*.build(registryName.toString())
+                             *///?} else {
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, registryName))
+                    //?}
             );
 
     public static void register(IEventBus modBus) {

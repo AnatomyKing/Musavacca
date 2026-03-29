@@ -1,7 +1,12 @@
-
 package space.anatomyuniverse.musavacca.entity.mob.bananacow.clientmodel;
 
+//? if <1.21.2 {
+/*import net.minecraft.client.model.HierarchicalModel;
+ *///?} else {
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+//?}
+
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -10,14 +15,19 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 
+//? if <1.21.2 {
+/*public class BananaCowModel extends HierarchicalModel<BananaCow> {
+ *///?} else {
 public class BananaCowModel extends EntityModel<BananaCowModel.State> {
+//?}
 
+    //? if >=1.21.2 {
     public static class State extends LivingEntityRenderState {
         public float headYawRad;
         public float headPitchRad;
@@ -25,12 +35,17 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
         public float limbSwingAmount;
         public float ageTicks;
     }
+    //?}
 
     public static final ModelLayerLocation LAYER_LOCATION =
             new ModelLayerLocation(
                     ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "banana_cow"),
                     "main"
             );
+
+    //? if <1.21.2 {
+    /*private final ModelPart root;
+     *///?}
 
     private final ModelPart hHead;
     private final ModelPart tail;
@@ -43,7 +58,12 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
     private final float tailBaseXRot;
 
     public BananaCowModel(ModelPart bakedRoot) {
+        //? if >=1.21.2
         super(bakedRoot);
+
+        //? if <1.21.2 {
+        /*this.root = bakedRoot;
+         *///?}
 
         ModelPart bananacow = bakedRoot.getChild("bananacow");
 
@@ -153,6 +173,48 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
         return LayerDefinition.create(meshdefinition, 128, 128);
     }
 
+    //? if <1.21.2 {
+    /*@Override
+    public ModelPart root() {
+        return this.root;
+    }
+    *///?}
+
+    //? if <1.21.2 {
+    /*@Override
+    public void setupAnim(@NotNull BananaCow entity,
+                          float limbSwing,
+                          float limbSwingAmount,
+                          float ageInTicks,
+                          float netHeadYaw,
+                          float headPitch) {
+        float clampedYaw = Mth.clamp(netHeadYaw, -90.0F, 90.0F);
+        float clampedPitch = Mth.clamp(headPitch, -45.0F, 45.0F);
+
+        this.hHead.yRot = clampedYaw * Mth.DEG_TO_RAD;
+        this.hHead.xRot = this.headBaseXRot + (clampedPitch * Mth.DEG_TO_RAD);
+
+        if (entity.isBaby()) {
+            this.hHead.xScale = 1.40F;
+            this.hHead.yScale = 1.40F;
+            this.hHead.zScale = 1.40F;
+        } else {
+            this.hHead.xScale = 1.0F;
+            this.hHead.yScale = 1.0F;
+            this.hHead.zScale = 1.0F;
+        }
+
+        float walk = limbSwing;
+        float amt = limbSwingAmount;
+
+        this.rightFrontLeg.xRot = Mth.cos(walk * 0.6662F) * 1.4F * amt;
+        this.leftBackLeg.xRot   = Mth.cos(walk * 0.6662F) * 1.4F * amt;
+        this.leftFrontLeg.xRot  = Mth.cos(walk * 0.6662F + Mth.PI) * 1.4F * amt;
+        this.rightBackLeg.xRot  = Mth.cos(walk * 0.6662F + Mth.PI) * 1.4F * amt;
+
+        this.tail.xRot = this.tailBaseXRot + (Mth.cos(ageInTicks * 0.2F) * 0.05F);
+    }
+    *///?} else {
     @Override
     public void setupAnim(@NotNull State s) {
         this.hHead.yRot = s.headYawRad;
@@ -178,4 +240,5 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
 
         this.tail.xRot = this.tailBaseXRot + (Mth.cos(s.ageTicks * 0.2F) * 0.05F);
     }
+    //?}
 }

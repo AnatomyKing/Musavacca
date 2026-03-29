@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.entity.mob.bananacow.clientmodel;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -9,8 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 
-public final class BananaCowRenderer
-        extends MobRenderer<BananaCow, BananaCowModel.State, BananaCowModel> {
+//? if <1.21.2 {
+/*public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowModel> {
+ *///?} else {
+public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowModel.State, BananaCowModel> {
+//?}
 
     private static final ResourceLocation TEXTURE =
             ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/cow/banana_cow.png");
@@ -21,6 +23,7 @@ public final class BananaCowRenderer
         super(ctx, new BananaCowModel(ctx.bakeLayer(BananaCowModel.LAYER_LOCATION)), SHADOW);
     }
 
+    //? if >=1.21.2 {
     @Override
     public @NotNull BananaCowModel.State createRenderState() {
         return new BananaCowModel.State();
@@ -53,4 +56,10 @@ public final class BananaCowRenderer
     public @NotNull ResourceLocation getTextureLocation(@NotNull BananaCowModel.State s) {
         return TEXTURE;
     }
+    //?} else {
+    /*@Override
+    public @NotNull ResourceLocation getTextureLocation(@NotNull BananaCow entity) {
+        return TEXTURE;
+    }
+    *///?}
 }

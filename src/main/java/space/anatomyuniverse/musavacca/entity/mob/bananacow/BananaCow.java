@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.entity.mob.bananacow;
 
 import net.minecraft.server.level.ServerLevel;
@@ -20,11 +19,16 @@ public class BananaCow extends Cow {
     }
 
     public static @NotNull AttributeSupplier.Builder createAttributes() {
-        return Cow.createLivingAttributes()
+        AttributeSupplier.Builder builder = Cow.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(Attributes.FOLLOW_RANGE, 16.0D)
-                .add(Attributes.TEMPT_RANGE, 10.0D);
+                .add(Attributes.FOLLOW_RANGE, 16.0D);
+
+        //? if >=1.21.2 {
+        builder.add(Attributes.TEMPT_RANGE, 10.0D);
+        //?}
+
+        return builder;
     }
 
     @Override
