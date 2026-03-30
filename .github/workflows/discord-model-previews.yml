@@ -1,0 +1,68 @@
+name: Discord model previews
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'assets/**/models/item/**/*.json'
+      - '.github/workflows/discord-model-previews.yml'
+      - 'index.html'
+      - 'package.json'
+      - 'render.mjs'
+      - 'src/main.js'
+
+jobs:
+  send-previews:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Get changed model files
+        id: changed-files
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323
+        with:
+          json: true
+          files: |
+            assets/**/models/item/**/*.json
+
+      - name: Setup Node
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install npm packages
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Render and send previews
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          CHANGED_FILES_JSON: ${{ steps.changed-files.outputs.all_changed_files }}
+          PREVIEW_URL: http://127.0.0.1:4173/
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 4173 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID" EXIT
+          npm run send-model-previews
+
+      - name: Upload preview images
+        if: ${{ !cancelled() && steps.changed-files.outputs.any_changed == 'true' }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: model-previews
+          path: artifacts/
+          retention-days: 7
