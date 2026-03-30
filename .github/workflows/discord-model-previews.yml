@@ -5,12 +5,15 @@ on:
     branches:
       - '**'
     paths:
-      - 'assets/**/models/item/**/*.json'
+      - 'src/main/resources/assets/**/models/item/**/*.json'
       - '.github/workflows/discord-model-previews.yml'
-      - 'index.html'
-      - 'package.json'
-      - 'render.mjs'
-      - 'src/main.js'
+      - 'astro/package.json'
+      - 'astro/package-lock.json'
+      - 'astro/astro.config.mjs'
+      - 'astro/tsconfig.json'
+      - 'astro/render.mjs'
+      - 'astro/src/pages/model-preview.astro'
+      - 'astro/src/components/ModelPreviewApp.jsx'
 
 jobs:
   send-previews:
@@ -18,51 +21,43 @@ jobs:
     permissions:
       contents: read
 
+    defaults:
+      run:
+        working-directory: astro
+
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          fetch-depth: 2
-
-      - name: Get changed model files
-        id: changed-files
-        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323
-        with:
-          json: true
-          files: |
-            assets/**/models/item/**/*.json
+          fetch-depth: 0
 
       - name: Setup Node
-        if: steps.changed-files.outputs.any_changed == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: astro/package-lock.json
 
-      - name: Install npm packages
-        if: steps.changed-files.outputs.any_changed == 'true'
+      - name: Install packages
         run: npm ci
 
       - name: Install Playwright Chromium
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium --with-deps
 
       - name: Render and send previews
-        if: steps.changed-files.outputs.any_changed == 'true'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          CHANGED_FILES_JSON: ${{ steps.changed-files.outputs.all_changed_files }}
-          PREVIEW_URL: http://127.0.0.1:4173/
+          PREVIEW_URL: http://127.0.0.1:4321/model-preview
         run: |
-          npm run dev -- --host 127.0.0.1 --port 4173 &
+          npm run dev -- --host 127.0.0.1 --port 4321 &
           SERVER_PID=$!
           trap "kill $SERVER_PID" EXIT
           npm run send-model-previews
 
       - name: Upload preview images
-        if: ${{ !cancelled() && steps.changed-files.outputs.any_changed == 'true' }}
-        uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
         with:
           name: model-previews
-          path: artifacts/
+          path: astro/artifacts/
           retention-days: 7
