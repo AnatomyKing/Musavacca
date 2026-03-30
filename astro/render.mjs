@@ -74,7 +74,9 @@ async function getChangedModelPaths() {
                 .map((line) => toPosix(line.trim()))
                 .filter((line) => MODEL_PATH_REGEX.test(line))
         )].slice(0, MAX_PREVIEWS);
-    } catch {
+    } catch (error) {
+        console.warn('Failed to detect changed model paths from git diff.');
+        console.warn(error?.message || error);
         return [];
     }
 }
@@ -265,12 +267,21 @@ async function main() {
                 deviceScaleFactor: 2
             });
 
+            page.on('console', (msg) => {
+                console.log(`[browser:${msg.type()}] ${msg.text()}`);
+            });
+
+            page.on('pageerror', (err) => {
+                console.log(`[browser:error] ${err.message}`);
+            });
+
             await page.addInitScript((value) => {
                 window.__PREVIEW_ITEM__ = value;
             }, previewItem);
 
             await page.goto(PREVIEW_URL, { waitUntil: 'domcontentloaded' });
-            await page.waitForSelector('#card.ready', { timeout: 120000 });
+            await page.waitForSelector('#card', { timeout: 120000 });
+            await page.waitForTimeout(3500);
 
             const outputFileName = `${safeFileName(previewItem.modelId)}.png`;
             const outputPath = path.join(artifactsDir, outputFileName);

@@ -34,22 +34,6 @@ export default function ModelPreviewApp() {
         setItem(window.__PREVIEW_ITEM__ ?? null);
     }, []);
 
-    useEffect(() => {
-        if (!item) return;
-
-        const timer = setInterval(() => {
-            const img = document.querySelector('.preview-image');
-            const card = document.getElementById('card');
-
-            if (img && img.complete && img.naturalWidth > 0 && card) {
-                card.classList.add('ready');
-                clearInterval(timer);
-            }
-        }, 50);
-
-        return () => clearInterval(timer);
-    }, [item]);
-
     const resolveTextureUrl = useMemo(() => {
         return (resourceLocation) => {
             if (!item) return MISSING_TEXTURE;
@@ -70,7 +54,7 @@ export default function ModelPreviewApp() {
 
     if (!item) {
         return (
-            <div id="card" className="ready">
+            <div id="card">
                 <div className="empty">No preview item provided.</div>
             </div>
         );
