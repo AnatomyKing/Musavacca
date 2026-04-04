@@ -1,0 +1,6 @@
+{
+  "parent": "musavacca:block/custom_parent/tinted_template_fire_side",
+  "textures": {
+    "fire": "musavacca:block/pearl_fire_1"
+  }
+}
