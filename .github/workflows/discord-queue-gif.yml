@@ -115,6 +115,11 @@ jobs:
             return `${match[1]}:${match[2].replace(/\\/g, '/')}`;
           }
 
+          function isRenderableChange(file) {
+            const status = typeof file?.status === 'string' ? file.status.toLowerCase() : '';
+            return status === 'added' || status === 'modified';
+          }
+
           async function sendDiscordGif(gifBuffer, modelIds, blockstateIds) {
             const titleParts = [];
             if (modelIds.length) titleParts.push(`${modelIds.length} item model${modelIds.length === 1 ? '' : 's'}`);
@@ -160,6 +165,11 @@ jobs:
                 const filename = file && file.filename;
                 if (typeof filename !== 'string') continue;
 
+                if (!isRenderableChange(file)) {
+                  console.log(`Skipping ${filename} because status is "${file.status}"`);
+                  continue;
+                }
+
                 const modelId = toModelId(filename);
                 if (modelId) {
                   changedItemModelIds.push(modelId);
@@ -176,7 +186,7 @@ jobs:
               const uniqueBlockstateIds = [...new Set(changedBlockstateIds)];
 
               if (uniqueModelIds.length === 0 && uniqueBlockstateIds.length === 0) {
-                console.log('No changed item model JSON files or blockstate JSON files found, skipping.');
+                console.log('No added/modified item model JSON files or blockstate JSON files found, skipping.');
                 process.exit(0);
               }
 
