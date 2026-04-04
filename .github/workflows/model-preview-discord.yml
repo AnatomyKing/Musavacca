@@ -174,14 +174,25 @@ jobs:
 
           BATCH_DIR="$RUNNER_TEMP/gif-batches"
           SAFE_MAX_BYTES=9500000
-          BATCH_SIZE=6
+
+          # Fixed render settings for every ID in every batch
+          FIXED_IMAGE_SIZE=128
+          FIXED_FRAME_COUNT=36
+          FIXED_MAX_COLUMNS=5
+          FIXED_FRAME_DELAY_MS=60
+
+          INITIAL_BATCH_SIZE=6
 
           mkdir -p "$BATCH_DIR"
 
           export BATCH_DIR
           export MODEL_IDS_JSON
           export BLOCKSTATE_IDS_JSON
-          export BATCH_SIZE
+          export INITIAL_BATCH_SIZE
+          export FIXED_IMAGE_SIZE
+          export FIXED_FRAME_COUNT
+          export FIXED_MAX_COLUMNS
+          export FIXED_FRAME_DELAY_MS
 
           python <<'PY'
           import json
@@ -189,7 +200,7 @@ jobs:
           from pathlib import Path
 
           batch_dir = Path(os.environ["BATCH_DIR"])
-          batch_size = int(os.environ["BATCH_SIZE"])
+          initial_batch_size = int(os.environ["INITIAL_BATCH_SIZE"])
 
           entries = []
 
@@ -204,21 +215,17 @@ jobs:
           if not entries:
               raise SystemExit("No model/blockstate ids were provided.")
 
-          for index in range(0, len(entries), batch_size):
-              chunk = entries[index:index + batch_size]
-              batch_path = batch_dir / f"batch_{index // batch_size + 1:03d}.json"
+          for index in range(0, len(entries), initial_batch_size):
+              chunk = entries[index:index + initial_batch_size]
+              batch_path = batch_dir / f"batch_{index // initial_batch_size + 1:03d}.json"
               batch_path.write_text(json.dumps(chunk, ensure_ascii=False), encoding="utf-8")
 
-          print(f"Created {len(list(batch_dir.glob('batch_*.json')))} batch file(s).")
+          print(f"Created {len(list(batch_dir.glob('batch_*.json')))} initial batch file(s).")
           PY
 
           render_batch () {
             local batch_json="$1"
             local out_gif="$2"
-            local image_size="$3"
-            local frame_count="$4"
-            local max_columns="$5"
-            local frame_delay_ms="$6"
 
             local entry_tsv="$RUNNER_TEMP/entries.tsv"
             rm -f "$out_gif" "$entry_tsv"
@@ -247,10 +254,10 @@ jobs:
               --assets-root "src/main/resources/assets"
               --assets-root "versions/1.21.8/src/generated/resources/assets"
               --output "$out_gif"
-              --image-size "$image_size"
-              --frame-count "$frame_count"
-              --max-columns "$max_columns"
-              --frame-delay-ms "$frame_delay_ms"
+              --image-size "$FIXED_IMAGE_SIZE"
+              --frame-count "$FIXED_FRAME_COUNT"
+              --max-columns "$FIXED_MAX_COLUMNS"
+              --frame-delay-ms "$FIXED_FRAME_DELAY_MS"
             )
 
             while IFS=$'\t' read -r kind value; do
@@ -275,6 +282,37 @@ jobs:
               node ./.github/renderer-runner/node_modules/@iskallia-dev/item-model-renderer/dist/lib/node/cli.js "${ARGS[@]}"
 
             test -f "$out_gif"
+          }
+
+          split_batch () {
+            local source_batch="$1"
+
+            SOURCE_BATCH="$source_batch" python <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          source = Path(os.environ["SOURCE_BATCH"])
+          items = json.loads(source.read_text(encoding="utf-8"))
+
+          if len(items) <= 1:
+              raise SystemExit(f"Cannot split further: {source}")
+
+          half = (len(items) + 1) // 2
+          left = items[:half]
+          right = items[half:]
+
+          left_path = source.with_name(source.stem + "_a.json")
+          right_path = source.with_name(source.stem + "_b.json")
+
+          left_path.write_text(json.dumps(left, ensure_ascii=False), encoding="utf-8")
+          right_path.write_text(json.dumps(right, ensure_ascii=False), encoding="utf-8")
+
+          source.unlink()
+
+          print(left_path)
+          print(right_path)
+          PY
           }
 
           upload_one () {
@@ -376,43 +414,31 @@ jobs:
           }
 
           shopt -s nullglob
-          BATCH_FILES=("$BATCH_DIR"/batch_*.json)
 
-          if [ "${#BATCH_FILES[@]}" -eq 0 ]; then
-            echo "No batch files were produced."
-            exit 1
-          fi
+          while true; do
+            BATCH_FILES=("$BATCH_DIR"/batch_*.json)
 
-          batch_number=0
-          for batch_json in "${BATCH_FILES[@]}"; do
-            batch_number=$((batch_number + 1))
-            out_gif="$RUNNER_TEMP/queue_batch_${batch_number}.gif"
+            if [ "${#BATCH_FILES[@]}" -eq 0 ]; then
+              break
+            fi
 
-            echo "=== Rendering batch $batch_number: $batch_json ==="
+            batch_json="${BATCH_FILES[0]}"
+            base_name="$(basename "$batch_json" .json)"
+            out_gif="$RUNNER_TEMP/${base_name}.gif"
 
-            render_batch "$batch_json" "$out_gif" 128 36 5 60
+            echo "=== Rendering batch: $batch_json ==="
+            render_batch "$batch_json" "$out_gif"
+
             size_bytes=$(stat -c%s "$out_gif")
-            echo "Batch $batch_number size after first render: $size_bytes bytes"
+            echo "Rendered size: $size_bytes bytes"
 
-            if [ "$size_bytes" -gt "$SAFE_MAX_BYTES" ]; then
-              echo "Batch $batch_number too large, retrying smaller..."
-              render_batch "$batch_json" "$out_gif" 96 24 4 70
-              size_bytes=$(stat -c%s "$out_gif")
-              echo "Batch $batch_number size after second render: $size_bytes bytes"
+            if [ "$size_bytes" -le "$SAFE_MAX_BYTES" ]; then
+              upload_one "$out_gif"
+              rm -f "$batch_json" "$out_gif"
+              continue
             fi
 
-            if [ "$size_bytes" -gt "$SAFE_MAX_BYTES" ]; then
-              echo "Batch $batch_number still too large, retrying even smaller..."
-              render_batch "$batch_json" "$out_gif" 80 18 3 80
-              size_bytes=$(stat -c%s "$out_gif")
-              echo "Batch $batch_number size after third render: $size_bytes bytes"
-            fi
-
-            if [ "$size_bytes" -gt "$SAFE_MAX_BYTES" ]; then
-              echo "Batch $batch_number is still too large after all retries: $size_bytes bytes"
-              echo "Lower BATCH_SIZE or shrink render settings further."
-              exit 1
-            fi
-
-            upload_one "$out_gif"
+            echo "Batch too large, splitting into two smaller collage batches..."
+            rm -f "$out_gif"
+            split_batch "$batch_json" >/dev/null
           done
