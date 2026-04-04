@@ -55,6 +55,7 @@ jobs:
           AFTER_SHA: ${{ github.sha }}
         run: |
           python <<'PY'
+          import json
           import os
           import re
           import subprocess
@@ -62,7 +63,6 @@ jobs:
 
           before = os.environ.get("BEFORE_SHA", "")
           after = os.environ["AFTER_SHA"]
-          runner_temp = Path(os.environ["RUNNER_TEMP"])
           output_path = Path(os.environ["GITHUB_OUTPUT"])
 
           empty_tree = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
@@ -134,16 +134,17 @@ jobs:
                           blockstate_ids.append(blockstate_id)
                       break
 
-          models_file = runner_temp / "changed-model-ids.txt"
-          blockstates_file = runner_temp / "changed-blockstate-ids.txt"
-
-          models_file.write_text("\n".join(model_ids), encoding="utf-8")
-          blockstates_file.write_text("\n".join(blockstate_ids), encoding="utf-8")
-
           has_targets = "true" if (model_ids or blockstate_ids) else "false"
 
           with output_path.open("a", encoding="utf-8") as f:
               f.write(f"has_targets={has_targets}\n")
+              f.write(f"model_ids_json={json.dumps(model_ids, ensure_ascii=False)}\n")
+              f.write(f"blockstate_ids_json={json.dumps(blockstate_ids, ensure_ascii=False)}\n")
+              f.write(f"model_count={len(model_ids)}\n")
+              f.write(f"blockstate_count={len(blockstate_ids)}\n")
+
+          print("Detected model ids:", model_ids)
+          print("Detected blockstate ids:", blockstate_ids)
           PY
 
       - name: Stop early when nothing relevant remains
@@ -165,32 +166,64 @@ jobs:
       - name: Render queue GIF
         if: steps.detect.outputs.has_targets == 'true'
         id: render
+        env:
+          MODEL_IDS_JSON: ${{ steps.detect.outputs.model_ids_json }}
+          BLOCKSTATE_IDS_JSON: ${{ steps.detect.outputs.blockstate_ids_json }}
         run: |
           set -euo pipefail
 
           OUT_GIF="$RUNNER_TEMP/queue.gif"
+          ARGS_FILE="$RUNNER_TEMP/render-args.txt"
 
-          ARGS=(
-            render-queue
-            --assets-root "src/main/resources/assets"
-            --assets-root "versions/1.21.8/src/generated/resources/assets"
-            --output "$OUT_GIF"
+          export OUT_GIF
+          export ARGS_FILE
+
+          python <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          model_ids = json.loads(os.environ.get("MODEL_IDS_JSON", "[]"))
+          blockstate_ids = json.loads(os.environ.get("BLOCKSTATE_IDS_JSON", "[]"))
+
+          args = [
+              "render-queue",
+              "--assets-root", "src/main/resources/assets",
+              "--assets-root", "versions/1.21.8/src/generated/resources/assets",
+              "--output", os.environ["OUT_GIF"],
+          ]
+
+          for model_id in model_ids:
+              if model_id:
+                  args.extend(["--model-id", model_id])
+
+          for blockstate_id in blockstate_ids:
+              if blockstate_id:
+                  args.extend(["--blockstate-id", blockstate_id])
+
+          Path(os.environ["ARGS_FILE"]).write_text(
+              "\n".join(args) + "\n",
+              encoding="utf-8"
           )
+          PY
 
-          while IFS= read -r line; do
-            if [ -n "$line" ]; then
-              ARGS+=(--model-id "$line")
-            fi
-          done < "$RUNNER_TEMP/changed-model-ids.txt"
-
-          while IFS= read -r line; do
-            if [ -n "$line" ]; then
-              ARGS+=(--blockstate-id "$line")
-            fi
-          done < "$RUNNER_TEMP/changed-blockstate-ids.txt"
+          mapfile -t ARGS < "$ARGS_FILE"
 
           echo "Final renderer args:"
           printf '  %s\n' "${ARGS[@]}"
+
+          FOUND_IDS=0
+          for arg in "${ARGS[@]}"; do
+            if [ "$arg" = "--model-id" ] || [ "$arg" = "--blockstate-id" ]; then
+              FOUND_IDS=1
+              break
+            fi
+          done
+
+          if [ "$FOUND_IDS" -ne 1 ]; then
+            echo "No --model-id or --blockstate-id flags were produced."
+            exit 1
+          fi
 
           xvfb-run -a -s "-ac -screen 0 1280x1024x24" \
             node ./.github/renderer-runner/node_modules/@iskallia-dev/item-model-renderer/dist/lib/node/cli.js "${ARGS[@]}"
@@ -230,7 +263,7 @@ jobs:
           }
 
           const gifBuffer = fs.readFileSync(gifPath);
-          const boundary = '----ChatGPTDiscordBoundary' + Math.random().toString(16).slice(2);
+          const boundary = '----DiscordBoundary' + Math.random().toString(16).slice(2);
 
           const payload = JSON.stringify({
             allowed_mentions: { parse: [] },
