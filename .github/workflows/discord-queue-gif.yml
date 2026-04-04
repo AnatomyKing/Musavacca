@@ -1,0 +1,178 @@
+# file: .github/workflows/discord-queue-gif.yml
+name: Discord queue GIF previews
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  send-queue-gif:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build changed item/blockstate queue GIF and send to Discord
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          QUEUE_GIF_API_URL: ${{ secrets.QUEUE_GIF_API_URL }}
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+
+          const webhook = process.env.DISCORD_WEBHOOK;
+          const apiUrl = process.env.QUEUE_GIF_API_URL;
+          const token = process.env.GITHUB_TOKEN;
+
+          if (!webhook) {
+            console.error('DISCORD_WEBHOOK secret is not set');
+            process.exit(1);
+          }
+
+          if (!apiUrl) {
+            console.error('QUEUE_GIF_API_URL secret is not set');
+            process.exit(1);
+          }
+
+          const payloadPath = process.env.GITHUB_EVENT_PATH;
+          const payload = JSON.parse(fs.readFileSync(payloadPath, 'utf8'));
+          const repoFull = payload.repository.full_name;
+          const headSha = payload.after || (payload.head_commit && payload.head_commit.id);
+          const baseSha = payload.before;
+
+          if (!repoFull || !headSha || !baseSha || headSha === baseSha) {
+            console.log('No usable base/head diff found, skipping.');
+            process.exit(0);
+          }
+
+          const [owner, repo] = repoFull.split('/');
+
+          async function ghRequest(pathname) {
+            const response = await fetch(`https://api.github.com${pathname}`, {
+              headers: {
+                'User-Agent': 'github-actions',
+                'Accept': 'application/vnd.github+json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(`GitHub API ${response.status}: ${await response.text()}`);
+            }
+
+            return response.json();
+          }
+
+          function toModelId(filename) {
+            const match = filename.match(/^src\/main\/resources\/assets\/([^/]+)\/models\/item\/(.+)\.json$/i);
+            if (!match) return null;
+            return `${match[1]}:item/${match[2].replace(/\\/g, '/')}`;
+          }
+
+          function toBlockstateId(filename) {
+            const match = filename.match(/^src\/main\/resources\/assets\/([^/]+)\/blockstates\/(.+)\.json$/i);
+            if (!match) return null;
+            return `${match[1]}:${match[2].replace(/\\/g, '/')}`;
+          }
+
+          async function sendDiscordGif(gifBuffer, modelIds, blockstateIds) {
+            const titleParts = [];
+            if (modelIds.length) titleParts.push(`${modelIds.length} item model${modelIds.length === 1 ? '' : 's'}`);
+            if (blockstateIds.length) titleParts.push(`${blockstateIds.length} blockstate${blockstateIds.length === 1 ? '' : 's'}`);
+
+            const payload = {
+              embeds: [
+                {
+                  title: 'Changed item models / blockstates',
+                  description: titleParts.join(' + '),
+                  image: { url: 'attachment://queue.gif' },
+                }
+              ]
+            };
+
+            const form = new FormData();
+            form.append('payload_json', JSON.stringify(payload));
+            form.append(
+              'file',
+              new Blob([gifBuffer], { type: 'image/gif' }),
+              'queue.gif'
+            );
+
+            const response = await fetch(webhook, {
+              method: 'POST',
+              body: form,
+            });
+
+            if (!response.ok) {
+              throw new Error(`Discord ${response.status}: ${await response.text()}`);
+            }
+          }
+
+          (async () => {
+            try {
+              const compare = await ghRequest(`/repos/${owner}/${repo}/compare/${baseSha}...${headSha}`);
+              const files = compare.files || [];
+
+              const changedItemModelIds = [];
+              const changedBlockstateIds = [];
+
+              for (const file of files) {
+                const filename = file && file.filename;
+                if (typeof filename !== 'string') continue;
+
+                const modelId = toModelId(filename);
+                if (modelId) {
+                  changedItemModelIds.push(modelId);
+                  continue;
+                }
+
+                const blockstateId = toBlockstateId(filename);
+                if (blockstateId) {
+                  changedBlockstateIds.push(blockstateId);
+                }
+              }
+
+              const uniqueModelIds = [...new Set(changedItemModelIds)];
+              const uniqueBlockstateIds = [...new Set(changedBlockstateIds)];
+
+              if (uniqueModelIds.length === 0 && uniqueBlockstateIds.length === 0) {
+                console.log('No changed item model JSON files or blockstate JSON files found, skipping.');
+                process.exit(0);
+              }
+
+              console.log('Changed item model ids:', uniqueModelIds);
+              console.log('Changed blockstate ids:', uniqueBlockstateIds);
+
+              const renderResponse = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  modelIds: uniqueModelIds,
+                  blockstateIds: uniqueBlockstateIds,
+                  timeoutMs: 120000
+                }),
+              });
+
+              if (!renderResponse.ok) {
+                throw new Error(`Queue GIF API ${renderResponse.status}: ${await renderResponse.text()}`);
+              }
+
+              const gifBuffer = Buffer.from(await renderResponse.arrayBuffer());
+
+              if (!gifBuffer.length) {
+                throw new Error('Queue GIF API returned an empty GIF.');
+              }
+
+              await sendDiscordGif(gifBuffer, uniqueModelIds, uniqueBlockstateIds);
+              console.log('Queue GIF sent to Discord successfully.');
+            } catch (error) {
+              console.error(error);
+              process.exit(1);
+            }
+          })();
+          EOF
