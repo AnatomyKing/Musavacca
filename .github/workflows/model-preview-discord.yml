@@ -15,7 +15,7 @@ jobs:
       contents: read
 
     env:
-      RENDERER_TGZ: ${{ github.workspace }}/.github/vendor/item-model-renderer.tgz
+      RENDERER_TGZ: ${{ github.workspace }}/.github/vendor/iskallia-dev-item-model-renderer-2.0.0.tgz
       ROOT_ONE: src/main/resources/assets
       ROOT_TWO: versions/1.21.8/src/generated/resources/assets
 
