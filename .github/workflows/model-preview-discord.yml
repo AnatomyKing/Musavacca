@@ -1,3 +1,4 @@
+# file: .github/workflows/model-preview-discord.yml
 name: Preview model changes in Discord
 
 on:
@@ -64,10 +65,7 @@ jobs:
           output_path = Path(os.environ["GITHUB_OUTPUT"])
 
           empty_tree = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
-          if not before or set(before) == {"0"}:
-              base = empty_tree
-          else:
-              base = before
+          base = empty_tree if (not before or set(before) == {"0"}) else before
 
           diff = subprocess.check_output(
               ["git", "diff", "--name-status", base, after],
@@ -96,11 +94,9 @@ jobs:
 
               status = parts[0]
 
-              # Ignore deletions
               if status.startswith("D"):
                   continue
 
-              # For rename/copy, use destination path
               if (status.startswith("R") or status.startswith("C")) and len(parts) >= 3:
                   path = parts[2]
               elif len(parts) >= 2:
@@ -110,7 +106,6 @@ jobs:
 
               path = path.replace("\\", "/")
 
-              # Only include files that still exist in HEAD
               if not os.path.exists(path):
                   continue
 
@@ -141,13 +136,24 @@ jobs:
           models_file = runner_temp / "changed-model-ids.txt"
           blockstates_file = runner_temp / "changed-blockstate-ids.txt"
 
-          models_file.write_text("\n".join(model_ids), encoding="utf-8")
-          blockstates_file.write_text("\n".join(blockstate_ids), encoding="utf-8")
+          models_file.write_text(
+              ("\n".join(model_ids) + ("\n" if model_ids else "")),
+              encoding="utf-8"
+          )
+          blockstates_file.write_text(
+              ("\n".join(blockstate_ids) + ("\n" if blockstate_ids else "")),
+              encoding="utf-8"
+          )
 
           has_targets = "true" if (model_ids or blockstate_ids) else "false"
 
           with output_path.open("a", encoding="utf-8") as f:
               f.write(f"has_targets={has_targets}\n")
+              f.write(f"model_count={len(model_ids)}\n")
+              f.write(f"blockstate_count={len(blockstate_ids)}\n")
+
+          print("Detected model ids:", model_ids)
+          print("Detected blockstate ids:", blockstate_ids)
           PY
 
       - name: Stop early when nothing relevant remains
@@ -169,8 +175,13 @@ jobs:
       - name: Render queue GIF
         if: steps.detect.outputs.has_targets == 'true'
         id: render
+        shell: bash
         run: |
+          set -euo pipefail
+
           OUT_GIF="$RUNNER_TEMP/queue.gif"
+          MODELS_FILE="$RUNNER_TEMP/changed-model-ids.txt"
+          BLOCKSTATES_FILE="$RUNNER_TEMP/changed-blockstate-ids.txt"
 
           ARGS=(
             render-queue
@@ -179,21 +190,25 @@ jobs:
             --output "$OUT_GIF"
           )
 
-          while IFS= read -r line; do
+          while IFS= read -r line || [ -n "$line" ]; do
             if [ -n "$line" ]; then
               ARGS+=(--model-id "$line")
             fi
-          done < "$RUNNER_TEMP/changed-model-ids.txt"
+          done < "$MODELS_FILE"
 
-          while IFS= read -r line; do
+          while IFS= read -r line || [ -n "$line" ]; do
             if [ -n "$line" ]; then
               ARGS+=(--blockstate-id "$line")
             fi
-          done < "$RUNNER_TEMP/changed-blockstate-ids.txt"
+          done < "$BLOCKSTATES_FILE"
+
+          echo "Final renderer args:"
+          printf '  %q\n' "${ARGS[@]}"
 
           node ./.github/renderer-runner/node_modules/@iskallia-dev/item-model-renderer/dist/lib/node/cli.js "${ARGS[@]}"
 
           test -f "$OUT_GIF"
+          echo "gif_path=$OUT_GITHUB_OUTPUT" >/dev/null 2>&1 || true
           echo "gif_path=$OUT_GIF" >> "$GITHUB_OUTPUT"
 
       - name: Send GIF to Discord with no text
@@ -207,7 +222,7 @@ jobs:
           const https = require('https');
 
           const webhook = (process.env.DISCORD_WEBHOOK || '').trim();
-          const gifPath = process.env.GIF_PATH;
+          const gifPath = (process.env.GIF_PATH || '').trim();
 
           if (!webhook) {
             console.error('DISCORD_WEBHOOK secret is missing or empty');
@@ -230,7 +245,6 @@ jobs:
           const gifBuffer = fs.readFileSync(gifPath);
           const boundary = '----ChatGPTDiscordBoundary' + Math.random().toString(16).slice(2);
 
-          // No text content. Only an embed that points at the attached gif.
           const payload = JSON.stringify({
             allowed_mentions: { parse: [] },
             embeds: [
