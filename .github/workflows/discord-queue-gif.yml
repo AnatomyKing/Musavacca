@@ -23,8 +23,8 @@ jobs:
           node - <<'EOF'
           const fs = require('fs');
 
-          const webhook = process.env.DISCORD_WEBHOOK;
-          const apiUrl = process.env.QUEUE_GIF_API_URL;
+          const webhook = (process.env.DISCORD_WEBHOOK || '').trim();
+          const rawApiUrl = (process.env.QUEUE_GIF_API_URL || '').trim();
           const token = process.env.GITHUB_TOKEN;
 
           if (!webhook) {
@@ -32,10 +32,47 @@ jobs:
             process.exit(1);
           }
 
-          if (!apiUrl) {
+          if (!rawApiUrl) {
             console.error('QUEUE_GIF_API_URL secret is not set');
             process.exit(1);
           }
+
+          function normalizePathname(pathname) {
+            const normalized = `/${String(pathname || '')}`.replace(/\/+/g, '/');
+            if (normalized === '/') {
+              return '/';
+            }
+            return normalized.replace(/\/+$/, '');
+          }
+
+          function resolveQueueGifApiUrl(rawValue) {
+            let url;
+            try {
+              url = new URL(rawValue);
+            } catch (error) {
+              throw new Error(
+                `QUEUE_GIF_API_URL is not a valid absolute URL: ${rawValue}`
+              );
+            }
+
+            const endpoint = '/api/queue-gif/render';
+            const currentPath = normalizePathname(url.pathname);
+
+            if (currentPath === '/') {
+              url.pathname = endpoint;
+            } else if (currentPath.endsWith(endpoint)) {
+              url.pathname = currentPath;
+            } else {
+              url.pathname = `${currentPath}${endpoint}`;
+            }
+
+            url.search = '';
+            url.hash = '';
+
+            return url.toString();
+          }
+
+          const apiUrl = resolveQueueGifApiUrl(rawApiUrl);
 
           const payloadPath = process.env.GITHUB_EVENT_PATH;
           const payload = JSON.parse(fs.readFileSync(payloadPath, 'utf8'));
@@ -145,7 +182,8 @@ jobs:
 
               console.log('Changed item model ids:', uniqueModelIds);
               console.log('Changed blockstate ids:', uniqueBlockstateIds);
-              console.log('Queue GIF API URL:', apiUrl);
+              console.log('Queue GIF API origin:', new URL(apiUrl).origin);
+              console.log('Queue GIF API path:', new URL(apiUrl).pathname);
 
               const renderResponse = await fetch(apiUrl, {
                 method: 'POST',
