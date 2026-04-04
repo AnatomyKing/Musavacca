@@ -163,94 +163,138 @@ jobs:
         if: steps.detect.outputs.has_targets == 'true' && steps.cache-runner.outputs.cache-hit != 'true'
         run: npm ci --prefix .github/renderer-runner
 
-      - name: Render queue GIF
+      - name: Render and send GIF batches to Discord with no text
         if: steps.detect.outputs.has_targets == 'true'
-        id: render
         env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           MODEL_IDS_JSON: ${{ steps.detect.outputs.model_ids_json }}
           BLOCKSTATE_IDS_JSON: ${{ steps.detect.outputs.blockstate_ids_json }}
         run: |
           set -euo pipefail
 
-          OUT_GIF="$RUNNER_TEMP/queue.gif"
-          ARGS_FILE="$RUNNER_TEMP/render-args.txt"
+          BATCH_DIR="$RUNNER_TEMP/gif-batches"
+          SAFE_MAX_BYTES=9500000
+          BATCH_SIZE=6
 
-          export OUT_GIF
-          export ARGS_FILE
+          mkdir -p "$BATCH_DIR"
+
+          export BATCH_DIR
+          export MODEL_IDS_JSON
+          export BLOCKSTATE_IDS_JSON
+          export BATCH_SIZE
 
           python <<'PY'
           import json
           import os
           from pathlib import Path
 
-          model_ids = json.loads(os.environ.get("MODEL_IDS_JSON", "[]"))
-          blockstate_ids = json.loads(os.environ.get("BLOCKSTATE_IDS_JSON", "[]"))
+          batch_dir = Path(os.environ["BATCH_DIR"])
+          batch_size = int(os.environ["BATCH_SIZE"])
 
-          args = [
-              "render-queue",
-              "--assets-root", "src/main/resources/assets",
-              "--assets-root", "versions/1.21.8/src/generated/resources/assets",
-              "--output", os.environ["OUT_GIF"],
-          ]
+          entries = []
 
-          for model_id in model_ids:
+          for model_id in json.loads(os.environ.get("MODEL_IDS_JSON", "[]")):
               if model_id:
-                  args.extend(["--model-id", model_id])
+                  entries.append({"kind": "model", "id": model_id})
 
-          for blockstate_id in blockstate_ids:
+          for blockstate_id in json.loads(os.environ.get("BLOCKSTATE_IDS_JSON", "[]")):
               if blockstate_id:
-                  args.extend(["--blockstate-id", blockstate_id])
+                  entries.append({"kind": "blockstate", "id": blockstate_id})
 
-          Path(os.environ["ARGS_FILE"]).write_text(
-              "\n".join(args) + "\n",
-              encoding="utf-8"
-          )
+          if not entries:
+              raise SystemExit("No model/blockstate ids were provided.")
+
+          for index in range(0, len(entries), batch_size):
+              chunk = entries[index:index + batch_size]
+              batch_path = batch_dir / f"batch_{index // batch_size + 1:03d}.json"
+              batch_path.write_text(json.dumps(chunk, ensure_ascii=False), encoding="utf-8")
+
+          print(f"Created {len(list(batch_dir.glob('batch_*.json')))} batch file(s).")
           PY
 
-          mapfile -t ARGS < "$ARGS_FILE"
+          render_batch () {
+            local batch_json="$1"
+            local out_gif="$2"
+            local image_size="$3"
+            local frame_count="$4"
+            local max_columns="$5"
+            local frame_delay_ms="$6"
 
-          echo "Final renderer args:"
-          printf '  %s\n' "${ARGS[@]}"
+            local entry_tsv="$RUNNER_TEMP/entries.tsv"
+            rm -f "$out_gif" "$entry_tsv"
 
-          FOUND_IDS=0
-          for arg in "${ARGS[@]}"; do
-            if [ "$arg" = "--model-id" ] || [ "$arg" = "--blockstate-id" ]; then
-              FOUND_IDS=1
-              break
-            fi
-          done
+            BATCH_JSON="$batch_json" ENTRY_TSV="$entry_tsv" python <<'PY'
+          import json
+          import os
+          from pathlib import Path
 
-          if [ "$FOUND_IDS" -ne 1 ]; then
-            echo "No --model-id or --blockstate-id flags were produced."
-            exit 1
-          fi
+          batch_json = Path(os.environ["BATCH_JSON"])
+          entry_tsv = Path(os.environ["ENTRY_TSV"])
 
-          xvfb-run -a -s "-ac -screen 0 1280x1024x24" \
-            node ./.github/renderer-runner/node_modules/@iskallia-dev/item-model-renderer/dist/lib/node/cli.js "${ARGS[@]}"
+          items = json.loads(batch_json.read_text(encoding="utf-8"))
 
-          test -f "$OUT_GIF"
-          echo "gif_path=$OUT_GIF" >> "$GITHUB_OUTPUT"
+          lines = []
+          for item in items:
+              kind = item["kind"]
+              value = item["id"]
+              lines.append(f"{kind}\t{value}")
 
-      - name: Send GIF to Discord with no text
-        if: steps.detect.outputs.has_targets == 'true'
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          GIF_PATH: ${{ steps.render.outputs.gif_path }}
-        run: |
-          node <<'EOF'
+          entry_tsv.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+
+            ARGS=(
+              render-queue
+              --assets-root "src/main/resources/assets"
+              --assets-root "versions/1.21.8/src/generated/resources/assets"
+              --output "$out_gif"
+              --image-size "$image_size"
+              --frame-count "$frame_count"
+              --max-columns "$max_columns"
+              --frame-delay-ms "$frame_delay_ms"
+            )
+
+            while IFS=$'\t' read -r kind value; do
+              if [ -z "${kind:-}" ] || [ -z "${value:-}" ]; then
+                continue
+              fi
+
+              if [ "$kind" = "model" ]; then
+                ARGS+=(--model-id "$value")
+              elif [ "$kind" = "blockstate" ]; then
+                ARGS+=(--blockstate-id "$value")
+              else
+                echo "Unknown batch entry kind: $kind"
+                exit 1
+              fi
+            done < "$entry_tsv"
+
+            echo "Final renderer args:"
+            printf '  %s\n' "${ARGS[@]}"
+
+            xvfb-run -a -s "-ac -screen 0 1280x1024x24" \
+              node ./.github/renderer-runner/node_modules/@iskallia-dev/item-model-renderer/dist/lib/node/cli.js "${ARGS[@]}"
+
+            test -f "$out_gif"
+          }
+
+          upload_one () {
+            local file_path="$1"
+
+            FILE_TO_SEND="$file_path" DISCORD_WEBHOOK="$DISCORD_WEBHOOK" node <<'EOF'
           const fs = require('fs');
           const https = require('https');
+          const path = require('path');
 
           const webhook = (process.env.DISCORD_WEBHOOK || '').trim();
-          const gifPath = process.env.GIF_PATH;
+          const filePath = process.env.FILE_TO_SEND;
 
           if (!webhook) {
             console.error('DISCORD_WEBHOOK secret is missing or empty');
             process.exit(1);
           }
 
-          if (!gifPath || !fs.existsSync(gifPath)) {
-            console.error('GIF file does not exist:', gifPath);
+          if (!filePath || !fs.existsSync(filePath)) {
+            console.error('GIF file does not exist:', filePath);
             process.exit(1);
           }
 
@@ -262,7 +306,8 @@ jobs:
             process.exit(1);
           }
 
-          const gifBuffer = fs.readFileSync(gifPath);
+          const attachmentName = path.basename(filePath);
+          const gifBuffer = fs.readFileSync(filePath);
           const boundary = '----DiscordBoundary' + Math.random().toString(16).slice(2);
 
           const payload = JSON.stringify({
@@ -270,7 +315,7 @@ jobs:
             embeds: [
               {
                 image: {
-                  url: 'attachment://queue.gif'
+                  url: `attachment://${attachmentName}`
                 }
               }
             ]
@@ -282,7 +327,7 @@ jobs:
             `Content-Type: application/json\r\n\r\n` +
             payload + `\r\n` +
             `--${boundary}\r\n` +
-            `Content-Disposition: form-data; name="files[0]"; filename="queue.gif"\r\n` +
+            `Content-Disposition: form-data; name="files[0]"; filename="${attachmentName}"\r\n` +
             `Content-Type: image/gif\r\n\r\n`;
 
           const closing = `\r\n--${boundary}--\r\n`;
@@ -328,3 +373,46 @@ jobs:
           req.write(body);
           req.end();
           EOF
+          }
+
+          shopt -s nullglob
+          BATCH_FILES=("$BATCH_DIR"/batch_*.json)
+
+          if [ "${#BATCH_FILES[@]}" -eq 0 ]; then
+            echo "No batch files were produced."
+            exit 1
+          fi
+
+          batch_number=0
+          for batch_json in "${BATCH_FILES[@]}"; do
+            batch_number=$((batch_number + 1))
+            out_gif="$RUNNER_TEMP/queue_batch_${batch_number}.gif"
+
+            echo "=== Rendering batch $batch_number: $batch_json ==="
+
+            render_batch "$batch_json" "$out_gif" 128 36 5 60
+            size_bytes=$(stat -c%s "$out_gif")
+            echo "Batch $batch_number size after first render: $size_bytes bytes"
+
+            if [ "$size_bytes" -gt "$SAFE_MAX_BYTES" ]; then
+              echo "Batch $batch_number too large, retrying smaller..."
+              render_batch "$batch_json" "$out_gif" 96 24 4 70
+              size_bytes=$(stat -c%s "$out_gif")
+              echo "Batch $batch_number size after second render: $size_bytes bytes"
+            fi
+
+            if [ "$size_bytes" -gt "$SAFE_MAX_BYTES" ]; then
+              echo "Batch $batch_number still too large, retrying even smaller..."
+              render_batch "$batch_json" "$out_gif" 80 18 3 80
+              size_bytes=$(stat -c%s "$out_gif")
+              echo "Batch $batch_number size after third render: $size_bytes bytes"
+            fi
+
+            if [ "$size_bytes" -gt "$SAFE_MAX_BYTES" ]; then
+              echo "Batch $batch_number is still too large after all retries: $size_bytes bytes"
+              echo "Lower BATCH_SIZE or shrink render settings further."
+              exit 1
+            fi
+
+            upload_one "$out_gif"
+          done
