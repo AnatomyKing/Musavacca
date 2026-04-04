@@ -25,6 +25,27 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install native system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            python3 \
+            make \
+            g++ \
+            pkg-config \
+            libcairo2-dev \
+            libpango1.0-dev \
+            libjpeg-dev \
+            libgif-dev \
+            librsvg2-dev \
+            libgl1-mesa-dev \
+            libegl1-mesa-dev \
+            libgles2-mesa-dev \
+            libx11-dev \
+            libxext-dev \
+            libxi-dev
+
       - name: Detect changed direct item models and blockstates
         id: detect
         env:
@@ -75,7 +96,7 @@ jobs:
 
               status = parts[0]
 
-              # Ignore pure deletions
+              # Ignore deletions
               if status.startswith("D"):
                   continue
 
@@ -89,7 +110,7 @@ jobs:
 
               path = path.replace("\\", "/")
 
-              # Only keep files that still exist in checked out HEAD
+              # Only include files that still exist in HEAD
               if not os.path.exists(path):
                   continue
 
@@ -127,95 +148,116 @@ jobs:
 
           with output_path.open("a", encoding="utf-8") as f:
               f.write(f"has_targets={has_targets}\n")
-              f.write(f"model_count={len(model_ids)}\n")
-              f.write(f"blockstate_count={len(blockstate_ids)}\n")
           PY
 
       - name: Stop early when nothing relevant remains
         if: steps.detect.outputs.has_targets != 'true'
-        run: echo "No added/modified/renamed direct item models or blockstates to report."
+        run: echo "No added/modified/renamed direct item models or blockstates to render."
 
-      - name: Send clean Discord webhook message
+      - name: Restore cached renderer runner
+        if: steps.detect.outputs.has_targets == 'true'
+        id: cache-runner
+        uses: actions/cache@v4
+        with:
+          path: .github/renderer-runner/node_modules
+          key: ${{ runner.os }}-renderer-runner-${{ hashFiles('.github/renderer-runner/package-lock.json', '.github/vendor/item-model-renderer.tgz') }}
+
+      - name: Install renderer runner dependencies
+        if: steps.detect.outputs.has_targets == 'true' && steps.cache-runner.outputs.cache-hit != 'true'
+        run: npm ci --prefix .github/renderer-runner
+
+      - name: Render queue GIF
+        if: steps.detect.outputs.has_targets == 'true'
+        id: render
+        run: |
+          OUT_GIF="$RUNNER_TEMP/queue.gif"
+
+          ARGS=(
+            render-queue
+            --assets-root "src/main/resources/assets"
+            --assets-root "versions/1.21.8/src/generated/resources/assets"
+            --output "$OUT_GIF"
+          )
+
+          while IFS= read -r line; do
+            if [ -n "$line" ]; then
+              ARGS+=(--model-id "$line")
+            fi
+          done < "$RUNNER_TEMP/changed-model-ids.txt"
+
+          while IFS= read -r line; do
+            if [ -n "$line" ]; then
+              ARGS+=(--blockstate-id "$line")
+            fi
+          done < "$RUNNER_TEMP/changed-blockstate-ids.txt"
+
+          node ./.github/renderer-runner/node_modules/@iskallia-dev/item-model-renderer/dist/lib/node/cli.js "${ARGS[@]}"
+
+          test -f "$OUT_GIF"
+          echo "gif_path=$OUT_GIF" >> "$GITHUB_OUTPUT"
+
+      - name: Send GIF to Discord with no text
         if: steps.detect.outputs.has_targets == 'true'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          MODEL_COUNT: ${{ steps.detect.outputs.model_count }}
-          BLOCKSTATE_COUNT: ${{ steps.detect.outputs.blockstate_count }}
-          REPOSITORY: ${{ github.repository }}
-          BRANCH_NAME: ${{ github.ref_name }}
-          COMMIT_SHA: ${{ github.sha }}
-          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GIF_PATH: ${{ steps.render.outputs.gif_path }}
         run: |
           node <<'EOF'
           const fs = require('fs');
           const https = require('https');
-          const path = require('path');
 
           const webhook = (process.env.DISCORD_WEBHOOK || '').trim();
+          const gifPath = process.env.GIF_PATH;
+
           if (!webhook) {
             console.error('DISCORD_WEBHOOK secret is missing or empty');
+            process.exit(1);
+          }
+
+          if (!gifPath || !fs.existsSync(gifPath)) {
+            console.error('GIF file does not exist:', gifPath);
             process.exit(1);
           }
 
           let webhookUrl;
           try {
             webhookUrl = new URL(webhook);
-          } catch (err) {
+          } catch {
             console.error('DISCORD_WEBHOOK is not a valid URL');
             process.exit(1);
           }
 
-          const runnerTemp = process.env.RUNNER_TEMP;
-          const modelsPath = path.join(runnerTemp, 'changed-model-ids.txt');
-          const blockstatesPath = path.join(runnerTemp, 'changed-blockstate-ids.txt');
+          const gifBuffer = fs.readFileSync(gifPath);
+          const boundary = '----ChatGPTDiscordBoundary' + Math.random().toString(16).slice(2);
 
-          const models = fs.existsSync(modelsPath)
-            ? fs.readFileSync(modelsPath, 'utf8').split(/\r?\n/).map(s => s.trim()).filter(Boolean)
-            : [];
-
-          const blockstates = fs.existsSync(blockstatesPath)
-            ? fs.readFileSync(blockstatesPath, 'utf8').split(/\r?\n/).map(s => s.trim()).filter(Boolean)
-            : [];
-
-          function fieldValue(items, limit = 15) {
-            if (!items.length) return 'None';
-            const shown = items.slice(0, limit);
-            let text = shown.map(item => `\`${item}\``).join('\n');
-            const extra = items.length - shown.length;
-            if (extra > 0) text += `\n… (+${extra} more)`;
-            return text;
-          }
-
-          const shortSha = (process.env.COMMIT_SHA || '').slice(0, 7);
-
-          const payload = {
+          // No text content. Only an embed that points at the attached gif.
+          const payload = JSON.stringify({
             allowed_mentions: { parse: [] },
             embeds: [
               {
-                title: 'Changed item models / blockstates detected',
-                description:
-                  `Repository: \`${process.env.REPOSITORY}\`\n` +
-                  `Branch: \`${process.env.BRANCH_NAME}\`\n` +
-                  `Commit: [\`${shortSha}\`](${process.env.COMMIT_URL})\n` +
-                  `[Open workflow run](${process.env.RUN_URL})`,
-                fields: [
-                  {
-                    name: `Direct item models (${process.env.MODEL_COUNT})`,
-                    value: fieldValue(models),
-                    inline: false
-                  },
-                  {
-                    name: `Blockstates (${process.env.BLOCKSTATE_COUNT})`,
-                    value: fieldValue(blockstates),
-                    inline: false
-                  }
-                ]
+                image: {
+                  url: 'attachment://queue.gif'
+                }
               }
             ]
-          };
+          });
 
-          const body = JSON.stringify(payload);
+          const preamble =
+            `--${boundary}\r\n` +
+            `Content-Disposition: form-data; name="payload_json"\r\n` +
+            `Content-Type: application/json\r\n\r\n` +
+            payload + `\r\n` +
+            `--${boundary}\r\n` +
+            `Content-Disposition: form-data; name="files[0]"; filename="queue.gif"\r\n` +
+            `Content-Type: image/gif\r\n\r\n`;
+
+          const closing = `\r\n--${boundary}--\r\n`;
+
+          const body = Buffer.concat([
+            Buffer.from(preamble, 'utf8'),
+            gifBuffer,
+            Buffer.from(closing, 'utf8')
+          ]);
 
           const options = {
             protocol: webhookUrl.protocol,
@@ -224,8 +266,8 @@ jobs:
             path: webhookUrl.pathname + webhookUrl.search,
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              'Content-Length': Buffer.byteLength(body)
+              'Content-Type': `multipart/form-data; boundary=${boundary}`,
+              'Content-Length': body.length
             }
           };
 
