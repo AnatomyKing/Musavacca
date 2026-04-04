@@ -1,4 +1,4 @@
-name: Preview model changes in epic rotating gif format
+name: Preview model changes in Discord
 
 on:
   push:
@@ -14,11 +14,6 @@ jobs:
     permissions:
       contents: read
 
-    env:
-      RENDERER_TGZ: ${{ github.workspace }}/.github/vendor/iskallia-dev-item-model-renderer-2.0.0.tgz
-      ROOT_ONE: src/main/resources/assets
-      ROOT_TWO: versions/1.21.8/src/generated/resources/assets
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -29,17 +24,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Install native dependencies for canvas
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            libcairo2-dev \
-            libpango1.0-dev \
-            libjpeg-dev \
-            libgif-dev \
-            librsvg2-dev
 
       - name: Detect changed direct item models and blockstates
         id: detect
@@ -91,9 +75,11 @@ jobs:
 
               status = parts[0]
 
+              # Ignore pure deletions
               if status.startswith("D"):
                   continue
 
+              # For rename/copy, use destination path
               if (status.startswith("R") or status.startswith("C")) and len(parts) >= 3:
                   path = parts[2]
               elif len(parts) >= 2:
@@ -103,6 +89,7 @@ jobs:
 
               path = path.replace("\\", "/")
 
+              # Only keep files that still exist in checked out HEAD
               if not os.path.exists(path):
                   continue
 
@@ -148,84 +135,120 @@ jobs:
         if: steps.detect.outputs.has_targets != 'true'
         run: echo "No added/modified/renamed direct item models or blockstates to report."
 
-      - name: Install local renderer tarball
-        if: steps.detect.outputs.has_targets == 'true'
-        run: |
-          test -f "$RENDERER_TGZ"
-          mkdir -p "$RUNNER_TEMP/renderer-install"
-          cd "$RUNNER_TEMP/renderer-install"
-          npm init -y >/dev/null 2>&1
-          npm install --no-save "$RENDERER_TGZ"
-
       - name: Send clean Discord webhook message
         if: steps.detect.outputs.has_targets == 'true'
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           MODEL_COUNT: ${{ steps.detect.outputs.model_count }}
           BLOCKSTATE_COUNT: ${{ steps.detect.outputs.blockstate_count }}
           REPOSITORY: ${{ github.repository }}
           BRANCH_NAME: ${{ github.ref_name }}
           COMMIT_SHA: ${{ github.sha }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          python <<'PY'
-          import json
-          import os
-          from pathlib import Path
+          node <<'EOF'
+          const fs = require('fs');
+          const https = require('https');
+          const path = require('path');
 
-          runner_temp = Path(os.environ["RUNNER_TEMP"])
-          models = [line.strip() for line in (runner_temp / "changed-model-ids.txt").read_text(encoding="utf-8").splitlines() if line.strip()]
-          blockstates = [line.strip() for line in (runner_temp / "changed-blockstate-ids.txt").read_text(encoding="utf-8").splitlines() if line.strip()]
-
-          def field_value(items, limit=15):
-              if not items:
-                  return "None"
-              shown = items[:limit]
-              text = "\n".join(f"`{item}`" for item in shown)
-              extra = len(items) - len(shown)
-              if extra > 0:
-                  text += f"\n… (+{extra} more)"
-              return text
-
-          short_sha = os.environ["COMMIT_SHA"][:7]
-
-          payload = {
-              "allowed_mentions": {
-                  "parse": []
-              },
-              "embeds": [
-                  {
-                      "title": "Changed item models / blockstates detected",
-                      "description": (
-                          f"Repository: `{os.environ['REPOSITORY']}`\n"
-                          f"Branch: `{os.environ['BRANCH_NAME']}`\n"
-                          f"Commit: `{short_sha}`\n"
-                          f"[Open workflow run]({os.environ['RUN_URL']})"
-                      ),
-                      "fields": [
-                          {
-                              "name": f"Direct item models ({os.environ['MODEL_COUNT']})",
-                              "value": field_value(models),
-                              "inline": False
-                          },
-                          {
-                              "name": f"Blockstates ({os.environ['BLOCKSTATE_COUNT']})",
-                              "value": field_value(blockstates),
-                              "inline": False
-                          }
-                      ]
-                  }
-              ]
+          const webhook = (process.env.DISCORD_WEBHOOK || '').trim();
+          if (!webhook) {
+            console.error('DISCORD_WEBHOOK secret is missing or empty');
+            process.exit(1);
           }
 
-          Path("discord-payload.json").write_text(
-              json.dumps(payload, ensure_ascii=False),
-              encoding="utf-8"
-          )
-          PY
+          let webhookUrl;
+          try {
+            webhookUrl = new URL(webhook);
+          } catch (err) {
+            console.error('DISCORD_WEBHOOK is not a valid URL');
+            process.exit(1);
+          }
 
-          curl --fail-with-body \
-            -H "Content-Type: application/json" \
-            -X POST \
-            -d @discord-payload.json \
-            "$DISCORD_WEBHOOK_URL"
+          const runnerTemp = process.env.RUNNER_TEMP;
+          const modelsPath = path.join(runnerTemp, 'changed-model-ids.txt');
+          const blockstatesPath = path.join(runnerTemp, 'changed-blockstate-ids.txt');
+
+          const models = fs.existsSync(modelsPath)
+            ? fs.readFileSync(modelsPath, 'utf8').split(/\r?\n/).map(s => s.trim()).filter(Boolean)
+            : [];
+
+          const blockstates = fs.existsSync(blockstatesPath)
+            ? fs.readFileSync(blockstatesPath, 'utf8').split(/\r?\n/).map(s => s.trim()).filter(Boolean)
+            : [];
+
+          function fieldValue(items, limit = 15) {
+            if (!items.length) return 'None';
+            const shown = items.slice(0, limit);
+            let text = shown.map(item => `\`${item}\``).join('\n');
+            const extra = items.length - shown.length;
+            if (extra > 0) text += `\n… (+${extra} more)`;
+            return text;
+          }
+
+          const shortSha = (process.env.COMMIT_SHA || '').slice(0, 7);
+
+          const payload = {
+            allowed_mentions: { parse: [] },
+            embeds: [
+              {
+                title: 'Changed item models / blockstates detected',
+                description:
+                  `Repository: \`${process.env.REPOSITORY}\`\n` +
+                  `Branch: \`${process.env.BRANCH_NAME}\`\n` +
+                  `Commit: [\`${shortSha}\`](${process.env.COMMIT_URL})\n` +
+                  `[Open workflow run](${process.env.RUN_URL})`,
+                fields: [
+                  {
+                    name: `Direct item models (${process.env.MODEL_COUNT})`,
+                    value: fieldValue(models),
+                    inline: false
+                  },
+                  {
+                    name: `Blockstates (${process.env.BLOCKSTATE_COUNT})`,
+                    value: fieldValue(blockstates),
+                    inline: false
+                  }
+                ]
+              }
+            ]
+          };
+
+          const body = JSON.stringify(payload);
+
+          const options = {
+            protocol: webhookUrl.protocol,
+            hostname: webhookUrl.hostname,
+            port: webhookUrl.port || (webhookUrl.protocol === 'https:' ? 443 : 80),
+            path: webhookUrl.pathname + webhookUrl.search,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(body)
+            }
+          };
+
+          const req = https.request(options, (res) => {
+            let responseBody = '';
+            res.on('data', chunk => responseBody += chunk);
+            res.on('end', () => {
+              if (res.statusCode >= 200 && res.statusCode < 300) {
+                console.log(`Discord webhook sent successfully (${res.statusCode})`);
+                process.exit(0);
+              } else {
+                console.error(`Discord webhook failed (${res.statusCode})`);
+                console.error(responseBody);
+                process.exit(1);
+              }
+            });
+          });
+
+          req.on('error', (err) => {
+            console.error('Discord webhook request error:', err);
+            process.exit(1);
+          });
+
+          req.write(body);
+          req.end();
+          EOF

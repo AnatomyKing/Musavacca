@@ -1,0 +1,11 @@
+{
+  "name": "renderer-runner",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@iskallia-dev/item-model-renderer": "file:../vendor/item-model-renderer.tgz"
+  },
+  "scripts": {
+    "render:queue": "item-model-renderer render-queue"
+  }
+}
