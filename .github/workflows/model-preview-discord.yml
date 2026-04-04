@@ -1,4 +1,3 @@
-# file: .github/workflows/model-preview-discord.yml
 name: Preview model changes in Discord
 
 on:
@@ -35,17 +34,19 @@ jobs:
             make \
             g++ \
             pkg-config \
+            xvfb \
+            libx11-6 \
+            libxext6 \
+            libxi6 \
+            libgl1-mesa-dri \
+            libgl1-mesa-dev \
+            libegl1-mesa-dev \
+            libgles2-mesa-dev \
             libcairo2-dev \
             libpango1.0-dev \
             libjpeg-dev \
             libgif-dev \
-            librsvg2-dev \
-            libgl1-mesa-dev \
-            libegl1-mesa-dev \
-            libgles2-mesa-dev \
-            libx11-dev \
-            libxext-dev \
-            libxi-dev
+            librsvg2-dev
 
       - name: Detect changed direct item models and blockstates
         id: detect
@@ -136,24 +137,13 @@ jobs:
           models_file = runner_temp / "changed-model-ids.txt"
           blockstates_file = runner_temp / "changed-blockstate-ids.txt"
 
-          models_file.write_text(
-              ("\n".join(model_ids) + ("\n" if model_ids else "")),
-              encoding="utf-8"
-          )
-          blockstates_file.write_text(
-              ("\n".join(blockstate_ids) + ("\n" if blockstate_ids else "")),
-              encoding="utf-8"
-          )
+          models_file.write_text("\n".join(model_ids), encoding="utf-8")
+          blockstates_file.write_text("\n".join(blockstate_ids), encoding="utf-8")
 
           has_targets = "true" if (model_ids or blockstate_ids) else "false"
 
           with output_path.open("a", encoding="utf-8") as f:
               f.write(f"has_targets={has_targets}\n")
-              f.write(f"model_count={len(model_ids)}\n")
-              f.write(f"blockstate_count={len(blockstate_ids)}\n")
-
-          print("Detected model ids:", model_ids)
-          print("Detected blockstate ids:", blockstate_ids)
           PY
 
       - name: Stop early when nothing relevant remains
@@ -175,13 +165,10 @@ jobs:
       - name: Render queue GIF
         if: steps.detect.outputs.has_targets == 'true'
         id: render
-        shell: bash
         run: |
           set -euo pipefail
 
           OUT_GIF="$RUNNER_TEMP/queue.gif"
-          MODELS_FILE="$RUNNER_TEMP/changed-model-ids.txt"
-          BLOCKSTATES_FILE="$RUNNER_TEMP/changed-blockstate-ids.txt"
 
           ARGS=(
             render-queue
@@ -190,25 +177,25 @@ jobs:
             --output "$OUT_GIF"
           )
 
-          while IFS= read -r line || [ -n "$line" ]; do
+          while IFS= read -r line; do
             if [ -n "$line" ]; then
               ARGS+=(--model-id "$line")
             fi
-          done < "$MODELS_FILE"
+          done < "$RUNNER_TEMP/changed-model-ids.txt"
 
-          while IFS= read -r line || [ -n "$line" ]; do
+          while IFS= read -r line; do
             if [ -n "$line" ]; then
               ARGS+=(--blockstate-id "$line")
             fi
-          done < "$BLOCKSTATES_FILE"
+          done < "$RUNNER_TEMP/changed-blockstate-ids.txt"
 
           echo "Final renderer args:"
-          printf '  %q\n' "${ARGS[@]}"
+          printf '  %s\n' "${ARGS[@]}"
 
-          node ./.github/renderer-runner/node_modules/@iskallia-dev/item-model-renderer/dist/lib/node/cli.js "${ARGS[@]}"
+          xvfb-run -a -s "-ac -screen 0 1280x1024x24" \
+            node ./.github/renderer-runner/node_modules/@iskallia-dev/item-model-renderer/dist/lib/node/cli.js "${ARGS[@]}"
 
           test -f "$OUT_GIF"
-          echo "gif_path=$OUT_GITHUB_OUTPUT" >/dev/null 2>&1 || true
           echo "gif_path=$OUT_GIF" >> "$GITHUB_OUTPUT"
 
       - name: Send GIF to Discord with no text
@@ -222,7 +209,7 @@ jobs:
           const https = require('https');
 
           const webhook = (process.env.DISCORD_WEBHOOK || '').trim();
-          const gifPath = (process.env.GIF_PATH || '').trim();
+          const gifPath = process.env.GIF_PATH;
 
           if (!webhook) {
             console.error('DISCORD_WEBHOOK secret is missing or empty');
