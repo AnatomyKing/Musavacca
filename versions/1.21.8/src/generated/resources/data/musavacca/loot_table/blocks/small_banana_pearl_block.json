@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "musavacca:small_banana_pearl"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "musavacca:blocks/small_banana_pearl_block"
+}

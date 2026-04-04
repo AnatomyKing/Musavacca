@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "musavacca:small_banana_pearl",
+    "musavacca:small_banana_pearl",
+    "musavacca:small_banana_pearl",
+    "musavacca:small_banana_pearl"
+  ],
+  "result": {
+    "count": 1,
+    "id": "musavacca:banana_pearl"
+  }
+}
