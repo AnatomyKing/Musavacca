@@ -145,6 +145,7 @@ jobs:
 
               console.log('Changed item model ids:', uniqueModelIds);
               console.log('Changed blockstate ids:', uniqueBlockstateIds);
+              console.log('Queue GIF API URL:', apiUrl);
 
               const renderResponse = await fetch(apiUrl, {
                 method: 'POST',
@@ -154,12 +155,22 @@ jobs:
                 body: JSON.stringify({
                   modelIds: uniqueModelIds,
                   blockstateIds: uniqueBlockstateIds,
-                  timeoutMs: 120000
+                  timeoutMs: 120000,
                 }),
               });
 
               if (!renderResponse.ok) {
                 throw new Error(`Queue GIF API ${renderResponse.status}: ${await renderResponse.text()}`);
+              }
+
+              const contentType = renderResponse.headers.get('content-type') || '';
+              console.log('Queue GIF API content-type:', contentType);
+
+              if (!contentType.includes('image/gif')) {
+                const text = await renderResponse.text();
+                throw new Error(
+                  `Queue GIF API did not return a GIF. Content-Type: ${contentType}. Body: ${text}`
+                );
               }
 
               const gifBuffer = Buffer.from(await renderResponse.arrayBuffer());
