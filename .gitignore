@@ -43,6 +43,10 @@ versions/*/src/
 !versions/1.21.8/src/generated/
 !versions/1.21.8/src/generated/**
 
+# But still ignore this cache folder inside it
+versions/1.21.8/src/generated/resources/.cache/
+versions/1.21.8/src/generated/resources/.cache/**
+
 # Build folders (all versions)
 versions/*/build/
 
