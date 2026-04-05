@@ -1,4 +1,3 @@
-# file: .github/workflows/model-preview-discord.yml
 name: Preview model changes in Discord
 
 on:
@@ -58,16 +57,13 @@ jobs:
             g++ \
             pkg-config \
             xvfb \
-            libx11-dev \
-            libxext-dev \
-            libxi-dev \
-            libxrender-dev \
-            libxrandr-dev \
-            libxxf86vm-dev \
-            libxcursor-dev \
+            libx11-6 \
+            libxext6 \
+            libxi6 \
+            libgl1-mesa-dri \
             libgl1-mesa-dev \
-            libglu1-mesa-dev \
-            mesa-common-dev \
+            libegl1-mesa-dev \
+            libgles2-mesa-dev \
             libcairo2-dev \
             libpango1.0-dev \
             libjpeg-dev \
@@ -143,7 +139,9 @@ jobs:
           if (exists("versions")) {
             for (const versionDir of fs.readdirSync("versions", { withFileTypes: true })) {
               if (!versionDir.isDirectory()) continue;
-              const root = normalize(path.join("versions", versionDir.name, "src/generated/resources/assets"));
+              const root = normalize(
+                path.join("versions", versionDir.name, "src/generated/resources/assets")
+              );
               if (exists(root)) assetRoots.push(root);
             }
           }
@@ -260,7 +258,10 @@ jobs:
           quoteMultilineOutput("asset_roots", assetRoots.join("\n"));
           quoteMultilineOutput("model_ids", modelIdList.join("\n"));
           quoteMultilineOutput("blockstate_ids", blockstateIdList.join("\n"));
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `has_work=${hasWork ? "true" : "false"}\n`);
+          fs.appendFileSync(
+            process.env.GITHUB_OUTPUT,
+            `has_work=${hasWork ? "true" : "false"}\n`
+          );
           NODE
 
       - name: Render queue GIF
@@ -271,7 +272,11 @@ jobs:
           ASSET_ROOTS: ${{ steps.targets.outputs.asset_roots }}
           MODEL_IDS: ${{ steps.targets.outputs.model_ids }}
           BLOCKSTATE_IDS: ${{ steps.targets.outputs.blockstate_ids }}
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_GL_VERSION_OVERRIDE: '3.3'
         run: |
+          set -euo pipefail
+
           mkdir -p out
 
           cmd=(
@@ -299,7 +304,7 @@ jobs:
           printf ' %q' "${cmd[@]}"
           printf '\n'
 
-          "${cmd[@]}"
+          xvfb-run -a -s "-ac -screen 0 1280x1024x24" "${cmd[@]}"
 
       - name: Upload preview artifact
         if: steps.targets.outputs.has_work == 'true'
