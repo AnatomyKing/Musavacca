@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - 'src/main/resources/assets/**/models/item/**/*.json'
-      - 'src/main/resources/assets/**/models/block/**/*.json'
       - 'src/main/resources/assets/**/blockstates/**/*.json'
       - 'src/main/resources/assets/**/textures/**/*.png'
       - 'src/main/resources/assets/**/textures/**/*.jpg'
@@ -12,7 +11,6 @@ on:
       - 'src/main/resources/assets/**/textures/**/*.webp'
       - 'src/main/resources/assets/**/*.mcmeta'
       - 'versions/*/src/generated/resources/assets/**/models/item/**/*.json'
-      - 'versions/*/src/generated/resources/assets/**/models/block/**/*.json'
       - 'versions/*/src/generated/resources/assets/**/blockstates/**/*.json'
       - 'versions/*/src/generated/resources/assets/**/textures/**/*.png'
       - 'versions/*/src/generated/resources/assets/**/textures/**/*.jpg'
@@ -191,9 +189,9 @@ jobs:
 
             const rel = relativeToRoot(file, root);
 
-            let m = rel.match(/^([^/]+)\/models\/(item|block)\/(.+)\.json$/i);
+            let m = rel.match(/^([^/]+)\/models\/item\/(.+)\.json$/i);
             if (m) {
-              const id = `${m[1]}:${m[2]}/${m[3]}`;
+              const id = `${m[1]}:item/${m[2]}`;
               modelIds.add(id);
               changedModelRefs.add(id);
               return;
@@ -215,8 +213,12 @@ jobs:
             maybeAddDirectTarget(file);
           }
 
-          const allModelJsonFiles = assetRoots.flatMap((root) =>
-            walkFiles(root, (file) => /\/models\/(?:item|block)\/.+\.json$/i.test(file))
+          const allItemModelJsonFiles = assetRoots.flatMap((root) =>
+            walkFiles(root, (file) => /\/models\/item\/.+\.json$/i.test(file))
+          );
+
+          const allBlockModelJsonFiles = assetRoots.flatMap((root) =>
+            walkFiles(root, (file) => /\/models\/block\/.+\.json$/i.test(file))
           );
 
           const allBlockstateJsonFiles = assetRoots.flatMap((root) =>
@@ -226,7 +228,7 @@ jobs:
           if (changedTextureRefs.size > 0) {
             const refs = [...changedTextureRefs];
 
-            for (const file of allModelJsonFiles) {
+            for (const file of allItemModelJsonFiles) {
               const raw = fs.readFileSync(file, "utf8");
               if (!refs.some((ref) => raw.includes(ref))) continue;
 
@@ -234,10 +236,26 @@ jobs:
               if (!root) continue;
 
               const rel = relativeToRoot(file, root);
-              const m = rel.match(/^([^/]+)\/models\/(item|block)\/(.+)\.json$/i);
+              const m = rel.match(/^([^/]+)\/models\/item\/(.+)\.json$/i);
               if (!m) continue;
 
-              modelIds.add(`${m[1]}:${m[2]}/${m[3]}`);
+              const id = `${m[1]}:item/${m[2]}`;
+              modelIds.add(id);
+              changedModelRefs.add(id);
+            }
+
+            for (const file of allBlockModelJsonFiles) {
+              const raw = fs.readFileSync(file, "utf8");
+              if (!refs.some((ref) => raw.includes(ref))) continue;
+
+              const root = findAssetRoot(file);
+              if (!root) continue;
+
+              const rel = relativeToRoot(file, root);
+              const m = rel.match(/^([^/]+)\/models\/block\/(.+)\.json$/i);
+              if (!m) continue;
+
+              changedModelRefs.add(`${m[1]}:block/${m[2]}`);
             }
           }
 
