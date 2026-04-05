@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "musavacca:block/banana_pearl_bricks"
-  }
-}
