@@ -4,15 +4,35 @@ on:
   push:
     paths:
       - 'src/main/resources/assets/**/models/item/**/*.json'
+      - 'src/main/resources/assets/**/models/block/**/*.json'
       - 'src/main/resources/assets/**/blockstates/**/*.json'
-      - 'versions/1.21.8/src/generated/resources/assets/**/models/item/**/*.json'
-      - 'versions/1.21.8/src/generated/resources/assets/**/blockstates/**/*.json'
+      - 'src/main/resources/assets/**/textures/**/*.png'
+      - 'src/main/resources/assets/**/textures/**/*.jpg'
+      - 'src/main/resources/assets/**/textures/**/*.jpeg'
+      - 'src/main/resources/assets/**/textures/**/*.webp'
+      - 'src/main/resources/assets/**/textures/**/*.mcmeta'
+      - 'versions/*/src/generated/resources/assets/**/models/item/**/*.json'
+      - 'versions/*/src/generated/resources/assets/**/models/block/**/*.json'
+      - 'versions/*/src/generated/resources/assets/**/blockstates/**/*.json'
+      - 'versions/*/src/generated/resources/assets/**/textures/**/*.png'
+      - 'versions/*/src/generated/resources/assets/**/textures/**/*.jpg'
+      - 'versions/*/src/generated/resources/assets/**/textures/**/*.jpeg'
+      - 'versions/*/src/generated/resources/assets/**/textures/**/*.webp'
+      - 'versions/*/src/generated/resources/assets/**/textures/**/*.mcmeta'
+      - '.github/renderer-runner/**'
+      - '.github/vendor/item-model-renderer.tgz'
+      - '.github/workflows/preview-model-changes.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-model-changes-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   notify-discord:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Check out repository
@@ -35,410 +55,283 @@ jobs:
             g++ \
             pkg-config \
             xvfb \
-            libx11-6 \
-            libxext6 \
-            libxi6 \
-            libgl1-mesa-dri \
+            libx11-dev \
+            libxext-dev \
+            libxi-dev \
+            libxrender-dev \
+            libxrandr-dev \
+            libxxf86vm-dev \
+            libxcursor-dev \
             libgl1-mesa-dev \
-            libegl1-mesa-dev \
-            libgles2-mesa-dev \
+            libglu1-mesa-dev \
+            mesa-common-dev \
             libcairo2-dev \
             libpango1.0-dev \
             libjpeg-dev \
             libgif-dev \
             librsvg2-dev
 
-      - name: Detect changed direct item models and blockstates
-        id: detect
+      - name: Install renderer runner dependencies
+        working-directory: .github/renderer-runner
+        run: npm ci
+
+      - name: Resolve changed render targets
+        id: targets
+        shell: bash
         env:
-          BEFORE_SHA: ${{ github.event.before }}
-          AFTER_SHA: ${{ github.sha }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_SHA: ${{ github.sha }}
         run: |
-          python <<'PY'
-          import json
-          import os
-          import re
-          import subprocess
-          from pathlib import Path
+          node <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+          const cp = require("child_process");
 
-          before = os.environ.get("BEFORE_SHA", "")
-          after = os.environ["AFTER_SHA"]
-          output_path = Path(os.environ["GITHUB_OUTPUT"])
+          function normalize(p) {
+            return p.replace(/\\/g, "/");
+          }
 
-          empty_tree = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
-          base = empty_tree if (not before or set(before) == {"0"}) else before
+          function exists(p) {
+            return fs.existsSync(p);
+          }
 
-          diff = subprocess.check_output(
-              ["git", "diff", "--name-status", base, after],
-              text=True
+          function walkFiles(dir, predicate, result = []) {
+            if (!exists(dir)) return result;
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) {
+                walkFiles(full, predicate, result);
+              } else if (entry.isFile() && predicate(normalize(full))) {
+                result.push(normalize(full));
+              }
+            }
+            return result;
+          }
+
+          function quoteMultilineOutput(name, value) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `${name}<<EOF\n${value}\nEOF\n`);
+          }
+
+          const before = process.env.GITHUB_EVENT_BEFORE || "";
+          const sha = process.env.GITHUB_SHA;
+
+          let base = before;
+          if (!base || /^0+$/.test(base)) {
+            try {
+              base = cp.execSync("git rev-parse HEAD^", { encoding: "utf8" }).trim();
+            } catch {
+              base = "";
+            }
+          }
+
+          const changedFiles = (
+            base
+              ? cp.execSync(`git diff --name-only ${base} ${sha}`, { encoding: "utf8" })
+              : cp.execSync("git ls-files", { encoding: "utf8" })
+          )
+            .split(/\r?\n/)
+            .map(normalize)
+            .filter(Boolean);
+
+          const assetRoots = [];
+          const mainRoot = "src/main/resources/assets";
+          if (exists(mainRoot)) assetRoots.push(mainRoot);
+
+          if (exists("versions")) {
+            for (const versionDir of fs.readdirSync("versions", { withFileTypes: true })) {
+              if (!versionDir.isDirectory()) continue;
+              const root = normalize(path.join("versions", versionDir.name, "src/generated/resources/assets"));
+              if (exists(root)) assetRoots.push(root);
+            }
+          }
+
+          const rootSet = new Set(assetRoots.map(normalize));
+          const modelIds = new Set();
+          const blockstateIds = new Set();
+          const changedTextureRefs = new Set();
+          const changedModelRefs = new Set();
+
+          function findAssetRoot(file) {
+            const normalized = normalize(file);
+            for (const root of rootSet) {
+              if (normalized === root || normalized.startsWith(root + "/")) {
+                return root;
+              }
+            }
+            return null;
+          }
+
+          function relativeToRoot(file, root) {
+            return normalize(path.relative(root, file));
+          }
+
+          function maybeAddDirectTarget(file) {
+            const root = findAssetRoot(file);
+            if (!root) return;
+
+            const rel = relativeToRoot(file, root);
+
+            let m = rel.match(/^([^/]+)\/models\/(item|block)\/(.+)\.json$/i);
+            if (m) {
+              const id = `${m[1]}:${m[2]}/${m[3]}`;
+              modelIds.add(id);
+              changedModelRefs.add(id);
+              return;
+            }
+
+            m = rel.match(/^([^/]+)\/blockstates\/(.+)\.json$/i);
+            if (m) {
+              blockstateIds.add(`${m[1]}:${m[2]}`);
+              return;
+            }
+
+            m = rel.match(/^([^/]+)\/textures\/(.+)\.(png|jpg|jpeg|webp)(?:\.mcmeta)?$/i);
+            if (m) {
+              changedTextureRefs.add(`${m[1]}:${m[2]}`);
+            }
+          }
+
+          for (const file of changedFiles) {
+            maybeAddDirectTarget(file);
+          }
+
+          const allModelJsonFiles = assetRoots.flatMap((root) =>
+            walkFiles(root, (file) => /\/models\/(?:item|block)\/.+\.json$/i.test(file))
+          );
+
+          const allBlockstateJsonFiles = assetRoots.flatMap((root) =>
+            walkFiles(root, (file) => /\/blockstates\/.+\.json$/i.test(file))
+          );
+
+          if (changedTextureRefs.size > 0) {
+            const refs = [...changedTextureRefs];
+            for (const file of allModelJsonFiles) {
+              const raw = fs.readFileSync(file, "utf8");
+              if (!refs.some((ref) => raw.includes(ref))) continue;
+
+              const root = findAssetRoot(file);
+              if (!root) continue;
+
+              const rel = relativeToRoot(file, root);
+              const m = rel.match(/^([^/]+)\/models\/(item|block)\/(.+)\.json$/i);
+              if (!m) continue;
+
+              const id = `${m[1]}:${m[2]}/${m[3]}`;
+              modelIds.add(id);
+            }
+          }
+
+          if (changedModelRefs.size > 0) {
+            const refs = [...changedModelRefs];
+            for (const file of allBlockstateJsonFiles) {
+              const raw = fs.readFileSync(file, "utf8");
+              if (!refs.some((ref) => raw.includes(ref))) continue;
+
+              const root = findAssetRoot(file);
+              if (!root) continue;
+
+              const rel = relativeToRoot(file, root);
+              const m = rel.match(/^([^/]+)\/blockstates\/(.+)\.json$/i);
+              if (!m) continue;
+
+              blockstateIds.add(`${m[1]}:${m[2]}`);
+            }
+          }
+
+          const modelIdList = [...modelIds].sort();
+          const blockstateIdList = [...blockstateIds].sort();
+          const hasWork = modelIdList.length > 0 || blockstateIdList.length > 0;
+
+          console.log("Changed files:");
+          for (const file of changedFiles) console.log(`  - ${file}`);
+
+          console.log("Asset roots:");
+          for (const root of assetRoots) console.log(`  - ${root}`);
+
+          console.log("Model IDs:");
+          for (const id of modelIdList) console.log(`  - ${id}`);
+
+          console.log("Blockstate IDs:");
+          for (const id of blockstateIdList) console.log(`  - ${id}`);
+
+          quoteMultilineOutput("asset_roots", assetRoots.join("\n"));
+          quoteMultilineOutput("model_ids", modelIdList.join("\n"));
+          quoteMultilineOutput("blockstate_ids", blockstateIdList.join("\n"));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `has_work=${hasWork ? "true" : "false"}\n`);
+          NODE
+
+      - name: Render queue GIF
+        if: steps.targets.outputs.has_work == 'true'
+        working-directory: .github/renderer-runner
+        shell: bash
+        env:
+          ASSET_ROOTS: ${{ steps.targets.outputs.asset_roots }}
+          MODEL_IDS: ${{ steps.targets.outputs.model_ids }}
+          BLOCKSTATE_IDS: ${{ steps.targets.outputs.blockstate_ids }}
+        run: |
+          mkdir -p out
+
+          cmd=(
+            npx item-model-renderer
+            render-queue
+            --output "$GITHUB_WORKSPACE/.github/renderer-runner/out/queue.gif"
           )
 
-          model_patterns = [
-              re.compile(r"^src/main/resources/assets/([^/]+)/models/item/(.+)\.json$"),
-              re.compile(r"^versions/1\.21\.8/src/generated/resources/assets/([^/]+)/models/item/(.+)\.json$"),
-          ]
+          while IFS= read -r root; do
+            [ -n "$root" ] || continue
+            cmd+=(--assets-root "$GITHUB_WORKSPACE/$root")
+          done <<< "$ASSET_ROOTS"
 
-          blockstate_patterns = [
-              re.compile(r"^src/main/resources/assets/([^/]+)/blockstates/(.+)\.json$"),
-              re.compile(r"^versions/1\.21\.8/src/generated/resources/assets/([^/]+)/blockstates/(.+)\.json$"),
-          ]
+          while IFS= read -r id; do
+            [ -n "$id" ] || continue
+            cmd+=(--model-id "$id")
+          done <<< "$MODEL_IDS"
 
-          model_ids = []
-          blockstate_ids = []
-          seen_models = set()
-          seen_blockstates = set()
+          while IFS= read -r id; do
+            [ -n "$id" ] || continue
+            cmd+=(--blockstate-id "$id")
+          done <<< "$BLOCKSTATE_IDS"
 
-          for raw_line in diff.splitlines():
-              parts = raw_line.split("\t")
-              if not parts:
-                  continue
+          printf 'Running command:\n'
+          printf ' %q' "${cmd[@]}"
+          printf '\n'
 
-              status = parts[0]
+          "${cmd[@]}"
 
-              if status.startswith("D"):
-                  continue
-
-              if (status.startswith("R") or status.startswith("C")) and len(parts) >= 3:
-                  path = parts[2]
-              elif len(parts) >= 2:
-                  path = parts[1]
-              else:
-                  continue
-
-              path = path.replace("\\", "/")
-
-              if not os.path.exists(path):
-                  continue
-
-              matched = False
-
-              for pattern in model_patterns:
-                  m = pattern.match(path)
-                  if m:
-                      model_id = f"{m.group(1)}:item/{m.group(2)}"
-                      if model_id not in seen_models:
-                          seen_models.add(model_id)
-                          model_ids.append(model_id)
-                      matched = True
-                      break
-
-              if matched:
-                  continue
-
-              for pattern in blockstate_patterns:
-                  m = pattern.match(path)
-                  if m:
-                      blockstate_id = f"{m.group(1)}:{m.group(2)}"
-                      if blockstate_id not in seen_blockstates:
-                          seen_blockstates.add(blockstate_id)
-                          blockstate_ids.append(blockstate_id)
-                      break
-
-          has_targets = "true" if (model_ids or blockstate_ids) else "false"
-
-          with output_path.open("a", encoding="utf-8") as f:
-              f.write(f"has_targets={has_targets}\n")
-              f.write(f"model_ids_json={json.dumps(model_ids, ensure_ascii=False)}\n")
-              f.write(f"blockstate_ids_json={json.dumps(blockstate_ids, ensure_ascii=False)}\n")
-              f.write(f"model_count={len(model_ids)}\n")
-              f.write(f"blockstate_count={len(blockstate_ids)}\n")
-
-          print("Detected model ids:", model_ids)
-          print("Detected blockstate ids:", blockstate_ids)
-          PY
-
-      - name: Stop early when nothing relevant remains
-        if: steps.detect.outputs.has_targets != 'true'
-        run: echo "No added/modified/renamed direct item models or blockstates to render."
-
-      - name: Restore cached renderer runner
-        if: steps.detect.outputs.has_targets == 'true'
-        id: cache-runner
-        uses: actions/cache@v4
+      - name: Upload preview artifact
+        if: steps.targets.outputs.has_work == 'true'
+        uses: actions/upload-artifact@v4
         with:
-          path: .github/renderer-runner/node_modules
-          key: ${{ runner.os }}-renderer-runner-${{ hashFiles('.github/renderer-runner/package-lock.json', '.github/vendor/item-model-renderer.tgz') }}
+          name: model-preview-gif
+          path: .github/renderer-runner/out/queue.gif
+          if-no-files-found: error
 
-      - name: Install renderer runner dependencies
-        if: steps.detect.outputs.has_targets == 'true' && steps.cache-runner.outputs.cache-hit != 'true'
-        run: npm ci --prefix .github/renderer-runner
-
-      - name: Render and send GIF batches to Discord with no text
-        if: steps.detect.outputs.has_targets == 'true'
+      - name: Post preview to Discord
+        if: steps.targets.outputs.has_work == 'true' && secrets.DISCORD_WEBHOOK != ''
+        shell: bash
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          MODEL_IDS_JSON: ${{ steps.detect.outputs.model_ids_json }}
-          BLOCKSTATE_IDS_JSON: ${{ steps.detect.outputs.blockstate_ids_json }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
-          set -euo pipefail
-
-          BATCH_DIR="$RUNNER_TEMP/gif-batches"
-          SAFE_MAX_BYTES=9500000
-
-          # Fixed render settings for every ID in every batch
-          FIXED_IMAGE_SIZE=128
-          FIXED_FRAME_COUNT=36
-          FIXED_MAX_COLUMNS=5
-          FIXED_FRAME_DELAY_MS=60
-
-          INITIAL_BATCH_SIZE=6
-
-          mkdir -p "$BATCH_DIR"
-
-          export BATCH_DIR
-          export MODEL_IDS_JSON
-          export BLOCKSTATE_IDS_JSON
-          export INITIAL_BATCH_SIZE
-          export FIXED_IMAGE_SIZE
-          export FIXED_FRAME_COUNT
-          export FIXED_MAX_COLUMNS
-          export FIXED_FRAME_DELAY_MS
-
-          python <<'PY'
+          python3 <<'PY' > /tmp/discord-payload.json
           import json
           import os
-          from pathlib import Path
 
-          batch_dir = Path(os.environ["BATCH_DIR"])
-          initial_batch_size = int(os.environ["INITIAL_BATCH_SIZE"])
+          content = (
+              f"Preview for {os.environ['GITHUB_REPOSITORY']} on {os.environ['GITHUB_REF_NAME']}\n"
+              f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/commit/{os.environ['GITHUB_SHA']}"
+          )
 
-          entries = []
-
-          for model_id in json.loads(os.environ.get("MODEL_IDS_JSON", "[]")):
-              if model_id:
-                  entries.append({"kind": "model", "id": model_id})
-
-          for blockstate_id in json.loads(os.environ.get("BLOCKSTATE_IDS_JSON", "[]")):
-              if blockstate_id:
-                  entries.append({"kind": "blockstate", "id": blockstate_id})
-
-          if not entries:
-              raise SystemExit("No model/blockstate ids were provided.")
-
-          for index in range(0, len(entries), initial_batch_size):
-              chunk = entries[index:index + initial_batch_size]
-              batch_path = batch_dir / f"batch_{index // initial_batch_size + 1:03d}.json"
-              batch_path.write_text(json.dumps(chunk, ensure_ascii=False), encoding="utf-8")
-
-          print(f"Created {len(list(batch_dir.glob('batch_*.json')))} initial batch file(s).")
+          print(json.dumps({"content": content}))
           PY
 
-          render_batch () {
-            local batch_json="$1"
-            local out_gif="$2"
+          curl -sS -X POST "$DISCORD_WEBHOOK" \
+            -F "payload_json=$(cat /tmp/discord-payload.json)" \
+            -F "file1=@.github/renderer-runner/out/queue.gif;type=image/gif"
 
-            local entry_tsv="$RUNNER_TEMP/entries.tsv"
-            rm -f "$out_gif" "$entry_tsv"
-
-            BATCH_JSON="$batch_json" ENTRY_TSV="$entry_tsv" python <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          batch_json = Path(os.environ["BATCH_JSON"])
-          entry_tsv = Path(os.environ["ENTRY_TSV"])
-
-          items = json.loads(batch_json.read_text(encoding="utf-8"))
-
-          lines = []
-          for item in items:
-              kind = item["kind"]
-              value = item["id"]
-              lines.append(f"{kind}\t{value}")
-
-          entry_tsv.write_text("\n".join(lines) + "\n", encoding="utf-8")
-          PY
-
-            ARGS=(
-              render-queue
-              --assets-root "src/main/resources/assets"
-              --assets-root "versions/1.21.8/src/generated/resources/assets"
-              --output "$out_gif"
-              --image-size "$FIXED_IMAGE_SIZE"
-              --frame-count "$FIXED_FRAME_COUNT"
-              --max-columns "$FIXED_MAX_COLUMNS"
-              --frame-delay-ms "$FIXED_FRAME_DELAY_MS"
-            )
-
-            while IFS=$'\t' read -r kind value; do
-              if [ -z "${kind:-}" ] || [ -z "${value:-}" ]; then
-                continue
-              fi
-
-              if [ "$kind" = "model" ]; then
-                ARGS+=(--model-id "$value")
-              elif [ "$kind" = "blockstate" ]; then
-                ARGS+=(--blockstate-id "$value")
-              else
-                echo "Unknown batch entry kind: $kind"
-                exit 1
-              fi
-            done < "$entry_tsv"
-
-            echo "Final renderer args:"
-            printf '  %s\n' "${ARGS[@]}"
-
-            xvfb-run -a -s "-ac -screen 0 1280x1024x24" \
-              node ./.github/renderer-runner/node_modules/@iskallia-dev/item-model-renderer/dist/lib/node/cli.js "${ARGS[@]}"
-
-            test -f "$out_gif"
-          }
-
-          split_batch () {
-            local source_batch="$1"
-
-            SOURCE_BATCH="$source_batch" python <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          source = Path(os.environ["SOURCE_BATCH"])
-          items = json.loads(source.read_text(encoding="utf-8"))
-
-          if len(items) <= 1:
-              raise SystemExit(f"Cannot split further: {source}")
-
-          half = (len(items) + 1) // 2
-          left = items[:half]
-          right = items[half:]
-
-          left_path = source.with_name(source.stem + "_a.json")
-          right_path = source.with_name(source.stem + "_b.json")
-
-          left_path.write_text(json.dumps(left, ensure_ascii=False), encoding="utf-8")
-          right_path.write_text(json.dumps(right, ensure_ascii=False), encoding="utf-8")
-
-          source.unlink()
-
-          print(left_path)
-          print(right_path)
-          PY
-          }
-
-          upload_one () {
-            local file_path="$1"
-
-            FILE_TO_SEND="$file_path" DISCORD_WEBHOOK="$DISCORD_WEBHOOK" node <<'EOF'
-          const fs = require('fs');
-          const https = require('https');
-          const path = require('path');
-
-          const webhook = (process.env.DISCORD_WEBHOOK || '').trim();
-          const filePath = process.env.FILE_TO_SEND;
-
-          if (!webhook) {
-            console.error('DISCORD_WEBHOOK secret is missing or empty');
-            process.exit(1);
-          }
-
-          if (!filePath || !fs.existsSync(filePath)) {
-            console.error('GIF file does not exist:', filePath);
-            process.exit(1);
-          }
-
-          let webhookUrl;
-          try {
-            webhookUrl = new URL(webhook);
-          } catch {
-            console.error('DISCORD_WEBHOOK is not a valid URL');
-            process.exit(1);
-          }
-
-          const attachmentName = path.basename(filePath);
-          const gifBuffer = fs.readFileSync(filePath);
-          const boundary = '----DiscordBoundary' + Math.random().toString(16).slice(2);
-
-          const payload = JSON.stringify({
-            allowed_mentions: { parse: [] },
-            embeds: [
-              {
-                image: {
-                  url: `attachment://${attachmentName}`
-                }
-              }
-            ]
-          });
-
-          const preamble =
-            `--${boundary}\r\n` +
-            `Content-Disposition: form-data; name="payload_json"\r\n` +
-            `Content-Type: application/json\r\n\r\n` +
-            payload + `\r\n` +
-            `--${boundary}\r\n` +
-            `Content-Disposition: form-data; name="files[0]"; filename="${attachmentName}"\r\n` +
-            `Content-Type: image/gif\r\n\r\n`;
-
-          const closing = `\r\n--${boundary}--\r\n`;
-
-          const body = Buffer.concat([
-            Buffer.from(preamble, 'utf8'),
-            gifBuffer,
-            Buffer.from(closing, 'utf8')
-          ]);
-
-          const options = {
-            protocol: webhookUrl.protocol,
-            hostname: webhookUrl.hostname,
-            port: webhookUrl.port || (webhookUrl.protocol === 'https:' ? 443 : 80),
-            path: webhookUrl.pathname + webhookUrl.search,
-            method: 'POST',
-            headers: {
-              'Content-Type': `multipart/form-data; boundary=${boundary}`,
-              'Content-Length': body.length
-            }
-          };
-
-          const req = https.request(options, (res) => {
-            let responseBody = '';
-            res.on('data', chunk => responseBody += chunk);
-            res.on('end', () => {
-              if (res.statusCode >= 200 && res.statusCode < 300) {
-                console.log(`Discord webhook sent successfully (${res.statusCode})`);
-                process.exit(0);
-              } else {
-                console.error(`Discord webhook failed (${res.statusCode})`);
-                console.error(responseBody);
-                process.exit(1);
-              }
-            });
-          });
-
-          req.on('error', (err) => {
-            console.error('Discord webhook request error:', err);
-            process.exit(1);
-          });
-
-          req.write(body);
-          req.end();
-          EOF
-          }
-
-          shopt -s nullglob
-
-          while true; do
-            BATCH_FILES=("$BATCH_DIR"/batch_*.json)
-
-            if [ "${#BATCH_FILES[@]}" -eq 0 ]; then
-              break
-            fi
-
-            batch_json="${BATCH_FILES[0]}"
-            base_name="$(basename "$batch_json" .json)"
-            out_gif="$RUNNER_TEMP/${base_name}.gif"
-
-            echo "=== Rendering batch: $batch_json ==="
-            render_batch "$batch_json" "$out_gif"
-
-            size_bytes=$(stat -c%s "$out_gif")
-            echo "Rendered size: $size_bytes bytes"
-
-            if [ "$size_bytes" -le "$SAFE_MAX_BYTES" ]; then
-              upload_one "$out_gif"
-              rm -f "$batch_json" "$out_gif"
-              continue
-            fi
-
-            echo "Batch too large, splitting into two smaller collage batches..."
-            rm -f "$out_gif"
-            split_batch "$batch_json" >/dev/null
-          done
+      - name: No matching render targets
+        if: steps.targets.outputs.has_work != 'true'
+        run: echo "No renderable model or blockstate targets were found for this push."

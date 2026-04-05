@@ -3,6 +3,6 @@
   "private": true,
   "version": "1.0.0",
   "dependencies": {
-    "@iskallia-dev/item-model-renderer": "file:../vendor/item-model-renderer.tgz"
+    "minecraft-model-renderer": "file:../vendor/minecraft-model-renderer.tgz"
   }
 }
