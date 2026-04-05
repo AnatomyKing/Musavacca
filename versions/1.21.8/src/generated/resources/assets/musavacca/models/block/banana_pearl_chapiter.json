@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_bottom_top",
-  "textures": {
-    "bottom": "musavacca:block/banana_pearl_chapiter_bottom",
-    "side": "musavacca:block/banana_pearl_chapiter",
-    "top": "musavacca:block/banana_pearl_chapiter_top"
-  }
-}
