@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "musavacca:block/musavacca_stem",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "musavacca:block/musavacca_stem"
+    },
+    "axis=z": {
+      "model": "musavacca:block/musavacca_stem",
+      "x": 90
+    }
+  }
+}
