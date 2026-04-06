@@ -1,0 +1,328 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_south"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "0"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_south"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "0"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_south_22.5"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_south_22.5"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_west_-45"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_west_-45"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_west_-22.5"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_west_-22.5"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_west"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_west"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_west_22.5"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "5"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_west_22.5"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "5"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_north_-45"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "6"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_north_-45"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "6"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_north_-22.5"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "7"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_north_-22.5"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "7"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_north"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "8"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_north"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "8"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_north_22.5"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "9"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_north_22.5"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "9"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_east_-45"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "10"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_east_-45"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "10"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_east_-22.5"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "11"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_east_-22.5"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "11"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_east"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "12"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_east"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "12"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_east_22.5"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "13"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_east_22.5"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "13"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_south_-45"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "14"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_south_-45"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "14"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_south_-22.5"
+      },
+      "when": {
+        "mode": "up",
+        "rotation": "15"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_ground/banana_pearl_chalice_ground_south_-22.5"
+      },
+      "when": {
+        "mode": "ground",
+        "rotation": "15"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_tilt/banana_pearl_chalice_tilt_north"
+      },
+      "when": {
+        "facing": "north",
+        "mode": "tilt"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_tilt/banana_pearl_chalice_tilt_east"
+      },
+      "when": {
+        "facing": "east",
+        "mode": "tilt"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_tilt/banana_pearl_chalice_tilt_south"
+      },
+      "when": {
+        "facing": "south",
+        "mode": "tilt"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_chalice_tilt/banana_pearl_chalice_tilt_west"
+      },
+      "when": {
+        "facing": "west",
+        "mode": "tilt"
+      }
+    }
+  ]
+}

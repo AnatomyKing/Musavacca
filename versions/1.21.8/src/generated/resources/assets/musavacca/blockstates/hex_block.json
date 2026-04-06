@@ -1,0 +1,20 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/lopha_blossom"
+      },
+      "when": {
+        "clipped": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/clipped_lopha_blossom"
+      },
+      "when": {
+        "clipped": "true"
+      }
+    }
+  ]
+}
