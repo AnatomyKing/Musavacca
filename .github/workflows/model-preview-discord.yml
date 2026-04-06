@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - 'src/main/resources/assets/**/models/item/**/*.json'
-      - 'src/main/resources/assets/**/models/block/**/*.json'
       - 'src/main/resources/assets/**/blockstates/**/*.json'
       - 'src/main/resources/assets/**/textures/**/*.png'
       - 'src/main/resources/assets/**/textures/**/*.jpg'
@@ -12,7 +11,6 @@ on:
       - 'src/main/resources/assets/**/textures/**/*.webp'
       - 'src/main/resources/assets/**/*.mcmeta'
       - 'versions/*/src/generated/resources/assets/**/models/item/**/*.json'
-      - 'versions/*/src/generated/resources/assets/**/models/block/**/*.json'
       - 'versions/*/src/generated/resources/assets/**/blockstates/**/*.json'
       - 'versions/*/src/generated/resources/assets/**/textures/**/*.png'
       - 'versions/*/src/generated/resources/assets/**/textures/**/*.jpg'
@@ -199,12 +197,6 @@ jobs:
               return;
             }
 
-            m = rel.match(/^([^/]+)\/models\/block\/(.+)\.json$/i);
-            if (m) {
-              changedModelRefs.add(`${m[1]}:block/${m[2]}`);
-              return;
-            }
-
             m = rel.match(/^([^/]+)\/blockstates\/(.+)\.json$/i);
             if (m) {
               blockstateIds.add(`${m[1]}:${m[2]}`);
@@ -270,20 +262,6 @@ jobs:
           if (changedModelRefs.size > 0) {
             const refs = [...changedModelRefs];
 
-            for (const file of allItemModelJsonFiles) {
-              const raw = fs.readFileSync(file, "utf8");
-              if (!refs.some((ref) => raw.includes(ref))) continue;
-
-              const root = findAssetRoot(file);
-              if (!root) continue;
-
-              const rel = relativeToRoot(file, root);
-              const m = rel.match(/^([^/]+)\/models\/item\/(.+)\.json$/i);
-              if (!m) continue;
-
-              modelIds.add(`${m[1]}:item/${m[2]}`);
-            }
-
             for (const file of allBlockstateJsonFiles) {
               const raw = fs.readFileSync(file, "utf8");
               if (!refs.some((ref) => raw.includes(ref))) continue;
@@ -338,36 +316,75 @@ jobs:
         run: |
           set -euo pipefail
 
+          BATCH_DIR="$RUNNER_TEMP/gif-batches"
+          OUTPUT_DIR="$RUNNER_TEMP/rendered-gifs"
           SAFE_MAX_BYTES=9500000
+
           FIXED_IMAGE_SIZE=128
           FIXED_FRAME_COUNT=36
           FIXED_MAX_COLUMNS=5
           FIXED_FRAME_DELAY_MS=60
+          INITIAL_BATCH_SIZE=6
 
-          WORK_DIR="$RUNNER_TEMP/model-preview-work"
-          OUTPUT_DIR="$RUNNER_TEMP/rendered-gifs"
-          mkdir -p "$WORK_DIR" "$OUTPUT_DIR"
+          mkdir -p "$BATCH_DIR" "$OUTPUT_DIR"
 
-          export WORK_DIR
+          export BATCH_DIR
           export OUTPUT_DIR
-          export SAFE_MAX_BYTES
-          export FIXED_IMAGE_SIZE
-          export FIXED_FRAME_COUNT
-          export FIXED_MAX_COLUMNS
-          export FIXED_FRAME_DELAY_MS
           export ASSET_ROOTS_JSON
           export MODEL_IDS_JSON
           export BLOCKSTATE_IDS_JSON
+          export INITIAL_BATCH_SIZE
+
+          python3 <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          batch_dir = Path(os.environ["BATCH_DIR"])
+          initial_batch_size = int(os.environ["INITIAL_BATCH_SIZE"])
+
+          asset_roots = json.loads(os.environ.get("ASSET_ROOTS_JSON", "[]"))
+          model_ids = json.loads(os.environ.get("MODEL_IDS_JSON", "[]"))
+          blockstate_ids = json.loads(os.environ.get("BLOCKSTATE_IDS_JSON", "[]"))
+
+          if not asset_roots:
+              raise SystemExit("No asset roots were detected.")
+
+          model_entries = [{"kind": "model", "id": model_id} for model_id in model_ids if model_id]
+          blockstate_entries = [{"kind": "blockstate", "id": blockstate_id} for blockstate_id in blockstate_ids if blockstate_id]
+
+          if not model_entries and not blockstate_entries:
+              raise SystemExit("No model/blockstate ids were provided.")
+
+          created_files = []
+
+          def write_batches(entries, prefix):
+              if not entries:
+                  return
+
+              batch_index = 1
+              for index in range(0, len(entries), initial_batch_size):
+                  chunk = entries[index:index + initial_batch_size]
+                  batch_path = batch_dir / f"{prefix}_{batch_index:03d}.json"
+                  batch_path.write_text(json.dumps(chunk, ensure_ascii=False), encoding="utf-8")
+                  created_files.append(batch_path.name)
+                  batch_index += 1
+
+          # Items first, then blockstates
+          write_batches(model_entries, "01_items_batch")
+          write_batches(blockstate_entries, "02_blockstates_batch")
+
+          print(f"Created {len(created_files)} initial batch file(s).")
+          for name in created_files:
+              print(f"  - {name}")
+          PY
 
           printf '%s\n' "$(python3 - <<'PY'
           import json, os
           for root in json.loads(os.environ["ASSET_ROOTS_JSON"]):
               print(root)
           PY
-          )" > "$WORK_DIR/asset-roots.txt"
-
-          printf '%s' "${MODEL_IDS_JSON}" > "$WORK_DIR/items_remaining.json"
-          printf '%s' "${BLOCKSTATE_IDS_JSON}" > "$WORK_DIR/blockstates_remaining.json"
+          )" > "$RUNNER_TEMP/asset-roots.txt"
 
           RENDERER_CLI="$GITHUB_WORKSPACE/.github/renderer-runner/node_modules/minecraft-model-renderer/dist/lib/node/cli.js"
 
@@ -376,62 +393,28 @@ jobs:
             exit 1
           fi
 
-          json_count() {
-            local json_file="$1"
-            python3 - "$json_file" <<'PY'
-          import json, sys
-          with open(sys.argv[1], encoding="utf-8") as f:
-              data = json.load(f)
-          print(len(data))
-          PY
-          }
+          render_batch () {
+            local batch_json="$1"
+            local out_gif="$2"
+            local entry_tsv="$RUNNER_TEMP/entries.tsv"
 
-          json_take_prefix() {
-            local source_json="$1"
-            local take_count="$2"
-            local out_json="$3"
+            rm -f "$out_gif" "$entry_tsv"
 
-            python3 - "$source_json" "$take_count" "$out_json" <<'PY'
-          import json, sys
-          source, take_count, out_path = sys.argv[1], int(sys.argv[2]), sys.argv[3]
-          with open(source, encoding="utf-8") as f:
-              data = json.load(f)
-          with open(out_path, "w", encoding="utf-8") as f:
-              json.dump(data[:take_count], f, ensure_ascii=False)
-          PY
-          }
+            BATCH_JSON="$batch_json" ENTRY_TSV="$entry_tsv" python3 <<'PY'
+          import json
+          import os
+          from pathlib import Path
 
-          json_drop_prefix() {
-            local source_json="$1"
-            local drop_count="$2"
-            local out_json="$3"
+          batch_json = Path(os.environ["BATCH_JSON"])
+          entry_tsv = Path(os.environ["ENTRY_TSV"])
 
-            python3 - "$source_json" "$drop_count" "$out_json" <<'PY'
-          import json, sys
-          source, drop_count, out_path = sys.argv[1], int(sys.argv[2]), sys.argv[3]
-          with open(source, encoding="utf-8") as f:
-              data = json.load(f)
-          with open(out_path, "w", encoding="utf-8") as f:
-              json.dump(data[drop_count:], f, ensure_ascii=False)
-          PY
-          }
+          items = json.loads(batch_json.read_text(encoding="utf-8"))
 
-          render_kind_batch() {
-            local kind="$1"
-            local ids_json="$2"
-            local out_gif="$3"
-            local ids_txt="$WORK_DIR/render_ids.txt"
+          lines = []
+          for item in items:
+              lines.append(f"{item['kind']}\t{item['id']}")
 
-            rm -f "$out_gif" "$ids_txt"
-
-            python3 - "$ids_json" "$ids_txt" <<'PY'
-          import json, sys
-          ids_json_path, ids_txt_path = sys.argv[1], sys.argv[2]
-          with open(ids_json_path, encoding="utf-8") as f:
-              ids = json.load(f)
-          with open(ids_txt_path, "w", encoding="utf-8") as f:
-              if ids:
-                  f.write("\n".join(ids) + "\n")
+          entry_tsv.write_text("\n".join(lines) + "\n", encoding="utf-8")
           PY
 
             ARGS=(
@@ -446,22 +429,23 @@ jobs:
             while IFS= read -r root; do
               [ -n "${root:-}" ] || continue
               ARGS+=(--assets-root "$GITHUB_WORKSPACE/$root")
-            done < "$WORK_DIR/asset-roots.txt"
+            done < "$RUNNER_TEMP/asset-roots.txt"
 
-            while IFS= read -r value; do
+            while IFS=$'\t' read -r kind value; do
+              [ -n "${kind:-}" ] || continue
               [ -n "${value:-}" ] || continue
 
-              if [ "$kind" = "items" ]; then
+              if [ "$kind" = "model" ]; then
                 ARGS+=(--model-id "$value")
-              elif [ "$kind" = "blockstates" ]; then
+              elif [ "$kind" = "blockstate" ]; then
                 ARGS+=(--blockstate-id "$value")
               else
-                echo "Unknown render kind: $kind"
+                echo "Unknown batch entry kind: $kind"
                 exit 1
               fi
-            done < "$ids_txt"
+            done < "$entry_tsv"
 
-            echo "Running renderer for $kind batch:"
+            echo "Running renderer:"
             printf ' %q' node "$RENDERER_CLI" "${ARGS[@]}"
             printf '\n'
 
@@ -471,18 +455,47 @@ jobs:
             test -f "$out_gif"
           }
 
-          upload_one() {
-            local file_path="$1"
-            local message_text="$2"
+          split_batch () {
+            local source_batch="$1"
 
-            FILE_TO_SEND="$file_path" MESSAGE_TEXT="$message_text" DISCORD_WEBHOOK="$DISCORD_WEBHOOK" node <<'EOF'
+            SOURCE_BATCH="$source_batch" python3 <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          source = Path(os.environ["SOURCE_BATCH"])
+          items = json.loads(source.read_text(encoding="utf-8"))
+
+          if len(items) <= 1:
+              raise SystemExit(f"Cannot split further: {source}")
+
+          half = (len(items) + 1) // 2
+          left = items[:half]
+          right = items[half:]
+
+          left_path = source.with_name(source.stem + "_a.json")
+          right_path = source.with_name(source.stem + "_b.json")
+
+          left_path.write_text(json.dumps(left, ensure_ascii=False), encoding="utf-8")
+          right_path.write_text(json.dumps(right, ensure_ascii=False), encoding="utf-8")
+
+          source.unlink()
+
+          print(left_path)
+          print(right_path)
+          PY
+          }
+
+          upload_one () {
+            local file_path="$1"
+
+            FILE_TO_SEND="$file_path" DISCORD_WEBHOOK="$DISCORD_WEBHOOK" node <<'EOF'
           const fs = require("fs");
           const https = require("https");
           const path = require("path");
 
           const webhook = (process.env.DISCORD_WEBHOOK || "").trim();
           const filePath = process.env.FILE_TO_SEND;
-          const messageText = process.env.MESSAGE_TEXT || "";
 
           if (!webhook) {
             console.error("DISCORD_WEBHOOK secret is missing or empty");
@@ -507,8 +520,14 @@ jobs:
           const boundary = "----DiscordBoundary" + Math.random().toString(16).slice(2);
 
           const payload = JSON.stringify({
-            content: messageText,
-            allowed_mentions: { parse: [] }
+            allowed_mentions: { parse: [] },
+            embeds: [
+              {
+                image: {
+                  url: `attachment://${attachmentName}`
+                }
+              }
+            ]
           });
 
           const preamble =
@@ -565,207 +584,41 @@ jobs:
           EOF
           }
 
-          send_text_only_notice() {
-            local message_text="$1"
+          shopt -s nullglob
 
-            MESSAGE_TEXT="$message_text" DISCORD_WEBHOOK="$DISCORD_WEBHOOK" node <<'EOF'
-          const https = require("https");
+          while true; do
+            BATCH_FILES=("$BATCH_DIR"/*.json)
 
-          const webhook = (process.env.DISCORD_WEBHOOK || "").trim();
-          const messageText = process.env.MESSAGE_TEXT || "";
-
-          if (!webhook) {
-            process.exit(0);
-          }
-
-          let webhookUrl;
-          try {
-            webhookUrl = new URL(webhook);
-          } catch {
-            console.error("DISCORD_WEBHOOK is not a valid URL");
-            process.exit(1);
-          }
-
-          const payload = JSON.stringify({
-            content: messageText,
-            allowed_mentions: { parse: [] }
-          });
-
-          const req = https.request({
-            protocol: webhookUrl.protocol,
-            hostname: webhookUrl.hostname,
-            port: webhookUrl.port || (webhookUrl.protocol === "https:" ? 443 : 80),
-            path: webhookUrl.pathname + webhookUrl.search,
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Content-Length": Buffer.byteLength(payload)
-            }
-          }, (res) => {
-            let responseBody = "";
-            res.on("data", chunk => responseBody += chunk);
-            res.on("end", () => {
-              if (res.statusCode >= 200 && res.statusCode < 300) {
-                process.exit(0);
-              } else {
-                console.error(`Discord webhook text notice failed (${res.statusCode})`);
-                console.error(responseBody);
-                process.exit(1);
-              }
-            });
-          });
-
-          req.on("error", (err) => {
-            console.error("Discord webhook text notice request error:", err);
-            process.exit(1);
-          });
-
-          req.write(payload);
-          req.end();
-          EOF
-          }
-
-          find_largest_fitting_prefix() {
-            local kind="$1"
-            local remaining_json="$2"
-            local label="$3"
-
-            local total_count
-            total_count=$(json_count "$remaining_json")
-
-            if [ "$total_count" -le 0 ]; then
-              echo "0|"
-              return 0
+            if [ "${#BATCH_FILES[@]}" -eq 0 ]; then
+              break
             fi
 
-            local full_gif="$WORK_DIR/${kind}_${label}_full.gif"
-            render_kind_batch "$kind" "$remaining_json" "$full_gif"
-            local full_size
-            full_size=$(stat -c%s "$full_gif")
+            batch_json="${BATCH_FILES[0]}"
+            base_name="$(basename "$batch_json" .json)"
+            out_gif="$RUNNER_TEMP/${base_name}.gif"
 
-            echo "Full $kind batch attempt size: $full_size bytes"
+            echo "=== Rendering batch: $batch_json ==="
+            render_batch "$batch_json" "$out_gif"
 
-            if [ "$full_size" -le "$SAFE_MAX_BYTES" ]; then
-              echo "${total_count}|${full_gif}"
-              return 0
-            fi
+            size_bytes=$(stat -c%s "$out_gif")
+            echo "Rendered size: $size_bytes bytes"
 
-            if [ "$total_count" -eq 1 ]; then
-              echo "0|${full_gif}"
-              return 0
-            fi
-
-            local low=1
-            local high=$((total_count - 1))
-            local best_count=0
-            local best_gif=""
-
-            while [ "$low" -le "$high" ]; do
-              local mid=$(((low + high) / 2))
-              local prefix_json="$WORK_DIR/${kind}_${label}_prefix_${mid}.json"
-              local prefix_gif="$WORK_DIR/${kind}_${label}_prefix_${mid}.gif"
-
-              json_take_prefix "$remaining_json" "$mid" "$prefix_json"
-              render_kind_batch "$kind" "$prefix_json" "$prefix_gif"
-
-              local prefix_size
-              prefix_size=$(stat -c%s "$prefix_gif")
-
-              echo "Tried $kind prefix size $mid => $prefix_size bytes"
-
-              if [ "$prefix_size" -le "$SAFE_MAX_BYTES" ]; then
-                best_count="$mid"
-                best_gif="$prefix_gif"
-                low=$((mid + 1))
+            if [ "$size_bytes" -le "$SAFE_MAX_BYTES" ]; then
+              if [ -n "${DISCORD_WEBHOOK:-}" ]; then
+                upload_one "$out_gif"
               else
-                high=$((mid - 1))
+                echo "DISCORD_WEBHOOK is empty, skipping Discord upload for $(basename "$out_gif")"
               fi
-            done
 
-            if [ "$best_count" -gt 0 ]; then
-              echo "${best_count}|${best_gif}"
-              return 0
+              mv "$out_gif" "$OUTPUT_DIR/$(basename "$out_gif")"
+              rm -f "$batch_json"
+              continue
             fi
 
-            local single_json="$WORK_DIR/${kind}_${label}_single.json"
-            local single_gif="$WORK_DIR/${kind}_${label}_single.gif"
-            json_take_prefix "$remaining_json" 1 "$single_json"
-            render_kind_batch "$kind" "$single_json" "$single_gif"
-            echo "0|${single_gif}"
-          }
-
-          process_kind() {
-            local kind="$1"
-            local remaining_json="$2"
-
-            local total_count
-            total_count=$(json_count "$remaining_json")
-
-            if [ "$total_count" -le 0 ]; then
-              echo "No $kind targets to render."
-              return 0
-            fi
-
-            local batch_index=1
-
-            while true; do
-              local current_count
-              current_count=$(json_count "$remaining_json")
-
-              if [ "$current_count" -le 0 ]; then
-                break
-              fi
-
-              local label
-              label=$(printf "%03d" "$batch_index")
-
-              local result
-              result=$(find_largest_fitting_prefix "$kind" "$remaining_json" "$label")
-
-              local chosen_count="${result%%|*}"
-              local chosen_gif="${result#*|}"
-
-              if [ -z "$chosen_gif" ] || [ ! -f "$chosen_gif" ]; then
-                echo "Failed to produce a GIF for $kind batch $label"
-                exit 1
-              fi
-
-              local final_name="${kind}_${label}.gif"
-              local final_path="$OUTPUT_DIR/$final_name"
-
-              if [ "$chosen_count" -gt 0 ]; then
-                local message_text="$kind preview batch $label (${chosen_count} target(s))"
-
-                if [ -n "${DISCORD_WEBHOOK:-}" ]; then
-                  upload_one "$chosen_gif" "$message_text"
-                else
-                  echo "DISCORD_WEBHOOK is empty, skipping Discord upload for $final_name"
-                fi
-
-                mv "$chosen_gif" "$final_path"
-
-                local next_json="$WORK_DIR/${kind}_remaining_next.json"
-                json_drop_prefix "$remaining_json" "$chosen_count" "$next_json"
-                mv "$next_json" "$remaining_json"
-              else
-                echo "A single $kind target exceeded the Discord-safe size limit. Keeping it only as an artifact: $final_name"
-                mv "$chosen_gif" "$final_path"
-
-                if [ -n "${DISCORD_WEBHOOK:-}" ]; then
-                  send_text_only_notice "$kind preview batch $label could not be uploaded because one GIF exceeded the Discord-safe size limit. It was kept as a GitHub artifact instead."
-                fi
-
-                local next_json="$WORK_DIR/${kind}_remaining_next.json"
-                json_drop_prefix "$remaining_json" 1 "$next_json"
-                mv "$next_json" "$remaining_json"
-              fi
-
-              batch_index=$((batch_index + 1))
-            done
-          }
-
-          process_kind "items" "$WORK_DIR/items_remaining.json"
-          process_kind "blockstates" "$WORK_DIR/blockstates_remaining.json"
+            echo "Batch too large, splitting into two smaller batches..."
+            rm -f "$out_gif"
+            split_batch "$batch_json" >/dev/null
+          done
 
           echo "Finished rendering all Discord-safe batches."
           ls -lah "$OUTPUT_DIR"
