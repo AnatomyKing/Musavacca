@@ -321,9 +321,9 @@ jobs:
           SAFE_MAX_BYTES=9500000
 
           FIXED_IMAGE_SIZE=128
-          FIXED_FRAME_COUNT=36
+          FIXED_FRAME_COUNT=72
           FIXED_MAX_COLUMNS=5
-          FIXED_FRAME_DELAY_MS=60
+          FIXED_FRAME_DELAY_MS=50
           INITIAL_BATCH_SIZE=6
 
           mkdir -p "$BATCH_DIR" "$OUTPUT_DIR"
