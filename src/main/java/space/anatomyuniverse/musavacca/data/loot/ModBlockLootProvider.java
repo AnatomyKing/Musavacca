@@ -42,7 +42,8 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.MUSAVACCA_PLANKS.get(),
                 ModBlocks.MUSAVACCA_LEAVES.get(),
-                ModBlocks.HARD_HEX_BLOCK.get()
+                ModBlocks.HARD_HEX_BLOCK.get(),
+                ModBlocks.VOCO_TABLE.get()
         );
 
         silkTouchMusavaccaEggByAge(ModBlocks.MUSAVACCA_EGG.get());

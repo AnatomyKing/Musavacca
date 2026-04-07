@@ -50,6 +50,16 @@ public final class ModelSets {
         );
     }
 
+    public static Map<Block, CubeVocoTable.Models> cubeVocoTableModels() {
+        return Map.of(
+                ModBlocks.VOCO_TABLE.get(),
+                new CubeVocoTable.Models(
+                        "musavacca:block/voco_table",
+                        "musavacca:block/lit_voco_table"
+                )
+        );
+    }
+
     public static Map<Block, CubeOwnTintedHexColor.Entry> cubeOwnTintedHexColorModels() {
         return Map.of(
                 ModBlocks.HARD_HEX_BLOCK.get(),

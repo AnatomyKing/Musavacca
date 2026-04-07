@@ -213,6 +213,16 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                     ));
 
+    public static final DeferredBlock<VocoTableBlock> VOCO_TABLE =
+            BLOCKS.registerBlock("voco_table",
+                    props -> new VocoTableBlock(
+                            props.mapColor(MapColor.COLOR_ORANGE)
+                                    .strength(0.2F, 3.0F)
+                                    .sound(SoundType.CHAIN)
+                                    .noOcclusion()
+                                    .pushReaction(PushReaction.DESTROY)
+                    ));
+
 
 
     public static final DeferredBlock<HexBlock> HEX_BLOCK =
