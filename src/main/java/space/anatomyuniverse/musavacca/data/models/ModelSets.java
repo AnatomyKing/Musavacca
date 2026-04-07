@@ -60,6 +60,16 @@ public final class ModelSets {
         );
     }
 
+    public static Map<Block, CubeVocoReceptor.Models> cubeVocoReceptorModels() {
+        return Map.of(
+                ModBlocks.VOCO_RECEPTOR.get(),
+                new CubeVocoReceptor.Models(
+                        "musavacca:block/voco_receptor",
+                        "musavacca:block/lit_voco_receptor"
+                )
+        );
+    }
+
     public static Map<Block, CubeOwnTintedHexColor.Entry> cubeOwnTintedHexColorModels() {
         return Map.of(
                 ModBlocks.HARD_HEX_BLOCK.get(),

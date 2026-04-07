@@ -66,6 +66,8 @@ public final class ModModelProvider
         CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());
         CubeOwnTintedHexColorClipped.generate(blocks, items, ModelSets.cubeOwnTintedHexColorClippedModels());
         CubeVocoTable.generate(blocks, ModelSets.cubeVocoTableModels());
+        CubeVocoReceptor.generate(blocks, ModelSets.cubeVocoReceptorModels());
+
 
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());

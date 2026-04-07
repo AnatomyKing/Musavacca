@@ -223,6 +223,16 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                     ));
 
+    public static final DeferredBlock<VocoReceptorBlock> VOCO_RECEPTOR =
+            BLOCKS.registerBlock("voco_receptor",
+                    props -> new VocoReceptorBlock(
+                            props.mapColor(MapColor.COLOR_ORANGE)
+                                    .strength(0.2F, 3.0F)
+                                    .sound(SoundType.CHAIN)
+                                    .noOcclusion()
+                                    .pushReaction(PushReaction.DESTROY)
+                    ));
+
 
 
     public static final DeferredBlock<HexBlock> HEX_BLOCK =
