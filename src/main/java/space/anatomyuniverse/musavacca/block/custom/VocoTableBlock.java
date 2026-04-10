@@ -10,10 +10,15 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.VoxelShape;
+
 
 public class VocoTableBlock extends Block {
 
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
+
+    private static final net.minecraft.world.phys.shapes.VoxelShape SHAPE =
+            Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D);
 
     public VocoTableBlock(Properties properties) {
         super(properties);
@@ -38,5 +43,25 @@ public class VocoTableBlock extends Block {
         }
 
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected net.minecraft.world.phys.shapes.VoxelShape getShape(
+            BlockState state,
+            net.minecraft.world.level.BlockGetter level,
+            BlockPos pos,
+            net.minecraft.world.phys.shapes.CollisionContext context
+    ) {
+        return SHAPE;
+    }
+
+    @Override
+    protected net.minecraft.world.phys.shapes.VoxelShape getCollisionShape(
+            BlockState state,
+            net.minecraft.world.level.BlockGetter level,
+            BlockPos pos,
+            net.minecraft.world.phys.shapes.CollisionContext context
+    ) {
+        return SHAPE;
     }
 }
