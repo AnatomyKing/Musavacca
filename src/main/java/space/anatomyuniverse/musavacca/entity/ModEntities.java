@@ -1,7 +1,6 @@
 package space.anatomyuniverse.musavacca.entity;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.bus.api.IEventBus;
@@ -9,6 +8,7 @@ import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
+import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
 import java.util.function.Supplier;
 
@@ -27,9 +27,22 @@ public final class ModEntities {
                             .sized(0.9F, 1.4F)
                             //? if <1.21.2 {
                             /*.build(registryName.toString())
-                             *///?} else {
-                            .build(ResourceKey.create(Registries.ENTITY_TYPE, registryName))
-                    //?}
+                    *///?} else {
+                    .build(net.minecraft.resources.ResourceKey.create(Registries.ENTITY_TYPE, registryName))
+                     //?}
+            );
+
+    public static final Supplier<EntityType<Basuke>> BASUKE =
+            ENTITY_TYPES.register(
+                    "basuke",
+                    registryName -> EntityType.Builder
+                            .of(Basuke::new, MobCategory.CREATURE)
+                            .sized(0.35F, 0.60F)
+                            //? if <1.21.2 {
+                            /*.build(registryName.toString())
+                    *///?} else {
+                    .build(net.minecraft.resources.ResourceKey.create(Registries.ENTITY_TYPE, registryName))
+                     //?}
             );
 
     public static void register(IEventBus modBus) {
@@ -39,5 +52,6 @@ public final class ModEntities {
 
     private static void onAttributes(final EntityAttributeCreationEvent event) {
         event.put(BANANA_COW.get(), BananaCow.createAttributes().build());
+        event.put(BASUKE.get(), Basuke.createAttributes().build());
     }
 }

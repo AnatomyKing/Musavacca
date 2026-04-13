@@ -103,10 +103,10 @@ public final class ModelSets {
         );
     }
 
-    public static Map<Block, CubeFireBlockTinted.Entry> cubeFireBlockTintedModels() {
+    public static Map<Block, CubeFireBlockTinted32.Entry> cubeFireBlockTinted32Models() {
         return Map.of(
                 ModBlocks.PEARL_FIRE.get(),
-                CubeFireBlockTinted.Entry.auto(
+                CubeFireBlockTinted32.Entry.auto(
                         "pearl_fire",
                         "musavacca:block/custom_parent/tinted_template_fire_up",
                         "musavacca:block/custom_parent/tinted_template_fire_side",
@@ -151,6 +151,11 @@ public final class ModelSets {
                         ModItems.BANANA_COW_SPAWN_EGG.get(),
                         0xE4C64A,
                         0x7A4A1F
+                ),
+                SpawnEggItems.of(
+                        ModItems.BASUKE_SPAWN_EGG.get(),
+                        0xE6DCC8,
+                        0x4F3F36
                 )
         };
     }
@@ -162,7 +167,7 @@ public final class ModelSets {
                 ModItems.SMALL_BANANA_PEARL.get(),
                 ModItems.FLINT_AND_PEARL.get(),
                 ModItems.BANANA.get(),
-                ModItems.ITEM_INTERACT.get(),
+//                ModItems.ITEM_INTERACT.get(),
                 ModBlocks.UNRIPE_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPE_MUSAVACCA_EGG.get(),

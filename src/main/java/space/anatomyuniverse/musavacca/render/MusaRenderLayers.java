@@ -56,8 +56,8 @@ public final class MusaRenderLayers {
     );
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(
-            ModBlocks.VOCO_TABLE.get(),
-            ModBlocks.VOCO_RECEPTOR.get()
+//            ModBlocks.VOCO_TABLE.get(),
+//            ModBlocks.VOCO_RECEPTOR.get()
     );
 
     private static final Set<Block> NO_AO_BLOCKS = Sets.newHashSet(

@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/models/block/CubeVocoTable.java
+
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.resources.ResourceLocation;

@@ -9,9 +9,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
-import space.anatomyuniverse.musavacca.item.custom.ItemInteract;
 import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
 
 public final class ModItems {
@@ -46,21 +46,40 @@ public final class ModItems {
                      *///?}
             );
 
+    public static final DeferredItem<SpawnEggItem> BASUKE_SPAWN_EGG =
+            ITEMS.registerItem("basuke_spawn_egg",
+                    props ->
+                            //? if <1.21.4 {
+                            /*new SpawnEggItem(
+                                    ModEntities.BASUKE.get(),
+                                    0xE6DCC8,
+                                    0x4F3F36,
+                                    props
+                            )
+                    *///?} else if <1.21.9 {
+                    new SpawnEggItem(ModEntities.BASUKE.get(), props)
+                     //?} else {
+                    /*new SpawnEggItem(props.spawnEgg(ModEntities.BASUKE.get()))
+                     *///?}
+            );
+
     public static final DeferredItem<Item> BANANA =
             ITEMS.registerItem("banana",
                     props -> new Item(props.food(Foods.APPLE)));
 
-    public static final DeferredItem<Item> ITEM_INTERACT =
-            ITEMS.registerItem("item_interact",
-                    props -> new ItemInteract(
-                            props.durability(64).rarity(Rarity.COMMON)
-                    ));
+//    public static final DeferredItem<Item> ITEM_INTERACT =
+//            ITEMS.registerItem("item_interact",
+//                    props -> new ItemInteract(
+//                            props.durability(64).rarity(Rarity.COMMON)
+//                    ));
 
 
     public static final DeferredItem<Item> FLINT_AND_PEARL =
             ITEMS.registerItem("flint_and_pearl",
                     props -> new FlintAndPearlItem(
-                            props.durability(64).rarity(Rarity.COMMON)
+                            props
+                                    .durability(64)
+                                    .component(ModDataComponents.HEX_COLOR.get(), FlintAndPearlItem.DEFAULT_HEX_COLOR)
                     ));
 
 

@@ -1,10 +1,12 @@
-
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/TintColorUtil.java
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.world.level.FoliageColor;
 
 public final class TintColorUtil {
     public static final int NO_TINT = 0xFFFFFFFF;
+    public static final int INVISIBLE_TINT = 0x00000000;
+
     private static final int RGB_MASK = 0xFFFFFF;
 
     private TintColorUtil() {}

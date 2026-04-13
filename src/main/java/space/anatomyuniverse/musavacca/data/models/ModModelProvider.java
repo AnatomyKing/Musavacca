@@ -58,7 +58,7 @@ public final class ModModelProvider
 
         SmallBananaPearlOwn.generate(blocks, ModelSets.smallBananaPearlBlocks());
         CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
-        CubeFireBlockTinted.generate(blocks, ModelSets.cubeFireBlockTintedModels());
+        CubeFireBlockTinted32.generate(blocks, ModelSets.cubeFireBlockTinted32Models());
         BananaPearlChaliceOwn.generate(blocks, ModelSets.bananaPearlChaliceBlocks());
         BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());
 

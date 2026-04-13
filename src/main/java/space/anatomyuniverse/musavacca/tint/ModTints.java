@@ -1,4 +1,4 @@
-
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/ModTints.java
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.client.renderer.BiomeColors;
@@ -12,7 +12,6 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
 //? if >=1.21.4 {
 import net.minecraft.resources.ResourceLocation;
@@ -73,16 +72,24 @@ public final class ModTints {
     }
 
     private static int getPearlFireTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
-        if (tintIndex != 0) {
+        if (tintIndex < 0 || tintIndex >= PearlFireTintSource.LAYER_COUNT) {
             return TintColorUtil.NO_TINT;
         }
 
-        if (level != null && pos != null
-                && level.getBlockEntity(pos) instanceof PearlFireBlockEntity pearlFireBe) {
-            return TintColorUtil.opaqueRgb(pearlFireBe.getHexColor());
+        if (level != null && pos != null) {
+            if (level.getBlockEntity(pos) instanceof PearlFireBlockEntity pearlFireBe
+                    && pearlFireBe.hasHexColor()) {
+                PearlFirePlacementColorMemory.clear(pos);
+                return PearlFireTintSource.blockTint(pearlFireBe.getHexColor(), tintIndex);
+            }
+
+            Integer predictedRgb = PearlFirePlacementColorMemory.get(pos);
+            if (predictedRgb != null) {
+                return PearlFireTintSource.blockTint(predictedRgb, tintIndex);
+            }
         }
 
-        return TintColorUtil.opaqueRgb(PearlFireBlockEntity.PEARL_FIRE_COLOR);
+        return TintColorUtil.NO_TINT;
     }
 
     //? if <1.21.4 {
@@ -122,16 +129,16 @@ public final class ModTints {
         );
 
         event.register((stack, tintIndex) -> {
-                    if (tintIndex != 0) {
+                    if (tintIndex < 0 || tintIndex >= PearlFireTintSource.LAYER_COUNT) {
                         return TintColorUtil.NO_TINT;
                     }
 
                     Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-                    if (savedHex != null) {
-                        return TintColorUtil.rgb(savedHex);
+                    if (savedHex == null) {
+                        return TintColorUtil.NO_TINT;
                     }
 
-                    return TintColorUtil.rgb(PearlFireBlockEntity.PEARL_FIRE_COLOR);
+                    return PearlFireTintSource.itemTint(savedHex, tintIndex);
                 },
                 ModBlocks.PEARL_FIRE.get()
         );

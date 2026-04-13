@@ -1,4 +1,4 @@
-
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/HexColorItemTintSource.java
 package space.anatomyuniverse.musavacca.tint;
 
 //? if >=1.21.4 {
@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 //?}
 
 public final class HexColorItemTintSource
@@ -32,6 +33,10 @@ public final class HexColorItemTintSource
         Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex != null) {
             return TintColorUtil.opaqueRgb(savedHex);
+        }
+
+        if (stack.getItem() instanceof FlintAndPearlItem) {
+            return TintColorUtil.opaqueRgb(FlintAndPearlItem.DEFAULT_HEX_COLOR);
         }
 
         return TintColorUtil.opaqueRgb(TintColorUtil.defaultHexBlockItemTint());

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
+import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
@@ -58,6 +59,7 @@ public final class MusaCore {
             modBus.addListener(ModMenuScreens::register);
             modBus.addListener(ModEntityRenderers::registerRenderers);
             modBus.addListener(ModEntityRenderers::registerLayerDefinitions);
+            modBus.addListener(ModBlockEntityRenderers::registerRenderers);
             ModParticleProviders.register(modBus);
         }
         //?} else {
@@ -67,6 +69,7 @@ public final class MusaCore {
             modBus.addListener(ModMenuScreens::register);
             modBus.addListener(ModEntityRenderers::registerRenderers);
             modBus.addListener(ModEntityRenderers::registerLayerDefinitions);
+            modBus.addListener(ModBlockEntityRenderers::registerRenderers);
             ModParticleProviders.register(modBus);
         }
         *///?}

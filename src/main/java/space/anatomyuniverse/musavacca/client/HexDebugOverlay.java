@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/client/HexDebugOverlay.java
+
 package space.anatomyuniverse.musavacca.client;
 
 import net.minecraft.client.Minecraft;

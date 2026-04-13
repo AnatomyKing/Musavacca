@@ -9,6 +9,7 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 import java.util.function.Supplier;
 
@@ -32,7 +33,7 @@ public final class ModBlockEntities {
                                     HexBlockEntity::new,
                                     ModBlocks.HEX_BLOCK.get()
                             )
-                    *///?} else {
+                            *///?} else {
                             new BlockEntityType<>(
                                     HexBlockEntity::new,
                                     false,
@@ -55,7 +56,7 @@ public final class ModBlockEntities {
                                     HardHexBlockEntity::new,
                                     ModBlocks.HARD_HEX_BLOCK.get()
                             )
-                    *///?} else {
+                            *///?} else {
                             new BlockEntityType<>(
                                     HardHexBlockEntity::new,
                                     false,
@@ -78,11 +79,34 @@ public final class ModBlockEntities {
                                     PearlFireBlockEntity::new,
                                     ModBlocks.PEARL_FIRE.get()
                             )
-                    *///?} else {
+                            *///?} else {
                             new BlockEntityType<>(
                                     PearlFireBlockEntity::new,
                                     false,
                                     ModBlocks.PEARL_FIRE.get()
+                            )
+                    //?}
+            );
+
+    public static final Supplier<BlockEntityType<VocoTableBlockEntity>> VOCO_TABLE_BLOCK_ENTITY =
+            BLOCK_ENTITY_TYPES.register(
+                    "voco_table_block_entity",
+                    () ->
+                            //? if <1.21.2 {
+                            /*BlockEntityType.Builder.of(
+                                    VocoTableBlockEntity::new,
+                                    ModBlocks.VOCO_TABLE.get()
+                            ).build(null)
+                            *///?} else if <1.21.4 {
+                            /*new BlockEntityType<>(
+                                    VocoTableBlockEntity::new,
+                                    ModBlocks.VOCO_TABLE.get()
+                            )
+                            *///?} else {
+                            new BlockEntityType<>(
+                                    VocoTableBlockEntity::new,
+                                    false,
+                                    ModBlocks.VOCO_TABLE.get()
                             )
                     //?}
             );

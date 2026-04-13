@@ -1,6 +1,4 @@
-
-
-
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/PearlFireBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -14,11 +12,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-//? if <1.21.2 {
-/*import net.minecraft.world.level.LevelAccessor;
- *///?} else {
 import net.minecraft.world.level.ScheduledTickAccess;
-//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -50,24 +44,6 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     }
 
     @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        super.onPlace(state, level, pos, oldState, movedByPiston);
-
-        if (level.isClientSide()) {
-            return;
-        }
-
-        if (oldState.is(state.getBlock())) {
-            return;
-        }
-
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof PearlFireBlockEntity pearlFireBe) {
-            pearlFireBe.setHexColor(PearlFireBlockEntity.PEARL_FIRE_COLOR);
-        }
-    }
-
-    @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
 
@@ -76,32 +52,16 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         }
 
         Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+        if (savedHex == null) {
+            return;
+        }
 
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof PearlFireBlockEntity pearlFireBe) {
-            if (savedHex != null) {
-                pearlFireBe.setHexColor(savedHex);
-            } else {
-                pearlFireBe.setHexColor(PearlFireBlockEntity.PEARL_FIRE_COLOR);
-            }
+            pearlFireBe.setHexColor(savedHex);
         }
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected BlockState updateShape(
-            BlockState state,
-            Direction direction,
-            BlockState neighborState,
-            LevelAccessor level,
-            BlockPos pos,
-            BlockPos neighborPos
-    ) {
-        return this.canSurvive(state, level, pos)
-                ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
-                : Blocks.AIR.defaultBlockState();
-    }
-*///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
@@ -117,16 +77,30 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                 ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
                 : Blocks.AIR.defaultBlockState();
     }
-//?}
 
     private static boolean shouldRunPearlFireTick(ServerLevel level, BlockPos pos) {
-        //? if <1.21.5 {
-        /*return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK);
-        *///?} else {
         return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)
                 && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS)
                 || level.anyPlayerCloseEnoughForSpawning(pos));
-        //?}
+    }
+
+    private static int getPearlFireHex(Level level, BlockPos pos) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof PearlFireBlockEntity pearlFireBe && pearlFireBe.hasHexColor()) {
+            return pearlFireBe.getHexColor();
+        }
+        return PearlFireBlockEntity.UNSET_HEX_COLOR;
+    }
+
+    private static void setPlacedPearlFireHex(Level level, BlockPos pos, int hexColor) {
+        if (level.isClientSide()) {
+            return;
+        }
+
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof PearlFireBlockEntity pearlFireBe) {
+            pearlFireBe.setHexColor(hexColor);
+        }
     }
 
     @Override
@@ -139,7 +113,10 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
 
         if (!state.canSurvive(level, pos)) {
             level.removeBlock(pos, false);
+            return;
         }
+
+        int sourceHex = getPearlFireHex(level, pos);
 
         BlockState belowState = level.getBlockState(pos.below());
         boolean eternalSource = belowState.isFireSource(level, pos.below(), Direction.UP);
@@ -176,12 +153,12 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         boolean burnoutBiome = level.getBiome(pos).is(BiomeTags.INCREASED_FIRE_BURNOUT);
         int biomeModifier = burnoutBiome ? -50 : 0;
 
-        this.checkPearlBurnOut(level, pos.east(), 300 + biomeModifier, random, age, Direction.WEST);
-        this.checkPearlBurnOut(level, pos.west(), 300 + biomeModifier, random, age, Direction.EAST);
-        this.checkPearlBurnOut(level, pos.below(), 250 + biomeModifier, random, age, Direction.UP);
-        this.checkPearlBurnOut(level, pos.above(), 250 + biomeModifier, random, age, Direction.DOWN);
-        this.checkPearlBurnOut(level, pos.north(), 300 + biomeModifier, random, age, Direction.SOUTH);
-        this.checkPearlBurnOut(level, pos.south(), 300 + biomeModifier, random, age, Direction.NORTH);
+        this.checkPearlBurnOut(level, pos.east(), 300 + biomeModifier, random, age, Direction.WEST, sourceHex);
+        this.checkPearlBurnOut(level, pos.west(), 300 + biomeModifier, random, age, Direction.EAST, sourceHex);
+        this.checkPearlBurnOut(level, pos.below(), 250 + biomeModifier, random, age, Direction.UP, sourceHex);
+        this.checkPearlBurnOut(level, pos.above(), 250 + biomeModifier, random, age, Direction.DOWN, sourceHex);
+        this.checkPearlBurnOut(level, pos.north(), 300 + biomeModifier, random, age, Direction.SOUTH, sourceHex);
+        this.checkPearlBurnOut(level, pos.south(), 300 + biomeModifier, random, age, Direction.NORTH, sourceHex);
 
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
@@ -209,6 +186,10 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
 
                                 int spreadAge = Math.min(15, age + random.nextInt(5) / 4);
                                 level.setBlock(mutable, this.getPearlStateWithAge(level, mutable, spreadAge), 3);
+
+                                if (sourceHex != PearlFireBlockEntity.UNSET_HEX_COLOR) {
+                                    setPlacedPearlFireHex(level, mutable, sourceHex);
+                                }
                             }
                         }
                     }
@@ -255,7 +236,8 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             int chance,
             RandomSource random,
             int age,
-            Direction face
+            Direction face,
+            int sourceHex
     ) {
         int flammability = level.getBlockState(pos).getFlammability(level, pos, face);
 
@@ -266,6 +248,10 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             if (random.nextInt(age + 10) < 5 && !level.isRainingAt(pos)) {
                 int newAge = Math.min(age + random.nextInt(5) / 4, 15);
                 level.setBlock(pos, this.getPearlStateWithAge(level, pos, newAge), 3);
+
+                if (sourceHex != PearlFireBlockEntity.UNSET_HEX_COLOR) {
+                    setPlacedPearlFireHex(level, pos, sourceHex);
+                }
             } else {
                 level.removeBlock(pos, false);
             }

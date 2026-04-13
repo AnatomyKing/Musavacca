@@ -1,4 +1,4 @@
-// file: src/main/java/net/anatomyworld/harambefmod/entity/mob/bananacow/clientmodel/BananaCowModel.java
+
 package space.anatomyuniverse.musavacca.entity.mob.bananacow.clientmodel;
 
 

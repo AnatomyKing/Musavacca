@@ -5,9 +5,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
- //?}
+//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -22,13 +23,14 @@ import net.minecraft.world.level.storage.ValueOutput;
 //?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.tint.PearlFirePlacementColorMemory;
 
 public class PearlFireBlockEntity extends BlockEntity {
 
     public static final String TAG_HEX_COLOR = "hex_color";
-    public static final int PEARL_FIRE_COLOR = 0xD5CD49;
+    public static final int UNSET_HEX_COLOR = -1;
 
-    private int hexColor = PEARL_FIRE_COLOR;
+    private int hexColor = UNSET_HEX_COLOR;
 
     public PearlFireBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.PEARL_FIRE_BLOCK_ENTITY.get(), pos, state);
@@ -39,22 +41,28 @@ public class PearlFireBlockEntity extends BlockEntity {
     }
 
     public boolean hasHexColor() {
-        return true;
+        return this.hexColor != UNSET_HEX_COLOR;
     }
 
-    public void setHexColor(int ignoredHexColor) {
-        int normalized = PEARL_FIRE_COLOR;
-        if (this.hexColor != normalized) {
-            this.hexColor = normalized;
-            this.setChanged();
-            this.syncToClientAndRerender();
+    public void setHexColor(int hexColor) {
+        int normalized = normalizeHex(hexColor);
+        if (this.hexColor == normalized) {
+            return;
         }
+
+        this.hexColor = normalized;
+        this.setChanged();
+        this.syncToClientAndRerender();
+    }
+
+    private static int normalizeHex(int hexColor) {
+        return hexColor & 0xFFFFFF;
     }
 
     private static int readIntOr(CompoundTag tag, String key, int fallback) {
         //? if <1.21.5 {
         /*return tag.contains(key) ? tag.getInt(key) : fallback;
-        *///?} else {
+         *///?} else {
         return tag.getIntOr(key, fallback);
         //?}
     }
@@ -76,33 +84,58 @@ public class PearlFireBlockEntity extends BlockEntity {
         );
     }
 
+    private void rerenderClientNow() {
+        Level level = this.getLevel();
+        if (level == null || !level.isClientSide()) {
+            return;
+        }
+
+        BlockPos pos = this.getBlockPos();
+        BlockState state = this.getBlockState();
+
+        PearlFirePlacementColorMemory.clear(pos);
+
+        level.sendBlockUpdated(
+                pos,
+                state,
+                state,
+                Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
+        );
+    }
+
     //? if <1.21.6 {
     /*@Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
 
-        readIntOr(tag, TAG_HEX_COLOR, PEARL_FIRE_COLOR);
-        this.hexColor = PEARL_FIRE_COLOR;
+        int loaded = readIntOr(tag, TAG_HEX_COLOR, UNSET_HEX_COLOR);
+        this.hexColor = loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt(TAG_HEX_COLOR, PEARL_FIRE_COLOR);
+
+        if (this.hasHexColor()) {
+            tag.putInt(TAG_HEX_COLOR, this.hexColor);
+        }
     }
     *///?} else {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
-        input.getIntOr(TAG_HEX_COLOR, PEARL_FIRE_COLOR);
-        this.hexColor = PEARL_FIRE_COLOR;
+        int loaded = input.getIntOr(TAG_HEX_COLOR, UNSET_HEX_COLOR);
+        this.hexColor = loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putInt(TAG_HEX_COLOR, PEARL_FIRE_COLOR);
+
+        if (this.hasHexColor()) {
+            output.putInt(TAG_HEX_COLOR, this.hexColor);
+        }
     }
     //?}
 
@@ -111,23 +144,30 @@ public class PearlFireBlockEntity extends BlockEntity {
     protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
         super.applyImplicitComponents(input);
 
-        input.get(ModDataComponents.HEX_COLOR.get());
-        this.hexColor = PEARL_FIRE_COLOR;
+        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
+        if (savedHex != null) {
+            this.hexColor = normalizeHex(savedHex);
+        }
     }
     *///?} else {
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
 
-        input.get(ModDataComponents.HEX_COLOR.get());
-        this.hexColor = PEARL_FIRE_COLOR;
+        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
+        if (savedHex != null) {
+            this.hexColor = normalizeHex(savedHex);
+        }
     }
     //?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
-        components.set(ModDataComponents.HEX_COLOR.get(), PEARL_FIRE_COLOR);
+
+        if (this.hasHexColor()) {
+            components.set(ModDataComponents.HEX_COLOR.get(), this.hexColor);
+        }
     }
 
     @Override
@@ -139,4 +179,30 @@ public class PearlFireBlockEntity extends BlockEntity {
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
+
+    //? if <1.21.6 {
+    /*@Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.handleUpdateTag(tag, registries);
+        this.rerenderClientNow();
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+        super.onDataPacket(connection, packet, registries);
+        this.rerenderClientNow();
+    }
+    *///?} else {
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        super.handleUpdateTag(input);
+        this.rerenderClientNow();
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ValueInput input) {
+        super.onDataPacket(connection, input);
+        this.rerenderClientNow();
+    }
+    //?}
 }
