@@ -5,24 +5,24 @@ public final class PearlFireTintSource {
 
     private static final float CHROMA_EPSILON = 0.0005F;
 
-    private static final float CORE_END = 0.19F;
-    private static final float BODY_CENTER = 0.43F;
-    private static final float BODY_WIDTH = 0.25F;
-    private static final float TAIL_START = 0.72F;
+    private static final float CORE_END = 0.21F;
+    private static final float BODY_CENTER = 0.44F;
+    private static final float BODY_WIDTH = 0.27F;
+    private static final float TAIL_START = 0.74F;
 
-    private static final float CORE_BRIGHTNESS = 0.060F;
-    private static final float MID_BRIGHTNESS = 0.050F;
-    private static final float TAIL_DARKNESS = 0.047F;
+    private static final float CORE_BRIGHTNESS = 0.046F;
+    private static final float MID_BRIGHTNESS = 0.036F;
+    private static final float TAIL_DARKNESS = 0.032F;
 
-    private static final float CHROMA_GAIN = 0.18F;
-    private static final float CHROMA_RESCUE = 0.034F;
-    private static final float COLOR_HOLD = 0.17F;
+    private static final float CHROMA_GAIN = 0.13F;
+    private static final float CHROMA_RESCUE = 0.026F;
+    private static final float COLOR_HOLD = 0.12F;
 
-    private static final float HUE_TRAVEL = 0.36F;
-    private static final float SECONDARY_SWING = 8.4F;
-    private static final float CORE_STABILITY = 0.74F;
-    private static final float CORE_SOFTEN = 0.18F;
-    private static final float TAIL_SETTLE = 0.58F;
+    private static final float HUE_TRAVEL = 0.27F;
+    private static final float SECONDARY_SWING = 6.2F;
+    private static final float CORE_STABILITY = 0.80F;
+    private static final float CORE_SOFTEN = 0.14F;
+    private static final float TAIL_SETTLE = 0.66F;
 
     private static final int[] SOURCE_GRAY_BY_LAYER = new int[]{
             255, 250, 245, 241, 236, 231, 227, 222,
