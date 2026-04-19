@@ -17,6 +17,8 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 
 public final class ModTints {
+    private static final PearlFireTintProfiles.Profile PEARL_FIRE_PROFILE = PearlFireTintProfiles.FIRE_BLOCK;
+
     private ModTints() {}
 
     public static void register(IEventBus modBus) {
@@ -71,7 +73,7 @@ public final class ModTints {
     }
 
     private static int getPearlFireTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
-        if (tintIndex < 0 || tintIndex >= PearlFireTintSource.LAYER_COUNT) {
+        if (!PearlFireTintSource.supportsLayer(PEARL_FIRE_PROFILE, tintIndex)) {
             return TintColorUtil.NO_TINT;
         }
 
@@ -79,12 +81,12 @@ public final class ModTints {
             if (level.getBlockEntity(pos) instanceof PearlFireBlockEntity pearlFireBe
                     && pearlFireBe.hasHexColor()) {
                 PearlFirePlacementColorMemory.clear(pos);
-                return PearlFireTintSource.blockTint(pearlFireBe.getHexColor(), tintIndex);
+                return PearlFireTintSource.blockTint(pearlFireBe.getHexColor(), tintIndex, PEARL_FIRE_PROFILE);
             }
 
             Integer predictedRgb = PearlFirePlacementColorMemory.get(pos);
             if (predictedRgb != null) {
-                return PearlFireTintSource.blockTint(predictedRgb, tintIndex);
+                return PearlFireTintSource.blockTint(predictedRgb, tintIndex, PEARL_FIRE_PROFILE);
             }
         }
 
@@ -128,7 +130,7 @@ public final class ModTints {
         );
 
         event.register((stack, tintIndex) -> {
-                    if (tintIndex < 0 || tintIndex >= PearlFireTintSource.LAYER_COUNT) {
+                    if (!PearlFireTintSource.supportsLayer(PEARL_FIRE_PROFILE, tintIndex)) {
                         return TintColorUtil.NO_TINT;
                     }
 
@@ -137,7 +139,7 @@ public final class ModTints {
                         return TintColorUtil.NO_TINT;
                     }
 
-                    return PearlFireTintSource.itemTint(savedHex, tintIndex);
+                    return PearlFireTintSource.blockTint(savedHex, tintIndex, PEARL_FIRE_PROFILE);
                 },
                 ModBlocks.PEARL_FIRE.get()
         );
