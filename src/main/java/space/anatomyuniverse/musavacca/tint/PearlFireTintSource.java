@@ -79,11 +79,15 @@ public final class PearlFireTintSource {
         float baseL = base.l();
 
         if (base.c() <= CHROMA_EPSILON) {
-            float shadowL = lerp(0.02F, 0.48F, baseL);
-            float l = 1.0F - ((1.0F - shadowL) * (float) Math.pow(t, lerp(0.35F, 1.65F, baseL)));
-            l += CORE_BRIGHTNESS * core * (0.70F + (0.30F * (1.0F - baseL)));
-            l += 0.021F * core * body;
-            l -= TAIL_DARKNESS * tail * (0.88F + (0.12F * (1.0F - baseL)));
+            float shadowL = lerp(0.05F, 0.44F, baseL);
+            float l = 1.0F - ((1.0F - shadowL) * (float) Math.pow(t, lerp(0.50F, 1.40F, baseL)));
+            l += CORE_BRIGHTNESS * core * (0.62F + (0.38F * (1.0F - baseL)));
+            l += 0.014F * core * body;
+            l -= TAIL_DARKNESS * tail * (0.74F + (0.26F * (1.0F - baseL)));
+
+            float vanillaL = 1.0F - ((1.0F - lerp(0.10F, 0.40F, baseL)) * (float) Math.pow(t, lerp(0.58F, 1.28F, baseL)));
+            l = lerp(l, vanillaL, 0.18F + (0.08F * body));
+
             return oklchToRgbGamutFit(clamp01(l), 0.0F, 0.0F);
         }
 
@@ -94,35 +98,49 @@ public final class PearlFireTintSource {
         float warm = Math.max(0.0F, temp);
         float cool = Math.max(0.0F, -temp);
 
-        float shadowL = lerp(0.08F, 0.38F, baseL) - (0.019F * tail * (0.60F + (0.40F * warm)));
-        float l = 1.0F - ((1.0F - clamp01(shadowL)) * (float) Math.pow(t, lerp(0.35F, 1.65F, baseL)));
-        l += CORE_BRIGHTNESS * core * (0.70F + (0.30F * (1.0F - baseL)));
-        l += 0.021F * core * body;
-        l += MID_BRIGHTNESS * body * ((0.92F * cool) + (0.56F * vivid));
-        l -= TAIL_DARKNESS * tail * ((0.88F + (0.12F * (1.0F - baseL))) + (0.60F * warm));
+        float shadowL = lerp(0.10F, 0.35F, baseL) - (0.013F * tail * (0.55F + (0.45F * warm)));
+        float l = 1.0F - ((1.0F - clamp01(shadowL)) * (float) Math.pow(t, lerp(0.50F, 1.40F, baseL)));
+        l += CORE_BRIGHTNESS * core * (0.62F + (0.38F * (1.0F - baseL)));
+        l += 0.014F * core * body;
+        l += MID_BRIGHTNESS * body * ((0.74F * cool) + (0.45F * vivid));
+        l -= TAIL_DARKNESS * tail * ((0.76F + (0.24F * (1.0F - baseL))) + (0.34F * warm));
+
+        float vanillaL = 1.0F - ((1.0F - lerp(0.14F, 0.42F, baseL)) * (float) Math.pow(t, lerp(0.58F, 1.28F, baseL)));
+        l = lerp(l, vanillaL, 0.12F + (0.08F * body) + (0.06F * tail));
 
         float baseC = base.c();
         float normalizedBaseC = smooth01(baseC / (baseC + 0.12F));
+
         float c = (
-                baseC * (1.02F + (body * (CHROMA_GAIN + (0.13F * vivid))) + (0.04F * tail))
-                        + (CHROMA_RESCUE * (1.0F - normalizedBaseC) * body * (1.0F + (0.28F * vivid)))
-        ) * smooth01((t - 0.02F) / 0.22F)
-                * (1.0F - (0.09F * tail))
-                * (1.0F - (0.82F * core))
-                * (1.0F + (0.12F * core * body))
+                baseC * (0.98F + (body * (CHROMA_GAIN + (0.08F * vivid))) + (0.02F * tail))
+                        + (CHROMA_RESCUE * (1.0F - normalizedBaseC) * body * (1.0F + (0.18F * vivid)))
+        ) * smooth01((t - 0.03F) / 0.24F)
+                * (1.0F - (0.07F * tail))
+                * (1.0F - (0.74F * core))
+                * (1.0F + (0.08F * core * body))
                 * (1.0F + (
-                ((COLOR_HOLD * (1.0F - core)) + ((0.115F + (0.065F * vivid)) * tail))
-                        * lerp(0.32F, 1.0F, normalizedBaseC)
+                ((COLOR_HOLD * (1.0F - core)) + ((0.075F + (0.045F * vivid)) * tail))
+                        * lerp(0.36F, 1.0F, normalizedBaseC)
         ));
         c = Math.max(0.0F, c);
 
+        float vanillaC = baseC
+                * smooth01((t - 0.05F) / 0.28F)
+                * (0.92F + (0.08F * body))
+                * (1.0F - (0.62F * core))
+                * (1.0F - (0.03F * tail));
+
+        c = lerp(c, vanillaC, 0.14F + (0.06F * tail));
+
         float motion = 1.0F - (core * (CORE_STABILITY + (CORE_SOFTEN * vivid)));
-        float arcT = clamp01(smooth01((t - 0.18F) / 0.82F) + (0.12F * tail));
-        float arc = lerp(2.5F + (9.5F * temp), -1.5F - (10.5F * temp), arcT) * motion;
-        float swing = 3.2F * body * temp * motion * (1.0F - (TAIL_SETTLE * tail));
-        float harmonic = SECONDARY_SWING * secondary * ((0.30F * core) + (0.13F * body) - (0.86F * tail));
-        float travel = clamp01((0.24F + (HUE_TRAVEL * vivid * (1.0F + (0.28F * tail)))) * (1.0F - (0.36F * core)));
+        float arcT = clamp01(smooth01((t - 0.20F) / 0.80F) + (0.08F * tail));
+        float arc = lerp(2.0F + (7.0F * temp), -1.0F - (8.0F * temp), arcT) * motion;
+        float swing = 2.4F * body * temp * motion * (1.0F - (TAIL_SETTLE * tail));
+        float harmonic = SECONDARY_SWING * secondary * ((0.24F * core) + (0.10F * body) - (0.70F * tail));
+        float travel = clamp01((0.18F + (HUE_TRAVEL * vivid * (1.0F + (0.18F * tail)))) * (1.0F - (0.28F * core)));
+
         float h = wrapDegrees360(h0 + ((arc + swing + harmonic) * travel));
+        h = lerpAngleDegrees(h, h0, 0.12F + (0.08F * core) + (0.08F * tail));
 
         return oklchToRgbGamutFit(clamp01(l), c, h);
     }
@@ -241,6 +259,21 @@ public final class PearlFireTintSource {
 
     private static float lerp(float a, float b, float t) {
         return a + ((b - a) * clamp01(t));
+    }
+
+    private static float lerpAngleDegrees(float from, float to, float t) {
+        float delta = shortestAngleDegrees(from, to);
+        return wrapDegrees360(from + (delta * clamp01(t)));
+    }
+
+    private static float shortestAngleDegrees(float from, float to) {
+        float delta = (to - from) % 360.0F;
+        if (delta > 180.0F) {
+            delta -= 360.0F;
+        } else if (delta < -180.0F) {
+            delta += 360.0F;
+        }
+        return delta;
     }
 
     private static float wrapDegrees360(float degrees) {
