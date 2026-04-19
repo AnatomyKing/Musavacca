@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/ModTints.java
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.client.renderer.BiomeColors;
