@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/PearlFireTintSource.java
 package space.anatomyuniverse.musavacca.tint;
 
 public final class PearlFireTintSource {
@@ -6,26 +5,25 @@ public final class PearlFireTintSource {
 
     private static final float CHROMA_EPSILON = 0.0005F;
 
-    // Fire-shaping knobs
     private static final float CORE_END = 0.19F;
     private static final float BODY_CENTER = 0.43F;
     private static final float BODY_WIDTH = 0.25F;
     private static final float TAIL_START = 0.72F;
 
-    private static final float MID_CHROMA_BOOST = 0.18F;
-    private static final float LOW_CHROMA_RESCUE = 0.035F;
-    private static final float COOL_MID_LIGHTNESS_BOOST = 0.045F;
-    private static final float WARM_TAIL_DARKEN = 0.030F;
+    private static final float CORE_BRIGHTNESS = 0.060F;
+    private static final float MID_BRIGHTNESS = 0.050F;
+    private static final float TAIL_DARKNESS = 0.047F;
 
-    private static final float WARM_HIGHLIGHT_SHIFT = 14.0F;
-    private static final float COOL_HIGHLIGHT_SHIFT = -8.0F;
-    private static final float WARM_SHADOW_SHIFT = -14.0F;
-    private static final float COOL_SHADOW_SHIFT = 10.0F;
+    private static final float CHROMA_GAIN = 0.18F;
+    private static final float CHROMA_RESCUE = 0.034F;
+    private static final float COLOR_HOLD = 0.17F;
 
-    /*
-     * Actual grayscale source levels in pearl_fire_0 / pearl_fire_1,
-     * lightest -> darkest.
-     */
+    private static final float HUE_TRAVEL = 0.36F;
+    private static final float SECONDARY_SWING = 8.4F;
+    private static final float CORE_STABILITY = 0.74F;
+    private static final float CORE_SOFTEN = 0.18F;
+    private static final float TAIL_SETTLE = 0.58F;
+
     private static final int[] SOURCE_GRAY_BY_LAYER = new int[]{
             255, 250, 245, 241, 236, 231, 227, 222,
             217, 213, 207, 203, 199, 193, 189, 185,
@@ -48,115 +46,86 @@ public final class PearlFireTintSource {
             return TintColorUtil.NO_TINT;
         }
 
-        float t = tintIndex / (float) (LAYER_COUNT - 1); // 0 = hottest/lightest, 1 = darkest
-        int desiredRgb = computeDesiredLayerRgb(TintColorUtil.rgb(baseRgb), t);
-        int compensatedRgb = compensateForMinecraftMultiply(desiredRgb, tintIndex);
-        return TintColorUtil.opaqueRgb(compensatedRgb);
+        float t = tintIndex / (float) (LAYER_COUNT - 1);
+        int desiredRgb = desiredLayerRgb(TintColorUtil.rgb(baseRgb), t);
+
+        float grayFactor = SOURCE_GRAY_BY_LAYER[tintIndex] / 255.0F;
+        if (grayFactor <= 0.0F) {
+            return TintColorUtil.opaqueRgb(desiredRgb);
+        }
+
+        int r = (desiredRgb >> 16) & 0xFF;
+        int g = (desiredRgb >> 8) & 0xFF;
+        int b = desiredRgb & 0xFF;
+
+        int tintR = clamp255(Math.round(r / grayFactor));
+        int tintG = clamp255(Math.round(g / grayFactor));
+        int tintB = clamp255(Math.round(b / grayFactor));
+
+        return TintColorUtil.opaqueRgb((tintR << 16) | (tintG << 8) | tintB);
     }
 
-    private static int computeDesiredLayerRgb(int baseRgb, float t) {
+    private static int desiredLayerRgb(int baseRgb, float t) {
         if (t <= 0.00001F) {
-            return 0xFFFFFF; // always white-hot on the brightest layer
+            return 0xFFFFFF;
         }
 
         Oklch base = rgbToOklch(baseRgb);
-        boolean chromatic = base.c > CHROMA_EPSILON;
 
-        float baseL = base.l;
-        float baseC = chromatic ? base.c : 0.0F;
-        float baseH = chromatic ? base.hDegrees : 0.0F;
-
-        // +1 = warm/yellow-orange side, -1 = cool/blue-cyan side
-        float temperature = chromatic ? clamp(cosDeg(baseH - 70.0F), -1.0F, 1.0F) : 0.0F;
-
-        float coreFade = smooth01(t / CORE_END);                     // 0 in core, 1 outside core
-        float core = 1.0F - coreFade;
-        float body = bell(t, BODY_CENTER, BODY_WIDTH);               // mid flame body
+        float core = 1.0F - smooth01(t / CORE_END);
+        float body = bell(t, BODY_CENTER, BODY_WIDTH);
         float tail = smooth01((t - TAIL_START) / (1.0F - TAIL_START));
 
-        float lightness = computeLightness(baseL, chromatic, temperature, body, tail, t);
+        float baseL = base.l();
 
-        float chroma;
-        float hueDegrees;
-
-        if (chromatic) {
-            float normalizedBaseC = smooth01(baseC / (baseC + 0.12F));
-
-            // Core starts almost white, body blooms richer, tail keeps some color.
-            float bodyTargetC = baseC * (1.06F + (MID_CHROMA_BOOST * body) + (0.05F * tail));
-            float lowChromaLift = LOW_CHROMA_RESCUE * (1.0F - normalizedBaseC) * body;
-            float chromaEnvelope = smooth01((t - 0.02F) / 0.22F) * (1.0F - 0.10F * tail);
-
-            chroma = Math.max(0.0F, (bodyTargetC + lowChromaLift) * chromaEnvelope);
-
-            // Highlights drift warmer for warm hues and cooler for cool hues.
-            // Shadows drift redder for warm hues and violet/deeper-blue for cool hues.
-            float highlightShift = lerp(COOL_HIGHLIGHT_SHIFT, WARM_HIGHLIGHT_SHIFT, (temperature + 1.0F) * 0.5F);
-            float shadowShift = lerp(COOL_SHADOW_SHIFT, WARM_SHADOW_SHIFT, (temperature + 1.0F) * 0.5F);
-            float hueArc = lerp(highlightShift, shadowShift, smooth01((t - 0.18F) / 0.82F));
-
-            // Tiny extra bend in the colorful body so the flame feels more alive.
-            float bodySwing = 3.5F * body * temperature;
-
-            hueDegrees = wrapDegrees360(baseH + hueArc + bodySwing);
-        } else {
-            // White/gray/black stay achromatic
-            chroma = 0.0F;
-            hueDegrees = 0.0F;
+        if (base.c() <= CHROMA_EPSILON) {
+            float shadowL = lerp(0.02F, 0.48F, baseL);
+            float l = 1.0F - ((1.0F - shadowL) * (float) Math.pow(t, lerp(0.35F, 1.65F, baseL)));
+            l += CORE_BRIGHTNESS * core * (0.70F + (0.30F * (1.0F - baseL)));
+            l += 0.021F * core * body;
+            l -= TAIL_DARKNESS * tail * (0.88F + (0.12F * (1.0F - baseL)));
+            return oklchToRgbGamutFit(clamp01(l), 0.0F, 0.0F);
         }
 
-        return oklchToRgbGamutFit(lightness, chroma, hueDegrees);
+        float h0 = base.hDegrees();
+        float temp = clamp((float) Math.cos(Math.toRadians(h0 - 70.0F)), -1.0F, 1.0F);
+        float vivid = 1.0F - Math.abs(temp);
+        float secondary = (float) Math.sin(Math.toRadians((h0 - 70.0F) * 2.0F));
+        float warm = Math.max(0.0F, temp);
+        float cool = Math.max(0.0F, -temp);
+
+        float shadowL = lerp(0.08F, 0.38F, baseL) - (0.019F * tail * (0.60F + (0.40F * warm)));
+        float l = 1.0F - ((1.0F - clamp01(shadowL)) * (float) Math.pow(t, lerp(0.35F, 1.65F, baseL)));
+        l += CORE_BRIGHTNESS * core * (0.70F + (0.30F * (1.0F - baseL)));
+        l += 0.021F * core * body;
+        l += MID_BRIGHTNESS * body * ((0.92F * cool) + (0.56F * vivid));
+        l -= TAIL_DARKNESS * tail * ((0.88F + (0.12F * (1.0F - baseL))) + (0.60F * warm));
+
+        float baseC = base.c();
+        float normalizedBaseC = smooth01(baseC / (baseC + 0.12F));
+        float c = (
+                baseC * (1.02F + (body * (CHROMA_GAIN + (0.13F * vivid))) + (0.04F * tail))
+                        + (CHROMA_RESCUE * (1.0F - normalizedBaseC) * body * (1.0F + (0.28F * vivid)))
+        ) * smooth01((t - 0.02F) / 0.22F)
+                * (1.0F - (0.09F * tail))
+                * (1.0F - (0.82F * core))
+                * (1.0F + (0.12F * core * body))
+                * (1.0F + (
+                ((COLOR_HOLD * (1.0F - core)) + ((0.115F + (0.065F * vivid)) * tail))
+                        * lerp(0.32F, 1.0F, normalizedBaseC)
+        ));
+        c = Math.max(0.0F, c);
+
+        float motion = 1.0F - (core * (CORE_STABILITY + (CORE_SOFTEN * vivid)));
+        float arcT = clamp01(smooth01((t - 0.18F) / 0.82F) + (0.12F * tail));
+        float arc = lerp(2.5F + (9.5F * temp), -1.5F - (10.5F * temp), arcT) * motion;
+        float swing = 3.2F * body * temp * motion * (1.0F - (TAIL_SETTLE * tail));
+        float harmonic = SECONDARY_SWING * secondary * ((0.30F * core) + (0.13F * body) - (0.86F * tail));
+        float travel = clamp01((0.24F + (HUE_TRAVEL * vivid * (1.0F + (0.28F * tail)))) * (1.0F - (0.36F * core)));
+        float h = wrapDegrees360(h0 + ((arc + swing + harmonic) * travel));
+
+        return oklchToRgbGamutFit(clamp01(l), c, h);
     }
-
-    private static float computeLightness(
-            float baseL,
-            boolean chromatic,
-            float temperature,
-            float body,
-            float tail,
-            float t
-    ) {
-        /*
-         * Dark inputs collapse faster so black fire still reads dark.
-         * Bright inputs keep a longer bright head so white/light colors stay luminous.
-         */
-        float shadowL = chromatic
-                ? lerp(0.08F, 0.38F, baseL)
-                : lerp(0.02F, 0.48F, baseL);
-
-        float exponent = lerp(0.35F, 1.65F, baseL);
-
-        float L = 1.0F - ((1.0F - shadowL) * (float) Math.pow(t, exponent));
-
-        // Cool hues often look better with a slightly brighter inner body.
-        L += COOL_MID_LIGHTNESS_BOOST * body * Math.max(0.0F, -temperature);
-
-        // Warm hues usually look nicer with a slightly denser/darker tail.
-        L -= WARM_TAIL_DARKEN * tail * Math.max(0.0F, temperature);
-
-        return clamp01(L);
-    }
-
-    private static int compensateForMinecraftMultiply(int desiredRgb, int tintIndex) {
-        float grayFactor = SOURCE_GRAY_BY_LAYER[tintIndex] / 255.0F;
-        if (grayFactor <= 0.0F) {
-            return desiredRgb;
-        }
-
-        int desiredR = (desiredRgb >> 16) & 0xFF;
-        int desiredG = (desiredRgb >> 8) & 0xFF;
-        int desiredB = desiredRgb & 0xFF;
-
-        int tintR = clamp255(Math.round(desiredR / grayFactor));
-        int tintG = clamp255(Math.round(desiredG / grayFactor));
-        int tintB = clamp255(Math.round(desiredB / grayFactor));
-
-        return (tintR << 16) | (tintG << 8) | tintB;
-    }
-
-    // -------------------------------------------------------------------------
-    // Oklab / Oklch
-    // -------------------------------------------------------------------------
 
     private static Oklch rgbToOklch(int rgb) {
         float r = srgbToLinear(((rgb >> 16) & 0xFF) / 255.0F);
@@ -164,13 +133,10 @@ public final class PearlFireTintSource {
         float b = srgbToLinear((rgb & 0xFF) / 255.0F);
 
         Oklab lab = linearSrgbToOklab(r, g, b);
+        float c = (float) Math.hypot(lab.a(), lab.b());
+        float h = c <= CHROMA_EPSILON ? 0.0F : wrapDegrees360((float) Math.toDegrees(Math.atan2(lab.b(), lab.a())));
 
-        float c = (float) Math.hypot(lab.a, lab.b);
-        float hDegrees = c <= CHROMA_EPSILON
-                ? 0.0F
-                : wrapDegrees360((float) Math.toDegrees(Math.atan2(lab.b, lab.a)));
-
-        return new Oklch(lab.l, c, hDegrees);
+        return new Oklch(lab.l(), c, h);
     }
 
     private static int oklchToRgbGamutFit(float l, float c, float hDegrees) {
@@ -178,39 +144,33 @@ public final class PearlFireTintSource {
         c = Math.max(0.0F, c);
         hDegrees = wrapDegrees360(hDegrees);
 
-        float[] direct = oklchToLinearSrgb(l, c, hDegrees);
-        if (isInSrgbGamut(direct)) {
-            return linearSrgbToInt(direct[0], direct[1], direct[2]);
-        }
+        float[] rgb = oklchToLinearSrgb(l, c, hDegrees);
+        if (!isInSrgbGamut(rgb)) {
+            float low = 0.0F;
+            float high = c;
 
-        // Simple chroma backoff: keep L and h, reduce C until it fits sRGB.
-        float low = 0.0F;
-        float high = c;
-        float best = 0.0F;
-
-        for (int i = 0; i < 24; i++) {
-            float mid = (low + high) * 0.5F;
-            float[] test = oklchToLinearSrgb(l, mid, hDegrees);
-
-            if (isInSrgbGamut(test)) {
-                best = mid;
-                low = mid;
-            } else {
-                high = mid;
+            for (int i = 0; i < 24; i++) {
+                float mid = (low + high) * 0.5F;
+                if (isInSrgbGamut(oklchToLinearSrgb(l, mid, hDegrees))) {
+                    low = mid;
+                } else {
+                    high = mid;
+                }
             }
+
+            rgb = oklchToLinearSrgb(l, low, hDegrees);
         }
 
-        float[] fitted = oklchToLinearSrgb(l, best, hDegrees);
-        return linearSrgbToInt(fitted[0], fitted[1], fitted[2]);
+        return linearSrgbToInt(rgb[0], rgb[1], rgb[2]);
     }
 
     private static float[] oklchToLinearSrgb(float l, float c, float hDegrees) {
         float hRad = (float) Math.toRadians(hDegrees);
-        float a = c * (float) Math.cos(hRad);
-        float b = c * (float) Math.sin(hRad);
-
-        Oklab lab = new Oklab(l, a, b);
-        return oklabToLinearSrgb(lab);
+        return oklabToLinearSrgb(new Oklab(
+                l,
+                c * (float) Math.cos(hRad),
+                c * (float) Math.sin(hRad)
+        ));
     }
 
     private static Oklab linearSrgbToOklab(float r, float g, float b) {
@@ -218,25 +178,25 @@ public final class PearlFireTintSource {
         float m = 0.2119034982F * r + 0.6806995451F * g + 0.1073969566F * b;
         float s = 0.0883024619F * r + 0.2817188376F * g + 0.6299787005F * b;
 
-        float l_ = (float) Math.cbrt(l);
-        float m_ = (float) Math.cbrt(m);
-        float s_ = (float) Math.cbrt(s);
+        float l3 = (float) Math.cbrt(l);
+        float m3 = (float) Math.cbrt(m);
+        float s3 = (float) Math.cbrt(s);
 
         return new Oklab(
-                0.2104542553F * l_ + 0.7936177850F * m_ - 0.0040720468F * s_,
-                1.9779984951F * l_ - 2.4285922050F * m_ + 0.4505937099F * s_,
-                0.0259040371F * l_ + 0.7827717662F * m_ - 0.8086757660F * s_
+                0.2104542553F * l3 + 0.7936177850F * m3 - 0.0040720468F * s3,
+                1.9779984951F * l3 - 2.4285922050F * m3 + 0.4505937099F * s3,
+                0.0259040371F * l3 + 0.7827717662F * m3 - 0.8086757660F * s3
         );
     }
 
     private static float[] oklabToLinearSrgb(Oklab c) {
-        float l_ = c.l + 0.3963377774F * c.a + 0.2158037573F * c.b;
-        float m_ = c.l - 0.1055613458F * c.a - 0.0638541728F * c.b;
-        float s_ = c.l - 0.0894841775F * c.a - 1.2914855480F * c.b;
+        float l3 = c.l() + 0.3963377774F * c.a() + 0.2158037573F * c.b();
+        float m3 = c.l() - 0.1055613458F * c.a() - 0.0638541728F * c.b();
+        float s3 = c.l() - 0.0894841775F * c.a() - 1.2914855480F * c.b();
 
-        float l = l_ * l_ * l_;
-        float m = m_ * m_ * m_;
-        float s = s_ * s_ * s_;
+        float l = l3 * l3 * l3;
+        float m = m3 * m3 * m3;
+        float s = s3 * s3 * s3;
 
         return new float[]{
                 +4.0767416621F * l - 3.3077115913F * m + 0.2309699292F * s,
@@ -245,17 +205,13 @@ public final class PearlFireTintSource {
         };
     }
 
-    private static boolean isInSrgbGamut(float[] linearRgb) {
-        return linearRgb != null
-                && linearRgb.length == 3
-                && isFinite(linearRgb[0]) && isFinite(linearRgb[1]) && isFinite(linearRgb[2])
-                && linearRgb[0] >= 0.0F && linearRgb[0] <= 1.0F
-                && linearRgb[1] >= 0.0F && linearRgb[1] <= 1.0F
-                && linearRgb[2] >= 0.0F && linearRgb[2] <= 1.0F;
-    }
-
-    private static boolean isFinite(float value) {
-        return !Float.isNaN(value) && !Float.isInfinite(value);
+    private static boolean isInSrgbGamut(float[] rgb) {
+        return rgb != null
+                && rgb.length == 3
+                && Float.isFinite(rgb[0]) && Float.isFinite(rgb[1]) && Float.isFinite(rgb[2])
+                && rgb[0] >= 0.0F && rgb[0] <= 1.0F
+                && rgb[1] >= 0.0F && rgb[1] <= 1.0F
+                && rgb[2] >= 0.0F && rgb[2] <= 1.0F;
     }
 
     private static int linearSrgbToInt(float r, float g, float b) {
@@ -266,36 +222,16 @@ public final class PearlFireTintSource {
     }
 
     private static float srgbToLinear(float c) {
-        if (c <= 0.04045F) {
-            return c / 12.92F;
-        }
-        return (float) Math.pow((c + 0.055F) / 1.055F, 2.4);
+        return c <= 0.04045F ? c / 12.92F : (float) Math.pow((c + 0.055F) / 1.055F, 2.4);
     }
 
     private static float linearToSrgb(float c) {
-        if (c <= 0.0031308F) {
-            return 12.92F * c;
-        }
-        return 1.055F * (float) Math.pow(c, 1.0 / 2.4) - 0.055F;
+        return c <= 0.0031308F ? 12.92F * c : 1.055F * (float) Math.pow(c, 1.0 / 2.4) - 0.055F;
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     private static float bell(float x, float center, float width) {
-        float d = Math.abs(x - center) / Math.max(0.0001F, width);
-        float v = 1.0F - clamp01(d);
-        return v * v * (3.0F - 2.0F * v);
-    }
-
-    private static float cosDeg(float degrees) {
-        return (float) Math.cos(Math.toRadians(degrees));
-    }
-
-    private static float wrapDegrees360(float degrees) {
-        float wrapped = degrees % 360.0F;
-        return wrapped < 0.0F ? wrapped + 360.0F : wrapped;
+        float v = 1.0F - clamp01(Math.abs(x - center) / Math.max(0.0001F, width));
+        return v * v * (3.0F - (2.0F * v));
     }
 
     private static float smooth01(float t) {
@@ -307,16 +243,21 @@ public final class PearlFireTintSource {
         return a + ((b - a) * clamp01(t));
     }
 
-    private static float clamp01(float value) {
-        return clamp(value, 0.0F, 1.0F);
+    private static float wrapDegrees360(float degrees) {
+        float wrapped = degrees % 360.0F;
+        return wrapped < 0.0F ? wrapped + 360.0F : wrapped;
     }
 
-    private static float clamp(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
+    private static float clamp01(float value) {
+        return Math.max(0.0F, Math.min(1.0F, value));
     }
 
     private static int clamp255(int value) {
         return Math.max(0, Math.min(255, value));
+    }
+
+    private static float clamp(float value, float min, float max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     private record Oklab(float l, float a, float b) {}
