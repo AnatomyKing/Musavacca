@@ -166,16 +166,22 @@ public final class ModelSets {
                 ModItems.BIG_BANANA_PEARL.get(),
                 ModItems.SMALL_BANANA_PEARL.get(),
                 ModItems.FLINT_AND_PEARL.get(),
-                ModItems.BANANA.get(),
+                ModItems.VACACA.get(),
                 ModItems.OPEN_INVO_TEST_ITEM.get(),
                 ModBlocks.UNRIPE_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPE_MUSAVACCA_EGG.get(),
+                ModItems.POTASSIUM_INGOT.get()
         };
     }
 
     public static ItemLike[] handheldItems() {
         return new ItemLike[] {
+                ModItems.POTASSIUM_AXE.get(),
+                ModItems.POTASSIUM_PICKAXE.get(),
+                ModItems.POTASSIUM_SHOVEL.get(),
+                ModItems.POTASSIUM_SWORD.get(),
+                ModItems.POTASSIUM_HOE.get()
         };
     }
 }

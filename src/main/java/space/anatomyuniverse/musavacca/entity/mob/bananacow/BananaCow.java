@@ -58,7 +58,7 @@ public class BananaCow extends Cow {
                     this.getX(),
                     this.getY(),
                     this.getZ(),
-                    new ItemStack(ModItems.BANANA.get())
+                    new ItemStack(ModItems.VACACA.get())
             );
         }
     }

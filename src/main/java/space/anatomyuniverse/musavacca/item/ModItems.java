@@ -1,10 +1,7 @@
 package space.anatomyuniverse.musavacca.item;
 
 import net.minecraft.world.food.Foods;
-import net.minecraft.world.item.FlintAndSteelItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.*;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -13,6 +10,7 @@ import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.item.custom.OpenTestInventoryItem;
+import space.anatomyuniverse.musavacca.item.custom.PotassiumToolItem;
 import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
 
 public final class ModItems {
@@ -69,8 +67,8 @@ public final class ModItems {
                      *///?}
             );
 
-    public static final DeferredItem<Item> BANANA =
-            ITEMS.registerItem("banana",
+    public static final DeferredItem<Item> VACACA =
+            ITEMS.registerItem("vacaca",
                     props -> new Item(props.food(Foods.APPLE)));
 
 //    public static final DeferredItem<Item> ITEM_INTERACT =
@@ -86,6 +84,50 @@ public final class ModItems {
                             props
                                     .durability(64)
                                     .component(ModDataComponents.HEX_COLOR.get(), FlintAndPearlItem.DEFAULT_HEX_COLOR)
+                    ));
+
+    public static final DeferredItem<Item> POTASSIUM_INGOT =
+            ITEMS.registerItem("potassium_ingot",
+                    Item::new);
+
+    public static final DeferredItem<Item> POTASSIUM_SWORD =
+            ITEMS.registerItem("potassium_sword",
+                    props -> new PotassiumToolItem(
+                            props
+                                    .sword(ToolMaterial.DIAMOND, 3.0F, -2.4F)
+                                    .food(Foods.APPLE)
+                    ));
+
+    public static final DeferredItem<Item> POTASSIUM_SHOVEL =
+            ITEMS.registerItem("potassium_shovel",
+                    props -> new PotassiumToolItem(
+                            props
+                                    .shovel(ToolMaterial.DIAMOND, 1.5F, -3.0F)
+                                    .food(Foods.APPLE)
+                    ));
+
+    public static final DeferredItem<Item> POTASSIUM_PICKAXE =
+            ITEMS.registerItem("potassium_pickaxe",
+                    props -> new PotassiumToolItem(
+                            props
+                                    .pickaxe(ToolMaterial.DIAMOND, 1.0F, -2.8F)
+                                    .food(Foods.APPLE)
+                    ));
+
+    public static final DeferredItem<Item> POTASSIUM_AXE =
+            ITEMS.registerItem("potassium_axe",
+                    props -> new PotassiumToolItem(
+                            props
+                                    .axe(ToolMaterial.DIAMOND, 5.0F, -3.0F)
+                                    .food(Foods.APPLE)
+                    ));
+
+    public static final DeferredItem<Item> POTASSIUM_HOE =
+            ITEMS.registerItem("potassium_hoe",
+                    props -> new PotassiumToolItem(
+                            props
+                                    .hoe(ToolMaterial.DIAMOND, -3.0F, 0.0F)
+                                    .food(Foods.APPLE)
                     ));
 
 
