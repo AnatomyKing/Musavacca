@@ -10,7 +10,10 @@ import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.item.custom.OpenTestInventoryItem;
-import space.anatomyuniverse.musavacca.item.custom.PotassiumToolItem;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumAxeItem;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumHoeItem;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumShovelItem;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumToolItem;
 import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
 
 public final class ModItems {
@@ -100,10 +103,11 @@ public final class ModItems {
 
     public static final DeferredItem<Item> POTASSIUM_SHOVEL =
             ITEMS.registerItem("potassium_shovel",
-                    props -> new PotassiumToolItem(
-                            props
-                                    .shovel(ToolMaterial.DIAMOND, 1.5F, -3.0F)
-                                    .food(Foods.APPLE)
+                    props -> new PotassiumShovelItem(
+                            ToolMaterial.DIAMOND,
+                            1.5F,
+                            -3.0F,
+                            props.food(Foods.APPLE)
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_PICKAXE =
@@ -116,18 +120,20 @@ public final class ModItems {
 
     public static final DeferredItem<Item> POTASSIUM_AXE =
             ITEMS.registerItem("potassium_axe",
-                    props -> new PotassiumToolItem(
-                            props
-                                    .axe(ToolMaterial.DIAMOND, 5.0F, -3.0F)
-                                    .food(Foods.APPLE)
+                    props -> new PotassiumAxeItem(
+                            ToolMaterial.DIAMOND,
+                            5.0F,
+                            -3.0F,
+                            props.food(Foods.APPLE)
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_HOE =
             ITEMS.registerItem("potassium_hoe",
-                    props -> new PotassiumToolItem(
-                            props
-                                    .hoe(ToolMaterial.DIAMOND, -3.0F, 0.0F)
-                                    .food(Foods.APPLE)
+                    props -> new PotassiumHoeItem(
+                            ToolMaterial.DIAMOND,
+                            -3.0F,
+                            0.0F,
+                            props.food(Foods.APPLE)
                     ));
 
 

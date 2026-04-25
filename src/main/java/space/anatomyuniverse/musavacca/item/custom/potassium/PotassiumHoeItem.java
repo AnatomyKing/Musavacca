@@ -1,0 +1,30 @@
+package space.anatomyuniverse.musavacca.item.custom.potassium;
+
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.HoeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.level.Level;
+
+public class PotassiumHoeItem extends HoeItem {
+    public PotassiumHoeItem(ToolMaterial material, float attackDamage, float attackSpeed, Properties properties) {
+        super(material, attackDamage, attackSpeed, properties);
+    }
+
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        if (PotassiumToolBehavior.isLookingAtBlock(player)) {
+            return InteractionResult.PASS;
+        }
+
+        return super.use(level, player, hand);
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
+        return PotassiumToolBehavior.finishUsingItem(stack, level, entity);
+    }
+}
