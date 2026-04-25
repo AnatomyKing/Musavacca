@@ -167,7 +167,7 @@ public final class ModelSets {
                 ModItems.SMALL_BANANA_PEARL.get(),
                 ModItems.FLINT_AND_PEARL.get(),
                 ModItems.BANANA.get(),
-//                ModItems.ITEM_INTERACT.get(),
+                ModItems.OPEN_INVO_TEST_ITEM.get(),
                 ModBlocks.UNRIPE_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPE_MUSAVACCA_EGG.get(),

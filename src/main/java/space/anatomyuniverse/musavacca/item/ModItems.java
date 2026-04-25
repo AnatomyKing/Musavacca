@@ -12,6 +12,7 @@ import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.item.custom.OpenTestInventoryItem;
 import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
 
 public final class ModItems {
@@ -26,6 +27,11 @@ public final class ModItems {
     public static final DeferredItem<Item> SMALL_BANANA_PEARL =
             ITEMS.registerItem("small_banana_pearl",
                     props -> new SmallBananaPearlItem(
+                            props.rarity(Rarity.RARE)
+                    ));
+    public static final DeferredItem<Item> OPEN_INVO_TEST_ITEM =
+            ITEMS.registerItem("open_invo_test_item",
+                    props -> new OpenTestInventoryItem(
                             props.rarity(Rarity.RARE)
                     ));
 

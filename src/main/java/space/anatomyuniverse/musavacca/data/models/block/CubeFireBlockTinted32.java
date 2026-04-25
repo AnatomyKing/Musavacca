@@ -1,5 +1,3 @@
-
-// file: C:/mods/Musavacca/pearl_fire_lut_block_tint_bundle/java/space/anatomyuniverse/musavacca/data/models/block/CubeFireBlockTinted32.java
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -151,9 +149,10 @@ public final class CubeFireBlockTinted32 {
     }
 
     private static ResourceLocation fireTexture(String namespace, String textureStem, int frame, int layer) {
+        String frameStem = textureStem + "_" + frame;
         return ResourceLocation.fromNamespaceAndPath(
                 namespace,
-                "block/" + textureStem + "_" + frame + "_" + layer
+                "block/" + textureStem + "/" + frameStem + "/" + frameStem + "_" + layer
         );
     }
 
@@ -401,9 +400,10 @@ public final class CubeFireBlockTinted32 {
     }
 
     private static ResourceLocation fireTexture(String namespace, String textureStem, int frame, int layer) {
+        String frameStem = textureStem + "_" + frame;
         return ResourceLocation.fromNamespaceAndPath(
                 namespace,
-                "block/" + textureStem + "_" + frame + "_" + layer
+                "block/" + textureStem + "/" + frameStem + "/" + frameStem + "_" + layer
         );
     }
 
@@ -476,5 +476,3 @@ public final class CubeFireBlockTinted32 {
     //?}
     //?}
 }
-
-

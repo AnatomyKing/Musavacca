@@ -1,0 +1,75 @@
+{
+	"format_version": "1.21.11",
+	"credit": "AnatomyKing(𝕏🐦@LuukMus,ᵈᶦˢᶜᵒʳᵈ@anatomyking)",
+	"ambientocclusion": false,
+	"textures": {
+		"particle": "#torch"
+	},
+	"elements": [
+		{
+			"from": [7, 8, 7],
+			"to": [9, 10, 9],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 0},
+				"east": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 0},
+				"south": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 0},
+				"west": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 0},
+				"up": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 0},
+				"down": {"uv": [7, 13, 9, 15], "texture": "#torch", "cullface": "down", "tintindex": 0}
+			}
+		},
+		{
+			"from": [7, 8, 7],
+			"to": [9, 10, 9],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 1},
+				"east": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 1},
+				"south": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 1},
+				"west": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 1},
+				"up": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 1},
+				"down": {"uv": [7, 13, 9, 15], "texture": "#torch", "cullface": "down", "tintindex": 1}
+			}
+		},
+		{
+			"from": [7, 8, 7],
+			"to": [9, 10, 9],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 2},
+				"east": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 2},
+				"south": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 2},
+				"west": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 2},
+				"up": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 2},
+				"down": {"uv": [7, 13, 9, 15], "texture": "#torch", "cullface": "down", "tintindex": 2}
+			}
+		},
+		{
+			"from": [7, 8, 7],
+			"to": [9, 10, 9],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 3},
+				"east": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 3},
+				"south": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 3},
+				"west": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 3},
+				"up": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 3},
+				"down": {"uv": [7, 13, 9, 15], "texture": "#torch", "cullface": "down", "tintindex": 3}
+			}
+		},
+		{
+			"from": [7, 0, 7],
+			"to": [9, 8, 9],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [7, 8, 9, 16], "texture": "#torch"},
+				"east": {"uv": [7, 8, 9, 16], "texture": "#torch"},
+				"south": {"uv": [7, 8, 9, 16], "texture": "#torch"},
+				"west": {"uv": [7, 8, 9, 16], "texture": "#torch"},
+				"up": {"uv": [7, 6, 9, 8], "texture": "#torch"},
+				"down": {"uv": [7, 13, 9, 15], "texture": "#torch", "cullface": "down"}
+			}
+		}
+	]
+}

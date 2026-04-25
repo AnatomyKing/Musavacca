@@ -2,7 +2,6 @@
 package space.anatomyuniverse.musavacca.menu;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -19,6 +18,12 @@ public final class ModMenus {
             MENUS.register(
                     "item_interact_menu",
                     () -> IMenuTypeExtension.create(ItemInteractMenu::new)
+            );
+
+    public static final Supplier<MenuType<TestInventoryMenu>> TEST_INVENTORY_MENU =
+            MENUS.register(
+                    "test_inventory_menu",
+                    () -> IMenuTypeExtension.create(TestInventoryMenu::new)
             );
 
     public static void register(IEventBus bus) {
