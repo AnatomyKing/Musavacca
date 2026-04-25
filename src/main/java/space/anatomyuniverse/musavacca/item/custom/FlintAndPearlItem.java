@@ -24,7 +24,7 @@ import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.ItemAbilities;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.menu.ItemInteractMenu;
+import space.anatomyuniverse.musavacca.gui.menu.ItemInteractMenu;
 import space.anatomyuniverse.musavacca.tint.PearlFirePlacementColorMemory;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 

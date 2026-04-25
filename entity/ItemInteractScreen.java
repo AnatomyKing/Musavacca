@@ -11,7 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Inventory;
-import space.anatomyuniverse.musavacca.menu.ItemInteractMenu;
+import space.anatomyuniverse.musavacca.gui.ItemInteractMenu;
 
 public class ItemInteractScreen extends AbstractContainerScreen<ItemInteractMenu> {
 

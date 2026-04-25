@@ -1,5 +1,5 @@
 // file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/menu/TestInventoryMenu.java
-package space.anatomyuniverse.musavacca.menu;
+package space.anatomyuniverse.musavacca.gui.menu;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import space.anatomyuniverse.musavacca.gui.ModMenus;
 
 public class TestInventoryMenu extends AbstractContainerMenu {
     public static final int CHEST_ROWS = 6;

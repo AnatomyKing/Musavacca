@@ -1,5 +1,5 @@
 
-package space.anatomyuniverse.musavacca.screen;
+package space.anatomyuniverse.musavacca.gui.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -7,7 +7,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
-import space.anatomyuniverse.musavacca.menu.ItemInteractMenu;
+import space.anatomyuniverse.musavacca.gui.menu.ItemInteractMenu;
 
 public class ItemInteractScreen extends AbstractContainerScreen<ItemInteractMenu> {
     private static final String HEX = "0123456789ABCDEF";

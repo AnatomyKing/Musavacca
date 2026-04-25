@@ -1,5 +1,5 @@
 // file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/screen/TestInventoryScreen.java
-package space.anatomyuniverse.musavacca.screen;
+package space.anatomyuniverse.musavacca.gui.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.menu.TestInventoryMenu;
+import space.anatomyuniverse.musavacca.gui.menu.TestInventoryMenu;
 
 public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMenu> {
     private static final ResourceLocation TEXTURE =

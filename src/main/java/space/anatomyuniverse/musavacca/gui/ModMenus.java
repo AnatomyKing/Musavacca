@@ -1,5 +1,5 @@
 // file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/menu/ModMenus.java
-package space.anatomyuniverse.musavacca.menu;
+package space.anatomyuniverse.musavacca.gui;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
@@ -7,6 +7,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.gui.menu.ItemInteractMenu;
+import space.anatomyuniverse.musavacca.gui.menu.TestInventoryMenu;
 
 import java.util.function.Supplier;
 

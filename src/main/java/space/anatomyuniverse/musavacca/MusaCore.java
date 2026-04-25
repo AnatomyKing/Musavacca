@@ -1,4 +1,4 @@
-
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/MusaCore.java
 package space.anatomyuniverse.musavacca;
 
 import com.mojang.logging.LogUtils;
@@ -7,6 +7,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
@@ -16,20 +17,23 @@ import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntityRenderers;
+import space.anatomyuniverse.musavacca.gui.ModMenuScreens;
+import space.anatomyuniverse.musavacca.gui.ModMenus;
+import space.anatomyuniverse.musavacca.hunger.BonusHungerClientModEvents;
+import space.anatomyuniverse.musavacca.hunger.BonusHungerEvents;
+import space.anatomyuniverse.musavacca.hunger.ModAttachments;
+import space.anatomyuniverse.musavacca.hunger.ModNetworking;
 import space.anatomyuniverse.musavacca.item.ModCreativeTabs;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import space.anatomyuniverse.musavacca.menu.ModMenus;
 import space.anatomyuniverse.musavacca.particle.ModParticleProviders;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
-import space.anatomyuniverse.musavacca.screen.ModMenuScreens;
 import space.anatomyuniverse.musavacca.tint.ModTints;
 
-//? if <1.21.9 {
+//? if <1.21.9
 import net.neoforged.fml.loading.FMLLoader;
-//?} else {
-/*import net.neoforged.fml.loading.FMLEnvironment;
- *///?}
+//? if >=1.21.9
+/*import net.neoforged.fml.loading.FMLEnvironment;*/
 
 @Mod(MusaCore.MOD_ID)
 public final class MusaCore {
@@ -49,11 +53,15 @@ public final class MusaCore {
         ModParticleTypes.register(modBus);
         ModEntities.register(modBus);
 
+        ModAttachments.register(modBus);
+        ModNetworking.register(modBus);
+
         modBus.addListener(this::commonSetup);
         modBus.addListener(ModDataGenerators::gatherData);
 
-        //? if <1.21.9 {
-        if (FMLLoader.getDist() == Dist.CLIENT) {
+        NeoForge.EVENT_BUS.register(BonusHungerEvents.class);
+
+        if (/*? if <1.21.9 {*/ FMLLoader /*?} else {*//*FMLEnvironment*//*?}*/.getDist() == Dist.CLIENT) {
             ModTints.register(modBus);
             modBus.addListener(MusaRenderLayers::onModifyBakingResult);
             modBus.addListener(ModMenuScreens::register);
@@ -61,18 +69,9 @@ public final class MusaCore {
             modBus.addListener(ModEntityRenderers::registerLayerDefinitions);
             modBus.addListener(ModBlockEntityRenderers::registerRenderers);
             ModParticleProviders.register(modBus);
+
+            BonusHungerClientModEvents.register(modBus);
         }
-        //?} else {
-        /*if (FMLEnvironment.getDist() == Dist.CLIENT) {
-            ModTints.register(modBus);
-            modBus.addListener(MusaRenderLayers::onModifyBakingResult);
-            modBus.addListener(ModMenuScreens::register);
-            modBus.addListener(ModEntityRenderers::registerRenderers);
-            modBus.addListener(ModEntityRenderers::registerLayerDefinitions);
-            modBus.addListener(ModBlockEntityRenderers::registerRenderers);
-            ModParticleProviders.register(modBus);
-        }
-        *///?}
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
