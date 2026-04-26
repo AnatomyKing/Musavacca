@@ -10,10 +10,10 @@ import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 
-public final class PotassiumToolBehavior {
-    private static final int EAT_DURABILITY_DAMAGE = 8;
+public final class PotassiumItemBehavior {
+    private static final int EAT_DURABILITY_DAMAGE = 27;
 
-    private PotassiumToolBehavior() {
+    private PotassiumItemBehavior() {
     }
 
     public static boolean isLookingAtBlock(Player player) {

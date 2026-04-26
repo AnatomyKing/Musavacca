@@ -1,4 +1,5 @@
 package space.anatomyuniverse.musavacca.data.models;
+import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
 
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -156,6 +157,39 @@ public final class ModelSets {
                         ModItems.BASUKE_SPAWN_EGG.get(),
                         0xE6DCC8,
                         0x4F3F36
+                )
+        };
+    }
+
+    public static CustomArmorSet.Entry[] customArmorSets() {
+        return new CustomArmorSet.Entry[] {
+                CustomArmorSet.of(
+                        ModItems.POTASSIUM_HELMET.get(),
+                        ModItems.POTASSIUM_CHESTPLATE.get(),
+                        ModItems.POTASSIUM_LEGGINGS.get(),
+                        ModItems.POTASSIUM_BOOTS.get(),
+
+                        // Generates:
+                        // assets/musavacca/equipment/potassium.json
+                        "musavacca:potassium",
+
+                        // Vanilla-style armor texture id.
+                        //
+                        // HUMANOID resolves to:
+                        // assets/musavacca/textures/entity/equipment/humanoid/potassium.png
+                        //
+                        // HUMANOID_LEGGINGS resolves to:
+                        // assets/musavacca/textures/entity/equipment/humanoid_leggings/potassium.png
+                        "musavacca:potassium",
+
+                        // Used ONLY when the helmet is rendered in display_context=head.
+                        //
+                        // This references your existing file:
+                        // assets/musavacca/models/item/potassium_helmet_model.json
+                        //
+                        // The helmet item itself must have EQUIPPABLE without asset_id.
+                        // That is handled in ModItems.
+                        "musavacca:item/potassium_helmet_model"
                 )
         };
     }

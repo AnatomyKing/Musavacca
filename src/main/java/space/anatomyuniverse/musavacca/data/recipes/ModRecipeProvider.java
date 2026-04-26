@@ -119,6 +119,15 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModItems.BANANA_PEARL.get())
                 .save("misc/big_banana_pearl_to_banana_pearl");
 
+        dsl.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
+                .pattern("aaa")
+                .pattern("ava")
+                .pattern("aaa")
+                .define('a', Items.AMETHYST_SHARD)
+                .define('v', ModItems.VACACA.get())
+                .unlockedByHas(ModItems.VACACA.get(), Items.AMETHYST_SHARD)
+                .save("misc/banana_pearl_from_vacaca");
+
 //        dsl.shapeless(RecipeCategory.MISC, ModItems.RAW_ANYTOMITHIUM.get(), 1)
 //                .requires(Items.AMETHYST_SHARD, Items.RAW_IRON, Items.PRISMARINE_CRYSTALS)
 //                // NOTE: multiple unlockedBy criteria unlock as OR in vanilla recipe advancements

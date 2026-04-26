@@ -17,6 +17,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class BonusHungerEvents {
     private static final int VANILLA_FULL_FOOD = 20;
@@ -329,10 +330,10 @@ public final class BonusHungerEvents {
     }
 
     private static boolean hasBonusHunger(Player player) {
-        return player.getItemBySlot(EquipmentSlot.HEAD).is(Items.IRON_HELMET)
-                && player.getItemBySlot(EquipmentSlot.CHEST).is(Items.IRON_CHESTPLATE)
-                && player.getItemBySlot(EquipmentSlot.LEGS).is(Items.IRON_LEGGINGS)
-                && player.getItemBySlot(EquipmentSlot.FEET).is(Items.IRON_BOOTS);
+        return player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.POTASSIUM_HELMET)
+                && player.getItemBySlot(EquipmentSlot.CHEST).is(ModItems.POTASSIUM_CHESTPLATE)
+                && player.getItemBySlot(EquipmentSlot.LEGS).is(ModItems.POTASSIUM_LEGGINGS)
+                && player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.POTASSIUM_BOOTS);
     }
 
     private static void sendSync(ServerPlayer player, BonusHungerData data, boolean active) {

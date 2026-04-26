@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "musavacca:potassium"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "musavacca:potassium"
+      }
+    ]
+  }
+}

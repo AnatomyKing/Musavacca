@@ -16,7 +16,7 @@ public class PotassiumAxeItem extends AxeItem {
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        if (PotassiumToolBehavior.isLookingAtBlock(player)) {
+        if (PotassiumItemBehavior.isLookingAtBlock(player)) {
             return InteractionResult.PASS;
         }
 
@@ -25,6 +25,6 @@ public class PotassiumAxeItem extends AxeItem {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        return PotassiumToolBehavior.finishUsingItem(stack, level, entity);
+        return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
     }
 }

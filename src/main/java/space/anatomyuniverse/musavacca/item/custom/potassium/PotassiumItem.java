@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/custom/potassium/PotassiumItem.java
 package space.anatomyuniverse.musavacca.item.custom.potassium;
 
 import net.minecraft.world.InteractionHand;
@@ -8,14 +9,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public class PotassiumToolItem extends Item {
-    public PotassiumToolItem(Properties properties) {
+public class PotassiumItem extends Item {
+    public PotassiumItem(Properties properties) {
         super(properties);
     }
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        if (PotassiumToolBehavior.isLookingAtBlock(player)) {
+        if (PotassiumItemBehavior.isLookingAtBlock(player)) {
             return InteractionResult.PASS;
         }
 
@@ -24,6 +25,6 @@ public class PotassiumToolItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        return PotassiumToolBehavior.finishUsingItem(stack, level, entity);
+        return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
     }
 }

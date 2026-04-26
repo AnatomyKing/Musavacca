@@ -1,7 +1,21 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/ModItems.java
 package space.anatomyuniverse.musavacca.item;
 
+import net.minecraft.Util;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.minecraft.world.item.equipment.EquipmentAssets;
+import net.minecraft.world.item.equipment.Equippable;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -10,14 +24,24 @@ import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.item.custom.OpenTestInventoryItem;
+import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumAxeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumHoeItem;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumShovelItem;
-import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumToolItem;
-import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
 
 public final class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MusaCore.MOD_ID);
+
+    public static final TagKey<Item> REPAIRS_POTASSIUM_ARMOR = TagKey.create(
+            Registries.ITEM,
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "repairs_potassium_armor")
+    );
+
+    public static final ResourceKey<EquipmentAsset> POTASSIUM_EQUIPMENT_ASSET = equipmentAsset("potassium");
+
+    public static final ArmorMaterial POTASSIUM_ARMOR_MATERIAL =
+            potassiumArmorMaterial(POTASSIUM_EQUIPMENT_ASSET);
 
     public static final DeferredItem<Item> BANANA_PEARL =
             ITEMS.registerItem("banana_pearl", props -> new Item(props.rarity(Rarity.RARE)));
@@ -30,6 +54,7 @@ public final class ModItems {
                     props -> new SmallBananaPearlItem(
                             props.rarity(Rarity.RARE)
                     ));
+
     public static final DeferredItem<Item> OPEN_INVO_TEST_ITEM =
             ITEMS.registerItem("open_invo_test_item",
                     props -> new OpenTestInventoryItem(
@@ -40,12 +65,12 @@ public final class ModItems {
             ITEMS.registerItem("banana_cow_spawn_egg",
                     props ->
                             //? if <1.21.4 {
-                        /*new SpawnEggItem(
-                                ModEntities.BANANA_COW.get(),
-                                0xE4C64A,
-                                0x7A4A1F,
-                                props
-                        )
+                            /*new SpawnEggItem(
+                                    ModEntities.BANANA_COW.get(),
+                                    0xE4C64A,
+                                    0x7A4A1F,
+                                    props
+                            )
                             *///?} else if <1.21.9 {
                             new SpawnEggItem(ModEntities.BANANA_COW.get(), props)
                     //?} else {
@@ -63,9 +88,9 @@ public final class ModItems {
                                     0x4F3F36,
                                     props
                             )
-                    *///?} else if <1.21.9 {
-                    new SpawnEggItem(ModEntities.BASUKE.get(), props)
-                     //?} else {
+                            *///?} else if <1.21.9 {
+                            new SpawnEggItem(ModEntities.BASUKE.get(), props)
+                    //?} else {
                     /*new SpawnEggItem(props.spawnEgg(ModEntities.BASUKE.get()))
                      *///?}
             );
@@ -73,13 +98,6 @@ public final class ModItems {
     public static final DeferredItem<Item> VACACA =
             ITEMS.registerItem("vacaca",
                     props -> new Item(props.food(Foods.APPLE)));
-
-//    public static final DeferredItem<Item> ITEM_INTERACT =
-//            ITEMS.registerItem("item_interact",
-//                    props -> new ItemInteract(
-//                            props.durability(64).rarity(Rarity.COMMON)
-//                    ));
-
 
     public static final DeferredItem<Item> FLINT_AND_PEARL =
             ITEMS.registerItem("flint_and_pearl",
@@ -90,14 +108,12 @@ public final class ModItems {
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_INGOT =
-            ITEMS.registerItem("potassium_ingot",
-                    Item::new);
+            ITEMS.registerItem("potassium_ingot", Item::new);
 
     public static final DeferredItem<Item> POTASSIUM_SWORD =
             ITEMS.registerItem("potassium_sword",
-                    props -> new PotassiumToolItem(
-                            props
-                                    .sword(ToolMaterial.DIAMOND, 3.0F, -2.4F)
+                    props -> new PotassiumItem(
+                            props.sword(ToolMaterial.DIAMOND, 3.0F, -2.4F)
                                     .food(Foods.APPLE)
                     ));
 
@@ -112,9 +128,8 @@ public final class ModItems {
 
     public static final DeferredItem<Item> POTASSIUM_PICKAXE =
             ITEMS.registerItem("potassium_pickaxe",
-                    props -> new PotassiumToolItem(
-                            props
-                                    .pickaxe(ToolMaterial.DIAMOND, 1.0F, -2.8F)
+                    props -> new PotassiumItem(
+                            props.pickaxe(ToolMaterial.DIAMOND, 1.0F, -2.8F)
                                     .food(Foods.APPLE)
                     ));
 
@@ -136,10 +151,95 @@ public final class ModItems {
                             props.food(Foods.APPLE)
                     ));
 
+    public static final DeferredItem<Item> POTASSIUM_HELMET =
+            ITEMS.registerItem("potassium_helmet",
+                    props -> new PotassiumItem(
+                            potassiumCustomHeadHelmetProperties(props)
+                    ));
+
+    public static final DeferredItem<Item> POTASSIUM_CHESTPLATE =
+            ITEMS.registerItem("potassium_chestplate",
+                    props -> new PotassiumItem(
+                            props.humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.CHESTPLATE)
+                                    .food(Foods.APPLE)
+                    ));
+
+    public static final DeferredItem<Item> POTASSIUM_LEGGINGS =
+            ITEMS.registerItem("potassium_leggings",
+                    props -> new PotassiumItem(
+                            props.humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.LEGGINGS)
+                                    .food(Foods.APPLE)
+                    ));
+
+    public static final DeferredItem<Item> POTASSIUM_BOOTS =
+            ITEMS.registerItem("potassium_boots",
+                    props -> new PotassiumItem(
+                            props.humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.BOOTS)
+                                    .food(Foods.APPLE)
+                    ));
+
+    private static Item.Properties potassiumCustomHeadHelmetProperties(Item.Properties props) {
+        return props
+                /*
+                 * First: apply normal armor stats, durability, repairability,
+                 * enchantability, and armor attributes.
+                 */
+                .humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.HELMET)
+
+                /*
+                 * Then: overwrite only EQUIPPABLE.
+                 *
+                 * humanoidArmor(...) gives the item an equipment asset_id,
+                 * which makes Minecraft render it through the normal armor layer.
+                 *
+                 * For this custom helmet we intentionally DO NOT call .setAsset(...).
+                 * That makes the head slot use the item model instead, so your
+                 * assets/musavacca/items/potassium_helmet.json display_context=head
+                 * selector can render:
+                 *
+                 * musavacca:item/potassium_helmet_model
+                 */
+                .component(
+                        DataComponents.EQUIPPABLE,
+                        Equippable.builder(EquipmentSlot.HEAD)
+                                .setEquipSound(SoundEvents.ARMOR_EQUIP_DIAMOND)
+                                .setDamageOnHurt(true)
+                                .build()
+                )
+
+                .food(Foods.APPLE);
+    }
+
+    private static ArmorMaterial potassiumArmorMaterial(ResourceKey<EquipmentAsset> equipmentAsset) {
+        return new ArmorMaterial(
+                33,
+                Util.make(new java.util.EnumMap<>(ArmorType.class), map -> {
+                    map.put(ArmorType.BOOTS, 3);
+                    map.put(ArmorType.LEGGINGS, 6);
+                    map.put(ArmorType.CHESTPLATE, 8);
+                    map.put(ArmorType.HELMET, 3);
+                    map.put(ArmorType.BODY, 11);
+                }),
+                10,
+                SoundEvents.ARMOR_EQUIP_DIAMOND,
+                2.0F,
+                0.0F,
+                REPAIRS_POTASSIUM_ARMOR,
+                equipmentAsset
+        );
+    }
+
+    private static ResourceKey<EquipmentAsset> equipmentAsset(String path) {
+        return ResourceKey.create(
+                EquipmentAssets.ROOT_ID,
+                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, path)
+        );
+    }
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }
 
-    private ModItems() {}
+    private ModItems() {
+    }
 }
