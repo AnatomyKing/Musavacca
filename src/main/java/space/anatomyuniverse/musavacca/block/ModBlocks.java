@@ -141,6 +141,22 @@ public final class ModBlocks {
                             .pushReaction(PushReaction.DESTROY)
                             .noLootTable()));
 
+    public static final DeferredBlock<PearlPortalBlock> PEARL_PORTAL =
+            BLOCKS.registerBlock("pearl_portal",
+                    props -> new PearlPortalBlock(props
+                            .mapColor(MapColor.COLOR_PURPLE)
+                            //? if <1.21.10 {
+                            .noCollission()
+                            //?} else {
+                            /*.noCollision()
+                             *///?}
+                            .noOcclusion()
+                            .strength(-1.0F, 3600000.0F)
+                            .lightLevel(state -> 11)
+                            .sound(SoundType.GLASS)
+                            .pushReaction(PushReaction.BLOCK)
+                            .noLootTable()));
+
 //    public static final DeferredBlock<SlabBlock> MUSAVACCA_SLAB =
 //            BLOCKS.registerBlock("musavacca_slab",
 //                    props -> new SlabBlock(props
@@ -268,7 +284,8 @@ public final class ModBlocks {
     private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
 //            HEX_BLOCK
             PEARL_FIRE,
-            MUSAVACCA_EGG
+            MUSAVACCA_EGG,
+            PEARL_PORTAL
     );
 
     static {

@@ -194,6 +194,13 @@ public final class ModelSets {
         };
     }
 
+    public static Map<Block, PanePortalBlockTinted15.Entry> panePortalBlockTinted15Models() {
+        return Map.of(
+                ModBlocks.PEARL_PORTAL.get(),
+                PanePortalBlockTinted15.Entry.auto("pearl_portal")
+        );
+    }
+
     public static ItemLike[] flatItems() {
         return new ItemLike[] {
                 ModItems.BANANA_PEARL.get(),

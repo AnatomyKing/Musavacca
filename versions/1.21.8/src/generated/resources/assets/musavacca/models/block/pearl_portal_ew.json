@@ -1,0 +1,352 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_0",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#portal_0",
+          "tintindex": 0
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_1",
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#portal_1",
+          "tintindex": 1
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_2",
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#portal_2",
+          "tintindex": 2
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_3",
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#portal_3",
+          "tintindex": 3
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_4",
+          "tintindex": 4
+        },
+        "west": {
+          "texture": "#portal_4",
+          "tintindex": 4
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_5",
+          "tintindex": 5
+        },
+        "west": {
+          "texture": "#portal_5",
+          "tintindex": 5
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_6",
+          "tintindex": 6
+        },
+        "west": {
+          "texture": "#portal_6",
+          "tintindex": 6
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_7",
+          "tintindex": 7
+        },
+        "west": {
+          "texture": "#portal_7",
+          "tintindex": 7
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_8",
+          "tintindex": 8
+        },
+        "west": {
+          "texture": "#portal_8",
+          "tintindex": 8
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_9",
+          "tintindex": 9
+        },
+        "west": {
+          "texture": "#portal_9",
+          "tintindex": 9
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_10",
+          "tintindex": 10
+        },
+        "west": {
+          "texture": "#portal_10",
+          "tintindex": 10
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_11",
+          "tintindex": 11
+        },
+        "west": {
+          "texture": "#portal_11",
+          "tintindex": 11
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_12",
+          "tintindex": 12
+        },
+        "west": {
+          "texture": "#portal_12",
+          "tintindex": 12
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_13",
+          "tintindex": 13
+        },
+        "west": {
+          "texture": "#portal_13",
+          "tintindex": 13
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#portal_14",
+          "tintindex": 14
+        },
+        "west": {
+          "texture": "#portal_14",
+          "tintindex": 14
+        }
+      },
+      "from": [
+        6,
+        0,
+        0
+      ],
+      "to": [
+        10,
+        16,
+        16
+      ]
+    }
+  ],
+  "textures": {
+    "particle": "musavacca:block/pearl_portal/pearl_portal_0",
+    "portal_0": "musavacca:block/pearl_portal/pearl_portal_0",
+    "portal_1": "musavacca:block/pearl_portal/pearl_portal_1",
+    "portal_10": "musavacca:block/pearl_portal/pearl_portal_10",
+    "portal_11": "musavacca:block/pearl_portal/pearl_portal_11",
+    "portal_12": "musavacca:block/pearl_portal/pearl_portal_12",
+    "portal_13": "musavacca:block/pearl_portal/pearl_portal_13",
+    "portal_14": "musavacca:block/pearl_portal/pearl_portal_14",
+    "portal_2": "musavacca:block/pearl_portal/pearl_portal_2",
+    "portal_3": "musavacca:block/pearl_portal/pearl_portal_3",
+    "portal_4": "musavacca:block/pearl_portal/pearl_portal_4",
+    "portal_5": "musavacca:block/pearl_portal/pearl_portal_5",
+    "portal_6": "musavacca:block/pearl_portal/pearl_portal_6",
+    "portal_7": "musavacca:block/pearl_portal/pearl_portal_7",
+    "portal_8": "musavacca:block/pearl_portal/pearl_portal_8",
+    "portal_9": "musavacca:block/pearl_portal/pearl_portal_9"
+  }
+}

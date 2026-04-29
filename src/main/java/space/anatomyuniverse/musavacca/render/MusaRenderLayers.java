@@ -56,7 +56,7 @@ public final class MusaRenderLayers {
     );
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(
-//            ModBlocks.VOCO_TABLE.get(),
+            ModBlocks.PEARL_PORTAL.get()
 //            ModBlocks.VOCO_RECEPTOR.get()
 
     );

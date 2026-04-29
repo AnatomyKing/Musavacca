@@ -4,11 +4,8 @@ from pathlib import Path
 from PIL import Image
 
 INPUT_FILES = [
-    "pearl_fire_0.png",
-    "pearl_fire_1.png",
+    "pearl_portal.png"
 ]
-
-EXPECTED_LAYER_COUNT = 32
 
 
 def open_rgba(path: Path) -> Image.Image:
@@ -44,11 +41,8 @@ def collect_shared_palette(images: list[tuple[Path, Image.Image]]) -> list[int]:
 
     palette = sorted(values, reverse=True)  # lightest -> darkest
 
-    if len(palette) != EXPECTED_LAYER_COUNT:
-        raise ValueError(
-            f"Expected {EXPECTED_LAYER_COUNT} grayscale values across the source textures, "
-            f"but found {len(palette)}.\nPalette: {palette}"
-        )
+    if not palette:
+        raise ValueError("No visible grayscale pixels were found in the source textures.")
 
     return palette
 
@@ -83,16 +77,19 @@ def main() -> None:
     images = [(path, open_rgba(path)) for path in paths]
     palette = collect_shared_palette(images)
 
+    layer_count = len(palette)
+
     print("Detected shared SOURCE_GRAY_BY_LAYER (lightest -> darkest):")
     print(palette)
+    print(f"Detected layer count: {layer_count}")
 
     for path, img in images:
         split_image_into_layers(path, img, palette)
 
     print("\nDone.")
     print("Generated:")
-    print("  pearl_fire_0_0.png ... pearl_fire_0_31.png")
-    print("  pearl_fire_1_0.png ... pearl_fire_1_31.png")
+    for path in paths:
+        print(f"  {path.stem}_0.png ... {path.stem}_{layer_count - 1}.png")
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/ModTints.java
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.client.renderer.BiomeColors;
@@ -11,13 +12,17 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 
-//? if >=1.21.4 {
+//? if <1.21.4 {
+/*import space.anatomyuniverse.musavacca.component.ModDataComponents;
+ *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
 
 public final class ModTints {
     private static final PearlFireTintProfiles.Profile PEARL_FIRE_PROFILE = PearlFireTintProfiles.FIRE_BLOCK;
+    private static final PearlFireTintProfiles.Profile PEARL_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
 
     private ModTints() {}
 
@@ -33,9 +38,12 @@ public final class ModTints {
 
     public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
         event.register(ModTints::getMusavaccaLeavesTint, ModBlocks.MUSAVACCA_LEAVES.get());
+
         event.register(ModTints::getHexBlockTint, ModBlocks.HEX_BLOCK.get());
         event.register(ModTints::getHardHexBlockTint, ModBlocks.HARD_HEX_BLOCK.get());
+
         event.register(ModTints::getPearlFireTint, ModBlocks.PEARL_FIRE.get());
+        event.register(ModTints::getPearlPortalTint, ModBlocks.PEARL_PORTAL.get());
     }
 
     private static int getMusavaccaLeavesTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
@@ -80,13 +88,48 @@ public final class ModTints {
         if (level != null && pos != null) {
             if (level.getBlockEntity(pos) instanceof PearlFireBlockEntity pearlFireBe
                     && pearlFireBe.hasHexColor()) {
-                PearlFirePlacementColorMemory.clear(pos);
-                return PearlFireTintSource.blockTint(pearlFireBe.getHexColor(), tintIndex, PEARL_FIRE_PROFILE);
+                return PearlFireTintSource.blockTint(
+                        pearlFireBe.getHexColor(),
+                        tintIndex,
+                        PEARL_FIRE_PROFILE
+                );
             }
 
-            Integer predictedRgb = PearlFirePlacementColorMemory.get(pos);
+            Integer predictedRgb = PearlPlacementColorMemory.get(level, pos);
             if (predictedRgb != null) {
-                return PearlFireTintSource.blockTint(predictedRgb, tintIndex, PEARL_FIRE_PROFILE);
+                return PearlFireTintSource.blockTint(
+                        predictedRgb,
+                        tintIndex,
+                        PEARL_FIRE_PROFILE
+                );
+            }
+        }
+
+        return TintColorUtil.NO_TINT;
+    }
+
+    private static int getPearlPortalTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
+        if (!PearlFireTintSource.supportsLayer(PEARL_PORTAL_PROFILE, tintIndex)) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        if (level != null && pos != null) {
+            if (level.getBlockEntity(pos) instanceof PearlPortalBlockEntity pearlPortalBe
+                    && pearlPortalBe.isValidPortalTile()) {
+                return PearlFireTintSource.blockTint(
+                        pearlPortalBe.getHexColor(),
+                        tintIndex,
+                        PEARL_PORTAL_PROFILE
+                );
+            }
+
+            Integer predictedRgb = PearlPlacementColorMemory.get(level, pos);
+            if (predictedRgb != null) {
+                return PearlFireTintSource.blockTint(
+                        predictedRgb,
+                        tintIndex,
+                        PEARL_PORTAL_PROFILE
+                );
             }
         }
 
@@ -99,6 +142,7 @@ public final class ModTints {
                     if (tintIndex != 0) {
                         return TintColorUtil.NO_TINT;
                     }
+
                     return TintColorUtil.defaultFoliageItemTint();
                 },
                 ModBlocks.MUSAVACCA_LEAVES.get()
@@ -111,10 +155,10 @@ public final class ModTints {
 
                     Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
                     if (savedHex != null) {
-                        return TintColorUtil.rgb(savedHex);
+                        return TintColorUtil.opaqueRgb(savedHex);
                     }
 
-                    return TintColorUtil.defaultHexBlockItemTint();
+                    return TintColorUtil.opaqueRgb(TintColorUtil.defaultHexBlockItemTint());
                 },
                 ModBlocks.HEX_BLOCK.get()
         );
@@ -124,7 +168,7 @@ public final class ModTints {
                         return TintColorUtil.NO_TINT;
                     }
 
-                    return TintColorUtil.rgb(HardHexBlockEntity.HARD_HEX_COLOR);
+                    return TintColorUtil.opaqueRgb(HardHexBlockEntity.HARD_HEX_COLOR);
                 },
                 ModBlocks.HARD_HEX_BLOCK.get()
         );
@@ -139,9 +183,32 @@ public final class ModTints {
                         return TintColorUtil.NO_TINT;
                     }
 
-                    return PearlFireTintSource.blockTint(savedHex, tintIndex, PEARL_FIRE_PROFILE);
+                    return PearlFireTintSource.blockTint(
+                            savedHex,
+                            tintIndex,
+                            PEARL_FIRE_PROFILE
+                    );
                 },
                 ModBlocks.PEARL_FIRE.get()
+        );
+
+        event.register((stack, tintIndex) -> {
+                    if (!PearlFireTintSource.supportsLayer(PEARL_PORTAL_PROFILE, tintIndex)) {
+                        return TintColorUtil.NO_TINT;
+                    }
+
+                    Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+                    if (savedHex == null) {
+                        return TintColorUtil.NO_TINT;
+                    }
+
+                    return PearlFireTintSource.blockTint(
+                            savedHex,
+                            tintIndex,
+                            PEARL_PORTAL_PROFILE
+                    );
+                },
+                ModBlocks.PEARL_PORTAL.get()
         );
     }
     *///?} else {

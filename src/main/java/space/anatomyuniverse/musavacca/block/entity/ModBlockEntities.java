@@ -6,10 +6,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.*;
 
 import java.util.function.Supplier;
 
@@ -107,6 +104,29 @@ public final class ModBlockEntities {
                                     VocoTableBlockEntity::new,
                                     false,
                                     ModBlocks.VOCO_TABLE.get()
+                            )
+                    //?}
+            );
+
+    public static final Supplier<BlockEntityType<PearlPortalBlockEntity>> PEARL_PORTAL_BLOCK_ENTITY =
+            BLOCK_ENTITY_TYPES.register(
+                    "pearl_portal_block_entity",
+                    () ->
+                            //? if <1.21.2 {
+                        /*BlockEntityType.Builder.of(
+                                PearlPortalBlockEntity::new,
+                                ModBlocks.PEARL_PORTAL.get()
+                        ).build(null)
+                        *///?} else if <1.21.4 {
+                        /*new BlockEntityType<>(
+                                PearlPortalBlockEntity::new,
+                                ModBlocks.PEARL_PORTAL.get()
+                        )
+                        *///?} else {
+                            new BlockEntityType<>(
+                                    PearlPortalBlockEntity::new,
+                                    false,
+                                    ModBlocks.PEARL_PORTAL.get()
                             )
                     //?}
             );

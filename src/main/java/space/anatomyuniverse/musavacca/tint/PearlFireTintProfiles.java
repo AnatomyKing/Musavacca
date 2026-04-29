@@ -1,7 +1,19 @@
 package space.anatomyuniverse.musavacca.tint;
 
+//  wicked fire with E74E8C   0.85F,   // coreToTailLightness
+//                            6.385F,  // colorJumpiness
+//                            1.18F    // layerContrast
+
 public final class PearlFireTintProfiles {
+
     public static final Profile FIRE_BLOCK = of(
+            settings(
+                    1.00F,   // coreToTailLightness
+                    0.5F,  // colorJumpiness
+                    1.23F    // layerContrast
+            ),
+
+
             255, 251, 247, 244, 240, 236, 233, 229,
             225, 221, 217, 213, 210, 205, 202, 199,
             195, 191, 188, 184, 180, 176, 173, 169,
@@ -9,12 +21,35 @@ public final class PearlFireTintProfiles {
     );
 
     public static final Profile TORCH_BLOCK = of(
+            settings(
+                    0.98F,   // coreToTailLightness
+                    0.37F,  // colorJumpiness
+                    1.07F   // layerContrast
+            ),
             255, 203, 110
+    );
+
+    public static final Profile PORTAL_BLOCK = of(
+            settings(
+                    0.23F,   // coreToTailLightness
+                    0.27F,  // colorJumpiness
+                    0.98F   // layerContrast
+            ),
+            255, 247, 240, 229, 221, 213, 205, 195,
+            188, 180, 173, 165, 153, 146, 139
     );
 
     private PearlFireTintProfiles() {}
 
-    public static Profile of(int... grayValues) {
+    public static Settings settings(float coreToTailLightness, float colorJumpiness, float layerContrast) {
+        return new Settings(coreToTailLightness, colorJumpiness, layerContrast);
+    }
+
+    public static Profile of(Settings settings, int... grayValues) {
+        if (settings == null) {
+            throw new IllegalArgumentException("settings must not be null");
+        }
+
         if (grayValues == null || grayValues.length == 0) {
             throw new IllegalArgumentException("grayValues must not be empty");
         }
@@ -24,11 +59,23 @@ public final class PearlFireTintProfiles {
             grayFactors[i] = clamp01(grayValues[i] / 255.0F);
         }
 
-        return new Profile(grayFactors);
+        return new Profile(settings, grayFactors);
     }
 
-    public record Profile(float[] grayFactors) {
+    public record Settings(float coreToTailLightness, float colorJumpiness, float layerContrast) {
+        public Settings {
+            coreToTailLightness = clamp01(coreToTailLightness);
+            colorJumpiness = Math.max(0.0F, colorJumpiness);
+            layerContrast = Math.max(0.0F, layerContrast);
+        }
+    }
+
+    public record Profile(Settings settings, float[] grayFactors) {
         public Profile {
+            if (settings == null) {
+                throw new IllegalArgumentException("settings must not be null");
+            }
+
             if (grayFactors == null || grayFactors.length == 0) {
                 throw new IllegalArgumentException("grayFactors must not be empty");
             }
@@ -37,6 +84,11 @@ public final class PearlFireTintProfiles {
             for (int i = 0; i < grayFactors.length; i++) {
                 grayFactors[i] = clamp01(grayFactors[i]);
             }
+        }
+
+        @Override
+        public float[] grayFactors() {
+            return grayFactors.clone();
         }
 
         public int layerCount() {
@@ -49,6 +101,18 @@ public final class PearlFireTintProfiles {
 
         public float grayFactor(int tintIndex) {
             return grayFactors[tintIndex];
+        }
+
+        public float coreToTailLightness() {
+            return settings.coreToTailLightness();
+        }
+
+        public float colorJumpiness() {
+            return settings.colorJumpiness();
+        }
+
+        public float layerContrast() {
+            return settings.layerContrast();
         }
     }
 

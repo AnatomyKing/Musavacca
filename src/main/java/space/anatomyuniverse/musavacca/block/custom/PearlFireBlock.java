@@ -13,7 +13,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FireBlock;
@@ -56,10 +55,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             return;
         }
 
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof PearlFireBlockEntity pearlFireBe) {
-            pearlFireBe.setHexColor(savedHex);
-        }
+        setPlacedPearlFireHex(level, pos, savedHex);
     }
 
     @Override
@@ -76,31 +72,6 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         return this.canSurvive(state, level, pos)
                 ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
                 : Blocks.AIR.defaultBlockState();
-    }
-
-    private static boolean shouldRunPearlFireTick(ServerLevel level, BlockPos pos) {
-        return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)
-                && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS)
-                || level.anyPlayerCloseEnoughForSpawning(pos));
-    }
-
-    private static int getPearlFireHex(Level level, BlockPos pos) {
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof PearlFireBlockEntity pearlFireBe && pearlFireBe.hasHexColor()) {
-            return pearlFireBe.getHexColor();
-        }
-        return PearlFireBlockEntity.UNSET_HEX_COLOR;
-    }
-
-    private static void setPlacedPearlFireHex(Level level, BlockPos pos, int hexColor) {
-        if (level.isClientSide()) {
-            return;
-        }
-
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof PearlFireBlockEntity pearlFireBe) {
-            pearlFireBe.setHexColor(hexColor);
-        }
     }
 
     @Override
@@ -165,36 +136,67 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         for (int dx = -1; dx <= 1; ++dx) {
             for (int dz = -1; dz <= 1; ++dz) {
                 for (int dy = -1; dy <= 4; ++dy) {
-                    if (dx != 0 || dy != 0 || dz != 0) {
-                        int chanceDivisor = 100;
-                        if (dy > 1) {
-                            chanceDivisor += (dy - 1) * 100;
-                        }
+                    if (dx == 0 && dy == 0 && dz == 0) {
+                        continue;
+                    }
 
-                        mutable.setWithOffset(pos, dx, dy, dz);
-                        int igniteOdds = this.getPearlIgniteOdds(level, mutable);
+                    int chanceDivisor = 100;
+                    if (dy > 1) {
+                        chanceDivisor += (dy - 1) * 100;
+                    }
 
-                        if (igniteOdds > 0) {
-                            int spreadChance = (igniteOdds + 40 + level.getDifficulty().getId() * 7) / (age + 30);
-                            if (burnoutBiome) {
-                                spreadChance /= 2;
-                            }
+                    mutable.setWithOffset(pos, dx, dy, dz);
+                    int igniteOdds = this.getPearlIgniteOdds(level, mutable);
 
-                            if (spreadChance > 0
-                                    && random.nextInt(chanceDivisor) <= spreadChance
-                                    && (!level.isRaining() || !this.isNearRain(level, mutable))) {
+                    if (igniteOdds <= 0) {
+                        continue;
+                    }
 
-                                int spreadAge = Math.min(15, age + random.nextInt(5) / 4);
-                                level.setBlock(mutable, this.getPearlStateWithAge(level, mutable, spreadAge), 3);
+                    int spreadChance = (igniteOdds + 40 + level.getDifficulty().getId() * 7) / (age + 30);
+                    if (burnoutBiome) {
+                        spreadChance /= 2;
+                    }
 
-                                if (sourceHex != PearlFireBlockEntity.UNSET_HEX_COLOR) {
-                                    setPlacedPearlFireHex(level, mutable, sourceHex);
-                                }
-                            }
-                        }
+                    if (spreadChance <= 0
+                            || random.nextInt(chanceDivisor) > spreadChance
+                            || (level.isRaining() && this.isNearRain(level, mutable))) {
+                        continue;
+                    }
+
+                    int spreadAge = Math.min(15, age + random.nextInt(5) / 4);
+                    level.setBlock(mutable, this.getPearlStateWithAge(level, mutable, spreadAge), 3);
+
+                    if (sourceHex != PearlFireBlockEntity.UNSET_HEX_COLOR) {
+                        setPlacedPearlFireHex(level, mutable, sourceHex);
                     }
                 }
             }
+        }
+    }
+
+    private static boolean shouldRunPearlFireTick(ServerLevel level, BlockPos pos) {
+        return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)
+                && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS)
+                || level.anyPlayerCloseEnoughForSpawning(pos));
+    }
+
+    private static int getPearlFireHex(Level level, BlockPos pos) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof PearlFireBlockEntity pearlFireBe && pearlFireBe.hasHexColor()) {
+            return pearlFireBe.getHexColor();
+        }
+
+        return PearlFireBlockEntity.UNSET_HEX_COLOR;
+    }
+
+    private static void setPlacedPearlFireHex(Level level, BlockPos pos, int hexColor) {
+        if (level.isClientSide()) {
+            return;
+        }
+
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof PearlFireBlockEntity pearlFireBe) {
+            pearlFireBe.setHexColor(hexColor);
         }
     }
 
@@ -209,6 +211,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -218,6 +221,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         }
 
         int max = 0;
+
         for (Direction direction : Direction.values()) {
             BlockPos neighborPos = pos.relative(direction);
             BlockState neighborState = level.getBlockState(neighborPos);
@@ -241,20 +245,22 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     ) {
         int flammability = level.getBlockState(pos).getFlammability(level, pos, face);
 
-        if (random.nextInt(chance) < flammability) {
-            BlockState targetState = level.getBlockState(pos);
-            targetState.onCaughtFire(level, pos, face, null);
+        if (random.nextInt(chance) >= flammability) {
+            return;
+        }
 
-            if (random.nextInt(age + 10) < 5 && !level.isRainingAt(pos)) {
-                int newAge = Math.min(age + random.nextInt(5) / 4, 15);
-                level.setBlock(pos, this.getPearlStateWithAge(level, pos, newAge), 3);
+        BlockState targetState = level.getBlockState(pos);
+        targetState.onCaughtFire(level, pos, face, null);
 
-                if (sourceHex != PearlFireBlockEntity.UNSET_HEX_COLOR) {
-                    setPlacedPearlFireHex(level, pos, sourceHex);
-                }
-            } else {
-                level.removeBlock(pos, false);
+        if (random.nextInt(age + 10) < 5 && !level.isRainingAt(pos)) {
+            int newAge = Math.min(age + random.nextInt(5) / 4, 15);
+            level.setBlock(pos, this.getPearlStateWithAge(level, pos, newAge), 3);
+
+            if (sourceHex != PearlFireBlockEntity.UNSET_HEX_COLOR) {
+                setPlacedPearlFireHex(level, pos, sourceHex);
             }
+        } else {
+            level.removeBlock(pos, false);
         }
     }
 

@@ -1,8 +1,8 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/custom/FlintAndPearlItem.java
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -22,10 +22,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.ItemAbilities;
+import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.gui.menu.ItemInteractMenu;
-import space.anatomyuniverse.musavacca.tint.PearlFirePlacementColorMemory;
+import space.anatomyuniverse.musavacca.portal.PearlPortalCreator;
+import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
+import space.anatomyuniverse.musavacca.tint.PearlPlacementColorMemory;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
 public class FlintAndPearlItem extends FlintAndSteelItem {
@@ -87,6 +91,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
             if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
                 openGui(serverPlayer, hand, stack);
             }
+
             return InteractionResult.SUCCESS_SERVER;
         }
 
@@ -109,80 +114,150 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
                 false
         );
 
-        if (modifiedState == null) {
-            BlockPos placePos = clickedPos.relative(context.getClickedFace());
+        if (modifiedState != null) {
+            return useVanillaFirestarterBehavior(context, modifiedState);
+        }
 
-            if (!level.getBlockState(placePos).canBeReplaced()) {
-                return InteractionResult.FAIL;
-            }
+        BlockPos placePos = clickedPos.relative(context.getClickedFace());
+        int hexColor = getStoredHexOrDefault(stack);
 
-            BlockState fireState = getCustomFireState(level, placePos);
+        if (level.isClientSide()) {
+            return previewClientPlacement(level, placePos, hexColor);
+        }
 
-            if (!fireState.canSurvive(level, placePos)) {
-                return InteractionResult.FAIL;
-            }
+        if (PearlPortalCreator.tryCreatePortal(level, placePos, hexColor, player)) {
+            playUseEffects(level, player, placePos, GameEvent.BLOCK_PLACE);
+            triggerPlacedBlockCriterion(player, placePos, stack);
+            damageStack(stack, player, context.getHand());
+            return InteractionResult.SUCCESS_SERVER;
+        }
 
-            if (level.isClientSide()) {
-                PearlFirePlacementColorMemory.remember(placePos, getStoredHexOrDefault(stack));
-                return InteractionResult.SUCCESS_SERVER;
-            }
+        return placePearlFire(context, placePos, hexColor);
+    }
 
-            boolean placed = level.setBlock(
-                    placePos,
-                    fireState,
-                    Block.UPDATE_NEIGHBORS | Block.UPDATE_IMMEDIATE
+    private InteractionResult previewClientPlacement(Level level, BlockPos placePos, int hexColor) {
+
+        var optionalShape = PearlPortalFrame.findIgnitableShape(level, placePos);
+
+        if (optionalShape.isPresent()) {
+            optionalShape.get().forEachInteriorBlock(pos ->
+                    PearlPlacementColorMemory.remember(level, pos, hexColor)
             );
 
-            if (!placed) {
-                return InteractionResult.FAIL;
-            }
+            return InteractionResult.SUCCESS_SERVER;
+        }
 
-            fireState.getBlock().setPlacedBy(level, placePos, fireState, player, stack);
+        return previewPearlFirePlacement(level, placePos, hexColor);
+    }
 
-            level.playSound(
-                    null,
-                    placePos,
-                    SoundEvents.FLINTANDSTEEL_USE,
-                    SoundSource.BLOCKS,
-                    1.0F,
-                    level.getRandom().nextFloat() * 0.4F + 0.8F
+    private InteractionResult previewPearlFirePlacement(Level level, BlockPos placePos, int hexColor) {
+        if (!level.getBlockState(placePos).canBeReplaced()) {
+            return InteractionResult.FAIL;
+        }
+
+        BlockState fireState = getCustomFireState(level, placePos);
+        if (!fireState.canSurvive(level, placePos)) {
+            return InteractionResult.FAIL;
+        }
+
+        PearlPlacementColorMemory.remember(level, placePos, hexColor);
+        return InteractionResult.SUCCESS_SERVER;
+    }
+
+    private InteractionResult placePearlFire(UseOnContext context, BlockPos placePos, int hexColor) {
+        Level level = context.getLevel();
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
+
+        if (!level.getBlockState(placePos).canBeReplaced()) {
+            return InteractionResult.FAIL;
+        }
+
+        BlockState fireState = getCustomFireState(level, placePos);
+        if (!fireState.canSurvive(level, placePos)) {
+            return InteractionResult.FAIL;
+        }
+
+        boolean placed = level.setBlock(
+                placePos,
+                fireState,
+                Block.UPDATE_NEIGHBORS
+        );
+
+        if (!placed) {
+            return InteractionResult.FAIL;
+        }
+
+        setFreshlyPlacedPearlFireHex(level, placePos, hexColor);
+
+        fireState.getBlock().setPlacedBy(level, placePos, fireState, player, stack);
+
+        playUseEffects(level, player, placePos, GameEvent.BLOCK_PLACE);
+        triggerPlacedBlockCriterion(player, placePos, stack);
+        damageStack(stack, player, context.getHand());
+
+        return InteractionResult.SUCCESS_SERVER;
+    }
+
+    private static void setFreshlyPlacedPearlFireHex(Level level, BlockPos pos, int hexColor) {
+        if (level.isClientSide()) {
+            return;
+        }
+
+        if (level.getBlockEntity(pos) instanceof PearlFireBlockEntity pearlFireBe) {
+            pearlFireBe.setHexColor(hexColor);
+        }
+    }
+
+    private static InteractionResult useVanillaFirestarterBehavior(UseOnContext context, BlockState modifiedState) {
+        Level level = context.getLevel();
+        Player player = context.getPlayer();
+        BlockPos clickedPos = context.getClickedPos();
+        ItemStack stack = context.getItemInHand();
+
+        if (!level.isClientSide()) {
+            level.setBlock(
+                    clickedPos,
+                    modifiedState,
+                    Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
             );
 
-            level.gameEvent(player, GameEvent.BLOCK_PLACE, placePos);
+            playUseEffects(level, player, clickedPos, GameEvent.BLOCK_CHANGE);
+            damageStack(stack, player, context.getHand());
+        }
 
-            if (player instanceof ServerPlayer serverPlayer) {
-                CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, placePos, stack);
-                stack.hurtAndBreak(1, serverPlayer, slotForHand(context.getHand()));
-            }
+        return InteractionResult.SUCCESS_SERVER;
+    }
 
-            return InteractionResult.SUCCESS_SERVER;
-        } else {
-            if (!level.isClientSide()) {
-                level.setBlock(
-                        clickedPos,
-                        modifiedState,
-                        Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
-                );
+    private static void playUseEffects(
+            Level level,
+            @Nullable Player player,
+            BlockPos pos,
+            Holder<GameEvent> gameEvent
+    ) {
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.FLINTANDSTEEL_USE,
+                SoundSource.BLOCKS,
+                1.0F,
+                level.getRandom().nextFloat() * 0.4F + 0.8F
+        );
 
-                level.playSound(
-                        null,
-                        clickedPos,
-                        SoundEvents.FLINTANDSTEEL_USE,
-                        SoundSource.BLOCKS,
-                        1.0F,
-                        level.getRandom().nextFloat() * 0.4F + 0.8F
-                );
+        level.gameEvent(player, gameEvent, pos);
+    }
 
-                level.gameEvent(player, GameEvent.BLOCK_CHANGE, clickedPos);
+    private static void triggerPlacedBlockCriterion(@Nullable Player player, BlockPos pos, ItemStack stack) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, pos, stack);
+        }
+    }
 
-                if (player instanceof ServerPlayer serverPlayer) {
-                    stack.hurtAndBreak(1, serverPlayer, slotForHand(context.getHand()));
-                } else if (player != null) {
-                    stack.hurtAndBreak(1, player, slotForHand(context.getHand()));
-                }
-            }
-
-            return InteractionResult.SUCCESS_SERVER;
+    private static void damageStack(ItemStack stack, @Nullable Player player, InteractionHand hand) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            stack.hurtAndBreak(1, serverPlayer, slotForHand(hand));
+        } else if (player != null) {
+            stack.hurtAndBreak(1, player, slotForHand(hand));
         }
     }
 }

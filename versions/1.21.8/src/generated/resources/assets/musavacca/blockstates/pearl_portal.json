@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "musavacca:block/pearl_portal_ns"
+    },
+    "axis=z": {
+      "model": "musavacca:block/pearl_portal_ew"
+    }
+  }
+}

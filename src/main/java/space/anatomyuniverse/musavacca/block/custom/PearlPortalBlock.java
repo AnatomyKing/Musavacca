@@ -1,0 +1,258 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/PearlPortalBlock.java
+package space.anatomyuniverse.musavacca.block.custom;
+
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.world.entity.Relative;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.Portal;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.portal.PortalShape;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
+import space.anatomyuniverse.musavacca.portal.PearlPortalDestroyer;
+import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
+import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
+import space.anatomyuniverse.musavacca.portal.PearlPortalResolver;
+
+import java.util.Map;
+import java.util.UUID;
+
+public class PearlPortalBlock extends Block implements Portal, EntityBlock {
+    public static final MapCodec<PearlPortalBlock> CODEC = simpleCodec(PearlPortalBlock::new);
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
+
+    private static final Map<Direction.Axis, VoxelShape> SHAPES =
+            Shapes.rotateHorizontalAxis(Block.column(4.0D, 16.0D, 0.0D, 16.0D));
+
+    public PearlPortalBlock(BlockBehaviour.Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(AXIS, Direction.Axis.X));
+    }
+
+    public EnumProperty<Direction.Axis> getAxisProperty() {
+        return AXIS;
+    }
+
+    @Override
+    public MapCodec<PearlPortalBlock> codec() {
+        return CODEC;
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new PearlPortalBlockEntity(pos, state);
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPES.get(state.getValue(AXIS));
+    }
+
+    @Override
+    protected BlockState updateShape(
+            BlockState state,
+            LevelReader level,
+            ScheduledTickAccess scheduledTickAccess,
+            BlockPos pos,
+            Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            RandomSource random
+    ) {
+        Direction.Axis portalAxis = state.getValue(AXIS);
+        Direction.Axis changedAxis = direction.getAxis();
+
+        boolean changedAlongOtherHorizontalAxis = portalAxis != changedAxis && changedAxis.isHorizontal();
+
+        if (!changedAlongOtherHorizontalAxis
+                && !neighborState.is(this)
+                && PearlPortalFrame.findExistingShape(level, pos, portalAxis).isEmpty()) {
+            if (level instanceof ServerLevel serverLevel) {
+                PearlPortalDestroyer.destroyPortalFromAnyLoadedBlock(serverLevel, pos);
+            }
+
+            return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+        }
+
+        return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+    }
+
+    @Override
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier) {
+        if (entity.canUsePortal(false)) {
+            entity.setAsInsidePortal(this, pos);
+        }
+    }
+
+    @Override
+    public int getPortalTransitionTime(ServerLevel level, Entity entity) {
+        return 0;
+    }
+
+    @Nullable
+    @Override
+    public TeleportTransition getPortalDestination(ServerLevel currentLevel, Entity entity, BlockPos entryPos) {
+        UUID sourcePortalId = findSourcePortalId(currentLevel, entryPos);
+        if (sourcePortalId == null) {
+            return null;
+        }
+
+        PearlPortalResolver.ResolvedPortal targetPortal = PearlPortalResolver
+                .resolveLinkedPortal(currentLevel, sourcePortalId)
+                .orElse(null);
+
+        if (targetPortal == null) {
+            return null;
+        }
+
+        ServerLevel targetLevel = targetPortal.level();
+        Vec3 wantedPos = targetPortal.center();
+
+        EntityDimensions dimensions = entity.getDimensions(entity.getPose());
+        Vec3 safePos = PortalShape.findCollisionFreePosition(wantedPos, targetLevel, entity, dimensions);
+        BlockPos safeBlockPos = BlockPos.containing(safePos);
+
+        TeleportTransition.PostTeleportTransition postTeleport =
+                TeleportTransition.PLAY_PORTAL_SOUND.then(teleportedEntity -> {
+                    teleportedEntity.setPortalCooldown();
+                    PearlPortalResolver.keepDestinationAlive(teleportedEntity, safeBlockPos);
+                });
+
+        return new TeleportTransition(
+                targetLevel,
+                safePos,
+                Vec3.ZERO,
+                entity.getYRot(),
+                entity.getXRot(),
+                Relative.union(Relative.DELTA, Relative.ROTATION),
+                postTeleport
+        );
+    }
+
+    @Nullable
+    private static UUID findSourcePortalId(ServerLevel level, BlockPos entryPos) {
+        if (level.getBlockEntity(entryPos) instanceof PearlPortalBlockEntity portalBlockEntity
+                && portalBlockEntity.isValidPortalTile()) {
+            PearlPortalNetwork.registerPortalBlock(portalBlockEntity);
+            return portalBlockEntity.getPortalId();
+        }
+
+        PearlPortalNetwork.LoadedPortal loadedPortal = PearlPortalNetwork
+                .getLoadedPortalAt(level, entryPos)
+                .orElse(null);
+
+        if (loadedPortal != null) {
+            return loadedPortal.portalId();
+        }
+
+        BlockState state = level.getBlockState(entryPos);
+        if (!(state.getBlock() instanceof PearlPortalBlock)) {
+            return null;
+        }
+
+        Direction.Axis axis = state.getValue(AXIS);
+        PearlPortalFrame.Shape shape = PearlPortalFrame.findExistingShape(level, entryPos, axis).orElse(null);
+        if (shape == null) {
+            return null;
+        }
+
+        if (level.getBlockEntity(shape.minCorner()) instanceof PearlPortalBlockEntity controller
+                && controller.isValidPortalTile()) {
+            PearlPortalNetwork.registerPortalBlock(controller);
+            return controller.getPortalId();
+        }
+
+        return null;
+    }
+
+    @Override
+    public Portal.Transition getLocalTransition() {
+        return Portal.Transition.CONFUSION;
+    }
+
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        if (random.nextInt(100) == 0) {
+            level.playLocalSound(
+                    pos.getX() + 0.5D,
+                    pos.getY() + 0.5D,
+                    pos.getZ() + 0.5D,
+                    SoundEvents.PORTAL_AMBIENT,
+                    SoundSource.BLOCKS,
+                    0.5F,
+                    random.nextFloat() * 0.4F + 0.8F,
+                    false
+            );
+        }
+
+        for (int i = 0; i < 4; i++) {
+            double x = pos.getX() + random.nextDouble();
+            double y = pos.getY() + random.nextDouble();
+            double z = pos.getZ() + random.nextDouble();
+            double dx = (random.nextFloat() - 0.5D) * 0.5D;
+            double dy = (random.nextFloat() - 0.5D) * 0.5D;
+            double dz = (random.nextFloat() - 0.5D) * 0.5D;
+            int side = random.nextInt(2) * 2 - 1;
+
+            if (!level.getBlockState(pos.west()).is(this) && !level.getBlockState(pos.east()).is(this)) {
+                x = pos.getX() + 0.5D + 0.25D * side;
+                dx = random.nextFloat() * 2.0F * side;
+            } else {
+                z = pos.getZ() + 0.5D + 0.25D * side;
+                dz = random.nextFloat() * 2.0F * side;
+            }
+
+            level.addParticle(ParticleTypes.PORTAL, x, y, z, dx, dy, dz);
+        }
+    }
+
+    @Override
+    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return switch (rotation) {
+            case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(AXIS)) {
+                case X -> state.setValue(AXIS, Direction.Axis.Z);
+                case Z -> state.setValue(AXIS, Direction.Axis.X);
+                default -> state;
+            };
+            default -> state;
+        };
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(AXIS);
+    }
+}

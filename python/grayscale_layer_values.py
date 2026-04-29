@@ -1,59 +1,16 @@
 from __future__ import annotations
 
-import argparse
-import glob
 import sys
 from pathlib import Path
-from typing import Iterable, List, Set
+from typing import List, Set
 
 from PIL import Image
 
+INPUT_FILES = [
+    "pearl_portal.png",
+]
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description=(
-            "Extract unique grayscale layer values from one or more PNG textures, "
-            "format them as Java-style comma-separated rows, and copy the result to the clipboard."
-        )
-    )
-    parser.add_argument(
-        "--texture",
-        nargs="+",
-        required=True,
-        help=(
-            "One or more texture paths or glob patterns. "
-            'Examples: --texture pearl_fire_0.png or --texture "texture_1_*.png"'
-        ),
-    )
-    parser.add_argument(
-        "--per-line",
-        type=int,
-        default=8,
-        help="How many values to put on each output line. Default: 8",
-    )
-    return parser.parse_args()
-
-
-def resolve_patterns(patterns: Iterable[str]) -> List[Path]:
-    matched: List[Path] = []
-    seen: Set[Path] = set()
-
-    for pattern in patterns:
-        globbed = glob.glob(pattern, recursive=True)
-
-        if not globbed:
-            direct = Path(pattern)
-            if direct.exists():
-                globbed = [str(direct)]
-
-        for item in globbed:
-            path = Path(item).resolve()
-            if path.is_file() and path.suffix.lower() == ".png" and path not in seen:
-                seen.add(path)
-                matched.append(path)
-
-    matched.sort()
-    return matched
+PER_LINE = 8
 
 
 def collect_grayscale_values(image_path: Path) -> Set[int]:
@@ -88,8 +45,10 @@ def format_values(values: List[int], per_line: int) -> str:
     for start in range(0, len(values), per_line):
         chunk = values[start:start + per_line]
         line = ", ".join(str(v) for v in chunk)
+
         if start + per_line < len(values):
             line += ","
+
         lines.append(line)
 
     return "\n".join(lines)
@@ -122,12 +81,18 @@ def copy_to_clipboard(text: str) -> None:
 
 
 def main() -> int:
-    args = parse_args()
-    texture_paths = resolve_patterns(args.texture)
+    base_dir = Path(__file__).resolve().parent
 
-    if not texture_paths:
-        print("No matching PNG files found.", file=sys.stderr)
-        return 1
+    texture_paths = [base_dir / name for name in INPUT_FILES]
+
+    for path in texture_paths:
+        if not path.exists():
+            print(f"Missing input image: {path}", file=sys.stderr)
+            return 1
+
+        if path.suffix.lower() != ".png":
+            print(f"Input file is not a PNG: {path}", file=sys.stderr)
+            return 1
 
     all_values: Set[int] = set()
 
@@ -136,7 +101,7 @@ def main() -> int:
         all_values.update(values)
 
     sorted_values = sorted(all_values, reverse=True)
-    formatted = format_values(sorted_values, args.per_line)
+    formatted = format_values(sorted_values, PER_LINE)
 
     print(formatted)
     print()
