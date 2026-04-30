@@ -1,6 +1,8 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/portal/PearlPortalCreator.java
 package space.anatomyuniverse.musavacca.portal;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +20,16 @@ public final class PearlPortalCreator {
     private static final int PORTAL_SET_FLAGS = Block.UPDATE_NEIGHBORS;
 
     public static boolean tryCreatePortal(Level level, BlockPos insidePos, int hexColor, @Nullable Player player) {
+        return tryCreatePortal(level, insidePos, hexColor, player, null);
+    }
+
+    public static boolean tryCreatePortal(
+            Level level,
+            BlockPos insidePos,
+            int hexColor,
+            @Nullable Player player,
+            @Nullable Direction ignitionFace
+    ) {
         var optionalShape = PearlPortalFrame.findIgnitableShape(level, insidePos);
         if (optionalShape.isEmpty()) return false;
 
@@ -25,7 +37,10 @@ public final class PearlPortalCreator {
         if (!(level instanceof ServerLevel serverLevel)) return false;
 
         int normalizedHex = normalizeHex(hexColor);
-        PearlPortalFrame.Shape shape = optionalShape.get();
+
+        PearlPortalFrame.Shape detectedShape = optionalShape.get();
+        Direction frontDirection = determineFrontDirection(detectedShape, ignitionFace, player);
+        PearlPortalFrame.Shape shape = detectedShape.withFrontDirection(frontDirection);
 
         if (containsExistingPortalBlock(serverLevel, shape)) {
             sendActionBar(player, "This Pearl portal is already active.");
@@ -67,6 +82,22 @@ public final class PearlPortalCreator {
 
         sendCreationMessage(player, linkResult, normalizedHex);
         return true;
+    }
+
+    private static Direction determineFrontDirection(
+            PearlPortalFrame.Shape shape,
+            @Nullable Direction ignitionFace,
+            @Nullable Player player
+    ) {
+        if (PearlPortalFrame.isValidFrontDirection(shape.axis(), ignitionFace)) {
+            return ignitionFace;
+        }
+
+        if (player != null) {
+            return shape.frontDirectionFromPosition(player.position());
+        }
+
+        return PearlPortalFrame.defaultFrontDirection(shape.axis());
     }
 
     private static void placePortalBlocks(ServerLevel level, PearlPortalFrame.Shape shape) {

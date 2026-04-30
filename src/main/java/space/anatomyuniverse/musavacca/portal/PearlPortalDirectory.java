@@ -27,6 +27,11 @@ public final class PearlPortalDirectory extends SavedData {
             axis -> axis == Direction.Axis.Z ? "z" : "x"
     );
 
+    private static final Codec<Direction> HORIZONTAL_DIRECTION_CODEC = Codec.STRING.xmap(
+            PearlPortalDirectory::directionFromString,
+            PearlPortalDirectory::directionToString
+    );
+
     public enum LinkResult {
         WAITING_FOR_SECOND_PORTAL,
         LINKED_TO_EXISTING_PORTAL,
@@ -41,18 +46,22 @@ public final class PearlPortalDirectory extends SavedData {
             int originY,
             int originZ,
             Direction.Axis axis,
+            Direction frontDirection,
             int width,
             int height,
             int hexColor
     ) {
         public Endpoint normalized() {
+            Direction.Axis normalizedAxis = PearlPortalFrame.normalizeAxis(axis);
+
             return new Endpoint(
                     portalId,
                     dimensionId,
                     originX,
                     originY,
                     originZ,
-                    axis == Direction.Axis.Z ? Direction.Axis.Z : Direction.Axis.X,
+                    normalizedAxis,
+                    PearlPortalFrame.normalizeFrontDirection(normalizedAxis, frontDirection),
                     clamp(width, PearlPortalFrame.MIN_WIDTH, PearlPortalFrame.MAX_WIDTH),
                     clamp(height, PearlPortalFrame.MIN_HEIGHT, PearlPortalFrame.MAX_HEIGHT),
                     hexColor & 0xFFFFFF
@@ -70,7 +79,8 @@ public final class PearlPortalDirectory extends SavedData {
                     endpoint.axis,
                     endpoint.originPos(),
                     endpoint.width,
-                    endpoint.height
+                    endpoint.height,
+                    endpoint.frontDirection
             );
         }
     }
@@ -104,6 +114,7 @@ public final class PearlPortalDirectory extends SavedData {
             Codec.INT.fieldOf("origin_y").forGetter(Endpoint::originY),
             Codec.INT.fieldOf("origin_z").forGetter(Endpoint::originZ),
             AXIS_CODEC.fieldOf("axis").forGetter(Endpoint::axis),
+            HORIZONTAL_DIRECTION_CODEC.optionalFieldOf("front_direction", Direction.SOUTH).forGetter(Endpoint::frontDirection),
             Codec.INT.fieldOf("width").forGetter(Endpoint::width),
             Codec.INT.fieldOf("height").forGetter(Endpoint::height),
             Codec.INT.fieldOf("hex_color").forGetter(Endpoint::hexColor)
@@ -223,6 +234,7 @@ public final class PearlPortalDirectory extends SavedData {
                 shape.minCorner().getY(),
                 shape.minCorner().getZ(),
                 shape.axis(),
+                shape.frontDirection(),
                 shape.width(),
                 shape.height(),
                 normalizeHex(hexColor)
@@ -346,6 +358,26 @@ public final class PearlPortalDirectory extends SavedData {
         if (removed || removedPortal != null) {
             this.setDirty();
         }
+    }
+
+    private static Direction directionFromString(String text) {
+        return switch (text.toLowerCase()) {
+            case "north" -> Direction.NORTH;
+            case "south" -> Direction.SOUTH;
+            case "west" -> Direction.WEST;
+            case "east" -> Direction.EAST;
+            default -> Direction.SOUTH;
+        };
+    }
+
+    private static String directionToString(Direction direction) {
+        return switch (direction) {
+            case NORTH -> "north";
+            case SOUTH -> "south";
+            case WEST -> "west";
+            case EAST -> "east";
+            default -> "south";
+        };
     }
 
     private static int normalizeHex(int hexColor) {

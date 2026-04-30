@@ -20,9 +20,41 @@ public final class PearlPortalFrame {
     public static final int MIN_HEIGHT = 3;
     public static final int MAX_HEIGHT = 21;
 
-    public record Shape(Direction.Axis axis, BlockPos minCorner, int width, int height) {
+    public record Shape(
+            Direction.Axis axis,
+            BlockPos minCorner,
+            int width,
+            int height,
+            Direction frontDirection
+    ) {
+        public Shape(Direction.Axis axis, BlockPos minCorner, int width, int height) {
+            this(axis, minCorner, width, height, PearlPortalFrame.defaultFrontDirection(axis));
+        }
+
+        public Shape {
+            axis = normalizeAxis(axis);
+            minCorner = minCorner.immutable();
+            width = clamp(width, MIN_WIDTH, MAX_WIDTH);
+            height = clamp(height, MIN_HEIGHT, MAX_HEIGHT);
+            frontDirection = normalizeFrontDirection(axis, frontDirection);
+        }
+
+        public Shape withFrontDirection(Direction frontDirection) {
+            return new Shape(
+                    this.axis,
+                    this.minCorner,
+                    this.width,
+                    this.height,
+                    frontDirection
+            );
+        }
+
         public Direction widthDirection() {
             return PearlPortalFrame.widthDirection(axis);
+        }
+
+        public Direction backDirection() {
+            return this.frontDirection.getOpposite();
         }
 
         public Vec3 center() {
@@ -39,6 +71,16 @@ public final class PearlPortalFrame {
                     minCorner.getY() + height / 2.0D,
                     minCorner.getZ() + width / 2.0D
             );
+        }
+
+        public Direction frontDirectionFromPosition(Vec3 position) {
+            Vec3 center = this.center();
+
+            if (this.axis == Direction.Axis.X) {
+                return position.z < center.z ? Direction.NORTH : Direction.SOUTH;
+            }
+
+            return position.x < center.x ? Direction.WEST : Direction.EAST;
         }
 
         public void forEachInteriorBlock(Consumer<BlockPos> consumer) {
@@ -64,7 +106,36 @@ public final class PearlPortalFrame {
     }
 
     public static Direction widthDirection(Direction.Axis axis) {
-        return axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
+        return normalizeAxis(axis) == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
+    }
+
+    public static Direction defaultFrontDirection(Direction.Axis axis) {
+        return normalizeAxis(axis) == Direction.Axis.X ? Direction.SOUTH : Direction.EAST;
+    }
+
+    public static boolean isValidFrontDirection(Direction.Axis axis, Direction direction) {
+        if (direction == null || direction.getAxis().isVertical()) {
+            return false;
+        }
+
+        Direction.Axis normalAxis = normalAxis(axis);
+        return direction.getAxis() == normalAxis;
+    }
+
+    public static Direction normalizeFrontDirection(Direction.Axis axis, Direction direction) {
+        if (isValidFrontDirection(axis, direction)) {
+            return direction;
+        }
+
+        return defaultFrontDirection(axis);
+    }
+
+    public static Direction.Axis normalAxis(Direction.Axis axis) {
+        return normalizeAxis(axis) == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
+    }
+
+    public static Direction.Axis normalizeAxis(Direction.Axis axis) {
+        return axis == Direction.Axis.Z ? Direction.Axis.Z : Direction.Axis.X;
     }
 
     private static Optional<Shape> findShape(
@@ -196,5 +267,9 @@ public final class PearlPortalFrame {
     private static boolean canBecomePortalInterior(BlockState state) {
         return state.canBeReplaced()
                 || state.is(ModBlocks.PEARL_FIRE.get());
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 }

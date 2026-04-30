@@ -34,6 +34,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
     private static final String TAG_ORIGIN_Y = "origin_y";
     private static final String TAG_ORIGIN_Z = "origin_z";
     private static final String TAG_AXIS = "axis";
+    private static final String TAG_FRONT_DIRECTION = "front_direction";
     private static final String TAG_WIDTH = "width";
     private static final String TAG_HEIGHT = "height";
 
@@ -44,6 +45,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
 
     private BlockPos originPos = null;
     private Direction.Axis axis = Direction.Axis.X;
+    private Direction frontDirection = Direction.SOUTH;
     private int width = PearlPortalFrame.MIN_WIDTH;
     private int height = PearlPortalFrame.MIN_HEIGHT;
 
@@ -55,7 +57,8 @@ public class PearlPortalBlockEntity extends BlockEntity {
         this.portalId = portalId;
         this.hexColor = normalizeHex(hexColor);
         this.originPos = shape.minCorner().immutable();
-        this.axis = normalizeAxis(shape.axis());
+        this.axis = PearlPortalFrame.normalizeAxis(shape.axis());
+        this.frontDirection = PearlPortalFrame.normalizeFrontDirection(this.axis, shape.frontDirection());
         this.width = clampWidth(shape.width());
         this.height = clampHeight(shape.height());
 
@@ -67,7 +70,8 @@ public class PearlPortalBlockEntity extends BlockEntity {
         return this.portalId != null
                 && this.originPos != null
                 && this.width >= PearlPortalFrame.MIN_WIDTH
-                && this.height >= PearlPortalFrame.MIN_HEIGHT;
+                && this.height >= PearlPortalFrame.MIN_HEIGHT
+                && PearlPortalFrame.isValidFrontDirection(this.getPortalAxis(), this.getPortalFrontDirection());
     }
 
     public boolean isPortalBlockEntityForPortalBlock() {
@@ -95,7 +99,11 @@ public class PearlPortalBlockEntity extends BlockEntity {
     }
 
     public Direction.Axis getPortalAxis() {
-        return normalizeAxis(this.axis);
+        return PearlPortalFrame.normalizeAxis(this.axis);
+    }
+
+    public Direction getPortalFrontDirection() {
+        return PearlPortalFrame.normalizeFrontDirection(this.getPortalAxis(), this.frontDirection);
     }
 
     public int getPortalWidth() {
@@ -111,7 +119,8 @@ public class PearlPortalBlockEntity extends BlockEntity {
                 this.getPortalAxis(),
                 this.getOriginPos(),
                 this.getPortalWidth(),
-                this.getPortalHeight()
+                this.getPortalHeight(),
+                this.getPortalFrontDirection()
         );
     }
 
@@ -194,6 +203,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         this.hexColor = normalizeHex(input.getIntOr(TAG_HEX_COLOR, DEFAULT_HEX_COLOR));
         this.originPos = readBlockPos(input, this.getBlockPos());
         this.axis = readAxis(input);
+        this.frontDirection = readFrontDirection(input, this.axis);
         this.width = clampWidth(input.getIntOr(TAG_WIDTH, PearlPortalFrame.MIN_WIDTH));
         this.height = clampHeight(input.getIntOr(TAG_HEIGHT, PearlPortalFrame.MIN_HEIGHT));
     }
@@ -211,6 +221,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         output.putInt(TAG_ORIGIN_Z, origin.getZ());
 
         output.putString(TAG_AXIS, this.getPortalAxis() == Direction.Axis.Z ? "z" : "x");
+        output.putString(TAG_FRONT_DIRECTION, directionToString(this.getPortalFrontDirection()));
         output.putInt(TAG_WIDTH, this.width);
         output.putInt(TAG_HEIGHT, this.height);
     }
@@ -267,6 +278,11 @@ public class PearlPortalBlockEntity extends BlockEntity {
                 : Direction.Axis.X;
     }
 
+    private static Direction readFrontDirection(ValueInput input, Direction.Axis axis) {
+        String text = input.getStringOr(TAG_FRONT_DIRECTION, "");
+        return PearlPortalFrame.normalizeFrontDirection(axis, directionFromString(text));
+    }
+
     private static UUID readUuid(ValueInput input, String key, UUID fallback) {
         String text = input.getStringOr(key, "");
         if (text.isEmpty()) return fallback;
@@ -278,8 +294,24 @@ public class PearlPortalBlockEntity extends BlockEntity {
         }
     }
 
-    private static Direction.Axis normalizeAxis(Direction.Axis axis) {
-        return axis == Direction.Axis.Z ? Direction.Axis.Z : Direction.Axis.X;
+    private static Direction directionFromString(String text) {
+        return switch (text.toLowerCase()) {
+            case "north" -> Direction.NORTH;
+            case "south" -> Direction.SOUTH;
+            case "west" -> Direction.WEST;
+            case "east" -> Direction.EAST;
+            default -> null;
+        };
+    }
+
+    private static String directionToString(Direction direction) {
+        return switch (direction) {
+            case NORTH -> "north";
+            case SOUTH -> "south";
+            case WEST -> "west";
+            case EAST -> "east";
+            default -> "south";
+        };
     }
 
     private static int normalizeHex(int hexColor) {

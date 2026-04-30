@@ -125,7 +125,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
             return previewClientPlacement(level, placePos, hexColor);
         }
 
-        if (PearlPortalCreator.tryCreatePortal(level, placePos, hexColor, player)) {
+        if (PearlPortalCreator.tryCreatePortal(level, placePos, hexColor, player, context.getClickedFace())) {
             playUseEffects(level, player, placePos, GameEvent.BLOCK_PLACE);
             triggerPlacedBlockCriterion(player, placePos, stack);
             damageStack(stack, player, context.getHand());

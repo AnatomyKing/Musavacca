@@ -12,7 +12,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
-import net.minecraft.world.entity.Relative;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -40,9 +39,10 @@ import space.anatomyuniverse.musavacca.portal.PearlPortalDestroyer;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
 import space.anatomyuniverse.musavacca.portal.PearlPortalResolver;
+import space.anatomyuniverse.musavacca.portal.PearlPortalTransform;
 
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
 public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     public static final MapCodec<PearlPortalBlock> CODEC = simpleCodec(PearlPortalBlock::new);
@@ -120,13 +120,13 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     @Nullable
     @Override
     public TeleportTransition getPortalDestination(ServerLevel currentLevel, Entity entity, BlockPos entryPos) {
-        UUID sourcePortalId = findSourcePortalId(currentLevel, entryPos);
-        if (sourcePortalId == null) {
+        PearlPortalResolver.ResolvedPortal sourcePortal = findSourcePortal(currentLevel, entryPos);
+        if (sourcePortal == null) {
             return null;
         }
 
         PearlPortalResolver.ResolvedPortal targetPortal = PearlPortalResolver
-                .resolveLinkedPortal(currentLevel, sourcePortalId)
+                .resolveLinkedPortal(currentLevel, sourcePortal.portalId())
                 .orElse(null);
 
         if (targetPortal == null) {
@@ -134,35 +134,36 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         }
 
         ServerLevel targetLevel = targetPortal.level();
-        Vec3 wantedPos = targetPortal.center();
+        PearlPortalTransform.Result transform = PearlPortalTransform.calculate(entity, sourcePortal, targetPortal);
 
         EntityDimensions dimensions = entity.getDimensions(entity.getPose());
-        Vec3 safePos = PortalShape.findCollisionFreePosition(wantedPos, targetLevel, entity, dimensions);
+        Vec3 safePos = PortalShape.findCollisionFreePosition(transform.position(), targetLevel, entity, dimensions);
         BlockPos safeBlockPos = BlockPos.containing(safePos);
 
         TeleportTransition.PostTeleportTransition postTeleport =
                 TeleportTransition.PLAY_PORTAL_SOUND.then(teleportedEntity -> {
                     teleportedEntity.setPortalCooldown();
+                    teleportedEntity.setDeltaMovement(transform.deltaMovement());
                     PearlPortalResolver.keepDestinationAlive(teleportedEntity, safeBlockPos);
                 });
 
         return new TeleportTransition(
                 targetLevel,
                 safePos,
-                Vec3.ZERO,
-                entity.getYRot(),
-                entity.getXRot(),
-                Relative.union(Relative.DELTA, Relative.ROTATION),
+                transform.deltaMovement(),
+                transform.yRot(),
+                transform.xRot(),
+                Set.of(),
                 postTeleport
         );
     }
 
     @Nullable
-    private static UUID findSourcePortalId(ServerLevel level, BlockPos entryPos) {
+    private static PearlPortalResolver.ResolvedPortal findSourcePortal(ServerLevel level, BlockPos entryPos) {
         if (level.getBlockEntity(entryPos) instanceof PearlPortalBlockEntity portalBlockEntity
                 && portalBlockEntity.isValidPortalTile()) {
             PearlPortalNetwork.registerPortalBlock(portalBlockEntity);
-            return portalBlockEntity.getPortalId();
+            return fromBlockEntity(level, portalBlockEntity);
         }
 
         PearlPortalNetwork.LoadedPortal loadedPortal = PearlPortalNetwork
@@ -170,7 +171,7 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                 .orElse(null);
 
         if (loadedPortal != null) {
-            return loadedPortal.portalId();
+            return fromLoadedPortal(loadedPortal);
         }
 
         BlockState state = level.getBlockState(entryPos);
@@ -184,13 +185,52 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             return null;
         }
 
-        if (level.getBlockEntity(shape.minCorner()) instanceof PearlPortalBlockEntity controller
-                && controller.isValidPortalTile()) {
-            PearlPortalNetwork.registerPortalBlock(controller);
-            return controller.getPortalId();
+        PearlPortalBlockEntity foundTile = findAnyValidPortalTile(level, shape);
+        if (foundTile == null) {
+            return null;
         }
 
-        return null;
+        PearlPortalNetwork.registerPortalBlock(foundTile);
+        return fromBlockEntity(level, foundTile);
+    }
+
+    @Nullable
+    private static PearlPortalBlockEntity findAnyValidPortalTile(ServerLevel level, PearlPortalFrame.Shape shape) {
+        PearlPortalBlockEntity[] found = {null};
+
+        shape.forEachInteriorBlock(pos -> {
+            if (found[0] != null) {
+                return;
+            }
+
+            if (level.getBlockEntity(pos) instanceof PearlPortalBlockEntity portalBlockEntity
+                    && portalBlockEntity.isValidPortalTile()) {
+                found[0] = portalBlockEntity;
+            }
+        });
+
+        return found[0];
+    }
+
+    private static PearlPortalResolver.ResolvedPortal fromBlockEntity(
+            ServerLevel level,
+            PearlPortalBlockEntity portalBlockEntity
+    ) {
+        return new PearlPortalResolver.ResolvedPortal(
+                portalBlockEntity.getPortalId(),
+                level,
+                portalBlockEntity.getPortalShape(),
+                portalBlockEntity.getHexColor()
+        );
+    }
+
+    private static PearlPortalResolver.ResolvedPortal fromLoadedPortal(PearlPortalNetwork.LoadedPortal loadedPortal) {
+        return new PearlPortalResolver.ResolvedPortal(
+                loadedPortal.portalId(),
+                loadedPortal.level(),
+                loadedPortal.shape(),
+                loadedPortal.hexColor()
+        );
     }
 
     @Override
