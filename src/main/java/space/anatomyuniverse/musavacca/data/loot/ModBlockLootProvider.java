@@ -39,6 +39,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.BANANA_PEARL_CHAPITER.get(),
                 ModBlocks.BANANA_PEARL_PILLAR.get(),
                 ModBlocks.MUSAVACCA_STEM.get(),
+                ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.MUSAVACCA_PLANKS.get(),
                 ModBlocks.MUSAVACCA_LEAVES.get(),

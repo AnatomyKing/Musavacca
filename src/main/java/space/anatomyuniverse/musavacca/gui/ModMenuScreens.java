@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/screen/ModMenuScreens.java
 package space.anatomyuniverse.musavacca.gui;
 
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;

@@ -4,6 +4,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import space.anatomyuniverse.musavacca.particle.particles.HexFallingSporeBlossomProvider;
 import space.anatomyuniverse.musavacca.particle.particles.HexSporeBlossomAirParticle;
+import space.anatomyuniverse.musavacca.particle.particles.PearlGlyphParticle;
 
 public final class ModParticleProviders {
     private ModParticleProviders() {}
@@ -21,6 +22,16 @@ public final class ModParticleProviders {
         event.registerSpriteSet(
                 ModParticleTypes.HEX_SPORE_BLOSSOM_AIR.get(),
                 HexSporeBlossomAirParticle.Provider::new
+        );
+
+        event.registerSpriteSet(
+                ModParticleTypes.PEARL_GLYPHS.get(),
+                PearlGlyphParticle.Provider::new
+        );
+
+        event.registerSpriteSet(
+                ModParticleTypes.PEARL_GLYPHS_TINT.get(),
+                PearlGlyphParticle.TintedProvider::new
         );
     }
 }

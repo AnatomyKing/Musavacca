@@ -1,6 +1,6 @@
 package space.anatomyuniverse.musavacca.tint;
-
-//  wicked fire with E74E8C   0.85F,   // coreToTailLightness
+//  wicked fire with E74E8C
+//                            0.85F,   // coreToTailLightness
 //                            6.385F,  // colorJumpiness
 //                            1.18F    // layerContrast
 
@@ -8,9 +8,9 @@ public final class PearlFireTintProfiles {
 
     public static final Profile FIRE_BLOCK = of(
             settings(
-                    1.00F,   // coreToTailLightness
-                    0.5F,  // colorJumpiness
-                    1.23F    // layerContrast
+                            1.0F,   // coreToTailLightness
+                            0.5F,  // colorJumpiness
+                            1.21F    // layerContrast
             ),
 
 

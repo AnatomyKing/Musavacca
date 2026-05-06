@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
@@ -37,22 +38,11 @@ public class VocoTableBlockEntity extends BlockEntity {
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
     private boolean basukeVisible = false;
+    @Nullable
     private UUID basukeUuid = null;
 
     public VocoTableBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.VOCO_TABLE_BLOCK_ENTITY.get(), pos, state);
-    }
-
-    public static void serverTick(Level level, BlockPos pos, BlockState state, VocoTableBlockEntity blockEntity) {
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
-        if (serverLevel.getGameTime() % 10L != 0L) {
-            return;
-        }
-
-        blockEntity.updateBasuke(serverLevel);
     }
 
     public ItemStack getDisplayedItem() {
@@ -60,7 +50,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     public boolean hasDisplayedItem() {
-        return !this.items.get(0).isEmpty();
+        return !this.getDisplayedItem().isEmpty();
     }
 
     public void setDisplayedItem(ItemStack stack) {
@@ -68,15 +58,15 @@ public class VocoTableBlockEntity extends BlockEntity {
         copy.setCount(1);
 
         this.items.set(0, copy);
-        this.setChanged();
-        this.syncToClientAndRerender();
+        this.markChangedAndSync();
     }
 
     public ItemStack removeDisplayedItem() {
-        ItemStack removed = this.items.get(0).copy();
+        ItemStack removed = this.getDisplayedItem().copy();
+
         this.items.set(0, ItemStack.EMPTY);
-        this.setChanged();
-        this.syncToClientAndRerender();
+        this.markChangedAndSync();
+
         return removed;
     }
 
@@ -84,30 +74,42 @@ public class VocoTableBlockEntity extends BlockEntity {
         return this.basukeVisible;
     }
 
-    public boolean toggleBasukeVisible() {
+    /**
+     * Called only when the player clicks the dialer.
+     * No server ticking is needed for Basuke spawning/removal.
+     */
+    public void toggleBasuke(ServerLevel level) {
         this.basukeVisible = !this.basukeVisible;
-        this.setChanged();
-        this.syncToClientAndRerender();
-        return this.basukeVisible;
-    }
 
-    public void updateBasuke(ServerLevel level) {
-        if (!this.basukeVisible) {
+        if (this.basukeVisible) {
+            boolean spawnedOrFound = this.ensureBasukeExists(level);
+
+            // If spawning failed for some reason, do not save a broken visible state.
+            if (!spawnedOrFound) {
+                this.basukeVisible = false;
+            }
+        } else {
             this.removeBasuke(level);
-            return;
         }
 
+        this.markChangedAndSync();
+    }
+
+    private boolean ensureBasukeExists(ServerLevel level) {
         Basuke basuke = this.getBasuke(level);
+
         if (basuke == null) {
-            this.spawnBasuke(level);
-            return;
+            return this.spawnBasuke(level);
         }
 
         if (!basuke.isBoundToTable(this.getBlockPos())) {
             basuke.bindToVocoTable(this.getBlockPos());
         }
+
+        return true;
     }
 
+    @Nullable
     private Basuke getBasuke(ServerLevel level) {
         if (this.basukeUuid == null) {
             return null;
@@ -121,39 +123,42 @@ public class VocoTableBlockEntity extends BlockEntity {
         return null;
     }
 
-    private void spawnBasuke(ServerLevel level) {
+    private boolean spawnBasuke(ServerLevel level) {
         Basuke basuke = ModEntities.BASUKE.get().create(level, EntitySpawnReason.TRIGGERED);
         if (basuke == null) {
-            return;
+            this.basukeUuid = null;
+            return false;
         }
 
-        double x = this.getBlockPos().getX() + 0.5D;
-        double y = this.getBlockPos().getY() + 1.45D;
-        double z = this.getBlockPos().getZ() + 0.5D;
+        BlockPos pos = this.getBlockPos();
 
-        basuke.snapTo(x, y, z, level.random.nextFloat() * 360.0F, 0.0F);
-        basuke.bindToVocoTable(this.getBlockPos());
+        basuke.snapTo(
+                pos.getX() + 0.5D,
+                pos.getY() + 1.45D,
+                pos.getZ() + 0.5D,
+                level.random.nextFloat() * 360.0F,
+                0.0F
+        );
 
+        basuke.bindToVocoTable(pos);
         level.addFreshEntity(basuke);
 
         this.basukeUuid = basuke.getUUID();
-        this.setChanged();
-        this.syncToClientAndRerender();
+        return true;
     }
 
     private void removeBasuke(ServerLevel level) {
-        if (this.basukeUuid != null) {
-            Entity entity = level.getEntity(this.basukeUuid);
-            if (entity instanceof Basuke basuke && basuke.isAlive()) {
-                basuke.discard();
-            }
+        Basuke basuke = this.getBasuke(level);
+        if (basuke != null) {
+            basuke.discard();
         }
 
-        if (this.basukeUuid != null) {
-            this.basukeUuid = null;
-            this.setChanged();
-            this.syncToClientAndRerender();
-        }
+        this.basukeUuid = null;
+    }
+
+    private void markChangedAndSync() {
+        this.setChanged();
+        this.syncToClientAndRerender();
     }
 
     private void syncToClientAndRerender() {
@@ -198,17 +203,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         ContainerHelper.loadAllItems(input, this.items);
 
         this.basukeVisible = input.getBooleanOr(TAG_BASUKE_VISIBLE, false);
-
-        String uuidString = input.getStringOr(TAG_BASUKE_UUID, "");
-        if (!uuidString.isEmpty()) {
-            try {
-                this.basukeUuid = UUID.fromString(uuidString);
-            } catch (IllegalArgumentException ignored) {
-                this.basukeUuid = null;
-            }
-        } else {
-            this.basukeUuid = null;
-        }
+        this.basukeUuid = readUuid(input.getStringOr(TAG_BASUKE_UUID, ""));
     }
 
     @Override
@@ -226,7 +221,11 @@ public class VocoTableBlockEntity extends BlockEntity {
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
-        input.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY).copyInto(this.items);
+
+        input.getOrDefault(
+                DataComponents.CONTAINER,
+                ItemContainerContents.EMPTY
+        ).copyInto(this.items);
     }
 
     @Override
@@ -255,5 +254,18 @@ public class VocoTableBlockEntity extends BlockEntity {
     public void onDataPacket(Connection connection, ValueInput input) {
         super.onDataPacket(connection, input);
         this.rerenderClientNow();
+    }
+
+    @Nullable
+    private static UUID readUuid(String uuidString) {
+        if (uuidString.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return UUID.fromString(uuidString);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
     }
 }

@@ -11,6 +11,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAsset;
@@ -45,6 +46,25 @@ public final class ModItems {
 
     public static final DeferredItem<Item> BANANA_PEARL =
             ITEMS.registerItem("banana_pearl", props -> new Item(props.rarity(Rarity.RARE)));
+
+    public static final DeferredItem<Item> BANAZO_GUSMA_LUMPA_GOOP =
+            ITEMS.registerItem("banazo_gusma_lumpa_goop", props -> new Item(props.rarity(Rarity.EPIC)));
+
+    public static final DeferredItem<Item> BANANA_PELLIS =
+            ITEMS.registerItem("banana_pellis", props -> new Item(props.rarity(Rarity.COMMON)));
+
+    public static final DeferredItem<Item> MUSAVACCA_EXUDATE =
+            ITEMS.registerItem("musavacca_exudate",
+                    props -> new Item(
+                            props.stacksTo(16)
+                                    .craftRemainder(Items.GLASS_BOTTLE)
+                                    .usingConvertsTo(Items.GLASS_BOTTLE)
+                                    .food(Foods.HONEY_BOTTLE, Consumables.HONEY_BOTTLE)
+                                    .rarity(Rarity.UNCOMMON)
+                    ));
+
+    public static final DeferredItem<Item> BANANA_PHONE =
+            ITEMS.registerItem("banana_phone", props -> new Item(props.rarity(Rarity.UNCOMMON)));
 
     public static final DeferredItem<Item> BIG_BANANA_PEARL =
             ITEMS.registerItem("big_banana_pearl", props -> new Item(props.rarity(Rarity.RARE)));

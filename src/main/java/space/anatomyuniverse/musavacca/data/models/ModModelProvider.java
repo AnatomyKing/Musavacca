@@ -69,7 +69,7 @@ public final class ModModelProvider
         CubeVocoTable.generate(blocks, ModelSets.cubeVocoTableModels());
         CubeVocoReceptor.generate(blocks, ModelSets.cubeVocoReceptorModels());
 
-
+        CustomItemModel.generate(items, ModelSets.customItemModels());
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());
         CustomArmorSet.generate(items, ModelSets.customArmorSets());

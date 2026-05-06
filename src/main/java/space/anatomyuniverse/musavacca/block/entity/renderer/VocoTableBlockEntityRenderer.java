@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/renderer/VocoTableBlockEntityRenderer.java
 package space.anatomyuniverse.musavacca.block.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -25,16 +26,14 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
             int packedOverlay,
             Vec3 cameraPos
     ) {
-        if (!blockEntity.isBasukeVisible()) {
-            this.itemRenderer.render(
-                    blockEntity,
-                    partialTick,
-                    poseStack,
-                    bufferSource,
-                    packedLight,
-                    packedOverlay,
-                    cameraPos
-            );
-        }
+        this.itemRenderer.render(
+                blockEntity,
+                partialTick,
+                poseStack,
+                bufferSource,
+                packedLight,
+                packedOverlay,
+                cameraPos
+        );
     }
 }

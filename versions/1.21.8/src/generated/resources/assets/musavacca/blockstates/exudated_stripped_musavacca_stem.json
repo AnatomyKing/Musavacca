@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "musavacca:block/exudated_stripped_musavacca_stem",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "musavacca:block/exudated_stripped_musavacca_stem"
+    },
+    "axis=z": {
+      "model": "musavacca:block/exudated_stripped_musavacca_stem",
+      "x": 90
+    }
+  }
+}

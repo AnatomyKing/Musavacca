@@ -1,10 +1,8 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/PearlPortalBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -35,6 +33,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
+import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
+import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
 import space.anatomyuniverse.musavacca.portal.PearlPortalDestroyer;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
@@ -253,25 +253,46 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             );
         }
 
-        for (int i = 0; i < 4; i++) {
-            double x = pos.getX() + random.nextDouble();
-            double y = pos.getY() + random.nextDouble();
-            double z = pos.getZ() + random.nextDouble();
-            double dx = (random.nextFloat() - 0.5D) * 0.5D;
-            double dy = (random.nextFloat() - 0.5D) * 0.5D;
-            double dz = (random.nextFloat() - 0.5D) * 0.5D;
-            int side = random.nextInt(2) * 2 - 1;
-
-            if (!level.getBlockState(pos.west()).is(this) && !level.getBlockState(pos.east()).is(this)) {
-                x = pos.getX() + 0.5D + 0.25D * side;
-                dx = random.nextFloat() * 2.0F * side;
-            } else {
-                z = pos.getZ() + 0.5D + 0.25D * side;
-                dz = random.nextFloat() * 2.0F * side;
-            }
-
-            level.addParticle(ParticleTypes.PORTAL, x, y, z, dx, dy, dz);
+        if (!(level.getBlockEntity(pos) instanceof PearlPortalBlockEntity pearlPortalBe)
+                || !pearlPortalBe.isValidPortalTile()) {
+            return;
         }
+
+        // Fewer particles than vanilla portal.
+        // Vanilla does 4 per animateTick. This does about 1 particle 35% of the time.
+        if (random.nextFloat() > 0.35F) {
+            return;
+        }
+
+        int hexColor = pearlPortalBe.getHexColor();
+
+        double x = pos.getX() + random.nextDouble();
+        double y = pos.getY() + random.nextDouble();
+        double z = pos.getZ() + random.nextDouble();
+
+        double dx = (random.nextFloat() - 0.5D) * 0.5D;
+        double dy = (random.nextFloat() - 0.5D) * 0.5D;
+        double dz = (random.nextFloat() - 0.5D) * 0.5D;
+
+        int side = random.nextInt(2) * 2 - 1;
+
+        if (!level.getBlockState(pos.west()).is(this) && !level.getBlockState(pos.east()).is(this)) {
+            x = pos.getX() + 0.5D + 0.25D * side;
+            dx = random.nextFloat() * 2.0F * side;
+        } else {
+            z = pos.getZ() + 0.5D + 0.25D * side;
+            dz = random.nextFloat() * 2.0F * side;
+        }
+
+        level.addParticle(
+                new HexColorParticleOptions(ModParticleTypes.PEARL_GLYPHS_TINT.get(), hexColor),
+                x,
+                y,
+                z,
+                dx,
+                dy,
+                dz
+        );
     }
 
     @Override

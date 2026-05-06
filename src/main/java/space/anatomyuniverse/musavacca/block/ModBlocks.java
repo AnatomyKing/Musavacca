@@ -72,7 +72,6 @@ public final class ModBlocks {
             MusavaccaEggItems("ripe_musavacca_egg", 2);
 
 
-
     public static final DeferredBlock<Block> BANANA_PEARL_CHAPITER =
             BLOCKS.registerBlock("banana_pearl_chapiter",
                     props -> new BananaPearlChapiter(props
@@ -101,15 +100,25 @@ public final class ModBlocks {
                             .requiresCorrectToolForDrops()
                             .pushReaction(PushReaction.NORMAL)));
 
-    public static final DeferredBlock<StrippableLogBlock> MUSAVACCA_STEM =
+    public static final DeferredBlock<RotatedPillarBlock> EXUDATED_STRIPPED_MUSAVACCA_STEM =
+            BLOCKS.registerBlock("exudated_stripped_musavacca_stem",
+                    props -> new RotatedPillarBlock(props
+                            .mapColor(MapColor.COLOR_ORANGE)
+                            .strength(3.0F, 6.0F)
+                            .sound(SoundType.WOOD)
+                            .requiresCorrectToolForDrops()
+                            .pushReaction(PushReaction.NORMAL)));
+
+    public static final DeferredBlock<StrippableMusavaccaStemBlock> MUSAVACCA_STEM =
             BLOCKS.registerBlock("musavacca_stem",
-                    props -> new StrippableLogBlock(props
+                    props -> new StrippableMusavaccaStemBlock(props
                             .mapColor(MapColor.COLOR_ORANGE)
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.WOOD)
                             .requiresCorrectToolForDrops()
                             .pushReaction(PushReaction.NORMAL),
-                            STRIPPED_MUSAVACCA_STEM));
+                            STRIPPED_MUSAVACCA_STEM,
+                            EXUDATED_STRIPPED_MUSAVACCA_STEM));
 
     public static final DeferredBlock<SmallBananaPearlBlock> SMALL_BANANA_PEARL_BLOCK =
             BLOCKS.registerBlock("small_banana_pearl_block",

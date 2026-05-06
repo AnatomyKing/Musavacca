@@ -1,6 +1,7 @@
 package space.anatomyuniverse.musavacca.particle;
 
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -19,6 +20,12 @@ public final class ModParticleTypes {
 
     public static final DeferredHolder<ParticleType<?>, HexColorParticleType> HEX_SPORE_BLOSSOM_AIR =
             PARTICLE_TYPES.register("hex_spore_blossom_air", () -> new HexColorParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PEARL_GLYPHS =
+            PARTICLE_TYPES.register("pearl_glyphs", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, HexColorParticleType> PEARL_GLYPHS_TINT =
+            PARTICLE_TYPES.register("pearl_glyphs_tint", () -> new HexColorParticleType(false));
 
     public static void register(IEventBus modBus) {
         PARTICLE_TYPES.register(modBus);

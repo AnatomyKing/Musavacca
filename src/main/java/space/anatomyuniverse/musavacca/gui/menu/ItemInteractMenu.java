@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.gui.menu;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;

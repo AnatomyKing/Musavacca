@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "musavacca:block/exudated_stripped_musavacca_stem_top",
+    "side": "musavacca:block/exudated_stripped_musavacca_stem"
+  }
+}

@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/menu/ModMenus.java
 package space.anatomyuniverse.musavacca.gui;
 
 import net.minecraft.core.registries.Registries;

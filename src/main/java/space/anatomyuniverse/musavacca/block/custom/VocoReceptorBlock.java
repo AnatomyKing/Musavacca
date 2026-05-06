@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/VocoReceptorBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -23,14 +24,15 @@ public class VocoReceptorBlock extends Block {
 
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
-    private static final VoxelShape SHAPE = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 16.0D, 11.0D);
+    private static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
+    private static final VoxelShape SHAPE = Block.box(
+            5.0D, 0.0D, 5.0D,
+            11.0D, 16.0D, 11.0D
+    );
 
     public VocoReceptorBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-                this.stateDefinition.any()
-                        .setValue(LIT, false)
-        );
+        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false));
     }
 
     @Override
@@ -41,7 +43,7 @@ public class VocoReceptorBlock extends Block {
 
     private static void toggle(BlockState state, Level level, BlockPos pos) {
         if (!level.isClientSide()) {
-            level.setBlock(pos, state.cycle(LIT), Block.UPDATE_ALL);
+            level.setBlock(pos, state.cycle(LIT), UPDATE_FLAGS);
         }
     }
 
@@ -71,6 +73,14 @@ public class VocoReceptorBlock extends Block {
             InteractionHand hand,
             BlockHitResult hit
     ) {
+        if (hand == InteractionHand.OFF_HAND) {
+            //? if <1.21.2 {
+            /*return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+             *///?} else {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+            //?}
+        }
+
         toggle(state, level, pos);
 
         //? if <1.21.2 {
@@ -81,12 +91,22 @@ public class VocoReceptorBlock extends Block {
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    protected VoxelShape getShape(
+            BlockState state,
+            BlockGetter level,
+            BlockPos pos,
+            CollisionContext context
+    ) {
         return SHAPE;
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    protected VoxelShape getCollisionShape(
+            BlockState state,
+            BlockGetter level,
+            BlockPos pos,
+            CollisionContext context
+    ) {
         return SHAPE;
     }
 }

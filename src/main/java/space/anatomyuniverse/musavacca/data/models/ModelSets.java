@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.Block;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.data.models.block.*;
+import space.anatomyuniverse.musavacca.data.models.item.CustomItemModel;
 import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
@@ -55,8 +56,8 @@ public final class ModelSets {
         return Map.of(
                 ModBlocks.VOCO_TABLE.get(),
                 new CubeVocoTable.Models(
-                        "musavacca:block/voco_table",
-                        "musavacca:block/lit_voco_table"
+                        "musavacca:block/voco_mensa",
+                        "musavacca:block/voco_mensa_lit_receptor"
                 )
         );
     }
@@ -66,7 +67,7 @@ public final class ModelSets {
                 ModBlocks.VOCO_RECEPTOR.get(),
                 new CubeVocoReceptor.Models(
                         "musavacca:block/voco_receptor",
-                        "musavacca:block/lit_voco_receptor"
+                        "musavacca:block/voco_lit_receptor"
                 )
         );
     }
@@ -128,7 +129,8 @@ public final class ModelSets {
         return new Block[] {
                 ModBlocks.BANANA_PEARL_PILLAR.get(),
                 ModBlocks.MUSAVACCA_STEM.get(),
-                ModBlocks.STRIPPED_MUSAVACCA_STEM.get()
+                ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
+                ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()
         };
     }
 
@@ -208,6 +210,9 @@ public final class ModelSets {
                 ModItems.SMALL_BANANA_PEARL.get(),
                 ModItems.FLINT_AND_PEARL.get(),
                 ModItems.VACACA.get(),
+                ModItems.MUSAVACCA_EXUDATE.get(),
+                ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(),
+                ModItems.BANANA_PELLIS.get(),
                 ModItems.OPEN_INVO_TEST_ITEM.get(),
                 ModBlocks.UNRIPE_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
@@ -223,6 +228,15 @@ public final class ModelSets {
                 ModItems.POTASSIUM_SHOVEL.get(),
                 ModItems.POTASSIUM_SWORD.get(),
                 ModItems.POTASSIUM_HOE.get()
+        };
+    }
+
+    public static CustomItemModel.Entry[] customItemModels() {
+        return new CustomItemModel.Entry[] {
+                 CustomItemModel.of(
+                         ModItems.BANANA_PHONE.get(),
+                         "musavacca:item/banana_phone"
+                 )
         };
     }
 }
