@@ -22,6 +22,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoInteractLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoInteractLogic.ReceptorPosition;
 
 public class VocoTableBlock extends Block implements EntityBlock {
 
@@ -36,8 +38,6 @@ public class VocoTableBlock extends Block implements EntityBlock {
             LIT_SOUTH_EAST,
             LIT_SOUTH_WEST
     };
-
-    private static final int STATE_UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
 
     private static final VoxelShape SHAPE = Shapes.or(
             Block.box(0.0D, 0.0D, 0.0D, 5.0D, 4.0D, 5.0D),
@@ -111,7 +111,21 @@ public class VocoTableBlock extends Block implements EntityBlock {
             Player player,
             BlockHitResult hit
     ) {
-        if (handleSpecialHit(state, level, pos, player, hit)) {
+        HitPart part = detectHitPart(pos, hit);
+
+        if (part.isReceptor()) {
+            return VocoInteractLogic.useReceptorWithoutItem(
+                    state,
+                    level,
+                    pos,
+                    player,
+                    part.lightProperty,
+                    part.receptor
+            );
+        }
+
+        if (part.togglesBasuke) {
+            handleDialerHit(level, pos, player, part);
             return InteractionResult.SUCCESS;
         }
 
@@ -132,12 +146,28 @@ public class VocoTableBlock extends Block implements EntityBlock {
             InteractionHand hand,
             BlockHitResult hit
     ) {
-        if (hand == InteractionHand.OFF_HAND) {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        HitPart part = detectHitPart(pos, hit);
+
+        if (part.isReceptor()) {
+            return VocoInteractLogic.useReceptorItem(
+                    stack,
+                    state,
+                    level,
+                    pos,
+                    player,
+                    hand,
+                    part.lightProperty,
+                    part.receptor
+            );
         }
 
-        if (handleSpecialHit(state, level, pos, player, hit)) {
+        if (part.togglesBasuke) {
+            handleDialerHit(level, pos, player, part);
             return InteractionResult.SUCCESS;
+        }
+
+        if (hand == InteractionHand.OFF_HAND) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         if (stack.isEmpty()) {
@@ -153,43 +183,18 @@ public class VocoTableBlock extends Block implements EntityBlock {
                 : InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 
-    private static boolean handleSpecialHit(
-            BlockState state,
+    private static void handleDialerHit(
             Level level,
             BlockPos pos,
             Player player,
-            BlockHitResult hit
+            HitPart part
     ) {
-        HitPart part = detectHitPart(pos, hit);
-        if (part == HitPart.NONE) {
-            return false;
-        }
-
         if (level.isClientSide()) {
             player.displayClientMessage(Component.literal(part.message), false);
-            return true;
+            return;
         }
 
-        if (part.lightProperty != null) {
-            toggleReceptorLight(state, level, pos, part.lightProperty);
-        } else if (part.togglesBasuke) {
-            toggleBasuke(level, pos);
-        }
-
-        return true;
-    }
-
-    private static void toggleReceptorLight(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            BooleanProperty property
-    ) {
-        level.setBlock(
-                pos,
-                state.setValue(property, !state.getValue(property)),
-                STATE_UPDATE_FLAGS
-        );
+        toggleBasuke(level, pos);
     }
 
     private static void toggleBasuke(Level level, BlockPos pos) {
@@ -292,30 +297,39 @@ public class VocoTableBlock extends Block implements EntityBlock {
     }
 
     private enum HitPart {
-        NONE(null, null, false),
+        NONE(null, null, null, false),
 
-        RECEPTOR_NORTH_EAST("Toggled receptor: north-east corner", LIT_NORTH_EAST, false),
-        RECEPTOR_NORTH_WEST("Toggled receptor: north-west corner", LIT_NORTH_WEST, false),
-        RECEPTOR_SOUTH_EAST("Toggled receptor: south-east corner", LIT_SOUTH_EAST, false),
-        RECEPTOR_SOUTH_WEST("Toggled receptor: south-west corner", LIT_SOUTH_WEST, false),
+        RECEPTOR_NORTH_EAST("Receptor: north-east corner", LIT_NORTH_EAST, ReceptorPosition.NORTH_EAST, false),
+        RECEPTOR_NORTH_WEST("Receptor: north-west corner", LIT_NORTH_WEST, ReceptorPosition.NORTH_WEST, false),
+        RECEPTOR_SOUTH_EAST("Receptor: south-east corner", LIT_SOUTH_EAST, ReceptorPosition.SOUTH_EAST, false),
+        RECEPTOR_SOUTH_WEST("Receptor: south-west corner", LIT_SOUTH_WEST, ReceptorPosition.SOUTH_WEST, false),
 
-        DIALER_NORTH("Hit dialer: north", null, true),
-        DIALER_EAST("Hit dialer: east", null, true),
-        DIALER_SOUTH("Hit dialer: south", null, true),
-        DIALER_WEST("Hit dialer: west", null, true);
+        DIALER_NORTH("Hit dialer: north", null, null, true),
+        DIALER_EAST("Hit dialer: east", null, null, true),
+        DIALER_SOUTH("Hit dialer: south", null, null, true),
+        DIALER_WEST("Hit dialer: west", null, null, true);
 
         private final String message;
+        @Nullable
         private final BooleanProperty lightProperty;
+        @Nullable
+        private final ReceptorPosition receptor;
         private final boolean togglesBasuke;
 
         HitPart(
                 @Nullable String message,
                 @Nullable BooleanProperty lightProperty,
+                @Nullable ReceptorPosition receptor,
                 boolean togglesBasuke
         ) {
             this.message = message;
             this.lightProperty = lightProperty;
+            this.receptor = receptor;
             this.togglesBasuke = togglesBasuke;
+        }
+
+        private boolean isReceptor() {
+            return this.lightProperty != null && this.receptor != null;
         }
     }
 }

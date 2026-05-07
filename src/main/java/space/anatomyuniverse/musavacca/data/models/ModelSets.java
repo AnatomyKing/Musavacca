@@ -9,8 +9,10 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.data.models.block.*;
 import space.anatomyuniverse.musavacca.data.models.item.CustomItemModel;
+import space.anatomyuniverse.musavacca.data.models.item.ItemTintedLayered;
 import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
 import space.anatomyuniverse.musavacca.item.ModItems;
+import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 
 import java.util.List;
 import java.util.Map;
@@ -244,6 +246,15 @@ public final class ModelSets {
                          ModItems.BANANA_PHONE.get(),
                          "musavacca:item/banana_phone"
                  )
+        };
+    }
+
+    public static ItemTintedLayered.Entry[] itemTintedLayeredItems() {
+        return new ItemTintedLayered.Entry[] {
+                ItemTintedLayered.root(
+                        ModItems.SIM_CARD.get(),
+                        PearlFireTintProfiles.SIM_CARD_TINT
+                )
         };
     }
 }

@@ -111,6 +111,29 @@ public final class ModBlockEntities {
                     //?}
             );
 
+    public static final Supplier<BlockEntityType<VocoReceptorBlockEntity>> VOCO_RECEPTOR_BLOCK_ENTITY =
+            BLOCK_ENTITY_TYPES.register(
+                    "voco_receptor_block_entity",
+                    () ->
+                            //? if <1.21.2 {
+                        /*BlockEntityType.Builder.of(
+                                VocoReceptorBlockEntity::new,
+                                ModBlocks.VOCO_RECEPTOR.get()
+                        ).build(null)
+                        *///?} else if <1.21.4 {
+                        /*new BlockEntityType<>(
+                                VocoReceptorBlockEntity::new,
+                                ModBlocks.VOCO_RECEPTOR.get()
+                        )
+                        *///?} else {
+                            new BlockEntityType<>(
+                                    VocoReceptorBlockEntity::new,
+                                    false,
+                                    ModBlocks.VOCO_RECEPTOR.get()
+                            )
+                    //?}
+            );
+
     public static final Supplier<BlockEntityType<VocoTableBlockEntity>> VOCO_TABLE_BLOCK_ENTITY =
             BLOCK_ENTITY_TYPES.register(
                     "voco_table_block_entity",

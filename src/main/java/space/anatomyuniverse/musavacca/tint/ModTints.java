@@ -46,7 +46,12 @@ public final class ModTints {
         event.register(ModTints::getPearlPortalTint, ModBlocks.PEARL_PORTAL.get());
     }
 
-    private static int getMusavaccaLeavesTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
+    private static int getMusavaccaLeavesTint(
+            BlockState state,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            int tintIndex
+    ) {
         if (tintIndex != 0) {
             return TintColorUtil.NO_TINT;
         }
@@ -58,7 +63,12 @@ public final class ModTints {
         return TintColorUtil.defaultFoliageItemTint();
     }
 
-    private static int getHexBlockTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
+    private static int getHexBlockTint(
+            BlockState state,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            int tintIndex
+    ) {
         if (tintIndex != 0) {
             return TintColorUtil.NO_TINT;
         }
@@ -72,7 +82,12 @@ public final class ModTints {
         return TintColorUtil.defaultHexBlockTint();
     }
 
-    private static int getHardHexBlockTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
+    private static int getHardHexBlockTint(
+            BlockState state,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            int tintIndex
+    ) {
         if (tintIndex != 0) {
             return TintColorUtil.NO_TINT;
         }
@@ -80,7 +95,12 @@ public final class ModTints {
         return TintColorUtil.opaqueRgb(HardHexBlockEntity.HARD_HEX_COLOR);
     }
 
-    private static int getPearlFireTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
+    private static int getPearlFireTint(
+            BlockState state,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            int tintIndex
+    ) {
         if (!PearlFireTintSource.supportsLayer(PEARL_FIRE_PROFILE, tintIndex)) {
             return TintColorUtil.NO_TINT;
         }
@@ -108,7 +128,12 @@ public final class ModTints {
         return TintColorUtil.NO_TINT;
     }
 
-    private static int getPearlPortalTint(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
+    private static int getPearlPortalTint(
+            BlockState state,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            int tintIndex
+    ) {
         if (!PearlFireTintSource.supportsLayer(PEARL_PORTAL_PROFILE, tintIndex)) {
             return TintColorUtil.NO_TINT;
         }
@@ -216,6 +241,11 @@ public final class ModTints {
         event.register(
                 ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "hex_color"),
                 HexColorItemTintSource.MAP_CODEC
+        );
+
+        event.register(
+                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "profile_hex_color"),
+                ProfileHexColorItemTintSource.MAP_CODEC
         );
     }
     //?}

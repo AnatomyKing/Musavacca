@@ -1,0 +1,111 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/sim_card"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/sim_card_tinted_0",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.12,
+            "core_to_tail_lightness": 0.13,
+            "gray_factors": [
+              0.91764706,
+              0.81960785,
+              0.7176471,
+              0.47843137,
+              0.40784314
+            ],
+            "layer": 0,
+            "layer_contrast": 0.21
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/sim_card_tinted_1",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.12,
+            "core_to_tail_lightness": 0.13,
+            "gray_factors": [
+              0.91764706,
+              0.81960785,
+              0.7176471,
+              0.47843137,
+              0.40784314
+            ],
+            "layer": 1,
+            "layer_contrast": 0.21
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/sim_card_tinted_2",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.12,
+            "core_to_tail_lightness": 0.13,
+            "gray_factors": [
+              0.91764706,
+              0.81960785,
+              0.7176471,
+              0.47843137,
+              0.40784314
+            ],
+            "layer": 2,
+            "layer_contrast": 0.21
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/sim_card_tinted_3",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.12,
+            "core_to_tail_lightness": 0.13,
+            "gray_factors": [
+              0.91764706,
+              0.81960785,
+              0.7176471,
+              0.47843137,
+              0.40784314
+            ],
+            "layer": 3,
+            "layer_contrast": 0.21
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/sim_card_tinted_4",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.12,
+            "core_to_tail_lightness": 0.13,
+            "gray_factors": [
+              0.91764706,
+              0.81960785,
+              0.7176471,
+              0.47843137,
+              0.40784314
+            ],
+            "layer": 4,
+            "layer_contrast": 0.21
+          }
+        ]
+      }
+    ]
+  }
+}

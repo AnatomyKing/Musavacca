@@ -20,13 +20,13 @@ public final class PearlFireTintProfiles {
             165, 161, 157, 153, 150, 146, 142, 139
     );
 
-    public static final Profile TORCH_BLOCK = of(
+    public static final Profile SIM_CARD_TINT = of(
             settings(
-                    0.98F,   // coreToTailLightness
-                    0.37F,  // colorJumpiness
-                    1.07F   // layerContrast
+                    0.13F,   // coreToTailLightness
+                    0.12F,  // colorJumpiness
+                    0.21F    // layerContrast
             ),
-            255, 203, 110
+            234, 209, 183, 122, 104
     );
 
     public static final Profile PORTAL_BLOCK = of(

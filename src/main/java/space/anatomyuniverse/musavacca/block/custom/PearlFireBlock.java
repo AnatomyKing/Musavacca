@@ -6,7 +6,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
@@ -22,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
 
 public class PearlFireBlock extends FireBlock implements EntityBlock {
     public PearlFireBlock(BlockBehaviour.Properties properties) {
@@ -40,6 +44,43 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     @Override
     public boolean isBurning(BlockState state, BlockGetter level, BlockPos pos) {
         return true;
+    }
+
+    @Override
+    protected void entityInside(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Entity entity,
+            InsideBlockEffectApplier effectApplier
+    ) {
+        if (!level.isClientSide() && entity instanceof ItemEntity itemEntity) {
+            tryStampCleanSimCard(level, pos, itemEntity);
+        }
+
+        super.entityInside(state, level, pos, entity, effectApplier);
+    }
+
+    private static void tryStampCleanSimCard(Level level, BlockPos firePos, ItemEntity itemEntity) {
+        ItemStack oldStack = itemEntity.getItem();
+
+        if (!(oldStack.getItem() instanceof SimCardItem)) {
+            return;
+        }
+
+        if (oldStack.get(ModDataComponents.HEX_COLOR.get()) != null) {
+            return;
+        }
+
+        int fireHex = getPearlFireHex(level, firePos);
+        if (fireHex == PearlFireBlockEntity.UNSET_HEX_COLOR) {
+            return;
+        }
+
+        ItemStack stampedStack = oldStack.copy();
+        SimCardItem.setStoredHex(stampedStack, fireHex);
+
+        itemEntity.setItem(stampedStack);
     }
 
     @Override

@@ -8,6 +8,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.gui.menu.ItemInteractMenu;
 import space.anatomyuniverse.musavacca.gui.menu.TestInventoryMenu;
+import space.anatomyuniverse.musavacca.gui.menu.VocoSliderMenu;
 
 import java.util.function.Supplier;
 
@@ -25,6 +26,12 @@ public final class ModMenus {
             MENUS.register(
                     "test_inventory_menu",
                     () -> IMenuTypeExtension.create(TestInventoryMenu::new)
+            );
+
+    public static final Supplier<MenuType<VocoSliderMenu>> VOCO_SLIDER_MENU =
+            MENUS.register(
+                    "voco_slider_menu",
+                    () -> IMenuTypeExtension.create(VocoSliderMenu::new)
             );
 
     public static void register(IEventBus bus) {

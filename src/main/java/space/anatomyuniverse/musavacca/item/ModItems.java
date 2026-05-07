@@ -25,6 +25,7 @@ import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.item.custom.OpenTestInventoryItem;
+import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
 import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumAxeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumHoeItem;
@@ -68,6 +69,12 @@ public final class ModItems {
 
     public static final DeferredItem<Item> BIG_BANANA_PEARL =
             ITEMS.registerItem("big_banana_pearl", props -> new Item(props.rarity(Rarity.RARE)));
+
+    public static final DeferredItem<Item> SIM_CARD =
+            ITEMS.registerItem("sim_card", props -> new SimCardItem(
+                    props.rarity(Rarity.RARE)
+                            .fireResistant()
+            ));
 
     public static final DeferredItem<Item> SMALL_BANANA_PEARL =
             ITEMS.registerItem("small_banana_pearl",

@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoInteractLogic.ReceptorPosition;
 
 import java.util.UUID;
 
@@ -35,7 +36,24 @@ public class VocoTableBlockEntity extends BlockEntity {
     private static final String TAG_BASUKE_VISIBLE = "basuke_visible";
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
 
+    private static final String[] TAG_YAW_DEGREES = {
+            "yaw_north_east",
+            "yaw_north_west",
+            "yaw_south_east",
+            "yaw_south_west"
+    };
+
+    private static final String[] TAG_PITCH_DEGREES = {
+            "pitch_north_east",
+            "pitch_north_west",
+            "pitch_south_east",
+            "pitch_south_west"
+    };
+
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
+
+    private final int[] yawDegrees = new int[ReceptorPosition.COUNT];
+    private final int[] pitchDegrees = new int[ReceptorPosition.COUNT];
 
     private boolean basukeVisible = false;
     @Nullable
@@ -43,6 +61,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     public VocoTableBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.VOCO_TABLE_BLOCK_ENTITY.get(), pos, state);
+        this.resetFacingDefaults();
     }
 
     public ItemStack getDisplayedItem() {
@@ -70,6 +89,61 @@ public class VocoTableBlockEntity extends BlockEntity {
         return removed;
     }
 
+    public int getYawDegrees(ReceptorPosition receptor) {
+        return this.yawDegrees[receptor.id()];
+    }
+
+    public int getPitchDegrees(ReceptorPosition receptor) {
+        return this.pitchDegrees[receptor.id()];
+    }
+
+    public void setYawDegrees(ReceptorPosition receptor, int yawDegrees) {
+        int index = receptor.id();
+        int clamped = VocoReceptorBlockEntity.clampYaw(yawDegrees);
+
+        if (this.yawDegrees[index] == clamped) {
+            return;
+        }
+
+        this.yawDegrees[index] = clamped;
+        this.markChangedAndSync();
+    }
+
+    public void setPitchDegrees(ReceptorPosition receptor, int pitchDegrees) {
+        int index = receptor.id();
+        int clamped = VocoReceptorBlockEntity.clampPitch(pitchDegrees);
+
+        if (this.pitchDegrees[index] == clamped) {
+            return;
+        }
+
+        this.pitchDegrees[index] = clamped;
+        this.markChangedAndSync();
+    }
+
+    public void setFacingDegrees(ReceptorPosition receptor, int yawDegrees, int pitchDegrees) {
+        int index = receptor.id();
+
+        int clampedYaw = VocoReceptorBlockEntity.clampYaw(yawDegrees);
+        int clampedPitch = VocoReceptorBlockEntity.clampPitch(pitchDegrees);
+
+        if (this.yawDegrees[index] == clampedYaw && this.pitchDegrees[index] == clampedPitch) {
+            return;
+        }
+
+        this.yawDegrees[index] = clampedYaw;
+        this.pitchDegrees[index] = clampedPitch;
+        this.markChangedAndSync();
+    }
+
+    private void resetFacingDefaults() {
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            int index = receptor.id();
+            this.yawDegrees[index] = receptor.defaultYawDegrees();
+            this.pitchDegrees[index] = receptor.defaultPitchDegrees();
+        }
+    }
+
     public boolean isBasukeVisible() {
         return this.basukeVisible;
     }
@@ -84,7 +158,6 @@ public class VocoTableBlockEntity extends BlockEntity {
         if (this.basukeVisible) {
             boolean spawnedOrFound = this.ensureBasukeExists(level);
 
-            // If spawning failed for some reason, do not save a broken visible state.
             if (!spawnedOrFound) {
                 this.basukeVisible = false;
             }
@@ -204,6 +277,18 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         this.basukeVisible = input.getBooleanOr(TAG_BASUKE_VISIBLE, false);
         this.basukeUuid = readUuid(input.getStringOr(TAG_BASUKE_UUID, ""));
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            int index = receptor.id();
+
+            this.yawDegrees[index] = VocoReceptorBlockEntity.clampYaw(
+                    input.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees())
+            );
+
+            this.pitchDegrees[index] = VocoReceptorBlockEntity.clampPitch(
+                    input.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees())
+            );
+        }
     }
 
     @Override
@@ -215,6 +300,13 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         if (this.basukeUuid != null) {
             output.putString(TAG_BASUKE_UUID, this.basukeUuid.toString());
+        }
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            int index = receptor.id();
+
+            output.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
+            output.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
         }
     }
 
