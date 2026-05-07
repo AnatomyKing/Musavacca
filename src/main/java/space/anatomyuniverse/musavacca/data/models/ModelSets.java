@@ -72,7 +72,8 @@ public final class ModelSets {
                 ModBlocks.VOCO_RECEPTOR.get(),
                 new CubeVocoReceptor.Models(
                         "musavacca:block/voco_receptor",
-                        "musavacca:block/voco_lit_receptor"
+                        "musavacca:block/voco_lit_receptor",
+                        "musavacca:block/voco_receptor_portal"
                 )
         );
     }

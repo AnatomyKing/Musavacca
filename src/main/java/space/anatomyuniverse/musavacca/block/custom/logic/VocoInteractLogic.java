@@ -72,6 +72,12 @@ public final class VocoInteractLogic {
         }
     }
 
+    /**
+     * Generic receptor behavior.
+     *
+     * Used by Voco Table receptors.
+     * Teleport condition: LIT only.
+     */
     public static InteractionResult useReceptorWithoutItem(
             BlockState state,
             Level level,
@@ -80,25 +86,65 @@ public final class VocoInteractLogic {
             BooleanProperty litProperty,
             ReceptorPosition receptor
     ) {
+        return useReceptorWithoutItem(
+                state,
+                level,
+                pos,
+                player,
+                litProperty,
+                null,
+                receptor
+        );
+    }
+
+    /**
+     * Portal-aware receptor behavior.
+     *
+     * Used by the standalone Voco Receptor.
+     * Teleport condition: LIT + PORTAL.
+     */
+    public static InteractionResult useReceptorWithoutItem(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            BooleanProperty litProperty,
+            BooleanProperty portalProperty,
+            ReceptorPosition receptor
+    ) {
         if (tryOpenSliderMenu(level, pos, player, receptor)) {
             return InteractionResult.SUCCESS;
         }
 
-        if (state.getValue(litProperty)) {
-            if (!level.isClientSide()) {
-                VocoTeleportLogic.teleportToReceptor(level, pos, player, receptor);
+        if (!state.getValue(litProperty)) {
+            if (level.isClientSide()) {
+                showNeedsPearlMessage(player);
             }
 
             return InteractionResult.SUCCESS;
         }
 
-        if (level.isClientSide()) {
-            showNeedsPearlMessage(player);
+        if (!canTeleport(state, litProperty, portalProperty)) {
+            if (level.isClientSide()) {
+                showNeedsPortalMessage(player);
+            }
+
+            return InteractionResult.SUCCESS;
+        }
+
+        if (!level.isClientSide()) {
+            VocoTeleportLogic.teleportToReceptor(level, pos, player, receptor);
         }
 
         return InteractionResult.SUCCESS;
     }
 
+    /**
+     * Generic receptor behavior.
+     *
+     * Used by Voco Table receptors.
+     * Teleport condition: LIT only.
+     */
     public static InteractionResult useReceptorItem(
             ItemStack stack,
             BlockState state,
@@ -109,31 +155,56 @@ public final class VocoInteractLogic {
             BooleanProperty litProperty,
             ReceptorPosition receptor
     ) {
+        return useReceptorItem(
+                stack,
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                litProperty,
+                null,
+                receptor
+        );
+    }
+
+    /**
+     * Portal-aware receptor behavior.
+     *
+     * Used by the standalone Voco Receptor.
+     * Teleport condition: LIT + PORTAL.
+     */
+    public static InteractionResult useReceptorItem(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BooleanProperty litProperty,
+            BooleanProperty portalProperty,
+            ReceptorPosition receptor
+    ) {
         if (tryOpenSliderMenu(level, pos, player, receptor)) {
             return InteractionResult.SUCCESS;
         }
 
-        boolean lit = state.getValue(litProperty);
-
-        if (!lit) {
-            if (stack.is(ModItems.BANANA_PEARL.get())) {
-                if (!level.isClientSide()) {
-                    lightReceptor(stack, state, level, pos, player, litProperty);
-                }
-
-                return InteractionResult.SUCCESS;
-            }
-
-            if (level.isClientSide()) {
-                showNeedsPearlMessage(player);
-            }
-
-            return InteractionResult.SUCCESS;
+        if (!state.getValue(litProperty)) {
+            return useUnlitReceptor(stack, state, level, pos, player, litProperty);
         }
 
         if (stack.is(Items.SHEARS)) {
             if (!level.isClientSide()) {
                 depleteReceptor(stack, state, level, pos, player, hand, litProperty, receptor);
+                VocoPearlPortalLogic.refreshReceptorAt(level, pos);
+            }
+
+            return InteractionResult.SUCCESS;
+        }
+
+        if (!canTeleport(state, litProperty, portalProperty)) {
+            if (level.isClientSide()) {
+                showNeedsPortalMessage(player);
             }
 
             return InteractionResult.SUCCESS;
@@ -161,6 +232,42 @@ public final class VocoInteractLogic {
         }
 
         return true;
+    }
+
+    private static boolean canTeleport(
+            BlockState state,
+            BooleanProperty litProperty,
+            BooleanProperty portalProperty
+    ) {
+        if (!state.getValue(litProperty)) {
+            return false;
+        }
+
+        return portalProperty == null || state.getValue(portalProperty);
+    }
+
+    private static InteractionResult useUnlitReceptor(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            BooleanProperty litProperty
+    ) {
+        if (!stack.is(ModItems.BANANA_PEARL.get())) {
+            if (level.isClientSide()) {
+                showNeedsPearlMessage(player);
+            }
+
+            return InteractionResult.SUCCESS;
+        }
+
+        if (!level.isClientSide()) {
+            lightReceptor(stack, state, level, pos, player, litProperty);
+            VocoPearlPortalLogic.refreshReceptorAt(level, pos);
+        }
+
+        return InteractionResult.SUCCESS;
     }
 
     private static void lightReceptor(
@@ -272,5 +379,9 @@ public final class VocoInteractLogic {
 
     private static void showNeedsPearlMessage(Player player) {
         player.displayClientMessage(Component.literal("This receptor needs a Banana Pearl."), false);
+    }
+
+    private static void showNeedsPortalMessage(Player player) {
+        player.displayClientMessage(Component.literal("This receptor needs a lit Pearl Candle above it."), false);
     }
 }

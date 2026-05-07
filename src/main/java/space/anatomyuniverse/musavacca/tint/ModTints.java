@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/ModTints.java
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.client.renderer.BiomeColors;
@@ -9,10 +8,12 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.VocoReceptorBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoReceptorBlockEntity;
 
 //? if <1.21.4 {
 /*import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -23,6 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 public final class ModTints {
     private static final PearlFireTintProfiles.Profile PEARL_FIRE_PROFILE = PearlFireTintProfiles.FIRE_BLOCK;
     private static final PearlFireTintProfiles.Profile PEARL_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
+    private static final PearlFireTintProfiles.Profile VOCO_RECEPTOR_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
 
     private ModTints() {}
 
@@ -44,6 +46,8 @@ public final class ModTints {
 
         event.register(ModTints::getPearlFireTint, ModBlocks.PEARL_FIRE.get());
         event.register(ModTints::getPearlPortalTint, ModBlocks.PEARL_PORTAL.get());
+
+        event.register(ModTints::getVocoReceptorPortalTint, ModBlocks.VOCO_RECEPTOR.get());
     }
 
     private static int getMusavaccaLeavesTint(
@@ -156,6 +160,33 @@ public final class ModTints {
                         PEARL_PORTAL_PROFILE
                 );
             }
+        }
+
+        return TintColorUtil.NO_TINT;
+    }
+
+    private static int getVocoReceptorPortalTint(
+            BlockState state,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            int tintIndex
+    ) {
+        if (!state.hasProperty(VocoReceptorBlock.PORTAL) || !state.getValue(VocoReceptorBlock.PORTAL)) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        if (!PearlFireTintSource.supportsLayer(VOCO_RECEPTOR_PORTAL_PROFILE, tintIndex)) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        if (level != null && pos != null
+                && level.getBlockEntity(pos) instanceof VocoReceptorBlockEntity receptorBe
+                && receptorBe.hasHexColor()) {
+            return PearlFireTintSource.blockTint(
+                    receptorBe.getHexColor(),
+                    tintIndex,
+                    VOCO_RECEPTOR_PORTAL_PROFILE
+            );
         }
 
         return TintColorUtil.NO_TINT;

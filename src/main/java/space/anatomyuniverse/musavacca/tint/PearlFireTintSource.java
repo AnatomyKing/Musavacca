@@ -11,10 +11,6 @@ public final class PearlFireTintSource {
         return profile != null && profile.supports(tintIndex);
     }
 
-    public static int blockTint(int baseRgb, int tintIndex) {
-        return blockTint(baseRgb, tintIndex, PearlFireTintProfiles.FIRE_BLOCK);
-    }
-
     public static int profileTint(int baseRgb, int layerIndex, PearlFireTintProfiles.Profile profile) {
         return blockTint(baseRgb, layerIndex, profile);
     }
