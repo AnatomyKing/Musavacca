@@ -17,6 +17,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.custom.*;
 
+import java.util.List;
 import java.util.Set;
 
 public final class ModBlocks {
@@ -287,6 +288,92 @@ public final class ModBlocks {
                             .noOcclusion()
                             .pushReaction(PushReaction.NORMAL)));
 
+    private static DeferredBlock<PearlCandleBlock> pearlCandle(String name, Block vanillaCandleBlock) {
+        return BLOCKS.registerBlock(name,
+                props -> new PearlCandleBlock(
+                        vanillaCandleBlock,
+                        props
+                                .mapColor(MapColor.WOOL)
+                                .strength(0.1F)
+                                .sound(SoundType.CANDLE)
+                                .noOcclusion()
+                                .lightLevel(PearlCandleBlock::candleLightLevel)
+                                .pushReaction(PushReaction.DESTROY)
+                )
+        );
+    }
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_CANDLE =
+            pearlCandle("pearl_candle", Blocks.CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_WHITE_CANDLE =
+            pearlCandle("pearl_white_candle", Blocks.WHITE_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_ORANGE_CANDLE =
+            pearlCandle("pearl_orange_candle", Blocks.ORANGE_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_MAGENTA_CANDLE =
+            pearlCandle("pearl_magenta_candle", Blocks.MAGENTA_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_BLUE_CANDLE =
+            pearlCandle("pearl_light_blue_candle", Blocks.LIGHT_BLUE_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_YELLOW_CANDLE =
+            pearlCandle("pearl_yellow_candle", Blocks.YELLOW_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_LIME_CANDLE =
+            pearlCandle("pearl_lime_candle", Blocks.LIME_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_PINK_CANDLE =
+            pearlCandle("pearl_pink_candle", Blocks.PINK_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_GRAY_CANDLE =
+            pearlCandle("pearl_gray_candle", Blocks.GRAY_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_GRAY_CANDLE =
+            pearlCandle("pearl_light_gray_candle", Blocks.LIGHT_GRAY_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_CYAN_CANDLE =
+            pearlCandle("pearl_cyan_candle", Blocks.CYAN_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_PURPLE_CANDLE =
+            pearlCandle("pearl_purple_candle", Blocks.PURPLE_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_BLUE_CANDLE =
+            pearlCandle("pearl_blue_candle", Blocks.BLUE_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_BROWN_CANDLE =
+            pearlCandle("pearl_brown_candle", Blocks.BROWN_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_GREEN_CANDLE =
+            pearlCandle("pearl_green_candle", Blocks.GREEN_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_RED_CANDLE =
+            pearlCandle("pearl_red_candle", Blocks.RED_CANDLE);
+
+    public static final DeferredBlock<PearlCandleBlock> PEARL_BLACK_CANDLE =
+            pearlCandle("pearl_black_candle", Blocks.BLACK_CANDLE);
+
+    public static final List<DeferredBlock<PearlCandleBlock>> PEARL_CANDLES = List.of(
+            PEARL_CANDLE,
+            PEARL_WHITE_CANDLE,
+            PEARL_ORANGE_CANDLE,
+            PEARL_MAGENTA_CANDLE,
+            PEARL_LIGHT_BLUE_CANDLE,
+            PEARL_YELLOW_CANDLE,
+            PEARL_LIME_CANDLE,
+            PEARL_PINK_CANDLE,
+            PEARL_GRAY_CANDLE,
+            PEARL_LIGHT_GRAY_CANDLE,
+            PEARL_CYAN_CANDLE,
+            PEARL_PURPLE_CANDLE,
+            PEARL_BLUE_CANDLE,
+            PEARL_BROWN_CANDLE,
+            PEARL_GREEN_CANDLE,
+            PEARL_RED_CANDLE,
+            PEARL_BLACK_CANDLE
+    );
+
 
 
 
@@ -299,7 +386,7 @@ public final class ModBlocks {
 
     static {
         BLOCKS.getEntries().forEach(entry -> {
-            if (!SKIP_BLOCK_ITEMS.contains(entry)) {
+            if (!SKIP_BLOCK_ITEMS.contains(entry) && !PEARL_CANDLES.contains(entry)) {
                 ITEMS.registerSimpleBlockItem(entry);
             }
         });

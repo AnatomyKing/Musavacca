@@ -62,6 +62,7 @@ public final class ModModelProvider
         PanePortalBlockTinted15.generate(blocks, ModelSets.panePortalBlockTinted15Models());
         BananaPearlChaliceOwn.generate(blocks, ModelSets.bananaPearlChaliceBlocks());
         BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());
+        CubePearlCandles.generate(blocks, ModelSets.pearlCandleBlocks());
 
         BarrelCropOwnTintedFoliage.generate(blocks, items, ModelSets.barrelCropOwnTintedFoliageModels());
         CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());

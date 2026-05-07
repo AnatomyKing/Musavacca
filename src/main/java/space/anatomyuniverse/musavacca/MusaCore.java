@@ -27,6 +27,7 @@ import space.anatomyuniverse.musavacca.item.ModCreativeTabs;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.particle.ModParticleProviders;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
+import space.anatomyuniverse.musavacca.portal.PearlPortalServerEvents;
 import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.tint.ModTints;
 
@@ -58,6 +59,7 @@ public final class MusaCore {
 
         modBus.addListener(this::commonSetup);
         modBus.addListener(ModDataGenerators::gatherData);
+        NeoForge.EVENT_BUS.addListener(PearlPortalServerEvents::onServerStopping);
 
         NeoForge.EVENT_BUS.register(BonusHungerEvents.class);
 

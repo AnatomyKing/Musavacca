@@ -6,6 +6,7 @@ import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -16,10 +17,12 @@ import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 *///?}
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
+import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
@@ -47,6 +50,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.VOCO_TABLE.get(),
                 ModBlocks.VOCO_RECEPTOR.get()
         );
+        pearlCandleDrops();
 
         silkTouchMusavaccaEggByAge(ModBlocks.MUSAVACCA_EGG.get());
         silkTouchHexBlockWithAssignedHexColor(ModBlocks.HEX_BLOCK.get(), 0xFFFFFF);
@@ -138,6 +142,43 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                 )
                                         )
                         )
+        );
+    }
+
+    private void pearlCandleDrops() {
+        for (var holder : ModBlocks.PEARL_CANDLES) {
+            PearlCandleBlock pearlCandle = holder.get();
+            vanillaCandleDrops(pearlCandle, pearlCandle.getVanillaCandleBlock());
+        }
+    }
+
+    private void vanillaCandleDrops(PearlCandleBlock pearlCandle, Block vanillaCandle) {
+        this.add(
+                pearlCandle,
+                LootTable.lootTable()
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .add(candleDropEntry(pearlCandle, vanillaCandle, 1))
+                                        .add(candleDropEntry(pearlCandle, vanillaCandle, 2))
+                                        .add(candleDropEntry(pearlCandle, vanillaCandle, 3))
+                                        .add(candleDropEntry(pearlCandle, vanillaCandle, 4))
+                        )
+        );
+    }
+
+    private LootItem.Builder<?> candleDropEntry(PearlCandleBlock pearlCandle, Block vanillaCandle, int candles) {
+        return this.applyExplosionCondition(
+                pearlCandle,
+                LootItem.lootTableItem(vanillaCandle)
+                        .when(
+                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(pearlCandle)
+                                        .setProperties(
+                                                StatePropertiesPredicate.Builder.properties()
+                                                        .hasProperty(CandleBlock.CANDLES, candles)
+                                        )
+                        )
+                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(candles)))
         );
     }
 

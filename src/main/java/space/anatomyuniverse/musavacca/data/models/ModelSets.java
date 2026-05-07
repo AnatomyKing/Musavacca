@@ -1,4 +1,6 @@
 package space.anatomyuniverse.musavacca.data.models;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
 
 import net.minecraft.world.level.ItemLike;
@@ -10,6 +12,7 @@ import space.anatomyuniverse.musavacca.data.models.item.CustomItemModel;
 import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
+import java.util.List;
 import java.util.Map;
 
 public final class ModelSets {
@@ -132,6 +135,10 @@ public final class ModelSets {
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()
         };
+    }
+
+    public static List<DeferredBlock<PearlCandleBlock>> pearlCandleBlocks() {
+        return ModBlocks.PEARL_CANDLES;
     }
 
     public static Block[] stairsBlocks() {

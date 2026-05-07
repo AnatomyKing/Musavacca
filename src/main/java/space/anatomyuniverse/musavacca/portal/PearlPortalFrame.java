@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import space.anatomyuniverse.musavacca.block.ModBlockTags;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 
 import java.util.Optional;
@@ -241,13 +242,13 @@ public final class PearlPortalFrame {
         Direction widthDir = shape.widthDirection();
 
         for (int x = 0; x < shape.width; x++) {
-            if (!isBananaPearlFrame(level, shape.minCorner.relative(widthDir, x).below())) return false;
-            if (!isBananaPearlFrame(level, shape.minCorner.relative(widthDir, x).above(shape.height))) return false;
+            if (!isPearlPortalFrame(level, shape.minCorner.relative(widthDir, x).below())) return false;
+            if (!isPearlPortalFrame(level, shape.minCorner.relative(widthDir, x).above(shape.height))) return false;
         }
 
         for (int y = 0; y < shape.height; y++) {
-            if (!isBananaPearlFrame(level, shape.minCorner.relative(widthDir, -1).above(y))) return false;
-            if (!isBananaPearlFrame(level, shape.minCorner.relative(widthDir, shape.width).above(y))) return false;
+            if (!isPearlPortalFrame(level, shape.minCorner.relative(widthDir, -1).above(y))) return false;
+            if (!isPearlPortalFrame(level, shape.minCorner.relative(widthDir, shape.width).above(y))) return false;
         }
 
         for (int x = 0; x < shape.width; x++) {
@@ -260,8 +261,8 @@ public final class PearlPortalFrame {
         return true;
     }
 
-    private static boolean isBananaPearlFrame(BlockGetter level, BlockPos pos) {
-        return level.getBlockState(pos).is(ModBlocks.BANANA_PEARL_BLOCK.get());
+    private static boolean isPearlPortalFrame(BlockGetter level, BlockPos pos) {
+        return level.getBlockState(pos).is(ModBlockTags.PEARL_PORTAL_FRAME);
     }
 
     private static boolean canBecomePortalInterior(BlockState state) {

@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/portal/PearlPortalResolver.java
 package space.anatomyuniverse.musavacca.portal;
 
 import net.minecraft.core.BlockPos;
@@ -63,25 +64,19 @@ public final class PearlPortalResolver {
 
         keepPortalChunkLoaded(targetLevel, originPos);
 
-        if (!targetLevel.getBlockState(originPos).is(ModBlocks.PEARL_PORTAL.get())) {
-            return Optional.empty();
+        Optional<ResolvedPortal> resolvedFromOrigin = resolveFromOriginBlockEntity(
+                targetLevel,
+                targetPortalId,
+                originPos
+        );
+
+        if (resolvedFromOrigin.isPresent()) {
+            return resolvedFromOrigin;
         }
 
-        if (!(targetLevel.getBlockEntity(originPos) instanceof PearlPortalBlockEntity portalBlockEntity)) {
-            return Optional.empty();
-        }
+        PearlPortalNetwork.removePortal(targetLevel, targetPortalId);
 
-        if (!portalBlockEntity.isValidPortalTile()) {
-            return Optional.empty();
-        }
-
-        if (!targetPortalId.equals(portalBlockEntity.getPortalId())) {
-            return Optional.empty();
-        }
-
-        PearlPortalNetwork.registerPortalBlock(portalBlockEntity);
-
-        return Optional.of(fromBlockEntity(targetLevel, portalBlockEntity));
+        return Optional.empty();
     }
 
     private static Optional<ResolvedPortal> resolveLoadedPortal(UUID targetPortalId) {
@@ -93,14 +88,49 @@ public final class PearlPortalResolver {
             return Optional.empty();
         }
 
-        keepPortalChunkLoaded(portal.level(), portal.shape().minCorner());
+        BlockPos originPos = portal.shape().minCorner();
 
-        return Optional.of(new ResolvedPortal(
-                portal.portalId(),
+        keepPortalChunkLoaded(portal.level(), originPos);
+
+        Optional<ResolvedPortal> resolvedFromOrigin = resolveFromOriginBlockEntity(
                 portal.level(),
-                portal.shape(),
-                portal.hexColor()
-        ));
+                targetPortalId,
+                originPos
+        );
+
+        if (resolvedFromOrigin.isPresent()) {
+            return resolvedFromOrigin;
+        }
+
+        PearlPortalNetwork.removePortal(portal.level(), targetPortalId);
+
+        return Optional.empty();
+    }
+
+    private static Optional<ResolvedPortal> resolveFromOriginBlockEntity(
+            ServerLevel level,
+            UUID expectedPortalId,
+            BlockPos originPos
+    ) {
+        if (!level.getBlockState(originPos).is(ModBlocks.PEARL_PORTAL.get())) {
+            return Optional.empty();
+        }
+
+        if (!(level.getBlockEntity(originPos) instanceof PearlPortalBlockEntity portalBlockEntity)) {
+            return Optional.empty();
+        }
+
+        if (!portalBlockEntity.isValidPortalTile()) {
+            return Optional.empty();
+        }
+
+        if (!expectedPortalId.equals(portalBlockEntity.getPortalId())) {
+            return Optional.empty();
+        }
+
+        PearlPortalNetwork.registerPortalBlock(portalBlockEntity);
+
+        return Optional.of(fromBlockEntity(level, portalBlockEntity));
     }
 
     private static void keepPortalChunkLoaded(ServerLevel level, BlockPos pos) {

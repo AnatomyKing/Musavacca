@@ -1,0 +1,164 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_one_candle"
+      },
+      "when": {
+        "candles": "1",
+        "lit": "false",
+        "waterlogged": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_one_candle_lit"
+      },
+      "when": {
+        "candles": "1",
+        "lit": "true",
+        "waterlogged": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_one_candle"
+      },
+      "when": {
+        "candles": "1",
+        "lit": "false",
+        "waterlogged": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_one_candle_lit"
+      },
+      "when": {
+        "candles": "1",
+        "lit": "true",
+        "waterlogged": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_two_candles"
+      },
+      "when": {
+        "candles": "2",
+        "lit": "false",
+        "waterlogged": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_two_candles_lit"
+      },
+      "when": {
+        "candles": "2",
+        "lit": "true",
+        "waterlogged": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_two_candles"
+      },
+      "when": {
+        "candles": "2",
+        "lit": "false",
+        "waterlogged": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_two_candles_lit"
+      },
+      "when": {
+        "candles": "2",
+        "lit": "true",
+        "waterlogged": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_three_candles"
+      },
+      "when": {
+        "candles": "3",
+        "lit": "false",
+        "waterlogged": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_three_candles_lit"
+      },
+      "when": {
+        "candles": "3",
+        "lit": "true",
+        "waterlogged": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_three_candles"
+      },
+      "when": {
+        "candles": "3",
+        "lit": "false",
+        "waterlogged": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_three_candles_lit"
+      },
+      "when": {
+        "candles": "3",
+        "lit": "true",
+        "waterlogged": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_four_candles"
+      },
+      "when": {
+        "candles": "4",
+        "lit": "false",
+        "waterlogged": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_four_candles_lit"
+      },
+      "when": {
+        "candles": "4",
+        "lit": "true",
+        "waterlogged": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_four_candles"
+      },
+      "when": {
+        "candles": "4",
+        "lit": "false",
+        "waterlogged": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/black_candle_four_candles_lit"
+      },
+      "when": {
+        "candles": "4",
+        "lit": "true",
+        "waterlogged": "true"
+      }
+    }
+  ]
+}

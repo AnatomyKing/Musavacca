@@ -39,6 +39,24 @@ public final class PearlFireTintProfiles {
             188, 180, 173, 165, 153, 146, 139
     );
 
+    public static final Profile PORTAL_GLYPH_PARTICLE = of(
+            settings(
+                    0.13F,  // coreToTailLightness
+                    0.12F,  // colorJumpiness
+                    0.36F   // layerContrast
+            ),
+            244, 228, 202, 186
+    );
+
+    public static final Profile PEARL_FLAME = of(
+            settings(
+                    0.80F,   // coreToTailLightness
+                    0.5F,  // colorJumpiness
+                    1.21F    // layerContrast
+            ),
+            255, 228, 196, 167
+    );
+
     private PearlFireTintProfiles() {}
 
     public static Settings settings(float coreToTailLightness, float colorJumpiness, float layerContrast) {

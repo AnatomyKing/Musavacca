@@ -34,7 +34,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
-import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
+import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
 import space.anatomyuniverse.musavacca.portal.PearlPortalDestroyer;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
@@ -96,7 +96,11 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                 && !neighborState.is(this)
                 && PearlPortalFrame.findExistingShape(level, pos, portalAxis).isEmpty()) {
             if (level instanceof ServerLevel serverLevel) {
-                PearlPortalDestroyer.destroyPortalFromAnyLoadedBlock(serverLevel, pos);
+                if (serverLevel.getBlockState(pos).is(this)) {
+                    serverLevel.destroyBlock(pos, false);
+                }
+
+                return state;
             }
 
             return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
@@ -258,8 +262,6 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             return;
         }
 
-        // Fewer particles than vanilla portal.
-        // Vanilla does 4 per animateTick. This does about 1 particle 35% of the time.
         if (random.nextFloat() > 0.35F) {
             return;
         }
@@ -284,14 +286,20 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             dz = random.nextFloat() * 2.0F * side;
         }
 
-        level.addParticle(
-                new HexColorParticleOptions(ModParticleTypes.PEARL_GLYPHS_TINT.get(), hexColor),
+        ProfileTintParticles.spawnRandomVariant(
+                level,
+                random,
+                hexColor,
                 x,
                 y,
                 z,
                 dx,
                 dy,
-                dz
+                dz,
+                ModParticleTypes.PEARL_G_TINTED.get(),
+                ModParticleTypes.PEARL_2_TINTED.get(),
+                ModParticleTypes.PEARL_C_TINTED.get(),
+                ModParticleTypes.PEARL_H_TINTED.get()
         );
     }
 

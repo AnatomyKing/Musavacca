@@ -1,10 +1,12 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/particle/ModParticleProviders.java
 package space.anatomyuniverse.musavacca.particle;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import space.anatomyuniverse.musavacca.particle.particles.HexFallingSporeBlossomProvider;
 import space.anatomyuniverse.musavacca.particle.particles.HexSporeBlossomAirParticle;
-import space.anatomyuniverse.musavacca.particle.particles.PearlGlyphParticle;
+import space.anatomyuniverse.musavacca.particle.particles.PearlFlameParticle;
+import space.anatomyuniverse.musavacca.particle.particles.PearlGlyphPortalParticle;
 
 public final class ModParticleProviders {
     private ModParticleProviders() {}
@@ -25,13 +27,28 @@ public final class ModParticleProviders {
         );
 
         event.registerSpriteSet(
-                ModParticleTypes.PEARL_GLYPHS.get(),
-                PearlGlyphParticle.Provider::new
+                ModParticleTypes.PEARL_FLAME.get(),
+                PearlFlameParticle.Provider::new
         );
 
         event.registerSpriteSet(
-                ModParticleTypes.PEARL_GLYPHS_TINT.get(),
-                PearlGlyphParticle.TintedProvider::new
+                ModParticleTypes.PEARL_G_TINTED.get(),
+                PearlGlyphPortalParticle.Provider::new
+        );
+
+        event.registerSpriteSet(
+                ModParticleTypes.PEARL_2_TINTED.get(),
+                PearlGlyphPortalParticle.Provider::new
+        );
+
+        event.registerSpriteSet(
+                ModParticleTypes.PEARL_C_TINTED.get(),
+                PearlGlyphPortalParticle.Provider::new
+        );
+
+        event.registerSpriteSet(
+                ModParticleTypes.PEARL_H_TINTED.get(),
+                PearlGlyphPortalParticle.Provider::new
         );
     }
 }

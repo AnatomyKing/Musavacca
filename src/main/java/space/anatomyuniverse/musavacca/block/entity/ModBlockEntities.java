@@ -1,8 +1,11 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/ModBlockEntities.java
 package space.anatomyuniverse.musavacca.block.entity;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
@@ -85,6 +88,29 @@ public final class ModBlockEntities {
                     //?}
             );
 
+    public static final Supplier<BlockEntityType<PearlCandleBlockEntity>> PEARL_CANDLE_BLOCK_ENTITY =
+            BLOCK_ENTITY_TYPES.register(
+                    "pearl_candle_block_entity",
+                    () ->
+                            //? if <1.21.2 {
+                            /*BlockEntityType.Builder.of(
+                                    PearlCandleBlockEntity::new,
+                                    pearlCandleBlocks()
+                            ).build(null)
+                            *///?} else if <1.21.4 {
+                            /*new BlockEntityType<>(
+                                    PearlCandleBlockEntity::new,
+                                    pearlCandleBlocks()
+                            )
+                            *///?} else {
+                            new BlockEntityType<>(
+                                    PearlCandleBlockEntity::new,
+                                    false,
+                                    pearlCandleBlocks()
+                            )
+                    //?}
+            );
+
     public static final Supplier<BlockEntityType<VocoTableBlockEntity>> VOCO_TABLE_BLOCK_ENTITY =
             BLOCK_ENTITY_TYPES.register(
                     "voco_table_block_entity",
@@ -113,16 +139,16 @@ public final class ModBlockEntities {
                     "pearl_portal_block_entity",
                     () ->
                             //? if <1.21.2 {
-                        /*BlockEntityType.Builder.of(
-                                PearlPortalBlockEntity::new,
-                                ModBlocks.PEARL_PORTAL.get()
-                        ).build(null)
-                        *///?} else if <1.21.4 {
-                        /*new BlockEntityType<>(
-                                PearlPortalBlockEntity::new,
-                                ModBlocks.PEARL_PORTAL.get()
-                        )
-                        *///?} else {
+                            /*BlockEntityType.Builder.of(
+                                    PearlPortalBlockEntity::new,
+                                    ModBlocks.PEARL_PORTAL.get()
+                            ).build(null)
+                            *///?} else if <1.21.4 {
+                            /*new BlockEntityType<>(
+                                    PearlPortalBlockEntity::new,
+                                    ModBlocks.PEARL_PORTAL.get()
+                            )
+                            *///?} else {
                             new BlockEntityType<>(
                                     PearlPortalBlockEntity::new,
                                     false,
@@ -130,6 +156,12 @@ public final class ModBlockEntities {
                             )
                     //?}
             );
+
+    private static Block[] pearlCandleBlocks() {
+        return ModBlocks.PEARL_CANDLES.stream()
+                .map(DeferredHolder::get)
+                .toArray(Block[]::new);
+    }
 
     public static void register(IEventBus modBus) {
         BLOCK_ENTITY_TYPES.register(modBus);

@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/tags/ModBlockTagsProvider.java
 package space.anatomyuniverse.musavacca.data.tags;
 
 import net.minecraft.core.HolderLookup;
@@ -5,13 +6,14 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.block.ModBlockTags;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 
 import java.util.concurrent.CompletableFuture;
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.common.data.ExistingFileHelper;
-*///?}
+ *///?}
 
 public final class ModBlockTagsProvider extends BlockTagsProvider {
 
@@ -32,6 +34,12 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
+        tag(ModBlockTags.PEARL_PORTAL_FRAME).add(
+                ModBlocks.BANANA_PEARL_BLOCK.get(),
+                ModBlocks.BANANA_PEARL_CHAPITER.get(),
+                ModBlocks.BANANA_PEARL_PILLAR.get(),
+                ModBlocks.BANANA_PEARL_BRICKS.get()
+        );
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(
                 ModBlocks.BANANA_PEARL_BLOCK.get(),
 

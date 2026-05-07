@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/custom/FlintAndPearlItem.java
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.advancements.CriteriaTriggers;
@@ -18,12 +19,16 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.ItemAbilities;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
+import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.gui.menu.ItemInteractMenu;
@@ -83,6 +88,148 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     }
 
     @Override
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+        ensureDefaultColorComponent(stack);
+
+        int hexColor = getStoredHexOrDefault(stack);
+        InteractionResult candleResult = tryUseOnCandleBeforeVanilla(context, hexColor);
+
+        if (candleResult != InteractionResult.PASS) {
+            return candleResult;
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    private static InteractionResult tryUseOnCandleBeforeVanilla(UseOnContext context, int hexColor) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        BlockState state = level.getBlockState(pos);
+        Block block = state.getBlock();
+
+        if (block instanceof PearlCandleBlock pearlCandleBlock) {
+            return useOnPearlCandle(context, pearlCandleBlock, state, pos, hexColor);
+        }
+
+        PearlCandleBlock matchingPearlCandle = pearlCandleForVanillaCandle(block);
+        if (matchingPearlCandle == null) {
+            return InteractionResult.PASS;
+        }
+
+        if (!PearlCandleBlock.canPearlLight(state)) {
+            return InteractionResult.PASS;
+        }
+
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS_SERVER;
+        }
+
+        BlockState pearlState = matchingPearlCandle.copyStateFromVanillaCandle(state, true);
+
+        boolean changed = level.setBlock(
+                pos,
+                pearlState,
+                Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
+        );
+
+        if (!changed) {
+            return InteractionResult.FAIL;
+        }
+
+        setPearlCandleHex(level, pos, hexColor);
+
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
+
+        playUseEffects(level, player, pos, GameEvent.BLOCK_CHANGE);
+        triggerPlacedBlockCriterion(player, pos, stack);
+        damageStack(stack, player, context.getHand());
+
+        return InteractionResult.SUCCESS_SERVER;
+    }
+
+    private static InteractionResult useOnPearlCandle(
+            UseOnContext context,
+            PearlCandleBlock pearlCandleBlock,
+            BlockState state,
+            BlockPos pos,
+            int hexColor
+    ) {
+        if (!PearlCandleBlock.canPearlLight(state)) {
+            return InteractionResult.PASS;
+        }
+
+        Level level = context.getLevel();
+
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS_SERVER;
+        }
+
+        BlockState finalState = state;
+
+        /*
+         * Normally Pearl Candles should only exist while lit.
+         * But this keeps the item safe if an old/stale Pearl Candle somehow exists unlit.
+         */
+        if (state.hasProperty(CandleBlock.LIT) && !state.getValue(CandleBlock.LIT)) {
+            finalState = state.setValue(CandleBlock.LIT, true);
+
+            level.setBlock(
+                    pos,
+                    finalState,
+                    Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
+            );
+        }
+
+        setPearlCandleHex(level, pos, hexColor);
+
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
+
+        playUseEffects(level, player, pos, GameEvent.BLOCK_CHANGE);
+        damageStack(stack, player, context.getHand());
+
+        return InteractionResult.SUCCESS_SERVER;
+    }
+
+    private static void setPearlCandleHex(Level level, BlockPos pos, int hexColor) {
+        if (level.isClientSide()) {
+            return;
+        }
+
+        if (level.getBlockEntity(pos) instanceof PearlCandleBlockEntity pearlCandleBe) {
+            pearlCandleBe.setHexColor(hexColor);
+        }
+    }
+
+    @Nullable
+    private static PearlCandleBlock pearlCandleForVanillaCandle(Block block) {
+        if (!(block instanceof CandleBlock)) {
+            return null;
+        }
+
+        if (block == Blocks.CANDLE) return ModBlocks.PEARL_CANDLE.get();
+        if (block == Blocks.WHITE_CANDLE) return ModBlocks.PEARL_WHITE_CANDLE.get();
+        if (block == Blocks.ORANGE_CANDLE) return ModBlocks.PEARL_ORANGE_CANDLE.get();
+        if (block == Blocks.MAGENTA_CANDLE) return ModBlocks.PEARL_MAGENTA_CANDLE.get();
+        if (block == Blocks.LIGHT_BLUE_CANDLE) return ModBlocks.PEARL_LIGHT_BLUE_CANDLE.get();
+        if (block == Blocks.YELLOW_CANDLE) return ModBlocks.PEARL_YELLOW_CANDLE.get();
+        if (block == Blocks.LIME_CANDLE) return ModBlocks.PEARL_LIME_CANDLE.get();
+        if (block == Blocks.PINK_CANDLE) return ModBlocks.PEARL_PINK_CANDLE.get();
+        if (block == Blocks.GRAY_CANDLE) return ModBlocks.PEARL_GRAY_CANDLE.get();
+        if (block == Blocks.LIGHT_GRAY_CANDLE) return ModBlocks.PEARL_LIGHT_GRAY_CANDLE.get();
+        if (block == Blocks.CYAN_CANDLE) return ModBlocks.PEARL_CYAN_CANDLE.get();
+        if (block == Blocks.PURPLE_CANDLE) return ModBlocks.PEARL_PURPLE_CANDLE.get();
+        if (block == Blocks.BLUE_CANDLE) return ModBlocks.PEARL_BLUE_CANDLE.get();
+        if (block == Blocks.BROWN_CANDLE) return ModBlocks.PEARL_BROWN_CANDLE.get();
+        if (block == Blocks.GREEN_CANDLE) return ModBlocks.PEARL_GREEN_CANDLE.get();
+        if (block == Blocks.RED_CANDLE) return ModBlocks.PEARL_RED_CANDLE.get();
+        if (block == Blocks.BLACK_CANDLE) return ModBlocks.PEARL_BLACK_CANDLE.get();
+
+        return null;
+    }
+
+    @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         ensureDefaultColorComponent(stack);
@@ -136,7 +283,6 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     }
 
     private InteractionResult previewClientPlacement(Level level, BlockPos placePos, int hexColor) {
-
         var optionalShape = PearlPortalFrame.findIgnitableShape(level, placePos);
 
         if (optionalShape.isPresent()) {

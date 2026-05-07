@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/portal/PearlPortalNetwork.java
 package space.anatomyuniverse.musavacca.portal;
 
 import net.minecraft.core.BlockPos;
@@ -24,6 +25,12 @@ public final class PearlPortalNetwork {
         private final Map<UUID, LoadedPortal> portalsById = new HashMap<>();
         private final Map<BlockKey, UUID> portalIdByBlock = new HashMap<>();
         private final Map<UUID, Set<BlockKey>> loadedBlocksByPortalId = new HashMap<>();
+
+        private void clear() {
+            this.portalsById.clear();
+            this.portalIdByBlock.clear();
+            this.loadedBlocksByPortalId.clear();
+        }
     }
 
     public record LoadedPortal(
@@ -100,6 +107,10 @@ public final class PearlPortalNetwork {
 
         removeLoadedPortal(SERVER_CACHE, portalId);
         PearlPortalDirectory.get(level.getServer()).removePortal(portalId);
+    }
+
+    public static void clear() {
+        SERVER_CACHE.clear();
     }
 
     private static void removeLoadedPortal(SideCache cache, UUID portalId) {

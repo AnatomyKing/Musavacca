@@ -8,6 +8,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
@@ -17,7 +19,7 @@ import java.util.UUID;
 public final class PearlPortalCreator {
     private PearlPortalCreator() {}
 
-    private static final int PORTAL_SET_FLAGS = Block.UPDATE_NEIGHBORS;
+    private static final int PORTAL_SET_FLAGS = Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS;
 
     public static boolean tryCreatePortal(Level level, BlockPos insidePos, int hexColor, @Nullable Player player) {
         return tryCreatePortal(level, insidePos, hexColor, player, null);
@@ -101,11 +103,13 @@ public final class PearlPortalCreator {
     }
 
     private static void placePortalBlocks(ServerLevel level, PearlPortalFrame.Shape shape) {
+        BlockState portalState = ModBlocks.PEARL_PORTAL.get()
+                .defaultBlockState()
+                .setValue(ModBlocks.PEARL_PORTAL.get().getAxisProperty(), shape.axis());
+
         shape.forEachInteriorBlock(pos -> level.setBlock(
                 pos,
-                ModBlocks.PEARL_PORTAL.get()
-                        .defaultBlockState()
-                        .setValue(ModBlocks.PEARL_PORTAL.get().getAxisProperty(), shape.axis()),
+                portalState,
                 PORTAL_SET_FLAGS
         ));
     }
@@ -144,7 +148,7 @@ public final class PearlPortalCreator {
     private static void removePortalBlocksOnly(ServerLevel level, PearlPortalFrame.Shape shape) {
         shape.forEachInteriorBlock(pos -> {
             if (level.getBlockState(pos).is(ModBlocks.PEARL_PORTAL.get())) {
-                level.removeBlock(pos, false);
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), PORTAL_SET_FLAGS);
             }
 
             level.removeBlockEntity(pos);
