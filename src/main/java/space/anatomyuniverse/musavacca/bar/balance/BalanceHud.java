@@ -7,17 +7,13 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
+import space.anatomyuniverse.musavacca.bar.RightSideHudLayout;
 import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
 
 public final class BalanceHud {
     private static final int ICON_SIZE = 9;
     private static final int ICON_SPACING = 1;
-
-    private static final int VANILLA_FOOD_RIGHT = 91;
-    private static final int BALANCE_BASE_Y_OFFSET = 49;
-    private static final int ROW_SPACING = 10;
 
     private static final int TEXT_COLOR = 0xFF80FF20;
     private static final int SHADOW_COLOR = 0xFF000000;
@@ -53,7 +49,7 @@ public final class BalanceHud {
 
         Font font = minecraft.font;
 
-        int right = graphics.guiWidth() / 2 + VANILLA_FOOD_RIGHT;
+        int right = RightSideHudLayout.getRightSideAnchorX(graphics);
         int y = getBalanceY(graphics, player);
 
         int textWidth = font.width(text);
@@ -67,22 +63,13 @@ public final class BalanceHud {
     }
 
     private static int getBalanceY(GuiGraphics graphics, Player player) {
-        int y = graphics.guiHeight() - BALANCE_BASE_Y_OFFSET;
-
-        if (shouldReserveAirBubbleRow(player)) {
-            y -= ROW_SPACING;
-        }
+        int y = RightSideHudLayout.getFirstFreeRightSideRowY(graphics, player);
 
         if (ClientBonusHungerData.isActive()) {
-            y -= ROW_SPACING;
+            y = RightSideHudLayout.getRowAbove(y);
         }
 
         return y;
-    }
-
-    private static boolean shouldReserveAirBubbleRow(Player player) {
-        return player.isEyeInFluid(FluidTags.WATER)
-                || player.getAirSupply() < player.getMaxAirSupply();
     }
 
     private static void drawVanillaNumber(GuiGraphics graphics, Font font, String text, int x, int y) {

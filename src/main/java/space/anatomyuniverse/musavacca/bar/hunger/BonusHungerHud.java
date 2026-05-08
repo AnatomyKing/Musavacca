@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/hunger/BonusHungerHud.java
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/bar/hunger/BonusHungerHud.java
 package space.anatomyuniverse.musavacca.bar.hunger;
 
 import net.minecraft.client.DeltaTracker;
@@ -6,19 +6,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import space.anatomyuniverse.musavacca.bar.RightSideHudLayout;
 
 public final class BonusHungerHud {
     private static final int ICON_SIZE = 9;
     private static final int ICON_SPACING = 8;
     private static final int ICON_COUNT = 10;
-
-    private static final int VANILLA_FOOD_RIGHT = 91;
-    private static final int BONUS_FOOD_BASE_Y_OFFSET = 49;
-    private static final int ROW_SPACING = 10;
 
     private static final long VANILLA_HUD_RANDOM_SEED_MULTIPLIER = 312871L;
 
@@ -70,8 +66,8 @@ public final class BonusHungerHud {
         ResourceLocation halfSprite = hungerEffect ? FOOD_HALF_HUNGER : FOOD_HALF;
         ResourceLocation fullSprite = hungerEffect ? FOOD_FULL_HUNGER : FOOD_FULL;
 
-        int right = graphics.guiWidth() / 2 + VANILLA_FOOD_RIGHT;
-        int baseY = getBonusFoodY(graphics, player);
+        int right = RightSideHudLayout.getRightSideAnchorX(graphics);
+        int baseY = RightSideHudLayout.getFirstFreeRightSideRowY(graphics, player);
 
         boolean shouldJitter = shouldJitter(food, saturation, player.tickCount);
 
@@ -88,21 +84,6 @@ public final class BonusHungerHud {
             int pointsInSlot = food - slot * 2;
             drawFoodIcon(graphics, x, y, pointsInSlot, emptySprite, halfSprite, fullSprite);
         }
-    }
-
-    private static int getBonusFoodY(GuiGraphics graphics, Player player) {
-        int y = graphics.guiHeight() - BONUS_FOOD_BASE_Y_OFFSET;
-
-        if (shouldReserveAirBubbleRow(player)) {
-            y -= ROW_SPACING;
-        }
-
-        return y;
-    }
-
-    private static boolean shouldReserveAirBubbleRow(Player player) {
-        return player.isEyeInFluid(FluidTags.WATER)
-                || player.getAirSupply() < player.getMaxAirSupply();
     }
 
     private static boolean shouldJitter(int food, float saturation, int tickCount) {
