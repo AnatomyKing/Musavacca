@@ -1,4 +1,4 @@
-package space.anatomyuniverse.musavacca.hunger;
+package space.anatomyuniverse.musavacca.bar.hunger;
 
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;

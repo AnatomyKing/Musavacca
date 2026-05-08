@@ -1,4 +1,4 @@
-package space.anatomyuniverse.musavacca.hunger;
+package space.anatomyuniverse.musavacca.bar.hunger;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.storage.ValueInput;

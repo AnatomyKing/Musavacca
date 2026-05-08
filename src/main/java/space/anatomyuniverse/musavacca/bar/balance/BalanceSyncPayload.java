@@ -1,4 +1,5 @@
-package space.anatomyuniverse.musavacca.hunger;
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/bar/balance/BalanceSyncPayload.java
+package space.anatomyuniverse.musavacca.bar.balance;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -7,25 +8,22 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import space.anatomyuniverse.musavacca.MusaCore;
 
-public record BonusHungerSyncPayload(
-        int food,
-        float saturation,
+public record BalanceSyncPayload(
+        int balance,
         boolean active
 ) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<BonusHungerSyncPayload> TYPE =
+    public static final CustomPacketPayload.Type<BalanceSyncPayload> TYPE =
             new CustomPacketPayload.Type<>(
-                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "bonus_hunger_sync")
+                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "balance_sync")
             );
 
-    public static final StreamCodec<ByteBuf, BonusHungerSyncPayload> STREAM_CODEC =
+    public static final StreamCodec<ByteBuf, BalanceSyncPayload> STREAM_CODEC =
             StreamCodec.composite(
                     ByteBufCodecs.VAR_INT,
-                    BonusHungerSyncPayload::food,
-                    ByteBufCodecs.FLOAT,
-                    BonusHungerSyncPayload::saturation,
+                    BalanceSyncPayload::balance,
                     ByteBufCodecs.BOOL,
-                    BonusHungerSyncPayload::active,
-                    BonusHungerSyncPayload::new
+                    BalanceSyncPayload::active,
+                    BalanceSyncPayload::new
             );
 
     @Override

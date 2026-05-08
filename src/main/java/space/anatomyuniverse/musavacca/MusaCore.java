@@ -9,6 +9,12 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
+import space.anatomyuniverse.musavacca.bar.ModAttachments;
+import space.anatomyuniverse.musavacca.bar.ModNetworking;
+import space.anatomyuniverse.musavacca.bar.balance.BalanceClientModEvents;
+import space.anatomyuniverse.musavacca.bar.balance.BalanceEvents;
+import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerClientModEvents;
+import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerEvents;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
@@ -19,10 +25,6 @@ import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntityRenderers;
 import space.anatomyuniverse.musavacca.gui.ModMenuScreens;
 import space.anatomyuniverse.musavacca.gui.ModMenus;
-import space.anatomyuniverse.musavacca.hunger.BonusHungerClientModEvents;
-import space.anatomyuniverse.musavacca.hunger.BonusHungerEvents;
-import space.anatomyuniverse.musavacca.hunger.ModAttachments;
-import space.anatomyuniverse.musavacca.hunger.ModNetworking;
 import space.anatomyuniverse.musavacca.item.ModCreativeTabs;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.particle.ModParticleProviders;
@@ -62,6 +64,7 @@ public final class MusaCore {
         NeoForge.EVENT_BUS.addListener(PearlPortalServerEvents::onServerStopping);
 
         NeoForge.EVENT_BUS.register(BonusHungerEvents.class);
+        NeoForge.EVENT_BUS.register(BalanceEvents.class);
 
         if (/*? if <1.21.9 {*/ FMLLoader /*?} else {*//*FMLEnvironment*//*?}*/.getDist() == Dist.CLIENT) {
             ModTints.register(modBus);
@@ -73,6 +76,7 @@ public final class MusaCore {
             ModParticleProviders.register(modBus);
 
             BonusHungerClientModEvents.register(modBus);
+            BalanceClientModEvents.register(modBus);
         }
     }
 

@@ -1,5 +1,5 @@
 // file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/hunger/BonusHungerHud.java
-package space.anatomyuniverse.musavacca.hunger;
+package space.anatomyuniverse.musavacca.bar.hunger;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
