@@ -1,0 +1,21 @@
+{
+  "parent": "musavacca:block/custom_parent/tinted_voco_mensa_portal_south_east",
+  "textures": {
+    "particle": "musavacca:block/pearl_portal/pearl_portal_0",
+    "portal_100": "musavacca:block/pearl_portal/pearl_portal_0",
+    "portal_101": "musavacca:block/pearl_portal/pearl_portal_1",
+    "portal_102": "musavacca:block/pearl_portal/pearl_portal_2",
+    "portal_103": "musavacca:block/pearl_portal/pearl_portal_3",
+    "portal_104": "musavacca:block/pearl_portal/pearl_portal_4",
+    "portal_105": "musavacca:block/pearl_portal/pearl_portal_5",
+    "portal_106": "musavacca:block/pearl_portal/pearl_portal_6",
+    "portal_107": "musavacca:block/pearl_portal/pearl_portal_7",
+    "portal_108": "musavacca:block/pearl_portal/pearl_portal_8",
+    "portal_109": "musavacca:block/pearl_portal/pearl_portal_9",
+    "portal_110": "musavacca:block/pearl_portal/pearl_portal_10",
+    "portal_111": "musavacca:block/pearl_portal/pearl_portal_11",
+    "portal_112": "musavacca:block/pearl_portal/pearl_portal_12",
+    "portal_113": "musavacca:block/pearl_portal/pearl_portal_13",
+    "portal_114": "musavacca:block/pearl_portal/pearl_portal_14"
+  }
+}

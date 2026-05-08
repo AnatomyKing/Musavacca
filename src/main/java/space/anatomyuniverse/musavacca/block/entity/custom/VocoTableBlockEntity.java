@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/VocoTableBlockEntity.java
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -24,10 +25,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoInteractLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoInteractLogic.ReceptorPosition;
 
 import java.util.UUID;
 
@@ -35,6 +37,16 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     private static final String TAG_BASUKE_VISIBLE = "basuke_visible";
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
+
+    private static final String TAG_LATEST_HEX_COLOR = "latest_hex_color";
+    private static final String TAG_LATEST_HEX_RECEPTOR_ID = "latest_hex_receptor_id";
+
+    private static final String[] TAG_CORNER_HEX_COLORS = {
+            "hex_north_east",
+            "hex_north_west",
+            "hex_south_east",
+            "hex_south_west"
+    };
 
     private static final String[] TAG_YAW_DEGREES = {
             "yaw_north_east",
@@ -50,10 +62,20 @@ public class VocoTableBlockEntity extends BlockEntity {
             "pitch_south_west"
     };
 
+    public static final int DEFAULT_HEX_NORTH_EAST = 0xE74E8C;
+    public static final int DEFAULT_HEX_SOUTH_EAST = 0x49D5CD;
+    public static final int DEFAULT_HEX_SOUTH_WEST = 0xFFF000;
+    public static final int DEFAULT_HEX_NORTH_WEST = 0x7B61FF;
+
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
     private final int[] yawDegrees = new int[ReceptorPosition.COUNT];
     private final int[] pitchDegrees = new int[ReceptorPosition.COUNT];
+
+    private final int[] cornerHexColors = new int[ReceptorPosition.COUNT];
+
+    private int latestHexColor = DEFAULT_HEX_NORTH_EAST;
+    private int latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
 
     private boolean basukeVisible = false;
     @Nullable
@@ -62,6 +84,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     public VocoTableBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.VOCO_TABLE_BLOCK_ENTITY.get(), pos, state);
         this.resetFacingDefaults();
+        this.resetCornerHexDefaults();
     }
 
     public ItemStack getDisplayedItem() {
@@ -134,6 +157,68 @@ public class VocoTableBlockEntity extends BlockEntity {
         this.yawDegrees[index] = clampedYaw;
         this.pitchDegrees[index] = clampedPitch;
         this.markChangedAndSync();
+    }
+
+    public int getLatestHexColor() {
+        return this.latestHexColor;
+    }
+
+    public ReceptorPosition getLatestHexReceptor() {
+        return ReceptorPosition.byId(this.latestHexReceptorId);
+    }
+
+    public int getCornerHexColor(ReceptorPosition receptor) {
+        return this.cornerHexColors[receptor.id()];
+    }
+
+    public void setCornerHexColor(ReceptorPosition receptor, int hexColor) {
+        int index = receptor.id();
+        int normalized = normalizeHex(hexColor);
+
+        boolean changed = this.cornerHexColors[index] != normalized
+                || this.latestHexColor != normalized
+                || this.latestHexReceptorId != index;
+
+        if (!changed) {
+            return;
+        }
+
+        this.cornerHexColors[index] = normalized;
+        this.latestHexColor = normalized;
+        this.latestHexReceptorId = index;
+        this.markChangedAndSync();
+    }
+
+    public void setLatestActiveReceptor(ReceptorPosition receptor) {
+        int index = receptor.id();
+        int color = this.cornerHexColors[index];
+
+        if (this.latestHexReceptorId == index && this.latestHexColor == color) {
+            return;
+        }
+
+        this.latestHexReceptorId = index;
+        this.latestHexColor = color;
+        this.markChangedAndSync();
+    }
+
+    public ReceptorPosition cycleLatestActiveHexClockwise() {
+        ReceptorPosition next = this.getLatestHexReceptor().nextClockwise();
+        this.setLatestActiveReceptor(next);
+        return next;
+    }
+
+    public void activatePortal(ReceptorPosition receptor) {
+        this.setLatestActiveReceptor(receptor);
+    }
+
+    private void resetCornerHexDefaults() {
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            this.cornerHexColors[receptor.id()] = defaultHexColor(receptor);
+        }
+
+        this.latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
+        this.latestHexColor = this.cornerHexColors[this.latestHexReceptorId];
     }
 
     private void resetFacingDefaults() {
@@ -278,8 +363,14 @@ public class VocoTableBlockEntity extends BlockEntity {
         this.basukeVisible = input.getBooleanOr(TAG_BASUKE_VISIBLE, false);
         this.basukeUuid = readUuid(input.getStringOr(TAG_BASUKE_UUID, ""));
 
+        this.resetCornerHexDefaults();
+
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             int index = receptor.id();
+
+            this.cornerHexColors[index] = normalizeHex(
+                    input.getIntOr(TAG_CORNER_HEX_COLORS[index], defaultHexColor(receptor))
+            );
 
             this.yawDegrees[index] = VocoReceptorBlockEntity.clampYaw(
                     input.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees())
@@ -289,6 +380,17 @@ public class VocoTableBlockEntity extends BlockEntity {
                     input.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees())
             );
         }
+
+        this.latestHexReceptorId = clampReceptorId(
+                input.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id())
+        );
+
+        this.latestHexColor = normalizeHex(
+                input.getIntOr(
+                        TAG_LATEST_HEX_COLOR,
+                        this.cornerHexColors[this.latestHexReceptorId]
+                )
+        );
     }
 
     @Override
@@ -302,9 +404,13 @@ public class VocoTableBlockEntity extends BlockEntity {
             output.putString(TAG_BASUKE_UUID, this.basukeUuid.toString());
         }
 
+        output.putInt(TAG_LATEST_HEX_COLOR, this.latestHexColor);
+        output.putInt(TAG_LATEST_HEX_RECEPTOR_ID, this.latestHexReceptorId);
+
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             int index = receptor.id();
 
+            output.putInt(TAG_CORNER_HEX_COLORS[index], this.cornerHexColors[index]);
             output.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
             output.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
         }
@@ -318,12 +424,18 @@ public class VocoTableBlockEntity extends BlockEntity {
                 DataComponents.CONTAINER,
                 ItemContainerContents.EMPTY
         ).copyInto(this.items);
+
+        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
+        if (savedHex != null) {
+            this.latestHexColor = normalizeHex(savedHex);
+        }
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
         components.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.items));
+        components.set(ModDataComponents.HEX_COLOR.get(), this.latestHexColor);
     }
 
     @Override
@@ -346,6 +458,23 @@ public class VocoTableBlockEntity extends BlockEntity {
     public void onDataPacket(Connection connection, ValueInput input) {
         super.onDataPacket(connection, input);
         this.rerenderClientNow();
+    }
+
+    public static int normalizeHex(int hexColor) {
+        return hexColor & 0xFFFFFF;
+    }
+
+    public static int defaultHexColor(ReceptorPosition receptor) {
+        return switch (receptor) {
+            case NORTH_EAST -> DEFAULT_HEX_NORTH_EAST;
+            case SOUTH_EAST -> DEFAULT_HEX_SOUTH_EAST;
+            case SOUTH_WEST -> DEFAULT_HEX_SOUTH_WEST;
+            case NORTH_WEST -> DEFAULT_HEX_NORTH_WEST;
+        };
+    }
+
+    private static int clampReceptorId(int id) {
+        return Math.max(0, Math.min(ReceptorPosition.COUNT - 1, id));
     }
 
     @Nullable

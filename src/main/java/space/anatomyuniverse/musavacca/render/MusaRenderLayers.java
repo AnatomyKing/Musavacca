@@ -53,6 +53,7 @@ public final class MusaRenderLayers {
             ModBlocks.MUSAVACCA_EGG.get(),
             ModBlocks.HEX_BLOCK.get(),
             ModBlocks.PEARL_FIRE.get(),
+            ModBlocks.VOCO_TABLE.get(),
             ModBlocks.VOCO_RECEPTOR.get()
     );
 

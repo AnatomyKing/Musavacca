@@ -62,7 +62,11 @@ public final class ModelSets {
                 ModBlocks.VOCO_TABLE.get(),
                 new CubeVocoTable.Models(
                         "musavacca:block/voco_mensa",
-                        "musavacca:block/voco_mensa_lit_receptor"
+                        "musavacca:block/voco_mensa_lit_receptor",
+                        "musavacca:block/voco_mensa_portal_north_east",
+                        "musavacca:block/voco_mensa_portal_south_east",
+                        "musavacca:block/voco_mensa_portal_south_west",
+                        "musavacca:block/voco_mensa_portal_north_west"
                 )
         );
     }

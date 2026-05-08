@@ -29,7 +29,11 @@ public final class CubeVocoTable {
 
     public record Models(
             String base,
-            String litReceptorNorthEast
+            String litReceptorNorthEast,
+            String portalNorthEast,
+            String portalSouthEast,
+            String portalSouthWest,
+            String portalNorthWest
     ) {
         public ResourceLocation baseModel() {
             return ResourceLocation.parse(this.base);
@@ -41,6 +45,22 @@ public final class CubeVocoTable {
 
         public ResourceLocation litReceptorModel() {
             return ResourceLocation.parse(this.litReceptorNorthEast);
+        }
+
+        public ResourceLocation portalNorthEastModel() {
+            return ResourceLocation.parse(this.portalNorthEast);
+        }
+
+        public ResourceLocation portalSouthEastModel() {
+            return ResourceLocation.parse(this.portalSouthEast);
+        }
+
+        public ResourceLocation portalSouthWestModel() {
+            return ResourceLocation.parse(this.portalSouthWest);
+        }
+
+        public ResourceLocation portalNorthWestModel() {
+            return ResourceLocation.parse(this.portalNorthWest);
         }
     }
 
@@ -54,20 +74,23 @@ public final class CubeVocoTable {
             ModelFile base = gen.models().getExistingFile(stateModels.baseModel());
             ModelFile litReceptor = gen.models().getExistingFile(stateModels.litReceptorModel());
 
+            ModelFile portalNorthEast = gen.models().getExistingFile(stateModels.portalNorthEastModel());
+            ModelFile portalSouthEast = gen.models().getExistingFile(stateModels.portalSouthEastModel());
+            ModelFile portalSouthWest = gen.models().getExistingFile(stateModels.portalSouthWestModel());
+            ModelFile portalNorthWest = gen.models().getExistingFile(stateModels.portalNorthWestModel());
+
             gen.getMultipartBuilder(block)
                     .part()
                     .modelFile(base)
                     .addModel()
                     .end()
 
-                    // North-east: original model position.
                     .part()
                     .modelFile(litReceptor)
                     .condition(VocoTableBlock.LIT_NORTH_EAST, true)
                     .addModel()
                     .end()
 
-                    // South-east: rotate NE model 90 degrees.
                     .part()
                     .modelFile(litReceptor)
                     .rotationY(90)
@@ -75,7 +98,6 @@ public final class CubeVocoTable {
                     .addModel()
                     .end()
 
-                    // South-west: rotate NE model 180 degrees.
                     .part()
                     .modelFile(litReceptor)
                     .rotationY(180)
@@ -83,11 +105,34 @@ public final class CubeVocoTable {
                     .addModel()
                     .end()
 
-                    // North-west: rotate NE model 270 degrees.
                     .part()
                     .modelFile(litReceptor)
                     .rotationY(270)
                     .condition(VocoTableBlock.LIT_NORTH_WEST, true)
+                    .addModel()
+                    .end()
+
+                    .part()
+                    .modelFile(portalNorthEast)
+                    .condition(VocoTableBlock.PORTAL_NORTH_EAST, true)
+                    .addModel()
+                    .end()
+
+                    .part()
+                    .modelFile(portalSouthEast)
+                    .condition(VocoTableBlock.PORTAL_SOUTH_EAST, true)
+                    .addModel()
+                    .end()
+
+                    .part()
+                    .modelFile(portalSouthWest)
+                    .condition(VocoTableBlock.PORTAL_SOUTH_WEST, true)
+                    .addModel()
+                    .end()
+
+                    .part()
+                    .modelFile(portalNorthWest)
+                    .condition(VocoTableBlock.PORTAL_NORTH_WEST, true)
                     .addModel()
                     .end();
 
@@ -110,6 +155,11 @@ public final class CubeVocoTable {
             multi = addLitReceptor(multi, stateModels, VocoTableBlock.LIT_SOUTH_WEST, 180);
             multi = addLitReceptor(multi, stateModels, VocoTableBlock.LIT_NORTH_WEST, 270);
 
+            multi = addPortal(multi, VocoTableBlock.PORTAL_NORTH_EAST, stateModels.portalNorthEastModel());
+            multi = addPortal(multi, VocoTableBlock.PORTAL_SOUTH_EAST, stateModels.portalSouthEastModel());
+            multi = addPortal(multi, VocoTableBlock.PORTAL_SOUTH_WEST, stateModels.portalSouthWestModel());
+            multi = addPortal(multi, VocoTableBlock.PORTAL_NORTH_WEST, stateModels.portalNorthWestModel());
+
             gen.blockStateOutput.accept(multi);
             gen.registerSimpleItemModel(block, stateModels.itemModel());
         });
@@ -127,6 +177,20 @@ public final class CubeVocoTable {
                 true,
                 models.litReceptorModel(),
                 yRot
+        );
+    }
+
+    private static MultiPartGenerator addPortal(
+            MultiPartGenerator multi,
+            BooleanProperty property,
+            ResourceLocation modelId
+    ) {
+        return addConditional(
+                multi,
+                property,
+                true,
+                modelId,
+                0
         );
     }
 

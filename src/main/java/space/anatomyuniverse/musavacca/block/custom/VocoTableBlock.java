@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/VocoTableBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -32,11 +33,23 @@ public class VocoTableBlock extends Block implements EntityBlock {
     public static final BooleanProperty LIT_SOUTH_EAST = BooleanProperty.create("lit_south_east");
     public static final BooleanProperty LIT_SOUTH_WEST = BooleanProperty.create("lit_south_west");
 
+    public static final BooleanProperty PORTAL_NORTH_EAST = BooleanProperty.create("portal_north_east");
+    public static final BooleanProperty PORTAL_NORTH_WEST = BooleanProperty.create("portal_north_west");
+    public static final BooleanProperty PORTAL_SOUTH_EAST = BooleanProperty.create("portal_south_east");
+    public static final BooleanProperty PORTAL_SOUTH_WEST = BooleanProperty.create("portal_south_west");
+
     private static final BooleanProperty[] RECEPTOR_LIGHTS = {
             LIT_NORTH_EAST,
             LIT_NORTH_WEST,
             LIT_SOUTH_EAST,
             LIT_SOUTH_WEST
+    };
+
+    private static final BooleanProperty[] RECEPTOR_PORTALS = {
+            PORTAL_NORTH_EAST,
+            PORTAL_NORTH_WEST,
+            PORTAL_SOUTH_EAST,
+            PORTAL_SOUTH_WEST
     };
 
     private static final VoxelShape SHAPE = Shapes.or(
@@ -74,7 +87,12 @@ public class VocoTableBlock extends Block implements EntityBlock {
         super(properties);
 
         BlockState state = this.stateDefinition.any();
+
         for (BooleanProperty property : RECEPTOR_LIGHTS) {
+            state = state.setValue(property, false);
+        }
+
+        for (BooleanProperty property : RECEPTOR_PORTALS) {
             state = state.setValue(property, false);
         }
 
@@ -91,6 +109,7 @@ public class VocoTableBlock extends Block implements EntityBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(RECEPTOR_LIGHTS);
+        builder.add(RECEPTOR_PORTALS);
     }
 
     public static boolean hasAnyReceptorLit(BlockState state) {
@@ -101,6 +120,24 @@ public class VocoTableBlock extends Block implements EntityBlock {
         }
 
         return false;
+    }
+
+    public static BooleanProperty lightProperty(ReceptorPosition receptor) {
+        return switch (receptor) {
+            case NORTH_EAST -> LIT_NORTH_EAST;
+            case NORTH_WEST -> LIT_NORTH_WEST;
+            case SOUTH_EAST -> LIT_SOUTH_EAST;
+            case SOUTH_WEST -> LIT_SOUTH_WEST;
+        };
+    }
+
+    public static BooleanProperty portalProperty(ReceptorPosition receptor) {
+        return switch (receptor) {
+            case NORTH_EAST -> PORTAL_NORTH_EAST;
+            case NORTH_WEST -> PORTAL_NORTH_WEST;
+            case SOUTH_EAST -> PORTAL_SOUTH_EAST;
+            case SOUTH_WEST -> PORTAL_SOUTH_WEST;
+        };
     }
 
     @Override
@@ -114,12 +151,13 @@ public class VocoTableBlock extends Block implements EntityBlock {
         HitPart part = detectHitPart(pos, hit);
 
         if (part.isReceptor()) {
-            return VocoInteractLogic.useReceptorWithoutItem(
+            return VocoInteractLogic.useTableReceptorWithoutItem(
                     state,
                     level,
                     pos,
                     player,
                     part.lightProperty,
+                    part.portalProperty,
                     part.receptor
             );
         }
@@ -149,7 +187,7 @@ public class VocoTableBlock extends Block implements EntityBlock {
         HitPart part = detectHitPart(pos, hit);
 
         if (part.isReceptor()) {
-            return VocoInteractLogic.useReceptorItem(
+            return VocoInteractLogic.useTableReceptorItem(
                     stack,
                     state,
                     level,
@@ -157,6 +195,7 @@ public class VocoTableBlock extends Block implements EntityBlock {
                     player,
                     hand,
                     part.lightProperty,
+                    part.portalProperty,
                     part.receptor
             );
         }
@@ -297,21 +336,47 @@ public class VocoTableBlock extends Block implements EntityBlock {
     }
 
     private enum HitPart {
-        NONE(null, null, null, false),
+        NONE(null, null, null, null, false),
 
-        RECEPTOR_NORTH_EAST("Receptor: north-east corner", LIT_NORTH_EAST, ReceptorPosition.NORTH_EAST, false),
-        RECEPTOR_NORTH_WEST("Receptor: north-west corner", LIT_NORTH_WEST, ReceptorPosition.NORTH_WEST, false),
-        RECEPTOR_SOUTH_EAST("Receptor: south-east corner", LIT_SOUTH_EAST, ReceptorPosition.SOUTH_EAST, false),
-        RECEPTOR_SOUTH_WEST("Receptor: south-west corner", LIT_SOUTH_WEST, ReceptorPosition.SOUTH_WEST, false),
+        RECEPTOR_NORTH_EAST(
+                "Receptor: north-east corner",
+                LIT_NORTH_EAST,
+                PORTAL_NORTH_EAST,
+                ReceptorPosition.NORTH_EAST,
+                false
+        ),
+        RECEPTOR_NORTH_WEST(
+                "Receptor: north-west corner",
+                LIT_NORTH_WEST,
+                PORTAL_NORTH_WEST,
+                ReceptorPosition.NORTH_WEST,
+                false
+        ),
+        RECEPTOR_SOUTH_EAST(
+                "Receptor: south-east corner",
+                LIT_SOUTH_EAST,
+                PORTAL_SOUTH_EAST,
+                ReceptorPosition.SOUTH_EAST,
+                false
+        ),
+        RECEPTOR_SOUTH_WEST(
+                "Receptor: south-west corner",
+                LIT_SOUTH_WEST,
+                PORTAL_SOUTH_WEST,
+                ReceptorPosition.SOUTH_WEST,
+                false
+        ),
 
-        DIALER_NORTH("Hit dialer: north", null, null, true),
-        DIALER_EAST("Hit dialer: east", null, null, true),
-        DIALER_SOUTH("Hit dialer: south", null, null, true),
-        DIALER_WEST("Hit dialer: west", null, null, true);
+        DIALER_NORTH("Hit dialer: north", null, null, null, true),
+        DIALER_EAST("Hit dialer: east", null, null, null, true),
+        DIALER_SOUTH("Hit dialer: south", null, null, null, true),
+        DIALER_WEST("Hit dialer: west", null, null, null, true);
 
         private final String message;
         @Nullable
         private final BooleanProperty lightProperty;
+        @Nullable
+        private final BooleanProperty portalProperty;
         @Nullable
         private final ReceptorPosition receptor;
         private final boolean togglesBasuke;
@@ -319,17 +384,21 @@ public class VocoTableBlock extends Block implements EntityBlock {
         HitPart(
                 @Nullable String message,
                 @Nullable BooleanProperty lightProperty,
+                @Nullable BooleanProperty portalProperty,
                 @Nullable ReceptorPosition receptor,
                 boolean togglesBasuke
         ) {
             this.message = message;
             this.lightProperty = lightProperty;
+            this.portalProperty = portalProperty;
             this.receptor = receptor;
             this.togglesBasuke = togglesBasuke;
         }
 
         private boolean isReceptor() {
-            return this.lightProperty != null && this.receptor != null;
+            return this.lightProperty != null
+                    && this.portalProperty != null
+                    && this.receptor != null;
         }
     }
 }

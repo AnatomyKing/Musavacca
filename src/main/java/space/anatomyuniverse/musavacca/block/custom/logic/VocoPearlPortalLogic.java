@@ -2,6 +2,8 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -62,7 +64,25 @@ public final class VocoPearlPortalLogic {
             return receptorState;
         }
 
-        return receptorState.setValue(VocoReceptorBlock.PORTAL, portalInfo.active());
+        boolean wasPortal = receptorState.getValue(VocoReceptorBlock.PORTAL);
+        boolean shouldBePortal = portalInfo.active();
+
+        if (!wasPortal && shouldBePortal && level != null && !level.isClientSide()) {
+            playPortalAppearSound(level, receptorPos);
+        }
+
+        return receptorState.setValue(VocoReceptorBlock.PORTAL, shouldBePortal);
+    }
+
+    private static void playPortalAppearSound(Level level, BlockPos pos) {
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.BEACON_ACTIVATE,
+                SoundSource.BLOCKS,
+                0.65F,
+                1.25F
+        );
     }
 
     private static PortalInfo readPortalInfo(
