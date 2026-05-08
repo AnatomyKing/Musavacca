@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/PearlCandleBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -87,7 +88,7 @@ public class PearlCandleBlock extends CandleBlock implements EntityBlock {
             level.setBlock(
                     pos,
                     this.toVanillaCandleState(state, false),
-                    Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
+                    Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE
             );
             return;
         }
@@ -118,7 +119,7 @@ public class PearlCandleBlock extends CandleBlock implements EntityBlock {
                 level.setBlock(
                         pos,
                         newState,
-                        Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
+                        Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE
                 );
 
                 SoundType soundType = newState.getSoundType();
@@ -154,7 +155,7 @@ public class PearlCandleBlock extends CandleBlock implements EntityBlock {
         int hexColor = FlintAndPearlItem.DEFAULT_HEX_COLOR;
 
         if (level.getBlockEntity(pos) instanceof PearlCandleBlockEntity pearlCandleBe) {
-            hexColor = pearlCandleBe.getHexColor();
+            hexColor = pearlCandleBe.getHexColorOrFallback();
         }
 
         for (Vec3 offset : this.getParticleOffsets(state)) {

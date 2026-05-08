@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/logic/VocoPearlPortalLogic.java
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -15,6 +16,14 @@ public final class VocoPearlPortalLogic {
     private static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
 
     private VocoPearlPortalLogic() {}
+
+    public static void refreshReceptorBelowCandle(Level level, BlockPos candlePos) {
+        if (level == null || candlePos == null || level.isClientSide()) {
+            return;
+        }
+
+        refreshReceptorAt(level, candlePos.below());
+    }
 
     public static void refreshReceptorAt(Level level, BlockPos receptorPos) {
         if (level == null || receptorPos == null || level.isClientSide()) {
@@ -39,7 +48,15 @@ public final class VocoPearlPortalLogic {
             BlockState receptorState
     ) {
         PortalInfo portalInfo = readPortalInfo(level, receptorPos, receptorState);
-        updateReceptorBlockEntity(level, receptorPos, portalInfo);
+
+        BlockEntity be = level.getBlockEntity(receptorPos);
+        if (be instanceof VocoReceptorBlockEntity receptorBe) {
+            if (portalInfo.active()) {
+                receptorBe.setHexColor(portalInfo.hexColor());
+            } else {
+                receptorBe.clearHexColor();
+            }
+        }
 
         if (!receptorState.hasProperty(VocoReceptorBlock.PORTAL)) {
             return receptorState;
@@ -48,29 +65,13 @@ public final class VocoPearlPortalLogic {
         return receptorState.setValue(VocoReceptorBlock.PORTAL, portalInfo.active());
     }
 
-    private static void updateReceptorBlockEntity(
-            Level level,
-            BlockPos receptorPos,
-            PortalInfo portalInfo
-    ) {
-        BlockEntity be = level.getBlockEntity(receptorPos);
-        if (!(be instanceof VocoReceptorBlockEntity receptorBe)) {
-            return;
-        }
-
-        if (portalInfo.active()) {
-            receptorBe.setHexColor(portalInfo.hexColor());
-        } else {
-            receptorBe.clearHexColor();
-        }
-    }
-
     private static PortalInfo readPortalInfo(
             Level level,
             BlockPos receptorPos,
             BlockState receptorState
     ) {
-        if (!receptorState.hasProperty(VocoReceptorBlock.LIT) || !receptorState.getValue(VocoReceptorBlock.LIT)) {
+        if (!receptorState.hasProperty(VocoReceptorBlock.LIT)
+                || !receptorState.getValue(VocoReceptorBlock.LIT)) {
             return PortalInfo.INACTIVE;
         }
 
@@ -81,7 +82,8 @@ public final class VocoPearlPortalLogic {
             return PortalInfo.INACTIVE;
         }
 
-        if (!candleState.hasProperty(BlockStateProperties.LIT) || !candleState.getValue(BlockStateProperties.LIT)) {
+        if (!candleState.hasProperty(BlockStateProperties.LIT)
+                || !candleState.getValue(BlockStateProperties.LIT)) {
             return PortalInfo.INACTIVE;
         }
 
@@ -92,6 +94,10 @@ public final class VocoPearlPortalLogic {
 
         BlockEntity candleBe = level.getBlockEntity(candlePos);
         if (!(candleBe instanceof PearlCandleBlockEntity pearlCandleBe)) {
+            return PortalInfo.INACTIVE;
+        }
+
+        if (!pearlCandleBe.hasHexColor()) {
             return PortalInfo.INACTIVE;
         }
 
