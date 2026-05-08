@@ -13,12 +13,13 @@ import space.anatomyuniverse.musavacca.gui.menu.VocoSliderMenu;
 import java.util.function.IntConsumer;
 
 public class VocoSliderScreen extends AbstractContainerScreen<VocoSliderMenu> {
+    private Button customTargetButton;
 
     public VocoSliderScreen(VocoSliderMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
 
         this.imageWidth = 240;
-        this.imageHeight = 132;
+        this.imageHeight = 162;
 
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
@@ -34,7 +35,7 @@ public class VocoSliderScreen extends AbstractContainerScreen<VocoSliderMenu> {
         this.addRenderableWidget(
                 new DegreeSlider(
                         left + 20,
-                        top + 38,
+                        top + 40,
                         200,
                         20,
                         "Horizontal / Yaw",
@@ -48,7 +49,7 @@ public class VocoSliderScreen extends AbstractContainerScreen<VocoSliderMenu> {
         this.addRenderableWidget(
                 new DegreeSlider(
                         left + 20,
-                        top + 70,
+                        top + 72,
                         200,
                         20,
                         "Vertical / Pitch",
@@ -59,11 +60,42 @@ public class VocoSliderScreen extends AbstractContainerScreen<VocoSliderMenu> {
                 )
         );
 
-        this.addRenderableWidget(
-                Button.builder(Component.literal("Done"), button -> this.onClose())
-                        .bounds(left + 84, top + 100, 72, 20)
+        this.customTargetButton = this.addRenderableWidget(
+                Button.builder(
+                                this.customTargetMessage(),
+                                button -> {
+                                    this.sendMenuButton(VocoSliderMenu.BUTTON_TOGGLE_CUSTOM_TARGET);
+                                    button.setMessage(this.customTargetMessage());
+                                }
+                        )
+                        .bounds(left + 20, top + 102, 96, 20)
                         .build()
         );
+
+        this.addRenderableWidget(
+                Button.builder(
+                                Component.literal("Use My Position"),
+                                button -> {
+                                    this.sendMenuButton(VocoSliderMenu.BUTTON_USE_PLAYER_POSITION);
+
+                                    if (this.customTargetButton != null) {
+                                        this.customTargetButton.setMessage(this.customTargetMessage());
+                                    }
+                                }
+                        )
+                        .bounds(left + 124, top + 102, 96, 20)
+                        .build()
+        );
+
+        this.addRenderableWidget(
+                Button.builder(Component.literal("Done"), button -> this.onClose())
+                        .bounds(left + 84, top + 132, 72, 20)
+                        .build()
+        );
+    }
+
+    private Component customTargetMessage() {
+        return Component.literal("Mode: " + this.menu.getTargetModeDisplayName());
     }
 
     private void sendMenuButton(int buttonId) {
@@ -86,10 +118,19 @@ public class VocoSliderScreen extends AbstractContainerScreen<VocoSliderMenu> {
 
         graphics.drawString(
                 this.font,
-                Component.literal("Voco Facing: " + this.menu.getReceptorDisplayName()),
+                Component.literal("Voco Target: " + this.menu.getReceptorDisplayName()),
                 left + 20,
-                top + 14,
+                top + 12,
                 0xFFFFFF,
+                false
+        );
+
+        graphics.drawString(
+                this.font,
+                Component.literal("Default corner = safe offset around the receptor."),
+                left + 20,
+                top + 24,
+                0xBFBFBF,
                 false
         );
     }
@@ -97,6 +138,15 @@ public class VocoSliderScreen extends AbstractContainerScreen<VocoSliderMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         // Intentionally empty.
+    }
+
+    @Override
+    public void containerTick() {
+        super.containerTick();
+
+        if (this.customTargetButton != null) {
+            this.customTargetButton.setMessage(this.customTargetMessage());
+        }
     }
 
     @Override

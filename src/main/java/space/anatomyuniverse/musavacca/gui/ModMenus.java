@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/gui/ModMenus.java
 package space.anatomyuniverse.musavacca.gui;
 
 import net.minecraft.core.registries.Registries;
@@ -6,6 +7,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.gui.menu.HexTeleportMenu;
 import space.anatomyuniverse.musavacca.gui.menu.ItemInteractMenu;
 import space.anatomyuniverse.musavacca.gui.menu.TestInventoryMenu;
 import space.anatomyuniverse.musavacca.gui.menu.VocoSliderMenu;
@@ -32,6 +34,12 @@ public final class ModMenus {
             MENUS.register(
                     "voco_slider_menu",
                     () -> IMenuTypeExtension.create(VocoSliderMenu::new)
+            );
+
+    public static final Supplier<MenuType<HexTeleportMenu>> HEX_TELEPORT_MENU =
+            MENUS.register(
+                    "hex_teleport_menu",
+                    () -> IMenuTypeExtension.create(HexTeleportMenu::new)
             );
 
     public static void register(IEventBus bus) {

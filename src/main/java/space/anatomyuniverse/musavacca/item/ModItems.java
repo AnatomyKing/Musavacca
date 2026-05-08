@@ -23,10 +23,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
-import space.anatomyuniverse.musavacca.item.custom.OpenTestInventoryItem;
-import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
-import space.anatomyuniverse.musavacca.item.custom.SmallBananaPearlItem;
+import space.anatomyuniverse.musavacca.item.custom.*;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumAxeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumHoeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumItem;
@@ -85,6 +82,12 @@ public final class ModItems {
     public static final DeferredItem<Item> OPEN_INVO_TEST_ITEM =
             ITEMS.registerItem("open_invo_test_item",
                     props -> new OpenTestInventoryItem(
+                            props.rarity(Rarity.RARE)
+                    ));
+
+    public static final DeferredItem<Item> OPEN_TELEPORT_TEST_ITEM =
+            ITEMS.registerItem("open_teleport_test_item",
+                    props -> new OpenTeleportInventoryItem(
                             props.rarity(Rarity.RARE)
                     ));
 

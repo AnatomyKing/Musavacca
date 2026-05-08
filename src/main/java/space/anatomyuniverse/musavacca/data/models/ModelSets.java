@@ -227,6 +227,7 @@ public final class ModelSets {
                 ModItems.MUSAVACCA_EXUDATE.get(),
                 ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(),
                 ModItems.BANANA_PELLIS.get(),
+                ModItems.OPEN_TELEPORT_TEST_ITEM.get(),
                 ModItems.OPEN_INVO_TEST_ITEM.get(),
                 ModBlocks.UNRIPE_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),

@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.custom.VocoReceptorBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic;
@@ -27,12 +28,16 @@ public class VocoSliderMenu extends AbstractContainerMenu {
     private static final int BUTTON_YAW_BASE = 1000;
     private static final int BUTTON_PITCH_BASE = 2000;
 
+    public static final int BUTTON_TOGGLE_CUSTOM_TARGET = 3000;
+    public static final int BUTTON_USE_PLAYER_POSITION = 3001;
+
     private final Player player;
     private final BlockPos pos;
     private final ReceptorPosition receptor;
 
     private int yawDegrees;
     private int pitchDegrees;
+    private boolean customTargetEnabled;
 
     public VocoSliderMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf extraData) {
         this(
@@ -41,7 +46,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
                 extraData.readBlockPos(),
                 ReceptorPosition.byId(extraData.readInt()),
                 extraData.readInt(),
-                extraData.readInt()
+                extraData.readInt(),
+                extraData.readBoolean()
         );
     }
 
@@ -52,7 +58,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
                 pos,
                 receptor,
                 readYaw(playerInventory.player.level(), pos, receptor),
-                readPitch(playerInventory.player.level(), pos, receptor)
+                readPitch(playerInventory.player.level(), pos, receptor),
+                readCustomTargetEnabled(playerInventory.player.level(), pos, receptor)
         );
     }
 
@@ -62,7 +69,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
             BlockPos pos,
             ReceptorPosition receptor,
             int initialYawDegrees,
-            int initialPitchDegrees
+            int initialPitchDegrees,
+            boolean initialCustomTargetEnabled
     ) {
         super(ModMenus.VOCO_SLIDER_MENU.get(), containerId);
 
@@ -72,6 +80,7 @@ public class VocoSliderMenu extends AbstractContainerMenu {
 
         this.yawDegrees = clampYaw(initialYawDegrees);
         this.pitchDegrees = clampPitch(initialPitchDegrees);
+        this.customTargetEnabled = initialCustomTargetEnabled;
 
         this.addSyncSlots();
     }
@@ -79,6 +88,7 @@ public class VocoSliderMenu extends AbstractContainerMenu {
     public static void open(ServerPlayer player, BlockPos pos, ReceptorPosition receptor) {
         int yaw = readYaw(player.level(), pos, receptor);
         int pitch = readPitch(player.level(), pos, receptor);
+        boolean customTargetEnabled = readCustomTargetEnabled(player.level(), pos, receptor);
 
         player.openMenu(
                 new SimpleMenuProvider(
@@ -88,13 +98,14 @@ public class VocoSliderMenu extends AbstractContainerMenu {
                                 pos,
                                 receptor
                         ),
-                        Component.literal("Voco Facing: " + receptor.displayName())
+                        Component.literal("Voco Target: " + receptor.displayName())
                 ),
                 buffer -> {
                     buffer.writeBlockPos(pos);
                     buffer.writeInt(receptor.id());
                     buffer.writeInt(yaw);
                     buffer.writeInt(pitch);
+                    buffer.writeBoolean(customTargetEnabled);
                 }
         );
     }
@@ -131,6 +142,22 @@ public class VocoSliderMenu extends AbstractContainerMenu {
                 VocoSliderMenu.this.pitchDegrees = clampPitch(value);
             }
         });
+
+        this.addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return readCustomTargetEnabled(
+                        VocoSliderMenu.this.player.level(),
+                        VocoSliderMenu.this.pos,
+                        VocoSliderMenu.this.receptor
+                ) ? 1 : 0;
+            }
+
+            @Override
+            public void set(int value) {
+                VocoSliderMenu.this.customTargetEnabled = value != 0;
+            }
+        });
     }
 
     public BlockPos getPos() {
@@ -151,6 +178,16 @@ public class VocoSliderMenu extends AbstractContainerMenu {
 
     public int getPitchDegrees() {
         return this.pitchDegrees;
+    }
+
+    public boolean isCustomTargetEnabled() {
+        return this.customTargetEnabled;
+    }
+
+    public String getTargetModeDisplayName() {
+        return this.customTargetEnabled
+                ? "Custom position"
+                : "Default corner";
     }
 
     public static int buttonIdForYaw(int yawDegrees) {
@@ -207,6 +244,30 @@ public class VocoSliderMenu extends AbstractContainerMenu {
             return true;
         }
 
+        if (id == BUTTON_TOGGLE_CUSTOM_TARGET) {
+            this.customTargetEnabled = !this.customTargetEnabled;
+
+            if (!player.level().isClientSide()) {
+                this.writeCustomTargetEnabled(this.customTargetEnabled);
+                this.broadcastChanges();
+            }
+
+            return true;
+        }
+
+        if (id == BUTTON_USE_PLAYER_POSITION) {
+            this.customTargetEnabled = true;
+            this.yawDegrees = clampYaw(Math.round(player.getYRot()));
+            this.pitchDegrees = clampPitch(Math.round(player.getXRot()));
+
+            if (!player.level().isClientSide()) {
+                this.writeCustomTargetFromPlayer(player);
+                this.broadcastChanges();
+            }
+
+            return true;
+        }
+
         return false;
     }
 
@@ -236,6 +297,36 @@ public class VocoSliderMenu extends AbstractContainerMenu {
         }
     }
 
+    private void writeCustomTargetEnabled(boolean enabled) {
+        BlockEntity be = this.player.level().getBlockEntity(this.pos);
+
+        if (be instanceof VocoTableBlockEntity tableBe) {
+            tableBe.setCustomTargetEnabled(this.receptor, enabled);
+            return;
+        }
+
+        if (be instanceof VocoReceptorBlockEntity receptorBe) {
+            receptorBe.setCustomTargetEnabled(enabled);
+        }
+    }
+
+    private void writeCustomTargetFromPlayer(Player player) {
+        Vec3 target = player.position();
+        int yaw = clampYaw(Math.round(player.getYRot()));
+        int pitch = clampPitch(Math.round(player.getXRot()));
+
+        BlockEntity be = player.level().getBlockEntity(this.pos);
+
+        if (be instanceof VocoTableBlockEntity tableBe) {
+            tableBe.setCustomTarget(this.receptor, target, yaw, pitch);
+            return;
+        }
+
+        if (be instanceof VocoReceptorBlockEntity receptorBe) {
+            receptorBe.setCustomTarget(target, yaw, pitch);
+        }
+    }
+
     private static int readYaw(Level level, BlockPos pos, ReceptorPosition receptor) {
         BlockEntity be = level.getBlockEntity(pos);
 
@@ -262,6 +353,20 @@ public class VocoSliderMenu extends AbstractContainerMenu {
         }
 
         return receptor.defaultPitchDegrees();
+    }
+
+    private static boolean readCustomTargetEnabled(Level level, BlockPos pos, ReceptorPosition receptor) {
+        BlockEntity be = level.getBlockEntity(pos);
+
+        if (be instanceof VocoTableBlockEntity tableBe) {
+            return tableBe.isCustomTargetEnabled(receptor);
+        }
+
+        if (be instanceof VocoReceptorBlockEntity receptorBe) {
+            return receptorBe.isCustomTargetEnabled();
+        }
+
+        return false;
     }
 
     @Override

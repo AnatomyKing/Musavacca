@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,11 +67,11 @@ public final class PearlPortalNetwork {
         SERVER_CACHE.portalsById.put(portalId, loadedPortal);
 
         if (portalBlockEntity.isOriginBlock()) {
-            PearlPortalDirectory.get(serverLevel.getServer()).upsertEndpoint(
+            HexTeleportDirectory.get(serverLevel.getServer()).registerPortalEndpoint(
                     portalId,
+                    portalBlockEntity.getHexColor(),
                     serverLevel.dimension().location(),
-                    portalBlockEntity.getPortalShape(),
-                    portalBlockEntity.getHexColor()
+                    portalBlockEntity.getPortalShape()
             );
         }
     }
@@ -106,7 +107,7 @@ public final class PearlPortalNetwork {
         if (portalId == null) return;
 
         removeLoadedPortal(SERVER_CACHE, portalId);
-        PearlPortalDirectory.get(level.getServer()).removePortal(portalId);
+        HexTeleportDirectory.get(level.getServer()).removeEndpoint(portalId);
     }
 
     public static void clear() {

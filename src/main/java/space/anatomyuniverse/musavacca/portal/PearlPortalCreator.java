@@ -11,9 +11,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.hex.PearlHexNetwork;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 import java.util.UUID;
 
@@ -50,15 +50,14 @@ public final class PearlPortalCreator {
             return false;
         }
 
-        PearlHexNetwork hexNetwork = PearlHexNetwork.get(serverLevel.getServer());
-        if (!hexNetwork.canCreatePortalWithHex(serverLevel, normalizedHex)) {
+        UUID portalId = UUID.randomUUID();
+        HexTeleportDirectory directory = HexTeleportDirectory.get(serverLevel.getServer());
+
+        HexTeleportDirectory.Result preCheck = directory.checkPortalEndpoint(portalId, normalizedHex);
+        if (!preCheck.success()) {
             sendActionBar(player, "Pearl address #" + toHex(normalizedHex) + " is already occupied.");
             return false;
         }
-
-        PearlPortalDirectory directory = PearlPortalDirectory.get(serverLevel.getServer());
-
-        UUID portalId = UUID.randomUUID();
 
         placePortalBlocks(serverLevel, shape);
 
@@ -68,23 +67,21 @@ public final class PearlPortalCreator {
             return false;
         }
 
-        directory.upsertEndpoint(
+        HexTeleportDirectory.Result result = directory.registerPortalEndpoint(
                 portalId,
+                normalizedHex,
                 serverLevel.dimension().location(),
-                shape,
-                normalizedHex
+                shape
         );
 
-        PearlPortalDirectory.LinkResult linkResult = directory.linkOrWait(portalId, normalizedHex);
-
-        if (linkResult == PearlPortalDirectory.LinkResult.HEX_ALREADY_USED) {
+        if (!result.success()) {
             removePortalBlocksOnly(serverLevel, shape);
             PearlPortalNetwork.removePortal(serverLevel, portalId);
-            sendActionBar(player, "Pearl address #" + toHex(normalizedHex) + " is already linked.");
+            sendActionBar(player, "Pearl address #" + toHex(normalizedHex) + " is already occupied.");
             return false;
         }
 
-        sendCreationMessage(player, linkResult, normalizedHex);
+        sendCreationMessage(player, result, normalizedHex);
         return true;
     }
 
@@ -159,10 +156,10 @@ public final class PearlPortalCreator {
 
     private static void sendCreationMessage(
             @Nullable Player player,
-            PearlPortalDirectory.LinkResult linkResult,
+            HexTeleportDirectory.Result result,
             int hexColor
     ) {
-        if (linkResult == PearlPortalDirectory.LinkResult.LINKED_TO_EXISTING_PORTAL) {
+        if (result == HexTeleportDirectory.Result.LINKED_TO_EXISTING_PORTAL) {
             sendActionBar(player, "Pearl portals linked with address #" + toHex(hexColor) + ".");
             return;
         }

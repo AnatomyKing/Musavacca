@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/VocoTableBlockEntity.java
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -28,16 +27,19 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.hex.PearlHexNetwork;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
+import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 import java.util.UUID;
 
@@ -91,6 +93,34 @@ public class VocoTableBlockEntity extends BlockEntity {
             "pitch_south_west"
     };
 
+    private static final String[] TAG_CUSTOM_TARGET = {
+            "custom_target_north_east",
+            "custom_target_north_west",
+            "custom_target_south_east",
+            "custom_target_south_west"
+    };
+
+    private static final String[] TAG_TARGET_X = {
+            "target_x_north_east",
+            "target_x_north_west",
+            "target_x_south_east",
+            "target_x_south_west"
+    };
+
+    private static final String[] TAG_TARGET_Y = {
+            "target_y_north_east",
+            "target_y_north_west",
+            "target_y_south_east",
+            "target_y_south_west"
+    };
+
+    private static final String[] TAG_TARGET_Z = {
+            "target_z_north_east",
+            "target_z_north_west",
+            "target_z_south_east",
+            "target_z_south_west"
+    };
+
     public static final int DEFAULT_HEX_COLOR = FlintAndPearlItem.DEFAULT_HEX_COLOR;
     public static final int UNSET_HEX_COLOR = VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR;
 
@@ -98,6 +128,12 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     private final int[] yawDegrees = new int[ReceptorPosition.COUNT];
     private final int[] pitchDegrees = new int[ReceptorPosition.COUNT];
+
+    private final boolean[] customTargetEnabled = new boolean[ReceptorPosition.COUNT];
+    private final double[] targetX = new double[ReceptorPosition.COUNT];
+    private final double[] targetY = new double[ReceptorPosition.COUNT];
+    private final double[] targetZ = new double[ReceptorPosition.COUNT];
+
     private final CandleSlot[] candleSlots = new CandleSlot[ReceptorPosition.COUNT];
 
     private int latestHexColor = UNSET_HEX_COLOR;
@@ -116,6 +152,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
 
         this.resetFacingDefaults();
+        this.resetTargetDefaults();
     }
 
     public ItemStack getDisplayedItem() {
@@ -161,6 +198,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         this.yawDegrees[index] = clamped;
         this.markChangedAndSync();
+        this.resyncEndpoint(receptor);
     }
 
     public void setPitchDegrees(ReceptorPosition receptor, int pitchDegrees) {
@@ -173,6 +211,59 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         this.pitchDegrees[index] = clamped;
         this.markChangedAndSync();
+        this.resyncEndpoint(receptor);
+    }
+
+    public boolean isCustomTargetEnabled(ReceptorPosition receptor) {
+        return this.customTargetEnabled[receptor.id()];
+    }
+
+    public Vec3 getCustomTarget(ReceptorPosition receptor) {
+        int index = receptor.id();
+
+        if (!this.customTargetEnabled[index]) {
+            return VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
+        }
+
+        return new Vec3(
+                this.targetX[index],
+                this.targetY[index],
+                this.targetZ[index]
+        );
+    }
+
+    public void setCustomTargetEnabled(ReceptorPosition receptor, boolean enabled) {
+        int index = receptor.id();
+
+        if (this.customTargetEnabled[index] == enabled) {
+            return;
+        }
+
+        this.customTargetEnabled[index] = enabled;
+
+        if (enabled && this.targetY[index] == 0.0D) {
+            Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
+            this.targetX[index] = fallback.x;
+            this.targetY[index] = fallback.y;
+            this.targetZ[index] = fallback.z;
+        }
+
+        this.markChangedAndSync();
+        this.resyncEndpoint(receptor);
+    }
+
+    public void setCustomTarget(ReceptorPosition receptor, Vec3 target, int yawDegrees, int pitchDegrees) {
+        int index = receptor.id();
+
+        this.customTargetEnabled[index] = true;
+        this.targetX[index] = target.x;
+        this.targetY[index] = target.y;
+        this.targetZ[index] = target.z;
+        this.yawDegrees[index] = VocoSharedBetweenTableAndReceptorLogic.clampYaw(yawDegrees);
+        this.pitchDegrees[index] = VocoSharedBetweenTableAndReceptorLogic.clampPitch(pitchDegrees);
+
+        this.markChangedAndSync();
+        this.resyncEndpoint(receptor);
     }
 
     public boolean hasLatestHexColor() {
@@ -291,18 +382,11 @@ public class VocoTableBlockEntity extends BlockEntity {
             return false;
         }
 
-        int normalized = normalizeHex(hexColor);
+        slot.lit = true;
+        slot.hexColor = normalizeHex(hexColor);
 
-        if (this.reserveCandleHexClaim(receptor, normalized).success()) {
-            slot.lit = true;
-            slot.hexColor = normalized;
-            this.setLatest(receptor, normalized);
-
-            this.markChangedAndSync();
-            return true;
-        }
-
-        return false;
+        this.markChangedAndSync();
+        return true;
     }
 
     public boolean extinguishCandle(ReceptorPosition receptor) {
@@ -312,12 +396,11 @@ public class VocoTableBlockEntity extends BlockEntity {
             return false;
         }
 
-        this.releaseCandleHexClaim(receptor);
-
         slot.lit = false;
         this.refreshLatestHexFromLitCandles();
 
         this.markChangedAndSync();
+        this.resyncEndpoint(receptor);
         return true;
     }
 
@@ -330,11 +413,6 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         ItemStack removed = new ItemStack(slot.block.asItem());
 
-        boolean removingLastCandle = slot.count <= 1;
-        if (removingLastCandle && slot.lit) {
-            this.releaseCandleHexClaim(receptor);
-        }
-
         slot.count--;
 
         if (slot.count <= 0) {
@@ -343,17 +421,8 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
 
         this.markChangedAndSync();
+        this.resyncEndpoint(receptor);
         return removed;
-    }
-
-    public boolean ensureCandleHexClaim(ReceptorPosition receptor) {
-        CandleSlot slot = this.slot(receptor);
-
-        if (!slot.hasCandle() || !slot.lit) {
-            return true;
-        }
-
-        return this.reserveCandleHexClaim(receptor, slot.hexColor).success();
     }
 
     public boolean hasOtherLitCandleWithHex(ReceptorPosition ignoredReceptor, int hexColor) {
@@ -373,76 +442,6 @@ public class VocoTableBlockEntity extends BlockEntity {
         return false;
     }
 
-    public PearlHexNetwork.ClaimResult checkCandleHexClaim(ReceptorPosition receptor, int hexColor) {
-        int normalized = normalizeHex(hexColor);
-
-        if (this.hasOtherLitCandleWithHex(receptor, normalized)) {
-            return PearlHexNetwork.ClaimResult.HEX_OCCUPIED_BY_VOCO;
-        }
-
-        Level level = this.getLevel();
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return PearlHexNetwork.ClaimResult.RESERVED;
-        }
-
-        String ownerKey = PearlHexNetwork.vocoTableCandleOwnerKey(
-                serverLevel,
-                this.getBlockPos(),
-                receptor
-        );
-
-        return PearlHexNetwork
-                .get(serverLevel.getServer())
-                .checkVocoHex(serverLevel, ownerKey, normalized);
-    }
-
-    private PearlHexNetwork.ClaimResult reserveCandleHexClaim(ReceptorPosition receptor, int hexColor) {
-        int normalized = normalizeHex(hexColor);
-
-        if (this.hasOtherLitCandleWithHex(receptor, normalized)) {
-            return PearlHexNetwork.ClaimResult.HEX_OCCUPIED_BY_VOCO;
-        }
-
-        Level level = this.getLevel();
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return PearlHexNetwork.ClaimResult.RESERVED;
-        }
-
-        String ownerKey = PearlHexNetwork.vocoTableCandleOwnerKey(
-                serverLevel,
-                this.getBlockPos(),
-                receptor
-        );
-
-        return PearlHexNetwork
-                .get(serverLevel.getServer())
-                .reserveVocoHex(
-                        serverLevel,
-                        ownerKey,
-                        PearlHexNetwork.OwnerKind.VOCO_TABLE_CANDLE,
-                        normalized
-                );
-    }
-
-
-    private void releaseCandleHexClaim(ReceptorPosition receptor) {
-        Level level = this.getLevel();
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
-        PearlHexNetwork
-                .get(serverLevel.getServer())
-                .release(
-                        serverLevel,
-                        PearlHexNetwork.vocoTableCandleOwnerKey(
-                                serverLevel,
-                                this.getBlockPos(),
-                                receptor
-                        )
-                );
-    }
-
     private void setLatest(ReceptorPosition receptor, int hexColor) {
         this.latestHexReceptorId = receptor.id();
         this.latestHexColor = normalizeHex(hexColor);
@@ -458,6 +457,43 @@ public class VocoTableBlockEntity extends BlockEntity {
             this.yawDegrees[index] = receptor.defaultYawDegrees();
             this.pitchDegrees[index] = receptor.defaultPitchDegrees();
         }
+    }
+
+    private void resetTargetDefaults() {
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            int index = receptor.id();
+            Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
+
+            this.customTargetEnabled[index] = false;
+            this.targetX[index] = fallback.x;
+            this.targetY[index] = fallback.y;
+            this.targetZ[index] = fallback.z;
+        }
+    }
+
+    private void resyncEndpoint(ReceptorPosition receptor) {
+        Level level = this.getLevel();
+
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        BlockState state = this.getBlockState();
+
+        boolean portalActive = state.hasProperty(VocoTableBlock.portalProperty(receptor))
+                && state.getValue(VocoTableBlock.portalProperty(receptor));
+
+        int hexColor = portalActive
+                ? this.getPortalHexColorOrUnset(receptor)
+                : UNSET_HEX_COLOR;
+
+        VocoTeleportLogic.syncEndpoint(
+                serverLevel,
+                this.getBlockPos(),
+                receptor,
+                portalActive && hexColor != UNSET_HEX_COLOR,
+                hexColor
+        );
     }
 
     public boolean isBasukeVisible() {
@@ -581,6 +617,27 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        Level level = this.getLevel();
+
+        if (level instanceof ServerLevel serverLevel) {
+            HexTeleportDirectory directory = HexTeleportDirectory.get(serverLevel.getServer());
+
+            for (ReceptorPosition receptor : ReceptorPosition.values()) {
+                directory.removeOwner(
+                        HexTeleportDirectory.vocoTableOwnerKey(
+                                serverLevel.dimension().location(),
+                                pos,
+                                receptor
+                        )
+                );
+            }
+        }
+
+        super.preRemoveSideEffects(pos, state);
+    }
+
+    @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
@@ -591,6 +648,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         this.basukeUuid = readUuid(input.getStringOr(TAG_BASUKE_UUID, ""));
 
         this.resetFacingDefaults();
+        this.resetTargetDefaults();
         this.clearAllCandleSlots();
 
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
@@ -603,6 +661,13 @@ public class VocoTableBlockEntity extends BlockEntity {
             this.pitchDegrees[index] = VocoSharedBetweenTableAndReceptorLogic.clampPitch(
                     input.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees())
             );
+
+            Vec3 fallbackTarget = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
+
+            this.customTargetEnabled[index] = input.getBooleanOr(TAG_CUSTOM_TARGET[index], false);
+            this.targetX[index] = input.getDoubleOr(TAG_TARGET_X[index], fallbackTarget.x);
+            this.targetY[index] = input.getDoubleOr(TAG_TARGET_Y[index], fallbackTarget.y);
+            this.targetZ[index] = input.getDoubleOr(TAG_TARGET_Z[index], fallbackTarget.z);
 
             CandleSlot slot = this.slot(receptor);
 
@@ -650,6 +715,11 @@ public class VocoTableBlockEntity extends BlockEntity {
 
             output.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
             output.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
+
+            output.putBoolean(TAG_CUSTOM_TARGET[index], this.customTargetEnabled[index]);
+            output.putDouble(TAG_TARGET_X[index], this.targetX[index]);
+            output.putDouble(TAG_TARGET_Y[index], this.targetY[index]);
+            output.putDouble(TAG_TARGET_Z[index], this.targetZ[index]);
 
             if (slot.hasCandle()) {
                 ResourceLocation candleId = BuiltInRegistries.BLOCK.getKey(slot.block);

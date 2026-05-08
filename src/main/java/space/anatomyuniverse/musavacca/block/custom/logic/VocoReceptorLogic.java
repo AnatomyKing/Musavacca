@@ -3,6 +3,7 @@ package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -68,20 +69,12 @@ public final class VocoReceptorLogic {
             return InteractionResult.SUCCESS;
         }
 
-        if (!VocoSharedBetweenTableAndReceptorLogic.canTeleport(
-                state,
-                VocoReceptorBlock.LIT,
-                VocoReceptorBlock.PORTAL
-        )) {
+        if (!state.getValue(VocoReceptorBlock.PORTAL)) {
             if (level.isClientSide()) {
                 VocoSharedBetweenTableAndReceptorLogic.showNeedsPortalMessage(player);
             }
 
             return InteractionResult.SUCCESS;
-        }
-
-        if (!level.isClientSide()) {
-            VocoTeleportLogic.teleportToReceptor(level, pos, player, receptor);
         }
 
         return InteractionResult.SUCCESS;
@@ -125,20 +118,12 @@ public final class VocoReceptorLogic {
             return InteractionResult.SUCCESS;
         }
 
-        if (!VocoSharedBetweenTableAndReceptorLogic.canTeleport(
-                state,
-                VocoReceptorBlock.LIT,
-                VocoReceptorBlock.PORTAL
-        )) {
+        if (!state.getValue(VocoReceptorBlock.PORTAL)) {
             if (level.isClientSide()) {
                 VocoSharedBetweenTableAndReceptorLogic.showNeedsPortalMessage(player);
             }
 
             return InteractionResult.SUCCESS;
-        }
-
-        if (!level.isClientSide()) {
-            VocoTeleportLogic.teleportToReceptor(level, pos, player, receptor);
         }
 
         return InteractionResult.SUCCESS;
@@ -217,11 +202,41 @@ public final class VocoReceptorLogic {
             if (shouldBePortal) {
                 shouldBePortal = receptorBe.setHexColor(portalInfo.hexColor());
 
+                if (shouldBePortal && level instanceof ServerLevel serverLevel) {
+                    shouldBePortal = VocoTeleportLogic.syncEndpoint(
+                            serverLevel,
+                            receptorPos,
+                            ReceptorPosition.NORTH_EAST,
+                            true,
+                            portalInfo.hexColor()
+                    );
+                }
+
                 if (!shouldBePortal) {
                     receptorBe.clearHexColor();
+
+                    if (level instanceof ServerLevel serverLevel) {
+                        VocoTeleportLogic.syncEndpoint(
+                                serverLevel,
+                                receptorPos,
+                                ReceptorPosition.NORTH_EAST,
+                                false,
+                                VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR
+                        );
+                    }
                 }
             } else {
                 receptorBe.clearHexColor();
+
+                if (level instanceof ServerLevel serverLevel) {
+                    VocoTeleportLogic.syncEndpoint(
+                            serverLevel,
+                            receptorPos,
+                            ReceptorPosition.NORTH_EAST,
+                            false,
+                            VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR
+                    );
+                }
             }
         } else {
             shouldBePortal = false;

@@ -30,7 +30,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.hex.PearlHexNetwork;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
@@ -39,6 +38,7 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 public final class VocoTableLogic {
     public static final BooleanProperty LIT_NORTH_EAST = BooleanProperty.create("lit_north_east");
@@ -426,14 +426,7 @@ public final class VocoTableLogic {
     ) {
         int hexColor = FlintAndPearlItem.getStoredHexOrDefault(stack);
 
-        PearlHexNetwork.ClaimResult claimResult = tableBe.checkCandleHexClaim(receptor, hexColor);
-        if (!claimResult.success()) {
-            sendHexOccupiedMessage(player, hexColor, claimResult);
-            return;
-        }
-
         if (!tableBe.lightCandle(receptor, hexColor)) {
-            sendHexOccupiedMessage(player, hexColor, PearlHexNetwork.ClaimResult.HEX_OCCUPIED_BY_VOCO);
             return;
         }
 
@@ -449,6 +442,43 @@ public final class VocoTableLogic {
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         VocoSharedBetweenTableAndReceptorLogic.damageItem(stack, player, hand);
         syncPortalStateFromCandles(level, pos, receptor);
+    }
+
+    private static boolean canUseVocoHex(
+            Level level,
+            BlockPos pos,
+            VocoTableBlockEntity tableBe,
+            ReceptorPosition receptor,
+            int hexColor,
+            Player player
+    ) {
+        int normalized = HexTeleportDirectory.normalizeHex(hexColor);
+
+        if (tableBe.hasOtherLitCandleWithHex(receptor, normalized)) {
+            sendHexOccupiedMessage(player, normalized, HexTeleportDirectory.Result.HEX_OCCUPIED);
+            return false;
+        }
+
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return true;
+        }
+
+        String ownerKey = HexTeleportDirectory.vocoTableOwnerKey(
+                serverLevel.dimension().location(),
+                pos,
+                receptor
+        );
+
+        HexTeleportDirectory.Result result = HexTeleportDirectory
+                .get(serverLevel.getServer())
+                .checkVocoEndpoint(ownerKey, normalized);
+
+        if (!result.success()) {
+            sendHexOccupiedMessage(player, normalized, result);
+            return false;
+        }
+
+        return true;
     }
 
     public static void syncPortalStateFromCandles(Level level, BlockPos pos, ReceptorPosition receptor) {
@@ -471,32 +501,61 @@ public final class VocoTableLogic {
 
         boolean shouldBePortal = state.getValue(litProperty) && tableBe.isCandleLit(receptor);
 
-        if (shouldBePortal && !tableBe.ensureCandleHexClaim(receptor)) {
-            tableBe.extinguishCandle(receptor);
-            shouldBePortal = false;
+        if (shouldBePortal && level instanceof ServerLevel serverLevel) {
+            int hexColor = tableBe.getPortalHexColorOrUnset(receptor);
+
+            if (hexColor == VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR) {
+                shouldBePortal = false;
+            } else {
+                shouldBePortal = VocoTeleportLogic.syncEndpoint(
+                        serverLevel,
+                        pos,
+                        receptor,
+                        true,
+                        hexColor
+                );
+
+                if (!shouldBePortal) {
+                    VocoTeleportLogic.syncEndpoint(
+                            serverLevel,
+                            pos,
+                            receptor,
+                            false,
+                            VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR
+                    );
+                }
+            }
+        }
+
+        if (!shouldBePortal && level instanceof ServerLevel serverLevel) {
+            VocoTeleportLogic.syncEndpoint(
+                    serverLevel,
+                    pos,
+                    receptor,
+                    false,
+                    VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR
+            );
         }
 
         boolean wasPortal = state.getValue(portalProperty);
+
+        if (wasPortal != shouldBePortal) {
+            if (!wasPortal && shouldBePortal) {
+                VocoSharedBetweenTableAndReceptorLogic.playPortalAppearSound(level, pos);
+            }
+
+            level.setBlock(
+                    pos,
+                    state.setValue(portalProperty, shouldBePortal),
+                    VocoSharedBetweenTableAndReceptorLogic.UPDATE_FLAGS
+            );
+        }
 
         if (shouldBePortal) {
             tableBe.activatePortal(receptor);
         } else {
             tableBe.refreshLatestHexFromLitCandles();
         }
-
-        if (wasPortal == shouldBePortal) {
-            return;
-        }
-
-        if (!wasPortal && shouldBePortal) {
-            VocoSharedBetweenTableAndReceptorLogic.playPortalAppearSound(level, pos);
-        }
-
-        level.setBlock(
-                pos,
-                state.setValue(portalProperty, shouldBePortal),
-                VocoSharedBetweenTableAndReceptorLogic.UPDATE_FLAGS
-        );
     }
 
     public static boolean breakLookedAtCandle(
@@ -784,18 +843,17 @@ public final class VocoTableLogic {
     private static void sendHexOccupiedMessage(
             Player player,
             int hexColor,
-            PearlHexNetwork.ClaimResult result
+            HexTeleportDirectory.Result result
     ) {
         String reason = switch (result) {
-            case HEX_OCCUPIED_BY_PORTAL -> "already used by a Pearl Portal";
-            case HEX_OCCUPIED_BY_VOCO -> "already used by a Voco device";
+            case HEX_OCCUPIED -> "already occupied";
             case INVALID_OWNER -> "invalid";
-            case RESERVED, ALREADY_OWNED -> "available";
+            case REGISTERED, UPDATED, WAITING_FOR_SECOND_PORTAL, LINKED_TO_EXISTING_PORTAL, ALREADY_REGISTERED -> "available";
         };
 
         player.displayClientMessage(
                 Component.literal(
-                        "Pearl hex #" + PearlHexNetwork.toHex(hexColor) + " is " + reason + "."
+                        "Pearl hex #" + HexTeleportDirectory.toHex(hexColor) + " is " + reason + "."
                 ),
                 true
         );
