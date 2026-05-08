@@ -16,7 +16,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoPearlPortalLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
@@ -24,7 +25,7 @@ import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 public class PearlCandleBlockEntity extends BlockEntity {
     public static final String TAG_HEX_COLOR = "hex_color";
 
-    public static final int UNSET_HEX_COLOR = -1;
+    public static final int UNSET_HEX_COLOR = VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR;
 
     private int hexColor = UNSET_HEX_COLOR;
 
@@ -55,11 +56,16 @@ public class PearlCandleBlockEntity extends BlockEntity {
 
         this.hexColor = normalized;
         this.markChangedAndSync();
+        this.refreshReceptorBelow();
+    }
 
+    private void refreshReceptorBelow() {
         Level level = this.getLevel();
-        if (level != null && !level.isClientSide()) {
-            VocoPearlPortalLogic.refreshReceptorBelowCandle(level, this.getBlockPos());
+        if (level == null || level.isClientSide()) {
+            return;
         }
+
+        VocoReceptorLogic.refreshReceptorBelowCandle(level, this.getBlockPos());
     }
 
     private void markChangedAndSync() {
@@ -67,6 +73,23 @@ public class PearlCandleBlockEntity extends BlockEntity {
 
         Level level = this.getLevel();
         if (level == null) {
+            return;
+        }
+
+        BlockPos pos = this.getBlockPos();
+        BlockState state = this.getBlockState();
+
+        level.sendBlockUpdated(
+                pos,
+                state,
+                state,
+                Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
+        );
+    }
+
+    private void rerenderClientNow() {
+        Level level = this.getLevel();
+        if (level == null || !level.isClientSide()) {
             return;
         }
 
@@ -135,29 +158,12 @@ public class PearlCandleBlockEntity extends BlockEntity {
         this.rerenderClientNow();
     }
 
-    private void rerenderClientNow() {
-        Level level = this.getLevel();
-        if (level == null || !level.isClientSide()) {
-            return;
-        }
-
-        BlockPos pos = this.getBlockPos();
-        BlockState state = this.getBlockState();
-
-        level.sendBlockUpdated(
-                pos,
-                state,
-                state,
-                Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
-        );
-    }
-
     private static int readHexOrUnset(ValueInput input) {
         int loaded = input.getIntOr(TAG_HEX_COLOR, UNSET_HEX_COLOR);
         return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
 
     private static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
+        return VocoSharedBetweenTableAndReceptorLogic.normalizeHex(hexColor);
     }
 }

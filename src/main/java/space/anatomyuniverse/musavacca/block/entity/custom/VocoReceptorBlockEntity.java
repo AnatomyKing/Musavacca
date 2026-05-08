@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/VocoReceptorBlockEntity.java
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -9,12 +10,16 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import space.anatomyuniverse.hex.PearlHexNetwork;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
@@ -24,26 +29,13 @@ public class VocoReceptorBlockEntity extends BlockEntity {
     private static final String TAG_PITCH_DEGREES = "pitch_degrees";
     private static final String TAG_HEX_COLOR = "hex_color";
 
-    public static final int UNSET_HEX_COLOR = -1;
+    public static final int UNSET_HEX_COLOR = VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR;
 
-    public static final int MIN_YAW_DEGREES = -180;
-    public static final int MAX_YAW_DEGREES = 180;
-
-    public static final int MIN_PITCH_DEGREES = -90;
-    public static final int MAX_PITCH_DEGREES = 90;
-
-    public static final int DEFAULT_YAW_DEGREES = -135;
-    public static final int DEFAULT_PITCH_DEGREES = 0;
+    public static final int DEFAULT_YAW_DEGREES = ReceptorPosition.NORTH_EAST.defaultYawDegrees();
+    public static final int DEFAULT_PITCH_DEGREES = ReceptorPosition.NORTH_EAST.defaultPitchDegrees();
 
     private int yawDegrees = DEFAULT_YAW_DEGREES;
     private int pitchDegrees = DEFAULT_PITCH_DEGREES;
-
-    /*
-     * Starts unset.
-     *
-     * This means the receptor has no HEX_COLOR data component until
-     * VocoPearlPortalLogic finds a valid lit pearl candle above it.
-     */
     private int hexColor = UNSET_HEX_COLOR;
 
     public VocoReceptorBlockEntity(BlockPos pos, BlockState state) {
@@ -99,14 +91,37 @@ public class VocoReceptorBlockEntity extends BlockEntity {
         this.markChangedAndSync();
     }
 
-    public void setHexColor(int hexColor) {
+    public boolean setHexColor(int hexColor) {
         int normalized = normalizeHex(hexColor);
+
         if (this.hexColor == normalized) {
-            return;
+            return true;
+        }
+
+        Level level = this.getLevel();
+        if (level instanceof ServerLevel serverLevel) {
+            String ownerKey = PearlHexNetwork.vocoReceptorOwnerKey(
+                    serverLevel,
+                    this.getBlockPos()
+            );
+
+            PearlHexNetwork.ClaimResult result = PearlHexNetwork
+                    .get(serverLevel.getServer())
+                    .reserveVocoHex(
+                            serverLevel,
+                            ownerKey,
+                            PearlHexNetwork.OwnerKind.VOCO_RECEPTOR,
+                            normalized
+                    );
+
+            if (!result.success()) {
+                return false;
+            }
         }
 
         this.hexColor = normalized;
         this.markChangedAndSync();
+        return true;
     }
 
     public void clearHexColor() {
@@ -114,8 +129,27 @@ public class VocoReceptorBlockEntity extends BlockEntity {
             return;
         }
 
+        this.releaseHexClaim();
+
         this.hexColor = UNSET_HEX_COLOR;
         this.markChangedAndSync();
+    }
+
+    public void releaseHexClaim() {
+        Level level = this.getLevel();
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        PearlHexNetwork
+                .get(serverLevel.getServer())
+                .release(
+                        serverLevel,
+                        PearlHexNetwork.vocoReceptorOwnerKey(
+                                serverLevel,
+                                this.getBlockPos()
+                        )
+                );
     }
 
     private void markChangedAndSync() {
@@ -218,11 +252,11 @@ public class VocoReceptorBlockEntity extends BlockEntity {
     }
 
     public static int clampYaw(int yawDegrees) {
-        return clamp(yawDegrees, MIN_YAW_DEGREES, MAX_YAW_DEGREES);
+        return VocoSharedBetweenTableAndReceptorLogic.clampYaw(yawDegrees);
     }
 
     public static int clampPitch(int pitchDegrees) {
-        return clamp(pitchDegrees, MIN_PITCH_DEGREES, MAX_PITCH_DEGREES);
+        return VocoSharedBetweenTableAndReceptorLogic.clampPitch(pitchDegrees);
     }
 
     private static int readHexOrUnset(ValueInput input) {
@@ -231,10 +265,6 @@ public class VocoReceptorBlockEntity extends BlockEntity {
     }
 
     private static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
-    }
-
-    private static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
+        return VocoSharedBetweenTableAndReceptorLogic.normalizeHex(hexColor);
     }
 }

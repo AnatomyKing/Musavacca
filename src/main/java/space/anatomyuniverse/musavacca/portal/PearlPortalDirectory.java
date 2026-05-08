@@ -226,6 +226,14 @@ public final class PearlPortalDirectory extends SavedData {
         return this.linkByHex.containsKey(normalizeHex(hexColor));
     }
 
+    public boolean isHexWaiting(int hexColor) {
+        return this.waitingPortalByHex.containsKey(normalizeHex(hexColor));
+    }
+
+    public Optional<UUID> getWaitingPortalId(int hexColor) {
+        return Optional.ofNullable(this.waitingPortalByHex.get(normalizeHex(hexColor)));
+    }
+
     public void upsertEndpoint(UUID portalId, ResourceLocation dimensionId, PearlPortalFrame.Shape shape, int hexColor) {
         Endpoint endpoint = new Endpoint(
                 portalId,

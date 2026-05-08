@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/gui/screen/VocoSliderScreen.java
 package space.anatomyuniverse.musavacca.gui.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -6,7 +7,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoReceptorBlockEntity;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic;
 import space.anatomyuniverse.musavacca.gui.menu.VocoSliderMenu;
 
 import java.util.function.IntConsumer;
@@ -37,8 +38,8 @@ public class VocoSliderScreen extends AbstractContainerScreen<VocoSliderMenu> {
                         200,
                         20,
                         "Horizontal / Yaw",
-                        VocoReceptorBlockEntity.MIN_YAW_DEGREES,
-                        VocoReceptorBlockEntity.MAX_YAW_DEGREES,
+                        VocoSharedBetweenTableAndReceptorLogic.MIN_YAW_DEGREES,
+                        VocoSharedBetweenTableAndReceptorLogic.MAX_YAW_DEGREES,
                         this.menu.getYawDegrees(),
                         degrees -> this.sendMenuButton(VocoSliderMenu.buttonIdForYaw(degrees))
                 )
@@ -51,8 +52,8 @@ public class VocoSliderScreen extends AbstractContainerScreen<VocoSliderMenu> {
                         200,
                         20,
                         "Vertical / Pitch",
-                        VocoReceptorBlockEntity.MIN_PITCH_DEGREES,
-                        VocoReceptorBlockEntity.MAX_PITCH_DEGREES,
+                        VocoSharedBetweenTableAndReceptorLogic.MIN_PITCH_DEGREES,
+                        VocoSharedBetweenTableAndReceptorLogic.MAX_PITCH_DEGREES,
                         this.menu.getPitchDegrees(),
                         degrees -> this.sendMenuButton(VocoSliderMenu.buttonIdForPitch(degrees))
                 )

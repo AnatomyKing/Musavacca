@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.hex.PearlHexNetwork;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 
@@ -49,12 +50,13 @@ public final class PearlPortalCreator {
             return false;
         }
 
-        PearlPortalDirectory directory = PearlPortalDirectory.get(serverLevel.getServer());
-
-        if (directory.isHexFullyLinked(normalizedHex)) {
-            sendActionBar(player, "Pearl address #" + toHex(normalizedHex) + " is already linked.");
+        PearlHexNetwork hexNetwork = PearlHexNetwork.get(serverLevel.getServer());
+        if (!hexNetwork.canCreatePortalWithHex(serverLevel, normalizedHex)) {
+            sendActionBar(player, "Pearl address #" + toHex(normalizedHex) + " is already occupied.");
             return false;
         }
+
+        PearlPortalDirectory directory = PearlPortalDirectory.get(serverLevel.getServer());
 
         UUID portalId = UUID.randomUUID();
 

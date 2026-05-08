@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/VocoReceptorBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -22,9 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoInteractLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoInteractLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoPearlPortalLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoReceptorBlockEntity;
 
 public class VocoReceptorBlock extends Block implements EntityBlock {
@@ -67,10 +66,7 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
             boolean movedByPiston
     ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-
-        if (!level.isClientSide()) {
-            VocoPearlPortalLogic.refreshReceptorAt(level, pos);
-        }
+        VocoReceptorLogic.onPlace(level, pos);
     }
 
     @Override
@@ -95,11 +91,16 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
                 random
         );
 
-        if (direction == Direction.UP && levelReader instanceof Level level && !level.isClientSide()) {
-            return VocoPearlPortalLogic.updateReceptorStateFromTop(level, pos, updated);
-        }
-
-        return updated;
+        return VocoReceptorLogic.updateShape(
+                updated,
+                levelReader,
+                scheduledTickAccess,
+                pos,
+                direction,
+                neighborPos,
+                neighborState,
+                random
+        );
     }
 
     @Override
@@ -110,15 +111,7 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
             Player player,
             BlockHitResult hit
     ) {
-        return VocoInteractLogic.useReceptorWithoutItem(
-                state,
-                level,
-                pos,
-                player,
-                LIT,
-                PORTAL,
-                ReceptorPosition.NORTH_EAST
-        );
+        return VocoReceptorLogic.useWithoutItem(state, level, pos, player);
     }
 
     @Override
@@ -131,17 +124,7 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
             InteractionHand hand,
             BlockHitResult hit
     ) {
-        return VocoInteractLogic.useReceptorItem(
-                stack,
-                state,
-                level,
-                pos,
-                player,
-                hand,
-                LIT,
-                PORTAL,
-                ReceptorPosition.NORTH_EAST
-        );
+        return VocoReceptorLogic.useItemOn(stack, state, level, pos, player, hand);
     }
 
     @Override

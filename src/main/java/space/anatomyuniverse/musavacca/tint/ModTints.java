@@ -5,13 +5,14 @@ import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.VocoReceptorBlock;
-import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoInteractLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
@@ -31,10 +32,12 @@ public final class ModTints {
     private static final PearlFireTintProfiles.Profile VOCO_RECEPTOR_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
     private static final PearlFireTintProfiles.Profile VOCO_TABLE_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
 
-    private static final int VOCO_TABLE_NORTH_EAST_TINT_OFFSET = 0;
-    private static final int VOCO_TABLE_SOUTH_EAST_TINT_OFFSET = 100;
-    private static final int VOCO_TABLE_SOUTH_WEST_TINT_OFFSET = 200;
-    private static final int VOCO_TABLE_NORTH_WEST_TINT_OFFSET = 300;
+    private static final VocoTableTintRange[] VOCO_TABLE_TINT_RANGES = {
+            new VocoTableTintRange(ReceptorPosition.NORTH_EAST, 0),
+            new VocoTableTintRange(ReceptorPosition.SOUTH_EAST, 100),
+            new VocoTableTintRange(ReceptorPosition.SOUTH_WEST, 200),
+            new VocoTableTintRange(ReceptorPosition.NORTH_WEST, 300)
+    };
 
     private ModTints() {}
 
@@ -218,22 +221,23 @@ public final class ModTints {
             return TintColorUtil.NO_TINT;
         }
 
-        if (!state.hasProperty(VocoTableBlock.portalProperty(layer.receptor()))
-                || !state.getValue(VocoTableBlock.portalProperty(layer.receptor()))) {
+        BooleanProperty portalProperty = VocoTableLogic.portalProperty(layer.receptor());
+        if (!state.hasProperty(portalProperty) || !state.getValue(portalProperty)) {
             return TintColorUtil.NO_TINT;
         }
 
-        if (level != null && pos != null
-                && level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe) {
-            return PearlFireTintSource.blockTint(
-                    tableBe.getCornerHexColor(layer.receptor()),
-                    layer.layerIndex(),
-                    VOCO_TABLE_PORTAL_PROFILE
-            );
+        if (level == null || pos == null
+                || !(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        int hexColor = tableBe.getPortalHexColorOrUnset(layer.receptor());
+        if (hexColor == VocoTableBlockEntity.UNSET_HEX_COLOR) {
+            return TintColorUtil.NO_TINT;
         }
 
         return PearlFireTintSource.blockTint(
-                VocoTableBlockEntity.defaultHexColor(layer.receptor()),
+                hexColor,
                 layer.layerIndex(),
                 VOCO_TABLE_PORTAL_PROFILE
         );
@@ -242,40 +246,19 @@ public final class ModTints {
     private static VocoTableTintLayer tableTintLayer(int tintIndex) {
         int layerCount = VOCO_TABLE_PORTAL_PROFILE.layerCount();
 
-        if (isInsideTintRange(tintIndex, VOCO_TABLE_NORTH_EAST_TINT_OFFSET, layerCount)) {
-            return new VocoTableTintLayer(
-                    ReceptorPosition.NORTH_EAST,
-                    tintIndex - VOCO_TABLE_NORTH_EAST_TINT_OFFSET
-            );
-        }
-
-        if (isInsideTintRange(tintIndex, VOCO_TABLE_SOUTH_EAST_TINT_OFFSET, layerCount)) {
-            return new VocoTableTintLayer(
-                    ReceptorPosition.SOUTH_EAST,
-                    tintIndex - VOCO_TABLE_SOUTH_EAST_TINT_OFFSET
-            );
-        }
-
-        if (isInsideTintRange(tintIndex, VOCO_TABLE_SOUTH_WEST_TINT_OFFSET, layerCount)) {
-            return new VocoTableTintLayer(
-                    ReceptorPosition.SOUTH_WEST,
-                    tintIndex - VOCO_TABLE_SOUTH_WEST_TINT_OFFSET
-            );
-        }
-
-        if (isInsideTintRange(tintIndex, VOCO_TABLE_NORTH_WEST_TINT_OFFSET, layerCount)) {
-            return new VocoTableTintLayer(
-                    ReceptorPosition.NORTH_WEST,
-                    tintIndex - VOCO_TABLE_NORTH_WEST_TINT_OFFSET
-            );
+        for (VocoTableTintRange range : VOCO_TABLE_TINT_RANGES) {
+            if (tintIndex >= range.offset() && tintIndex < range.offset() + layerCount) {
+                return new VocoTableTintLayer(
+                        range.receptor(),
+                        tintIndex - range.offset()
+                );
+            }
         }
 
         return null;
     }
 
-    private static boolean isInsideTintRange(int tintIndex, int offset, int layerCount) {
-        return tintIndex >= offset && tintIndex < offset + layerCount;
-    }
+    private record VocoTableTintRange(ReceptorPosition receptor, int offset) {}
 
     private record VocoTableTintLayer(ReceptorPosition receptor, int layerIndex) {}
 

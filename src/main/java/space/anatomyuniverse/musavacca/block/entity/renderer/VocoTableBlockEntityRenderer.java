@@ -10,9 +10,11 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTableBlockEntity> {
 
+    private final VocoTableBlockEntityCandleRenderer candleRenderer;
     private final VocoTableBlockEntityItemDisplayRenderer itemRenderer;
 
     public VocoTableBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        this.candleRenderer = new VocoTableBlockEntityCandleRenderer(context);
         this.itemRenderer = new VocoTableBlockEntityItemDisplayRenderer(context);
     }
 
@@ -26,6 +28,16 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
             int packedOverlay,
             Vec3 cameraPos
     ) {
+        this.candleRenderer.render(
+                blockEntity,
+                partialTick,
+                poseStack,
+                bufferSource,
+                packedLight,
+                packedOverlay,
+                cameraPos
+        );
+
         this.itemRenderer.render(
                 blockEntity,
                 partialTick,
@@ -36,4 +48,5 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
                 cameraPos
         );
     }
+
 }
