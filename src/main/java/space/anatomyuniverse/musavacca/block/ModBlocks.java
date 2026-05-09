@@ -228,6 +228,42 @@ public final class ModBlocks {
                 return new MusavaccaLeaves(0.0F, p);
             });
 
+    private static DeferredBlock<MusavaccaCropBlock> musavaccaCropStage(String name, int age) {
+        return BLOCKS.registerBlock(name,
+                props -> new MusavaccaCropBlock(
+                        age,
+                        props.mapColor(MapColor.PLANT)
+                                .noCollission()
+                                .randomTicks()
+                                .instabreak()
+                                .sound(SoundType.CROP)
+                                .pushReaction(PushReaction.DESTROY)
+                                .noLootTable()
+                )
+        );
+    }
+
+    public static final DeferredBlock<MusavaccaCropBlock> MUSAVACCA_SPROUT =
+            musavaccaCropStage("musavacca_sprout", 0);
+
+    public static final DeferredBlock<MusavaccaCropBlock> MUSAVACCA_SUCKER =
+            musavaccaCropStage("musavacca_sucker", 1);
+
+    public static final DeferredBlock<MusavaccaCropBlock> MUSAVACCA_PLANT =
+            musavaccaCropStage("musavacca_plant", 2);
+
+    public static final DeferredBlock<MusavaccaSaplingBlock> MUSAVACCA_PSEUDOSTEM =
+            BLOCKS.registerBlock("musavacca_pseudostem",
+                    props -> new MusavaccaSaplingBlock(
+                            props.mapColor(MapColor.PLANT)
+                                    .noCollission()
+                                    .randomTicks()
+                                    .instabreak()
+                                    .sound(SoundType.GRASS)
+                                    .pushReaction(PushReaction.DESTROY)
+                                    .noLootTable()
+                    ));
+
     public static final DeferredBlock<BananaPearlChaliceBlock> BANANA_PEARL_CHALICE =
             BLOCKS.registerBlock("banana_pearl_chalice",
                     props -> new BananaPearlChaliceBlock(
@@ -380,6 +416,10 @@ public final class ModBlocks {
 //            HEX_BLOCK
             PEARL_FIRE,
             MUSAVACCA_EGG,
+            MUSAVACCA_SPROUT,
+            MUSAVACCA_SUCKER,
+            MUSAVACCA_PLANT,
+            MUSAVACCA_PSEUDOSTEM,
             PEARL_PORTAL
     );
 

@@ -81,6 +81,30 @@ public final class ModelSets {
         );
     }
 
+    public static Map<Block, CubeMusavaccaCropOwnTintedFoliage.Models> cubeMusavaccaCropOwnTintedFoliageModels() {
+        return Map.of(
+                ModBlocks.MUSAVACCA_SPROUT.get(),
+                CubeMusavaccaCropOwnTintedFoliage.of(
+                        "musavacca:block/musavacca_sprout"
+                ),
+
+                ModBlocks.MUSAVACCA_SUCKER.get(),
+                CubeMusavaccaCropOwnTintedFoliage.of(
+                        "musavacca:block/musavacca_sucker"
+                ),
+
+                ModBlocks.MUSAVACCA_PLANT.get(),
+                CubeMusavaccaCropOwnTintedFoliage.of(
+                        "musavacca:block/musavacca_plant"
+                ),
+
+                ModBlocks.MUSAVACCA_PSEUDOSTEM.get(),
+                CubeMusavaccaCropOwnTintedFoliage.of(
+                        "musavacca:block/musavacca_pseudostem"
+                )
+        );
+    }
+
     public static Map<Block, CubeOwnTintedHexColor.Entry> cubeOwnTintedHexColorModels() {
         return Map.of(
                 ModBlocks.HARD_HEX_BLOCK.get(),
@@ -207,6 +231,7 @@ public final class ModelSets {
                 ModItems.BANANA_PELLIS.get(),
                 ModItems.OPEN_TELEPORT_TEST_ITEM.get(),
                 ModItems.OPEN_INVO_TEST_ITEM.get(),
+                ModItems.MUSAVACCA_PUP.get(),
                 ModBlocks.UNRIPE_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPE_MUSAVACCA_EGG.get(),

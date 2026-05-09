@@ -4,6 +4,7 @@ package space.anatomyuniverse.musavacca.item;
 import net.minecraft.Util;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -22,6 +23,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.*;
@@ -37,6 +39,16 @@ public final class ModItems {
             Registries.ITEM,
             ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "repairs_potassium_armor")
     );
+
+    public static final DeferredItem<BlockItem> MUSAVACCA_PUP =
+            ITEMS.registerItem("musavacca_pup",
+                    props -> new BlockItem(
+                            ModBlocks.MUSAVACCA_SPROUT.get(),
+                            props.component(
+                                    DataComponents.ITEM_NAME,
+                                    Component.translatable("item.musavacca.musavacca_pup")
+                            )
+                    ));
 
     public static final ResourceKey<EquipmentAsset> POTASSIUM_EQUIPMENT_ASSET = equipmentAsset("potassium");
 

@@ -1,0 +1,36 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_plant"
+      },
+      "when": {
+        "age": "0"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_plant"
+      },
+      "when": {
+        "age": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_plant"
+      },
+      "when": {
+        "age": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_plant"
+      },
+      "when": {
+        "age": "3"
+      }
+    }
+  ]
+}

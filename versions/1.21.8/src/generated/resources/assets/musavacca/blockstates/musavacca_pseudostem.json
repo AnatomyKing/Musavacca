@@ -1,0 +1,20 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_pseudostem"
+      },
+      "when": {
+        "stage": "0"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_pseudostem"
+      },
+      "when": {
+        "stage": "1"
+      }
+    }
+  ]
+}

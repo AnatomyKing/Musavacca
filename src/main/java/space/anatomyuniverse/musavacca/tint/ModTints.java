@@ -52,7 +52,14 @@ public final class ModTints {
     }
 
     public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
-        event.register(ModTints::getMusavaccaLeavesTint, ModBlocks.MUSAVACCA_LEAVES.get());
+        event.register(
+                ModTints::getMusavaccaFoliageTint,
+                ModBlocks.MUSAVACCA_LEAVES.get(),
+                ModBlocks.MUSAVACCA_SPROUT.get(),
+                ModBlocks.MUSAVACCA_SUCKER.get(),
+                ModBlocks.MUSAVACCA_PLANT.get(),
+                ModBlocks.MUSAVACCA_PSEUDOSTEM.get()
+        );
 
         event.register(ModTints::getHexBlockTint, ModBlocks.HEX_BLOCK.get());
         event.register(ModTints::getHardHexBlockTint, ModBlocks.HARD_HEX_BLOCK.get());
@@ -64,7 +71,7 @@ public final class ModTints {
         event.register(ModTints::getVocoTablePortalTint, ModBlocks.VOCO_TABLE.get());
     }
 
-    private static int getMusavaccaLeavesTint(
+    private static int getMusavaccaFoliageTint(
             BlockState state,
             BlockAndTintGetter level,
             BlockPos pos,
