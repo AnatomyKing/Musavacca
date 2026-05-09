@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -82,10 +83,38 @@ public final class VocoTableCandleLogic {
     ) {
         int hexColor = FlintAndPearlItem.getStoredHexOrDefault(stack);
 
-        if (!tableBe.lightCandle(receptor, hexColor)) {
+        if (!tableBe.lightPearlCandle(receptor, hexColor)) {
             return;
         }
 
+        playFlintAndSteelEffects(level, player, pos);
+        VocoReceptorLogic.damageItem(stack, player, hand);
+        syncPortalStateFromCandles(level, pos, receptor);
+    }
+
+    public static void lightVanillaCandleSlot(
+            ItemStack stack,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            VocoTableBlockEntity tableBe,
+            ReceptorPosition receptor
+    ) {
+        if (!stack.is(Items.FLINT_AND_STEEL)) {
+            return;
+        }
+
+        if (!tableBe.lightVanillaCandle(receptor)) {
+            return;
+        }
+
+        playFlintAndSteelEffects(level, player, pos);
+        VocoReceptorLogic.damageItem(stack, player, hand);
+        syncPortalStateFromCandles(level, pos, receptor);
+    }
+
+    private static void playFlintAndSteelEffects(Level level, Player player, BlockPos pos) {
         level.playSound(
                 null,
                 pos,
@@ -96,8 +125,6 @@ public final class VocoTableCandleLogic {
         );
 
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-        VocoReceptorLogic.damageItem(stack, player, hand);
-        syncPortalStateFromCandles(level, pos, receptor);
     }
 
     public static void syncPortalStateFromCandles(Level level, BlockPos pos, ReceptorPosition receptor) {
@@ -118,7 +145,7 @@ public final class VocoTableCandleLogic {
         BooleanProperty litProperty = VocoTableBlock.lightProperty(receptor);
         BooleanProperty portalProperty = VocoTableBlock.portalProperty(receptor);
 
-        boolean shouldBePortal = state.getValue(litProperty) && tableBe.isCandleLit(receptor);
+        boolean shouldBePortal = state.getValue(litProperty) && tableBe.isPearlCandleLit(receptor);
 
         if (shouldBePortal && level instanceof ServerLevel serverLevel) {
             int hexColor = tableBe.getPortalHexColorOrUnset(receptor);
@@ -279,18 +306,11 @@ public final class VocoTableCandleLogic {
                 continue;
             }
 
+            boolean pearlLit = tableBe.isPearlCandleLit(receptor);
             int hexColor = tableBe.getCandleHexColorOrFallback(receptor);
 
             for (int candleIndex = 0; candleIndex < offsets.length; candleIndex++) {
-                if (spawnedPearlFlames >= MAX_PEARL_FLAME_PARTICLES_PER_ANIMATE_TICK) {
-                    return;
-                }
-
                 if (!isScheduledFlameTick(gameTime, receptor, candleIndex, spreadTicks)) {
-                    continue;
-                }
-
-                if (random.nextFloat() > PEARL_FLAME_SPAWN_CHANCE) {
                     continue;
                 }
 
@@ -300,14 +320,30 @@ public final class VocoTableCandleLogic {
                         pos.getZ()
                 );
 
-                addPearlCandleParticlesAndSound(
-                        level,
-                        particlePos,
-                        random,
-                        hexColor
-                );
+                if (pearlLit) {
+                    if (spawnedPearlFlames >= MAX_PEARL_FLAME_PARTICLES_PER_ANIMATE_TICK) {
+                        return;
+                    }
 
-                spawnedPearlFlames++;
+                    if (random.nextFloat() > PEARL_FLAME_SPAWN_CHANCE) {
+                        continue;
+                    }
+
+                    addPearlCandleParticlesAndSound(
+                            level,
+                            particlePos,
+                            random,
+                            hexColor
+                    );
+
+                    spawnedPearlFlames++;
+                } else {
+                    addVanillaCandleParticlesAndSound(
+                            level,
+                            particlePos,
+                            random
+                    );
+                }
             }
         }
     }
@@ -460,6 +496,49 @@ public final class VocoTableCandleLogic {
                 random,
                 ModParticleTypes.PEARL_FLAME.get(),
                 hexColor,
+                particlePos.x,
+                particlePos.y,
+                particlePos.z,
+                0.0D,
+                0.0D,
+                0.0D
+        );
+    }
+
+    private static void addVanillaCandleParticlesAndSound(
+            Level level,
+            Vec3 particlePos,
+            RandomSource random
+    ) {
+        float roll = random.nextFloat();
+
+        if (roll < 0.30F) {
+            level.addParticle(
+                    ParticleTypes.SMOKE,
+                    particlePos.x,
+                    particlePos.y,
+                    particlePos.z,
+                    0.0D,
+                    0.0D,
+                    0.0D
+            );
+
+            if (roll < 0.17F) {
+                level.playLocalSound(
+                        particlePos.x + 0.5D,
+                        particlePos.y + 0.5D,
+                        particlePos.z + 0.5D,
+                        SoundEvents.CANDLE_AMBIENT,
+                        SoundSource.BLOCKS,
+                        1.0F + random.nextFloat(),
+                        random.nextFloat() * 0.7F + 0.3F,
+                        false
+                );
+            }
+        }
+
+        level.addParticle(
+                ParticleTypes.SMALL_FLAME,
                 particlePos.x,
                 particlePos.y,
                 particlePos.z,

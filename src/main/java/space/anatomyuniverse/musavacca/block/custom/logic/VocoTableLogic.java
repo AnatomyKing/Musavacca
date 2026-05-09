@@ -8,6 +8,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CandleBlock;
@@ -237,6 +238,30 @@ public final class VocoTableLogic {
 
                 if (!level.isClientSide()) {
                     VocoTableCandleLogic.lightCandleSlot(
+                            stack,
+                            level,
+                            pos,
+                            player,
+                            hand,
+                            tableBe,
+                            candleHit
+                    );
+                }
+
+                return InteractionResult.SUCCESS;
+            }
+
+            if (stack.is(Items.FLINT_AND_STEEL)) {
+                if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
+                    return InteractionResult.PASS;
+                }
+
+                if (!tableBe.hasCandle(candleHit)) {
+                    return InteractionResult.PASS;
+                }
+
+                if (!level.isClientSide()) {
+                    VocoTableCandleLogic.lightVanillaCandleSlot(
                             stack,
                             level,
                             pos,
