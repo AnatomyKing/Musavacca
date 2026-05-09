@@ -7,22 +7,27 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.bar.balance.BalanceApi;
 import space.anatomyuniverse.musavacca.gui.menu.VocoSliderMenu;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class VocoSharedBetweenTableAndReceptorLogic {
     public static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
     public static final int UNSET_HEX_COLOR = -1;
+
+    public static final int RECEPTOR_LIGHT_BALANCE_COST = 1;
 
     public static final int MIN_YAW_DEGREES = -180;
     public static final int MAX_YAW_DEGREES = 180;
@@ -95,6 +100,169 @@ public final class VocoSharedBetweenTableAndReceptorLogic {
         return true;
     }
 
+    public static boolean isCompletelyEmptyHanded(Player player) {
+        return player != null
+                && player.getMainHandItem().isEmpty()
+                && player.getOffhandItem().isEmpty();
+    }
+
+    public static InteractionResult handleReceptorHeldItemUse(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BooleanProperty litProperty,
+            @Nullable BooleanProperty portalProperty,
+            ReceptorPosition receptor
+    ) {
+        if (!state.getValue(litProperty)) {
+            return handleUnlitReceptorHeldItemUse(
+                    stack,
+                    state,
+                    level,
+                    pos,
+                    player,
+                    litProperty
+            );
+        }
+
+        return handleLitReceptorHeldItemUse(
+                stack,
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                litProperty,
+                portalProperty,
+                receptor
+        );
+    }
+
+    public static InteractionResult handleUnlitReceptorItem(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            BooleanProperty litProperty
+    ) {
+        return handleUnlitReceptorHeldItemUse(
+                stack,
+                state,
+                level,
+                pos,
+                player,
+                litProperty
+        );
+    }
+
+    public static InteractionResult handleLitReceptorItem(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BooleanProperty litProperty,
+            @Nullable BooleanProperty portalProperty,
+            ReceptorPosition receptor
+    ) {
+        return handleLitReceptorHeldItemUse(
+                stack,
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                litProperty,
+                portalProperty,
+                receptor
+        );
+    }
+
+    private static InteractionResult handleUnlitReceptorHeldItemUse(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            BooleanProperty litProperty
+    ) {
+        if (stack.is(ModItems.BANANA_PEARL.get())) {
+            if (!level.isClientSide()) {
+                lightReceptorWithPearl(
+                        stack,
+                        state,
+                        level,
+                        pos,
+                        player,
+                        litProperty
+                );
+            }
+
+            return InteractionResult.SUCCESS;
+        }
+
+        if (stack.is(Items.SHEARS)) {
+            if (!level.isClientSide()) {
+                lightReceptorWithBalance(
+                        state,
+                        level,
+                        pos,
+                        player,
+                        litProperty
+                );
+            }
+
+            return InteractionResult.SUCCESS;
+        }
+
+        if (stack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    private static InteractionResult handleLitReceptorHeldItemUse(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BooleanProperty litProperty,
+            @Nullable BooleanProperty portalProperty,
+            ReceptorPosition receptor
+    ) {
+        if (stack.is(Items.SHEARS)) {
+            if (!level.isClientSide()) {
+                depleteReceptorPearl(
+                        stack,
+                        state,
+                        level,
+                        pos,
+                        player,
+                        hand,
+                        litProperty,
+                        portalProperty,
+                        receptor
+                );
+            }
+
+            return InteractionResult.SUCCESS;
+        }
+
+        if (stack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+
+        return InteractionResult.PASS;
+    }
+
     public static boolean canTeleport(
             BlockState state,
             BooleanProperty litProperty,
@@ -102,6 +270,44 @@ public final class VocoSharedBetweenTableAndReceptorLogic {
     ) {
         return state.getValue(litProperty)
                 && (portalProperty == null || state.getValue(portalProperty));
+    }
+
+    public static boolean lightReceptorWithBalance(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            BooleanProperty litProperty
+    ) {
+        if (level.isClientSide()) {
+            return true;
+        }
+
+        if (state.getValue(litProperty)) {
+            return false;
+        }
+
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+
+        if (!BalanceApi.deductBalance(serverPlayer, RECEPTOR_LIGHT_BALANCE_COST)) {
+            showNeedsBalanceMessage(player);
+            return false;
+        }
+
+        level.setBlock(pos, state.setValue(litProperty, true), UPDATE_FLAGS);
+
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.RESPAWN_ANCHOR_CHARGE,
+                SoundSource.BLOCKS,
+                1.0F,
+                1.0F
+        );
+
+        return true;
     }
 
     public static boolean lightReceptorWithPearl(
@@ -113,6 +319,10 @@ public final class VocoSharedBetweenTableAndReceptorLogic {
             BooleanProperty litProperty
     ) {
         if (!stack.is(ModItems.BANANA_PEARL.get())) {
+            return false;
+        }
+
+        if (state.getValue(litProperty)) {
             return false;
         }
 
@@ -131,7 +341,7 @@ public final class VocoSharedBetweenTableAndReceptorLogic {
         return true;
     }
 
-    public static void depleteReceptorPearl(
+    public static boolean depleteReceptorPearl(
             ItemStack shears,
             BlockState state,
             Level level,
@@ -142,6 +352,14 @@ public final class VocoSharedBetweenTableAndReceptorLogic {
             @Nullable BooleanProperty portalProperty,
             ReceptorPosition receptor
     ) {
+        if (!shears.is(Items.SHEARS)) {
+            return false;
+        }
+
+        if (!state.getValue(litProperty)) {
+            return false;
+        }
+
         BlockState newState = state.setValue(litProperty, false);
         if (portalProperty != null) {
             newState = newState.setValue(portalProperty, false);
@@ -151,6 +369,8 @@ public final class VocoSharedBetweenTableAndReceptorLogic {
         playDepleteEffects(level, pos, receptor);
         popBananaPearl(level, pos, receptor);
         damageItem(shears, player, hand);
+
+        return true;
     }
 
     public static void playPortalAppearSound(Level level, BlockPos pos) {
@@ -252,7 +472,14 @@ public final class VocoSharedBetweenTableAndReceptorLogic {
     }
 
     public static void showNeedsPearlMessage(Player player) {
-        player.displayClientMessage(Component.literal("This receptor needs a Banana Pearl."), false);
+        player.displayClientMessage(Component.literal("This receptor needs a Banana Pearl or 1 balance."), false);
+    }
+
+    public static void showNeedsBalanceMessage(Player player) {
+        player.displayClientMessage(
+                Component.literal("You need 1 balance to charge this receptor."),
+                true
+        );
     }
 
     public static void showNeedsPortalMessage(Player player) {

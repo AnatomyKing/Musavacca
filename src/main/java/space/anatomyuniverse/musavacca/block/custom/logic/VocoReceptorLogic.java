@@ -9,7 +9,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
@@ -21,7 +20,6 @@ import space.anatomyuniverse.musavacca.block.custom.VocoReceptorBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoReceptorBlockEntity;
-import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class VocoReceptorLogic {
     private VocoReceptorLogic() {}
@@ -61,9 +59,23 @@ public final class VocoReceptorLogic {
             return InteractionResult.SUCCESS;
         }
 
+        if (!VocoSharedBetweenTableAndReceptorLogic.isCompletelyEmptyHanded(player)) {
+            return InteractionResult.PASS;
+        }
+
         if (!state.getValue(VocoReceptorBlock.LIT)) {
-            if (level.isClientSide()) {
-                VocoSharedBetweenTableAndReceptorLogic.showNeedsPearlMessage(player);
+            if (!level.isClientSide()) {
+                boolean lit = VocoSharedBetweenTableAndReceptorLogic.lightReceptorWithBalance(
+                        state,
+                        level,
+                        pos,
+                        player,
+                        VocoReceptorBlock.LIT
+                );
+
+                if (lit) {
+                    refreshPortalAt(level, pos);
+                }
             }
 
             return InteractionResult.SUCCESS;
@@ -94,70 +106,23 @@ public final class VocoReceptorLogic {
             return InteractionResult.SUCCESS;
         }
 
-        if (!state.getValue(VocoReceptorBlock.LIT)) {
-            return useUnlitReceptor(stack, state, level, pos, player);
-        }
+        InteractionResult result = VocoSharedBetweenTableAndReceptorLogic.handleReceptorHeldItemUse(
+                stack,
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                VocoReceptorBlock.LIT,
+                VocoReceptorBlock.PORTAL,
+                receptor
+        );
 
-        if (stack.is(Items.SHEARS)) {
-            if (!level.isClientSide()) {
-                VocoSharedBetweenTableAndReceptorLogic.depleteReceptorPearl(
-                        stack,
-                        state,
-                        level,
-                        pos,
-                        player,
-                        hand,
-                        VocoReceptorBlock.LIT,
-                        VocoReceptorBlock.PORTAL,
-                        receptor
-                );
-
-                refreshPortalAt(level, pos);
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        if (!state.getValue(VocoReceptorBlock.PORTAL)) {
-            if (level.isClientSide()) {
-                VocoSharedBetweenTableAndReceptorLogic.showNeedsPortalMessage(player);
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.SUCCESS;
-    }
-
-    private static InteractionResult useUnlitReceptor(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player
-    ) {
-        if (!stack.is(ModItems.BANANA_PEARL.get())) {
-            if (level.isClientSide()) {
-                VocoSharedBetweenTableAndReceptorLogic.showNeedsPearlMessage(player);
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        if (!level.isClientSide()) {
-            VocoSharedBetweenTableAndReceptorLogic.lightReceptorWithPearl(
-                    stack,
-                    state,
-                    level,
-                    pos,
-                    player,
-                    VocoReceptorBlock.LIT
-            );
-
+        if (result == InteractionResult.SUCCESS && !level.isClientSide()) {
             refreshPortalAt(level, pos);
         }
 
-        return InteractionResult.SUCCESS;
+        return result;
     }
 
     public static void refreshReceptorBelowCandle(Level level, BlockPos candlePos) {

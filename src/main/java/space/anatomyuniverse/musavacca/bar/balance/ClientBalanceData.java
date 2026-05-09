@@ -10,7 +10,7 @@ public final class ClientBalanceData {
 
     public static void set(int newBalance, boolean newActive) {
         balance = Math.max(0, newBalance);
-        active = newActive;
+        active = newActive && balance > 0;
     }
 
     public static int getBalance() {

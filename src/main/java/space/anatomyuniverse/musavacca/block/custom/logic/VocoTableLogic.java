@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -14,7 +13,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -34,11 +32,9 @@ import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
-import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
-import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 public final class VocoTableLogic {
     public static final BooleanProperty LIT_NORTH_EAST = BooleanProperty.create("lit_north_east");
@@ -162,9 +158,7 @@ public final class VocoTableLogic {
         HitPart part = detectHitPart(pos, hit);
 
         if (player.isShiftKeyDown()) {
-            ReceptorPosition receptor = candleHit != null
-                    ? candleHit
-                    : part.receptor;
+            ReceptorPosition receptor = candleHit != null ? candleHit : part.receptor;
 
             if (receptor != null
                     && VocoSharedBetweenTableAndReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
@@ -174,9 +168,39 @@ public final class VocoTableLogic {
             return InteractionResult.SUCCESS;
         }
 
-        if (candleHit != null) {
-            if (!level.isClientSide()) {
-                extinguishCandleSlot(level, pos, player, candleHit);
+        if (!VocoSharedBetweenTableAndReceptorLogic.isCompletelyEmptyHanded(player)) {
+            return InteractionResult.PASS;
+        }
+
+        ReceptorPosition receptorHit = candleHit != null ? candleHit : part.receptor;
+
+        if (receptorHit != null) {
+            BooleanProperty litProperty = lightProperty(receptorHit);
+
+            if (!state.getValue(litProperty)) {
+                if (!level.isClientSide()) {
+                    boolean lit = VocoSharedBetweenTableAndReceptorLogic.lightReceptorWithBalance(
+                            state,
+                            level,
+                            pos,
+                            player,
+                            litProperty
+                    );
+
+                    if (lit) {
+                        syncPortalStateFromCandles(level, pos, receptorHit);
+                    }
+                }
+
+                return InteractionResult.SUCCESS;
+            }
+
+            if (candleHit != null) {
+                if (!level.isClientSide()) {
+                    extinguishCandleSlot(level, pos, player, candleHit);
+                }
+
+                return InteractionResult.SUCCESS;
             }
 
             return InteractionResult.SUCCESS;
@@ -184,10 +208,6 @@ public final class VocoTableLogic {
 
         if (part.togglesBasuke) {
             toggleBasuke(level, pos);
-            return InteractionResult.SUCCESS;
-        }
-
-        if (part.isReceptor()) {
             return InteractionResult.SUCCESS;
         }
 
@@ -211,9 +231,7 @@ public final class VocoTableLogic {
         HitPart part = detectHitPart(pos, hit);
 
         if (player.isShiftKeyDown()) {
-            ReceptorPosition receptor = candleHit != null
-                    ? candleHit
-                    : part.receptor;
+            ReceptorPosition receptor = candleHit != null ? candleHit : part.receptor;
 
             if (receptor != null
                     && VocoSharedBetweenTableAndReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
@@ -223,30 +241,56 @@ public final class VocoTableLogic {
             return InteractionResult.SUCCESS;
         }
 
-        if (candleHit != null) {
-            return useCandleSlotItem(stack, level, pos, player, hand, candleHit);
-        }
+        ReceptorPosition receptorHit = candleHit != null ? candleHit : part.receptor;
 
-        Block candleBlock = candleBlockFromStack(stack);
-        if (candleBlock != null && part.isReceptor()) {
-            if (!level.isClientSide()) {
-                addCandleToSlot(stack, level, pos, player, candleBlock, part.receptor);
+        if (receptorHit != null) {
+            Block candleBlock = candleBlockFromStack(stack);
+
+            if (candleBlock != null) {
+                if (!level.isClientSide()) {
+                    addCandleToSlot(stack, level, pos, player, candleBlock, receptorHit);
+                }
+
+                return InteractionResult.SUCCESS;
             }
 
-            return InteractionResult.SUCCESS;
-        }
+            if (stack.getItem() instanceof FlintAndPearlItem) {
+                if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
+                    return InteractionResult.PASS;
+                }
 
-        if (part.isReceptor()) {
-            return useReceptorCornerItem(stack, state, level, pos, player, hand, part.receptor);
+                if (!tableBe.hasCandle(receptorHit)) {
+                    return InteractionResult.PASS;
+                }
+
+                if (!level.isClientSide()) {
+                    lightCandleSlot(stack, level, pos, player, hand, tableBe, receptorHit);
+                }
+
+                return InteractionResult.SUCCESS;
+            }
+
+            return useReceptorCornerItem(
+                    stack,
+                    state,
+                    level,
+                    pos,
+                    player,
+                    hand,
+                    receptorHit
+            );
         }
 
         if (part.togglesBasuke) {
-            toggleBasuke(level, pos);
-            return InteractionResult.SUCCESS;
+            if (stack.isEmpty()) {
+                return InteractionResult.TRY_WITH_EMPTY_HAND;
+            }
+
+            return InteractionResult.PASS;
         }
 
         if (hand == InteractionHand.OFF_HAND) {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
+            return InteractionResult.PASS;
         }
 
         if (stack.isEmpty()) {
@@ -259,65 +303,7 @@ public final class VocoTableLogic {
 
         return insertDisplayedItem(stack, level, pos, player)
                 ? InteractionResult.SUCCESS
-                : InteractionResult.TRY_WITH_EMPTY_HAND;
-    }
-
-    private static InteractionResult useCandleSlotItem(
-            ItemStack stack,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            ReceptorPosition receptor
-    ) {
-        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
-            return InteractionResult.SUCCESS;
-        }
-
-        if (tableBe.isCandleLit(receptor)) {
-            Block candleBlock = candleBlockFromStack(stack);
-
-            if (candleBlock != null) {
-                if (!level.isClientSide()) {
-                    addCandleToSlot(stack, level, pos, player, candleBlock, receptor);
-                }
-
-                return InteractionResult.SUCCESS;
-            }
-
-            if (stack.getItem() instanceof FlintAndPearlItem) {
-                return InteractionResult.SUCCESS;
-            }
-
-            if (!level.isClientSide()) {
-                extinguishCandleSlot(level, pos, player, receptor);
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        Block candleBlock = candleBlockFromStack(stack);
-        if (candleBlock != null) {
-            if (!level.isClientSide()) {
-                addCandleToSlot(stack, level, pos, player, candleBlock, receptor);
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        if (stack.getItem() instanceof FlintAndPearlItem) {
-            if (!tableBe.hasCandle(receptor)) {
-                return InteractionResult.SUCCESS;
-            }
-
-            if (!level.isClientSide()) {
-                lightCandleSlot(stack, level, pos, player, hand, tableBe, receptor);
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.SUCCESS;
+                : InteractionResult.PASS;
     }
 
     private static InteractionResult useReceptorCornerItem(
@@ -332,52 +318,23 @@ public final class VocoTableLogic {
         BooleanProperty litProperty = lightProperty(receptor);
         BooleanProperty portalProperty = portalProperty(receptor);
 
-        if (stack.is(ModItems.BANANA_PEARL.get())) {
-            if (state.getValue(litProperty)) {
-                return InteractionResult.SUCCESS;
-            }
+        InteractionResult result = VocoSharedBetweenTableAndReceptorLogic.handleReceptorHeldItemUse(
+                stack,
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                litProperty,
+                portalProperty,
+                receptor
+        );
 
-            if (!level.isClientSide()) {
-                VocoSharedBetweenTableAndReceptorLogic.lightReceptorWithPearl(
-                        stack,
-                        state,
-                        level,
-                        pos,
-                        player,
-                        litProperty
-                );
-
-                syncPortalStateFromCandles(level, pos, receptor);
-            }
-
-            return InteractionResult.SUCCESS;
+        if (result == InteractionResult.SUCCESS && !level.isClientSide()) {
+            syncPortalStateFromCandles(level, pos, receptor);
         }
 
-        if (stack.is(Items.SHEARS)) {
-            if (!state.getValue(litProperty)) {
-                return InteractionResult.SUCCESS;
-            }
-
-            if (!level.isClientSide()) {
-                VocoSharedBetweenTableAndReceptorLogic.depleteReceptorPearl(
-                        stack,
-                        state,
-                        level,
-                        pos,
-                        player,
-                        hand,
-                        litProperty,
-                        portalProperty,
-                        receptor
-                );
-
-                syncPortalStateFromCandles(level, pos, receptor);
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.SUCCESS;
+        return result;
     }
 
     private static void addCandleToSlot(
@@ -442,43 +399,6 @@ public final class VocoTableLogic {
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         VocoSharedBetweenTableAndReceptorLogic.damageItem(stack, player, hand);
         syncPortalStateFromCandles(level, pos, receptor);
-    }
-
-    private static boolean canUseVocoHex(
-            Level level,
-            BlockPos pos,
-            VocoTableBlockEntity tableBe,
-            ReceptorPosition receptor,
-            int hexColor,
-            Player player
-    ) {
-        int normalized = HexTeleportDirectory.normalizeHex(hexColor);
-
-        if (tableBe.hasOtherLitCandleWithHex(receptor, normalized)) {
-            sendHexOccupiedMessage(player, normalized, HexTeleportDirectory.Result.HEX_OCCUPIED);
-            return false;
-        }
-
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return true;
-        }
-
-        String ownerKey = HexTeleportDirectory.vocoTableOwnerKey(
-                serverLevel.dimension().location(),
-                pos,
-                receptor
-        );
-
-        HexTeleportDirectory.Result result = HexTeleportDirectory
-                .get(serverLevel.getServer())
-                .checkVocoEndpoint(ownerKey, normalized);
-
-        if (!result.success()) {
-            sendHexOccupiedMessage(player, normalized, result);
-            return false;
-        }
-
-        return true;
     }
 
     public static void syncPortalStateFromCandles(Level level, BlockPos pos, ReceptorPosition receptor) {
@@ -840,25 +760,6 @@ public final class VocoTableLogic {
         syncPortalStateFromCandles(level, pos, receptor);
     }
 
-    private static void sendHexOccupiedMessage(
-            Player player,
-            int hexColor,
-            HexTeleportDirectory.Result result
-    ) {
-        String reason = switch (result) {
-            case HEX_OCCUPIED -> "already occupied";
-            case INVALID_OWNER -> "invalid";
-            case REGISTERED, UPDATED, WAITING_FOR_SECOND_PORTAL, LINKED_TO_EXISTING_PORTAL, ALREADY_REGISTERED -> "available";
-        };
-
-        player.displayClientMessage(
-                Component.literal(
-                        "Pearl hex #" + HexTeleportDirectory.toHex(hexColor) + " is " + reason + "."
-                ),
-                true
-        );
-    }
-
     private static int countLitCandleParticlePositions(VocoTableBlockEntity tableBe) {
         int total = 0;
 
@@ -1137,10 +1038,6 @@ public final class VocoTableLogic {
         HitPart(@Nullable ReceptorPosition receptor, boolean togglesBasuke) {
             this.receptor = receptor;
             this.togglesBasuke = togglesBasuke;
-        }
-
-        private boolean isReceptor() {
-            return this.receptor != null;
         }
     }
 }

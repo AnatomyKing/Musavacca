@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.Consumables;
@@ -43,7 +44,19 @@ public final class ModItems {
             potassiumArmorMaterial(POTASSIUM_EQUIPMENT_ASSET);
 
     public static final DeferredItem<Item> BANANA_PEARL =
-            ITEMS.registerItem("banana_pearl", props -> new Item(props.rarity(Rarity.RARE)));
+            ITEMS.registerItem("banana_pearl", props -> new Item(
+                    props.rarity(Rarity.RARE)
+                            .food(
+                                    new FoodProperties.Builder()
+                                            .nutrition(1)
+                                            .saturationModifier(0.3F)
+                                            .alwaysEdible()
+                                            .build(),
+                                    Consumables.defaultFood()
+                                            .consumeSeconds(0.8F)
+                                            .build()
+                            )
+            ));
 
     public static final DeferredItem<Item> BANAZO_GUSMA_LUMPA_GOOP =
             ITEMS.registerItem("banazo_gusma_lumpa_goop", props -> new Item(props.rarity(Rarity.EPIC)));
