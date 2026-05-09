@@ -111,25 +111,25 @@ public final class ModBlockEntities {
                     //?}
             );
 
-    public static final Supplier<BlockEntityType<VocoReceptorBlockEntity>> VOCO_RECEPTOR_BLOCK_ENTITY =
+    public static final Supplier<BlockEntityType<VocoPostBlockEntity>> VOCO_POST_BLOCK_ENTITY =
             BLOCK_ENTITY_TYPES.register(
-                    "voco_receptor_block_entity",
+                    "voco_post_block_entity",
                     () ->
                             //? if <1.21.2 {
-                        /*BlockEntityType.Builder.of(
-                                VocoReceptorBlockEntity::new,
-                                ModBlocks.VOCO_RECEPTOR.get()
-                        ).build(null)
-                        *///?} else if <1.21.4 {
-                        /*new BlockEntityType<>(
-                                VocoReceptorBlockEntity::new,
-                                ModBlocks.VOCO_RECEPTOR.get()
-                        )
-                        *///?} else {
+                            /*BlockEntityType.Builder.of(
+                                    VocoPostBlockEntity::new,
+                                    ModBlocks.VOCO_POST.get()
+                            ).build(null)
+                            *///?} else if <1.21.4 {
+                            /*new BlockEntityType<>(
+                                    VocoPostBlockEntity::new,
+                                    ModBlocks.VOCO_POST.get()
+                            )
+                            *///?} else {
                             new BlockEntityType<>(
-                                    VocoReceptorBlockEntity::new,
+                                    VocoPostBlockEntity::new,
                                     false,
-                                    ModBlocks.VOCO_RECEPTOR.get()
+                                    ModBlocks.VOCO_POST.get()
                             )
                     //?}
             );

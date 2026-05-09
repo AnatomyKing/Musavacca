@@ -2,12 +2,12 @@
   "multipart": [
     {
       "apply": {
-        "model": "musavacca:block/voco_mensa"
+        "model": "musavacca:block/voco_table"
       }
     },
     {
       "apply": {
-        "model": "musavacca:block/voco_mensa_lit_receptor"
+        "model": "musavacca:block/voco_table_lit_receptor_corner"
       },
       "when": {
         "lit_north_east": "true"
@@ -15,7 +15,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/voco_mensa_lit_receptor",
+        "model": "musavacca:block/voco_table_lit_receptor_corner",
         "y": 90
       },
       "when": {
@@ -24,7 +24,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/voco_mensa_lit_receptor",
+        "model": "musavacca:block/voco_table_lit_receptor_corner",
         "y": 180
       },
       "when": {
@@ -33,7 +33,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/voco_mensa_lit_receptor",
+        "model": "musavacca:block/voco_table_lit_receptor_corner",
         "y": 270
       },
       "when": {
@@ -42,7 +42,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/voco_mensa_portal_north_east"
+        "model": "musavacca:block/voco_table_portal_north_east"
       },
       "when": {
         "portal_north_east": "true"
@@ -50,7 +50,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/voco_mensa_portal_south_east"
+        "model": "musavacca:block/voco_table_portal_south_east"
       },
       "when": {
         "portal_south_east": "true"
@@ -58,7 +58,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/voco_mensa_portal_south_west"
+        "model": "musavacca:block/voco_table_portal_south_west"
       },
       "when": {
         "portal_south_west": "true"
@@ -66,7 +66,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/voco_mensa_portal_north_west"
+        "model": "musavacca:block/voco_table_portal_north_west"
       },
       "when": {
         "portal_north_west": "true"

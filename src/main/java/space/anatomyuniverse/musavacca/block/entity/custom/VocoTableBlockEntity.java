@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/VocoTableBlockEntity.java
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -31,8 +32,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -122,7 +123,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     };
 
     public static final int DEFAULT_HEX_COLOR = FlintAndPearlItem.DEFAULT_HEX_COLOR;
-    public static final int UNSET_HEX_COLOR = VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR;
+    public static final int UNSET_HEX_COLOR = VocoReceptorLogic.UNSET_HEX_COLOR;
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
@@ -190,7 +191,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     public void setYawDegrees(ReceptorPosition receptor, int yawDegrees) {
         int index = receptor.id();
-        int clamped = VocoSharedBetweenTableAndReceptorLogic.clampYaw(yawDegrees);
+        int clamped = VocoReceptorLogic.clampYaw(yawDegrees);
 
         if (this.yawDegrees[index] == clamped) {
             return;
@@ -203,7 +204,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     public void setPitchDegrees(ReceptorPosition receptor, int pitchDegrees) {
         int index = receptor.id();
-        int clamped = VocoSharedBetweenTableAndReceptorLogic.clampPitch(pitchDegrees);
+        int clamped = VocoReceptorLogic.clampPitch(pitchDegrees);
 
         if (this.pitchDegrees[index] == clamped) {
             return;
@@ -259,8 +260,8 @@ public class VocoTableBlockEntity extends BlockEntity {
         this.targetX[index] = target.x;
         this.targetY[index] = target.y;
         this.targetZ[index] = target.z;
-        this.yawDegrees[index] = VocoSharedBetweenTableAndReceptorLogic.clampYaw(yawDegrees);
-        this.pitchDegrees[index] = VocoSharedBetweenTableAndReceptorLogic.clampPitch(pitchDegrees);
+        this.yawDegrees[index] = VocoReceptorLogic.clampYaw(yawDegrees);
+        this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(pitchDegrees);
 
         this.markChangedAndSync();
         this.resyncEndpoint(receptor);
@@ -625,7 +626,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
             for (ReceptorPosition receptor : ReceptorPosition.values()) {
                 directory.removeOwner(
-                        HexTeleportDirectory.vocoTableOwnerKey(
+                        HexTeleportDirectory.vocoTableReceptorCornerOwnerKey(
                                 serverLevel.dimension().location(),
                                 pos,
                                 receptor
@@ -654,11 +655,11 @@ public class VocoTableBlockEntity extends BlockEntity {
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             int index = receptor.id();
 
-            this.yawDegrees[index] = VocoSharedBetweenTableAndReceptorLogic.clampYaw(
+            this.yawDegrees[index] = VocoReceptorLogic.clampYaw(
                     input.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees())
             );
 
-            this.pitchDegrees[index] = VocoSharedBetweenTableAndReceptorLogic.clampPitch(
+            this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(
                     input.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees())
             );
 
@@ -682,7 +683,7 @@ public class VocoTableBlockEntity extends BlockEntity {
             }
         }
 
-        this.latestHexReceptorId = VocoSharedBetweenTableAndReceptorLogic.clampReceptorId(
+        this.latestHexReceptorId = VocoReceptorLogic.clampReceptorId(
                 input.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id())
         );
 
@@ -784,7 +785,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     public static int normalizeHex(int hexColor) {
-        return VocoSharedBetweenTableAndReceptorLogic.normalizeHex(hexColor);
+        return VocoReceptorLogic.normalizeHex(hexColor);
     }
 
     private static int readHexOrUnset(ValueInput input, String tag) {

@@ -19,8 +19,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableVoxelShapes;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 public class VocoTableBlock extends Block implements EntityBlock {
@@ -65,12 +67,12 @@ public class VocoTableBlock extends Block implements EntityBlock {
     }
 
     public static void syncPortalStateFromCandles(Level level, BlockPos pos, ReceptorPosition receptor) {
-        VocoTableLogic.syncPortalStateFromCandles(level, pos, receptor);
+        VocoTableCandleLogic.syncPortalStateFromCandles(level, pos, receptor);
     }
 
     @Override
     protected void attack(BlockState state, Level level, BlockPos pos, Player player) {
-        if (!level.isClientSide() && VocoTableLogic.breakLookedAtCandle(state, level, pos, player)) {
+        if (!level.isClientSide() && VocoTableCandleLogic.breakLookedAtCandle(level, pos, player)) {
             return;
         }
 
@@ -103,7 +105,7 @@ public class VocoTableBlock extends Block implements EntityBlock {
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        VocoTableLogic.animateTick(state, level, pos, random);
+        VocoTableCandleLogic.animateTick(level, pos, random);
     }
 
     @Override
@@ -113,7 +115,7 @@ public class VocoTableBlock extends Block implements EntityBlock {
             BlockPos pos,
             CollisionContext context
     ) {
-        return VocoTableLogic.shape(level, pos);
+        return VocoTableVoxelShapes.shape(level, pos);
     }
 
     @Override
@@ -123,6 +125,6 @@ public class VocoTableBlock extends Block implements EntityBlock {
             BlockPos pos,
             CollisionContext context
     ) {
-        return VocoTableLogic.shape(level, pos);
+        return VocoTableVoxelShapes.shape(level, pos);
     }
 }

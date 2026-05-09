@@ -6,7 +6,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 // ============================================================================
@@ -30,7 +29,6 @@ import net.neoforged.neoforge.common.util.TriState;
 import net.minecraft.client.resources.model.DelegateBakedModel;
 //?}
 *///?} else {
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -54,7 +52,7 @@ public final class MusaRenderLayers {
             ModBlocks.HEX_BLOCK.get(),
             ModBlocks.PEARL_FIRE.get(),
             ModBlocks.VOCO_TABLE.get(),
-            ModBlocks.VOCO_RECEPTOR.get()
+            ModBlocks.VOCO_POST.get()
     );
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(

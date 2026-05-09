@@ -11,8 +11,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleGeometry;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleVoxelShapes;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 public final class VocoTableBlockEntityCandleRenderer {
@@ -78,7 +78,7 @@ public final class VocoTableBlockEntityCandleRenderer {
                 .setValue(CandleBlock.LIT, blockEntity.isCandleLit(receptor))
                 .setValue(CandleBlock.WATERLOGGED, false);
 
-        Vec3 translation = VocoTableCandleGeometry.renderTranslation(receptor);
+        Vec3 translation = VocoTableCandleVoxelShapes.renderTranslation(receptor);
 
         poseStack.pushPose();
         poseStack.translate(translation.x, translation.y, translation.z);

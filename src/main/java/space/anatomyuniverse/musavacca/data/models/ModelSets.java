@@ -1,13 +1,13 @@
 package space.anatomyuniverse.musavacca.data.models;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
 
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.data.models.block.*;
+import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
 import space.anatomyuniverse.musavacca.data.models.item.CustomItemModel;
 import space.anatomyuniverse.musavacca.data.models.item.ItemTintedLayered;
 import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
@@ -43,8 +43,7 @@ public final class ModelSets {
     }
 
     public static Map<Block, String> cubeOwnModels() {
-        return Map.of(
-        );
+        return Map.of();
     }
 
     public static Map<Block, CubeOwnTintedHexColorClipped.Entry> cubeOwnTintedHexColorClippedModels() {
@@ -61,23 +60,23 @@ public final class ModelSets {
         return Map.of(
                 ModBlocks.VOCO_TABLE.get(),
                 new CubeVocoTable.Models(
-                        "musavacca:block/voco_mensa",
-                        "musavacca:block/voco_mensa_lit_receptor",
-                        "musavacca:block/voco_mensa_portal_north_east",
-                        "musavacca:block/voco_mensa_portal_south_east",
-                        "musavacca:block/voco_mensa_portal_south_west",
-                        "musavacca:block/voco_mensa_portal_north_west"
+                        "musavacca:block/voco_table",
+                        "musavacca:block/voco_table_lit_receptor_corner",
+                        "musavacca:block/voco_table_portal_north_east",
+                        "musavacca:block/voco_table_portal_south_east",
+                        "musavacca:block/voco_table_portal_south_west",
+                        "musavacca:block/voco_table_portal_north_west"
                 )
         );
     }
 
-    public static Map<Block, CubeVocoReceptor.Models> cubeVocoReceptorModels() {
+    public static Map<Block, CubeVocoPost.Models> cubeVocoPostModels() {
         return Map.of(
-                ModBlocks.VOCO_RECEPTOR.get(),
-                new CubeVocoReceptor.Models(
-                        "musavacca:block/voco_receptor",
-                        "musavacca:block/voco_lit_receptor",
-                        "musavacca:block/voco_receptor_portal"
+                ModBlocks.VOCO_POST.get(),
+                new CubeVocoPost.Models(
+                        "musavacca:block/voco_post",
+                        "musavacca:block/voco_post_lit_receptor_corner",
+                        "musavacca:block/voco_post_portal"
                 )
         );
     }
@@ -149,13 +148,11 @@ public final class ModelSets {
     }
 
     public static Block[] stairsBlocks() {
-        return new Block[] {
-        };
+        return new Block[] {};
     }
 
     public static Block[] cubeCrafterLikeBlocks() {
-        return new Block[] {
-        };
+        return new Block[] {};
     }
 
     public static Block[] CubeCrafterLikeBlocks() {
@@ -184,27 +181,8 @@ public final class ModelSets {
                         ModItems.POTASSIUM_CHESTPLATE.get(),
                         ModItems.POTASSIUM_LEGGINGS.get(),
                         ModItems.POTASSIUM_BOOTS.get(),
-
-                        // Generates:
-                        // assets/musavacca/equipment/potassium.json
                         "musavacca:potassium",
-
-                        // Vanilla-style armor texture id.
-                        //
-                        // HUMANOID resolves to:
-                        // assets/musavacca/textures/entity/equipment/humanoid/potassium.png
-                        //
-                        // HUMANOID_LEGGINGS resolves to:
-                        // assets/musavacca/textures/entity/equipment/humanoid_leggings/potassium.png
                         "musavacca:potassium",
-
-                        // Used ONLY when the helmet is rendered in display_context=head.
-                        //
-                        // This references your existing file:
-                        // assets/musavacca/models/item/potassium_helmet_model.json
-                        //
-                        // The helmet item itself must have EQUIPPABLE without asset_id.
-                        // That is handled in ModItems.
                         "musavacca:item/potassium_helmet_model"
                 )
         };
@@ -248,10 +226,10 @@ public final class ModelSets {
 
     public static CustomItemModel.Entry[] customItemModels() {
         return new CustomItemModel.Entry[] {
-                 CustomItemModel.of(
-                         ModItems.BANANA_PHONE.get(),
-                         "musavacca:item/banana_phone"
-                 )
+                CustomItemModel.of(
+                        ModItems.BANANA_PHONE.get(),
+                        "musavacca:item/banana_phone"
+                )
         };
     }
 

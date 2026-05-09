@@ -67,8 +67,9 @@ public final class ModModelProvider
         BarrelCropOwnTintedFoliage.generate(blocks, items, ModelSets.barrelCropOwnTintedFoliageModels());
         CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());
         CubeOwnTintedHexColorClipped.generate(blocks, items, ModelSets.cubeOwnTintedHexColorClippedModels());
+
         CubeVocoTable.generate(blocks, ModelSets.cubeVocoTableModels());
-        CubeVocoReceptor.generate(blocks, ModelSets.cubeVocoReceptorModels());
+        CubeVocoPost.generate(blocks, ModelSets.cubeVocoPostModels());
 
         ItemTintedLayered.generate(items, ModelSets.itemTintedLayeredItems());
         CustomItemModel.generate(items, ModelSets.customItemModels());

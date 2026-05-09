@@ -1,8 +1,9 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/models/block/CubeVocoPost.java
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import space.anatomyuniverse.musavacca.block.custom.VocoReceptorBlock;
+import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 
 import java.util.Map;
 
@@ -21,11 +22,11 @@ import net.minecraft.client.renderer.block.model.Variant;
 //?}
 //?}
 
-public final class CubeVocoReceptor {
-    private CubeVocoReceptor() {}
+public final class CubeVocoPost {
+    private CubeVocoPost() {}
 
     /**
-     * base          -> always rendered, full unlit receptor model
+     * base          -> always rendered, full unlit Voco Post model
      * litOverlay    -> only rendered when LIT = true
      * portalOverlay -> only rendered when PORTAL = true, should contain tinted portal layers
      */
@@ -52,7 +53,7 @@ public final class CubeVocoReceptor {
         if (models == null || models.isEmpty()) return;
 
         models.forEach((block, stateModels) -> {
-            if (!(block instanceof VocoReceptorBlock) || stateModels == null) return;
+            if (!(block instanceof VocoPostBlock) || stateModels == null) return;
 
             ModelFile base = gen.models().getExistingFile(stateModels.baseModel());
             ModelFile litOverlay = gen.models().getExistingFile(stateModels.litOverlayModel());
@@ -66,13 +67,13 @@ public final class CubeVocoReceptor {
 
                     .part()
                     .modelFile(litOverlay)
-                    .condition(VocoReceptorBlock.LIT, true)
+                    .condition(VocoPostBlock.LIT, true)
                     .addModel()
                     .end()
 
                     .part()
                     .modelFile(portalOverlay)
-                    .condition(VocoReceptorBlock.PORTAL, true)
+                    .condition(VocoPostBlock.PORTAL, true)
                     .addModel()
                     .end();
 
@@ -84,7 +85,7 @@ public final class CubeVocoReceptor {
         if (models == null || models.isEmpty()) return;
 
         models.forEach((block, stateModels) -> {
-            if (!(block instanceof VocoReceptorBlock) || stateModels == null) return;
+            if (!(block instanceof VocoPostBlock) || stateModels == null) return;
 
             MultiPartGenerator multi = MultiPartGenerator.multiPart(block);
 
@@ -104,14 +105,14 @@ public final class CubeVocoReceptor {
 
     private static MultiPartGenerator addWhenLit(MultiPartGenerator multi, ResourceLocation modelId) {
         return multi.with(
-                BlockModelGenerators.condition().term(VocoReceptorBlock.LIT, true),
+                BlockModelGenerators.condition().term(VocoPostBlock.LIT, true),
                 variant(modelId)
         );
     }
 
     private static MultiPartGenerator addWhenPortal(MultiPartGenerator multi, ResourceLocation modelId) {
         return multi.with(
-                BlockModelGenerators.condition().term(VocoReceptorBlock.PORTAL, true),
+                BlockModelGenerators.condition().term(VocoPostBlock.PORTAL, true),
                 variant(modelId)
         );
     }
@@ -126,14 +127,14 @@ public final class CubeVocoReceptor {
 
     private static MultiPartGenerator addWhenLit(MultiPartGenerator multi, ResourceLocation modelId) {
         return multi.with(
-                BlockModelGenerators.condition().term(VocoReceptorBlock.LIT, true),
+                BlockModelGenerators.condition().term(VocoPostBlock.LIT, true),
                 BlockModelGenerators.variant(new Variant(modelId))
         );
     }
 
     private static MultiPartGenerator addWhenPortal(MultiPartGenerator multi, ResourceLocation modelId) {
         return multi.with(
-                BlockModelGenerators.condition().term(VocoReceptorBlock.PORTAL, true),
+                BlockModelGenerators.condition().term(VocoPostBlock.PORTAL, true),
                 BlockModelGenerators.variant(new Variant(modelId))
         );
     }

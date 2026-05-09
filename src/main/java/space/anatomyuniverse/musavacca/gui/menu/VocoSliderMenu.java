@@ -15,11 +15,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import space.anatomyuniverse.musavacca.block.custom.VocoReceptorBlock;
+import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoReceptorBlockEntity;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.gui.ModMenus;
 
@@ -98,7 +98,7 @@ public class VocoSliderMenu extends AbstractContainerMenu {
                                 pos,
                                 receptor
                         ),
-                        Component.literal("Voco Target: " + receptor.displayName())
+                        Component.literal("Voco Receptor Corner: " + receptor.displayName())
                 ),
                 buffer -> {
                     buffer.writeBlockPos(pos);
@@ -192,12 +192,12 @@ public class VocoSliderMenu extends AbstractContainerMenu {
 
     public static int buttonIdForYaw(int yawDegrees) {
         int clamped = clampYaw(yawDegrees);
-        return BUTTON_YAW_BASE + (clamped - VocoSharedBetweenTableAndReceptorLogic.MIN_YAW_DEGREES);
+        return BUTTON_YAW_BASE + (clamped - VocoReceptorLogic.MIN_YAW_DEGREES);
     }
 
     public static int buttonIdForPitch(int pitchDegrees) {
         int clamped = clampPitch(pitchDegrees);
-        return BUTTON_PITCH_BASE + (clamped - VocoSharedBetweenTableAndReceptorLogic.MIN_PITCH_DEGREES);
+        return BUTTON_PITCH_BASE + (clamped - VocoReceptorLogic.MIN_PITCH_DEGREES);
     }
 
     private static boolean isYawButton(int id) {
@@ -211,11 +211,11 @@ public class VocoSliderMenu extends AbstractContainerMenu {
     }
 
     private static int yawFromButtonId(int id) {
-        return VocoSharedBetweenTableAndReceptorLogic.MIN_YAW_DEGREES + (id - BUTTON_YAW_BASE);
+        return VocoReceptorLogic.MIN_YAW_DEGREES + (id - BUTTON_YAW_BASE);
     }
 
     private static int pitchFromButtonId(int id) {
-        return VocoSharedBetweenTableAndReceptorLogic.MIN_PITCH_DEGREES + (id - BUTTON_PITCH_BASE);
+        return VocoReceptorLogic.MIN_PITCH_DEGREES + (id - BUTTON_PITCH_BASE);
     }
 
     @Override
@@ -279,8 +279,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
             return;
         }
 
-        if (be instanceof VocoReceptorBlockEntity receptorBe) {
-            receptorBe.setYawDegrees(yawDegrees);
+        if (be instanceof VocoPostBlockEntity postBe) {
+            postBe.setYawDegrees(yawDegrees);
         }
     }
 
@@ -292,8 +292,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
             return;
         }
 
-        if (be instanceof VocoReceptorBlockEntity receptorBe) {
-            receptorBe.setPitchDegrees(pitchDegrees);
+        if (be instanceof VocoPostBlockEntity postBe) {
+            postBe.setPitchDegrees(pitchDegrees);
         }
     }
 
@@ -305,8 +305,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
             return;
         }
 
-        if (be instanceof VocoReceptorBlockEntity receptorBe) {
-            receptorBe.setCustomTargetEnabled(enabled);
+        if (be instanceof VocoPostBlockEntity postBe) {
+            postBe.setCustomTargetEnabled(enabled);
         }
     }
 
@@ -322,8 +322,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
             return;
         }
 
-        if (be instanceof VocoReceptorBlockEntity receptorBe) {
-            receptorBe.setCustomTarget(target, yaw, pitch);
+        if (be instanceof VocoPostBlockEntity postBe) {
+            postBe.setCustomTarget(target, yaw, pitch);
         }
     }
 
@@ -334,8 +334,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
             return tableBe.getYawDegrees(receptor);
         }
 
-        if (be instanceof VocoReceptorBlockEntity receptorBe) {
-            return receptorBe.getYawDegrees();
+        if (be instanceof VocoPostBlockEntity postBe) {
+            return postBe.getYawDegrees();
         }
 
         return receptor.defaultYawDegrees();
@@ -348,8 +348,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
             return tableBe.getPitchDegrees(receptor);
         }
 
-        if (be instanceof VocoReceptorBlockEntity receptorBe) {
-            return receptorBe.getPitchDegrees();
+        if (be instanceof VocoPostBlockEntity postBe) {
+            return postBe.getPitchDegrees();
         }
 
         return receptor.defaultPitchDegrees();
@@ -362,8 +362,8 @@ public class VocoSliderMenu extends AbstractContainerMenu {
             return tableBe.isCustomTargetEnabled(receptor);
         }
 
-        if (be instanceof VocoReceptorBlockEntity receptorBe) {
-            return receptorBe.isCustomTargetEnabled();
+        if (be instanceof VocoPostBlockEntity postBe) {
+            return postBe.isCustomTargetEnabled();
         }
 
         return false;
@@ -381,7 +381,7 @@ public class VocoSliderMenu extends AbstractContainerMenu {
         }
 
         Block block = player.level().getBlockState(this.pos).getBlock();
-        if (!(block instanceof VocoReceptorBlock) && !(block instanceof VocoTableBlock)) {
+        if (!(block instanceof VocoPostBlock) && !(block instanceof VocoTableBlock)) {
             return false;
         }
 
@@ -393,20 +393,20 @@ public class VocoSliderMenu extends AbstractContainerMenu {
     }
 
     private static int clampYaw(int yawDegrees) {
-        return VocoSharedBetweenTableAndReceptorLogic.clampYaw(yawDegrees);
+        return VocoReceptorLogic.clampYaw(yawDegrees);
     }
 
     private static int clampPitch(int pitchDegrees) {
-        return VocoSharedBetweenTableAndReceptorLogic.clampPitch(pitchDegrees);
+        return VocoReceptorLogic.clampPitch(pitchDegrees);
     }
 
     private static int yawRange() {
-        return VocoSharedBetweenTableAndReceptorLogic.MAX_YAW_DEGREES
-                - VocoSharedBetweenTableAndReceptorLogic.MIN_YAW_DEGREES;
+        return VocoReceptorLogic.MAX_YAW_DEGREES
+                - VocoReceptorLogic.MIN_YAW_DEGREES;
     }
 
     private static int pitchRange() {
-        return VocoSharedBetweenTableAndReceptorLogic.MAX_PITCH_DEGREES
-                - VocoSharedBetweenTableAndReceptorLogic.MIN_PITCH_DEGREES;
+        return VocoReceptorLogic.MAX_PITCH_DEGREES
+                - VocoReceptorLogic.MIN_PITCH_DEGREES;
     }
 }

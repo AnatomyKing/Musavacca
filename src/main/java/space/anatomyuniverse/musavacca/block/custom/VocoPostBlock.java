@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/VocoReceptorBlock.java
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/VocoPostBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -23,20 +23,17 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoReceptorBlockEntity;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostVoxelShapes;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 
-public class VocoReceptorBlock extends Block implements EntityBlock {
+public class VocoPostBlock extends Block implements EntityBlock {
 
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
     public static final BooleanProperty PORTAL = BooleanProperty.create("portal");
 
-    private static final VoxelShape SHAPE = Block.box(
-            5.0D, 0.0D, 5.0D,
-            11.0D, 16.0D, 11.0D
-    );
-
-    public VocoReceptorBlock(Properties properties) {
+    public VocoPostBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
                 this.stateDefinition.any()
@@ -48,7 +45,7 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new VocoReceptorBlockEntity(pos, state);
+        return new VocoPostBlockEntity(pos, state);
     }
 
     @Override
@@ -66,7 +63,7 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
             boolean movedByPiston
     ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-        VocoReceptorLogic.onPlace(level, pos);
+        VocoPostCandleLogic.onPlace(level, pos);
     }
 
     @Override
@@ -91,7 +88,7 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
                 random
         );
 
-        return VocoReceptorLogic.updateShape(
+        return VocoPostCandleLogic.updateShape(
                 updated,
                 levelReader,
                 scheduledTickAccess,
@@ -111,7 +108,7 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
             Player player,
             BlockHitResult hit
     ) {
-        return VocoReceptorLogic.useWithoutItem(state, level, pos, player);
+        return VocoPostLogic.useWithoutItem(state, level, pos, player, hit);
     }
 
     @Override
@@ -124,7 +121,7 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
             InteractionHand hand,
             BlockHitResult hit
     ) {
-        return VocoReceptorLogic.useItemOn(stack, state, level, pos, player, hand);
+        return VocoPostLogic.useItemOn(stack, state, level, pos, player, hand, hit);
     }
 
     @Override
@@ -134,7 +131,7 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
             BlockPos pos,
             CollisionContext context
     ) {
-        return SHAPE;
+        return VocoPostVoxelShapes.SHAPE;
     }
 
     @Override
@@ -144,6 +141,6 @@ public class VocoReceptorBlock extends Block implements EntityBlock {
             BlockPos pos,
             CollisionContext context
     ) {
-        return SHAPE;
+        return VocoPostVoxelShapes.SHAPE;
     }
 }

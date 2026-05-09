@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/VocoReceptorBlockEntity.java
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/VocoPostBlockEntity.java
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -18,14 +18,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
-public class VocoReceptorBlockEntity extends BlockEntity {
+public class VocoPostBlockEntity extends BlockEntity {
 
     private static final String TAG_YAW_DEGREES = "yaw_degrees";
     private static final String TAG_PITCH_DEGREES = "pitch_degrees";
@@ -36,7 +37,7 @@ public class VocoReceptorBlockEntity extends BlockEntity {
     private static final String TAG_TARGET_Y = "target_y";
     private static final String TAG_TARGET_Z = "target_z";
 
-    public static final int UNSET_HEX_COLOR = VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR;
+    public static final int UNSET_HEX_COLOR = VocoReceptorLogic.UNSET_HEX_COLOR;
 
     public static final int DEFAULT_YAW_DEGREES = ReceptorPosition.NORTH_EAST.defaultYawDegrees();
     public static final int DEFAULT_PITCH_DEGREES = ReceptorPosition.NORTH_EAST.defaultPitchDegrees();
@@ -50,8 +51,8 @@ public class VocoReceptorBlockEntity extends BlockEntity {
     private double targetY;
     private double targetZ;
 
-    public VocoReceptorBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.VOCO_RECEPTOR_BLOCK_ENTITY.get(), pos, state);
+    public VocoPostBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.VOCO_POST_BLOCK_ENTITY.get(), pos, state);
 
         Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(pos, ReceptorPosition.NORTH_EAST);
         this.targetX = fallback.x;
@@ -157,6 +158,7 @@ public class VocoReceptorBlockEntity extends BlockEntity {
 
         this.yawDegrees = clampedYaw;
         this.pitchDegrees = clampedPitch;
+
         this.markChangedAndSync();
         this.resyncEndpoint();
     }
@@ -169,7 +171,10 @@ public class VocoReceptorBlockEntity extends BlockEntity {
         }
 
         this.hexColor = normalized;
+
         this.markChangedAndSync();
+        this.resyncEndpoint();
+
         return true;
     }
 
@@ -179,7 +184,9 @@ public class VocoReceptorBlockEntity extends BlockEntity {
         }
 
         this.hexColor = UNSET_HEX_COLOR;
+
         this.markChangedAndSync();
+        this.resyncEndpoint();
     }
 
     public void releaseHexClaim() {
@@ -189,7 +196,7 @@ public class VocoReceptorBlockEntity extends BlockEntity {
         }
 
         HexTeleportDirectory.get(serverLevel.getServer()).removeOwner(
-                HexTeleportDirectory.vocoReceptorOwnerKey(
+                HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(
                         serverLevel.dimension().location(),
                         this.getBlockPos()
                 )
@@ -198,7 +205,23 @@ public class VocoReceptorBlockEntity extends BlockEntity {
 
     private void resyncEndpoint() {
         Level level = this.getLevel();
-        if (!(level instanceof ServerLevel serverLevel) || !this.hasHexColor()) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        BlockState state = this.getBlockState();
+
+        boolean portalActive = state.hasProperty(VocoPostBlock.PORTAL)
+                && state.getValue(VocoPostBlock.PORTAL);
+
+        if (!portalActive || !this.hasHexColor()) {
+            VocoTeleportLogic.syncEndpoint(
+                    serverLevel,
+                    this.getBlockPos(),
+                    ReceptorPosition.NORTH_EAST,
+                    false,
+                    VocoReceptorLogic.UNSET_HEX_COLOR
+            );
             return;
         }
 
@@ -332,11 +355,11 @@ public class VocoReceptorBlockEntity extends BlockEntity {
     }
 
     public static int clampYaw(int yawDegrees) {
-        return VocoSharedBetweenTableAndReceptorLogic.clampYaw(yawDegrees);
+        return VocoReceptorLogic.clampYaw(yawDegrees);
     }
 
     public static int clampPitch(int pitchDegrees) {
-        return VocoSharedBetweenTableAndReceptorLogic.clampPitch(pitchDegrees);
+        return VocoReceptorLogic.clampPitch(pitchDegrees);
     }
 
     private static int readHexOrUnset(ValueInput input) {
@@ -345,6 +368,6 @@ public class VocoReceptorBlockEntity extends BlockEntity {
     }
 
     private static int normalizeHex(int hexColor) {
-        return VocoSharedBetweenTableAndReceptorLogic.normalizeHex(hexColor);
+        return VocoReceptorLogic.normalizeHex(hexColor);
     }
 }

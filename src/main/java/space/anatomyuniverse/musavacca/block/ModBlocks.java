@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.block;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.material.MapColor;
@@ -249,9 +248,9 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                     ));
 
-    public static final DeferredBlock<VocoReceptorBlock> VOCO_RECEPTOR =
-            BLOCKS.registerBlock("voco_receptor",
-                    props -> new VocoReceptorBlock(
+    public static final DeferredBlock<VocoPostBlock> VOCO_POST =
+            BLOCKS.registerBlock("voco_post",
+                    props -> new VocoPostBlock(
                             props.mapColor(MapColor.COLOR_ORANGE)
                                     .strength(0.2F, 3.0F)
                                     .sound(SoundType.CHAIN)

@@ -16,8 +16,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
@@ -25,7 +25,7 @@ import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 public class PearlCandleBlockEntity extends BlockEntity {
     public static final String TAG_HEX_COLOR = "hex_color";
 
-    public static final int UNSET_HEX_COLOR = VocoSharedBetweenTableAndReceptorLogic.UNSET_HEX_COLOR;
+    public static final int UNSET_HEX_COLOR = VocoReceptorLogic.UNSET_HEX_COLOR;
 
     private int hexColor = UNSET_HEX_COLOR;
 
@@ -56,16 +56,16 @@ public class PearlCandleBlockEntity extends BlockEntity {
 
         this.hexColor = normalized;
         this.markChangedAndSync();
-        this.refreshReceptorBelow();
+        this.refreshPostBelow();
     }
 
-    private void refreshReceptorBelow() {
+    private void refreshPostBelow() {
         Level level = this.getLevel();
         if (level == null || level.isClientSide()) {
             return;
         }
 
-        VocoReceptorLogic.refreshReceptorBelowCandle(level, this.getBlockPos());
+        VocoPostCandleLogic.refreshPostBelowCandle(level, this.getBlockPos());
     }
 
     private void markChangedAndSync() {
@@ -164,6 +164,6 @@ public class PearlCandleBlockEntity extends BlockEntity {
     }
 
     private static int normalizeHex(int hexColor) {
-        return VocoSharedBetweenTableAndReceptorLogic.normalizeHex(hexColor);
+        return VocoReceptorLogic.normalizeHex(hexColor);
     }
 }

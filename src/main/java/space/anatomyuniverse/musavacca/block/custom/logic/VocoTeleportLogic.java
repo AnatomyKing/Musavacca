@@ -8,8 +8,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoReceptorBlockEntity;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
@@ -19,7 +19,7 @@ public final class VocoTeleportLogic {
 
     private VocoTeleportLogic() {}
 
-    public static void teleportToReceptor(
+    public static void teleportToReceptorCorner(
             Level level,
             BlockPos pos,
             Player player,
@@ -69,8 +69,8 @@ public final class VocoTeleportLogic {
 
         HexTeleportDirectory.Kind kind =
                 level.getBlockEntity(pos) instanceof VocoTableBlockEntity
-                        ? HexTeleportDirectory.Kind.VOCO_TABLE_CORNER
-                        : HexTeleportDirectory.Kind.VOCO_RECEPTOR;
+                        ? HexTeleportDirectory.Kind.VOCO_TABLE_RECEPTOR_CORNER
+                        : HexTeleportDirectory.Kind.VOCO_POST_RECEPTOR_CORNER;
 
         return directory.registerVocoEndpoint(
                 ownerKey,
@@ -88,14 +88,14 @@ public final class VocoTeleportLogic {
 
     public static String ownerKey(Level level, BlockPos pos, ReceptorPosition receptor) {
         if (level.getBlockEntity(pos) instanceof VocoTableBlockEntity) {
-            return HexTeleportDirectory.vocoTableOwnerKey(
+            return HexTeleportDirectory.vocoTableReceptorCornerOwnerKey(
                     level.dimension().location(),
                     pos,
                     receptor
             );
         }
 
-        return HexTeleportDirectory.vocoReceptorOwnerKey(
+        return HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(
                 level.dimension().location(),
                 pos
         );
@@ -112,10 +112,10 @@ public final class VocoTeleportLogic {
             );
         }
 
-        if (be instanceof VocoReceptorBlockEntity receptorBe && receptorBe.isCustomTargetEnabled()) {
+        if (be instanceof VocoPostBlockEntity postBe && postBe.isCustomTargetEnabled()) {
             return new EndpointTarget(
-                    receptorBe.getCustomTarget(),
-                    new Facing(receptorBe.getYawDegrees(), receptorBe.getPitchDegrees()),
+                    postBe.getCustomTarget(),
+                    new Facing(postBe.getYawDegrees(), postBe.getPitchDegrees()),
                     true
             );
         }
@@ -137,10 +137,10 @@ public final class VocoTeleportLogic {
             );
         }
 
-        if (be instanceof VocoReceptorBlockEntity receptorBe) {
+        if (be instanceof VocoPostBlockEntity postBe) {
             return new Facing(
-                    receptorBe.getYawDegrees(),
-                    receptorBe.getPitchDegrees()
+                    postBe.getYawDegrees(),
+                    postBe.getPitchDegrees()
             );
         }
 

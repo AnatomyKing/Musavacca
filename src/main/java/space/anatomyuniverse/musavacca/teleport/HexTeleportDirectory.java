@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/teleport/HexTeleportDirectory.java
 package space.anatomyuniverse.musavacca.teleport;
 
 import com.mojang.serialization.Codec;
@@ -10,7 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.phys.Vec3;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoSharedBetweenTableAndReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 
 import java.util.ArrayList;
@@ -42,8 +43,8 @@ public final class HexTeleportDirectory extends SavedData {
 
     public enum Kind {
         PEARL_PORTAL("pearl_portal"),
-        VOCO_TABLE_CORNER("voco_table_corner"),
-        VOCO_RECEPTOR("voco_receptor");
+        VOCO_TABLE_RECEPTOR_CORNER("voco_table_receptor_corner"),
+        VOCO_POST_RECEPTOR_CORNER("voco_post_receptor_corner");
 
         private final String serializedName;
 
@@ -60,7 +61,8 @@ public final class HexTeleportDirectory extends SavedData {
         }
 
         public boolean isVoco() {
-            return this == VOCO_TABLE_CORNER || this == VOCO_RECEPTOR;
+            return this == VOCO_TABLE_RECEPTOR_CORNER
+                    || this == VOCO_POST_RECEPTOR_CORNER;
         }
 
         public static Kind fromSerializedName(String name) {
@@ -72,7 +74,7 @@ public final class HexTeleportDirectory extends SavedData {
                 }
             }
 
-            return VOCO_RECEPTOR;
+            return VOCO_POST_RECEPTOR_CORNER;
         }
     }
 
@@ -186,7 +188,7 @@ public final class HexTeleportDirectory extends SavedData {
 
         public Endpoint normalized() {
             UUID safeId = this.endpointId == null ? UUID.randomUUID() : this.endpointId;
-            Kind safeKind = this.kind == null ? Kind.VOCO_RECEPTOR : this.kind;
+            Kind safeKind = this.kind == null ? Kind.VOCO_POST_RECEPTOR_CORNER : this.kind;
             String safeOwnerKey = normalizeOwnerKey(this.ownerKey);
             BlockPos safeOwnerPos = this.ownerPos == null ? BlockPos.ZERO : this.ownerPos.immutable();
             Target safeTarget = this.target == null
@@ -400,8 +402,8 @@ public final class HexTeleportDirectory extends SavedData {
         ArrayList<Endpoint> result = new ArrayList<>(this.endpointsByHex(normalizeHex(hexColor)));
 
         result.sort(Comparator.comparingInt(endpoint -> switch (endpoint.kind()) {
-            case VOCO_RECEPTOR -> 0;
-            case VOCO_TABLE_CORNER -> 1;
+            case VOCO_POST_RECEPTOR_CORNER -> 0;
+            case VOCO_TABLE_RECEPTOR_CORNER -> 1;
             case PEARL_PORTAL -> 2;
         }));
 
@@ -579,12 +581,16 @@ public final class HexTeleportDirectory extends SavedData {
         return true;
     }
 
-    public static String vocoTableOwnerKey(ResourceLocation dimensionId, BlockPos pos, ReceptorPosition receptor) {
-        return ownerKey(Kind.VOCO_TABLE_CORNER, dimensionId, pos, receptor.id());
+    public static String vocoTableReceptorCornerOwnerKey(
+            ResourceLocation dimensionId,
+            BlockPos pos,
+            ReceptorPosition receptor
+    ) {
+        return ownerKey(Kind.VOCO_TABLE_RECEPTOR_CORNER, dimensionId, pos, receptor.id());
     }
 
-    public static String vocoReceptorOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
-        return ownerKey(Kind.VOCO_RECEPTOR, dimensionId, pos, 0);
+    public static String vocoPostReceptorCornerOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
+        return ownerKey(Kind.VOCO_POST_RECEPTOR_CORNER, dimensionId, pos, 0);
     }
 
     public static String ownerKey(Kind kind, ResourceLocation dimensionId, BlockPos pos, int slotId) {
