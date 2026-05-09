@@ -133,8 +133,12 @@ public final class VocoPostCandleLogic {
 
         boolean wasPortal = postState.getValue(VocoPostBlock.PORTAL);
 
-        if (!wasPortal && shouldBePortal) {
-            VocoReceptorLogic.playPortalAppearSound(level, postPos);
+        if (wasPortal != shouldBePortal) {
+            if (!wasPortal && shouldBePortal) {
+                VocoReceptorLogic.playPortalAppearSound(level, postPos);
+            } else if (wasPortal) {
+                VocoReceptorLogic.playPortalDisappearSound(level, postPos);
+            }
         }
 
         return postState.setValue(VocoPostBlock.PORTAL, shouldBePortal);

@@ -116,7 +116,15 @@ public final class VocoTableLogic {
         }
 
         if (candleHit != null) {
-            if (!VocoReceptorLogic.isCompletelyEmptyHanded(player)) {
+            if (!player.getMainHandItem().isEmpty()) {
+                return InteractionResult.PASS;
+            }
+
+            if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
+                return InteractionResult.PASS;
+            }
+
+            if (!tableBe.isCandleLit(candleHit)) {
                 return InteractionResult.PASS;
             }
 
@@ -196,6 +204,10 @@ public final class VocoTableLogic {
             return InteractionResult.SUCCESS;
         }
 
+        if (stack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+
         if (candleHit != null) {
             Block candleBlock = candleBlockFromStack(stack);
 
@@ -273,19 +285,11 @@ public final class VocoTableLogic {
         }
 
         if (part.togglesBasuke()) {
-            if (stack.isEmpty()) {
-                return InteractionResult.TRY_WITH_EMPTY_HAND;
-            }
-
             return InteractionResult.PASS;
         }
 
         if (hand == InteractionHand.OFF_HAND) {
             return InteractionResult.PASS;
-        }
-
-        if (stack.isEmpty()) {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         if (level.isClientSide()) {

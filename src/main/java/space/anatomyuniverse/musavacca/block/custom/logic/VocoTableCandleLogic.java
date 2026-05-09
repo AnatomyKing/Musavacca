@@ -161,6 +161,8 @@ public final class VocoTableCandleLogic {
         if (wasPortal != shouldBePortal) {
             if (!wasPortal && shouldBePortal) {
                 VocoReceptorLogic.playPortalAppearSound(level, pos);
+            } else if (wasPortal) {
+                VocoReceptorLogic.playPortalDisappearSound(level, pos);
             }
 
             level.setBlock(

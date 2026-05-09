@@ -339,8 +339,8 @@ public final class VocoReceptorLogic {
                 pos,
                 SoundEvents.RESPAWN_ANCHOR_CHARGE,
                 SoundSource.BLOCKS,
-                1.0F,
-                1.0F
+                0.65F,
+                1.54F
         );
 
         return true;
@@ -370,8 +370,8 @@ public final class VocoReceptorLogic {
                 pos,
                 SoundEvents.RESPAWN_ANCHOR_CHARGE,
                 SoundSource.BLOCKS,
-                1.0F,
-                1.0F
+                0.65F,
+                1.54F
         );
 
         return true;
@@ -396,12 +396,19 @@ public final class VocoReceptorLogic {
             return false;
         }
 
+        boolean wasPortal = portalProperty != null && state.getValue(portalProperty);
+
         BlockState newState = state.setValue(litProperty, false);
         if (portalProperty != null) {
             newState = newState.setValue(portalProperty, false);
         }
 
         level.setBlock(pos, newState, UPDATE_FLAGS);
+
+        if (wasPortal) {
+            playPortalDisappearSound(level, pos);
+        }
+
         playDepleteEffects(level, pos, receptor);
         popBananaPearl(level, pos, receptor);
         damageItem(shears, player, hand);
@@ -414,6 +421,17 @@ public final class VocoReceptorLogic {
                 null,
                 pos,
                 SoundEvents.BEACON_ACTIVATE,
+                SoundSource.BLOCKS,
+                0.65F,
+                1.25F
+        );
+    }
+
+    public static void playPortalDisappearSound(Level level, BlockPos pos) {
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.BEACON_DEACTIVATE,
                 SoundSource.BLOCKS,
                 0.65F,
                 1.25F
@@ -480,10 +498,10 @@ public final class VocoReceptorLogic {
                 popPos.x,
                 popPos.y,
                 popPos.z,
-                SoundEvents.RESPAWN_ANCHOR_DEPLETE,
+                SoundEvents.AMETHYST_CLUSTER_BREAK,
                 SoundSource.BLOCKS,
                 1.0F,
-                1.0F
+                0.62F
         );
     }
 
