@@ -14,8 +14,6 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostReceptorHitbox
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 
 public final class VocoPostLogic {
-    public static final ReceptorPosition POST_RECEPTOR = ReceptorPosition.NORTH_EAST;
-
     private VocoPostLogic() {}
 
     public static InteractionResult useWithoutItem(
@@ -31,7 +29,9 @@ public final class VocoPostLogic {
             return InteractionResult.PASS;
         }
 
-        if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, POST_RECEPTOR)) {
+        ReceptorPosition receptor = VocoPostBlock.receptorPosition(state);
+
+        if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
             return InteractionResult.SUCCESS;
         }
 
@@ -83,7 +83,9 @@ public final class VocoPostLogic {
             return InteractionResult.PASS;
         }
 
-        if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, POST_RECEPTOR)) {
+        ReceptorPosition receptor = VocoPostBlock.receptorPosition(state);
+
+        if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
             return InteractionResult.SUCCESS;
         }
 
@@ -96,7 +98,7 @@ public final class VocoPostLogic {
                 hand,
                 VocoPostBlock.LIT,
                 VocoPostBlock.PORTAL,
-                POST_RECEPTOR
+                receptor
         );
 
         if (result == InteractionResult.SUCCESS && !level.isClientSide()) {

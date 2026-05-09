@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/gui/screen/ItemInteractScreen.java
 package space.anatomyuniverse.musavacca.gui.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,7 +14,7 @@ public class ItemInteractScreen extends AbstractContainerScreen<ItemInteractMenu
 
     public ItemInteractScreen(ItemInteractMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 240;
+        this.imageWidth = 260;
         this.imageHeight = 170;
         this.inventoryLabelY = 10000;
     }
@@ -45,6 +46,12 @@ public class ItemInteractScreen extends AbstractContainerScreen<ItemInteractMenu
         this.addRenderableWidget(
                 Button.builder(Component.literal("Default"), button -> this.sendMenuButton(ItemInteractMenu.BUTTON_DEFAULT))
                         .bounds(this.leftPos + 140, this.topPos + 138, 58, 20)
+                        .build()
+        );
+
+        this.addRenderableWidget(
+                Button.builder(Component.literal("Random"), button -> this.sendMenuButton(ItemInteractMenu.BUTTON_RANDOM))
+                        .bounds(this.leftPos + 202, this.topPos + 138, 48, 20)
                         .build()
         );
     }
@@ -102,8 +109,8 @@ public class ItemInteractScreen extends AbstractContainerScreen<ItemInteractMenu
         graphics.fill(left + 1, top + 1, left + this.imageWidth - 1, top + this.imageHeight - 1, 0xFF2A2A2A);
 
         graphics.fill(left + 10, top + 10, left + 150, top + 44, 0x55101010);
-        graphics.fill(left + 164, top + 12, left + 228, top + 76, 0xFFFFFFFF);
-        graphics.fill(left + 168, top + 16, left + 224, top + 72, 0xFF000000 | this.menu.getDisplayedHexColor());
+        graphics.fill(left + 184, top + 12, left + 248, top + 76, 0xFFFFFFFF);
+        graphics.fill(left + 188, top + 16, left + 244, top + 72, 0xFF000000 | this.menu.getDisplayedHexColor());
 
         String code = this.menu.getDisplayedCode();
         int cursor = this.menu.getCursor();
@@ -140,11 +147,11 @@ public class ItemInteractScreen extends AbstractContainerScreen<ItemInteractMenu
         graphics.drawString(this.font, this.title, 10, 6, 0xFFFFFF, false);
         graphics.drawString(this.font, Component.literal("#" + this.menu.getDisplayedCode()), 10, 46, 0xFFFFFF, false);
         graphics.drawString(this.font, Component.literal("Active keys: 0-9 and A-F"), 10, 58, 0xBFBFBF, false);
-        graphics.drawString(this.font, Component.literal("Backspace edits from the right. ESC closes."), 10, 70, 0xBFBFBF, false);
+        graphics.drawString(this.font, Component.literal("Random chooses a server-side hex color."), 10, 70, 0xBFBFBF, false);
         graphics.drawString(
                 this.font,
                 Component.literal("Hand: " + (hand == InteractionHand.MAIN_HAND ? "Main Hand" : "Offhand")),
-                164,
+                184,
                 82,
                 0xD8D8D8,
                 false

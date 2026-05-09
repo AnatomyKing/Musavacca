@@ -1,6 +1,7 @@
 // file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/VocoPostBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -8,16 +9,17 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -26,20 +28,29 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostVoxelShapes;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 
-public class VocoPostBlock extends Block implements EntityBlock {
+public class VocoPostBlock extends HorizontalDirectionalBlock implements EntityBlock {
+    public static final MapCodec<VocoPostBlock> CODEC = simpleCodec(VocoPostBlock::new);
 
-    public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    public static final BooleanProperty LIT = BooleanProperty.create("lit");
     public static final BooleanProperty PORTAL = BooleanProperty.create("portal");
 
     public VocoPostBlock(Properties properties) {
         super(properties);
+
         this.registerDefaultState(
                 this.stateDefinition.any()
+                        .setValue(FACING, Direction.NORTH)
                         .setValue(LIT, false)
                         .setValue(PORTAL, false)
         );
+    }
+
+    @Override
+    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+        return CODEC;
     }
 
     @Nullable
@@ -48,56 +59,28 @@ public class VocoPostBlock extends Block implements EntityBlock {
         return new VocoPostBlockEntity(pos, state);
     }
 
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState()
+                .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                .setValue(LIT, false)
+                .setValue(PORTAL, false);
+    }
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(LIT, PORTAL);
+        builder.add(FACING, LIT, PORTAL);
     }
 
     @Override
-    protected void onPlace(
+    protected VoxelShape getShape(
             BlockState state,
-            Level level,
+            BlockGetter level,
             BlockPos pos,
-            BlockState oldState,
-            boolean movedByPiston
+            CollisionContext context
     ) {
-        super.onPlace(state, level, pos, oldState, movedByPiston);
-        VocoPostCandleLogic.onPlace(level, pos);
-    }
-
-    @Override
-    protected BlockState updateShape(
-            BlockState state,
-            LevelReader levelReader,
-            ScheduledTickAccess scheduledTickAccess,
-            BlockPos pos,
-            Direction direction,
-            BlockPos neighborPos,
-            BlockState neighborState,
-            RandomSource random
-    ) {
-        BlockState updated = super.updateShape(
-                state,
-                levelReader,
-                scheduledTickAccess,
-                pos,
-                direction,
-                neighborPos,
-                neighborState,
-                random
-        );
-
-        return VocoPostCandleLogic.updateShape(
-                updated,
-                levelReader,
-                scheduledTickAccess,
-                pos,
-                direction,
-                neighborPos,
-                neighborState,
-                random
-        );
+        return VocoPostVoxelShapes.SHAPE;
     }
 
     @Override
@@ -125,22 +108,64 @@ public class VocoPostBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected VoxelShape getShape(
+    protected void onPlace(
             BlockState state,
-            BlockGetter level,
+            Level level,
             BlockPos pos,
-            CollisionContext context
+            BlockState oldState,
+            boolean movedByPiston
     ) {
-        return VocoPostVoxelShapes.SHAPE;
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+
+        if (!level.isClientSide()) {
+            VocoPostCandleLogic.refreshPortalAt(level, pos);
+        }
     }
 
     @Override
-    protected VoxelShape getCollisionShape(
+    protected BlockState updateShape(
             BlockState state,
-            BlockGetter level,
+            LevelReader levelReader,
+            ScheduledTickAccess scheduledTickAccess,
             BlockPos pos,
-            CollisionContext context
+            Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            RandomSource random
     ) {
-        return VocoPostVoxelShapes.SHAPE;
+        return VocoPostCandleLogic.updateShape(
+                state,
+                levelReader,
+                scheduledTickAccess,
+                pos,
+                direction,
+                neighborPos,
+                neighborState,
+                random
+        );
+    }
+
+    public static ReceptorPosition receptorPosition(BlockState state) {
+        Direction facing = state.hasProperty(FACING)
+                ? state.getValue(FACING)
+                : Direction.NORTH;
+
+        return switch (facing) {
+            case NORTH -> ReceptorPosition.NORTH_EAST;
+            case EAST -> ReceptorPosition.SOUTH_EAST;
+            case SOUTH -> ReceptorPosition.SOUTH_WEST;
+            case WEST -> ReceptorPosition.NORTH_WEST;
+            default -> ReceptorPosition.NORTH_EAST;
+        };
+    }
+
+    public static int yRotationDegrees(Direction facing) {
+        return switch (facing) {
+            case NORTH -> 0;
+            case EAST -> 90;
+            case SOUTH -> 180;
+            case WEST -> 270;
+            default -> 0;
+        };
     }
 }

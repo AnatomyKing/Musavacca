@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/gui/menu/ItemInteractMenu.java
 package space.anatomyuniverse.musavacca.gui.menu;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -14,6 +15,7 @@ import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
 import java.util.Locale;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ItemInteractMenu extends AbstractContainerMenu {
     public static final int BUTTON_HEX_0 = 0;
@@ -22,6 +24,7 @@ public class ItemInteractMenu extends AbstractContainerMenu {
     public static final int BUTTON_BACKSPACE = 100;
     public static final int BUTTON_CLEAR = 101;
     public static final int BUTTON_DEFAULT = 102;
+    public static final int BUTTON_RANDOM = 103;
 
     private static final String HEX = "0123456789ABCDEF";
 
@@ -84,7 +87,8 @@ public class ItemInteractMenu extends AbstractContainerMenu {
         return (id >= BUTTON_HEX_0 && id <= BUTTON_HEX_F)
                 || id == BUTTON_BACKSPACE
                 || id == BUTTON_CLEAR
-                || id == BUTTON_DEFAULT;
+                || id == BUTTON_DEFAULT
+                || id == BUTTON_RANDOM;
     }
 
     public static int buttonIdForHexNibble(int nibble) {
@@ -126,6 +130,10 @@ public class ItemInteractMenu extends AbstractContainerMenu {
             value = (value << 4) | (this.digits[i] & 0xF);
         }
         return TintColorUtil.rgb(value);
+    }
+
+    private int randomHexColor() {
+        return ThreadLocalRandom.current().nextInt(0x1000000);
     }
 
     public ItemStack getTargetStack() {
@@ -179,6 +187,12 @@ public class ItemInteractMenu extends AbstractContainerMenu {
         if (id == BUTTON_DEFAULT) {
             this.loadFromHex(FlintAndPearlItem.DEFAULT_HEX_COLOR);
             this.cursor = 6;
+            return;
+        }
+
+        if (id == BUTTON_RANDOM) {
+            this.loadFromHex(this.randomHexColor());
+            this.cursor = 6;
         }
     }
 
@@ -190,6 +204,10 @@ public class ItemInteractMenu extends AbstractContainerMenu {
 
         if (!this.isTargetStillValid()) {
             return false;
+        }
+
+        if (id == BUTTON_RANDOM && player.level().isClientSide()) {
+            return true;
         }
 
         this.applyButtonEdit(id);

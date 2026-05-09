@@ -54,7 +54,12 @@ public class VocoPostBlockEntity extends BlockEntity {
     public VocoPostBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.VOCO_POST_BLOCK_ENTITY.get(), pos, state);
 
-        Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(pos, ReceptorPosition.NORTH_EAST);
+        ReceptorPosition receptor = VocoPostBlock.receptorPosition(state);
+        Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(pos, receptor);
+
+        this.yawDegrees = receptor.defaultYawDegrees();
+        this.pitchDegrees = receptor.defaultPitchDegrees();
+
         this.targetX = fallback.x;
         this.targetY = fallback.y;
         this.targetZ = fallback.z;
@@ -84,7 +89,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         if (!this.customTargetEnabled) {
             return VocoTeleportLogic.getDefaultTeleportPosition(
                     this.getBlockPos(),
-                    ReceptorPosition.NORTH_EAST
+                    this.getPostReceptor()
             );
         }
 
@@ -101,7 +106,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         if (enabled && this.targetY == 0.0D) {
             Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(
                     this.getBlockPos(),
-                    ReceptorPosition.NORTH_EAST
+                    this.getPostReceptor()
             );
 
             this.targetX = fallback.x;
@@ -210,6 +215,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         }
 
         BlockState state = this.getBlockState();
+        ReceptorPosition receptor = this.getPostReceptor();
 
         boolean portalActive = state.hasProperty(VocoPostBlock.PORTAL)
                 && state.getValue(VocoPostBlock.PORTAL);
@@ -218,7 +224,7 @@ public class VocoPostBlockEntity extends BlockEntity {
             VocoTeleportLogic.syncEndpoint(
                     serverLevel,
                     this.getBlockPos(),
-                    ReceptorPosition.NORTH_EAST,
+                    receptor,
                     false,
                     VocoReceptorLogic.UNSET_HEX_COLOR
             );
@@ -228,10 +234,14 @@ public class VocoPostBlockEntity extends BlockEntity {
         VocoTeleportLogic.syncEndpoint(
                 serverLevel,
                 this.getBlockPos(),
-                ReceptorPosition.NORTH_EAST,
+                receptor,
                 true,
                 this.hexColor
         );
+    }
+
+    private ReceptorPosition getPostReceptor() {
+        return VocoPostBlock.receptorPosition(this.getBlockState());
     }
 
     private void markChangedAndSync() {
@@ -283,13 +293,15 @@ public class VocoPostBlockEntity extends BlockEntity {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
-        this.yawDegrees = clampYaw(input.getIntOr(TAG_YAW_DEGREES, DEFAULT_YAW_DEGREES));
-        this.pitchDegrees = clampPitch(input.getIntOr(TAG_PITCH_DEGREES, DEFAULT_PITCH_DEGREES));
+        ReceptorPosition receptor = this.getPostReceptor();
+
+        this.yawDegrees = clampYaw(input.getIntOr(TAG_YAW_DEGREES, receptor.defaultYawDegrees()));
+        this.pitchDegrees = clampPitch(input.getIntOr(TAG_PITCH_DEGREES, receptor.defaultPitchDegrees()));
         this.hexColor = readHexOrUnset(input);
 
         Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(
                 this.getBlockPos(),
-                ReceptorPosition.NORTH_EAST
+                receptor
         );
 
         this.customTargetEnabled = input.getBooleanOr(TAG_CUSTOM_TARGET, false);

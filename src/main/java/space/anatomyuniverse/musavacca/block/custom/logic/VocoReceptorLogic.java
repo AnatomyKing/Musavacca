@@ -501,7 +501,7 @@ public final class VocoReceptorLogic {
                 SoundEvents.AMETHYST_CLUSTER_BREAK,
                 SoundSource.BLOCKS,
                 1.0F,
-                0.62F
+                1.0F
         );
     }
 

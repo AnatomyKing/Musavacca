@@ -1,6 +1,7 @@
 // file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/models/block/CubeVocoPost.java
 package space.anatomyuniverse.musavacca.data.models.block;
 
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
@@ -18,6 +19,7 @@ import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 /*import net.minecraft.client.data.models.blockstates.Variant;
 import net.minecraft.client.data.models.blockstates.VariantProperties;
 *///?} else {
+import com.mojang.math.Quadrant;
 import net.minecraft.client.renderer.block.model.Variant;
 //?}
 //?}
@@ -62,17 +64,83 @@ public final class CubeVocoPost {
             gen.getMultipartBuilder(block)
                     .part()
                     .modelFile(base)
+                    .rotationY(0)
+                    .condition(VocoPostBlock.FACING, Direction.NORTH)
+                    .addModel()
+                    .end()
+                    .part()
+                    .modelFile(base)
+                    .rotationY(90)
+                    .condition(VocoPostBlock.FACING, Direction.EAST)
+                    .addModel()
+                    .end()
+                    .part()
+                    .modelFile(base)
+                    .rotationY(180)
+                    .condition(VocoPostBlock.FACING, Direction.SOUTH)
+                    .addModel()
+                    .end()
+                    .part()
+                    .modelFile(base)
+                    .rotationY(270)
+                    .condition(VocoPostBlock.FACING, Direction.WEST)
                     .addModel()
                     .end()
 
                     .part()
                     .modelFile(litOverlay)
+                    .rotationY(0)
+                    .condition(VocoPostBlock.FACING, Direction.NORTH)
+                    .condition(VocoPostBlock.LIT, true)
+                    .addModel()
+                    .end()
+                    .part()
+                    .modelFile(litOverlay)
+                    .rotationY(90)
+                    .condition(VocoPostBlock.FACING, Direction.EAST)
+                    .condition(VocoPostBlock.LIT, true)
+                    .addModel()
+                    .end()
+                    .part()
+                    .modelFile(litOverlay)
+                    .rotationY(180)
+                    .condition(VocoPostBlock.FACING, Direction.SOUTH)
+                    .condition(VocoPostBlock.LIT, true)
+                    .addModel()
+                    .end()
+                    .part()
+                    .modelFile(litOverlay)
+                    .rotationY(270)
+                    .condition(VocoPostBlock.FACING, Direction.WEST)
                     .condition(VocoPostBlock.LIT, true)
                     .addModel()
                     .end()
 
                     .part()
                     .modelFile(portalOverlay)
+                    .rotationY(0)
+                    .condition(VocoPostBlock.FACING, Direction.NORTH)
+                    .condition(VocoPostBlock.PORTAL, true)
+                    .addModel()
+                    .end()
+                    .part()
+                    .modelFile(portalOverlay)
+                    .rotationY(90)
+                    .condition(VocoPostBlock.FACING, Direction.EAST)
+                    .condition(VocoPostBlock.PORTAL, true)
+                    .addModel()
+                    .end()
+                    .part()
+                    .modelFile(portalOverlay)
+                    .rotationY(180)
+                    .condition(VocoPostBlock.FACING, Direction.SOUTH)
+                    .condition(VocoPostBlock.PORTAL, true)
+                    .addModel()
+                    .end()
+                    .part()
+                    .modelFile(portalOverlay)
+                    .rotationY(270)
+                    .condition(VocoPostBlock.FACING, Direction.WEST)
                     .condition(VocoPostBlock.PORTAL, true)
                     .addModel()
                     .end();
@@ -89,54 +157,123 @@ public final class CubeVocoPost {
 
             MultiPartGenerator multi = MultiPartGenerator.multiPart(block);
 
-            multi = addAlways(multi, stateModels.baseModel());
-            multi = addWhenLit(multi, stateModels.litOverlayModel());
-            multi = addWhenPortal(multi, stateModels.portalOverlayModel());
+            for (Direction facing : horizontalDirections()) {
+                multi = addBase(multi, stateModels.baseModel(), facing);
+                multi = addLitOverlay(multi, stateModels.litOverlayModel(), facing);
+                multi = addPortalOverlay(multi, stateModels.portalOverlayModel(), facing);
+            }
 
             gen.blockStateOutput.accept(multi);
             gen.registerSimpleItemModel(block, stateModels.itemModel());
         });
     }
 
+    private static Direction[] horizontalDirections() {
+        return new Direction[] {
+                Direction.NORTH,
+                Direction.EAST,
+                Direction.SOUTH,
+                Direction.WEST
+        };
+    }
+
     //? if <1.21.5 {
-    /*private static MultiPartGenerator addAlways(MultiPartGenerator multi, ResourceLocation modelId) {
-        return multi.with(variant(modelId));
-    }
-
-    private static MultiPartGenerator addWhenLit(MultiPartGenerator multi, ResourceLocation modelId) {
+    /*private static MultiPartGenerator addBase(
+            MultiPartGenerator multi,
+            ResourceLocation modelId,
+            Direction facing
+    ) {
         return multi.with(
-                BlockModelGenerators.condition().term(VocoPostBlock.LIT, true),
-                variant(modelId)
+                BlockModelGenerators.condition().term(VocoPostBlock.FACING, facing),
+                variant(modelId, facing)
         );
     }
 
-    private static MultiPartGenerator addWhenPortal(MultiPartGenerator multi, ResourceLocation modelId) {
+    private static MultiPartGenerator addLitOverlay(
+            MultiPartGenerator multi,
+            ResourceLocation modelId,
+            Direction facing
+    ) {
         return multi.with(
-                BlockModelGenerators.condition().term(VocoPostBlock.PORTAL, true),
-                variant(modelId)
+                BlockModelGenerators.condition()
+                        .term(VocoPostBlock.FACING, facing)
+                        .term(VocoPostBlock.LIT, true),
+                variant(modelId, facing)
         );
     }
 
-    private static Variant variant(ResourceLocation modelId) {
-        return Variant.variant().with(VariantProperties.MODEL, modelId);
+    private static MultiPartGenerator addPortalOverlay(
+            MultiPartGenerator multi,
+            ResourceLocation modelId,
+            Direction facing
+    ) {
+        return multi.with(
+                BlockModelGenerators.condition()
+                        .term(VocoPostBlock.FACING, facing)
+                        .term(VocoPostBlock.PORTAL, true),
+                variant(modelId, facing)
+        );
+    }
+
+    private static Variant variant(ResourceLocation modelId, Direction facing) {
+        Variant variant = Variant.variant().with(VariantProperties.MODEL, modelId);
+
+        return switch (VocoPostBlock.yRotationDegrees(facing)) {
+            case 90 -> variant.with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90);
+            case 180 -> variant.with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180);
+            case 270 -> variant.with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270);
+            default -> variant.with(VariantProperties.Y_ROT, VariantProperties.Rotation.R0);
+        };
     }
     *///?} else {
-    private static MultiPartGenerator addAlways(MultiPartGenerator multi, ResourceLocation modelId) {
-        return multi.with(BlockModelGenerators.variant(new Variant(modelId)));
-    }
-
-    private static MultiPartGenerator addWhenLit(MultiPartGenerator multi, ResourceLocation modelId) {
+    private static MultiPartGenerator addBase(
+            MultiPartGenerator multi,
+            ResourceLocation modelId,
+            Direction facing
+    ) {
         return multi.with(
-                BlockModelGenerators.condition().term(VocoPostBlock.LIT, true),
-                BlockModelGenerators.variant(new Variant(modelId))
+                BlockModelGenerators.condition().term(VocoPostBlock.FACING, facing),
+                BlockModelGenerators.variant(variant(modelId, facing))
         );
     }
 
-    private static MultiPartGenerator addWhenPortal(MultiPartGenerator multi, ResourceLocation modelId) {
+    private static MultiPartGenerator addLitOverlay(
+            MultiPartGenerator multi,
+            ResourceLocation modelId,
+            Direction facing
+    ) {
         return multi.with(
-                BlockModelGenerators.condition().term(VocoPostBlock.PORTAL, true),
-                BlockModelGenerators.variant(new Variant(modelId))
+                BlockModelGenerators.condition()
+                        .term(VocoPostBlock.FACING, facing)
+                        .term(VocoPostBlock.LIT, true),
+                BlockModelGenerators.variant(variant(modelId, facing))
         );
+    }
+
+    private static MultiPartGenerator addPortalOverlay(
+            MultiPartGenerator multi,
+            ResourceLocation modelId,
+            Direction facing
+    ) {
+        return multi.with(
+                BlockModelGenerators.condition()
+                        .term(VocoPostBlock.FACING, facing)
+                        .term(VocoPostBlock.PORTAL, true),
+                BlockModelGenerators.variant(variant(modelId, facing))
+        );
+    }
+
+    private static Variant variant(ResourceLocation modelId, Direction facing) {
+        return new Variant(modelId).withYRot(yRotation(facing));
+    }
+
+    private static Quadrant yRotation(Direction facing) {
+        return switch (VocoPostBlock.yRotationDegrees(facing)) {
+            case 90 -> Quadrant.R90;
+            case 180 -> Quadrant.R180;
+            case 270 -> Quadrant.R270;
+            default -> Quadrant.R0;
+        };
     }
     //?}
     //?}

@@ -18,8 +18,6 @@ import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntit
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 
 public final class VocoPostCandleLogic {
-    private static final ReceptorPosition POST_RECEPTOR = ReceptorPosition.NORTH_EAST;
-
     private VocoPostCandleLogic() {}
 
     public static void onPlace(Level level, BlockPos pos) {
@@ -79,6 +77,8 @@ public final class VocoPostCandleLogic {
             BlockPos postPos,
             BlockState postState
     ) {
+        ReceptorPosition postReceptor = VocoPostBlock.receptorPosition(postState);
+
         PortalInfo portalInfo = readPortalInfo(level, postPos, postState);
         boolean shouldBePortal = portalInfo.active();
 
@@ -91,7 +91,7 @@ public final class VocoPostCandleLogic {
                     shouldBePortal = VocoTeleportLogic.syncEndpoint(
                             serverLevel,
                             postPos,
-                            POST_RECEPTOR,
+                            postReceptor,
                             true,
                             portalInfo.hexColor()
                     );
@@ -104,7 +104,7 @@ public final class VocoPostCandleLogic {
                         VocoTeleportLogic.syncEndpoint(
                                 serverLevel,
                                 postPos,
-                                POST_RECEPTOR,
+                                postReceptor,
                                 false,
                                 VocoReceptorLogic.UNSET_HEX_COLOR
                         );
@@ -117,7 +117,7 @@ public final class VocoPostCandleLogic {
                     VocoTeleportLogic.syncEndpoint(
                             serverLevel,
                             postPos,
-                            POST_RECEPTOR,
+                            postReceptor,
                             false,
                             VocoReceptorLogic.UNSET_HEX_COLOR
                     );
