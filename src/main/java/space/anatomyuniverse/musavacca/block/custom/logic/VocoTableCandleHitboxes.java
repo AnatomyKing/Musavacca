@@ -6,6 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 
 public final class VocoTableCandleHitboxes {
+    private static final double VANILLA_CANDLE_SHAPE_HEIGHT = 6.0D;
+
     private static final Vec3[] CORNER_OFFSETS = {
             new Vec3(5.0D, 16.0D, -5.0D),
             new Vec3(-5.0D, 16.0D, -5.0D),
@@ -105,10 +107,10 @@ public final class VocoTableCandleHitboxes {
 
     private static Bounds vanillaBounds(int candleCount) {
         return switch (clampCount(candleCount)) {
-            case 1 -> new Bounds(7.0D, 0.0D, 7.0D, 9.0D, 7.0D, 9.0D);
-            case 2 -> new Bounds(5.0D, 0.0D, 6.0D, 11.0D, 7.0D, 9.0D);
-            case 3 -> new Bounds(5.0D, 0.0D, 6.0D, 10.0D, 7.0D, 11.0D);
-            case 4 -> new Bounds(5.0D, 0.0D, 5.0D, 11.0D, 7.0D, 10.0D);
+            case 1 -> new Bounds(7.0D, 0.0D, 7.0D, 9.0D, VANILLA_CANDLE_SHAPE_HEIGHT, 9.0D);
+            case 2 -> new Bounds(5.0D, 0.0D, 6.0D, 11.0D, VANILLA_CANDLE_SHAPE_HEIGHT, 9.0D);
+            case 3 -> new Bounds(5.0D, 0.0D, 6.0D, 10.0D, VANILLA_CANDLE_SHAPE_HEIGHT, 11.0D);
+            case 4 -> new Bounds(5.0D, 0.0D, 5.0D, 11.0D, VANILLA_CANDLE_SHAPE_HEIGHT, 10.0D);
             default -> throw new IllegalStateException("Unexpected candle count");
         };
     }
