@@ -4,7 +4,7 @@ and it's under this [`LICENSE`](LICENSE.txt).
 
 Musavacca is a **NeoForge** mod that adds banana themed economy and teleportation in to Minecraft.
 
-> **Template:** This mod is using **[Stonecutter](https://stonecutter.kikugie.dev/)**.
+> **Template:** I build this mod using **[Stonecutter](https://stonecutter.kikugie.dev/)**.
 > Stonecutter is a great way to manage multi-version projects and I can't recommend it enough! Go check it out if multi-version support is something you're interested in.
 
 ## Supported Minecraft versions
