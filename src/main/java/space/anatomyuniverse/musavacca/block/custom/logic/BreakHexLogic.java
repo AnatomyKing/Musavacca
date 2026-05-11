@@ -8,6 +8,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import space.anatomyuniverse.musavacca.block.ModBlockTags;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
 import space.anatomyuniverse.musavacca.block.custom.HexBlock;
@@ -66,7 +67,7 @@ public final class BreakHexLogic {
 
     public static boolean canBonemealBreakBlock(LevelReader level, BlockPos pos) {
         return level.getBlockState(pos.below()).getBlock() instanceof HexBlock
-                && level.getBlockState(pos.above()).is(ModBlocks.MUSAVACCA_STEM.get());
+                && isMusavaccaStem(level.getBlockState(pos.above()));
     }
 
     public static boolean canHexBlockSurvive(LevelReader level, BlockPos pos) {
@@ -82,7 +83,7 @@ public final class BreakHexLogic {
         return state.hasProperty(HexBlock.CLIPPED)
                 && !state.getValue(HexBlock.CLIPPED)
                 && !BreakBlock.isAttachedStem(aboveState, ModBlocks.MUSAVACCA_EGG.get())
-                && aboveState.is(ModBlocks.MUSAVACCA_STEM.get())
+                && isMusavaccaStem(aboveState)
                 && level.getBlockState(belowPos).isAir()
                 && !level.isWaterAt(belowPos);
     }
@@ -102,6 +103,10 @@ public final class BreakHexLogic {
         if (be instanceof HexBlockEntity hexBe) {
             hexBe.setHexColor(savedHex);
         }
+    }
+
+    private static boolean isMusavaccaStem(BlockState state) {
+        return state.is(ModBlockTags.MUSAVACCA_STEMS);
     }
 
     private static Integer getStoredHexColor(ServerLevel level, BlockPos pos) {

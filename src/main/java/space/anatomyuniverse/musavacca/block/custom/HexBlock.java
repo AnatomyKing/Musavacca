@@ -52,6 +52,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     private static final int ADD_PARTICLE_ATTEMPTS = 10;
     private static final int PARTICLE_XZ_RADIUS = 10;
     private static final int PARTICLE_Y_MAX = 10;
+    private static final int NATURAL_EGG_GROWTH_CHANCE = 5;
 
     private static final int FALLING_PARTICLE_CHANCE = 4;
     private static final int FALLING_PARTICLE_COLOR = 0xFFFFFF;
@@ -312,6 +313,21 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
     @Override
     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
         return true;
+    }
+
+    @Override
+    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (state.getValue(CLIPPED)) {
+            return;
+        }
+
+        if (random.nextInt(NATURAL_EGG_GROWTH_CHANCE) != 0) {
+            return;
+        }
+
+        if (BreakHexLogic.canGrowHexIntoEggPair(level, pos, state)) {
+            BreakHexLogic.growHexIntoEggPair(level, pos, state);
+        }
     }
 
     @Override

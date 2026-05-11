@@ -8,9 +8,10 @@ import net.minecraft.world.level.block.Block;
 import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class ModBlockTags {
-    private ModBlockTags() {}
-
     public static final TagKey<Block> PEARL_PORTAL_FRAME = create("pearl_portal_frame");
+    public static final TagKey<Block> MUSAVACCA_STEMS = create("musavacca_stems");
+
+    private ModBlockTags() {}
 
     private static TagKey<Block> create(String name) {
         return TagKey.create(

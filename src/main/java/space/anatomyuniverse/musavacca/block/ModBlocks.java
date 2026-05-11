@@ -44,9 +44,10 @@ public final class ModBlocks {
     public static final DeferredBlock<BreakBlock> MUSAVACCA_EGG =
             BLOCKS.registerBlock("musavacca_egg",
                     props -> new BreakBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
-                            .strength(0.1F, 6.0F)
-                            .sound(SoundType.HONEY_BLOCK)
+                            .mapColor(MapColor.PLANT)
+                            .strength(0.4F)
+                            .sound(SoundType.GRASS)
+                            .randomTicks()
                             .noOcclusion()
                             .pushReaction(PushReaction.NORMAL)));
 
@@ -294,14 +295,13 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                     ));
 
-
-
     public static final DeferredBlock<HexBlock> HEX_BLOCK =
             BLOCKS.registerBlock("hex_block",
                     props -> new HexBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
-                            .strength(0.1F, 6.0F)
-                            .sound(SoundType.HONEY_BLOCK)
+                            .mapColor(MapColor.PLANT)
+                            .strength(0.2F)
+                            .randomTicks()
+                            .sound(SoundType.GRASS)
                             .noOcclusion()
                             .pushReaction(PushReaction.NORMAL)));
 

@@ -52,7 +52,11 @@ public final class MusaRenderLayers {
             ModBlocks.HEX_BLOCK.get(),
             ModBlocks.PEARL_FIRE.get(),
             ModBlocks.VOCO_TABLE.get(),
-            ModBlocks.VOCO_POST.get()
+            ModBlocks.VOCO_POST.get(),
+            ModBlocks.MUSAVACCA_SPROUT.get(),
+            ModBlocks.MUSAVACCA_SUCKER.get(),
+            ModBlocks.MUSAVACCA_PLANT.get(),
+            ModBlocks.MUSAVACCA_PSEUDOSTEM.get()
     );
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(

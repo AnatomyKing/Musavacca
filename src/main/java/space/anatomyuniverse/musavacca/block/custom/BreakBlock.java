@@ -43,6 +43,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 2);
     public static final BooleanProperty ATTACHED = BlockStateProperties.ATTACHED;
     public static final int MAX_AGE = 2;
+    private static final int NATURAL_GROWTH_CHANCE = 5;
 
     private static final VoxelShape SHAPE_STAGE0 = Block.box(5.0, 0.0, 5.0, 11.0, 7.0, 11.0);
     private static final VoxelShape SHAPE_STAGE1 = Block.box(3.0, 0.0, 3.0, 13.0, 11.0, 13.0);
@@ -196,6 +197,23 @@ public class BreakBlock extends Block implements BonemealableBlock {
     }
 
     @Override
+    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (!state.getValue(ATTACHED)) {
+            return;
+        }
+
+        if (state.getValue(AGE) >= MAX_AGE) {
+            return;
+        }
+
+        if (random.nextInt(NATURAL_GROWTH_CHANCE) != 0) {
+            return;
+        }
+
+        performBonemeal(level, random, pos, state);
+    }
+
+    @Override
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
         if (!BreakHexLogic.canBonemealBreakBlock(level, pos)) {
             return;
@@ -206,6 +224,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
             level.setBlock(pos, state.setValue(AGE, age + 1), Block.UPDATE_ALL);
         }
     }
+
 
     @Override
     public BonemealableBlock.Type getType() {

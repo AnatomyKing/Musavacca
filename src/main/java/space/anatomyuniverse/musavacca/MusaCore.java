@@ -35,6 +35,7 @@ import space.anatomyuniverse.musavacca.tint.ModTints;
 
 //? if <1.21.9
 import net.neoforged.fml.loading.FMLLoader;
+import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
 //? if >=1.21.9
 /*import net.neoforged.fml.loading.FMLEnvironment;*/
 
@@ -50,6 +51,7 @@ public final class MusaCore {
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
+        ModFeatures.register(modBus);
         ModDataComponents.register(modBus);
         ModBlockEntities.register(modBus);
         ModMenus.register(modBus);
