@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/entity/mob/basuke/Basuke.java
 package space.anatomyuniverse.musavacca.entity.mob.basuke;
 
 import net.minecraft.core.BlockPos;
@@ -13,7 +12,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -31,7 +29,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.item.ModItems;
+import space.anatomyuniverse.musavacca.crafting.craft.VocoTableCrafting;
+import space.anatomyuniverse.musavacca.crafting.craft.VocoTableCraftingRecipe;
 
 import java.util.EnumSet;
 
@@ -43,8 +42,12 @@ public class Basuke extends Allay {
     private static final EntityDataAccessor<Integer> DATA_EATING_TICKS =
             SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
 
-    public static final int EATING_CYCLE_TICKS = 28;
+    private static final EntityDataAccessor<Integer> DATA_EATING_TOTAL_TICKS =
+            SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
+
+    public static final int DEFAULT_CRAFTING_EATING_TICKS = 28;
     public static final int EATING_CHEW_BEAT_TICKS = 4;
+    public static final int MAX_EATING_TICKS = 20 * 60;
 
     private static final double AREA_MIN_X = 0.32D;
     private static final double AREA_MAX_X = 0.68D;
@@ -61,6 +64,7 @@ public class Basuke extends Allay {
 
     private BlockPos vocoTablePos;
     private int eatingTicks;
+    private int eatingTotalTicks;
 
     public Basuke(EntityType<? extends Basuke> type, Level level) {
         super(type, level);
@@ -74,6 +78,7 @@ public class Basuke extends Allay {
     protected void defineSynchedData(@NotNull SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_EATING_TICKS, 0);
+        builder.define(DATA_EATING_TOTAL_TICKS, 0);
     }
 
     public void bindToVocoTable(BlockPos pos) {
@@ -98,8 +103,16 @@ public class Basuke extends Allay {
         return this.entityData.get(DATA_EATING_TICKS);
     }
 
+    public int getBasukeEatingTotalTicks() {
+        return this.entityData.get(DATA_EATING_TOTAL_TICKS);
+    }
+
     private void setBasukeEatingTicks(int ticks) {
-        this.entityData.set(DATA_EATING_TICKS, Mth.clamp(ticks, 0, EATING_CYCLE_TICKS));
+        this.entityData.set(DATA_EATING_TICKS, Mth.clamp(ticks, 0, MAX_EATING_TICKS));
+    }
+
+    private void setBasukeEatingTotalTicks(int ticks) {
+        this.entityData.set(DATA_EATING_TOTAL_TICKS, Mth.clamp(ticks, 0, MAX_EATING_TICKS));
     }
 
     @Override
@@ -166,27 +179,39 @@ public class Basuke extends Allay {
             this.confineTo(allowed, pos);
         }
 
-        this.tickHeldItemEating(serverLevel);
+        this.tickHeldItemCrafting(serverLevel);
     }
 
-    private void tickHeldItemEating(@NotNull ServerLevel level) {
+    private void tickHeldItemCrafting(@NotNull ServerLevel level) {
         ItemStack held = this.getMainHandItem();
 
-        if (held.isEmpty() || shouldOnlyHoldItem(held)) {
+        if (held.isEmpty()) {
             this.stopEatingHeldItem();
             return;
         }
 
-        if (this.eatingTicks <= 0) {
-            this.startEatingHeldItem();
+        VocoTableCraftingRecipe recipe = VocoTableCrafting.findActiveRecipe(this, level, held);
+        if (recipe == null) {
+            this.stopEatingHeldItem();
+            return;
+        }
+
+        int recipeEatingTime = Mth.clamp(recipe.eatingTimeTicks(), 1, MAX_EATING_TICKS);
+
+        if (this.eatingTicks <= 0 || this.eatingTotalTicks != recipeEatingTime) {
+            this.startEatingHeldItem(recipeEatingTime);
             return;
         }
 
         this.eatingTicks--;
         this.setBasukeEatingTicks(this.eatingTicks);
 
-        int elapsedEatingTicks = EATING_CYCLE_TICKS - this.eatingTicks;
-        float eatingProgress = Mth.clamp(elapsedEatingTicks / (float) EATING_CYCLE_TICKS, 0.0F, 1.0F);
+        int elapsedEatingTicks = this.eatingTotalTicks - this.eatingTicks;
+        float eatingProgress = Mth.clamp(
+                elapsedEatingTicks / (float) Math.max(1, this.eatingTotalTicks),
+                0.0F,
+                1.0F
+        );
 
         ItemStack particleStack = held.copyWithCount(1);
 
@@ -196,24 +221,28 @@ public class Basuke extends Allay {
         }
 
         if (this.eatingTicks <= 0) {
-            this.finishEatingHeldItem(level, held, particleStack);
+            this.finishCraftingHeldItem(level, held, particleStack, recipe);
         }
     }
 
-    private static boolean shouldOnlyHoldItem(@NotNull ItemStack stack) {
-        return stack.is(ModItems.BANANA_PEARL.get());
-    }
+    private void startEatingHeldItem(int totalTicks) {
+        this.eatingTotalTicks = Mth.clamp(totalTicks, 1, MAX_EATING_TICKS);
+        this.eatingTicks = this.eatingTotalTicks;
 
-    private void startEatingHeldItem() {
-        this.eatingTicks = EATING_CYCLE_TICKS;
+        this.setBasukeEatingTotalTicks(this.eatingTotalTicks);
         this.setBasukeEatingTicks(this.eatingTicks);
     }
 
     private void stopEatingHeldItem() {
         this.eatingTicks = 0;
+        this.eatingTotalTicks = 0;
 
         if (this.getBasukeEatingTicks() != 0) {
             this.setBasukeEatingTicks(0);
+        }
+
+        if (this.getBasukeEatingTotalTicks() != 0) {
+            this.setBasukeEatingTotalTicks(0);
         }
     }
 
@@ -244,20 +273,27 @@ public class Basuke extends Allay {
         this.playBasukeSound(level, SoundEvents.GENERIC_EAT, volume, pitch);
     }
 
-    private void finishEatingHeldItem(@NotNull ServerLevel level,
-                                      @NotNull ItemStack held,
-                                      @NotNull ItemStack particleStack) {
-        this.spawnEatingItemParticles(level, particleStack, 8);
-        this.playBasukeSound(level, SoundEvents.PLAYER_BURP, 0.30F, 1.58F);
+    private void finishCraftingHeldItem(
+            @NotNull ServerLevel level,
+            @NotNull ItemStack held,
+            @NotNull ItemStack particleStack,
+            @NotNull VocoTableCraftingRecipe recipe
+    ) {
+        boolean crafted = VocoTableCrafting.completeActiveRecipe(this, level, held, recipe);
 
-        held.shrink(1);
-        this.setItemInHand(InteractionHand.MAIN_HAND, held.isEmpty() ? ItemStack.EMPTY : held);
+        if (crafted) {
+            this.spawnEatingItemParticles(level, particleStack, 8);
+            this.playBasukeSound(level, SoundEvents.PLAYER_BURP, 0.30F, 1.58F);
+        }
+
         this.stopEatingHeldItem();
     }
 
-    private void spawnEatingItemParticles(@NotNull ServerLevel level,
-                                          @NotNull ItemStack particleStack,
-                                          int count) {
+    private void spawnEatingItemParticles(
+            @NotNull ServerLevel level,
+            @NotNull ItemStack particleStack,
+            int count
+    ) {
         if (particleStack.isEmpty()) {
             return;
         }
@@ -296,10 +332,12 @@ public class Basuke extends Allay {
         ).add(flatForward.scale(0.16D)).add(right.scale(-0.035D));
     }
 
-    private void playBasukeSound(@NotNull ServerLevel level,
-                                 @NotNull SoundEvent sound,
-                                 float volume,
-                                 float pitch) {
+    private void playBasukeSound(
+            @NotNull ServerLevel level,
+            @NotNull SoundEvent sound,
+            float volume,
+            float pitch
+    ) {
         level.playSound(
                 null,
                 this.getX(),
@@ -312,10 +350,12 @@ public class Basuke extends Allay {
         );
     }
 
-    private void playBasukeSound(@NotNull ServerLevel level,
-                                 @NotNull Holder<SoundEvent> sound,
-                                 float volume,
-                                 float pitch) {
+    private void playBasukeSound(
+            @NotNull ServerLevel level,
+            @NotNull Holder<SoundEvent> sound,
+            float volume,
+            float pitch
+    ) {
         level.playSeededSound(
                 null,
                 this.getX(),

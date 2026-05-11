@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/VocoTableBlockEntity.java
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -464,6 +463,81 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         this.refreshLatestHexFromLitCandles();
         this.markChangedAndSync();
+    }
+
+    public int countLitReceptors() {
+        return this.countLitReceptors(this.getBlockState());
+    }
+
+    public boolean hasLitReceptorCost(int cost) {
+        return cost <= 0 || this.countLitReceptors() >= cost;
+    }
+
+    public boolean consumeLitReceptorsForCrafting(ServerLevel level, int cost) {
+        if (cost <= 0) {
+            return true;
+        }
+
+        BlockPos pos = this.getBlockPos();
+        BlockState state = level.getBlockState(pos);
+
+        if (!(state.getBlock() instanceof VocoTableBlock) || this.countLitReceptors(state) < cost) {
+            return false;
+        }
+
+        BlockState newState = state;
+        ReceptorPosition[] consumed = new ReceptorPosition[cost];
+        int consumedCount = 0;
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            if (consumedCount >= cost) {
+                break;
+            }
+
+            if (!newState.getValue(VocoTableBlock.lightProperty(receptor))) {
+                continue;
+            }
+
+            newState = newState.setValue(VocoTableBlock.lightProperty(receptor), false);
+
+            if (newState.hasProperty(VocoTableBlock.portalProperty(receptor))) {
+                newState = newState.setValue(VocoTableBlock.portalProperty(receptor), false);
+            }
+
+            consumed[consumedCount] = receptor;
+            consumedCount++;
+        }
+
+        if (consumedCount < cost) {
+            return false;
+        }
+
+        level.setBlock(pos, newState, VocoReceptorLogic.UPDATE_FLAGS);
+
+        for (int i = 0; i < consumedCount; i++) {
+            this.resyncEndpoint(consumed[i]);
+        }
+
+        this.refreshLatestHexFromLitCandles();
+        this.markChangedAndSync();
+
+        return true;
+    }
+
+    private int countLitReceptors(BlockState state) {
+        if (!(state.getBlock() instanceof VocoTableBlock)) {
+            return 0;
+        }
+
+        int count = 0;
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            if (state.getValue(VocoTableBlock.lightProperty(receptor))) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     public ItemStack removeOneCandle(ReceptorPosition receptor) {

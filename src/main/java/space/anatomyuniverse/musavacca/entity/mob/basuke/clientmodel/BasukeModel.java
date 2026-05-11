@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/entity/mob/basuke/clientmodel/BasukeModel.java
 package space.anatomyuniverse.musavacca.entity.mob.basuke.clientmodel;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -29,6 +28,7 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
         public float ageTicks;
         public float flyAmount;
         public int eatingTicks;
+        public int eatingTotalTicks;
     }
 
     public static final ModelLayerLocation LAYER_LOCATION =
@@ -184,7 +184,8 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
             float headPitchRad,
             float flyAmount,
             float holdingAnimationProgress,
-            int eatingTicks
+            int eatingTicks,
+            int eatingTotalTicks
     ) {
         this.hHead.yRot = this.headBaseYRot + headYawRad;
         this.hHead.xRot = this.headBaseXRot + headPitchRad;
@@ -237,11 +238,16 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
         this.leftArm.y = this.leftArmBaseY + Mth.lerp(hold, armDrop, sharedHoldY);
         this.rightArm.y = this.rightArmBaseY + Mth.lerp(hold, armDrop, sharedHoldY);
 
-        this.applyBeatSyncedArmEatingAnimation(ageTicks, hold, eatingTicks);
+        this.applyBeatSyncedArmEatingAnimation(ageTicks, hold, eatingTicks, eatingTotalTicks);
     }
 
-    private void applyBeatSyncedArmEatingAnimation(float ageTicks, float holdingAnimationProgress, int eatingTicks) {
-        if (eatingTicks <= 0) {
+    private void applyBeatSyncedArmEatingAnimation(
+            float ageTicks,
+            float holdingAnimationProgress,
+            int eatingTicks,
+            int eatingTotalTicks
+    ) {
+        if (eatingTicks <= 0 || eatingTotalTicks <= 0) {
             return;
         }
 
@@ -251,7 +257,7 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
         }
 
         float partialTick = ageTicks - Mth.floor(ageTicks);
-        float elapsedEatingTicks = (Basuke.EATING_CYCLE_TICKS - eatingTicks) + partialTick;
+        float elapsedEatingTicks = (eatingTotalTicks - eatingTicks) + partialTick;
 
         float fadeIn = Mth.clamp(elapsedEatingTicks / 4.0F, 0.0F, 1.0F);
         float fadeOut = Mth.clamp(eatingTicks / 4.0F, 0.0F, 1.0F);
@@ -277,7 +283,8 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
                 s.headPitchRad,
                 s.flyAmount,
                 s.holdingAnimationProgress,
-                s.eatingTicks
+                s.eatingTicks,
+                s.eatingTotalTicks
         );
     }
 
