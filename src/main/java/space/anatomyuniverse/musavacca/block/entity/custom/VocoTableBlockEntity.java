@@ -598,7 +598,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         basuke.snapTo(
                 pos.getX() + 0.5D,
-                pos.getY() + 1.45D,
+                pos.getY() + 1.42D,
                 pos.getZ() + 0.5D,
                 level.random.nextFloat() * 360.0F,
                 0.0F

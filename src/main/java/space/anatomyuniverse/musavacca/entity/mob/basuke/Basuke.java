@@ -48,7 +48,7 @@ public class Basuke extends Allay {
 
     private static final double AREA_MIN_X = 0.32D;
     private static final double AREA_MAX_X = 0.68D;
-    private static final double AREA_MIN_Y = 0.94D;
+    private static final double AREA_MIN_Y = 1.42D;
     private static final double AREA_MAX_Y = 2.36D;
     private static final double AREA_MIN_Z = 0.32D;
     private static final double AREA_MAX_Z = 0.68D;
