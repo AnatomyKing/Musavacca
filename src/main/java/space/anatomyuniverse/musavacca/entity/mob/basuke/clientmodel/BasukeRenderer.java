@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/entity/mob/basuke/clientmodel/BasukeRenderer.java
 package space.anatomyuniverse.musavacca.entity.mob.basuke.clientmodel;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -57,10 +58,10 @@ public final class BasukeRenderer extends MobRenderer<Basuke, BasukeModel.State,
         s.headYawRad = netHeadYawDeg * Mth.DEG_TO_RAD;
         s.headPitchRad = headPitchDeg * Mth.DEG_TO_RAD;
         s.limbSwing = entity.walkAnimation.position(partialTick);
-        s.limbSwingAmount = entity.walkAnimation.speed();
         s.ageTicks = entity.tickCount + partialTick;
         s.flyAmount = Mth.clamp((float) (entity.getDeltaMovement().length() * 6.0D), 0.0F, 1.0F);
         s.holdingAnimationProgress = entity.getHoldingItemAnimationProgress(partialTick);
+        s.eatingTicks = entity.getBasukeEatingTicks();
     }
 
     @Override

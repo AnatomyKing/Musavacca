@@ -1,9 +1,9 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/entity/mob/basuke/clientmodel/BasukeModel.java
 package space.anatomyuniverse.musavacca.entity.mob.basuke.clientmodel;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.renderer.entity.state.AllayRenderState;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -12,11 +12,13 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.entity.state.AllayRenderState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
 public class BasukeModel extends EntityModel<BasukeModel.State> implements ArmedModel {
 
@@ -24,9 +26,9 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
         public float headYawRad;
         public float headPitchRad;
         public float limbSwing;
-        public float limbSwingAmount;
         public float ageTicks;
         public float flyAmount;
+        public int eatingTicks;
     }
 
     public static final ModelLayerLocation LAYER_LOCATION =
@@ -39,6 +41,8 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
     private static final float HELD_ITEM_OFFSET_Y = -0.24F;
     private static final float HELD_ITEM_OFFSET_Z = 0.43F;
     private static final float HELD_ITEM_SCALE = 0.7F;
+
+    private static final float EATING_ARM_BOB_STRENGTH = 0.145F;
 
     private final ModelPart basuke;
     private final ModelPart hHead;
@@ -175,12 +179,12 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
 
     private void applyAnimation(
             float limbSwing,
-            float limbSwingAmount,
             float ageTicks,
             float headYawRad,
             float headPitchRad,
             float flyAmount,
-            float holdingAnimationProgress
+            float holdingAnimationProgress,
+            int eatingTicks
     ) {
         this.hHead.yRot = this.headBaseYRot + headYawRad;
         this.hHead.xRot = this.headBaseXRot + headPitchRad;
@@ -232,18 +236,48 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
 
         this.leftArm.y = this.leftArmBaseY + Mth.lerp(hold, armDrop, sharedHoldY);
         this.rightArm.y = this.rightArmBaseY + Mth.lerp(hold, armDrop, sharedHoldY);
+
+        this.applyBeatSyncedArmEatingAnimation(ageTicks, hold, eatingTicks);
+    }
+
+    private void applyBeatSyncedArmEatingAnimation(float ageTicks, float holdingAnimationProgress, int eatingTicks) {
+        if (eatingTicks <= 0) {
+            return;
+        }
+
+        float hold = Mth.clamp(holdingAnimationProgress, 0.0F, 1.0F);
+        if (hold <= 0.0F) {
+            return;
+        }
+
+        float partialTick = ageTicks - Mth.floor(ageTicks);
+        float elapsedEatingTicks = (Basuke.EATING_CYCLE_TICKS - eatingTicks) + partialTick;
+
+        float fadeIn = Mth.clamp(elapsedEatingTicks / 4.0F, 0.0F, 1.0F);
+        float fadeOut = Mth.clamp(eatingTicks / 4.0F, 0.0F, 1.0F);
+        float eat = hold * fadeIn * fadeOut;
+
+        if (eat <= 0.0F) {
+            return;
+        }
+
+        float beatPhase = (elapsedEatingTicks % Basuke.EATING_CHEW_BEAT_TICKS) / (float) Basuke.EATING_CHEW_BEAT_TICKS;
+        float armYOffset = Mth.sin(beatPhase * Mth.TWO_PI) * EATING_ARM_BOB_STRENGTH * eat;
+
+        this.leftArm.y += armYOffset;
+        this.rightArm.y += armYOffset;
     }
 
     @Override
     public void setupAnim(@NotNull State s) {
         this.applyAnimation(
                 s.limbSwing,
-                s.limbSwingAmount,
                 s.ageTicks,
                 s.headYawRad,
                 s.headPitchRad,
                 s.flyAmount,
-                s.holdingAnimationProgress
+                s.holdingAnimationProgress,
+                s.eatingTicks
         );
     }
 
@@ -265,6 +299,7 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
                 HELD_ITEM_OFFSET_Y,
                 HELD_ITEM_OFFSET_Z
         );
+
         poseStack.scale(
                 HELD_ITEM_SCALE,
                 HELD_ITEM_SCALE,

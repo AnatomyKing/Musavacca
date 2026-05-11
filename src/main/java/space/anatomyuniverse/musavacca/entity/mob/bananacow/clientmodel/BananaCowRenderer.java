@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/entity/mob/bananacow/clientmodel/BananaCowRenderer.java
 package space.anatomyuniverse.musavacca.entity.mob.bananacow.clientmodel;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -14,13 +15,73 @@ import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowModel.State, BananaCowModel> {
 //?}
 
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/cow/banana_cow.png");
+    private static final ResourceLocation DEFAULT =
+            texture("banana_cow");
+
+    private static final ResourceLocation SHEARED =
+            texture("banana_cow_sheared");
+
+    private static final ResourceLocation SHEARED_EATEN_1 =
+            texture("banana_cow_sheared_eaten_1");
+
+    private static final ResourceLocation SHEARED_EATEN_2 =
+            texture("banana_cow_sheared_eaten_2");
+
+    private static final ResourceLocation PEELD =
+            texture("banana_cow_peeld");
+
+    private static final ResourceLocation PEELD_EATEN_1 =
+            texture("banana_cow_peeld_eaten_1");
+
+    private static final ResourceLocation PEELD_EATEN_2 =
+            texture("banana_cow_peeld_eaten_2");
 
     private static final float SHADOW = 0.7F;
 
     public BananaCowRenderer(EntityRendererProvider.Context ctx) {
         super(ctx, new BananaCowModel(ctx.bakeLayer(BananaCowModel.LAYER_LOCATION)), SHADOW);
+    }
+
+    private static ResourceLocation texture(String name) {
+        return ResourceLocation.fromNamespaceAndPath(
+                MusaCore.MOD_ID,
+                "textures/entity/cow/" + name + ".png"
+        );
+    }
+
+    private static ResourceLocation selectTexture(int peelStage, int eatenBites) {
+        int safePeelStage = clampInt(peelStage, BananaCow.PEEL_STAGE_DEFAULT, BananaCow.PEEL_STAGE_PEELD);
+        int safeEatenBites = clampInt(eatenBites, 0, BananaCow.MAX_VISIBLE_EATEN_BITES);
+
+        if (safePeelStage == BananaCow.PEEL_STAGE_PEELD) {
+            if (safeEatenBites >= 2) {
+                return PEELD_EATEN_2;
+            }
+
+            if (safeEatenBites == 1) {
+                return PEELD_EATEN_1;
+            }
+
+            return PEELD;
+        }
+
+        if (safePeelStage == BananaCow.PEEL_STAGE_SHEARED) {
+            if (safeEatenBites >= 2) {
+                return SHEARED_EATEN_2;
+            }
+
+            if (safeEatenBites == 1) {
+                return SHEARED_EATEN_1;
+            }
+
+            return SHEARED;
+        }
+
+        return DEFAULT;
+    }
+
+    private static int clampInt(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     //? if >=1.21.2 {
@@ -50,16 +111,19 @@ public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowMod
         s.limbSwing = entity.walkAnimation.position(partialTick);
         s.limbSwingAmount = entity.walkAnimation.speed();
         s.ageTicks = entity.tickCount + partialTick;
+
+        s.peelStage = entity.getPeelStage();
+        s.eatenBites = entity.getEatenBites();
     }
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull BananaCowModel.State s) {
-        return TEXTURE;
+        return selectTexture(s.peelStage, s.eatenBites);
     }
     //?} else {
     /*@Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull BananaCow entity) {
-        return TEXTURE;
+        return selectTexture(entity.getPeelStage(), entity.getEatenBites());
     }
     *///?}
 }

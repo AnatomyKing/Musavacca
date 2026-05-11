@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/entity/mob/bananacow/clientmodel/BananaCowModel.java
 package space.anatomyuniverse.musavacca.entity.mob.bananacow.clientmodel;
 
 //? if <1.21.2 {
@@ -34,6 +35,9 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
         public float limbSwing;
         public float limbSwingAmount;
         public float ageTicks;
+
+        public int peelStage;
+        public int eatenBites;
     }
     //?}
 
@@ -48,6 +52,12 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
      *///?}
 
     private final ModelPart hHead;
+    private final ModelPart body;
+    private final ModelPart bananaPeelFlaps;
+    private final ModelPart flapRight;
+    private final ModelPart flapFront;
+    private final ModelPart flapBack;
+    private final ModelPart flapLeft;
     private final ModelPart tail;
     private final ModelPart rightFrontLeg;
     private final ModelPart leftFrontLeg;
@@ -56,6 +66,11 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
 
     private final float headBaseXRot;
     private final float tailBaseXRot;
+
+    private final float flapRightBaseZRot;
+    private final float flapLeftBaseZRot;
+    private final float flapFrontBaseXRot;
+    private final float flapBackBaseXRot;
 
     public BananaCowModel(ModelPart bakedRoot) {
         //? if >=1.21.2
@@ -70,6 +85,14 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
         this.hHead = bananacow.getChild("h_head");
 
         ModelPart torso = bananacow.getChild("torso");
+        this.body = torso.getChild("body");
+        this.bananaPeelFlaps = this.body.getChild("banana_peel_flaps");
+
+        this.flapRight = this.bananaPeelFlaps.getChild("cube_r1");
+        this.flapFront = this.bananaPeelFlaps.getChild("cube_r2");
+        this.flapBack = this.bananaPeelFlaps.getChild("cube_r3");
+        this.flapLeft = this.bananaPeelFlaps.getChild("cube_r4");
+
         this.tail = torso.getChild("tail");
 
         this.rightBackLeg = bananacow.getChild("right_back_leg");
@@ -79,6 +102,11 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
 
         this.headBaseXRot = this.hHead.xRot;
         this.tailBaseXRot = this.tail.xRot;
+
+        this.flapRightBaseZRot = this.flapRight.zRot;
+        this.flapLeftBaseZRot = this.flapLeft.zRot;
+        this.flapFrontBaseXRot = this.flapFront.xRot;
+        this.flapBackBaseXRot = this.flapBack.xRot;
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -107,12 +135,46 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
                 PartPose.offsetAndRotation(-1.0F, -19.0F, 2.0F, 1.5708F, 0.0F, 0.0F)
         );
 
-        torso.addOrReplaceChild(
+        PartDefinition body = torso.addOrReplaceChild(
                 "body",
                 CubeListBuilder.create()
                         .texOffs(0, 0).addBox(-5.5F, -9.0F, -5.0F, 11.0F, 19.0F, 11.0F, new CubeDeformation(0.0F))
                         .texOffs(20, 57).addBox(-1.25F, 3.0F, -6.0F, 2.5F, 7.0F, 1.0F, new CubeDeformation(0.0F)),
                 PartPose.offset(1.0F, -1.0F, -6.0F)
+        );
+
+        PartDefinition bananaPeelFlaps = body.addOrReplaceChild(
+                "banana_peel_flaps",
+                CubeListBuilder.create(),
+                PartPose.offset(-5.499F, 1.0F, 0.5F)
+        );
+
+        bananaPeelFlaps.addOrReplaceChild(
+                "cube_r1",
+                CubeListBuilder.create()
+                        .texOffs(1, 65).addBox(0.0F, 0.0F, -5.5F, 0.0F, 9.0F, 11.0F, new CubeDeformation(0.003F)),
+                PartPose.offsetAndRotation(10.999F, 0.0F, 0.0F, 0.0F, 0.0F, -0.3927F)
+        );
+
+        bananaPeelFlaps.addOrReplaceChild(
+                "cube_r2",
+                CubeListBuilder.create()
+                        .texOffs(1, 86).addBox(-5.5F, 0.0F, 0.0F, 11.0F, 3.0F, 0.0F, new CubeDeformation(0.003F)),
+                PartPose.offsetAndRotation(5.499F, 0.0F, -5.5F, -1.1781F, 0.0F, 0.0F)
+        );
+
+        bananaPeelFlaps.addOrReplaceChild(
+                "cube_r3",
+                CubeListBuilder.create()
+                        .texOffs(1, 66).addBox(-5.5F, 0.0F, 0.0F, 11.0F, 9.0F, 0.0F, new CubeDeformation(0.003F)),
+                PartPose.offsetAndRotation(5.499F, 0.0F, 5.499F, 0.7854F, 0.0F, 0.0F)
+        );
+
+        bananaPeelFlaps.addOrReplaceChild(
+                "cube_r4",
+                CubeListBuilder.create()
+                        .texOffs(1, 79).addBox(0.0F, 0.0F, -5.5F, 0.0F, 9.0F, 11.0F, new CubeDeformation(0.003F)),
+                PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.3927F)
         );
 
         PartDefinition tail = torso.addOrReplaceChild(
@@ -129,30 +191,24 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
         );
 
         tip.addOrReplaceChild(
-                "cube_r1",
+                "cube_r5",
                 CubeListBuilder.create()
-                        .texOffs(45, 21).addBox(-4.0F, 4.6543F, -0.7758F, 7.0F, 5.0F, 4.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(2.5F, 1.8463F, 4.1942F, -0.3927F, 0.0F, 0.0F)
-        );
-
-        tip.addOrReplaceChild(
-                "cube_r2",
-                CubeListBuilder.create()
-                        .texOffs(45, 0).addBox(-4.0F, -2.3457F, -3.7758F, 7.0F, 12.0F, 8.0F, new CubeDeformation(0.0F)),
+                        .texOffs(45, 0).addBox(-4.0F, -2.3457F, -3.7758F, 7.0F, 7.0F, 8.0F, new CubeDeformation(0.0F))
+                        .texOffs(78, 0).addBox(-4.0F, 4.6543F, -3.7758F, 7.0F, 5.0F, 12.0F, new CubeDeformation(0.0F)),
                 PartPose.offsetAndRotation(2.5F, -0.0671F, -0.4252F, -0.3927F, 0.0F, 0.0F)
         );
 
         bananacow.addOrReplaceChild(
                 "right_back_leg",
                 CubeListBuilder.create()
-                        .texOffs(39, 49).mirror().addBox(-2.248F, -1.75F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F)).mirror(false),
+                        .texOffs(58, 49).mirror().addBox(-2.248F, -1.75F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F)).mirror(false),
                 PartPose.offset(-3.0F, -7.25F, 7.0F)
         );
 
         bananacow.addOrReplaceChild(
                 "left_back_leg",
                 CubeListBuilder.create()
-                        .texOffs(39, 49).addBox(-1.75F, -1.5F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F)),
+                        .texOffs(58, 49).addBox(-1.75F, -1.5F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F)),
                 PartPose.offset(2.998F, -7.5F, 7.0F)
         );
 
@@ -171,6 +227,21 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
         );
 
         return LayerDefinition.create(meshdefinition, 128, 128);
+    }
+
+    private void animateFlaps(float limbSwing, float limbSwingAmount, float ageInTicks) {
+        float walkAmount = Mth.clamp(limbSwingAmount, 0.0F, 1.0F);
+
+        float walkFlap = Mth.sin(limbSwing * 0.6662F) * 0.10F * walkAmount;
+        float oppositeWalkFlap = Mth.sin(limbSwing * 0.6662F + Mth.PI) * 0.10F * walkAmount;
+
+        float idleFlap = Mth.sin(ageInTicks * 0.12F) * 0.015F;
+
+        this.flapRight.zRot = this.flapRightBaseZRot - walkFlap - idleFlap;
+        this.flapLeft.zRot = this.flapLeftBaseZRot + walkFlap + idleFlap;
+
+        this.flapFront.xRot = this.flapFrontBaseXRot - oppositeWalkFlap - idleFlap;
+        this.flapBack.xRot = this.flapBackBaseXRot + walkFlap + idleFlap;
     }
 
     //? if <1.21.2 {
@@ -213,6 +284,8 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
         this.rightBackLeg.xRot  = Mth.cos(walk * 0.6662F + Mth.PI) * 1.4F * amt;
 
         this.tail.xRot = this.tailBaseXRot + (Mth.cos(ageInTicks * 0.2F) * 0.05F);
+
+        this.animateFlaps(walk, amt, ageInTicks);
     }
     *///?} else {
     @Override
@@ -239,6 +312,8 @@ public class BananaCowModel extends EntityModel<BananaCowModel.State> {
         this.rightBackLeg.xRot  = Mth.cos(walk * 0.6662F + Mth.PI) * 1.4F * amt;
 
         this.tail.xRot = this.tailBaseXRot + (Mth.cos(s.ageTicks * 0.2F) * 0.05F);
+
+        this.animateFlaps(walk, amt, s.ageTicks);
     }
     //?}
 }
