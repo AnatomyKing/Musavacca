@@ -62,6 +62,7 @@ public final class ModelSets {
                 new CubeVocoTable.Models(
                         "musavacca:block/voco_table",
                         "musavacca:block/voco_table_lit_receptor_corner",
+                        "musavacca:block/voco_table_rotary_dialers",
                         "musavacca:block/voco_table_portal_north_east",
                         "musavacca:block/voco_table_portal_south_east",
                         "musavacca:block/voco_table_portal_south_west",

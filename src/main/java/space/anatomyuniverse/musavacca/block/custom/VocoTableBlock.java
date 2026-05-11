@@ -37,6 +37,11 @@ public class VocoTableBlock extends Block implements EntityBlock {
     public static final BooleanProperty PORTAL_SOUTH_EAST = VocoTableLogic.PORTAL_SOUTH_EAST;
     public static final BooleanProperty PORTAL_SOUTH_WEST = VocoTableLogic.PORTAL_SOUTH_WEST;
 
+    public static final BooleanProperty ROTARY_DIALERS = VocoTableLogic.ROTARY_DIALERS;
+
+    public static final BooleanProperty[] RECEPTOR_LIGHTS = VocoTableLogic.RECEPTOR_LIGHTS;
+    public static final BooleanProperty[] RECEPTOR_PORTALS = VocoTableLogic.RECEPTOR_PORTALS;
+
     public VocoTableBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(VocoTableLogic.defaultState(this.stateDefinition.any()));
@@ -115,7 +120,7 @@ public class VocoTableBlock extends Block implements EntityBlock {
             BlockPos pos,
             CollisionContext context
     ) {
-        return VocoTableVoxelShapes.shape(level, pos);
+        return VocoTableVoxelShapes.shape(state, level, pos);
     }
 
     @Override
@@ -125,6 +130,6 @@ public class VocoTableBlock extends Block implements EntityBlock {
             BlockPos pos,
             CollisionContext context
     ) {
-        return VocoTableVoxelShapes.shape(level, pos);
+        return VocoTableVoxelShapes.shape(state, level, pos);
     }
 }

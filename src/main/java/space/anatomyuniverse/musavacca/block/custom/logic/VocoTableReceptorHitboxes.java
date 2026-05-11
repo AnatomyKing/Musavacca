@@ -12,12 +12,7 @@ public final class VocoTableReceptorHitboxes {
             new HitBox(HitPart.RECEPTOR_NORTH_EAST, 10.0D, 12.0D, 0.0D, 16.0D, 16.0D, 6.0D),
             new HitBox(HitPart.RECEPTOR_NORTH_WEST, 0.0D, 12.0D, 0.0D, 6.0D, 16.0D, 6.0D),
             new HitBox(HitPart.RECEPTOR_SOUTH_EAST, 10.0D, 12.0D, 10.0D, 16.0D, 16.0D, 16.0D),
-            new HitBox(HitPart.RECEPTOR_SOUTH_WEST, 0.0D, 12.0D, 10.0D, 6.0D, 16.0D, 16.0D),
-
-            new HitBox(HitPart.DIALER_NORTH, 6.0D, 10.0D, -1.0D, 10.0D, 13.0D, 2.0D),
-            new HitBox(HitPart.DIALER_EAST, 14.0D, 10.0D, 6.0D, 17.0D, 13.0D, 10.0D),
-            new HitBox(HitPart.DIALER_SOUTH, 6.0D, 10.0D, 14.0D, 10.0D, 13.0D, 17.0D),
-            new HitBox(HitPart.DIALER_WEST, -1.0D, 10.0D, 6.0D, 2.0D, 13.0D, 10.0D)
+            new HitBox(HitPart.RECEPTOR_SOUTH_WEST, 0.0D, 12.0D, 10.0D, 6.0D, 16.0D, 16.0D)
     };
 
     private VocoTableReceptorHitboxes() {}
@@ -55,34 +50,23 @@ public final class VocoTableReceptorHitboxes {
     }
 
     public enum HitPart {
-        NONE(null, false),
+        NONE(null),
 
-        RECEPTOR_NORTH_EAST(ReceptorPosition.NORTH_EAST, false),
-        RECEPTOR_NORTH_WEST(ReceptorPosition.NORTH_WEST, false),
-        RECEPTOR_SOUTH_EAST(ReceptorPosition.SOUTH_EAST, false),
-        RECEPTOR_SOUTH_WEST(ReceptorPosition.SOUTH_WEST, false),
-
-        DIALER_NORTH(null, true),
-        DIALER_EAST(null, true),
-        DIALER_SOUTH(null, true),
-        DIALER_WEST(null, true);
+        RECEPTOR_NORTH_EAST(ReceptorPosition.NORTH_EAST),
+        RECEPTOR_NORTH_WEST(ReceptorPosition.NORTH_WEST),
+        RECEPTOR_SOUTH_EAST(ReceptorPosition.SOUTH_EAST),
+        RECEPTOR_SOUTH_WEST(ReceptorPosition.SOUTH_WEST);
 
         @Nullable
         private final ReceptorPosition receptor;
-        private final boolean togglesBasuke;
 
-        HitPart(@Nullable ReceptorPosition receptor, boolean togglesBasuke) {
+        HitPart(@Nullable ReceptorPosition receptor) {
             this.receptor = receptor;
-            this.togglesBasuke = togglesBasuke;
         }
 
         @Nullable
         public ReceptorPosition receptor() {
             return this.receptor;
-        }
-
-        public boolean togglesBasuke() {
-            return this.togglesBasuke;
         }
     }
 }

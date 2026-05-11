@@ -4,8 +4,10 @@ package space.anatomyuniverse.musavacca.block.custom.logic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
@@ -21,22 +23,29 @@ public final class VocoTableVoxelShapes {
             Block.box(10.0D, 12.0D, 0.0D, 16.0D, 16.0D, 6.0D),
             Block.box(0.0D, 12.0D, 0.0D, 6.0D, 16.0D, 6.0D),
             Block.box(10.0D, 12.0D, 10.0D, 16.0D, 16.0D, 16.0D),
-            Block.box(0.0D, 12.0D, 10.0D, 6.0D, 16.0D, 16.0D),
+            Block.box(0.0D, 12.0D, 10.0D, 6.0D, 16.0D, 16.0D)
+    );
 
+    public static final VoxelShape ROTARY_DIALERS_SHAPE = Shapes.or(
             Block.box(6.0D, 10.0D, -1.0D, 10.0D, 13.0D, 2.0D),
             Block.box(14.0D, 10.0D, 6.0D, 17.0D, 13.0D, 10.0D),
             Block.box(6.0D, 10.0D, 14.0D, 10.0D, 13.0D, 17.0D),
             Block.box(-1.0D, 10.0D, 6.0D, 2.0D, 13.0D, 10.0D)
     );
 
-    private static final int SHAPE_CACHE_SIZE = 5 * 5 * 5 * 5;
+    private static final int SHAPE_CACHE_SIZE = 5 * 5 * 5 * 5 * 2;
     private static final VoxelShape[] SHAPE_CACHE = new VoxelShape[SHAPE_CACHE_SIZE];
 
     private VocoTableVoxelShapes() {}
 
-    public static VoxelShape shape(BlockGetter level, BlockPos pos) {
+    public static VoxelShape shape(BlockState state, BlockGetter level, BlockPos pos) {
+        boolean rotaryDialers = state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
+                && state.getValue(VocoTableBlock.ROTARY_DIALERS);
+
         if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
-            return BASE_SHAPE;
+            return rotaryDialers
+                    ? Shapes.or(BASE_SHAPE, ROTARY_DIALERS_SHAPE)
+                    : BASE_SHAPE;
         }
 
         int northEast = shapeCount(tableBe, ReceptorPosition.NORTH_EAST);
@@ -44,7 +53,7 @@ public final class VocoTableVoxelShapes {
         int southEast = shapeCount(tableBe, ReceptorPosition.SOUTH_EAST);
         int southWest = shapeCount(tableBe, ReceptorPosition.SOUTH_WEST);
 
-        int key = shapeKey(northEast, northWest, southEast, southWest);
+        int key = shapeKey(northEast, northWest, southEast, southWest, rotaryDialers);
 
         VoxelShape cached = SHAPE_CACHE[key];
         if (cached != null) {
@@ -52,6 +61,10 @@ public final class VocoTableVoxelShapes {
         }
 
         VoxelShape shape = BASE_SHAPE;
+
+        if (rotaryDialers) {
+            shape = Shapes.or(shape, ROTARY_DIALERS_SHAPE);
+        }
 
         if (northEast > 0) {
             shape = Shapes.or(shape, VocoTableCandleVoxelShapes.shape(ReceptorPosition.NORTH_EAST, northEast));
@@ -81,10 +94,18 @@ public final class VocoTableVoxelShapes {
         return Math.max(1, Math.min(4, tableBe.getCandleCount(receptor)));
     }
 
-    private static int shapeKey(int northEast, int northWest, int southEast, int southWest) {
-        return northEast
+    private static int shapeKey(
+            int northEast,
+            int northWest,
+            int southEast,
+            int southWest,
+            boolean rotaryDialers
+    ) {
+        int candleKey = northEast
                 + northWest * 5
                 + southEast * 25
                 + southWest * 125;
+
+        return candleKey + (rotaryDialers ? 625 : 0);
     }
 }

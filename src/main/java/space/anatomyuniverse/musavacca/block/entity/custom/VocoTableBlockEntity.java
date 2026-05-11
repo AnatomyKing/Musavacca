@@ -444,6 +444,28 @@ public class VocoTableBlockEntity extends BlockEntity {
         return true;
     }
 
+    public void extinguishAllCandlesForSummon() {
+        boolean changed = false;
+
+        for (CandleSlot slot : this.candleSlots) {
+            if (!slot.hasCandle() || !slot.lit) {
+                continue;
+            }
+
+            slot.lit = false;
+            slot.hasHexColor = false;
+            slot.hexColor = UNSET_HEX_COLOR;
+            changed = true;
+        }
+
+        if (!changed) {
+            return;
+        }
+
+        this.refreshLatestHexFromLitCandles();
+        this.markChangedAndSync();
+    }
+
     public ItemStack removeOneCandle(ReceptorPosition receptor) {
         CandleSlot slot = this.slot(receptor);
 
@@ -483,6 +505,66 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
 
         return false;
+    }
+
+    public boolean isBasukeVisible() {
+        return this.basukeVisible;
+    }
+
+    public void toggleBasuke(ServerLevel level) {
+        BlockState state = this.getBlockState();
+
+        if (!state.hasProperty(VocoTableBlock.ROTARY_DIALERS)) {
+            return;
+        }
+
+        boolean active = !state.getValue(VocoTableBlock.ROTARY_DIALERS);
+
+        level.setBlock(
+                this.getBlockPos(),
+                state.setValue(VocoTableBlock.ROTARY_DIALERS, active),
+                VocoReceptorLogic.UPDATE_FLAGS
+        );
+
+        if (active) {
+            this.activateBasukeFromRotaryDialers(level);
+        } else {
+            this.deactivateBasukeFromRotaryDialers(level);
+        }
+    }
+
+    public void activateBasukeFromRotaryDialers(ServerLevel level) {
+        this.basukeVisible = true;
+
+        boolean spawnedOrFound = this.ensureBasukeExists(level);
+        if (!spawnedOrFound) {
+            this.basukeVisible = false;
+            this.forceRotaryDialers(level, false);
+        }
+
+        this.markChangedAndSync();
+    }
+
+    public void deactivateBasukeFromRotaryDialers(ServerLevel level) {
+        this.basukeVisible = false;
+        this.removeBasuke(level);
+        this.markChangedAndSync();
+    }
+
+    private void forceRotaryDialers(ServerLevel level, boolean active) {
+        BlockState state = level.getBlockState(this.getBlockPos());
+
+        if (!(state.getBlock() instanceof VocoTableBlock)
+                || !state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
+                || state.getValue(VocoTableBlock.ROTARY_DIALERS) == active) {
+            return;
+        }
+
+        level.setBlock(
+                this.getBlockPos(),
+                state.setValue(VocoTableBlock.ROTARY_DIALERS, active),
+                VocoReceptorLogic.UPDATE_FLAGS
+        );
     }
 
     private void setLatest(ReceptorPosition receptor, int hexColor) {
@@ -537,26 +619,6 @@ public class VocoTableBlockEntity extends BlockEntity {
                 portalActive && hexColor != UNSET_HEX_COLOR,
                 hexColor
         );
-    }
-
-    public boolean isBasukeVisible() {
-        return this.basukeVisible;
-    }
-
-    public void toggleBasuke(ServerLevel level) {
-        this.basukeVisible = !this.basukeVisible;
-
-        if (this.basukeVisible) {
-            boolean spawnedOrFound = this.ensureBasukeExists(level);
-
-            if (!spawnedOrFound) {
-                this.basukeVisible = false;
-            }
-        } else {
-            this.removeBasuke(level);
-        }
-
-        this.markChangedAndSync();
     }
 
     private boolean ensureBasukeExists(ServerLevel level) {
@@ -675,6 +737,8 @@ public class VocoTableBlockEntity extends BlockEntity {
                         )
                 );
             }
+
+            this.removeBasuke(serverLevel);
         }
 
         super.preRemoveSideEffects(pos, state);

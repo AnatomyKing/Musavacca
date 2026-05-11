@@ -30,6 +30,7 @@ public final class CubeVocoTable {
     public record Models(
             String base,
             String litReceptorNorthEast,
+            String rotaryDialers,
             String portalNorthEast,
             String portalSouthEast,
             String portalSouthWest,
@@ -45,6 +46,10 @@ public final class CubeVocoTable {
 
         public ResourceLocation litReceptorModel() {
             return ResourceLocation.parse(this.litReceptorNorthEast);
+        }
+
+        public ResourceLocation rotaryDialersModel() {
+            return ResourceLocation.parse(this.rotaryDialers);
         }
 
         public ResourceLocation portalNorthEastModel() {
@@ -73,6 +78,7 @@ public final class CubeVocoTable {
 
             ModelFile base = gen.models().getExistingFile(stateModels.baseModel());
             ModelFile litReceptor = gen.models().getExistingFile(stateModels.litReceptorModel());
+            ModelFile rotaryDialers = gen.models().getExistingFile(stateModels.rotaryDialersModel());
 
             ModelFile portalNorthEast = gen.models().getExistingFile(stateModels.portalNorthEastModel());
             ModelFile portalSouthEast = gen.models().getExistingFile(stateModels.portalSouthEastModel());
@@ -109,6 +115,12 @@ public final class CubeVocoTable {
                     .modelFile(litReceptor)
                     .rotationY(270)
                     .condition(VocoTableBlock.LIT_NORTH_WEST, true)
+                    .addModel()
+                    .end()
+
+                    .part()
+                    .modelFile(rotaryDialers)
+                    .condition(VocoTableBlock.ROTARY_DIALERS, true)
                     .addModel()
                     .end()
 
@@ -154,6 +166,14 @@ public final class CubeVocoTable {
             multi = addLitReceptor(multi, stateModels, VocoTableBlock.LIT_SOUTH_EAST, 90);
             multi = addLitReceptor(multi, stateModels, VocoTableBlock.LIT_SOUTH_WEST, 180);
             multi = addLitReceptor(multi, stateModels, VocoTableBlock.LIT_NORTH_WEST, 270);
+
+            multi = addConditional(
+                    multi,
+                    VocoTableBlock.ROTARY_DIALERS,
+                    true,
+                    stateModels.rotaryDialersModel(),
+                    0
+            );
 
             multi = addPortal(multi, VocoTableBlock.PORTAL_NORTH_EAST, stateModels.portalNorthEastModel());
             multi = addPortal(multi, VocoTableBlock.PORTAL_SOUTH_EAST, stateModels.portalSouthEastModel());
