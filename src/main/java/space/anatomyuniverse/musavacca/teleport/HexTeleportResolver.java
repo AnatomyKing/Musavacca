@@ -21,6 +21,7 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
@@ -70,7 +71,7 @@ public final class HexTeleportResolver {
                 return true;
             }
 
-            directory.removeEndpoint(endpoint.endpointId());
+            VocoTeleportLogic.removeEndpointAndPromote(server, endpoint);
         }
 
         player.displayClientMessage(
@@ -97,7 +98,7 @@ public final class HexTeleportResolver {
 
         Optional<ResolvedEndpoint> resolved = resolveEndpoint(server, endpoint);
         if (resolved.isEmpty()) {
-            directory.removeEndpoint(endpoint.endpointId());
+            VocoTeleportLogic.removeEndpointAndPromote(server, endpoint);
             player.displayClientMessage(Component.literal("This endpoint was stale and has been cleaned up."), true);
             return false;
         }
@@ -118,7 +119,7 @@ public final class HexTeleportResolver {
         Optional<ResolvedEndpoint> resolved = resolveEndpoint(server, target);
 
         if (resolved.isEmpty()) {
-            directory.removeEndpoint(target.endpointId());
+            VocoTeleportLogic.removeEndpointAndPromote(server, target);
         }
 
         return resolved;

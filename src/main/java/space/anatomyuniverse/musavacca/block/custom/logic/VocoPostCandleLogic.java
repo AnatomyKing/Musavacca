@@ -81,6 +81,7 @@ public final class VocoPostCandleLogic {
 
         PortalInfo portalInfo = readPortalInfo(level, postPos, postState);
         boolean shouldBePortal = portalInfo.active();
+        boolean queued = false;
 
         BlockEntity be = level.getBlockEntity(postPos);
         if (be instanceof VocoPostBlockEntity postBe) {
@@ -88,20 +89,23 @@ public final class VocoPostCandleLogic {
                 shouldBePortal = postBe.setHexColor(portalInfo.hexColor());
 
                 if (shouldBePortal && level instanceof ServerLevel serverLevel) {
-                    shouldBePortal = VocoTeleportLogic.syncEndpoint(
+                    VocoTeleportLogic.SyncResult syncResult = VocoTeleportLogic.syncEndpointDetailed(
                             serverLevel,
                             postPos,
                             postReceptor,
                             true,
                             portalInfo.hexColor()
                     );
+
+                    shouldBePortal = syncResult == VocoTeleportLogic.SyncResult.ACTIVE;
+                    queued = syncResult == VocoTeleportLogic.SyncResult.QUEUED;
                 }
 
-                if (!shouldBePortal) {
+                if (!shouldBePortal && !queued) {
                     postBe.clearHexColor();
 
                     if (level instanceof ServerLevel serverLevel) {
-                        VocoTeleportLogic.syncEndpoint(
+                        VocoTeleportLogic.syncEndpointDetailed(
                                 serverLevel,
                                 postPos,
                                 postReceptor,
@@ -114,7 +118,7 @@ public final class VocoPostCandleLogic {
                 postBe.clearHexColor();
 
                 if (level instanceof ServerLevel serverLevel) {
-                    VocoTeleportLogic.syncEndpoint(
+                    VocoTeleportLogic.syncEndpointDetailed(
                             serverLevel,
                             postPos,
                             postReceptor,

@@ -682,15 +682,28 @@ public class VocoTableBlockEntity extends BlockEntity {
         boolean portalActive = state.hasProperty(VocoTableBlock.portalProperty(receptor))
                 && state.getValue(VocoTableBlock.portalProperty(receptor));
 
-        int hexColor = portalActive
-                ? this.getPortalHexColorOrUnset(receptor)
-                : UNSET_HEX_COLOR;
+        if (!portalActive) {
+            return;
+        }
 
-        VocoTeleportLogic.syncEndpoint(
+        int hexColor = this.getPortalHexColorOrUnset(receptor);
+
+        if (hexColor == UNSET_HEX_COLOR) {
+            VocoTeleportLogic.syncEndpointDetailed(
+                    serverLevel,
+                    this.getBlockPos(),
+                    receptor,
+                    false,
+                    VocoReceptorLogic.UNSET_HEX_COLOR
+            );
+            return;
+        }
+
+        VocoTeleportLogic.syncEndpointDetailed(
                 serverLevel,
                 this.getBlockPos(),
                 receptor,
-                portalActive && hexColor != UNSET_HEX_COLOR,
+                true,
                 hexColor
         );
     }
@@ -803,12 +816,10 @@ public class VocoTableBlockEntity extends BlockEntity {
             HexTeleportDirectory directory = HexTeleportDirectory.get(serverLevel.getServer());
 
             for (ReceptorPosition receptor : ReceptorPosition.values()) {
-                directory.removeOwner(
-                        HexTeleportDirectory.vocoTableReceptorCornerOwnerKey(
-                                serverLevel.dimension().location(),
-                                pos,
-                                receptor
-                        )
+                VocoTeleportLogic.removeOwnerAndPromote(
+                        serverLevel,
+                        pos,
+                        receptor
                 );
             }
 

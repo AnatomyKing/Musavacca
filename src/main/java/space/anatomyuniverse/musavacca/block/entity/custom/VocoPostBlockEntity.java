@@ -200,11 +200,10 @@ public class VocoPostBlockEntity extends BlockEntity {
             return;
         }
 
-        HexTeleportDirectory.get(serverLevel.getServer()).removeOwner(
-                HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(
-                        serverLevel.dimension().location(),
-                        this.getBlockPos()
-                )
+        VocoTeleportLogic.removeOwnerAndPromote(
+                serverLevel,
+                this.getBlockPos(),
+                this.getPostReceptor()
         );
     }
 
@@ -220,8 +219,12 @@ public class VocoPostBlockEntity extends BlockEntity {
         boolean portalActive = state.hasProperty(VocoPostBlock.PORTAL)
                 && state.getValue(VocoPostBlock.PORTAL);
 
-        if (!portalActive || !this.hasHexColor()) {
-            VocoTeleportLogic.syncEndpoint(
+        if (!portalActive) {
+            return;
+        }
+
+        if (!this.hasHexColor()) {
+            VocoTeleportLogic.syncEndpointDetailed(
                     serverLevel,
                     this.getBlockPos(),
                     receptor,
@@ -231,7 +234,7 @@ public class VocoPostBlockEntity extends BlockEntity {
             return;
         }
 
-        VocoTeleportLogic.syncEndpoint(
+        VocoTeleportLogic.syncEndpointDetailed(
                 serverLevel,
                 this.getBlockPos(),
                 receptor,

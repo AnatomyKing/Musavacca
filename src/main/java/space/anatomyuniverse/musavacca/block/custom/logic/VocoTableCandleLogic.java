@@ -146,6 +146,7 @@ public final class VocoTableCandleLogic {
         BooleanProperty portalProperty = VocoTableBlock.portalProperty(receptor);
 
         boolean shouldBePortal = state.getValue(litProperty) && tableBe.isPearlCandleLit(receptor);
+        boolean queued = false;
 
         if (shouldBePortal && level instanceof ServerLevel serverLevel) {
             int hexColor = tableBe.getPortalHexColorOrUnset(receptor);
@@ -153,7 +154,7 @@ public final class VocoTableCandleLogic {
             if (hexColor == VocoReceptorLogic.UNSET_HEX_COLOR) {
                 shouldBePortal = false;
             } else {
-                shouldBePortal = VocoTeleportLogic.syncEndpoint(
+                VocoTeleportLogic.SyncResult syncResult = VocoTeleportLogic.syncEndpointDetailed(
                         serverLevel,
                         pos,
                         receptor,
@@ -161,20 +162,13 @@ public final class VocoTableCandleLogic {
                         hexColor
                 );
 
-                if (!shouldBePortal) {
-                    VocoTeleportLogic.syncEndpoint(
-                            serverLevel,
-                            pos,
-                            receptor,
-                            false,
-                            VocoReceptorLogic.UNSET_HEX_COLOR
-                    );
-                }
+                shouldBePortal = syncResult == VocoTeleportLogic.SyncResult.ACTIVE;
+                queued = syncResult == VocoTeleportLogic.SyncResult.QUEUED;
             }
         }
 
-        if (!shouldBePortal && level instanceof ServerLevel serverLevel) {
-            VocoTeleportLogic.syncEndpoint(
+        if (!shouldBePortal && !queued && level instanceof ServerLevel serverLevel) {
+            VocoTeleportLogic.syncEndpointDetailed(
                     serverLevel,
                     pos,
                     receptor,

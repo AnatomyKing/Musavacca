@@ -221,30 +221,46 @@ public final class HexTeleportDirectory extends SavedData {
         }
     }
 
+    public record VocoRegistration(Result result, Endpoint removedActiveEndpoint) {}
+
     public static final Codec<HexTeleportDirectory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Endpoint.CODEC.listOf().optionalFieldOf("endpoints", List.of()).forGetter(data -> data.endpoints)
+            Endpoint.CODEC.listOf().optionalFieldOf("endpoints", List.of()).forGetter(data -> data.endpoints),
+            Endpoint.CODEC.listOf().optionalFieldOf("pending_voco_endpoints", List.of()).forGetter(data -> data.pendingVocoEndpoints)
     ).apply(instance, HexTeleportDirectory::new));
 
     public static final SavedDataType<HexTeleportDirectory> TYPE =
             new SavedDataType<>(STORAGE_ID, HexTeleportDirectory::new, CODEC);
 
     private final ArrayList<Endpoint> endpoints;
+    private final ArrayList<Endpoint> pendingVocoEndpoints;
 
     private transient HashMap<UUID, Endpoint> endpointById;
     private transient HashMap<String, UUID> endpointIdByOwnerKey;
     private transient HashMap<Integer, ArrayList<UUID>> endpointIdsByHex;
 
+    private transient HashMap<UUID, Endpoint> pendingEndpointById;
+    private transient HashMap<String, UUID> pendingEndpointIdByOwnerKey;
+    private transient HashMap<Integer, ArrayList<UUID>> pendingEndpointIdsByHex;
+
     public HexTeleportDirectory() {
         this.endpoints = new ArrayList<>();
+        this.pendingVocoEndpoints = new ArrayList<>();
         this.rebuildIndex();
     }
 
-    private HexTeleportDirectory(List<Endpoint> endpoints) {
+    private HexTeleportDirectory(List<Endpoint> endpoints, List<Endpoint> pendingVocoEndpoints) {
         this.endpoints = new ArrayList<>();
+        this.pendingVocoEndpoints = new ArrayList<>();
 
         for (Endpoint endpoint : endpoints) {
             if (endpoint != null) {
                 this.endpoints.add(endpoint.normalized());
+            }
+        }
+
+        for (Endpoint endpoint : pendingVocoEndpoints) {
+            if (endpoint != null) {
+                this.pendingVocoEndpoints.add(endpoint.normalized());
             }
         }
 
@@ -287,23 +303,61 @@ public final class HexTeleportDirectory extends SavedData {
             boolean customTarget,
             int slotId
     ) {
+        return this.registerOrQueueVocoEndpoint(
+                ownerKey,
+                kind,
+                hexColor,
+                dimensionId,
+                ownerPos,
+                targetPos,
+                yaw,
+                pitch,
+                customTarget,
+                slotId
+        ).result();
+    }
+
+    public VocoRegistration registerOrQueueVocoEndpoint(
+            String ownerKey,
+            Kind kind,
+            int hexColor,
+            ResourceLocation dimensionId,
+            BlockPos ownerPos,
+            Vec3 targetPos,
+            float yaw,
+            float pitch,
+            boolean customTarget,
+            int slotId
+    ) {
         ownerKey = normalizeOwnerKey(ownerKey);
         if (ownerKey.isEmpty() || kind == null || !kind.isVoco()) {
-            return Result.INVALID_OWNER;
+            return new VocoRegistration(Result.INVALID_OWNER, null);
         }
 
         int hex = normalizeHex(hexColor);
-        UUID existingId = this.endpointIdByOwnerKey.get(ownerKey);
+        UUID existingActiveId = this.endpointIdByOwnerKey.get(ownerKey);
+        UUID existingPendingId = this.pendingEndpointIdByOwnerKey.get(ownerKey);
+
+        Endpoint existingActive = existingActiveId == null ? null : this.endpointById.get(existingActiveId);
+        Endpoint existingPending = existingPendingId == null ? null : this.pendingEndpointById.get(existingPendingId);
+
+        boolean occupiedByOther = false;
 
         for (Endpoint endpoint : this.endpointsByHex(hex)) {
-            if (existingId != null && endpoint.endpointId.equals(existingId)) {
+            if (existingActiveId != null && endpoint.endpointId.equals(existingActiveId)) {
                 continue;
             }
 
-            return Result.HEX_OCCUPIED;
+            occupiedByOther = true;
+            break;
         }
 
-        UUID endpointId = existingId == null ? UUID.randomUUID() : existingId;
+        UUID endpointId = existingActive != null
+                ? existingActive.endpointId
+                : existingPending != null
+                ? existingPending.endpointId
+                : UUID.randomUUID();
+
         Endpoint endpoint = new Endpoint(
                 endpointId,
                 ownerKey,
@@ -319,14 +373,45 @@ public final class HexTeleportDirectory extends SavedData {
                 PortalData.EMPTY
         ).normalized();
 
-        if (existingId != null) {
-            this.removeEndpointNoDirty(existingId);
+        Endpoint removedActive = null;
+        boolean changed = false;
+
+        if (occupiedByOther) {
+            if (existingActiveId != null) {
+                removedActive = this.endpointById.get(existingActiveId);
+                changed |= this.removeEndpointNoDirty(existingActiveId);
+            }
+
+            if (existingPendingId != null) {
+                changed |= this.removePendingEndpointNoDirty(existingPendingId);
+            }
+
+            this.addPendingEndpointNoDirty(endpoint);
+            changed = true;
+
+            if (changed) {
+                this.setDirty();
+            }
+
+            return new VocoRegistration(Result.HEX_OCCUPIED, removedActive);
+        }
+
+        if (existingActiveId != null) {
+            removedActive = this.endpointById.get(existingActiveId);
+            changed |= this.removeEndpointNoDirty(existingActiveId);
+        }
+
+        if (existingPendingId != null) {
+            changed |= this.removePendingEndpointNoDirty(existingPendingId);
         }
 
         this.addEndpointNoDirty(endpoint);
         this.setDirty();
 
-        return existingId == null ? Result.REGISTERED : Result.UPDATED;
+        return new VocoRegistration(
+                existingActive == null ? Result.REGISTERED : Result.UPDATED,
+                removedActive
+        );
     }
 
     public Result checkPortalEndpoint(UUID portalId, int hexColor) {
@@ -398,6 +483,22 @@ public final class HexTeleportDirectory extends SavedData {
         return endpointId == null ? Optional.empty() : this.getEndpoint(endpointId);
     }
 
+    public Optional<Endpoint> getFirstPendingVocoEndpointByHex(int hexColor) {
+        ArrayList<UUID> ids = this.pendingEndpointIdsByHex.get(normalizeHex(hexColor));
+        if (ids == null || ids.isEmpty()) {
+            return Optional.empty();
+        }
+
+        for (UUID id : ids) {
+            Endpoint endpoint = this.pendingEndpointById.get(id);
+            if (endpoint != null) {
+                return Optional.of(endpoint);
+            }
+        }
+
+        return Optional.empty();
+    }
+
     public List<Endpoint> getEndpointsByHex(int hexColor) {
         ArrayList<Endpoint> result = new ArrayList<>(this.endpointsByHex(normalizeHex(hexColor)));
 
@@ -451,17 +552,55 @@ public final class HexTeleportDirectory extends SavedData {
         return portals == 1;
     }
 
-    public void removeEndpoint(UUID endpointId) {
-        if (this.removeEndpointNoDirty(endpointId)) {
+    public Optional<Endpoint> removeEndpoint(UUID endpointId) {
+        Endpoint removedActive = this.endpointById.get(endpointId);
+        boolean changed = false;
+
+        if (removedActive != null) {
+            changed |= this.removeEndpointNoDirty(endpointId);
+        } else {
+            changed |= this.removePendingEndpointNoDirty(endpointId);
+        }
+
+        if (changed) {
             this.setDirty();
         }
+
+        return Optional.ofNullable(removedActive);
     }
 
-    public void removeOwner(String ownerKey) {
-        UUID endpointId = this.endpointIdByOwnerKey.get(normalizeOwnerKey(ownerKey));
+    public Optional<Endpoint> removeOwner(String ownerKey) {
+        ownerKey = normalizeOwnerKey(ownerKey);
+
+        Endpoint removedActive = null;
+        boolean changed = false;
+
+        UUID endpointId = this.endpointIdByOwnerKey.get(ownerKey);
         if (endpointId != null) {
-            this.removeEndpoint(endpointId);
+            removedActive = this.endpointById.get(endpointId);
+            changed |= this.removeEndpointNoDirty(endpointId);
         }
+
+        UUID pendingEndpointId = this.pendingEndpointIdByOwnerKey.get(ownerKey);
+        if (pendingEndpointId != null) {
+            changed |= this.removePendingEndpointNoDirty(pendingEndpointId);
+        }
+
+        if (changed) {
+            this.setDirty();
+        }
+
+        return Optional.ofNullable(removedActive);
+    }
+
+    public boolean removePendingEndpoint(UUID endpointId) {
+        boolean changed = this.removePendingEndpointNoDirty(endpointId);
+
+        if (changed) {
+            this.setDirty();
+        }
+
+        return changed;
     }
 
     private List<Endpoint> endpointsByHex(int hexColor) {
@@ -487,7 +626,11 @@ public final class HexTeleportDirectory extends SavedData {
         this.endpointIdByOwnerKey = new HashMap<>();
         this.endpointIdsByHex = new HashMap<>();
 
-        ArrayList<Endpoint> clean = new ArrayList<>();
+        this.pendingEndpointById = new HashMap<>();
+        this.pendingEndpointIdByOwnerKey = new HashMap<>();
+        this.pendingEndpointIdsByHex = new HashMap<>();
+
+        ArrayList<Endpoint> cleanActive = new ArrayList<>();
 
         for (Endpoint rawEndpoint : this.endpoints) {
             if (rawEndpoint == null) {
@@ -505,11 +648,35 @@ public final class HexTeleportDirectory extends SavedData {
             }
 
             this.addEndpointToIndex(endpoint);
-            clean.add(endpoint);
+            cleanActive.add(endpoint);
+        }
+
+        ArrayList<Endpoint> cleanPending = new ArrayList<>();
+
+        for (Endpoint rawEndpoint : this.pendingVocoEndpoints) {
+            if (rawEndpoint == null) {
+                continue;
+            }
+
+            Endpoint endpoint = rawEndpoint.normalized();
+
+            if (endpoint.dimensionId == null || !endpoint.hasValidOwner()) {
+                continue;
+            }
+
+            if (!this.canIndexPendingEndpoint(endpoint)) {
+                continue;
+            }
+
+            this.addPendingEndpointToIndex(endpoint);
+            cleanPending.add(endpoint);
         }
 
         this.endpoints.clear();
-        this.endpoints.addAll(clean);
+        this.endpoints.addAll(cleanActive);
+
+        this.pendingVocoEndpoints.clear();
+        this.pendingVocoEndpoints.addAll(cleanPending);
     }
 
     private boolean canIndexEndpoint(Endpoint endpoint) {
@@ -538,6 +705,14 @@ public final class HexTeleportDirectory extends SavedData {
         }
 
         return existingPortals < 2;
+    }
+
+    private boolean canIndexPendingEndpoint(Endpoint endpoint) {
+        return endpoint.kind.isVoco()
+                && !endpoint.ownerKey.isEmpty()
+                && !this.endpointIdByOwnerKey.containsKey(endpoint.ownerKey)
+                && !this.pendingEndpointById.containsKey(endpoint.endpointId)
+                && !this.pendingEndpointIdByOwnerKey.containsKey(endpoint.ownerKey);
     }
 
     private void addEndpointNoDirty(Endpoint endpoint) {
@@ -578,6 +753,47 @@ public final class HexTeleportDirectory extends SavedData {
         }
 
         this.endpoints.removeIf(endpoint -> endpoint.endpointId.equals(endpointId));
+        return true;
+    }
+
+    private void addPendingEndpointNoDirty(Endpoint endpoint) {
+        endpoint = endpoint.normalized();
+        this.pendingVocoEndpoints.add(endpoint);
+        this.addPendingEndpointToIndex(endpoint);
+    }
+
+    private void addPendingEndpointToIndex(Endpoint endpoint) {
+        this.pendingEndpointById.put(endpoint.endpointId, endpoint);
+
+        if (!endpoint.ownerKey.isEmpty()) {
+            this.pendingEndpointIdByOwnerKey.put(endpoint.ownerKey, endpoint.endpointId);
+        }
+
+        this.pendingEndpointIdsByHex
+                .computeIfAbsent(endpoint.hexColor, ignored -> new ArrayList<>())
+                .add(endpoint.endpointId);
+    }
+
+    private boolean removePendingEndpointNoDirty(UUID endpointId) {
+        Endpoint old = this.pendingEndpointById.remove(endpointId);
+        if (old == null) {
+            return false;
+        }
+
+        if (!old.ownerKey.isEmpty()) {
+            this.pendingEndpointIdByOwnerKey.remove(old.ownerKey);
+        }
+
+        ArrayList<UUID> ids = this.pendingEndpointIdsByHex.get(old.hexColor);
+        if (ids != null) {
+            ids.remove(endpointId);
+
+            if (ids.isEmpty()) {
+                this.pendingEndpointIdsByHex.remove(old.hexColor);
+            }
+        }
+
+        this.pendingVocoEndpoints.removeIf(endpoint -> endpoint.endpointId.equals(endpointId));
         return true;
     }
 
