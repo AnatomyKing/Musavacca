@@ -45,12 +45,6 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
     private static final int DIAL_HOLE_PIXEL_COUNT = DIAL_HOLE_SIZE * DIAL_HOLE_SIZE;
     private static final int DIAL_HOLE_HALF_COVERED_COUNT = DIAL_HOLE_PIXEL_COUNT / 2;
 
-    /*
-     * Max drag step before checking stopper collision.
-     *
-     * Smaller = more physically locked, but more checks.
-     * 0.01 radians is about 0.57 degrees, so even a hard mouse flick cannot visibly skip through the stopper.
-     */
     private static final float MAX_DRAG_STEP_RADIANS = 0.01F;
 
     private static final Hole[] DIAL_HOLES = new Hole[] {

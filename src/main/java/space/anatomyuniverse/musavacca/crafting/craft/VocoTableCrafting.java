@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/crafting/craft/VocoTableCrafting.java
 package space.anatomyuniverse.musavacca.crafting.craft;
 
 import net.minecraft.core.BlockPos;
@@ -17,6 +18,18 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
 public final class VocoTableCrafting {
+    private static final int END_ROD_PARTICLE_COUNT = 24;
+
+    /*
+     * Matches VocoTableBlockEntityItemDisplayRenderer:
+     * ITEM_X = 0.5
+     * ITEM_Y = 1.20
+     * ITEM_Z = 0.5
+     */
+    private static final double ITEM_DISPLAY_X = 0.5D;
+    private static final double ITEM_DISPLAY_Y = 1.20D;
+    private static final double ITEM_DISPLAY_Z = 0.5D;
+
     private VocoTableCrafting() {}
 
     @Nullable
@@ -106,37 +119,27 @@ public final class VocoTableCrafting {
             @NotNull BlockPos tablePos,
             @NotNull ItemStack resultStack
     ) {
-        Vec3 center = Vec3.atCenterOf(tablePos).add(0.0D, 0.85D, 0.0D);
+        Vec3 itemDisplayCenter = itemDisplayCenter(tablePos);
 
-        level.sendParticles(
-                ParticleTypes.END_ROD,
-                center.x,
-                center.y,
-                center.z,
-                18,
-                0.24D,
-                0.18D,
-                0.24D,
-                0.025D
-        );
+        spawnEndRodTransformationParticles(level, itemDisplayCenter);
 
         level.sendParticles(
                 new ItemParticleOption(ParticleTypes.ITEM, resultStack.copyWithCount(1)),
-                center.x,
-                center.y,
-                center.z,
-                10,
-                0.16D,
+                itemDisplayCenter.x,
+                itemDisplayCenter.y,
+                itemDisplayCenter.z,
+                12,
                 0.12D,
-                0.16D,
-                0.035D
+                0.10D,
+                0.12D,
+                0.045D
         );
 
         level.playSound(
                 null,
-                center.x,
-                center.y,
-                center.z,
+                itemDisplayCenter.x,
+                itemDisplayCenter.y,
+                itemDisplayCenter.z,
                 SoundEvents.ENCHANTMENT_TABLE_USE,
                 SoundSource.BLOCKS,
                 0.85F,
@@ -145,13 +148,38 @@ public final class VocoTableCrafting {
 
         level.playSound(
                 null,
-                center.x,
-                center.y,
-                center.z,
+                itemDisplayCenter.x,
+                itemDisplayCenter.y,
+                itemDisplayCenter.z,
                 SoundEvents.AMETHYST_BLOCK_CHIME,
                 SoundSource.BLOCKS,
                 0.65F,
                 1.65F
+        );
+    }
+
+    private static Vec3 itemDisplayCenter(BlockPos tablePos) {
+        return new Vec3(
+                tablePos.getX() + ITEM_DISPLAY_X,
+                tablePos.getY() + ITEM_DISPLAY_Y,
+                tablePos.getZ() + ITEM_DISPLAY_Z
+        );
+    }
+
+    private static void spawnEndRodTransformationParticles(
+            @NotNull ServerLevel level,
+            @NotNull Vec3 center
+    ) {
+        level.sendParticles(
+                ParticleTypes.END_ROD,
+                center.x,
+                center.y,
+                center.z,
+                END_ROD_PARTICLE_COUNT,
+                0.22D,
+                0.16D,
+                0.22D,
+                0.045D
         );
     }
 }

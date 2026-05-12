@@ -4,6 +4,7 @@ package space.anatomyuniverse.musavacca.particle.particles;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.PortalParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.util.RandomSource;
@@ -31,6 +32,17 @@ public final class PearlGlyphPortalParticle extends PortalParticle {
             double zd
     ) {
         super(level, x, y, z, xd, yd, zd);
+    }
+
+    /*
+     * Keep this.
+     *
+     * The glyph textures are layered/tinted. TRANSLUCENT makes the portal glyphs
+     * look cleaner and avoids harsh opaque layer blocking.
+     */
+    @Override
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     private static PearlGlyphPortalParticle createLayer(
