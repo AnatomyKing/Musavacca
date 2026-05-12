@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
@@ -34,16 +33,24 @@ public final class PearlPortalCreator {
             @Nullable Direction ignitionFace
     ) {
         var optionalShape = PearlPortalFrame.findIgnitableShape(level, insidePos);
-        if (optionalShape.isEmpty()) return false;
+        if (optionalShape.isEmpty()) {
+            return false;
+        }
 
-        if (level.isClientSide()) return true;
-        if (!(level instanceof ServerLevel serverLevel)) return false;
+        if (level.isClientSide()) {
+            return true;
+        }
+
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return false;
+        }
 
         int normalizedHex = normalizeHex(hexColor);
 
         PearlPortalFrame.Shape detectedShape = optionalShape.get();
-        Direction frontDirection = determineFrontDirection(detectedShape, ignitionFace, player);
-        PearlPortalFrame.Shape shape = detectedShape.withFrontDirection(frontDirection);
+        PearlPortalFrame.Shape shape = detectedShape.withFrontDirection(
+                determineFrontDirection(detectedShape, ignitionFace, player)
+        );
 
         if (containsExistingPortalBlock(serverLevel, shape)) {
             sendActionBar(player, "This Pearl portal is already active.");
@@ -62,8 +69,7 @@ public final class PearlPortalCreator {
         placePortalBlocks(serverLevel, shape);
 
         if (!initializePortalBlockEntities(serverLevel, shape, portalId, normalizedHex)) {
-            removePortalBlocksOnly(serverLevel, shape);
-            PearlPortalNetwork.removePortal(serverLevel, portalId);
+            rollbackPlacedPortal(serverLevel, shape, portalId);
             return false;
         }
 
@@ -75,8 +81,7 @@ public final class PearlPortalCreator {
         );
 
         if (!result.success()) {
-            removePortalBlocksOnly(serverLevel, shape);
-            PearlPortalNetwork.removePortal(serverLevel, portalId);
+            rollbackPlacedPortal(serverLevel, shape, portalId);
             sendActionBar(player, "Pearl address #" + toHex(normalizedHex) + " is already occupied.");
             return false;
         }
@@ -94,11 +99,9 @@ public final class PearlPortalCreator {
             return ignitionFace;
         }
 
-        if (player != null) {
-            return shape.frontDirectionFromPosition(player.position());
-        }
-
-        return PearlPortalFrame.defaultFrontDirection(shape.axis());
+        return player == null
+                ? PearlPortalFrame.defaultFrontDirection(shape.axis())
+                : shape.frontDirectionFromPosition(player.position());
     }
 
     private static void placePortalBlocks(ServerLevel level, PearlPortalFrame.Shape shape) {
@@ -106,11 +109,7 @@ public final class PearlPortalCreator {
                 .defaultBlockState()
                 .setValue(ModBlocks.PEARL_PORTAL.get().getAxisProperty(), shape.axis());
 
-        shape.forEachInteriorBlock(pos -> level.setBlock(
-                pos,
-                portalState,
-                PORTAL_SET_FLAGS
-        ));
+        shape.forEachInteriorBlock(pos -> level.setBlock(pos, portalState, PORTAL_SET_FLAGS));
     }
 
     private static boolean initializePortalBlockEntities(
@@ -144,14 +143,22 @@ public final class PearlPortalCreator {
         return foundExistingPortal[0];
     }
 
-    private static void removePortalBlocksOnly(ServerLevel level, PearlPortalFrame.Shape shape) {
+    private static void rollbackPlacedPortal(ServerLevel level, PearlPortalFrame.Shape shape, UUID portalId) {
+
+        boolean[] triggeredPhysicalCollapse = {false};
+
         shape.forEachInteriorBlock(pos -> {
-            if (level.getBlockState(pos).is(ModBlocks.PEARL_PORTAL.get())) {
-                level.setBlock(pos, Blocks.AIR.defaultBlockState(), PORTAL_SET_FLAGS);
+            if (triggeredPhysicalCollapse[0]) {
+                return;
             }
 
-            level.removeBlockEntity(pos);
+            if (level.getBlockState(pos).is(ModBlocks.PEARL_PORTAL.get())) {
+                triggeredPhysicalCollapse[0] = true;
+                level.destroyBlock(pos, false);
+            }
         });
+
+        PearlPortalNetwork.removePortal(level, portalId);
     }
 
     private static void sendCreationMessage(

@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/PearlPortalBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;
@@ -35,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
-import space.anatomyuniverse.musavacca.portal.PearlPortalDestroyer;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
 import space.anatomyuniverse.musavacca.portal.PearlPortalResolver;
@@ -95,22 +95,28 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         if (!changedAlongOtherHorizontalAxis
                 && !neighborState.is(this)
                 && PearlPortalFrame.findExistingShape(level, pos, portalAxis).isEmpty()) {
-            if (level instanceof ServerLevel serverLevel) {
-                if (serverLevel.getBlockState(pos).is(this)) {
-                    serverLevel.destroyBlock(pos, false);
-                }
-
-                return state;
+            if (level instanceof ServerLevel serverLevel && serverLevel.getBlockState(pos).is(this)) {
+                /*
+                 * No direct Blocks.AIR return / setBlock-to-air path.
+                 * Break this one block and let normal neighbor updates domino the portal.
+                 */
+                serverLevel.destroyBlock(pos, false);
             }
 
-            return net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+            return state;
         }
 
         return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier) {
+    protected void entityInside(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Entity entity,
+            InsideBlockEffectApplier effectApplier
+    ) {
         if (entity.canUsePortal(false)) {
             entity.setAsInsidePortal(this, pos);
         }

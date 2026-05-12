@@ -1,24 +1,15 @@
 // file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/logic/VocoTableCandleVoxelShapes.java
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleHitboxes.Box;
 
 public final class VocoTableCandleVoxelShapes {
     private static final double UNIT = 1.0D / 16.0D;
 
     private static final Vec3[] EMPTY_OFFSETS = new Vec3[0];
-
-    private static final Vec3[] CORNER_OFFSETS = {
-            new Vec3(5.0D, 16.0D, -5.0D),
-            new Vec3(-5.0D, 16.0D, -5.0D),
-            new Vec3(5.0D, 16.0D, 5.0D),
-            new Vec3(-5.0D, 16.0D, 5.0D)
-    };
 
     private static final Vec3[] RENDER_TRANSLATIONS = buildRenderTranslations();
     private static final Vec3[][][] PARTICLE_OFFSETS = buildParticleOffsets();
@@ -31,41 +22,26 @@ public final class VocoTableCandleVoxelShapes {
     }
 
     public static Vec3[] particleOffsets(ReceptorPosition receptor, int candleCount) {
-        if (candleCount <= 0) {
-            return EMPTY_OFFSETS;
-        }
-
-        return PARTICLE_OFFSETS[receptor.id()][clampCount(candleCount)];
+        return candleCount <= 0
+                ? EMPTY_OFFSETS
+                : PARTICLE_OFFSETS[receptor.id()][clampCount(candleCount)];
     }
 
     public static Vec3 dropPosition(ReceptorPosition receptor, int candleCount) {
-        Box box = VocoTableCandleHitboxes.hitBox(receptor, candleCount);
-
-        return new Vec3(
-                ((box.minX() + box.maxX()) * 0.5D) * UNIT,
-                ((box.minY() + box.maxY()) * 0.5D) * UNIT,
-                ((box.minZ() + box.maxZ()) * 0.5D) * UNIT
-        );
+        return VocoTableCandleHitboxes.hitBox(receptor, candleCount).centerScaled(UNIT);
     }
 
     public static VoxelShape shape(ReceptorPosition receptor, int candleCount) {
-        if (candleCount <= 0) {
-            return Shapes.empty();
-        }
-
-        return SHAPES[receptor.id()][clampCount(candleCount)];
+        return candleCount <= 0
+                ? Shapes.empty()
+                : SHAPES[receptor.id()][clampCount(candleCount)];
     }
 
     private static Vec3[] buildRenderTranslations() {
         Vec3[] result = new Vec3[ReceptorPosition.COUNT];
 
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            Vec3 offset = CORNER_OFFSETS[receptor.id()];
-            result[receptor.id()] = new Vec3(
-                    offset.x * UNIT,
-                    offset.y * UNIT,
-                    offset.z * UNIT
-            );
+            result[receptor.id()] = VocoTableCandleHitboxes.cornerOffset(receptor).scale(UNIT);
         }
 
         return result;
@@ -78,20 +54,20 @@ public final class VocoTableCandleVoxelShapes {
             result[receptor.id()][0] = EMPTY_OFFSETS;
 
             for (int count = 1; count <= 4; count++) {
-                result[receptor.id()][count] = shiftedAndScaledParticleOffsets(receptor, count);
+                result[receptor.id()][count] = shiftedParticleOffsets(receptor, count);
             }
         }
 
         return result;
     }
 
-    private static Vec3[] shiftedAndScaledParticleOffsets(ReceptorPosition receptor, int candleCount) {
-        Vec3 cornerOffset = CORNER_OFFSETS[receptor.id()];
+    private static Vec3[] shiftedParticleOffsets(ReceptorPosition receptor, int candleCount) {
+        Vec3 offset = VocoTableCandleHitboxes.cornerOffset(receptor);
         Vec3[] vanilla = vanillaParticleOffsets(candleCount);
         Vec3[] result = new Vec3[vanilla.length];
 
         for (int i = 0; i < vanilla.length; i++) {
-            result[i] = vanilla[i].add(cornerOffset).scale(UNIT);
+            result[i] = vanilla[i].add(offset).scale(UNIT);
         }
 
         return result;
@@ -104,24 +80,13 @@ public final class VocoTableCandleVoxelShapes {
             result[receptor.id()][0] = Shapes.empty();
 
             for (int count = 1; count <= 4; count++) {
-                result[receptor.id()][count] = toShape(
-                        VocoTableCandleHitboxes.hitBox(receptor, count)
-                );
+                result[receptor.id()][count] = VocoTableCandleHitboxes
+                        .hitBox(receptor, count)
+                        .toShape();
             }
         }
 
         return result;
-    }
-
-    private static VoxelShape toShape(Box box) {
-        return Block.box(
-                box.minX(),
-                box.minY(),
-                box.minZ(),
-                box.maxX(),
-                box.maxY(),
-                box.maxZ()
-        );
     }
 
     private static Vec3[] vanillaParticleOffsets(int candleCount) {

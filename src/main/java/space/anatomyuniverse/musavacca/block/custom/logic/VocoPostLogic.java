@@ -9,8 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostReceptorHitboxes.HitPart;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 
 public final class VocoPostLogic {
@@ -23,13 +23,10 @@ public final class VocoPostLogic {
             Player player,
             BlockHitResult hit
     ) {
-        HitPart hitPart = VocoPostReceptorHitboxes.detectHitPart(pos, hit);
-
-        if (!hitPart.isReceptor()) {
+        ReceptorPosition receptor = receptorHit(state, pos, hit);
+        if (receptor == null) {
             return InteractionResult.PASS;
         }
-
-        ReceptorPosition receptor = VocoPostBlock.receptorPosition(state);
 
         if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
             return InteractionResult.SUCCESS;
@@ -40,29 +37,16 @@ public final class VocoPostLogic {
         }
 
         if (!state.getValue(VocoPostBlock.LIT)) {
-            if (!level.isClientSide()) {
-                boolean lit = VocoReceptorLogic.lightReceptorWithBalance(
-                        state,
-                        level,
-                        pos,
-                        player,
-                        VocoPostBlock.LIT
-                );
-
-                if (lit) {
-                    VocoPostCandleLogic.refreshPortalAt(level, pos);
-                }
+            if (!level.isClientSide()
+                    && VocoReceptorLogic.lightReceptorWithBalance(state, level, pos, player, VocoPostBlock.LIT)) {
+                VocoPostCandleLogic.refreshPortalAt(level, pos);
             }
 
             return InteractionResult.SUCCESS;
         }
 
-        if (!state.getValue(VocoPostBlock.PORTAL)) {
-            if (level.isClientSide()) {
-                VocoReceptorLogic.showNeedsPortalMessage(player);
-            }
-
-            return InteractionResult.SUCCESS;
+        if (!state.getValue(VocoPostBlock.PORTAL) && level.isClientSide()) {
+            VocoReceptorLogic.showNeedsPortalMessage(player);
         }
 
         return InteractionResult.SUCCESS;
@@ -77,13 +61,14 @@ public final class VocoPostLogic {
             InteractionHand hand,
             BlockHitResult hit
     ) {
-        HitPart hitPart = VocoPostReceptorHitboxes.detectHitPart(pos, hit);
-
-        if (!hitPart.isReceptor()) {
-            return InteractionResult.PASS;
+        if (stack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
-        ReceptorPosition receptor = VocoPostBlock.receptorPosition(state);
+        ReceptorPosition receptor = receptorHit(state, pos, hit);
+        if (receptor == null) {
+            return InteractionResult.PASS;
+        }
 
         if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
             return InteractionResult.SUCCESS;
@@ -106,5 +91,12 @@ public final class VocoPostLogic {
         }
 
         return result;
+    }
+
+    @Nullable
+    private static ReceptorPosition receptorHit(BlockState state, BlockPos pos, BlockHitResult hit) {
+        return VocoPostReceptorHitboxes.detectHitPart(pos, hit).isReceptor()
+                ? VocoPostBlock.receptorPosition(state)
+                : null;
     }
 }

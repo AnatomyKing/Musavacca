@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/VocoTableBlockEntity.java
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -39,12 +40,10 @@ import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
-import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 import java.util.UUID;
 
 public class VocoTableBlockEntity extends BlockEntity {
-
     private static final String TAG_BASUKE_VISIBLE = "basuke_visible";
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
 
@@ -437,16 +436,18 @@ public class VocoTableBlockEntity extends BlockEntity {
         slot.hexColor = UNSET_HEX_COLOR;
 
         this.refreshLatestHexFromLitCandles();
-
         this.markChangedAndSync();
         this.resyncEndpoint(receptor);
+
         return true;
     }
 
     public void extinguishAllCandlesForSummon() {
         boolean changed = false;
 
-        for (CandleSlot slot : this.candleSlots) {
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            CandleSlot slot = this.slot(receptor);
+
             if (!slot.hasCandle() || !slot.lit) {
                 continue;
             }
@@ -454,6 +455,8 @@ public class VocoTableBlockEntity extends BlockEntity {
             slot.lit = false;
             slot.hasHexColor = false;
             slot.hexColor = UNSET_HEX_COLOR;
+
+            this.removeEndpoint(receptor);
             changed = true;
         }
 
@@ -461,6 +464,7 @@ public class VocoTableBlockEntity extends BlockEntity {
             return;
         }
 
+        this.clearPortalPropertiesForUnlitCandles();
         this.refreshLatestHexFromLitCandles();
         this.markChangedAndSync();
     }
@@ -515,7 +519,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         level.setBlock(pos, newState, VocoReceptorLogic.UPDATE_FLAGS);
 
         for (int i = 0; i < consumedCount; i++) {
-            this.resyncEndpoint(consumed[i]);
+            this.removeEndpoint(consumed[i]);
         }
 
         this.refreshLatestHexFromLitCandles();
@@ -558,6 +562,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         this.markChangedAndSync();
         this.resyncEndpoint(receptor);
+
         return removed;
     }
 
@@ -610,8 +615,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     public void activateBasukeFromRotaryDialers(ServerLevel level) {
         this.basukeVisible = true;
 
-        boolean spawnedOrFound = this.ensureBasukeExists(level);
-        if (!spawnedOrFound) {
+        if (!this.ensureBasukeExists(level)) {
             this.basukeVisible = false;
             this.forceRotaryDialers(level, false);
         }
@@ -689,13 +693,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         int hexColor = this.getPortalHexColorOrUnset(receptor);
 
         if (hexColor == UNSET_HEX_COLOR) {
-            VocoTeleportLogic.syncEndpointDetailed(
-                    serverLevel,
-                    this.getBlockPos(),
-                    receptor,
-                    false,
-                    VocoReceptorLogic.UNSET_HEX_COLOR
-            );
+            this.removeEndpoint(receptor);
             return;
         }
 
@@ -706,6 +704,53 @@ public class VocoTableBlockEntity extends BlockEntity {
                 true,
                 hexColor
         );
+    }
+
+    private void removeEndpoint(ReceptorPosition receptor) {
+        Level level = this.getLevel();
+
+        if (level instanceof ServerLevel serverLevel) {
+            VocoTeleportLogic.syncEndpointDetailed(
+                    serverLevel,
+                    this.getBlockPos(),
+                    receptor,
+                    false,
+                    VocoReceptorLogic.UNSET_HEX_COLOR
+            );
+        }
+    }
+
+    private void clearPortalPropertiesForUnlitCandles() {
+        Level level = this.getLevel();
+
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        BlockPos pos = this.getBlockPos();
+        BlockState state = serverLevel.getBlockState(pos);
+
+        if (!(state.getBlock() instanceof VocoTableBlock)) {
+            return;
+        }
+
+        BlockState newState = state;
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            CandleSlot slot = this.slot(receptor);
+            if (slot.hasCandle() && slot.lit && slot.hasHexColor) {
+                continue;
+            }
+
+            if (newState.hasProperty(VocoTableBlock.portalProperty(receptor))
+                    && newState.getValue(VocoTableBlock.portalProperty(receptor))) {
+                newState = newState.setValue(VocoTableBlock.portalProperty(receptor), false);
+            }
+        }
+
+        if (newState != state) {
+            serverLevel.setBlock(pos, newState, VocoReceptorLogic.UPDATE_FLAGS);
+        }
     }
 
     private boolean ensureBasukeExists(ServerLevel level) {
@@ -813,8 +858,6 @@ public class VocoTableBlockEntity extends BlockEntity {
         Level level = this.getLevel();
 
         if (level instanceof ServerLevel serverLevel) {
-            HexTeleportDirectory directory = HexTeleportDirectory.get(serverLevel.getServer());
-
             for (ReceptorPosition receptor : ReceptorPosition.values()) {
                 VocoTeleportLogic.removeOwnerAndPromote(
                         serverLevel,

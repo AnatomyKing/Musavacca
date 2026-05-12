@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/portal/PearlPortalDestroyer.java
 package space.anatomyuniverse.musavacca.portal;
 
 import net.minecraft.core.BlockPos;
@@ -16,11 +17,14 @@ public final class PearlPortalDestroyer {
     }
 
     public static void destroyPortalFromAnyTile(ServerLevel level, BlockPos startPos, UUID portalId) {
-        if (portalId == null || DESTROYING.get()) return;
+        if (portalId == null || DESTROYING.get()) {
+            return;
+        }
 
         DESTROYING.set(true);
 
         try {
+
             PearlPortalNetwork.removePortal(level, portalId);
         } finally {
             DESTROYING.set(false);
@@ -28,7 +32,9 @@ public final class PearlPortalDestroyer {
     }
 
     public static void destroyPortalFromAnyLoadedBlock(ServerLevel level, BlockPos startPos) {
-        if (DESTROYING.get()) return;
+        if (DESTROYING.get()) {
+            return;
+        }
 
         if (level.getBlockEntity(startPos) instanceof PearlPortalBlockEntity portalBlockEntity
                 && portalBlockEntity.isValidPortalTile()) {

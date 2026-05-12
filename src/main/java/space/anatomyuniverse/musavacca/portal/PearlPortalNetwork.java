@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
@@ -57,14 +58,15 @@ public final class PearlPortalNetwork {
                 .computeIfAbsent(portalId, ignored -> new HashSet<>())
                 .add(key);
 
-        LoadedPortal loadedPortal = new LoadedPortal(
+        SERVER_CACHE.portalsById.put(
                 portalId,
-                serverLevel,
-                portalBlockEntity.getPortalShape(),
-                portalBlockEntity.getHexColor()
+                new LoadedPortal(
+                        portalId,
+                        serverLevel,
+                        portalBlockEntity.getPortalShape(),
+                        portalBlockEntity.getHexColor()
+                )
         );
-
-        SERVER_CACHE.portalsById.put(portalId, loadedPortal);
 
         if (portalBlockEntity.isOriginBlock()) {
             HexTeleportDirectory.get(serverLevel.getServer()).registerPortalEndpoint(
@@ -92,22 +94,29 @@ public final class PearlPortalNetwork {
     }
 
     public static Optional<LoadedPortal> getLoadedServerPortal(UUID portalId) {
-        if (portalId == null) return Optional.empty();
-        return Optional.ofNullable(SERVER_CACHE.portalsById.get(portalId));
+        return portalId == null
+                ? Optional.empty()
+                : Optional.ofNullable(SERVER_CACHE.portalsById.get(portalId));
     }
 
     public static Optional<LoadedPortal> getLoadedPortalAt(ServerLevel level, BlockPos pos) {
         UUID portalId = SERVER_CACHE.portalIdByBlock.get(blockKey(level, pos));
-        if (portalId == null) return Optional.empty();
-
-        return Optional.ofNullable(SERVER_CACHE.portalsById.get(portalId));
+        return portalId == null
+                ? Optional.empty()
+                : Optional.ofNullable(SERVER_CACHE.portalsById.get(portalId));
     }
 
     public static void removePortal(ServerLevel level, UUID portalId) {
         if (portalId == null) return;
 
         removeLoadedPortal(SERVER_CACHE, portalId);
-        HexTeleportDirectory.get(level.getServer()).removeEndpoint(portalId);
+
+        HexTeleportDirectory directory = HexTeleportDirectory.get(level.getServer());
+
+        directory.getEndpoint(portalId).ifPresentOrElse(
+                endpoint -> VocoTeleportLogic.removeEndpointAndPromote(level.getServer(), endpoint),
+                () -> directory.removeEndpoint(portalId)
+        );
     }
 
     public static void clear() {

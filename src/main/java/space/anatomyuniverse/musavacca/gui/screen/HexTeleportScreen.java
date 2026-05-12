@@ -9,12 +9,12 @@ import net.minecraft.world.entity.player.Inventory;
 import space.anatomyuniverse.musavacca.gui.menu.HexTeleportMenu;
 
 public class HexTeleportScreen extends AbstractContainerScreen<HexTeleportMenu> {
-    private static final String HEX = "0123456789ABCDEF";
-
     public HexTeleportScreen(HexTeleportMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+
         this.imageWidth = 240;
-        this.imageHeight = 190;
+        this.imageHeight = 212;
+
         this.inventoryLabelY = 10000;
     }
 
@@ -23,7 +23,7 @@ public class HexTeleportScreen extends AbstractContainerScreen<HexTeleportMenu> 
         super.init();
 
         int left = this.leftPos + 10;
-        int top = this.topPos + 58;
+        int top = this.topPos + 82;
 
         this.addKeyboardRow("1234567890", left, top);
         this.addKeyboardRow("QWERTYUIOP", left, top + 22);
@@ -32,31 +32,31 @@ public class HexTeleportScreen extends AbstractContainerScreen<HexTeleportMenu> 
 
         this.addRenderableWidget(
                 Button.builder(Component.literal("Teleport"), button -> this.sendMenuButton(HexTeleportMenu.BUTTON_TELEPORT))
-                        .bounds(this.leftPos + 10, this.topPos + 138, 72, 20)
-                        .build()
-        );
-
-        this.addRenderableWidget(
-                Button.builder(Component.literal("Backspace"), button -> this.sendMenuButton(HexTeleportMenu.BUTTON_BACKSPACE))
-                        .bounds(this.leftPos + 86, this.topPos + 138, 72, 20)
-                        .build()
-        );
-
-        this.addRenderableWidget(
-                Button.builder(Component.literal("Clear"), button -> this.sendMenuButton(HexTeleportMenu.BUTTON_CLEAR))
-                        .bounds(this.leftPos + 162, this.topPos + 138, 50, 20)
-                        .build()
-        );
-
-        this.addRenderableWidget(
-                Button.builder(Component.literal("Default"), button -> this.sendMenuButton(HexTeleportMenu.BUTTON_DEFAULT))
                         .bounds(this.leftPos + 10, this.topPos + 162, 72, 20)
                         .build()
         );
 
         this.addRenderableWidget(
-                Button.builder(Component.literal("Done"), button -> this.onClose())
+                Button.builder(Component.literal("Backspace"), button -> this.sendMenuButton(HexTeleportMenu.BUTTON_BACKSPACE))
                         .bounds(this.leftPos + 86, this.topPos + 162, 72, 20)
+                        .build()
+        );
+
+        this.addRenderableWidget(
+                Button.builder(Component.literal("Clear"), button -> this.sendMenuButton(HexTeleportMenu.BUTTON_CLEAR))
+                        .bounds(this.leftPos + 162, this.topPos + 162, 50, 20)
+                        .build()
+        );
+
+        this.addRenderableWidget(
+                Button.builder(Component.literal("Default"), button -> this.sendMenuButton(HexTeleportMenu.BUTTON_DEFAULT))
+                        .bounds(this.leftPos + 10, this.topPos + 186, 72, 20)
+                        .build()
+        );
+
+        this.addRenderableWidget(
+                Button.builder(Component.literal("Done"), button -> this.onClose())
+                        .bounds(this.leftPos + 86, this.topPos + 186, 72, 20)
                         .build()
         );
     }
@@ -96,12 +96,15 @@ public class HexTeleportScreen extends AbstractContainerScreen<HexTeleportMenu> 
 
     private static int nibbleOf(char c) {
         char upper = Character.toUpperCase(c);
+
         if (upper >= '0' && upper <= '9') {
             return upper - '0';
         }
+
         if (upper >= 'A' && upper <= 'F') {
             return 10 + (upper - 'A');
         }
+
         return -1;
     }
 
@@ -149,12 +152,13 @@ public class HexTeleportScreen extends AbstractContainerScreen<HexTeleportMenu> 
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         graphics.drawString(this.font, this.title, 10, 6, 0xFFFFFF, false);
         graphics.drawString(this.font, Component.literal("#" + this.menu.getDisplayedCode()), 10, 46, 0xFFFFFF, false);
-        graphics.drawString(this.font, Component.literal("Type any registered portal or Voco address."), 10, 58, 0xBFBFBF, false);
+        graphics.drawString(this.font, Component.literal("Type any registered portal or Voco address."), 10, 64, 0xBFBFBF, false);
     }
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
         int nibble = nibbleOf(codePoint);
+
         if (nibble >= 0) {
             this.sendMenuButton(HexTeleportMenu.buttonIdForHexNibble(nibble));
             return true;

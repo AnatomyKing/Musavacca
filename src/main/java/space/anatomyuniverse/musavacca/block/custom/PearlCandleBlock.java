@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 
-public class PearlCandleBlock extends CandleBlock implements EntityBlock {
+public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
     private final Block vanillaCandleBlock;
 
     public PearlCandleBlock(Block vanillaCandleBlock, BlockBehaviour.Properties properties) {

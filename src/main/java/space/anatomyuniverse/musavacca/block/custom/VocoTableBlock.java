@@ -25,8 +25,7 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableVoxelShapes;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
-public class VocoTableBlock extends Block implements EntityBlock {
-
+public final class VocoTableBlock extends Block implements EntityBlock {
     public static final BooleanProperty LIT_NORTH_EAST = VocoTableLogic.LIT_NORTH_EAST;
     public static final BooleanProperty LIT_NORTH_WEST = VocoTableLogic.LIT_NORTH_WEST;
     public static final BooleanProperty LIT_SOUTH_EAST = VocoTableLogic.LIT_SOUTH_EAST;

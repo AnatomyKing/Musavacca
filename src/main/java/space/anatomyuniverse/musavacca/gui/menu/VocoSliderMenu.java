@@ -24,7 +24,6 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.gui.ModMenus;
 
 public class VocoSliderMenu extends AbstractContainerMenu {
-
     private static final int BUTTON_YAW_BASE = 1000;
     private static final int BUTTON_PITCH_BASE = 2000;
 
@@ -75,7 +74,7 @@ public class VocoSliderMenu extends AbstractContainerMenu {
         super(ModMenus.VOCO_SLIDER_MENU.get(), containerId);
 
         this.player = playerInventory.player;
-        this.pos = pos;
+        this.pos = pos.immutable();
         this.receptor = receptor;
 
         this.yawDegrees = clampYaw(initialYawDegrees);
@@ -114,11 +113,7 @@ public class VocoSliderMenu extends AbstractContainerMenu {
         this.addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return readYaw(
-                        VocoSliderMenu.this.player.level(),
-                        VocoSliderMenu.this.pos,
-                        VocoSliderMenu.this.receptor
-                );
+                return VocoSliderMenu.this.yawDegrees;
             }
 
             @Override
@@ -130,11 +125,7 @@ public class VocoSliderMenu extends AbstractContainerMenu {
         this.addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return readPitch(
-                        VocoSliderMenu.this.player.level(),
-                        VocoSliderMenu.this.pos,
-                        VocoSliderMenu.this.receptor
-                );
+                return VocoSliderMenu.this.pitchDegrees;
             }
 
             @Override
@@ -146,11 +137,7 @@ public class VocoSliderMenu extends AbstractContainerMenu {
         this.addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return readCustomTargetEnabled(
-                        VocoSliderMenu.this.player.level(),
-                        VocoSliderMenu.this.pos,
-                        VocoSliderMenu.this.receptor
-                ) ? 1 : 0;
+                return VocoSliderMenu.this.customTargetEnabled ? 1 : 0;
             }
 
             @Override
@@ -220,6 +207,10 @@ public class VocoSliderMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
+        if (!player.level().isClientSide() && !this.stillValid(player)) {
+            return false;
+        }
+
         if (isYawButton(id)) {
             int yaw = clampYaw(yawFromButtonId(id));
             this.yawDegrees = yaw;

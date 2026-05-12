@@ -31,7 +31,7 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostVoxelShapes;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 
-public class VocoPostBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public final class VocoPostBlock extends HorizontalDirectionalBlock implements EntityBlock {
     public static final MapCodec<VocoPostBlock> CODEC = simpleCodec(VocoPostBlock::new);
 
     public static final BooleanProperty LIT = BooleanProperty.create("lit");
@@ -63,9 +63,7 @@ public class VocoPostBlock extends HorizontalDirectionalBlock implements EntityB
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-                .setValue(FACING, context.getHorizontalDirection().getOpposite())
-                .setValue(LIT, false)
-                .setValue(PORTAL, false);
+                .setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override

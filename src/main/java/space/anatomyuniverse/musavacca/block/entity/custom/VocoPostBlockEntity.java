@@ -24,10 +24,8 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 public class VocoPostBlockEntity extends BlockEntity {
-
     private static final String TAG_YAW_DEGREES = "yaw_degrees";
     private static final String TAG_PITCH_DEGREES = "pitch_degrees";
     private static final String TAG_HEX_COLOR = "hex_color";
@@ -53,16 +51,7 @@ public class VocoPostBlockEntity extends BlockEntity {
 
     public VocoPostBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.VOCO_POST_BLOCK_ENTITY.get(), pos, state);
-
-        ReceptorPosition receptor = VocoPostBlock.receptorPosition(state);
-        Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(pos, receptor);
-
-        this.yawDegrees = receptor.defaultYawDegrees();
-        this.pitchDegrees = receptor.defaultPitchDegrees();
-
-        this.targetX = fallback.x;
-        this.targetY = fallback.y;
-        this.targetZ = fallback.z;
+        this.resetDefaults(pos, VocoPostBlock.receptorPosition(state));
     }
 
     public int getYawDegrees() {
@@ -87,10 +76,7 @@ public class VocoPostBlockEntity extends BlockEntity {
 
     public Vec3 getCustomTarget() {
         if (!this.customTargetEnabled) {
-            return VocoTeleportLogic.getDefaultTeleportPosition(
-                    this.getBlockPos(),
-                    this.getPostReceptor()
-            );
+            return VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), this.getPostReceptor());
         }
 
         return new Vec3(this.targetX, this.targetY, this.targetZ);
@@ -104,31 +90,17 @@ public class VocoPostBlockEntity extends BlockEntity {
         this.customTargetEnabled = enabled;
 
         if (enabled && this.targetY == 0.0D) {
-            Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(
-                    this.getBlockPos(),
-                    this.getPostReceptor()
-            );
-
-            this.targetX = fallback.x;
-            this.targetY = fallback.y;
-            this.targetZ = fallback.z;
+            this.setTarget(VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), this.getPostReceptor()));
         }
 
-        this.markChangedAndSync();
-        this.resyncEndpoint();
+        this.changed();
     }
 
     public void setCustomTarget(Vec3 target, int yawDegrees, int pitchDegrees) {
         this.customTargetEnabled = true;
-        this.targetX = target.x;
-        this.targetY = target.y;
-        this.targetZ = target.z;
-
-        this.yawDegrees = clampYaw(yawDegrees);
-        this.pitchDegrees = clampPitch(pitchDegrees);
-
-        this.markChangedAndSync();
-        this.resyncEndpoint();
+        this.setTarget(target);
+        this.setFacingRaw(yawDegrees, pitchDegrees);
+        this.changed();
     }
 
     public void setYawDegrees(int yawDegrees) {
@@ -138,8 +110,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         }
 
         this.yawDegrees = clamped;
-        this.markChangedAndSync();
-        this.resyncEndpoint();
+        this.changed();
     }
 
     public void setPitchDegrees(int pitchDegrees) {
@@ -149,23 +120,18 @@ public class VocoPostBlockEntity extends BlockEntity {
         }
 
         this.pitchDegrees = clamped;
-        this.markChangedAndSync();
-        this.resyncEndpoint();
+        this.changed();
     }
 
     public void setFacingDegrees(int yawDegrees, int pitchDegrees) {
-        int clampedYaw = clampYaw(yawDegrees);
-        int clampedPitch = clampPitch(pitchDegrees);
+        int oldYaw = this.yawDegrees;
+        int oldPitch = this.pitchDegrees;
 
-        if (this.yawDegrees == clampedYaw && this.pitchDegrees == clampedPitch) {
-            return;
+        this.setFacingRaw(yawDegrees, pitchDegrees);
+
+        if (this.yawDegrees != oldYaw || this.pitchDegrees != oldPitch) {
+            this.changed();
         }
-
-        this.yawDegrees = clampedYaw;
-        this.pitchDegrees = clampedPitch;
-
-        this.markChangedAndSync();
-        this.resyncEndpoint();
     }
 
     public boolean setHexColor(int hexColor) {
@@ -176,9 +142,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         }
 
         this.hexColor = normalized;
-
-        this.markChangedAndSync();
-        this.resyncEndpoint();
+        this.changed();
 
         return true;
     }
@@ -189,58 +153,68 @@ public class VocoPostBlockEntity extends BlockEntity {
         }
 
         this.hexColor = UNSET_HEX_COLOR;
-
         this.markChangedAndSync();
-        this.resyncEndpoint();
+        this.releaseHexClaim();
     }
 
     public void releaseHexClaim() {
         Level level = this.getLevel();
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return;
+        if (level instanceof ServerLevel serverLevel) {
+            VocoTeleportLogic.removeOwnerAndPromote(
+                    serverLevel,
+                    this.getBlockPos(),
+                    this.getPostReceptor()
+            );
         }
+    }
 
-        VocoTeleportLogic.removeOwnerAndPromote(
-                serverLevel,
-                this.getBlockPos(),
-                this.getPostReceptor()
-        );
+    private void changed() {
+        this.markChangedAndSync();
+
+        if (this.hasHexColor()) {
+            this.resyncEndpoint();
+        }
     }
 
     private void resyncEndpoint() {
         Level level = this.getLevel();
-        if (!(level instanceof ServerLevel serverLevel)) {
+        if (!(level instanceof ServerLevel serverLevel) || !this.hasHexColor()) {
             return;
         }
 
         BlockState state = this.getBlockState();
-        ReceptorPosition receptor = this.getPostReceptor();
-
-        boolean portalActive = state.hasProperty(VocoPostBlock.PORTAL)
-                && state.getValue(VocoPostBlock.PORTAL);
-
-        if (!portalActive) {
-            return;
-        }
-
-        if (!this.hasHexColor()) {
-            VocoTeleportLogic.syncEndpointDetailed(
-                    serverLevel,
-                    this.getBlockPos(),
-                    receptor,
-                    false,
-                    VocoReceptorLogic.UNSET_HEX_COLOR
-            );
+        if (!state.hasProperty(VocoPostBlock.PORTAL) || !state.getValue(VocoPostBlock.PORTAL)) {
             return;
         }
 
         VocoTeleportLogic.syncEndpointDetailed(
                 serverLevel,
                 this.getBlockPos(),
-                receptor,
+                this.getPostReceptor(),
                 true,
                 this.hexColor
         );
+    }
+
+    private void resetDefaults(BlockPos pos, ReceptorPosition receptor) {
+        Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(pos, receptor);
+
+        this.yawDegrees = receptor.defaultYawDegrees();
+        this.pitchDegrees = receptor.defaultPitchDegrees();
+        this.targetX = fallback.x;
+        this.targetY = fallback.y;
+        this.targetZ = fallback.z;
+    }
+
+    private void setTarget(Vec3 target) {
+        this.targetX = target.x;
+        this.targetY = target.y;
+        this.targetZ = target.z;
+    }
+
+    private void setFacingRaw(int yawDegrees, int pitchDegrees) {
+        this.yawDegrees = clampYaw(yawDegrees);
+        this.pitchDegrees = clampPitch(pitchDegrees);
     }
 
     private ReceptorPosition getPostReceptor() {
@@ -297,15 +271,11 @@ public class VocoPostBlockEntity extends BlockEntity {
         super.loadAdditional(input);
 
         ReceptorPosition receptor = this.getPostReceptor();
+        Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
 
         this.yawDegrees = clampYaw(input.getIntOr(TAG_YAW_DEGREES, receptor.defaultYawDegrees()));
         this.pitchDegrees = clampPitch(input.getIntOr(TAG_PITCH_DEGREES, receptor.defaultPitchDegrees()));
         this.hexColor = readHexOrUnset(input);
-
-        Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(
-                this.getBlockPos(),
-                receptor
-        );
 
         this.customTargetEnabled = input.getBooleanOr(TAG_CUSTOM_TARGET, false);
         this.targetX = input.getDoubleOr(TAG_TARGET_X, fallback.x);

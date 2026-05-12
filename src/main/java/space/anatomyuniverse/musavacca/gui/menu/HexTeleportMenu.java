@@ -39,6 +39,7 @@ public class HexTeleportMenu extends AbstractContainerMenu {
 
     public HexTeleportMenu(int containerId, Inventory playerInventory, int initialHex) {
         super(ModMenus.HEX_TELEPORT_MENU.get(), containerId);
+
         this.player = playerInventory.player;
 
         this.loadFromHex(initialHex);
@@ -75,6 +76,7 @@ public class HexTeleportMenu extends AbstractContainerMenu {
 
         for (int i = 0; i < 6; i++) {
             final int index = i;
+
             this.addDataSlot(new DataSlot() {
                 @Override
                 public int get() {
@@ -107,9 +109,11 @@ public class HexTeleportMenu extends AbstractContainerMenu {
 
     public String getDisplayedCode() {
         StringBuilder builder = new StringBuilder(6);
+
         for (int digit : this.digits) {
             builder.append(HEX.charAt(digit));
         }
+
         return builder.toString();
     }
 
@@ -128,9 +132,11 @@ public class HexTeleportMenu extends AbstractContainerMenu {
 
     private int packDigits() {
         int value = 0;
+
         for (int i = 0; i < 6; i++) {
             value = (value << 4) | (this.digits[i] & 0xF);
         }
+
         return HexTeleportDirectory.normalizeHex(value);
     }
 
@@ -140,6 +146,7 @@ public class HexTeleportMenu extends AbstractContainerMenu {
                 this.digits[this.cursor] = id;
                 this.cursor++;
             }
+
             return;
         }
 
@@ -148,6 +155,7 @@ public class HexTeleportMenu extends AbstractContainerMenu {
                 this.cursor--;
                 this.digits[this.cursor] = 0;
             }
+
             return;
         }
 
@@ -155,6 +163,7 @@ public class HexTeleportMenu extends AbstractContainerMenu {
             for (int i = 0; i < 6; i++) {
                 this.digits[i] = 0;
             }
+
             this.cursor = 0;
             return;
         }
