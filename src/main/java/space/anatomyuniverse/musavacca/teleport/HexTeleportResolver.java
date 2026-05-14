@@ -58,10 +58,9 @@ public final class HexTeleportResolver {
             return false;
         }
 
+        int normalizedHex = HexTeleportDirectory.normalizeHex(hexColor);
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
-
-        List<HexTeleportDirectory.Endpoint> endpoints =
-                directory.getEndpointsByHex(HexTeleportDirectory.normalizeHex(hexColor));
+        List<HexTeleportDirectory.Endpoint> endpoints = directory.getEndpointsByHex(normalizedHex);
 
         for (HexTeleportDirectory.Endpoint endpoint : endpoints) {
             Optional<ResolvedEndpoint> resolved = resolveEndpoint(server, endpoint);
@@ -75,7 +74,7 @@ public final class HexTeleportResolver {
         }
 
         player.displayClientMessage(
-                Component.literal("No active teleport address found for #" + HexTeleportDirectory.toHex(hexColor) + "."),
+                Component.literal("No active teleport address found for #" + HexTeleportDirectory.toHex(normalizedHex) + "."),
                 true
         );
 
@@ -89,8 +88,8 @@ public final class HexTeleportResolver {
         }
 
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
-
         HexTeleportDirectory.Endpoint endpoint = directory.getEndpointByOwner(ownerKey).orElse(null);
+
         if (endpoint == null) {
             player.displayClientMessage(Component.literal("This endpoint is not registered."), true);
             return false;

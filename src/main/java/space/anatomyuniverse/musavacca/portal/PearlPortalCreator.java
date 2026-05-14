@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
@@ -46,11 +47,17 @@ public final class PearlPortalCreator {
         }
 
         int normalizedHex = normalizeHex(hexColor);
-
         PearlPortalFrame.Shape detectedShape = optionalShape.get();
-        PearlPortalFrame.Shape shape = detectedShape.withFrontDirection(
-                determineFrontDirection(detectedShape, ignitionFace, player)
-        );
+
+        Direction frontDirection = determineFrontDirection(detectedShape, ignitionFace, player);
+        PearlPortalFrame.Shape frontOrientedShape = detectedShape.withFrontDirection(frontDirection);
+
+        BlockPos exitAnchor = determineExitAnchor(frontOrientedShape, insidePos, ignitionFace, player);
+        Direction upDirection = determineUpDirection(frontOrientedShape, exitAnchor, insidePos, player);
+
+        PearlPortalFrame.Shape shape = frontOrientedShape
+                .withUpDirection(upDirection)
+                .withExitAnchor(exitAnchor);
 
         if (containsExistingPortalBlock(serverLevel, shape)) {
             sendActionBar(player, "This Pearl portal is already active.");
@@ -104,6 +111,52 @@ public final class PearlPortalCreator {
                 : shape.frontDirectionFromPosition(player.position());
     }
 
+    private static Direction determineUpDirection(
+            PearlPortalFrame.Shape shape,
+            BlockPos exitAnchor,
+            BlockPos insidePos,
+            @Nullable Player player
+    ) {
+        if (!shape.isFlat()) {
+            return Direction.UP;
+        }
+
+        Direction fromAnchor = shape.upDirectionFromAnchor(exitAnchor);
+        if (PearlPortalFrame.isValidUpDirection(shape.axis(), shape.frontDirection(), fromAnchor)) {
+            return fromAnchor;
+        }
+
+        Vec3 reference = player == null
+                ? Vec3.atCenterOf(insidePos)
+                : player.position();
+
+        Direction fromReference = shape.upDirectionFromReference(reference);
+        if (PearlPortalFrame.isValidUpDirection(shape.axis(), shape.frontDirection(), fromReference)) {
+            return fromReference;
+        }
+
+        return PearlPortalFrame.defaultUpDirection(shape.axis());
+    }
+
+    private static BlockPos determineExitAnchor(
+            PearlPortalFrame.Shape shape,
+            BlockPos insidePos,
+            @Nullable Direction ignitionFace,
+            @Nullable Player player
+    ) {
+        Vec3 reference;
+
+        if (player != null) {
+            reference = player.position();
+        } else if (ignitionFace != null) {
+            reference = Vec3.atCenterOf(insidePos.relative(ignitionFace.getOpposite()));
+        } else {
+            reference = Vec3.atCenterOf(insidePos);
+        }
+
+        return shape.closestFrameAnchor(reference);
+    }
+
     private static void placePortalBlocks(ServerLevel level, PearlPortalFrame.Shape shape) {
         BlockState portalState = ModBlocks.PEARL_PORTAL.get()
                 .defaultBlockState()
@@ -144,7 +197,6 @@ public final class PearlPortalCreator {
     }
 
     private static void rollbackPlacedPortal(ServerLevel level, PearlPortalFrame.Shape shape, UUID portalId) {
-
         boolean[] triggeredPhysicalCollapse = {false};
 
         shape.forEachInteriorBlock(pos -> {

@@ -1,10 +1,28 @@
 {
-  "variants": {
-    "axis=x": {
-      "model": "musavacca:block/pearl_portal_ns"
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/pearl_portal_ns"
+      },
+      "when": {
+        "axis": "x"
+      }
     },
-    "axis=z": {
-      "model": "musavacca:block/pearl_portal_ew"
+    {
+      "apply": {
+        "model": "musavacca:block/pearl_portal_ew"
+      },
+      "when": {
+        "axis": "z"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/pearl_portal_ud"
+      },
+      "when": {
+        "axis": "y"
+      }
     }
-  }
+  ]
 }

@@ -113,35 +113,76 @@ public final class HexTeleportDirectory extends SavedData {
         }
     }
 
-    public record PortalData(String axis, String front, int width, int height) {
-        public static final PortalData EMPTY = new PortalData("x", "south", 2, 3);
+    public record PortalData(
+            String axis,
+            String front,
+            String up,
+            int width,
+            int height,
+            int exitAnchorX,
+            int exitAnchorY,
+            int exitAnchorZ
+    ) {
+        public static final PortalData EMPTY = new PortalData(
+                "x",
+                "south",
+                "up",
+                PearlPortalFrame.MIN_WIDTH,
+                PearlPortalFrame.MIN_HEIGHT,
+                0,
+                0,
+                0
+        );
 
         public static final Codec<PortalData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.STRING.optionalFieldOf("axis", "x").forGetter(PortalData::axis),
-                Codec.STRING.optionalFieldOf("front", "south").forGetter(PortalData::front),
-                Codec.INT.optionalFieldOf("width", PearlPortalFrame.MIN_WIDTH).forGetter(PortalData::width),
-                Codec.INT.optionalFieldOf("height", PearlPortalFrame.MIN_HEIGHT).forGetter(PortalData::height)
+                Codec.STRING.fieldOf("axis").forGetter(PortalData::axis),
+                Codec.STRING.fieldOf("front").forGetter(PortalData::front),
+                Codec.STRING.fieldOf("up").forGetter(PortalData::up),
+                Codec.INT.fieldOf("width").forGetter(PortalData::width),
+                Codec.INT.fieldOf("height").forGetter(PortalData::height),
+                Codec.INT.fieldOf("exit_anchor_x").forGetter(PortalData::exitAnchorX),
+                Codec.INT.fieldOf("exit_anchor_y").forGetter(PortalData::exitAnchorY),
+                Codec.INT.fieldOf("exit_anchor_z").forGetter(PortalData::exitAnchorZ)
         ).apply(instance, PortalData::new));
 
         public static PortalData of(PearlPortalFrame.Shape shape) {
+            BlockPos anchor = shape.exitAnchorPos();
+
             return new PortalData(
-                    shape.axis() == Direction.Axis.Z ? "z" : "x",
+                    axisToString(shape.axis()),
                     directionToString(shape.frontDirection()),
+                    directionToString(shape.upDirection()),
                     shape.width(),
-                    shape.height()
+                    shape.height(),
+                    anchor.getX(),
+                    anchor.getY(),
+                    anchor.getZ()
             );
         }
 
         public PearlPortalFrame.Shape toPortalShape(BlockPos origin) {
-            Direction.Axis axis = "z".equalsIgnoreCase(this.axis) ? Direction.Axis.Z : Direction.Axis.X;
-            Direction.Axis normalizedAxis = PearlPortalFrame.normalizeAxis(axis);
+            Direction.Axis axis = axisFromString(this.axis);
+            Direction.Axis safeAxis = PearlPortalFrame.normalizeAxis(axis);
+
+            Direction front = PearlPortalFrame.normalizeFrontDirection(
+                    safeAxis,
+                    directionFromString(this.front)
+            );
+
+            Direction up = PearlPortalFrame.normalizeUpDirection(
+                    safeAxis,
+                    front,
+                    directionFromString(this.up)
+            );
 
             return new PearlPortalFrame.Shape(
-                    normalizedAxis,
+                    safeAxis,
                     origin,
                     clamp(this.width, PearlPortalFrame.MIN_WIDTH, PearlPortalFrame.MAX_WIDTH),
                     clamp(this.height, PearlPortalFrame.MIN_HEIGHT, PearlPortalFrame.MAX_HEIGHT),
-                    PearlPortalFrame.normalizeFrontDirection(normalizedAxis, directionFromString(this.front))
+                    front,
+                    up,
+                    new BlockPos(this.exitAnchorX, this.exitAnchorY, this.exitAnchorZ)
             );
         }
     }
@@ -168,20 +209,21 @@ public final class HexTeleportDirectory extends SavedData {
                 ResourceLocation.CODEC.fieldOf("dimension").forGetter(Endpoint::dimensionId),
                 BlockPos.CODEC.fieldOf("owner_pos").forGetter(Endpoint::ownerPos),
                 Target.CODEC.fieldOf("target").forGetter(Endpoint::target),
-                Codec.FLOAT.optionalFieldOf("yaw", 0.0F).forGetter(Endpoint::yaw),
-                Codec.FLOAT.optionalFieldOf("pitch", 0.0F).forGetter(Endpoint::pitch),
-                Codec.BOOL.optionalFieldOf("custom_target", false).forGetter(Endpoint::customTarget),
-                Codec.INT.optionalFieldOf("slot_id", 0).forGetter(Endpoint::slotId),
-                PortalData.CODEC.optionalFieldOf("portal", PortalData.EMPTY).forGetter(Endpoint::portalData)
+                Codec.FLOAT.fieldOf("yaw").forGetter(Endpoint::yaw),
+                Codec.FLOAT.fieldOf("pitch").forGetter(Endpoint::pitch),
+                Codec.BOOL.fieldOf("custom_target").forGetter(Endpoint::customTarget),
+                Codec.INT.fieldOf("slot_id").forGetter(Endpoint::slotId),
+                PortalData.CODEC.fieldOf("portal").forGetter(Endpoint::portalData)
         ).apply(instance, Endpoint::new));
 
         public Endpoint normalized() {
             BlockPos safeOwnerPos = this.ownerPos == null ? BlockPos.ZERO : this.ownerPos.immutable();
+            Kind safeKind = this.kind == null ? Kind.VOCO_POST_RECEPTOR_CORNER : this.kind;
 
             return new Endpoint(
                     this.endpointId == null ? UUID.randomUUID() : this.endpointId,
                     normalizeOwnerKey(this.ownerKey),
-                    this.kind == null ? Kind.VOCO_POST_RECEPTOR_CORNER : this.kind,
+                    safeKind,
                     normalizeHex(this.hexColor),
                     this.dimensionId,
                     safeOwnerPos,
@@ -208,8 +250,8 @@ public final class HexTeleportDirectory extends SavedData {
     public record VocoRegistration(Result result, Endpoint removedActiveEndpoint) {}
 
     public static final Codec<HexTeleportDirectory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Endpoint.CODEC.listOf().optionalFieldOf("endpoints", List.of()).forGetter(data -> data.active.entries),
-            Endpoint.CODEC.listOf().optionalFieldOf("pending_voco_endpoints", List.of()).forGetter(data -> data.pending.entries)
+            Endpoint.CODEC.listOf().fieldOf("endpoints").forGetter(data -> data.active.entries),
+            Endpoint.CODEC.listOf().fieldOf("pending_voco_endpoints").forGetter(data -> data.pending.entries)
     ).apply(instance, HexTeleportDirectory::new));
 
     public static final SavedDataType<HexTeleportDirectory> TYPE =
@@ -586,12 +628,20 @@ public final class HexTeleportDirectory extends SavedData {
         return ownerKey == null ? "" : ownerKey.trim();
     }
 
-    private static float clampFloat(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
+    private static Direction.Axis axisFromString(String text) {
+        return switch ((text == null ? "" : text).toLowerCase(Locale.ROOT)) {
+            case "y" -> Direction.Axis.Y;
+            case "z" -> Direction.Axis.Z;
+            default -> Direction.Axis.X;
+        };
     }
 
-    private static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
+    private static String axisToString(Direction.Axis axis) {
+        return switch (PearlPortalFrame.normalizeAxis(axis)) {
+            case X -> "x";
+            case Y -> "y";
+            case Z -> "z";
+        };
     }
 
     private static Direction directionFromString(String text) {
@@ -600,18 +650,33 @@ public final class HexTeleportDirectory extends SavedData {
             case "south" -> Direction.SOUTH;
             case "west" -> Direction.WEST;
             case "east" -> Direction.EAST;
-            default -> Direction.SOUTH;
+            case "up" -> Direction.UP;
+            case "down" -> Direction.DOWN;
+            default -> null;
         };
     }
 
     private static String directionToString(Direction direction) {
+        if (direction == null) {
+            return "south";
+        }
+
         return switch (direction) {
             case NORTH -> "north";
             case SOUTH -> "south";
             case WEST -> "west";
             case EAST -> "east";
-            default -> "south";
+            case UP -> "up";
+            case DOWN -> "down";
         };
+    }
+
+    private static float clampFloat(float value, float min, float max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     private static final class EndpointStore {

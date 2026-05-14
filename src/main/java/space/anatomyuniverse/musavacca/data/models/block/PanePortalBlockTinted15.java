@@ -2,10 +2,10 @@
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.client.data.models.BlockModelGenerators;
-import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
-import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -22,46 +22,79 @@ public final class PanePortalBlockTinted15 {
 
     private PanePortalBlockTinted15() {}
 
-    /**
-     * Generates vanilla-nether-portal-style pane models with 15 split texture layers.
+    /*
+     * Generates:
      *
-     * For block id pearl_portal and Entry.auto("pearl_portal"), this generates:
+     * assets/<namespace>/models/block/<modelStem>_ns.json
+     * assets/<namespace>/models/block/<modelStem>_ew.json
+     * assets/<namespace>/models/block/<modelStem>_ud.json
+     * assets/<namespace>/blockstates/<block_id>.json
      *
-     * assets/musavacca/models/block/pearl_portal_ns.json
-     * assets/musavacca/models/block/pearl_portal_ew.json
-     * assets/musavacca/blockstates/pearl_portal.json
+     * Default texture layout for Entry.auto("pearl_portal"):
      *
-     * Expected split textures:
-     *
-     * assets/musavacca/textures/block/pearl_portal/pearl_portal_0.png
-     * assets/musavacca/textures/block/pearl_portal/pearl_portal_1.png
+     * assets/<namespace>/textures/block/pearl_portal/pearl_portal_0.png
      * ...
-     * assets/musavacca/textures/block/pearl_portal/pearl_portal_14.png
+     * assets/<namespace>/textures/block/pearl_portal/pearl_portal_14.png
      *
-     * Tint index mapping:
+     * Blockstate:
      *
-     * portal_0  -> tintindex 0
-     * portal_1  -> tintindex 1
-     * ...
-     * portal_14 -> tintindex 14
+     * axis=x -> *_ns model
+     * axis=z -> *_ew model
+     * axis=y -> *_ud model
      */
-    public record Entry(String modelStem, String textureStem) {
+    public enum TextureLayout {
+        FOLDER,
+        ROOT
+    }
+
+    public record Entry(String modelStem, String textureStem, TextureLayout textureLayout) {
+        public Entry {
+            if (textureLayout == null) {
+                textureLayout = TextureLayout.FOLDER;
+            }
+        }
+
         public static Entry auto(String stem) {
-            return new Entry(stem, stem);
+            return new Entry(stem, stem, TextureLayout.FOLDER);
+        }
+
+        /*
+         * Use this only if your textures are here instead:
+         *
+         * assets/<namespace>/textures/block/pearl_portal_0.png
+         * ...
+         * assets/<namespace>/textures/block/pearl_portal_14.png
+         */
+        public static Entry root(String stem) {
+            return new Entry(stem, stem, TextureLayout.ROOT);
+        }
+
+        public static Entry folder(String stem) {
+            return new Entry(stem, stem, TextureLayout.FOLDER);
         }
 
         public static Entry of(String modelStem, String textureStem) {
-            return new Entry(modelStem, textureStem);
+            return new Entry(modelStem, textureStem, TextureLayout.FOLDER);
+        }
+
+        public static Entry of(String modelStem, String textureStem, TextureLayout textureLayout) {
+            return new Entry(modelStem, textureStem, textureLayout);
         }
     }
 
     public static void generate(BlockModelGenerators gen, Map<Block, Entry> entries) {
-        if (entries == null || entries.isEmpty()) return;
+        if (entries == null || entries.isEmpty()) {
+            return;
+        }
 
         entries.forEach((block, entry) -> {
-            if (block == null || entry == null) return;
-            if (entry.modelStem() == null || entry.modelStem().isBlank()) return;
-            if (entry.textureStem() == null || entry.textureStem().isBlank()) return;
+            if (block == null || entry == null) {
+                return;
+            }
+
+            if (isBlank(entry.modelStem()) || isBlank(entry.textureStem())) {
+                return;
+            }
 
             generateOne(gen, block, entry);
         });
@@ -71,7 +104,11 @@ public final class PanePortalBlockTinted15 {
         ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
         String namespace = blockId.getNamespace();
 
-        TextureMapping mapping = portalTextureMapping(namespace, entry.textureStem());
+        TextureMapping mapping = portalTextureMapping(
+                namespace,
+                entry.textureStem(),
+                entry.textureLayout()
+        );
 
         ResourceLocation nsModel = nsTemplate().create(
                 ResourceLocation.fromNamespaceAndPath(namespace, "block/" + entry.modelStem() + "_ns"),
@@ -85,38 +122,66 @@ public final class PanePortalBlockTinted15 {
                 gen.modelOutput
         );
 
-        /*
-         * Same axis mapping as vanilla nether_portal:
-         *
-         * axis=x -> *_ns
-         * axis=z -> *_ew
-         */
-        gen.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(block).with(
-                        PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
-                                .select(Direction.Axis.X, BlockModelGenerators.plainVariant(nsModel))
-                                .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(ewModel))
-                )
+        ResourceLocation udModel = udTemplate().create(
+                ResourceLocation.fromNamespaceAndPath(namespace, "block/" + entry.modelStem() + "_ud"),
+                mapping,
+                gen.modelOutput
         );
 
         /*
+         * 1.21.8-safe style.
+         *
+         * This matches your other wrappers:
+         * - CubeVocoTable
+         * - CubeVocoPost
+         * - BreakBlockOwn
+         * - SmallBananaPearlOwn
+         *
+         * It generates a multipart blockstate where exactly one model applies
+         * for each axis value.
+         */
+        MultiPartGenerator multi = MultiPartGenerator.multiPart(block);
+
+        multi = addAxisModel(multi, Direction.Axis.X, nsModel);
+        multi = addAxisModel(multi, Direction.Axis.Z, ewModel);
+        multi = addAxisModel(multi, Direction.Axis.Y, udModel);
+
+        gen.blockStateOutput.accept(multi);
+
+        /*
          * No item model here.
-         * Pearl portal should stay in ModBlocks.SKIP_BLOCK_ITEMS.
+         * Pearl portal should stay hidden / skipped as a block item.
          */
     }
 
-    private static TextureMapping portalTextureMapping(String namespace, String textureStem) {
+    private static MultiPartGenerator addAxisModel(
+            MultiPartGenerator multi,
+            Direction.Axis axis,
+            ResourceLocation model
+    ) {
+        return multi.with(
+                BlockModelGenerators.condition()
+                        .term(BlockStateProperties.AXIS, axis),
+                BlockModelGenerators.variant(new Variant(model))
+        );
+    }
+
+    private static TextureMapping portalTextureMapping(
+            String namespace,
+            String textureStem,
+            TextureLayout textureLayout
+    ) {
         TextureMapping mapping = new TextureMapping();
 
-        /*
-         * Particle uses layer 0 as fallback.
-         */
-        mapping.put(TextureSlot.PARTICLE, portalTexture(namespace, textureStem, 0));
+        mapping.put(
+                TextureSlot.PARTICLE,
+                portalTexture(namespace, textureStem, textureLayout, 0)
+        );
 
         for (int layer = 0; layer < PORTAL_LAYER_COUNT; ++layer) {
             mapping.put(
                     PORTAL_SLOTS[layer],
-                    portalTexture(namespace, textureStem, layer)
+                    portalTexture(namespace, textureStem, textureLayout, layer)
             );
         }
 
@@ -124,30 +189,16 @@ public final class PanePortalBlockTinted15 {
     }
 
     private static ExtendedModelTemplate nsTemplate() {
-        ExtendedModelTemplateBuilder builder = ExtendedModelTemplateBuilder.builder()
-                .requiredTextureSlot(TextureSlot.PARTICLE);
-
-        for (TextureSlot slot : PORTAL_SLOTS) {
-            builder.requiredTextureSlot(slot);
-        }
+        ExtendedModelTemplateBuilder builder = baseTemplateBuilder();
 
         for (int layer = 0; layer < PORTAL_LAYER_COUNT; ++layer) {
-            final int tintIndex = layer;
-            final TextureSlot slot = PORTAL_SLOTS[layer];
-
-            builder.element(element -> element
-                    .from(0, 0, 6)
-                    .to(16, 16, 10)
-                    .face(Direction.NORTH, face -> face
-                            .uvs(0, 0, 16, 16)
-                            .texture(slot)
-                            .tintindex(tintIndex)
-                    )
-                    .face(Direction.SOUTH, face -> face
-                            .uvs(0, 0, 16, 16)
-                            .texture(slot)
-                            .tintindex(tintIndex)
-                    )
+            addPaneLayer(
+                    builder,
+                    layer,
+                    0, 0, 6,
+                    16, 16, 10,
+                    Direction.NORTH,
+                    Direction.SOUTH
             );
         }
 
@@ -155,34 +206,79 @@ public final class PanePortalBlockTinted15 {
     }
 
     private static ExtendedModelTemplate ewTemplate() {
+        ExtendedModelTemplateBuilder builder = baseTemplateBuilder();
+
+        for (int layer = 0; layer < PORTAL_LAYER_COUNT; ++layer) {
+            addPaneLayer(
+                    builder,
+                    layer,
+                    6, 0, 0,
+                    10, 16, 16,
+                    Direction.EAST,
+                    Direction.WEST
+            );
+        }
+
+        return builder.build();
+    }
+
+    private static ExtendedModelTemplate udTemplate() {
+        ExtendedModelTemplateBuilder builder = baseTemplateBuilder();
+
+        for (int layer = 0; layer < PORTAL_LAYER_COUNT; ++layer) {
+            addPaneLayer(
+                    builder,
+                    layer,
+                    0, 6, 0,
+                    16, 10, 16,
+                    Direction.UP,
+                    Direction.DOWN
+            );
+        }
+
+        return builder.build();
+    }
+
+    private static ExtendedModelTemplateBuilder baseTemplateBuilder() {
         ExtendedModelTemplateBuilder builder = ExtendedModelTemplateBuilder.builder()
+                .parent(ResourceLocation.fromNamespaceAndPath("minecraft", "block/block"))
                 .requiredTextureSlot(TextureSlot.PARTICLE);
 
         for (TextureSlot slot : PORTAL_SLOTS) {
             builder.requiredTextureSlot(slot);
         }
 
-        for (int layer = 0; layer < PORTAL_LAYER_COUNT; ++layer) {
-            final int tintIndex = layer;
-            final TextureSlot slot = PORTAL_SLOTS[layer];
+        return builder;
+    }
 
-            builder.element(element -> element
-                    .from(6, 0, 0)
-                    .to(10, 16, 16)
-                    .face(Direction.EAST, face -> face
-                            .uvs(0, 0, 16, 16)
-                            .texture(slot)
-                            .tintindex(tintIndex)
-                    )
-                    .face(Direction.WEST, face -> face
-                            .uvs(0, 0, 16, 16)
-                            .texture(slot)
-                            .tintindex(tintIndex)
-                    )
-            );
-        }
+    private static void addPaneLayer(
+            ExtendedModelTemplateBuilder builder,
+            int layer,
+            int fromX,
+            int fromY,
+            int fromZ,
+            int toX,
+            int toY,
+            int toZ,
+            Direction faceA,
+            Direction faceB
+    ) {
+        TextureSlot slot = PORTAL_SLOTS[layer];
 
-        return builder.build();
+        builder.element(element -> element
+                .from(fromX, fromY, fromZ)
+                .to(toX, toY, toZ)
+                .face(faceA, face -> face
+                        .uvs(0, 0, 16, 16)
+                        .texture(slot)
+                        .tintindex(layer)
+                )
+                .face(faceB, face -> face
+                        .uvs(0, 0, 16, 16)
+                        .texture(slot)
+                        .tintindex(layer)
+                )
+        );
     }
 
     private static TextureSlot[] createPortalSlots() {
@@ -195,10 +291,21 @@ public final class PanePortalBlockTinted15 {
         return slots;
     }
 
-    private static ResourceLocation portalTexture(String namespace, String textureStem, int layer) {
-        return ResourceLocation.fromNamespaceAndPath(
-                namespace,
-                "block/" + textureStem + "/" + textureStem + "_" + layer
-        );
+    private static ResourceLocation portalTexture(
+            String namespace,
+            String textureStem,
+            TextureLayout textureLayout,
+            int layer
+    ) {
+        String path = switch (textureLayout) {
+            case FOLDER -> "block/" + textureStem + "/" + textureStem + "_" + layer;
+            case ROOT -> "block/" + textureStem + "_" + layer;
+        };
+
+        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+    }
+
+    private static boolean isBlank(String text) {
+        return text == null || text.isBlank();
     }
 }

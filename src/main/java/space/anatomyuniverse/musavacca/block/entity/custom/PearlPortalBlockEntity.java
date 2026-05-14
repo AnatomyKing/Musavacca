@@ -35,8 +35,12 @@ public class PearlPortalBlockEntity extends BlockEntity {
     private static final String TAG_ORIGIN_Z = "origin_z";
     private static final String TAG_AXIS = "axis";
     private static final String TAG_FRONT_DIRECTION = "front_direction";
+    private static final String TAG_UP_DIRECTION = "up_direction";
     private static final String TAG_WIDTH = "width";
     private static final String TAG_HEIGHT = "height";
+    private static final String TAG_EXIT_ANCHOR_X = "exit_anchor_x";
+    private static final String TAG_EXIT_ANCHOR_Y = "exit_anchor_y";
+    private static final String TAG_EXIT_ANCHOR_Z = "exit_anchor_z";
 
     private static final int DEFAULT_HEX_COLOR = 0xD5CD49;
 
@@ -46,8 +50,10 @@ public class PearlPortalBlockEntity extends BlockEntity {
     private BlockPos originPos = null;
     private Direction.Axis axis = Direction.Axis.X;
     private Direction frontDirection = Direction.SOUTH;
+    private Direction upDirection = Direction.UP;
     private int width = PearlPortalFrame.MIN_WIDTH;
     private int height = PearlPortalFrame.MIN_HEIGHT;
+    private BlockPos exitAnchorPos = null;
 
     public PearlPortalBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.PEARL_PORTAL_BLOCK_ENTITY.get(), pos, state);
@@ -59,8 +65,10 @@ public class PearlPortalBlockEntity extends BlockEntity {
         this.originPos = shape.minCorner().immutable();
         this.axis = PearlPortalFrame.normalizeAxis(shape.axis());
         this.frontDirection = PearlPortalFrame.normalizeFrontDirection(this.axis, shape.frontDirection());
+        this.upDirection = PearlPortalFrame.normalizeUpDirection(this.axis, this.frontDirection, shape.upDirection());
         this.width = clampWidth(shape.width());
         this.height = clampHeight(shape.height());
+        this.exitAnchorPos = shape.exitAnchorPos().immutable();
 
         this.setChangedAndSync();
         PearlPortalNetwork.registerPortalBlock(this);
@@ -71,7 +79,12 @@ public class PearlPortalBlockEntity extends BlockEntity {
                 && this.originPos != null
                 && this.width >= PearlPortalFrame.MIN_WIDTH
                 && this.height >= PearlPortalFrame.MIN_HEIGHT
-                && PearlPortalFrame.isValidFrontDirection(this.getPortalAxis(), this.getPortalFrontDirection());
+                && PearlPortalFrame.isValidFrontDirection(this.getPortalAxis(), this.getPortalFrontDirection())
+                && PearlPortalFrame.isValidUpDirection(
+                this.getPortalAxis(),
+                this.getPortalFrontDirection(),
+                this.getPortalUpDirection()
+        );
     }
 
     public boolean isPortalBlockEntityForPortalBlock() {
@@ -106,6 +119,14 @@ public class PearlPortalBlockEntity extends BlockEntity {
         return PearlPortalFrame.normalizeFrontDirection(this.getPortalAxis(), this.frontDirection);
     }
 
+    public Direction getPortalUpDirection() {
+        return PearlPortalFrame.normalizeUpDirection(
+                this.getPortalAxis(),
+                this.getPortalFrontDirection(),
+                this.upDirection
+        );
+    }
+
     public int getPortalWidth() {
         return this.width;
     }
@@ -114,13 +135,21 @@ public class PearlPortalBlockEntity extends BlockEntity {
         return this.height;
     }
 
+    public BlockPos getExitAnchorPos() {
+        return this.exitAnchorPos == null
+                ? this.getPortalShape().exitAnchorPos()
+                : this.exitAnchorPos;
+    }
+
     public PearlPortalFrame.Shape getPortalShape() {
         return new PearlPortalFrame.Shape(
                 this.getPortalAxis(),
                 this.getOriginPos(),
                 this.getPortalWidth(),
                 this.getPortalHeight(),
-                this.getPortalFrontDirection()
+                this.getPortalFrontDirection(),
+                this.getPortalUpDirection(),
+                this.exitAnchorPos
         );
     }
 
@@ -201,11 +230,37 @@ public class PearlPortalBlockEntity extends BlockEntity {
 
         this.portalId = readUuid(input, TAG_PORTAL_ID, UUID.randomUUID());
         this.hexColor = normalizeHex(input.getIntOr(TAG_HEX_COLOR, DEFAULT_HEX_COLOR));
-        this.originPos = readBlockPos(input, this.getBlockPos());
-        this.axis = readAxis(input);
-        this.frontDirection = readFrontDirection(input, this.axis);
+        this.originPos = readBlockPos(input, TAG_ORIGIN_X, TAG_ORIGIN_Y, TAG_ORIGIN_Z, this.getBlockPos());
+        this.axis = axisFromString(input.getStringOr(TAG_AXIS, "x"));
+        this.frontDirection = PearlPortalFrame.normalizeFrontDirection(
+                this.axis,
+                directionFromString(input.getStringOr(TAG_FRONT_DIRECTION, ""))
+        );
+        this.upDirection = PearlPortalFrame.normalizeUpDirection(
+                this.axis,
+                this.frontDirection,
+                directionFromString(input.getStringOr(TAG_UP_DIRECTION, ""))
+        );
         this.width = clampWidth(input.getIntOr(TAG_WIDTH, PearlPortalFrame.MIN_WIDTH));
         this.height = clampHeight(input.getIntOr(TAG_HEIGHT, PearlPortalFrame.MIN_HEIGHT));
+
+        PearlPortalFrame.Shape fallbackShape = new PearlPortalFrame.Shape(
+                this.axis,
+                this.getOriginPos(),
+                this.width,
+                this.height,
+                this.frontDirection,
+                this.upDirection,
+                null
+        );
+
+        this.exitAnchorPos = readBlockPos(
+                input,
+                TAG_EXIT_ANCHOR_X,
+                TAG_EXIT_ANCHOR_Y,
+                TAG_EXIT_ANCHOR_Z,
+                fallbackShape.exitAnchorPos()
+        );
     }
 
     @Override
@@ -220,10 +275,16 @@ public class PearlPortalBlockEntity extends BlockEntity {
         output.putInt(TAG_ORIGIN_Y, origin.getY());
         output.putInt(TAG_ORIGIN_Z, origin.getZ());
 
-        output.putString(TAG_AXIS, this.getPortalAxis() == Direction.Axis.Z ? "z" : "x");
+        output.putString(TAG_AXIS, axisToString(this.getPortalAxis()));
         output.putString(TAG_FRONT_DIRECTION, directionToString(this.getPortalFrontDirection()));
+        output.putString(TAG_UP_DIRECTION, directionToString(this.getPortalUpDirection()));
         output.putInt(TAG_WIDTH, this.width);
         output.putInt(TAG_HEIGHT, this.height);
+
+        BlockPos anchor = this.getExitAnchorPos();
+        output.putInt(TAG_EXIT_ANCHOR_X, anchor.getX());
+        output.putInt(TAG_EXIT_ANCHOR_Y, anchor.getY());
+        output.putInt(TAG_EXIT_ANCHOR_Z, anchor.getZ());
     }
 
     @Override
@@ -264,23 +325,18 @@ public class PearlPortalBlockEntity extends BlockEntity {
         this.rerenderClientNow();
     }
 
-    private static BlockPos readBlockPos(ValueInput input, BlockPos fallback) {
+    private static BlockPos readBlockPos(
+            ValueInput input,
+            String xTag,
+            String yTag,
+            String zTag,
+            BlockPos fallback
+    ) {
         return new BlockPos(
-                input.getIntOr(TAG_ORIGIN_X, fallback.getX()),
-                input.getIntOr(TAG_ORIGIN_Y, fallback.getY()),
-                input.getIntOr(TAG_ORIGIN_Z, fallback.getZ())
+                input.getIntOr(xTag, fallback.getX()),
+                input.getIntOr(yTag, fallback.getY()),
+                input.getIntOr(zTag, fallback.getZ())
         );
-    }
-
-    private static Direction.Axis readAxis(ValueInput input) {
-        return "z".equalsIgnoreCase(input.getStringOr(TAG_AXIS, "x"))
-                ? Direction.Axis.Z
-                : Direction.Axis.X;
-    }
-
-    private static Direction readFrontDirection(ValueInput input, Direction.Axis axis) {
-        String text = input.getStringOr(TAG_FRONT_DIRECTION, "");
-        return PearlPortalFrame.normalizeFrontDirection(axis, directionFromString(text));
     }
 
     private static UUID readUuid(ValueInput input, String key, UUID fallback) {
@@ -294,12 +350,22 @@ public class PearlPortalBlockEntity extends BlockEntity {
         }
     }
 
+    private static Direction.Axis axisFromString(String text) {
+        return switch ((text == null ? "" : text).toLowerCase()) {
+            case "y" -> Direction.Axis.Y;
+            case "z" -> Direction.Axis.Z;
+            default -> Direction.Axis.X;
+        };
+    }
+
     private static Direction directionFromString(String text) {
-        return switch (text.toLowerCase()) {
+        return switch ((text == null ? "" : text).toLowerCase()) {
             case "north" -> Direction.NORTH;
             case "south" -> Direction.SOUTH;
             case "west" -> Direction.WEST;
             case "east" -> Direction.EAST;
+            case "up" -> Direction.UP;
+            case "down" -> Direction.DOWN;
             default -> null;
         };
     }
@@ -310,7 +376,16 @@ public class PearlPortalBlockEntity extends BlockEntity {
             case SOUTH -> "south";
             case WEST -> "west";
             case EAST -> "east";
-            default -> "south";
+            case UP -> "up";
+            case DOWN -> "down";
+        };
+    }
+
+    private static String axisToString(Direction.Axis axis) {
+        return switch (axis) {
+            case X -> "x";
+            case Y -> "y";
+            case Z -> "z";
         };
     }
 

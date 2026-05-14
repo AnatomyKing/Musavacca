@@ -3,331 +3,331 @@
   "elements": [
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_0",
           "tintindex": 0
         },
-        "west": {
+        "up": {
           "texture": "#portal_0",
           "tintindex": 0
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_1",
           "tintindex": 1
         },
-        "west": {
+        "up": {
           "texture": "#portal_1",
           "tintindex": 1
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_2",
           "tintindex": 2
         },
-        "west": {
+        "up": {
           "texture": "#portal_2",
           "tintindex": 2
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_3",
           "tintindex": 3
         },
-        "west": {
+        "up": {
           "texture": "#portal_3",
           "tintindex": 3
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_4",
           "tintindex": 4
         },
-        "west": {
+        "up": {
           "texture": "#portal_4",
           "tintindex": 4
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_5",
           "tintindex": 5
         },
-        "west": {
+        "up": {
           "texture": "#portal_5",
           "tintindex": 5
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_6",
           "tintindex": 6
         },
-        "west": {
+        "up": {
           "texture": "#portal_6",
           "tintindex": 6
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_7",
           "tintindex": 7
         },
-        "west": {
+        "up": {
           "texture": "#portal_7",
           "tintindex": 7
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_8",
           "tintindex": 8
         },
-        "west": {
+        "up": {
           "texture": "#portal_8",
           "tintindex": 8
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_9",
           "tintindex": 9
         },
-        "west": {
+        "up": {
           "texture": "#portal_9",
           "tintindex": 9
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_10",
           "tintindex": 10
         },
-        "west": {
+        "up": {
           "texture": "#portal_10",
           "tintindex": 10
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_11",
           "tintindex": 11
         },
-        "west": {
+        "up": {
           "texture": "#portal_11",
           "tintindex": 11
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_12",
           "tintindex": 12
         },
-        "west": {
+        "up": {
           "texture": "#portal_12",
           "tintindex": 12
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_13",
           "tintindex": 13
         },
-        "west": {
+        "up": {
           "texture": "#portal_13",
           "tintindex": 13
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     },
     {
       "faces": {
-        "east": {
+        "down": {
           "texture": "#portal_14",
           "tintindex": 14
         },
-        "west": {
+        "up": {
           "texture": "#portal_14",
           "tintindex": 14
         }
       },
       "from": [
-        6,
         0,
+        6,
         0
       ],
       "to": [
-        10,
         16,
+        10,
         16
       ]
     }

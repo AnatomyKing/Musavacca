@@ -30,7 +30,6 @@ import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
@@ -46,10 +45,21 @@ import java.util.Set;
 
 public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     public static final MapCodec<PearlPortalBlock> CODEC = simpleCodec(PearlPortalBlock::new);
-    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
 
-    private static final Map<Direction.Axis, VoxelShape> SHAPES =
-            Shapes.rotateHorizontalAxis(Block.column(4.0D, 16.0D, 0.0D, 16.0D));
+    /*
+     * Full AXIS, not HORIZONTAL_AXIS.
+     *
+     * axis=x -> standing portal, flat plane across X/Y, normal Z
+     * axis=z -> standing portal, flat plane across Z/Y, normal X
+     * axis=y -> flat portal,     flat plane across X/Z, normal Y
+     */
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
+
+    private static final Map<Direction.Axis, VoxelShape> SHAPES = Map.of(
+            Direction.Axis.X, Block.box(0.0D, 0.0D, 6.0D, 16.0D, 16.0D, 10.0D),
+            Direction.Axis.Z, Block.box(6.0D, 0.0D, 0.0D, 10.0D, 16.0D, 16.0D),
+            Direction.Axis.Y, Block.box(0.0D, 6.0D, 0.0D, 16.0D, 10.0D, 16.0D)
+    );
 
     public PearlPortalBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -72,8 +82,13 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPES.get(state.getValue(AXIS));
+    protected VoxelShape getShape(
+            BlockState state,
+            BlockGetter level,
+            BlockPos pos,
+            CollisionContext context
+    ) {
+        return SHAPES.getOrDefault(state.getValue(AXIS), SHAPES.get(Direction.Axis.X));
     }
 
     @Override
@@ -90,15 +105,22 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         Direction.Axis portalAxis = state.getValue(AXIS);
         Direction.Axis changedAxis = direction.getAxis();
 
-        boolean changedAlongOtherHorizontalAxis = portalAxis != changedAxis && changedAxis.isHorizontal();
-
-        if (!changedAlongOtherHorizontalAxis
+        /*
+         * Ignore changes in front/back of the portal plane.
+         *
+         * Standing X portal: ignore Z updates.
+         * Standing Z portal: ignore X updates.
+         * Flat Y portal:     ignore Y updates.
+         *
+         * But validate when a same-plane neighbor/frame changes.
+         */
+        if (changedAxis != portalNormalAxis(portalAxis)
                 && !neighborState.is(this)
                 && PearlPortalFrame.findExistingShape(level, pos, portalAxis).isEmpty()) {
             if (level instanceof ServerLevel serverLevel && serverLevel.getBlockState(pos).is(this)) {
                 /*
-                 * No direct Blocks.AIR return / setBlock-to-air path.
-                 * Break this one block and let normal neighbor updates domino the portal.
+                 * Break one portal tile and let neighbor updates domino the rest.
+                 * PearlPortalBlockEntity.preRemoveSideEffects handles logical unregistering.
                  */
                 serverLevel.destroyBlock(pos, false);
             }
@@ -106,7 +128,16 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             return state;
         }
 
-        return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+        return super.updateShape(
+                state,
+                level,
+                scheduledTickAccess,
+                pos,
+                direction,
+                neighborPos,
+                neighborState,
+                random
+        );
     }
 
     @Override
@@ -147,7 +178,13 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         PearlPortalTransform.Result transform = PearlPortalTransform.calculate(entity, sourcePortal, targetPortal);
 
         EntityDimensions dimensions = entity.getDimensions(entity.getPose());
-        Vec3 safePos = PortalShape.findCollisionFreePosition(transform.position(), targetLevel, entity, dimensions);
+        Vec3 safePos = PortalShape.findCollisionFreePosition(
+                transform.position(),
+                targetLevel,
+                entity,
+                dimensions
+        );
+
         BlockPos safeBlockPos = BlockPos.containing(safePos);
 
         TeleportTransition.PostTeleportTransition postTeleport =
@@ -273,6 +310,7 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         }
 
         int hexColor = pearlPortalBe.getHexColor();
+        Direction.Axis axis = state.getValue(AXIS);
 
         double x = pos.getX() + random.nextDouble();
         double y = pos.getY() + random.nextDouble();
@@ -284,12 +322,19 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
 
         int side = random.nextInt(2) * 2 - 1;
 
-        if (!level.getBlockState(pos.west()).is(this) && !level.getBlockState(pos.east()).is(this)) {
-            x = pos.getX() + 0.5D + 0.25D * side;
-            dx = random.nextFloat() * 2.0F * side;
-        } else {
-            z = pos.getZ() + 0.5D + 0.25D * side;
-            dz = random.nextFloat() * 2.0F * side;
+        switch (axis) {
+            case X -> {
+                z = pos.getZ() + 0.5D + 0.25D * side;
+                dz = random.nextFloat() * 2.0F * side;
+            }
+            case Z -> {
+                x = pos.getX() + 0.5D + 0.25D * side;
+                dx = random.nextFloat() * 2.0F * side;
+            }
+            case Y -> {
+                y = pos.getY() + 0.5D + 0.25D * side;
+                dy = random.nextFloat() * 2.0F * side;
+            }
         }
 
         ProfileTintParticles.spawnRandomVariant(
@@ -310,7 +355,12 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     }
 
     @Override
-    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
+    protected ItemStack getCloneItemStack(
+            LevelReader level,
+            BlockPos pos,
+            BlockState state,
+            boolean includeData
+    ) {
         return ItemStack.EMPTY;
     }
 
@@ -320,7 +370,7 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(AXIS)) {
                 case X -> state.setValue(AXIS, Direction.Axis.Z);
                 case Z -> state.setValue(AXIS, Direction.Axis.X);
-                default -> state;
+                case Y -> state;
             };
             default -> state;
         };
@@ -329,5 +379,13 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AXIS);
+    }
+
+    private static Direction.Axis portalNormalAxis(Direction.Axis portalAxis) {
+        return switch (portalAxis) {
+            case X -> Direction.Axis.Z;
+            case Z -> Direction.Axis.X;
+            case Y -> Direction.Axis.Y;
+        };
     }
 }
