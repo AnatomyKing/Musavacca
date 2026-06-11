@@ -44,7 +44,7 @@ public final class MusaCore {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final String VERSION = /*$ mod_version*/ "0.0.1";
-    public static final String MINECRAFT = /*$ minecraft*/ "1.21.5";
+    public static final String MINECRAFT = /*$ minecraft*/ "1.21.8";
 
     public MusaCore(IEventBus modBus, ModContainer container) {
         ModItems.register(modBus);

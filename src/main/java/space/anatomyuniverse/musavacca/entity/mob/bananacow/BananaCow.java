@@ -2,7 +2,7 @@ package space.anatomyuniverse.musavacca.entity.mob.bananacow;
 
 import net.minecraft.core.Holder;
 //? if <1.21.6
-import net.minecraft.nbt.CompoundTag;
+//import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -24,9 +24,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 //? if >=1.21.6
-//import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
-//import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
@@ -228,10 +228,10 @@ public class BananaCow extends Cow {
                                @NotNull DamageSource source,
                                float damage) {
         //? if >=1.21.6 {
-        /*this.hurtServer(level, source, damage);
-        *///?} else {
-        this.hurt(source, damage);
-        //?}
+        this.hurtServer(level, source, damage);
+        //?} else {
+        /*this.hurt(source, damage);
+        *///?}
     }
 
     private static EquipmentSlot slotForHand(InteractionHand hand) {
@@ -243,7 +243,7 @@ public class BananaCow extends Cow {
     }
 
     //? if >=1.21.6 {
-    /*@Override
+    @Override
     protected void addAdditionalSaveData(@NotNull ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putInt(TAG_PEEL_STAGE, this.getPeelStage());
@@ -256,8 +256,8 @@ public class BananaCow extends Cow {
         this.setPeelStage(input.getIntOr(TAG_PEEL_STAGE, PEEL_STAGE_DEFAULT));
         this.setEatenBites(input.getIntOr(TAG_EATEN_BITES, 0));
     }
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt(TAG_PEEL_STAGE, this.getPeelStage());
@@ -270,16 +270,16 @@ public class BananaCow extends Cow {
         this.setPeelStage(getIntOr(tag, TAG_PEEL_STAGE, PEEL_STAGE_DEFAULT));
         this.setEatenBites(getIntOr(tag, TAG_EATEN_BITES, 0));
     }
-    //?}
+    *///?}
 
     //? if <1.21.6 {
-    private static int getIntOr(CompoundTag tag, String key, int fallback) {
+    /*private static int getIntOr(CompoundTag tag, String key, int fallback) {
         //? if >=1.21.5
         return tag.getIntOr(key, fallback);
         //? if <1.21.5
         //return tag.contains(key) ? tag.getInt(key) : fallback;
     }
-    //?}
+    *///?}
 
     @Override
     public boolean isFood(ItemStack stack) {

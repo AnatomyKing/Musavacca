@@ -26,9 +26,9 @@ import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 //? if >=1.21.6
-//import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
-//import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
@@ -874,7 +874,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    /*@Override
+    @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
@@ -916,10 +916,10 @@ public class VocoTableBlockEntity extends BlockEntity {
                 slot.count = Math.max(1, Math.min(CandleBlock.MAX_CANDLES, candleCount));
                 slot.lit = input.getBooleanOr(TAG_CANDLE_LIT[index], false);
 
-                /^
+                /*
                  * Backwards compatible:
                  * old saves did not have candle_has_hex_*, and old lit candles were always Pearl-lit.
-                 ^/
+                 */
                 slot.hasHexColor = input.getBooleanOr(TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
                 slot.hexColor = slot.hasHexColor
                         ? normalizeHex(input.getIntOr(TAG_CANDLE_HEX_COLORS[index], DEFAULT_HEX_COLOR))
@@ -938,8 +938,8 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
 
@@ -1002,10 +1002,10 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
 
-    //?}
+    *///?}
 
     //? if >=1.21.6 {
-    /*@Override
+    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
 
@@ -1048,8 +1048,8 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
 
@@ -1093,7 +1093,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
 
-    //?}
+    *///?}
 
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
@@ -1129,7 +1129,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    /*@Override
+    @Override
     public void handleUpdateTag(ValueInput input) {
         super.handleUpdateTag(input);
         this.rerenderClientNow();
@@ -1141,8 +1141,8 @@ public class VocoTableBlockEntity extends BlockEntity {
         this.rerenderClientNow();
     }
 
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
         super.handleUpdateTag(tag, provider);
         this.rerenderClientNow();
@@ -1154,7 +1154,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         this.rerenderClientNow();
     }
 
-    //?}
+    *///?}
 
     private void clearAllCandleSlots() {
         for (CandleSlot slot : this.candleSlots) {
@@ -1167,19 +1167,19 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    /*private static int readHexOrUnset(ValueInput input, String tag) {
+    private static int readHexOrUnset(ValueInput input, String tag) {
         int loaded = input.getIntOr(tag, UNSET_HEX_COLOR);
         return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
 
-    *///?} else {
-    private static int readHexOrUnset(CompoundTag input, String tag) {
+    //?} else {
+    /*private static int readHexOrUnset(CompoundTag input, String tag) {
         int loaded = input.getIntOr(tag, UNSET_HEX_COLOR);
         return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
 
 
-    //?}
+    *///?}
 
     private static boolean isValidCandleBlock(@Nullable Block block) {
         return block instanceof CandleBlock;

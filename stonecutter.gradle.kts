@@ -6,7 +6,7 @@ plugins {
     id("net.neoforged.moddev") version "2.0.119" apply false
 }
 
-stonecutter active "1.21.5"
+stonecutter active "1.21.8"
 
 stonecutter parameters {
     swaps["mod_version"] = "\"" + property("mod.version") + "\";"

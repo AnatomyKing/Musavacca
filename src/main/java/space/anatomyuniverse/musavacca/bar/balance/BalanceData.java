@@ -1,28 +1,28 @@
 package space.anatomyuniverse.musavacca.bar.balance;
 
 //? if <1.21.6
-import net.minecraft.core.HolderLookup;
+//import net.minecraft.core.HolderLookup;
 //? if <1.21.6
-import net.minecraft.nbt.CompoundTag;
+//import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 //? if >=1.21.6
-//import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
-//import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueOutput;
 //? if <1.21.6
-import net.neoforged.neoforge.common.util.INBTSerializable;
+//import net.neoforged.neoforge.common.util.INBTSerializable;
 //? if >=1.21.6
-//import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 @SuppressWarnings({"unused", "CommentedOutCode", "NullableProblems"})
 //? if >=1.21.6 {
-/*public final class BalanceData implements ValueIOSerializable {
-    *///?} else
-    public final class BalanceData implements INBTSerializable<CompoundTag> {
+public final class BalanceData implements ValueIOSerializable {
+    //?} else
+    //public final class BalanceData implements INBTSerializable<CompoundTag> {
     private int balance = 0;
 
     //? if >=1.21.6 {
-    /*@Override
+    @Override
     public void serialize(ValueOutput output) {
         output.putInt("balance", this.balance);
     }
@@ -31,8 +31,8 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
     public void deserialize(ValueInput input) {
         this.balance = sanitizeBalance(input.getIntOr("balance", 0));
     }
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.putInt("balance", this.balance);
@@ -43,7 +43,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         this.balance = sanitizeBalance(tag.getIntOr("balance", 0));
     }
-    //?}
+    *///?}
 
     public int getBalance() {
         return this.balance;

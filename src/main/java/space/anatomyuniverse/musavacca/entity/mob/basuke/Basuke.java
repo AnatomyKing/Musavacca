@@ -5,7 +5,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 //? if <1.21.6
-import net.minecraft.nbt.CompoundTag;
+//import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -26,9 +26,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 //? if >=1.21.6
-//import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
-//import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -374,7 +374,7 @@ public class Basuke extends Allay {
     }
 
     //? if >=1.21.6 {
-    /*@Override
+    @Override
     protected void addAdditionalSaveData(@NotNull ValueOutput output) {
         super.addAdditionalSaveData(output);
 
@@ -397,8 +397,8 @@ public class Basuke extends Allay {
             this.setInvulnerable(true);
         }
     }
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
 
@@ -421,16 +421,16 @@ public class Basuke extends Allay {
             this.setInvulnerable(true);
         }
     }
-    //?}
+    *///?}
 
     //? if <1.21.6 {
-    private static long getLongOr(CompoundTag tag, String key, long fallback) {
+    /*private static long getLongOr(CompoundTag tag, String key, long fallback) {
         //? if >=1.21.5
         return tag.getLongOr(key, fallback);
         //? if <1.21.5
         //return tag.contains(key) ? tag.getLong(key) : fallback;
     }
-    //?}
+    *///?}
 
     private void confineTo(AABB allowed, Vec3 pos) {
         Vec3 clamped = clampToBox(pos, allowed);
