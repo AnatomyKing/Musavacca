@@ -18,7 +18,6 @@ public class TestInventoryMenu extends AbstractContainerMenu {
 
     public TestInventoryMenu(int containerId, Inventory playerInventory) {
         super(ModMenus.TEST_INVENTORY_MENU.get(), containerId);
-
     }
 
     public static void open(ServerPlayer player) {

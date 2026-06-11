@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/gui/screen/TestInventoryScreen.java
 package space.anatomyuniverse.musavacca.gui.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -45,7 +44,9 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
     private static final int DIAL_HOLE_PIXEL_COUNT = DIAL_HOLE_SIZE * DIAL_HOLE_SIZE;
     private static final int DIAL_HOLE_HALF_COVERED_COUNT = DIAL_HOLE_PIXEL_COUNT / 2;
 
+    private static final float MIN_RETURN_ANGLE_RADIANS = 0.0001F;
     private static final float MAX_DRAG_STEP_RADIANS = 0.01F;
+    private static final float RETURN_SPEED_RADIANS_PER_SECOND = 2.85F;
 
     private static final Hole[] DIAL_HOLES = new Hole[] {
             new Hole(8, 8),
@@ -68,14 +69,6 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
             new Rect(142, 140, 218, 152)
     };
 
-    /*
-     * Dial-back speed.
-     *
-     * Lower = slower.
-     * Higher = faster.
-     */
-    private static final float RETURN_SPEED_RADIANS_PER_SECOND = 2.85F;
-
     private float diskAngleRadians = 0.0F;
     private float previousDragMouseAngleRadians = 0.0F;
 
@@ -84,6 +77,9 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
     private boolean lettersBase = false;
 
     private Hole activeDragHole = null;
+    private Hole returningHole = null;
+
+    private ReturnReason returnReason = ReturnReason.NONE;
     private long lastReturnUpdateNanos = 0L;
 
     public TestInventoryScreen(TestInventoryMenu menu, Inventory playerInventory, Component title) {
@@ -106,11 +102,9 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         this.blitFullGuiTexture(graphics, this.lettersBase ? BASE_LETTERS_TEXTURE : BASE_TEXTURE, guiX, guiY);
 
         graphics.nextStratum();
-
         this.blitRotatingDisk(graphics, guiX, guiY);
 
         graphics.nextStratum();
-
         this.blitFullGuiTexture(graphics, STOPPER_TEXTURE, guiX, guiY);
     }
 
@@ -172,6 +166,8 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
             if (clickedHole != null) {
                 this.draggingDisk = true;
                 this.activeDragHole = clickedHole;
+                this.returningHole = null;
+                this.returnReason = ReturnReason.NONE;
                 this.previousDragMouseAngleRadians = normalizeRadians(this.angleFromDialAxis(mouseX, mouseY));
                 return true;
             }
@@ -189,16 +185,8 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
                     currentMouseAngleRadians
             );
 
-            /*
-             * In screen coordinates, positive angle movement is clockwise because Y goes downward.
-             * So only positive deltas are accepted.
-             */
-            if (clockwiseDeltaRadians > 0.0F) {
-                boolean stopperHit = this.applyClockwiseDragSafely(clockwiseDeltaRadians);
-
-                if (stopperHit) {
-                    return true;
-                }
+            if (clockwiseDeltaRadians > 0.0F && this.applyClockwiseDragSafely(clockwiseDeltaRadians)) {
+                return true;
             }
 
             this.previousDragMouseAngleRadians = currentMouseAngleRadians;
@@ -208,15 +196,6 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
-    /*
-     * This is the anti-force-drag logic.
-     *
-     * Instead of applying a huge mouse movement all at once, it applies the rotation in tiny steps.
-     * Each tiny step is tested before it becomes visible.
-     *
-     * If a step would make the dragged hole half-covered by the stopper, that step is undone
-     * and the dial immediately starts returning counterclockwise.
-     */
     private boolean applyClockwiseDragSafely(float totalDeltaRadians) {
         float remaining = totalDeltaRadians;
 
@@ -228,7 +207,7 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
 
             if (this.isActiveHoleHalfCoveredByStopper()) {
                 this.diskAngleRadians = previousSafeAngle;
-                this.startReturningToStart();
+                this.startReturningToStart(ReturnReason.HIT_STOPPER);
                 return true;
             }
 
@@ -241,8 +220,12 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button == 0 && this.draggingDisk) {
-            this.draggingDisk = false;
-            this.activeDragHole = null;
+            if (this.diskAngleRadians > MIN_RETURN_ANGLE_RADIANS) {
+                this.startReturningToStart(ReturnReason.RELEASED_EARLY);
+            } else {
+                this.stopDraggingWithoutReturn();
+            }
+
             return true;
         }
 
@@ -270,32 +253,59 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         float deltaSeconds = (now - this.lastReturnUpdateNanos) / 1_000_000_000.0F;
         this.lastReturnUpdateNanos = now;
 
-        float step = RETURN_SPEED_RADIANS_PER_SECOND * deltaSeconds;
-
-        /*
-         * Return backwards/counterclockwise, so angle moves down toward 0.
-         */
-        this.diskAngleRadians -= step;
+        this.diskAngleRadians -= RETURN_SPEED_RADIANS_PER_SECOND * deltaSeconds;
 
         if (this.diskAngleRadians <= 0.0F) {
             this.diskAngleRadians = 0.0F;
             this.returningToStart = false;
             this.lastReturnUpdateNanos = 0L;
+
+            ReturnReason finishedReason = this.returnReason;
+            Hole finishedHole = this.returningHole;
+
+            this.returnReason = ReturnReason.NONE;
+            this.returningHole = null;
+
+            this.onDialReturnedToStart(finishedReason, finishedHole);
         }
     }
 
-    private void startReturningToStart() {
+    private void onDialReturnedToStart(ReturnReason reason, Hole hole) {
+        if (reason == ReturnReason.HIT_STOPPER && hole != null) {
+            /*
+             * This is a real completed dial input.
+             *
+             * RELEASED_EARLY also returns visually, but does not count as input.
+             * Later you can send your number/letter logic from here.
+             */
+        }
+    }
+
+    private void startReturningToStart(ReturnReason reason) {
+        this.returningHole = this.activeDragHole;
+        this.returnReason = reason;
+
         this.draggingDisk = false;
         this.activeDragHole = null;
         this.returningToStart = true;
         this.lastReturnUpdateNanos = 0L;
     }
 
+    private void stopDraggingWithoutReturn() {
+        this.draggingDisk = false;
+        this.activeDragHole = null;
+        this.previousDragMouseAngleRadians = 0.0F;
+    }
+
     private void cancelDialInteraction() {
         this.draggingDisk = false;
         this.returningToStart = false;
         this.activeDragHole = null;
+        this.returningHole = null;
+        this.returnReason = ReturnReason.NONE;
         this.lastReturnUpdateNanos = 0L;
+        this.previousDragMouseAngleRadians = 0.0F;
+        this.diskAngleRadians = 0.0F;
     }
 
     private boolean isMouseInsideMiddleButton(double mouseX, double mouseY) {
@@ -337,15 +347,12 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         double unrotatedDx = dx * cos - dy * sin;
         double unrotatedDy = dx * sin + dy * cos;
 
-        double unrotatedScreenX = axisScreenX + unrotatedDx;
-        double unrotatedScreenY = axisScreenY + unrotatedDy;
-
         double diskScreenX = this.leftPos + DISK_LOCAL_X;
         double diskScreenY = this.topPos + DISK_LOCAL_Y;
 
         return new DiskLocalPoint(
-                unrotatedScreenX - diskScreenX,
-                unrotatedScreenY - diskScreenY
+                axisScreenX + unrotatedDx - diskScreenX,
+                axisScreenY + unrotatedDy - diskScreenY
         );
     }
 
@@ -386,12 +393,9 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         double cos = Math.cos(this.diskAngleRadians);
         double sin = Math.sin(this.diskAngleRadians);
 
-        double rotatedDx = dx * cos - dy * sin;
-        double rotatedDy = dx * sin + dy * cos;
-
         return new GuiLocalPoint(
-                DIAL_AXIS_X + rotatedDx,
-                DIAL_AXIS_Y + rotatedDy
+                DIAL_AXIS_X + dx * cos - dy * sin,
+                DIAL_AXIS_Y + dx * sin + dy * cos
         );
     }
 
@@ -421,7 +425,7 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
     }
 
     private static float normalizeRadians(float angle) {
-        float fullTurn = (float) (Math.PI * 2.0);
+        float fullTurn = (float) (Math.PI * 2.0D);
 
         angle %= fullTurn;
 
@@ -434,7 +438,7 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
 
     private static float signedShortestAngleDelta(float previousAngle, float currentAngle) {
         float halfTurn = (float) Math.PI;
-        float fullTurn = (float) (Math.PI * 2.0);
+        float fullTurn = (float) (Math.PI * 2.0D);
         float delta = currentAngle - previousAngle;
 
         while (delta <= -halfTurn) {
@@ -458,6 +462,12 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         super.render(graphics, mouseX, mouseY, partialTick);
         this.renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    private enum ReturnReason {
+        NONE,
+        RELEASED_EARLY,
+        HIT_STOPPER
     }
 
     private record DiskLocalPoint(double x, double y) {}

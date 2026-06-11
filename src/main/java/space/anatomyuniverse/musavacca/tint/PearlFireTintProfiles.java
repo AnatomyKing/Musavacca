@@ -22,11 +22,11 @@ public final class PearlFireTintProfiles {
 
     public static final Profile SIM_CARD_TINT = of(
             settings(
-                    0.13F,   // coreToTailLightness
-                    0.12F,  // colorJumpiness
-                    0.21F    // layerContrast
+                    0.62F,   // coreToTailLightness
+                    0.32F,  // colorJumpiness
+                    0.98F   // layerContrast
             ),
-            234, 209, 183, 122, 104
+            255, 234, 210, 184, 174, 138, 112
     );
 
     public static final Profile PORTAL_BLOCK = of(

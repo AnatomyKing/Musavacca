@@ -12,6 +12,8 @@ INPUT_FILES = [
     "sim_card_2.png",
     "sim_card_3.png",
     "sim_card_4.png",
+    "sim_card_5.png",
+    "sim_card_6.png"
 ]
 
 PER_LINE = 8
