@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/MusaCore.java
 package space.anatomyuniverse.musavacca;
 
 import com.mojang.logging.LogUtils;
@@ -37,7 +36,7 @@ import space.anatomyuniverse.musavacca.tint.ModTints;
 import net.neoforged.fml.loading.FMLLoader;
 import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
 //? if >=1.21.9
-/*import net.neoforged.fml.loading.FMLEnvironment;*/
+//import net.neoforged.fml.loading.FMLEnvironment;
 
 @Mod(MusaCore.MOD_ID)
 public final class MusaCore {

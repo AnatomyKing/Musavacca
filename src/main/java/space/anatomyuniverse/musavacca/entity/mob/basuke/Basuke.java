@@ -4,6 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+//? if <1.21.6
+//import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -23,7 +25,9 @@ import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+//? if >=1.21.6
 import net.minecraft.world.level.storage.ValueInput;
+//? if >=1.21.6
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -369,6 +373,7 @@ public class Basuke extends Allay {
         );
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void addAdditionalSaveData(@NotNull ValueOutput output) {
         super.addAdditionalSaveData(output);
@@ -392,6 +397,40 @@ public class Basuke extends Allay {
             this.setInvulnerable(true);
         }
     }
+    //?} else {
+    /*@Override
+    public void addAdditionalSaveData(@NotNull CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+
+        if (this.vocoTablePos != null) {
+            tag.putLong(TAG_VOCO_TABLE_POS, this.vocoTablePos.asLong());
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+
+        long packed = getLongOr(tag, TAG_VOCO_TABLE_POS, NO_TABLE_POS);
+        this.vocoTablePos = packed != NO_TABLE_POS ? BlockPos.of(packed) : null;
+
+        this.stopEatingHeldItem();
+
+        if (this.vocoTablePos != null) {
+            this.setPersistenceRequired();
+            this.setInvulnerable(true);
+        }
+    }
+    *///?}
+
+    //? if <1.21.6 {
+    /*private static long getLongOr(CompoundTag tag, String key, long fallback) {
+        //? if >=1.21.5
+        return tag.getLongOr(key, fallback);
+        //? if <1.21.5
+        //return tag.contains(key) ? tag.getLong(key) : fallback;
+    }
+    *///?}
 
     private void confineTo(AABB allowed, Vec3 pos) {
         Vec3 clamped = clampToBox(pos, allowed);
@@ -457,7 +496,7 @@ public class Basuke extends Allay {
 
         private OrbitVocoTableGoal(Basuke basuke) {
             this.basuke = basuke;
-            this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+            this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 
         @Override

@@ -1,10 +1,13 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/bar/ModNetworking.java
 package space.anatomyuniverse.musavacca.bar;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceSyncPayload;
+//? if <1.21.6
+//import space.anatomyuniverse.musavacca.bar.balance.ClientBalanceData;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerSyncPayload;
+//? if <1.21.6
+//import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
 
 public final class ModNetworking {
     private ModNetworking() {
@@ -15,6 +18,7 @@ public final class ModNetworking {
     }
 
     private static void registerPayloads(RegisterPayloadHandlersEvent event) {
+        //? if >=1.21.6 {
         event.registrar("musavacca")
                 .playToClient(
                         BonusHungerSyncPayload.TYPE,
@@ -24,5 +28,25 @@ public final class ModNetworking {
                         BalanceSyncPayload.TYPE,
                         BalanceSyncPayload.STREAM_CODEC
                 );
+        //?} else {
+        /*event.registrar("musavacca")
+                .playToClient(
+                        BonusHungerSyncPayload.TYPE,
+                        BonusHungerSyncPayload.STREAM_CODEC,
+                        (payload, context) -> ClientBonusHungerData.set(
+                                payload.food(),
+                                payload.saturation(),
+                                payload.active()
+                        )
+                )
+                .playToClient(
+                        BalanceSyncPayload.TYPE,
+                        BalanceSyncPayload.STREAM_CODEC,
+                        (payload, context) -> ClientBalanceData.set(
+                                payload.balance(),
+                                payload.active()
+                        )
+                );
+        *///?}
     }
 }

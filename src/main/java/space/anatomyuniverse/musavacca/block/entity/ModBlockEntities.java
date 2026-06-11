@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/ModBlockEntities.java
 package space.anatomyuniverse.musavacca.block.entity;
 
 import net.minecraft.core.registries.Registries;

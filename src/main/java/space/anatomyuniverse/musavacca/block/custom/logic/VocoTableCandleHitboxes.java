@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/logic/VocoTableCandleHitboxes.java
+
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.world.phys.Vec3;

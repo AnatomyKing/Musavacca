@@ -281,7 +281,7 @@ public final class BonusHungerEvents {
     }
 
     private static boolean tickBonusNaturalRegeneration(ServerPlayer player, BonusHungerData data) {
-        if (!player.level().getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)) {
+        if (!player.getServer().getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)) {
             data.resetTickTimer();
             return false;
         }

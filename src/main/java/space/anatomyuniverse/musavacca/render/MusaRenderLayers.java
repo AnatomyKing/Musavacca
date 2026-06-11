@@ -9,12 +9,16 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import java.util.*;
 
 // ============================================================================
-// Version-specific imports (MUST stay in the import section)
+// Version-specific imports
 // ============================================================================
 
+// 1.21.1 - 1.21.5 still use RenderType for chunk/model render layers.
+// 1.21.6+ replaced this with ChunkSectionLayer.
+//? if <1.21.6
+//import net.minecraft.client.renderer.RenderType;
+
 //? if <1.21.5 {
-/*import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.BlockModelShaper;
+/*import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
@@ -25,7 +29,7 @@ import net.neoforged.neoforge.common.util.TriState;
 
 //? if <1.21.4 {
 /^import net.neoforged.neoforge.client.model.BakedModelWrapper;
- ^///?} else {
+^///?} else {
 import net.minecraft.client.resources.model.DelegateBakedModel;
 //?}
 *///?} else {
@@ -39,9 +43,8 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 
-//? if >=1.21.8 {
+//? if >=1.21.6
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-//?}
 //?}
 // ============================================================================
 
@@ -61,8 +64,7 @@ public final class MusaRenderLayers {
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(
             ModBlocks.PEARL_PORTAL.get()
-//            ModBlocks.VOCO_RECEPTOR.get()
-
+            // ModBlocks.VOCO_RECEPTOR.get()
     );
 
     private static final Set<Block> NO_AO_BLOCKS = Sets.newHashSet(
@@ -73,20 +75,22 @@ public final class MusaRenderLayers {
     }
 
     public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
-        if (CUTOUT_BLOCKS.isEmpty() && TRANSLUCENT_BLOCKS.isEmpty() && NO_AO_BLOCKS.isEmpty()) return;
+        if (CUTOUT_BLOCKS.isEmpty() && TRANSLUCENT_BLOCKS.isEmpty() && NO_AO_BLOCKS.isEmpty()) {
+            return;
+        }
 
         //? if <1.21.5 {
         /*onModifyBakingResultOldPipeline(event);
-        *///?} else {
+         *///?} else {
         onModifyBakingResultNewPipeline(event);
-         //?}
+        //?}
     }
 
     // =========================================================================
-    // 1.21.1–1.21.4 : old baked-model pipeline
+    // 1.21.1 - 1.21.4: old BakedModel pipeline
     // =========================================================================
-    //? if <1.21.5 {
 
+    //? if <1.21.5 {
     /*private static void onModifyBakingResultOldPipeline(ModelEvent.ModifyBakingResult event) {
         final Set<Block> touched = new HashSet<>();
         touched.addAll(CUTOUT_BLOCKS);
@@ -95,25 +99,9 @@ public final class MusaRenderLayers {
 
         //? if <1.21.4 {
         /^Map<Object, BakedModel> models = getAllBakedModelsCompat(event);
-        if (models == null || models.isEmpty()) return;
-
-        for (Block block : touched) {
-            final RenderType forcedType =
-                    CUTOUT_BLOCKS.contains(block) ? RenderType.cutout() :
-                    TRANSLUCENT_BLOCKS.contains(block) ? RenderType.translucent() :
-                    null;
-
-            final TriState forcedAO = NO_AO_BLOCKS.contains(block) ? TriState.FALSE : TriState.DEFAULT;
-            if (forcedType == null && forcedAO == TriState.DEFAULT) continue;
-
-            for (BlockState state : block.getStateDefinition().getPossibleStates()) {
-                final ModelResourceLocation mrl = BlockModelShaper.stateToModelLocation(state);
-                models.computeIfPresent(mrl, (k, original) -> new ForcePropsBakedModel(original, forcedType, forcedAO));
-            }
+        if (models == null || models.isEmpty()) {
+            return;
         }
-        ^///?} else {
-        Map<ModelResourceLocation, BakedModel> models = event.getBakingResult().blockStateModels();
-        if (models == null || models.isEmpty()) return;
 
         for (Block block : touched) {
             final RenderType forcedType =
@@ -122,11 +110,38 @@ public final class MusaRenderLayers {
                                     null;
 
             final TriState forcedAO = NO_AO_BLOCKS.contains(block) ? TriState.FALSE : TriState.DEFAULT;
-            if (forcedType == null && forcedAO == TriState.DEFAULT) continue;
+
+            if (forcedType == null && forcedAO == TriState.DEFAULT) {
+                continue;
+            }
 
             for (BlockState state : block.getStateDefinition().getPossibleStates()) {
                 final ModelResourceLocation mrl = BlockModelShaper.stateToModelLocation(state);
-                models.computeIfPresent(mrl, (k, original) -> new ForcePropsBakedModel(original, forcedType, forcedAO));
+                models.computeIfPresent(mrl, (key, original) -> new ForcePropsBakedModel(original, forcedType, forcedAO));
+            }
+        }
+        ^///?} else {
+        Map<ModelResourceLocation, BakedModel> models = event.getBakingResult().blockStateModels();
+
+        if (models == null || models.isEmpty()) {
+            return;
+        }
+
+        for (Block block : touched) {
+            final RenderType forcedType =
+                    CUTOUT_BLOCKS.contains(block) ? RenderType.cutout() :
+                            TRANSLUCENT_BLOCKS.contains(block) ? RenderType.translucent() :
+                                    null;
+
+            final TriState forcedAO = NO_AO_BLOCKS.contains(block) ? TriState.FALSE : TriState.DEFAULT;
+
+            if (forcedType == null && forcedAO == TriState.DEFAULT) {
+                continue;
+            }
+
+            for (BlockState state : block.getStateDefinition().getPossibleStates()) {
+                final ModelResourceLocation mrl = BlockModelShaper.stateToModelLocation(state);
+                models.computeIfPresent(mrl, (key, original) -> new ForcePropsBakedModel(original, forcedType, forcedAO));
             }
         }
         //?}
@@ -136,27 +151,37 @@ public final class MusaRenderLayers {
     /^@SuppressWarnings("unchecked")
     private static Map<Object, BakedModel> getAllBakedModelsCompat(ModelEvent.ModifyBakingResult event) {
         try {
-            Method m = event.getClass().getMethod("getModels");
-            Object r = m.invoke(event);
-            if (r instanceof Map<?, ?> map) return (Map<Object, BakedModel>) map;
+            java.lang.reflect.Method method = event.getClass().getMethod("getModels");
+            Object result = method.invoke(event);
+
+            if (result instanceof Map<?, ?> map) {
+                return (Map<Object, BakedModel>) map;
+            }
         } catch (Throwable ignored) {
         }
 
         try {
-            Method m = event.getClass().getMethod("getBakingResult");
-            Object bakingResult = m.invoke(event);
+            java.lang.reflect.Method method = event.getClass().getMethod("getBakingResult");
+            Object bakingResult = method.invoke(event);
+
             if (bakingResult != null) {
                 try {
-                    Method m2 = bakingResult.getClass().getMethod("getModels");
-                    Object r2 = m2.invoke(bakingResult);
-                    if (r2 instanceof Map<?, ?> map) return (Map<Object, BakedModel>) map;
+                    java.lang.reflect.Method innerMethod = bakingResult.getClass().getMethod("getModels");
+                    Object result = innerMethod.invoke(bakingResult);
+
+                    if (result instanceof Map<?, ?> map) {
+                        return (Map<Object, BakedModel>) map;
+                    }
                 } catch (Throwable ignored) {
                 }
 
                 try {
-                    Method m3 = bakingResult.getClass().getMethod("models");
-                    Object r3 = m3.invoke(bakingResult);
-                    if (r3 instanceof Map<?, ?> map) return (Map<Object, BakedModel>) map;
+                    java.lang.reflect.Method innerMethod = bakingResult.getClass().getMethod("models");
+                    Object result = innerMethod.invoke(bakingResult);
+
+                    if (result instanceof Map<?, ?> map) {
+                        return (Map<Object, BakedModel>) map;
+                    }
                 } catch (Throwable ignored) {
                 }
             }
@@ -179,36 +204,42 @@ public final class MusaRenderLayers {
         }
 
         @Override
-        public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, ModelData data) {
-            if (forcedTypeOrNull != null) return ChunkRenderTypeSet.of(forcedTypeOrNull);
-            return super.getRenderTypes(state, rand, data);
+        public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource random, ModelData data) {
+            if (forcedTypeOrNull != null) {
+                return ChunkRenderTypeSet.of(forcedTypeOrNull);
+            }
+
+            return super.getRenderTypes(state, random, data);
         }
 
         @Override
         public List<net.minecraft.client.renderer.block.model.BakedQuad> getQuads(
                 BlockState state,
                 Direction side,
-                RandomSource rand,
+                RandomSource random,
                 ModelData data,
                 RenderType renderType
         ) {
             if (forcedTypeOrNull == null) {
-                return super.getQuads(state, side, rand, data, renderType);
+                return super.getQuads(state, side, random, data, renderType);
             }
 
             if (renderType != null && !renderType.equals(forcedTypeOrNull)) {
                 return Collections.emptyList();
             }
 
-            return super.getQuads(state, side, rand, data, null);
+            return super.getQuads(state, side, random, data, null);
         }
 
         @Override
         public TriState useAmbientOcclusion(BlockState state, ModelData data, RenderType renderType) {
-            if (forcedAO != TriState.DEFAULT) return forcedAO;
+            if (forcedAO != TriState.DEFAULT) {
+                return forcedAO;
+            }
+
             return super.useAmbientOcclusion(state, data, renderType);
         }
-    }}
+    }
     ^///?} else {
     private static final class ForcePropsBakedModel extends DelegateBakedModel {
         private final RenderType forcedTypeOrNull;
@@ -221,74 +252,84 @@ public final class MusaRenderLayers {
         }
 
         @Override
-        public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, ModelData data) {
-            if (forcedTypeOrNull != null) return ChunkRenderTypeSet.of(forcedTypeOrNull);
-            return super.getRenderTypes(state, rand, data);
+        public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource random, ModelData data) {
+            if (forcedTypeOrNull != null) {
+                return ChunkRenderTypeSet.of(forcedTypeOrNull);
+            }
+
+            return super.getRenderTypes(state, random, data);
         }
 
         @Override
         public List<net.minecraft.client.renderer.block.model.BakedQuad> getQuads(
                 BlockState state,
                 Direction side,
-                RandomSource rand,
+                RandomSource random,
                 ModelData data,
                 RenderType renderType
         ) {
             if (forcedTypeOrNull == null) {
-                return super.getQuads(state, side, rand, data, renderType);
+                return super.getQuads(state, side, random, data, renderType);
             }
 
             if (renderType != null && !renderType.equals(forcedTypeOrNull)) {
                 return Collections.emptyList();
             }
 
-            return super.getQuads(state, side, rand, data, null);
+            return super.getQuads(state, side, random, data, null);
         }
 
         @Override
         public TriState useAmbientOcclusion(BlockState state, ModelData data, RenderType renderType) {
-            if (forcedAO != TriState.DEFAULT) return forcedAO;
+            if (forcedAO != TriState.DEFAULT) {
+                return forcedAO;
+            }
+
             return super.useAmbientOcclusion(state, data, renderType);
         }
-    }}
-//?}
+    }
+    //?}
+    *///?}
 
-*///?} <1.21.5
+    // =========================================================================
+    // 1.21.5+: new BlockStateModel pipeline
+    // =========================================================================
 
-// =========================================================================
-// 1.21.5+ : BlockStateModel pipeline
-// =========================================================================
-//? if >=1.21.5 {
-
+    //? if >=1.21.5 {
     private static void onModifyBakingResultNewPipeline(ModelEvent.ModifyBakingResult event) {
         Map<BlockState, BlockStateModel> models = event.getBakingResult().blockStateModels();
-        if (models.isEmpty()) return;
 
-        for (Map.Entry<BlockState, BlockStateModel> e : models.entrySet()) {
-            BlockState state = e.getKey();
-            BlockStateModel original = e.getValue();
-            Block b = state.getBlock();
+        if (models.isEmpty()) {
+            return;
+        }
 
-            //? if >=1.21.8 {
+        for (Map.Entry<BlockState, BlockStateModel> entry : models.entrySet()) {
+            BlockState state = entry.getKey();
+            BlockStateModel original = entry.getValue();
+            Block block = state.getBlock();
+
+            //? if >=1.21.6 {
             ChunkSectionLayer forcedLayer = null;
-            if (CUTOUT_BLOCKS.contains(b)) {
+
+            if (CUTOUT_BLOCKS.contains(block)) {
                 forcedLayer = ChunkSectionLayer.CUTOUT;
-            } else if (TRANSLUCENT_BLOCKS.contains(b)) {
+            } else if (TRANSLUCENT_BLOCKS.contains(block)) {
                 forcedLayer = ChunkSectionLayer.TRANSLUCENT;
             }
             //?} else {
             /*RenderType forcedLayer = null;
-            if (CUTOUT_BLOCKS.contains(b)) {
+
+            if (CUTOUT_BLOCKS.contains(block)) {
                 forcedLayer = RenderType.cutout();
-            } else if (TRANSLUCENT_BLOCKS.contains(b)) {
+            } else if (TRANSLUCENT_BLOCKS.contains(block)) {
                 forcedLayer = RenderType.translucent();
             }
             *///?}
 
-            TriState forcedAO = NO_AO_BLOCKS.contains(b) ? TriState.FALSE : TriState.DEFAULT;
+            TriState forcedAO = NO_AO_BLOCKS.contains(block) ? TriState.FALSE : TriState.DEFAULT;
 
             if (forcedLayer != null || forcedAO != TriState.DEFAULT) {
-                e.setValue(new ForcePropsStateModel(original, forcedLayer, forcedAO));
+                entry.setValue(new ForcePropsStateModel(original, forcedLayer, forcedAO));
             }
         }
     }
@@ -304,14 +345,19 @@ public final class MusaRenderLayers {
         }
 
         @Override
-        public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state,
-                                 RandomSource random, List<BlockModelPart> out) {
-            List<BlockModelPart> original = new ArrayList<>();
-            this.delegate.collectParts(level, pos, state, random, original);
+        public void collectParts(
+                BlockAndTintGetter level,
+                BlockPos pos,
+                BlockState state,
+                RandomSource random,
+                List<BlockModelPart> out
+        ) {
+            List<BlockModelPart> originalParts = new ArrayList<>();
+            this.delegate.collectParts(level, pos, state, random, originalParts);
 
             TextureAtlasSprite particle = this.particleIcon(level, pos, state);
 
-            for (BlockModelPart part : original) {
+            for (BlockModelPart part : originalParts) {
                 out.add(new ForcePropsPart(part, particle, forcedLayerOrNull, forcedAO));
             }
         }
@@ -336,29 +382,37 @@ public final class MusaRenderLayers {
 
         @Override
         public TextureAtlasSprite particleIcon() {
-            return (particle != null) ? particle : base.particleIcon();
+            return particle != null ? particle : base.particleIcon();
         }
 
         @Override
         public TriState ambientOcclusion() {
-            if (forcedAO != null && forcedAO != TriState.DEFAULT) return forcedAO;
+            if (forcedAO != null && forcedAO != TriState.DEFAULT) {
+                return forcedAO;
+            }
+
             return base.ambientOcclusion();
         }
 
-        //? if >=1.21.8 {
+        //? if >=1.21.6 {
         @Override
         public ChunkSectionLayer getRenderType(BlockState state) {
-            if (forcedLayerOrNull instanceof ChunkSectionLayer layer) return layer;
+            if (forcedLayerOrNull instanceof ChunkSectionLayer layer) {
+                return layer;
+            }
+
             return base.getRenderType(state);
         }
         //?} else {
         /*@Override
         public RenderType getRenderType(BlockState state) {
-            if (forcedLayerOrNull instanceof RenderType rt) return rt;
+            if (forcedLayerOrNull instanceof RenderType renderType) {
+                return renderType;
+            }
+
             return base.getRenderType(state);
         }
         *///?}
     }
+    //?}
 }
-    //?} >=1.21.5
-//}

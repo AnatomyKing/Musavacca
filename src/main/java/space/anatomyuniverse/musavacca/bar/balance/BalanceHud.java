@@ -1,11 +1,13 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/bar/balance/BalanceHud.java
 package space.anatomyuniverse.musavacca.bar.balance;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >=1.21.6
 import net.minecraft.client.renderer.RenderPipelines;
+//? if <1.21.6
+//import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
@@ -88,8 +90,15 @@ public final class BalanceHud {
 
     private static void drawSpriteLayers(GuiGraphics graphics, ResourceLocation[] sprites, int x, int y) {
         for (ResourceLocation sprite : sprites) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, ICON_SIZE, ICON_SIZE);
+            drawSprite(graphics, sprite, x, y);
         }
+    }
+
+    private static void drawSprite(GuiGraphics graphics, ResourceLocation sprite, int x, int y) {
+        //? if >=1.21.6
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, ICON_SIZE, ICON_SIZE);
+        //? if <1.21.6
+        //graphics.blitSprite(RenderType::guiTextured, sprite, x, y, ICON_SIZE, ICON_SIZE);
     }
 
     private static void drawOutlinedString(GuiGraphics graphics, Font font, String text, int x, int y) {

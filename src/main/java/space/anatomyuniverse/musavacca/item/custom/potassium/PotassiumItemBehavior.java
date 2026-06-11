@@ -2,6 +2,8 @@ package space.anatomyuniverse.musavacca.item.custom.potassium;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
+//? if <1.21.6
+//import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
@@ -30,10 +32,21 @@ public final class PotassiumItemBehavior {
 
             if (!(entity instanceof Player player) || !player.getAbilities().instabuild) {
                 InteractionHand hand = entity.getUsedItemHand();
+
+                //? if >=1.21.6 {
                 stack.hurtAndBreak(EAT_DURABILITY_DAMAGE, entity, hand);
+                //?} else {
+                /*stack.hurtAndBreak(EAT_DURABILITY_DAMAGE, entity, slotForHand(hand));
+                *///?}
             }
         }
 
         return stack;
     }
+
+    //? if <1.21.6 {
+    /*private static EquipmentSlot slotForHand(InteractionHand hand) {
+        return hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
+    }
+    *///?}
 }

@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/VocoTableBlockEntity.java
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -26,7 +25,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+//? if >=1.21.6
 import net.minecraft.world.level.storage.ValueInput;
+//? if >=1.21.6
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -872,6 +873,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         super.preRemoveSideEffects(pos, state);
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
@@ -936,6 +938,73 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 
+    //?} else {
+    /*@Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+
+        this.items.clear();
+        ContainerHelper.loadAllItems(tag, this.items, provider);
+
+        this.basukeVisible = tag.getBooleanOr(TAG_BASUKE_VISIBLE, false);
+        this.basukeUuid = readUuid(tag.getStringOr(TAG_BASUKE_UUID, ""));
+
+        this.resetFacingDefaults();
+        this.resetTargetDefaults();
+        this.clearAllCandleSlots();
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            int index = receptor.id();
+
+            this.yawDegrees[index] = VocoReceptorLogic.clampYaw(
+                    tag.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees())
+            );
+
+            this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(
+                    tag.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees())
+            );
+
+            Vec3 fallbackTarget = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
+
+            this.customTargetEnabled[index] = tag.getBooleanOr(TAG_CUSTOM_TARGET[index], false);
+            this.targetX[index] = tag.getDoubleOr(TAG_TARGET_X[index], fallbackTarget.x);
+            this.targetY[index] = tag.getDoubleOr(TAG_TARGET_Y[index], fallbackTarget.y);
+            this.targetZ[index] = tag.getDoubleOr(TAG_TARGET_Z[index], fallbackTarget.z);
+
+            CandleSlot slot = this.slot(receptor);
+
+            Block candleBlock = readCandleBlock(tag.getStringOr(TAG_CANDLE_BLOCK_IDS[index], ""));
+            int candleCount = tag.getIntOr(TAG_CANDLE_COUNTS[index], 0);
+
+            if (candleBlock != null && candleCount > 0) {
+                slot.block = candleBlock;
+                slot.count = Math.max(1, Math.min(CandleBlock.MAX_CANDLES, candleCount));
+                slot.lit = tag.getBooleanOr(TAG_CANDLE_LIT[index], false);
+
+                // Backwards compatible:
+                // old saves did not have candle_has_hex_*, and old lit candles were always Pearl-lit.
+                slot.hasHexColor = tag.getBooleanOr(TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
+                slot.hexColor = slot.hasHexColor
+                        ? normalizeHex(tag.getIntOr(TAG_CANDLE_HEX_COLORS[index], DEFAULT_HEX_COLOR))
+                        : UNSET_HEX_COLOR;
+            }
+        }
+
+        this.latestHexReceptorId = VocoReceptorLogic.clampReceptorId(
+                tag.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id())
+        );
+
+        this.latestHexColor = readHexOrUnset(tag, TAG_LATEST_HEX_COLOR);
+
+        if (!this.hasLatestHexColor()) {
+            this.refreshLatestHexFromLitCandles();
+        }
+    }
+
+
+    *///?}
+
+    //? if >=1.21.6 {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
@@ -979,6 +1048,53 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 
+    //?} else {
+    /*@Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+
+        ContainerHelper.saveAllItems(tag, this.items, provider);
+        tag.putBoolean(TAG_BASUKE_VISIBLE, this.basukeVisible);
+
+        if (this.basukeUuid != null) {
+            tag.putString(TAG_BASUKE_UUID, this.basukeUuid.toString());
+        }
+
+        if (this.hasLatestHexColor()) {
+            tag.putInt(TAG_LATEST_HEX_COLOR, this.latestHexColor);
+            tag.putInt(TAG_LATEST_HEX_RECEPTOR_ID, this.latestHexReceptorId);
+        }
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            int index = receptor.id();
+            CandleSlot slot = this.slot(receptor);
+
+            tag.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
+            tag.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
+
+            tag.putBoolean(TAG_CUSTOM_TARGET[index], this.customTargetEnabled[index]);
+            tag.putDouble(TAG_TARGET_X[index], this.targetX[index]);
+            tag.putDouble(TAG_TARGET_Y[index], this.targetY[index]);
+            tag.putDouble(TAG_TARGET_Z[index], this.targetZ[index]);
+
+            if (slot.hasCandle()) {
+                ResourceLocation candleId = BuiltInRegistries.BLOCK.getKey(slot.block);
+
+                tag.putString(TAG_CANDLE_BLOCK_IDS[index], candleId.toString());
+                tag.putInt(TAG_CANDLE_COUNTS[index], slot.count);
+                tag.putBoolean(TAG_CANDLE_LIT[index], slot.lit);
+                tag.putBoolean(TAG_CANDLE_HAS_HEX_COLORS[index], slot.hasHexColor);
+
+                if (slot.hasHexColor) {
+                    tag.putInt(TAG_CANDLE_HEX_COLORS[index], slot.hexColor);
+                }
+            }
+        }
+    }
+
+
+    *///?}
+
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
@@ -1012,6 +1128,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if >=1.21.6 {
     @Override
     public void handleUpdateTag(ValueInput input) {
         super.handleUpdateTag(input);
@@ -1024,6 +1141,21 @@ public class VocoTableBlockEntity extends BlockEntity {
         this.rerenderClientNow();
     }
 
+    //?} else {
+    /*@Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
+        super.handleUpdateTag(tag, provider);
+        this.rerenderClientNow();
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider provider) {
+        super.onDataPacket(connection, packet, provider);
+        this.rerenderClientNow();
+    }
+
+    *///?}
+
     private void clearAllCandleSlots() {
         for (CandleSlot slot : this.candleSlots) {
             slot.clear();
@@ -1034,10 +1166,20 @@ public class VocoTableBlockEntity extends BlockEntity {
         return VocoReceptorLogic.normalizeHex(hexColor);
     }
 
+    //? if >=1.21.6 {
     private static int readHexOrUnset(ValueInput input, String tag) {
         int loaded = input.getIntOr(tag, UNSET_HEX_COLOR);
         return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
+
+    //?} else {
+    /*private static int readHexOrUnset(CompoundTag input, String tag) {
+        int loaded = input.getIntOr(tag, UNSET_HEX_COLOR);
+        return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+    }
+
+
+    *///?}
 
     private static boolean isValidCandleBlock(@Nullable Block block) {
         return block instanceof CandleBlock;
@@ -1108,3 +1250,4 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 }
+

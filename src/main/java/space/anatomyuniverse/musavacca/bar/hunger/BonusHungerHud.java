@@ -1,10 +1,12 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/bar/hunger/BonusHungerHud.java
 package space.anatomyuniverse.musavacca.bar.hunger;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >=1.21.6
 import net.minecraft.client.renderer.RenderPipelines;
+//? if <1.21.6
+//import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
@@ -134,12 +136,19 @@ public final class BonusHungerHud {
             ResourceLocation halfSprite,
             ResourceLocation fullSprite
     ) {
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, emptySprite, x, y, ICON_SIZE, ICON_SIZE);
+        drawSprite(graphics, emptySprite, x, y);
 
         if (pointsInSlot >= 2) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, fullSprite, x, y, ICON_SIZE, ICON_SIZE);
+            drawSprite(graphics, fullSprite, x, y);
         } else if (pointsInSlot == 1) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, halfSprite, x, y, ICON_SIZE, ICON_SIZE);
+            drawSprite(graphics, halfSprite, x, y);
         }
+    }
+
+    private static void drawSprite(GuiGraphics graphics, ResourceLocation sprite, int x, int y) {
+        //? if >=1.21.6
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, ICON_SIZE, ICON_SIZE);
+        //? if <1.21.6
+        //graphics.blitSprite(RenderType::guiTextured, sprite, x, y, ICON_SIZE, ICON_SIZE);
     }
 }

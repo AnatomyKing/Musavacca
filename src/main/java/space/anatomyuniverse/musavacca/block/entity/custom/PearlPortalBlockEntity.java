@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/entity/custom/PearlPortalBlockEntity.java
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -16,7 +15,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+//? if >=1.21.6
 import net.minecraft.world.level.storage.ValueInput;
+//? if >=1.21.6
 import net.minecraft.world.level.storage.ValueOutput;
 import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
@@ -210,8 +211,13 @@ public class PearlPortalBlockEntity extends BlockEntity {
 
     private void sendBlockUpdate(boolean clientOnly) {
         Level level = this.getLevel();
-        if (level == null) return;
-        if (clientOnly && !level.isClientSide()) return;
+        if (level == null) {
+            return;
+        }
+
+        if (clientOnly && !level.isClientSide()) {
+            return;
+        }
 
         BlockPos pos = this.getBlockPos();
         BlockState state = this.getBlockState();
@@ -224,6 +230,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         );
     }
 
+    //? if >=1.21.6 {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
@@ -286,6 +293,70 @@ public class PearlPortalBlockEntity extends BlockEntity {
         output.putInt(TAG_EXIT_ANCHOR_Y, anchor.getY());
         output.putInt(TAG_EXIT_ANCHOR_Z, anchor.getZ());
     }
+    //?} else {
+    /*@Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+
+        this.portalId = readUuid(tag, TAG_PORTAL_ID, UUID.randomUUID());
+        this.hexColor = normalizeHex(tagGetIntOr(tag, TAG_HEX_COLOR, DEFAULT_HEX_COLOR));
+        this.originPos = readBlockPos(tag, TAG_ORIGIN_X, TAG_ORIGIN_Y, TAG_ORIGIN_Z, this.getBlockPos());
+        this.axis = axisFromString(tagGetStringOr(tag, TAG_AXIS, "x"));
+        this.frontDirection = PearlPortalFrame.normalizeFrontDirection(
+                this.axis,
+                directionFromString(tagGetStringOr(tag, TAG_FRONT_DIRECTION, ""))
+        );
+        this.upDirection = PearlPortalFrame.normalizeUpDirection(
+                this.axis,
+                this.frontDirection,
+                directionFromString(tagGetStringOr(tag, TAG_UP_DIRECTION, ""))
+        );
+        this.width = clampWidth(tagGetIntOr(tag, TAG_WIDTH, PearlPortalFrame.MIN_WIDTH));
+        this.height = clampHeight(tagGetIntOr(tag, TAG_HEIGHT, PearlPortalFrame.MIN_HEIGHT));
+
+        PearlPortalFrame.Shape fallbackShape = new PearlPortalFrame.Shape(
+                this.axis,
+                this.getOriginPos(),
+                this.width,
+                this.height,
+                this.frontDirection,
+                this.upDirection,
+                null
+        );
+
+        this.exitAnchorPos = readBlockPos(
+                tag,
+                TAG_EXIT_ANCHOR_X,
+                TAG_EXIT_ANCHOR_Y,
+                TAG_EXIT_ANCHOR_Z,
+                fallbackShape.exitAnchorPos()
+        );
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+
+        tag.putString(TAG_PORTAL_ID, this.portalId.toString());
+        tag.putInt(TAG_HEX_COLOR, this.hexColor);
+
+        BlockPos origin = this.getOriginPos();
+        tag.putInt(TAG_ORIGIN_X, origin.getX());
+        tag.putInt(TAG_ORIGIN_Y, origin.getY());
+        tag.putInt(TAG_ORIGIN_Z, origin.getZ());
+
+        tag.putString(TAG_AXIS, axisToString(this.getPortalAxis()));
+        tag.putString(TAG_FRONT_DIRECTION, directionToString(this.getPortalFrontDirection()));
+        tag.putString(TAG_UP_DIRECTION, directionToString(this.getPortalUpDirection()));
+        tag.putInt(TAG_WIDTH, this.width);
+        tag.putInt(TAG_HEIGHT, this.height);
+
+        BlockPos anchor = this.getExitAnchorPos();
+        tag.putInt(TAG_EXIT_ANCHOR_X, anchor.getX());
+        tag.putInt(TAG_EXIT_ANCHOR_Y, anchor.getY());
+        tag.putInt(TAG_EXIT_ANCHOR_Z, anchor.getZ());
+    }
+    *///?}
 
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
@@ -313,6 +384,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if >=1.21.6 {
     @Override
     public void handleUpdateTag(ValueInput input) {
         super.handleUpdateTag(input);
@@ -324,7 +396,21 @@ public class PearlPortalBlockEntity extends BlockEntity {
         super.onDataPacket(connection, input);
         this.rerenderClientNow();
     }
+    //?} else {
+    /*@Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
+        super.handleUpdateTag(tag, provider);
+        this.rerenderClientNow();
+    }
 
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider provider) {
+        super.onDataPacket(connection, packet, provider);
+        this.rerenderClientNow();
+    }
+    *///?}
+
+    //? if >=1.21.6 {
     private static BlockPos readBlockPos(
             ValueInput input,
             String xTag,
@@ -341,7 +427,9 @@ public class PearlPortalBlockEntity extends BlockEntity {
 
     private static UUID readUuid(ValueInput input, String key, UUID fallback) {
         String text = input.getStringOr(key, "");
-        if (text.isEmpty()) return fallback;
+        if (text.isEmpty()) {
+            return fallback;
+        }
 
         try {
             return UUID.fromString(text);
@@ -349,6 +437,48 @@ public class PearlPortalBlockEntity extends BlockEntity {
             return fallback;
         }
     }
+    //?} else {
+    /*private static BlockPos readBlockPos(
+            CompoundTag tag,
+            String xTag,
+            String yTag,
+            String zTag,
+            BlockPos fallback
+    ) {
+        return new BlockPos(
+                tagGetIntOr(tag, xTag, fallback.getX()),
+                tagGetIntOr(tag, yTag, fallback.getY()),
+                tagGetIntOr(tag, zTag, fallback.getZ())
+        );
+    }
+
+    private static UUID readUuid(CompoundTag tag, String key, UUID fallback) {
+        String text = tagGetStringOr(tag, key, "");
+        if (text.isEmpty()) {
+            return fallback;
+        }
+
+        try {
+            return UUID.fromString(text);
+        } catch (IllegalArgumentException ignored) {
+            return fallback;
+        }
+    }
+
+    private static int tagGetIntOr(CompoundTag tag, String key, int fallback) {
+        //? if >=1.21.5 {
+        return tag.getIntOr(key, fallback);
+        //?} else
+        //return tag.contains(key) ? tag.getInt(key) : fallback;
+    }
+
+    private static String tagGetStringOr(CompoundTag tag, String key, String fallback) {
+        //? if >=1.21.5 {
+        return tag.getStringOr(key, fallback);
+        //?} else
+        //return tag.contains(key) ? tag.getString(key) : fallback;
+    }
+    *///?}
 
     private static Direction.Axis axisFromString(String text) {
         return switch ((text == null ? "" : text).toLowerCase()) {

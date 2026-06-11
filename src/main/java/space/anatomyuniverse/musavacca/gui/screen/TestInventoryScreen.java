@@ -1,8 +1,13 @@
 package space.anatomyuniverse.musavacca.gui.screen;
 
+//? if <1.21.6
+//import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+//? if >=1.21.6
 import net.minecraft.client.renderer.RenderPipelines;
+//? if <1.21.6
+//import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -101,11 +106,19 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
 
         this.blitFullGuiTexture(graphics, this.lettersBase ? BASE_LETTERS_TEXTURE : BASE_TEXTURE, guiX, guiY);
 
-        graphics.nextStratum();
+        this.nextLayer(graphics);
         this.blitRotatingDisk(graphics, guiX, guiY);
 
-        graphics.nextStratum();
+        this.nextLayer(graphics);
         this.blitFullGuiTexture(graphics, STOPPER_TEXTURE, guiX, guiY);
+    }
+
+    private void nextLayer(GuiGraphics graphics) {
+        //? if >=1.21.6 {
+        graphics.nextStratum();
+         //?} else {
+        /*graphics.pose();
+        *///?}
     }
 
     private void blitRotatingDisk(GuiGraphics graphics, int guiX, int guiY) {
@@ -115,29 +128,50 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         int diskScreenX = guiX + DISK_LOCAL_X;
         int diskScreenY = guiY + DISK_LOCAL_Y;
 
-        graphics.pose().pushMatrix();
+        this.pushPose(graphics);
 
-        graphics.pose().translate(axisScreenX, axisScreenY);
-        graphics.pose().rotate(this.diskAngleRadians);
-        graphics.pose().translate(-axisScreenX, -axisScreenY);
+        this.translatePose(graphics, axisScreenX, axisScreenY);
+        this.rotatePose(graphics, this.diskAngleRadians);
+        this.translatePose(graphics, -axisScreenX, -axisScreenY);
 
-        graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
+        this.blitTexture(
+                graphics,
                 DISK_TEXTURE,
                 diskScreenX,
                 diskScreenY,
-                0.0F,
-                0.0F,
                 DISK_TEXTURE_SIZE,
                 DISK_TEXTURE_SIZE,
                 DISK_TEXTURE_SIZE,
                 DISK_TEXTURE_SIZE
         );
 
-        graphics.pose().popMatrix();
+        this.popPose(graphics);
     }
 
     private void blitFullGuiTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y) {
+        this.blitTexture(
+                graphics,
+                texture,
+                x,
+                y,
+                GUI_TEXTURE_SIZE,
+                GUI_TEXTURE_SIZE,
+                GUI_TEXTURE_SIZE,
+                GUI_TEXTURE_SIZE
+        );
+    }
+
+    private void blitTexture(
+            GuiGraphics graphics,
+            ResourceLocation texture,
+            int x,
+            int y,
+            int width,
+            int height,
+            int textureWidth,
+            int textureHeight
+    ) {
+        //? if >=1.21.6 {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 texture,
@@ -145,11 +179,57 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
                 y,
                 0.0F,
                 0.0F,
-                GUI_TEXTURE_SIZE,
-                GUI_TEXTURE_SIZE,
-                GUI_TEXTURE_SIZE,
-                GUI_TEXTURE_SIZE
+                width,
+                height,
+                textureWidth,
+                textureHeight
         );
+        //?} else {
+        /*graphics.blit(
+                RenderType::guiTextured,
+                texture,
+                x,
+                y,
+                0.0F,
+                0.0F,
+                width,
+                height,
+                textureWidth,
+                textureHeight
+        );
+        *///?}
+    }
+
+    private void pushPose(GuiGraphics graphics) {
+        //? if >=1.21.6 {
+        graphics.pose().pushMatrix();
+         //?} else {
+        /*graphics.pose().pushPose();
+        *///?}
+    }
+
+    private void popPose(GuiGraphics graphics) {
+        //? if >=1.21.6 {
+        graphics.pose().popMatrix();
+         //?} else {
+        /*graphics.pose().popPose();
+        *///?}
+    }
+
+    private void translatePose(GuiGraphics graphics, float x, float y) {
+        //? if >=1.21.6 {
+        graphics.pose().translate(x, y);
+         //?} else {
+        /*graphics.pose().translate(x, y, 0.0F);
+        *///?}
+    }
+
+    private void rotatePose(GuiGraphics graphics, float radians) {
+        //? if >=1.21.6 {
+        graphics.pose().rotate(radians);
+         //?} else {
+        /*graphics.pose().mulPose(Axis.ZP.rotation(radians));
+        *///?}
     }
 
     @Override
@@ -272,12 +352,8 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
 
     private void onDialReturnedToStart(ReturnReason reason, Hole hole) {
         if (reason == ReturnReason.HIT_STOPPER && hole != null) {
-            /*
-             * This is a real completed dial input.
-             *
-             * RELEASED_EARLY also returns visually, but does not count as input.
-             * Later you can send your number/letter logic from here.
-             */
+            // Completed dial input.
+            this.diskAngleRadians = 0.0F;
         }
     }
 

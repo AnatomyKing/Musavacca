@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/bar/balance/ClientBalanceData.java
 package space.anatomyuniverse.musavacca.bar.balance;
 
 public final class ClientBalanceData {

@@ -47,11 +47,6 @@ public final class ModDataGenerators {
             final ModBlockTagsProvider blockTagsProvider =
                     new ModBlockTagsProvider(output, event.getLookupProvider(), efh);
 
-            event.createProvider(output -> new CustomArmorSet.Provider(
-                output,
-                ModelSets.customArmorSets()
-            ));
-
             event.getGenerator().addProvider(true, blockTagsProvider);
 
             event.getGenerator().addProvider(true,
@@ -62,6 +57,11 @@ public final class ModDataGenerators {
                             efh
                     )
             );
+
+            event.getGenerator().addProvider(true, new CustomArmorSet.Provider(
+                    output,
+                    ModelSets.customArmorSets()
+            ));
 
             event.getGenerator().addProvider(true, new MusavaccaTreeFeatureProvider(output));
 
@@ -101,8 +101,13 @@ public final class ModDataGenerators {
 
         // Server/datapack generators
         event.createProvider(ModRecipeProvider.Runner::new);
+
+        //? if >=1.21.6 {
         event.createProvider(ModBlockTagsProvider::new);
         event.createProvider(ModItemTagsProvider::new);
+        //?} else {
+        /*event.createBlockAndItemTags(ModBlockTagsProvider::new, ModItemTagsProvider::new);
+        *///?}
 
         event.createProvider(output -> new CustomArmorSet.Provider(
                 output,
