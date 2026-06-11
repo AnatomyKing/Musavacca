@@ -17,9 +17,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 //? if <1.21.6 {
 //?} else {
-import net.minecraft.world.level.storage.ValueInput;
+/*import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-//?}
+*///?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
@@ -77,7 +77,7 @@ public class HardHexBlockEntity extends BlockEntity {
     }
 
     //? if <1.21.6 {
-    /*@Override
+    @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
 
@@ -90,8 +90,8 @@ public class HardHexBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
         tag.putInt(TAG_HEX_COLOR, HARD_HEX_COLOR);
     }
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
@@ -104,7 +104,7 @@ public class HardHexBlockEntity extends BlockEntity {
         super.saveAdditional(output);
         output.putInt(TAG_HEX_COLOR, HARD_HEX_COLOR);
     }
-    //?}
+    *///?}
 
     //? if <1.21.5 {
     /*@Override

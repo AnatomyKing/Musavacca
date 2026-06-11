@@ -92,10 +92,10 @@ public class SmallBananaPearlItem extends Item {
 
     private static void playPlaceSound(Level level, BlockPos pos, BlockState state, Player player) {
         //? if <1.21.6 {
-        /*SoundType sound = state.getSoundType();
-         *///?} else {
-        SoundType sound = state.getSoundType(level, pos, player);
-        //?}
+        SoundType sound = state.getSoundType();
+         //?} else {
+        /*SoundType sound = state.getSoundType(level, pos, player);
+        *///?}
 
         level.playSound(
                 player,

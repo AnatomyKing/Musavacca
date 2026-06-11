@@ -4,17 +4,17 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 //? if >=1.21.6
-import net.minecraft.data.tags.KeyTagProvider;
+//import net.minecraft.data.tags.KeyTagProvider;
 //? if <1.21.6
-//import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.data.tags.ItemTagsProvider;
 //? if <1.21.6
-//import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.data.tags.TagsProvider;
 //? if >=1.21.6
-import net.minecraft.resources.ResourceKey;
+//import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 //? if <1.21.6
-//import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredItem;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.item.ModItems;
@@ -22,26 +22,26 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import java.util.concurrent.CompletableFuture;
 
 //? if >=1.21.6 {
-public final class ModItemTagsProvider extends KeyTagProvider<Item> {
-//?} else
-    //public final class ModItemTagsProvider extends ItemTagsProvider {
+/*public final class ModItemTagsProvider extends KeyTagProvider<Item> {
+*///?} else
+    public final class ModItemTagsProvider extends ItemTagsProvider {
 
     //? if >=1.21.6 {
-    public ModItemTagsProvider(
+    /*public ModItemTagsProvider(
             PackOutput output,
             CompletableFuture<HolderLookup.Provider> lookupProvider
     ) {
         super(output, Registries.ITEM, lookupProvider, MusaCore.MOD_ID);
     }
-    //?} else {
-    /*public ModItemTagsProvider(
+    *///?} else {
+    public ModItemTagsProvider(
             PackOutput output,
             CompletableFuture<HolderLookup.Provider> lookupProvider,
             CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider
     ) {
         super(output, lookupProvider, blockTagsProvider);
     }
-    *///?}
+    //?}
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
@@ -154,12 +154,12 @@ public final class ModItemTagsProvider extends KeyTagProvider<Item> {
     }
 
     //? if >=1.21.6 {
-    private static ResourceKey<Item> key(DeferredItem<? extends Item> item) {
+    /*private static ResourceKey<Item> key(DeferredItem<? extends Item> item) {
         return ResourceKey.create(Registries.ITEM, item.getId());
     }
-    //?} else {
-    /*private static Item key(DeferredItem<? extends Item> item) {
+    *///?} else {
+    private static Item key(DeferredItem<? extends Item> item) {
         return item.get();
     }
-    *///?}
+    //?}
 }

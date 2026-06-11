@@ -15,7 +15,7 @@ import java.util.*;
 // 1.21.1 - 1.21.5 still use RenderType for chunk/model render layers.
 // 1.21.6+ replaced this with ChunkSectionLayer.
 //? if <1.21.6
-//import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderType;
 
 //? if <1.21.5 {
 /*import net.minecraft.client.renderer.block.BlockModelShaper;
@@ -44,7 +44,7 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 
 //? if >=1.21.6
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+//import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 //?}
 // ============================================================================
 
@@ -309,22 +309,22 @@ public final class MusaRenderLayers {
             Block block = state.getBlock();
 
             //? if >=1.21.6 {
-            ChunkSectionLayer forcedLayer = null;
+            /*ChunkSectionLayer forcedLayer = null;
 
             if (CUTOUT_BLOCKS.contains(block)) {
                 forcedLayer = ChunkSectionLayer.CUTOUT;
             } else if (TRANSLUCENT_BLOCKS.contains(block)) {
                 forcedLayer = ChunkSectionLayer.TRANSLUCENT;
             }
-            //?} else {
-            /*RenderType forcedLayer = null;
+            *///?} else {
+            RenderType forcedLayer = null;
 
             if (CUTOUT_BLOCKS.contains(block)) {
                 forcedLayer = RenderType.cutout();
             } else if (TRANSLUCENT_BLOCKS.contains(block)) {
                 forcedLayer = RenderType.translucent();
             }
-            *///?}
+            //?}
 
             TriState forcedAO = NO_AO_BLOCKS.contains(block) ? TriState.FALSE : TriState.DEFAULT;
 
@@ -395,7 +395,7 @@ public final class MusaRenderLayers {
         }
 
         //? if >=1.21.6 {
-        @Override
+        /*@Override
         public ChunkSectionLayer getRenderType(BlockState state) {
             if (forcedLayerOrNull instanceof ChunkSectionLayer layer) {
                 return layer;
@@ -403,8 +403,8 @@ public final class MusaRenderLayers {
 
             return base.getRenderType(state);
         }
-        //?} else {
-        /*@Override
+        *///?} else {
+        @Override
         public RenderType getRenderType(BlockState state) {
             if (forcedLayerOrNull instanceof RenderType renderType) {
                 return renderType;
@@ -412,7 +412,7 @@ public final class MusaRenderLayers {
 
             return base.getRenderType(state);
         }
-        *///?}
+        //?}
     }
     //?}
 }

@@ -4,10 +4,10 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceSyncPayload;
 //? if <1.21.6
-//import space.anatomyuniverse.musavacca.bar.balance.ClientBalanceData;
+import space.anatomyuniverse.musavacca.bar.balance.ClientBalanceData;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerSyncPayload;
 //? if <1.21.6
-//import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
+import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
 
 public final class ModNetworking {
     private ModNetworking() {
@@ -19,7 +19,7 @@ public final class ModNetworking {
 
     private static void registerPayloads(RegisterPayloadHandlersEvent event) {
         //? if >=1.21.6 {
-        event.registrar("musavacca")
+        /*event.registrar("musavacca")
                 .playToClient(
                         BonusHungerSyncPayload.TYPE,
                         BonusHungerSyncPayload.STREAM_CODEC
@@ -28,8 +28,8 @@ public final class ModNetworking {
                         BalanceSyncPayload.TYPE,
                         BalanceSyncPayload.STREAM_CODEC
                 );
-        //?} else {
-        /*event.registrar("musavacca")
+        *///?} else {
+        event.registrar("musavacca")
                 .playToClient(
                         BonusHungerSyncPayload.TYPE,
                         BonusHungerSyncPayload.STREAM_CODEC,
@@ -47,6 +47,6 @@ public final class ModNetworking {
                                 payload.active()
                         )
                 );
-        *///?}
+        //?}
     }
 }

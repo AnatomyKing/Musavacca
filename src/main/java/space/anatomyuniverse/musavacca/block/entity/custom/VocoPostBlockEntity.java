@@ -15,9 +15,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 //? if >=1.21.6
-import net.minecraft.world.level.storage.ValueInput;
+//import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
-import net.minecraft.world.level.storage.ValueOutput;
+//import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
@@ -268,7 +268,7 @@ public class VocoPostBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    @Override
+    /*@Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
@@ -301,8 +301,8 @@ public class VocoPostBlockEntity extends BlockEntity {
         output.putDouble(TAG_TARGET_Y, this.targetY);
         output.putDouble(TAG_TARGET_Z, this.targetZ);
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
 
@@ -335,7 +335,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         tag.putDouble(TAG_TARGET_Y, this.targetY);
         tag.putDouble(TAG_TARGET_Z, this.targetZ);
     }
-    *///?}
+    //?}
 
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
@@ -365,7 +365,7 @@ public class VocoPostBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    @Override
+    /*@Override
     public void handleUpdateTag(ValueInput input) {
         super.handleUpdateTag(input);
         this.rerenderClientNow();
@@ -376,8 +376,8 @@ public class VocoPostBlockEntity extends BlockEntity {
         super.onDataPacket(connection, input);
         this.rerenderClientNow();
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
         super.handleUpdateTag(tag, provider);
         this.rerenderClientNow();
@@ -388,7 +388,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         super.onDataPacket(connection, packet, provider);
         this.rerenderClientNow();
     }
-    *///?}
+    //?}
 
     public static int clampYaw(int yawDegrees) {
         return VocoReceptorLogic.clampYaw(yawDegrees);
@@ -399,16 +399,16 @@ public class VocoPostBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    private static int readHexOrUnset(ValueInput input) {
+    /*private static int readHexOrUnset(ValueInput input) {
         int loaded = input.getIntOr(TAG_HEX_COLOR, UNSET_HEX_COLOR);
         return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
-    //?} else {
-    /*private static int readHexOrUnset(CompoundTag tag) {
+    *///?} else {
+    private static int readHexOrUnset(CompoundTag tag) {
         int loaded = readTagInt(tag, TAG_HEX_COLOR, UNSET_HEX_COLOR);
         return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
-    *///?}
+    //?}
 
     private static int normalizeHex(int hexColor) {
         return VocoReceptorLogic.normalizeHex(hexColor);

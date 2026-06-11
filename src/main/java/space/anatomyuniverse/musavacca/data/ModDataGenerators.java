@@ -103,11 +103,11 @@ public final class ModDataGenerators {
         event.createProvider(ModRecipeProvider.Runner::new);
 
         //? if >=1.21.6 {
-        event.createProvider(ModBlockTagsProvider::new);
+        /*event.createProvider(ModBlockTagsProvider::new);
         event.createProvider(ModItemTagsProvider::new);
-        //?} else {
-        /*event.createBlockAndItemTags(ModBlockTagsProvider::new, ModItemTagsProvider::new);
-        *///?}
+        *///?} else {
+        event.createBlockAndItemTags(ModBlockTagsProvider::new, ModItemTagsProvider::new);
+        //?}
 
         event.createProvider(output -> new CustomArmorSet.Provider(
                 output,

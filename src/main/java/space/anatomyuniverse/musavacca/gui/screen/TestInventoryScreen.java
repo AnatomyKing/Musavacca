@@ -1,13 +1,13 @@
 package space.anatomyuniverse.musavacca.gui.screen;
 
 //? if <1.21.6
-//import com.mojang.math.Axis;
+import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 //? if >=1.21.6
-import net.minecraft.client.renderer.RenderPipelines;
+//import net.minecraft.client.renderer.RenderPipelines;
 //? if <1.21.6
-//import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -115,10 +115,10 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
 
     private void nextLayer(GuiGraphics graphics) {
         //? if >=1.21.6 {
-        graphics.nextStratum();
-         //?} else {
-        /*graphics.pose();
-        *///?}
+        /*graphics.nextStratum();
+         *///?} else {
+        graphics.pose();
+        //?}
     }
 
     private void blitRotatingDisk(GuiGraphics graphics, int guiX, int guiY) {
@@ -172,7 +172,7 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
             int textureHeight
     ) {
         //? if >=1.21.6 {
-        graphics.blit(
+        /*graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 texture,
                 x,
@@ -184,8 +184,8 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
                 textureWidth,
                 textureHeight
         );
-        //?} else {
-        /*graphics.blit(
+        *///?} else {
+        graphics.blit(
                 RenderType::guiTextured,
                 texture,
                 x,
@@ -197,39 +197,39 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
                 textureWidth,
                 textureHeight
         );
-        *///?}
+        //?}
     }
 
     private void pushPose(GuiGraphics graphics) {
         //? if >=1.21.6 {
-        graphics.pose().pushMatrix();
-         //?} else {
-        /*graphics.pose().pushPose();
-        *///?}
+        /*graphics.pose().pushMatrix();
+         *///?} else {
+        graphics.pose().pushPose();
+        //?}
     }
 
     private void popPose(GuiGraphics graphics) {
         //? if >=1.21.6 {
-        graphics.pose().popMatrix();
-         //?} else {
-        /*graphics.pose().popPose();
-        *///?}
+        /*graphics.pose().popMatrix();
+         *///?} else {
+        graphics.pose().popPose();
+        //?}
     }
 
     private void translatePose(GuiGraphics graphics, float x, float y) {
         //? if >=1.21.6 {
-        graphics.pose().translate(x, y);
-         //?} else {
-        /*graphics.pose().translate(x, y, 0.0F);
-        *///?}
+        /*graphics.pose().translate(x, y);
+         *///?} else {
+        graphics.pose().translate(x, y, 0.0F);
+        //?}
     }
 
     private void rotatePose(GuiGraphics graphics, float radians) {
         //? if >=1.21.6 {
-        graphics.pose().rotate(radians);
-         //?} else {
-        /*graphics.pose().mulPose(Axis.ZP.rotation(radians));
-        *///?}
+        /*graphics.pose().rotate(radians);
+         *///?} else {
+        graphics.pose().mulPose(Axis.ZP.rotation(radians));
+        //?}
     }
 
     @Override

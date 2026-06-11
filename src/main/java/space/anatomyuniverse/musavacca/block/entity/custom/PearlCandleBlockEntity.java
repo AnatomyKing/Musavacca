@@ -14,9 +14,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 //? if >=1.21.6
-import net.minecraft.world.level.storage.ValueInput;
+//import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
-import net.minecraft.world.level.storage.ValueOutput;
+//import net.minecraft.world.level.storage.ValueOutput;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
@@ -106,7 +106,7 @@ public class PearlCandleBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    @Override
+    /*@Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.hexColor = readHexOrUnset(input);
@@ -120,8 +120,8 @@ public class PearlCandleBlockEntity extends BlockEntity {
             output.putInt(TAG_HEX_COLOR, this.hexColor);
         }
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         this.hexColor = readHexOrUnset(tag);
@@ -135,7 +135,7 @@ public class PearlCandleBlockEntity extends BlockEntity {
             tag.putInt(TAG_HEX_COLOR, this.hexColor);
         }
     }
-    *///?}
+    //?}
 
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
@@ -165,7 +165,7 @@ public class PearlCandleBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    @Override
+    /*@Override
     public void handleUpdateTag(ValueInput input) {
         super.handleUpdateTag(input);
         this.rerenderClientNow();
@@ -176,8 +176,8 @@ public class PearlCandleBlockEntity extends BlockEntity {
         super.onDataPacket(connection, input);
         this.rerenderClientNow();
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
         super.handleUpdateTag(tag, provider);
         this.rerenderClientNow();
@@ -188,15 +188,15 @@ public class PearlCandleBlockEntity extends BlockEntity {
         super.onDataPacket(connection, packet, provider);
         this.rerenderClientNow();
     }
-    *///?}
+    //?}
 
     //? if >=1.21.6 {
-    private static int readHexOrUnset(ValueInput input) {
+    /*private static int readHexOrUnset(ValueInput input) {
         int loaded = input.getIntOr(TAG_HEX_COLOR, UNSET_HEX_COLOR);
         return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
-    //?} else {
-    /*private static int readHexOrUnset(CompoundTag tag) {
+    *///?} else {
+    private static int readHexOrUnset(CompoundTag tag) {
         int loaded = getIntOr(tag, TAG_HEX_COLOR, UNSET_HEX_COLOR);
         return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
@@ -207,7 +207,7 @@ public class PearlCandleBlockEntity extends BlockEntity {
         //? if <1.21.5
         //return tag.contains(key) ? tag.getInt(key) : fallback;
     }
-    *///?}
+    //?}
 
     private static int normalizeHex(int hexColor) {
         return VocoReceptorLogic.normalizeHex(hexColor);

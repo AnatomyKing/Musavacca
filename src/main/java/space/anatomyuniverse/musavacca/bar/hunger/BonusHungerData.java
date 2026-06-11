@@ -1,24 +1,24 @@
 package space.anatomyuniverse.musavacca.bar.hunger;
 
 //? if <1.21.6
-//import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup;
 //? if <1.21.6
-//import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 //? if >=1.21.6
-import net.minecraft.world.level.storage.ValueInput;
+//import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
-import net.minecraft.world.level.storage.ValueOutput;
+//import net.minecraft.world.level.storage.ValueOutput;
 //? if <1.21.6
-//import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 //? if >=1.21.6
-import net.neoforged.neoforge.common.util.ValueIOSerializable;
+//import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 @SuppressWarnings({"unused", "CommentedOutCode", "NullableProblems"})
 //? if >=1.21.6 {
-public final class BonusHungerData implements ValueIOSerializable {
-    //?} else
-    //public final class BonusHungerData implements INBTSerializable<CompoundTag> {
+/*public final class BonusHungerData implements ValueIOSerializable {
+    *///?} else
+    public final class BonusHungerData implements INBTSerializable<CompoundTag> {
     public static final int MAX_FOOD = 20;
 
     private static final float EXHAUSTION_STEP = 4.0F;
@@ -46,7 +46,7 @@ public final class BonusHungerData implements ValueIOSerializable {
     private boolean lastSyncedActive = false;
 
     //? if >=1.21.6 {
-    @Override
+    /*@Override
     public void serialize(ValueOutput output) {
         output.putInt("food", this.food);
         output.putFloat("saturation", this.saturation);
@@ -64,8 +64,8 @@ public final class BonusHungerData implements ValueIOSerializable {
         resetTransientState();
         clampToValidState();
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         tag.putInt("food", this.food);
@@ -85,7 +85,7 @@ public final class BonusHungerData implements ValueIOSerializable {
         resetTransientState();
         clampToValidState();
     }
-    *///?}
+    //?}
 
     private void resetTransientState() {
         this.lastBaseFood = MAX_FOOD;

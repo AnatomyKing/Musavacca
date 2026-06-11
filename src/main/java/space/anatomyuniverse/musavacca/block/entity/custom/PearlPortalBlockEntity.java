@@ -16,9 +16,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 //? if >=1.21.6
-import net.minecraft.world.level.storage.ValueInput;
+//import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
-import net.minecraft.world.level.storage.ValueOutput;
+//import net.minecraft.world.level.storage.ValueOutput;
 import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -231,7 +231,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    @Override
+    /*@Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
@@ -293,8 +293,8 @@ public class PearlPortalBlockEntity extends BlockEntity {
         output.putInt(TAG_EXIT_ANCHOR_Y, anchor.getY());
         output.putInt(TAG_EXIT_ANCHOR_Z, anchor.getZ());
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
 
@@ -356,7 +356,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         tag.putInt(TAG_EXIT_ANCHOR_Y, anchor.getY());
         tag.putInt(TAG_EXIT_ANCHOR_Z, anchor.getZ());
     }
-    *///?}
+    //?}
 
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
@@ -385,7 +385,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
     }
 
     //? if >=1.21.6 {
-    @Override
+    /*@Override
     public void handleUpdateTag(ValueInput input) {
         super.handleUpdateTag(input);
         this.rerenderClientNow();
@@ -396,8 +396,8 @@ public class PearlPortalBlockEntity extends BlockEntity {
         super.onDataPacket(connection, input);
         this.rerenderClientNow();
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
         super.handleUpdateTag(tag, provider);
         this.rerenderClientNow();
@@ -408,10 +408,10 @@ public class PearlPortalBlockEntity extends BlockEntity {
         super.onDataPacket(connection, packet, provider);
         this.rerenderClientNow();
     }
-    *///?}
+    //?}
 
     //? if >=1.21.6 {
-    private static BlockPos readBlockPos(
+    /*private static BlockPos readBlockPos(
             ValueInput input,
             String xTag,
             String yTag,
@@ -437,8 +437,8 @@ public class PearlPortalBlockEntity extends BlockEntity {
             return fallback;
         }
     }
-    //?} else {
-    /*private static BlockPos readBlockPos(
+    *///?} else {
+    private static BlockPos readBlockPos(
             CompoundTag tag,
             String xTag,
             String yTag,
@@ -478,7 +478,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         //?} else
         //return tag.contains(key) ? tag.getString(key) : fallback;
     }
-    *///?}
+    //?}
 
     private static Direction.Axis axisFromString(String text) {
         return switch ((text == null ? "" : text).toLowerCase()) {
