@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/ModItems.java
 package space.anatomyuniverse.musavacca.item;
 
 import net.minecraft.Util;
@@ -8,11 +7,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -39,6 +40,29 @@ public final class ModItems {
             Registries.ITEM,
             ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "repairs_potassium_armor")
     );
+
+    public static final TagKey<Item> REPAIRS_POTASSIUM_TOOLS = TagKey.create(
+            Registries.ITEM,
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "repairs_potassium_tools")
+    );
+
+    public static final ToolMaterial POTASSIUM_TOOL_MATERIAL = new ToolMaterial(
+            BlockTags.INCORRECT_FOR_NETHERITE_TOOL,
+            1850,
+            8.5F,
+            3.5F,
+            12,
+            REPAIRS_POTASSIUM_TOOLS
+    );
+
+    private static final FoodProperties POTASSIUM_FOOD = new FoodProperties.Builder()
+            .nutrition(8)
+            .saturationModifier(0.8F)
+            .build();
+
+    private static final Consumable POTASSIUM_CONSUMABLE = Consumables.defaultFood()
+            .consumeSeconds(1.6F)
+            .build();
 
     public static final DeferredItem<BlockItem> MUSAVACCA_PUP =
             ITEMS.registerItem("musavacca_pup",
@@ -168,42 +192,42 @@ public final class ModItems {
     public static final DeferredItem<Item> POTASSIUM_SWORD =
             ITEMS.registerItem("potassium_sword",
                     props -> new PotassiumItem(
-                            props.sword(ToolMaterial.DIAMOND, 3.0F, -2.4F)
-                                    .food(Foods.APPLE)
+                            props.sword(POTASSIUM_TOOL_MATERIAL, 3.0F, -2.4F)
+                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_SHOVEL =
             ITEMS.registerItem("potassium_shovel",
                     props -> new PotassiumShovelItem(
-                            ToolMaterial.DIAMOND,
+                            POTASSIUM_TOOL_MATERIAL,
                             1.5F,
                             -3.0F,
-                            props.food(Foods.APPLE)
+                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_PICKAXE =
             ITEMS.registerItem("potassium_pickaxe",
                     props -> new PotassiumItem(
-                            props.pickaxe(ToolMaterial.DIAMOND, 1.0F, -2.8F)
-                                    .food(Foods.APPLE)
+                            props.pickaxe(POTASSIUM_TOOL_MATERIAL, 1.0F, -2.8F)
+                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_AXE =
             ITEMS.registerItem("potassium_axe",
                     props -> new PotassiumAxeItem(
-                            ToolMaterial.DIAMOND,
+                            POTASSIUM_TOOL_MATERIAL,
                             5.0F,
                             -3.0F,
-                            props.food(Foods.APPLE)
+                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_HOE =
             ITEMS.registerItem("potassium_hoe",
                     props -> new PotassiumHoeItem(
-                            ToolMaterial.DIAMOND,
-                            -3.0F,
+                            POTASSIUM_TOOL_MATERIAL,
+                            -3.5F,
                             0.0F,
-                            props.food(Foods.APPLE)
+                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_HELMET =
@@ -216,21 +240,21 @@ public final class ModItems {
             ITEMS.registerItem("potassium_chestplate",
                     props -> new PotassiumItem(
                             props.humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.CHESTPLATE)
-                                    .food(Foods.APPLE)
+                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_LEGGINGS =
             ITEMS.registerItem("potassium_leggings",
                     props -> new PotassiumItem(
                             props.humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.LEGGINGS)
-                                    .food(Foods.APPLE)
+                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_BOOTS =
             ITEMS.registerItem("potassium_boots",
                     props -> new PotassiumItem(
                             props.humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.BOOTS)
-                                    .food(Foods.APPLE)
+                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
                     ));
 
     private static Item.Properties potassiumCustomHeadHelmetProperties(Item.Properties props) {
@@ -262,12 +286,12 @@ public final class ModItems {
                                 .build()
                 )
 
-                .food(Foods.APPLE);
+                .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE);
     }
 
     private static ArmorMaterial potassiumArmorMaterial(ResourceKey<EquipmentAsset> equipmentAsset) {
         return new ArmorMaterial(
-                33,
+                35,
                 Util.make(new java.util.EnumMap<>(ArmorType.class), map -> {
                     map.put(ArmorType.BOOTS, 3);
                     map.put(ArmorType.LEGGINGS, 6);
@@ -275,9 +299,9 @@ public final class ModItems {
                     map.put(ArmorType.HELMET, 3);
                     map.put(ArmorType.BODY, 11);
                 }),
-                10,
+                12,
                 SoundEvents.ARMOR_EQUIP_DIAMOND,
-                2.0F,
+                2.5F,
                 0.0F,
                 REPAIRS_POTASSIUM_ARMOR,
                 equipmentAsset

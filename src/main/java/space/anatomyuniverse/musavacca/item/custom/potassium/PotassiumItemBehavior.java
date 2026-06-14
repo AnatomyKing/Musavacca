@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 
 public final class PotassiumItemBehavior {
-    private static final int EAT_DURABILITY_DAMAGE = 27;
+    private static final float EAT_DURABILITY_DAMAGE_PERCENT = 0.02F;
 
     private PotassiumItemBehavior() {
     }
@@ -21,6 +21,21 @@ public final class PotassiumItemBehavior {
     public static boolean isLookingAtBlock(Player player) {
         HitResult hitResult = player.pick(player.blockInteractionRange(), 0.0F, false);
         return hitResult.getType() == HitResult.Type.BLOCK;
+    }
+
+    public static boolean canStartEating(ItemStack stack, Player player) {
+        if (player.getAbilities().instabuild) {
+            return true;
+        }
+
+        if (!stack.isDamageableItem()) {
+            return true;
+        }
+
+        int remainingDurability = stack.getMaxDamage() - stack.getDamageValue();
+        int eatDurabilityDamage = getEatDurabilityDamage(stack);
+
+        return remainingDurability > eatDurabilityDamage;
     }
 
     public static ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
@@ -32,16 +47,25 @@ public final class PotassiumItemBehavior {
 
             if (!(entity instanceof Player player) || !player.getAbilities().instabuild) {
                 InteractionHand hand = entity.getUsedItemHand();
+                int eatDurabilityDamage = getEatDurabilityDamage(stack);
 
                 //? if >=1.21.6 {
-                stack.hurtAndBreak(EAT_DURABILITY_DAMAGE, entity, hand);
+                stack.hurtAndBreak(eatDurabilityDamage, entity, hand);
                 //?} else {
-                /*stack.hurtAndBreak(EAT_DURABILITY_DAMAGE, entity, slotForHand(hand));
-                *///?}
+                /*stack.hurtAndBreak(eatDurabilityDamage, entity, slotForHand(hand));
+                 *///?}
             }
         }
 
         return stack;
+    }
+
+    private static int getEatDurabilityDamage(ItemStack stack) {
+        if (!stack.isDamageableItem()) {
+            return 0;
+        }
+
+        return Math.max(1, (int) Math.ceil(stack.getMaxDamage() * EAT_DURABILITY_DAMAGE_PERCENT));
     }
 
     //? if <1.21.6 {

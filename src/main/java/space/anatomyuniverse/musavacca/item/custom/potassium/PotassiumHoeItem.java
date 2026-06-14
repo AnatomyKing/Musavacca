@@ -20,6 +20,12 @@ public class PotassiumHoeItem extends HoeItem {
             return InteractionResult.PASS;
         }
 
+        ItemStack stack = player.getItemInHand(hand);
+
+        if (!PotassiumItemBehavior.canStartEating(stack, player)) {
+            return InteractionResult.FAIL;
+        }
+
         return super.use(level, player, hand);
     }
 

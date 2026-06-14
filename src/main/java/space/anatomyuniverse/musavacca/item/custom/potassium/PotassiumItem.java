@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/custom/potassium/PotassiumItem.java
 package space.anatomyuniverse.musavacca.item.custom.potassium;
 
 import net.minecraft.world.InteractionHand;
@@ -18,6 +17,12 @@ public class PotassiumItem extends Item {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (PotassiumItemBehavior.isLookingAtBlock(player)) {
             return InteractionResult.PASS;
+        }
+
+        ItemStack stack = player.getItemInHand(hand);
+
+        if (!PotassiumItemBehavior.canStartEating(stack, player)) {
+            return InteractionResult.FAIL;
         }
 
         return super.use(level, player, hand);
