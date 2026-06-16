@@ -111,7 +111,10 @@ public final class ModItems {
                     ));
 
     public static final DeferredItem<Item> BANANA_PHONE =
-            ITEMS.registerItem("banana_phone", props -> new Item(props.rarity(Rarity.UNCOMMON)));
+            ITEMS.registerItem("banana_phone",
+                    props -> new OpenTestInventoryItem(
+                            props.rarity(Rarity.RARE)
+                    ));
 
     public static final DeferredItem<Item> BIG_BANANA_PEARL =
             ITEMS.registerItem("big_banana_pearl", props -> new Item(props.rarity(Rarity.RARE)));
