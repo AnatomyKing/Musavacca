@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import space.anatomyuniverse.musavacca.gui.ModMenus;
 
 public class TestInventoryMenu extends AbstractContainerMenu {
+    private final TestInventoryBackend backend = new TestInventoryBackend();
 
     public TestInventoryMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf ignored) {
         this(containerId, playerInventory);
@@ -27,6 +28,17 @@ public class TestInventoryMenu extends AbstractContainerMenu {
                         Component.literal("Rotary Test GUI")
                 )
         );
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        boolean handled = this.backend.handleButton(player, id);
+
+        if (handled && !player.level().isClientSide()) {
+            this.broadcastChanges();
+        }
+
+        return handled;
     }
 
     @Override

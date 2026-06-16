@@ -12,61 +12,60 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.gui.menu.TestInventoryBackend;
 import space.anatomyuniverse.musavacca.gui.menu.TestInventoryMenu;
 
 public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMenu> {
-    private static final int GUI_TEXTURE_SIZE = 256;
+    private static final int GUI_SIZE = 256;
+    private static final int DISK_SIZE = 105;
+    private static final int STOPPER_W = 76;
+    private static final int STOPPER_H = 21;
 
-    private static final ResourceLocation BASE_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/rotary_dialer/base.png");
+    private static final int NO_NIBBLE = -1;
 
-    private static final ResourceLocation BASE_LETTERS_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/rotary_dialer/base_letters.png");
-
-    private static final ResourceLocation DISK_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/rotary_dialer/disk.png");
-
-    private static final ResourceLocation STOPPER_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/rotary_dialer/overlay_stopper.png");
-
-    private static final int DISK_TEXTURE_SIZE = 105;
+    private static final ResourceLocation BASE_TEXTURE = guiTexture("base");
+    private static final ResourceLocation BASE_LETTERS_TEXTURE = guiTexture("base_letters");
+    private static final ResourceLocation DISK_TEXTURE = guiTexture("disk");
+    private static final ResourceLocation STOPPER_BACK_TEXTURE = guiTexture("stopper_back");
+    private static final ResourceLocation STOPPER_FRONT_TEXTURE = guiTexture("stopper_front");
 
     private static final float DIAL_AXIS_X = 129.0F;
     private static final float DIAL_AXIS_Y = 124.0F;
-
     private static final float DISK_PIVOT_X = 52.0F;
     private static final float DISK_PIVOT_Y = 52.0F;
 
-    private static final int DISK_LOCAL_X = Math.round(DIAL_AXIS_X - DISK_PIVOT_X);
-    private static final int DISK_LOCAL_Y = Math.round(DIAL_AXIS_Y - DISK_PIVOT_Y);
+    private static final int DISK_X = Math.round(DIAL_AXIS_X - DISK_PIVOT_X);
+    private static final int DISK_Y = Math.round(DIAL_AXIS_Y - DISK_PIVOT_Y);
 
-    private static final int MIDDLE_BUTTON_X = 117;
-    private static final int MIDDLE_BUTTON_Y = 112;
-    private static final int MIDDLE_BUTTON_WIDTH = 24;
-    private static final int MIDDLE_BUTTON_HEIGHT = 25;
+    private static final int STOPPER_X = 142;
+    private static final int STOPPER_Y = 131;
+
+    private static final float STOPPER_PIVOT_X = 65.0F;
+    private static final float STOPPER_PIVOT_Y = 10.0F;
 
     private static final int DIAL_HOLE_SIZE = 14;
-    private static final int DIAL_HOLE_PIXEL_COUNT = DIAL_HOLE_SIZE * DIAL_HOLE_SIZE;
-    private static final int DIAL_HOLE_HALF_COVERED_COUNT = DIAL_HOLE_PIXEL_COUNT / 2;
+    private static final int DIAL_HOLE_HALF_COVERED_COUNT = (DIAL_HOLE_SIZE * DIAL_HOLE_SIZE) / 2;
 
     private static final float MIN_RETURN_ANGLE_RADIANS = 0.0001F;
     private static final float MAX_DRAG_STEP_RADIANS = 0.01F;
     private static final float RETURN_SPEED_RADIANS_PER_SECOND = 2.85F;
 
-    private static final Hole[] DIAL_HOLES = new Hole[] {
-            new Hole(8, 8),
-            new Hole(32, 8),
-            new Hole(58, 8),
-            new Hole(83, 8),
+    private static final float STOPPER_MAX_SWING_ANGLE_RADIANS = -((float) (Math.PI / 2.0D));
+    private static final long STOPPER_SWING_DURATION_NANOS = 280_000_000L;
 
-            new Hole(8, 33),
-            new Hole(83, 33),
+    private static final Rect MIDDLE_BUTTON = new Rect(117, 112, 141, 137);
 
-            new Hole(8, 58),
-
-            new Hole(8, 83),
-            new Hole(33, 83),
-            new Hole(58, 83)
+    private static final DialEntry[] DIAL_ENTRIES = new DialEntry[] {
+            new DialEntry(new Hole(83, 33), 1, 10),        // 1 / a
+            new DialEntry(new Hole(83, 8), 2, 11),         // 2 / b
+            new DialEntry(new Hole(58, 8), 3, 12),         // 3 / c
+            new DialEntry(new Hole(32, 8), 4, 13),         // 4 / d
+            new DialEntry(new Hole(8, 8), 5, 14),          // 5 / e
+            new DialEntry(new Hole(8, 33), 6, 15),         // 6 / f
+            new DialEntry(new Hole(8, 58), 7, NO_NIBBLE),  // 7
+            new DialEntry(new Hole(8, 83), 8, NO_NIBBLE),  // 8
+            new DialEntry(new Hole(33, 83), 9, NO_NIBBLE), // 9
+            new DialEntry(new Hole(58, 83), 0, NO_NIBBLE)  // 0
     };
 
     private static final Rect[] STOPPER_RECTS = new Rect[] {
@@ -77,12 +76,16 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
     private float diskAngleRadians = 0.0F;
     private float previousDragMouseAngleRadians = 0.0F;
 
+    private float stopperAngleRadians = 0.0F;
+    private boolean stopperSwinging = false;
+    private long stopperSwingStartNanos = 0L;
+
     private boolean draggingDisk = false;
     private boolean returningToStart = false;
     private boolean lettersBase = false;
 
-    private Hole activeDragHole = null;
-    private Hole returningHole = null;
+    private DialEntry activeDialEntry = null;
+    private DialEntry returningDialEntry = null;
 
     private ReturnReason returnReason = ReturnReason.NONE;
     private long lastReturnUpdateNanos = 0L;
@@ -90,87 +93,90 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
     public TestInventoryScreen(TestInventoryMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
 
-        this.imageWidth = GUI_TEXTURE_SIZE;
-        this.imageHeight = GUI_TEXTURE_SIZE;
+        this.imageWidth = GUI_SIZE;
+        this.imageHeight = GUI_SIZE;
 
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
     }
 
+    private static ResourceLocation guiTexture(String fileName) {
+        return ResourceLocation.fromNamespaceAndPath(
+                MusaCore.MOD_ID,
+                "textures/gui/rotary_dialer/" + fileName + ".png"
+        );
+    }
+
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        this.updateReturnAnimation();
+        this.updateAnimations();
 
         int guiX = this.leftPos;
         int guiY = this.topPos;
 
-        this.blitFullGuiTexture(graphics, this.lettersBase ? BASE_LETTERS_TEXTURE : BASE_TEXTURE, guiX, guiY);
+        this.blitStopper(graphics, STOPPER_BACK_TEXTURE, guiX, guiY);
 
         this.nextLayer(graphics);
-        this.blitRotatingDisk(graphics, guiX, guiY);
+        this.blitTexture(graphics, this.lettersBase ? BASE_LETTERS_TEXTURE : BASE_TEXTURE, guiX, guiY, GUI_SIZE, GUI_SIZE);
 
         this.nextLayer(graphics);
-        this.blitFullGuiTexture(graphics, STOPPER_TEXTURE, guiX, guiY);
+        this.blitDisk(graphics, guiX, guiY);
+
+        this.nextLayer(graphics);
+        this.blitStopper(graphics, STOPPER_FRONT_TEXTURE, guiX, guiY);
     }
 
-    private void nextLayer(GuiGraphics graphics) {
-        //? if >=1.21.6 {
-        graphics.nextStratum();
-         //?} else {
-        /*graphics.pose();
-        *///?}
-    }
-
-    private void blitRotatingDisk(GuiGraphics graphics, int guiX, int guiY) {
-        float axisScreenX = guiX + DIAL_AXIS_X;
-        float axisScreenY = guiY + DIAL_AXIS_Y;
-
-        int diskScreenX = guiX + DISK_LOCAL_X;
-        int diskScreenY = guiY + DISK_LOCAL_Y;
-
-        this.pushPose(graphics);
-
-        this.translatePose(graphics, axisScreenX, axisScreenY);
-        this.rotatePose(graphics, this.diskAngleRadians);
-        this.translatePose(graphics, -axisScreenX, -axisScreenY);
-
-        this.blitTexture(
+    private void blitDisk(GuiGraphics graphics, int guiX, int guiY) {
+        this.blitRotatedTexture(
                 graphics,
                 DISK_TEXTURE,
-                diskScreenX,
-                diskScreenY,
-                DISK_TEXTURE_SIZE,
-                DISK_TEXTURE_SIZE,
-                DISK_TEXTURE_SIZE,
-                DISK_TEXTURE_SIZE
+                guiX + DISK_X,
+                guiY + DISK_Y,
+                DISK_SIZE,
+                DISK_SIZE,
+                guiX + DIAL_AXIS_X,
+                guiY + DIAL_AXIS_Y,
+                this.diskAngleRadians
         );
-
-        this.popPose(graphics);
     }
 
-    private void blitFullGuiTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y) {
-        this.blitTexture(
+    private void blitStopper(GuiGraphics graphics, ResourceLocation texture, int guiX, int guiY) {
+        this.blitRotatedTexture(
                 graphics,
                 texture,
-                x,
-                y,
-                GUI_TEXTURE_SIZE,
-                GUI_TEXTURE_SIZE,
-                GUI_TEXTURE_SIZE,
-                GUI_TEXTURE_SIZE
+                guiX + STOPPER_X,
+                guiY + STOPPER_Y,
+                STOPPER_W,
+                STOPPER_H,
+                guiX + STOPPER_X + STOPPER_PIVOT_X,
+                guiY + STOPPER_Y + STOPPER_PIVOT_Y,
+                this.stopperAngleRadians
         );
     }
 
-    private void blitTexture(
+    private void blitRotatedTexture(
             GuiGraphics graphics,
             ResourceLocation texture,
             int x,
             int y,
             int width,
             int height,
-            int textureWidth,
-            int textureHeight
+            float axisX,
+            float axisY,
+            float angleRadians
     ) {
+        this.pushPose(graphics);
+
+        this.translatePose(graphics, axisX, axisY);
+        this.rotatePose(graphics, angleRadians);
+        this.translatePose(graphics, -axisX, -axisY);
+
+        this.blitTexture(graphics, texture, x, y, width, height);
+
+        this.popPose(graphics);
+    }
+
+    private void blitTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height) {
         //? if >=1.21.6 {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
@@ -181,8 +187,8 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
                 0.0F,
                 width,
                 height,
-                textureWidth,
-                textureHeight
+                width,
+                height
         );
         //?} else {
         /*graphics.blit(
@@ -194,63 +200,82 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
                 0.0F,
                 width,
                 height,
-                textureWidth,
-                textureHeight
+                width,
+                height
         );
         *///?}
+    }
+
+    private void nextLayer(GuiGraphics graphics) {
+        //? if >=1.21.6 {
+        graphics.nextStratum();
+        //?} else {
+        /*graphics.pose();
+         *///?}
     }
 
     private void pushPose(GuiGraphics graphics) {
         //? if >=1.21.6 {
         graphics.pose().pushMatrix();
-         //?} else {
+        //?} else {
         /*graphics.pose().pushPose();
-        *///?}
+         *///?}
     }
 
     private void popPose(GuiGraphics graphics) {
         //? if >=1.21.6 {
         graphics.pose().popMatrix();
-         //?} else {
+        //?} else {
         /*graphics.pose().popPose();
-        *///?}
+         *///?}
     }
 
     private void translatePose(GuiGraphics graphics, float x, float y) {
         //? if >=1.21.6 {
         graphics.pose().translate(x, y);
-         //?} else {
+        //?} else {
         /*graphics.pose().translate(x, y, 0.0F);
-        *///?}
+         *///?}
     }
 
     private void rotatePose(GuiGraphics graphics, float radians) {
         //? if >=1.21.6 {
         graphics.pose().rotate(radians);
-         //?} else {
+        //?} else {
         /*graphics.pose().mulPose(Axis.ZP.rotation(radians));
-        *///?}
+         *///?}
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && this.isMouseInsideMiddleButton(mouseX, mouseY)) {
+        if (button != 0) {
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        if (this.isMouseInsideRect(mouseX, mouseY, MIDDLE_BUTTON)) {
             this.lettersBase = !this.lettersBase;
-            this.cancelDialInteraction();
+            this.cancelInteractions();
             return true;
         }
 
-        if (button == 0 && !this.returningToStart) {
-            Hole clickedHole = this.findDialHoleAtMouse(mouseX, mouseY);
+        if (this.stopperSwinging || this.returningToStart || this.draggingDisk) {
+            return true;
+        }
 
-            if (clickedHole != null) {
-                this.draggingDisk = true;
-                this.activeDragHole = clickedHole;
-                this.returningHole = null;
-                this.returnReason = ReturnReason.NONE;
-                this.previousDragMouseAngleRadians = normalizeRadians(this.angleFromDialAxis(mouseX, mouseY));
-                return true;
-            }
+        if (this.isMouseInsideStopper(mouseX, mouseY)) {
+            this.startStopperSwing();
+            return true;
+        }
+
+        DialEntry clickedEntry = this.findDialEntryAtMouse(mouseX, mouseY);
+
+        if (clickedEntry != null) {
+            this.draggingDisk = true;
+            this.activeDialEntry = clickedEntry;
+            this.returningDialEntry = null;
+            this.returnReason = ReturnReason.NONE;
+            this.previousDragMouseAngleRadians = normalizeRadians(this.angleFromDialAxis(mouseX, mouseY));
+            return true;
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
@@ -258,7 +283,7 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (button == 0 && this.draggingDisk && this.activeDragHole != null) {
+        if (button == 0 && this.draggingDisk && this.activeDialEntry != null) {
             float currentMouseAngleRadians = normalizeRadians(this.angleFromDialAxis(mouseX, mouseY));
             float clockwiseDeltaRadians = signedShortestAngleDelta(
                     this.previousDragMouseAngleRadians,
@@ -274,6 +299,27 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         }
 
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && this.draggingDisk) {
+            if (this.diskAngleRadians > MIN_RETURN_ANGLE_RADIANS) {
+                this.startReturningToStart(ReturnReason.RELEASED_EARLY);
+            } else {
+                this.stopDraggingWithoutReturn();
+            }
+
+            return true;
+        }
+
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void removed() {
+        this.cancelInteractions();
+        super.removed();
     }
 
     private boolean applyClockwiseDragSafely(float totalDeltaRadians) {
@@ -297,33 +343,21 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         return false;
     }
 
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0 && this.draggingDisk) {
-            if (this.diskAngleRadians > MIN_RETURN_ANGLE_RADIANS) {
-                this.startReturningToStart(ReturnReason.RELEASED_EARLY);
-            } else {
-                this.stopDraggingWithoutReturn();
-            }
-
-            return true;
-        }
-
-        return super.mouseReleased(mouseX, mouseY, button);
-    }
-
-    @Override
-    public void removed() {
-        this.cancelDialInteraction();
-        super.removed();
-    }
-
-    private void updateReturnAnimation() {
-        if (!this.returningToStart) {
+    private void updateAnimations() {
+        if (!this.returningToStart && !this.stopperSwinging) {
             return;
         }
 
         long now = System.nanoTime();
+
+        this.updateReturnAnimation(now);
+        this.updateStopperSwingAnimation(now);
+    }
+
+    private void updateReturnAnimation(long now) {
+        if (!this.returningToStart) {
+            return;
+        }
 
         if (this.lastReturnUpdateNanos == 0L) {
             this.lastReturnUpdateNanos = now;
@@ -336,83 +370,125 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         this.diskAngleRadians -= RETURN_SPEED_RADIANS_PER_SECOND * deltaSeconds;
 
         if (this.diskAngleRadians <= 0.0F) {
+            ReturnReason finishedReason = this.returnReason;
+            DialEntry finishedEntry = this.returningDialEntry;
+
             this.diskAngleRadians = 0.0F;
             this.returningToStart = false;
+            this.returnReason = ReturnReason.NONE;
+            this.returningDialEntry = null;
             this.lastReturnUpdateNanos = 0L;
 
-            ReturnReason finishedReason = this.returnReason;
-            Hole finishedHole = this.returningHole;
-
-            this.returnReason = ReturnReason.NONE;
-            this.returningHole = null;
-
-            this.onDialReturnedToStart(finishedReason, finishedHole);
+            this.onDialReturnedToStart(finishedReason, finishedEntry);
         }
     }
 
-    private void onDialReturnedToStart(ReturnReason reason, Hole hole) {
-        if (reason == ReturnReason.HIT_STOPPER && hole != null) {
-            // Completed dial input.
-            this.diskAngleRadians = 0.0F;
+    private void updateStopperSwingAnimation(long now) {
+        if (!this.stopperSwinging) {
+            return;
+        }
+
+        long elapsedNanos = now - this.stopperSwingStartNanos;
+
+        if (elapsedNanos >= STOPPER_SWING_DURATION_NANOS) {
+            this.stopperSwinging = false;
+            this.stopperSwingStartNanos = 0L;
+            this.stopperAngleRadians = 0.0F;
+
+            this.sendBackendButton(TestInventoryBackend.BUTTON_CLEAR);
+            return;
+        }
+
+        float progress = elapsedNanos / (float) STOPPER_SWING_DURATION_NANOS;
+        float swingProgress = progress < 0.5F
+                ? easeInOutSine(progress * 2.0F)
+                : 1.0F - easeInOutSine((progress - 0.5F) * 2.0F);
+
+        this.stopperAngleRadians = swingProgress * STOPPER_MAX_SWING_ANGLE_RADIANS;
+    }
+
+    private void startStopperSwing() {
+        this.stopperSwinging = true;
+        this.stopperSwingStartNanos = System.nanoTime();
+        this.stopperAngleRadians = 0.0F;
+    }
+
+    private void onDialReturnedToStart(ReturnReason reason, DialEntry entry) {
+        if (reason != ReturnReason.HIT_STOPPER || entry == null) {
+            return;
+        }
+
+        int nibble = entry.nibble(this.lettersBase);
+
+        if (nibble >= 0) {
+            this.sendBackendButton(nibble);
+        }
+    }
+
+    private void sendBackendButton(int buttonId) {
+        if (!TestInventoryBackend.isKnownButton(buttonId)) {
+            return;
+        }
+
+        if (this.minecraft == null || this.minecraft.player == null || this.minecraft.gameMode == null) {
+            return;
+        }
+
+        if (this.menu.clickMenuButton(this.minecraft.player, buttonId)) {
+            this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, buttonId);
         }
     }
 
     private void startReturningToStart(ReturnReason reason) {
-        this.returningHole = this.activeDragHole;
+        this.returningDialEntry = this.activeDialEntry;
         this.returnReason = reason;
 
         this.draggingDisk = false;
-        this.activeDragHole = null;
+        this.activeDialEntry = null;
         this.returningToStart = true;
         this.lastReturnUpdateNanos = 0L;
     }
 
     private void stopDraggingWithoutReturn() {
         this.draggingDisk = false;
-        this.activeDragHole = null;
+        this.activeDialEntry = null;
         this.previousDragMouseAngleRadians = 0.0F;
     }
 
-    private void cancelDialInteraction() {
+    private void cancelInteractions() {
         this.draggingDisk = false;
         this.returningToStart = false;
-        this.activeDragHole = null;
-        this.returningHole = null;
+        this.activeDialEntry = null;
+        this.returningDialEntry = null;
         this.returnReason = ReturnReason.NONE;
         this.lastReturnUpdateNanos = 0L;
         this.previousDragMouseAngleRadians = 0.0F;
         this.diskAngleRadians = 0.0F;
+
+        this.stopperSwinging = false;
+        this.stopperSwingStartNanos = 0L;
+        this.stopperAngleRadians = 0.0F;
     }
 
-    private boolean isMouseInsideMiddleButton(double mouseX, double mouseY) {
-        double localX = mouseX - this.leftPos;
-        double localY = mouseY - this.topPos;
+    private DialEntry findDialEntryAtMouse(double mouseX, double mouseY) {
+        Point point = this.mouseToUnrotatedDiskLocal(mouseX, mouseY);
 
-        return localX >= MIDDLE_BUTTON_X
-                && localX < MIDDLE_BUTTON_X + MIDDLE_BUTTON_WIDTH
-                && localY >= MIDDLE_BUTTON_Y
-                && localY < MIDDLE_BUTTON_Y + MIDDLE_BUTTON_HEIGHT;
-    }
-
-    private Hole findDialHoleAtMouse(double mouseX, double mouseY) {
-        DiskLocalPoint point = this.mouseToUnrotatedDiskLocal(mouseX, mouseY);
-
-        if (point.x < 0.0D || point.x >= DISK_TEXTURE_SIZE || point.y < 0.0D || point.y >= DISK_TEXTURE_SIZE) {
+        if (point.x < 0.0D || point.x >= DISK_SIZE || point.y < 0.0D || point.y >= DISK_SIZE) {
             return null;
         }
 
-        for (Hole hole : DIAL_HOLES) {
-            if (hole.contains(point.x, point.y)) {
-                return hole;
+        for (DialEntry entry : DIAL_ENTRIES) {
+            if (entry.hole.contains(point.x, point.y)) {
+                return entry;
             }
         }
 
         return null;
     }
 
-    private DiskLocalPoint mouseToUnrotatedDiskLocal(double mouseX, double mouseY) {
-        double axisScreenX = this.getDialAxisScreenX();
-        double axisScreenY = this.getDialAxisScreenY();
+    private Point mouseToUnrotatedDiskLocal(double mouseX, double mouseY) {
+        double axisScreenX = this.leftPos + DIAL_AXIS_X;
+        double axisScreenY = this.topPos + DIAL_AXIS_Y;
 
         double dx = mouseX - axisScreenX;
         double dy = mouseY - axisScreenY;
@@ -420,33 +496,34 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         double cos = Math.cos(-this.diskAngleRadians);
         double sin = Math.sin(-this.diskAngleRadians);
 
-        double unrotatedDx = dx * cos - dy * sin;
-        double unrotatedDy = dx * sin + dy * cos;
-
-        double diskScreenX = this.leftPos + DISK_LOCAL_X;
-        double diskScreenY = this.topPos + DISK_LOCAL_Y;
-
-        return new DiskLocalPoint(
-                axisScreenX + unrotatedDx - diskScreenX,
-                axisScreenY + unrotatedDy - diskScreenY
+        return new Point(
+                axisScreenX + dx * cos - dy * sin - (this.leftPos + DISK_X),
+                axisScreenY + dx * sin + dy * cos - (this.topPos + DISK_Y)
         );
     }
 
     private boolean isActiveHoleHalfCoveredByStopper() {
-        if (this.activeDragHole == null) {
+        if (this.activeDialEntry == null) {
             return false;
         }
 
         int coveredPixels = 0;
+        double cos = Math.cos(this.diskAngleRadians);
+        double sin = Math.sin(this.diskAngleRadians);
+        Hole hole = this.activeDialEntry.hole;
 
         for (int pixelY = 0; pixelY < DIAL_HOLE_SIZE; pixelY++) {
             for (int pixelX = 0; pixelX < DIAL_HOLE_SIZE; pixelX++) {
-                double diskLocalX = this.activeDragHole.x + pixelX + 0.5D;
-                double diskLocalY = this.activeDragHole.y + pixelY + 0.5D;
+                double unrotatedGuiX = DISK_X + hole.x + pixelX + 0.5D;
+                double unrotatedGuiY = DISK_Y + hole.y + pixelY + 0.5D;
 
-                GuiLocalPoint rotatedPoint = this.diskLocalToRotatedGuiLocal(diskLocalX, diskLocalY);
+                double dx = unrotatedGuiX - DIAL_AXIS_X;
+                double dy = unrotatedGuiY - DIAL_AXIS_Y;
 
-                if (this.isGuiLocalPointInsideStopper(rotatedPoint.x, rotatedPoint.y)) {
+                double rotatedGuiX = DIAL_AXIS_X + dx * cos - dy * sin;
+                double rotatedGuiY = DIAL_AXIS_Y + dx * sin + dy * cos;
+
+                if (this.isGuiLocalPointInsideStopper(rotatedGuiX, rotatedGuiY)) {
                     coveredPixels++;
 
                     if (coveredPixels >= DIAL_HOLE_HALF_COVERED_COUNT) {
@@ -459,20 +536,15 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         return false;
     }
 
-    private GuiLocalPoint diskLocalToRotatedGuiLocal(double diskLocalX, double diskLocalY) {
-        double unrotatedGuiX = DISK_LOCAL_X + diskLocalX;
-        double unrotatedGuiY = DISK_LOCAL_Y + diskLocalY;
+    private boolean isMouseInsideStopper(double mouseX, double mouseY) {
+        double localX = mouseX - this.leftPos;
+        double localY = mouseY - this.topPos;
 
-        double dx = unrotatedGuiX - DIAL_AXIS_X;
-        double dy = unrotatedGuiY - DIAL_AXIS_Y;
+        return this.isGuiLocalPointInsideStopper(localX, localY);
+    }
 
-        double cos = Math.cos(this.diskAngleRadians);
-        double sin = Math.sin(this.diskAngleRadians);
-
-        return new GuiLocalPoint(
-                DIAL_AXIS_X + dx * cos - dy * sin,
-                DIAL_AXIS_Y + dx * sin + dy * cos
-        );
+    private boolean isMouseInsideRect(double mouseX, double mouseY, Rect rect) {
+        return rect.contains(mouseX - this.leftPos, mouseY - this.topPos);
     }
 
     private boolean isGuiLocalPointInsideStopper(double guiLocalX, double guiLocalY) {
@@ -486,18 +558,14 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
     }
 
     private float angleFromDialAxis(double mouseX, double mouseY) {
-        double dx = mouseX - this.getDialAxisScreenX();
-        double dy = mouseY - this.getDialAxisScreenY();
-
-        return (float) Math.atan2(dy, dx);
+        return (float) Math.atan2(
+                mouseY - (this.topPos + DIAL_AXIS_Y),
+                mouseX - (this.leftPos + DIAL_AXIS_X)
+        );
     }
 
-    private float getDialAxisScreenX() {
-        return this.leftPos + DIAL_AXIS_X;
-    }
-
-    private float getDialAxisScreenY() {
-        return this.topPos + DIAL_AXIS_Y;
+    private static float easeInOutSine(float t) {
+        return (float) (-(Math.cos(Math.PI * t) - 1.0D) / 2.0D);
     }
 
     private static float normalizeRadians(float angle) {
@@ -505,11 +573,7 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
 
         angle %= fullTurn;
 
-        if (angle < 0.0F) {
-            angle += fullTurn;
-        }
-
-        return angle;
+        return angle < 0.0F ? angle + fullTurn : angle;
     }
 
     private static float signedShortestAngleDelta(float previousAngle, float currentAngle) {
@@ -536,7 +600,7 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
-        super.render(graphics, mouseX, mouseY, partialTick);
+        super.render(graphics, mouseY, mouseY, partialTick);
         this.renderTooltip(graphics, mouseX, mouseY);
     }
 
@@ -546,9 +610,7 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
         HIT_STOPPER
     }
 
-    private record DiskLocalPoint(double x, double y) {}
-
-    private record GuiLocalPoint(double x, double y) {}
+    private record Point(double x, double y) {}
 
     private record Rect(int minX, int minY, int maxX, int maxY) {
         private boolean contains(double pointX, double pointY) {
@@ -565,6 +627,12 @@ public class TestInventoryScreen extends AbstractContainerScreen<TestInventoryMe
                     && pointX < this.x + DIAL_HOLE_SIZE
                     && pointY >= this.y
                     && pointY < this.y + DIAL_HOLE_SIZE;
+        }
+    }
+
+    private record DialEntry(Hole hole, int numberNibble, int letterNibble) {
+        private int nibble(boolean lettersMode) {
+            return lettersMode ? this.letterNibble : this.numberNibble;
         }
     }
 }

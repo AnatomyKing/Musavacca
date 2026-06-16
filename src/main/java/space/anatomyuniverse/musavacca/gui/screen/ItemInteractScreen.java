@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/gui/screen/ItemInteractScreen.java
 package space.anatomyuniverse.musavacca.gui.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
