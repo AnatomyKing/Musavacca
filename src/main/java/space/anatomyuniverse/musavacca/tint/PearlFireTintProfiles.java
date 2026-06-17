@@ -22,12 +22,12 @@ public final class PearlFireTintProfiles {
 
     public static final Profile FLINT_AND_PEARL = of(
             settings(
-                    0.80F,  // coreToTailLightness
-                    0.5F,   // colorJumpiness
-                    1.21F   // layerContrast
+                    0.33F,   // coreToTailLightness
+                    0.32F,  // colorJumpiness
+                    0.98F   // layerContrast
             ),
-            251, 240, 230, 218, 207, 197, 186, 175,
-            164, 142, 96, 74, 0
+            228, 217, 207, 195, 184, 174, 163, 152,
+            102, 76, 60, 46, 0
     );
 
     public static final Profile SIM_CARD_TINT = of(
