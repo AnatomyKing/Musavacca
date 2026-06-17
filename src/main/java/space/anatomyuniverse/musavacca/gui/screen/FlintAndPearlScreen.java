@@ -6,11 +6,19 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 //? if >=1.21.6
 import net.minecraft.client.renderer.RenderPipelines;
+//? if >=1.21.7
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+//? if <1.21.7
+//import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlColorPayload;
 import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlMenu;
+import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
@@ -25,90 +33,103 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
     private static final int PEARL_HEIGHT = 156;
     private static final int PEARL_LAYER_COUNT = 13;
 
-    private static final int HEX_BAR_X = 139;
-    private static final int HEX_BAR_Y = 22;
-    private static final int HEX_BAR_WIDTH = 78;
-    private static final int HEX_BAR_HEIGHT = 38;
-
-    private static final int HEX_SYMBOL_WIDTH = 7;
-    private static final int HEX_SYMBOL_HEIGHT = 9;
-    private static final int HEX_SYMBOL_START_X = 25;
+    private static final int HEX_X = 139;
+    private static final int HEX_Y = 22;
+    private static final int HEX_WIDTH = 78;
+    private static final int HEX_HEIGHT = 38;
+    private static final int HEX_SYMBOL_X = 25;
     private static final int HEX_SYMBOL_Y = 11;
     private static final int HEX_SYMBOL_PRESSED_Y = 13;
-    private static final int HEX_SYMBOL_SPACING = 8;
     private static final int HEX_SYMBOL_COUNT = 6;
-
-    private static final long HEX_FLASH_PHASE_NANOS = 75_000_000L;
-    private static final long HEX_LONG_CLICK_NANOS = 500_000_000L;
-    private static final int HEX_SINGLE_FLASH_COUNT = 1;
-    private static final int HEX_DOUBLE_FLASH_COUNT = 2;
 
     private static final int BAR_WIDTH = 115;
     private static final int BAR_HEIGHT = 38;
+    private static final int BAR_PRESSED_OFFSET_Y = 2;
 
-    private static final int STRIP_LOCAL_X = 10;
-    private static final int STRIP_LOCAL_Y = 10;
+    private static final int STRIP_X = 10;
+    private static final int STRIP_Y = 10;
     private static final int STRIP_WIDTH = 76;
     private static final int STRIP_HEIGHT = 13;
 
-    private static final int VALUE_SYMBOL_WIDTH = 7;
-    private static final int VALUE_SYMBOL_HEIGHT = 9;
-    private static final int VALUE_SYMBOL_START_X = 88;
-    private static final int VALUE_SYMBOL_Y = 12;
-    private static final int VALUE_SYMBOL_SPACING = 8;
+    private static final int VALUE_X = 88;
+    private static final int VALUE_Y = 12;
     private static final int VALUE_SYMBOL_COUNT = 3;
+
+    private static final int SYMBOL_WIDTH = 7;
+    private static final int SYMBOL_HEIGHT = 9;
+    private static final int SYMBOL_SPACING = 8;
 
     private static final int SLIDER_WIDTH = 13;
     private static final int SLIDER_HEIGHT = 11;
-    private static final int SLIDER_LOCAL_MIN_X = 4;
-    private static final int SLIDER_LOCAL_MAX_X = 79;
-    private static final int SLIDER_LOCAL_Y = 21;
+    private static final int SLIDER_MIN_X = 4;
+    private static final int SLIDER_MAX_X = 79;
+    private static final int SLIDER_Y = 21;
 
     private static final int ARROW_WIDTH = 20;
     private static final int ARROW_HEIGHT = 19;
-    private static final int ARROW_LOCAL_X = BAR_WIDTH + 1;
-    private static final int ARROW_UP_LOCAL_Y = -1;
-    private static final int ARROW_DOWN_LOCAL_Y = 20;
+    private static final int ARROW_X = BAR_WIDTH + 1;
+    private static final int ARROW_UP_Y = -1;
+    private static final int ARROW_DOWN_Y = 20;
+
+    private static final long FLASH_PHASE_NANOS = 75_000_000L;
+    private static final long LONG_CLICK_NANOS = 500_000_000L;
+    private static final long COLOR_SYNC_INTERVAL_NANOS = 50_000_000L;
+
+    private static final long PEARL_REPEAT_DELAY_NANOS = 220_000_000L;
+    private static final long PEARL_REPEAT_INTERVAL_NANOS = 115_000_000L;
 
     private static final long ARROW_REPEAT_DELAY_NANOS = 280_000_000L;
     private static final long ARROW_REPEAT_INTERVAL_NANOS = 35_000_000L;
 
-    private static final ResourceLocation HEX_BAR_TEXTURE = guiTexture("hex_bar");
-    private static final ResourceLocation HEX_BAR_PRESSED_TEXTURE = guiTexture("hex_bar_pressed");
-    private static final ResourceLocation HEX_BAR_FLASH_TEXTURE = guiTexture("hex_bar_flash");
-    private static final ResourceLocation HEX_BAR_PRESSED_FLASH_TEXTURE = guiTexture("hex_bar_pressed_flash");
+    private static final int SINGLE_FLASH = 1;
+    private static final int DOUBLE_FLASH = 2;
 
-    private static final ResourceLocation BAR_TEXTURE = guiTexture("bar");
-    private static final ResourceLocation SLIDER_TEXTURE = guiTexture("slider");
+    private static final Object PEARL_TARGET = new Object();
+    private static final Object HEX_TARGET = new Object();
 
-    private static final ResourceLocation ARROW_UP_TEXTURE = guiTexture("arrow_up");
-    private static final ResourceLocation ARROW_UP_PRESSED_TEXTURE = guiTexture("arrow_up_pressed");
-    private static final ResourceLocation ARROW_DOWN_TEXTURE = guiTexture("arrow_down");
-    private static final ResourceLocation ARROW_DOWN_PRESSED_TEXTURE = guiTexture("arrow_down_pressed");
+    private static final ResourceLocation HEX_NORMAL = guiTexture("hex_bar");
+    private static final ResourceLocation HEX_PRESSED = guiTexture("hex_bar_pressed");
+    private static final ResourceLocation HEX_FLASH = guiTexture("hex_bar_flash");
+    private static final ResourceLocation HEX_PRESSED_FLASH = guiTexture("hex_bar_pressed_flash");
 
-    private static final ResourceLocation[] PEARL_TEXTURES = createPearlTextures("flint_and_pearl_");
-    private static final ResourceLocation[] PEARL_PRESSED_TEXTURES = createPearlTextures("flint_and_pearl_pressed_");
-    private static final ResourceLocation[] SYMBOL_TEXTURES = createSymbolTextures();
-    private static final ArrowButton[] ARROW_BUTTONS = createArrowButtons();
+    private static final ResourceLocation BAR_NORMAL = guiTexture("bar");
+    private static final ResourceLocation BAR_PRESSED = guiTexture("bar_pressed");
+    private static final ResourceLocation BAR_FLASH = guiTexture("bar_flash");
+    private static final ResourceLocation BAR_PRESSED_FLASH = guiTexture("bar_pressed_flash");
+
+    private static final ResourceLocation SLIDER = guiTexture("slider");
+
+    private static final ResourceLocation ARROW_UP = guiTexture("arrow_up");
+    private static final ResourceLocation ARROW_UP_PRESSED = guiTexture("arrow_up_pressed");
+    private static final ResourceLocation ARROW_DOWN = guiTexture("arrow_down");
+    private static final ResourceLocation ARROW_DOWN_PRESSED = guiTexture("arrow_down_pressed");
+
+    private static final ResourceLocation[] PEARL = textureArray("flint_and_pearl_", PEARL_LAYER_COUNT);
+    private static final ResourceLocation[] PEARL_PRESSED = textureArray("flint_and_pearl_pressed_", PEARL_LAYER_COUNT);
+    private static final ResourceLocation[] SYMBOLS = symbolArray();
+    private static final ArrowButton[] ARROWS = arrows();
 
     private float hue;
     private float saturation;
     private float value;
 
     private SliderId activeSlider = null;
-    private ArrowButton pressedArrow = null;
+    private Object pressedTarget = null;
+    private Object flashTarget = null;
 
-    private boolean pearlPressed = false;
-    private boolean hexBarPressed = false;
-    private boolean hexFlashVisible = false;
-    private boolean hexLongClickHandled = false;
-    private boolean pressedArrowRepeating = false;
+    private boolean repeatMode = false;
+    private boolean longClickHandled = false;
+    private boolean flashVisible = false;
 
-    private long hexBarPressStartNanos = 0L;
-    private long hexFlashStartNanos = 0L;
-    private int hexFlashPhaseCount = 0;
+    private long pressStartNanos = 0L;
+    private long repeatLastNanos = 0L;
+    private long flashStartNanos = 0L;
+    private long lastSyncNanos = 0L;
 
-    private long pressedArrowLastUpdateNanos = 0L;
+    private int flashPhaseCount = 0;
+    private int lastSyncedRgb = -1;
+    private int pendingSyncRgb = -1;
+
     private double sliderGrabOffsetX = SLIDER_WIDTH / 2.0D;
 
     public FlintAndPearlScreen(FlintAndPearlMenu menu, Inventory playerInventory, Component title) {
@@ -120,48 +141,47 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
 
-        HsvColor initial = rgbToHsv(menu.getHexColor());
+        int initialRgb = TintColorUtil.rgb(menu.getHexColor());
 
-        this.hue = initial.hue();
-        this.saturation = initial.saturation();
-        this.value = initial.value();
+        this.applyColorFromRgb(initialRgb);
+        this.lastSyncedRgb = initialRgb;
     }
 
-    private static ResourceLocation guiTexture(String fileName) {
+    private static ResourceLocation guiTexture(String name) {
         return ResourceLocation.fromNamespaceAndPath(
                 MusaCore.MOD_ID,
-                "textures/gui/flintandpearl/" + fileName + ".png"
+                "textures/gui/flintandpearl/" + name + ".png"
         );
     }
 
-    private static ResourceLocation symbolTexture(String fileName) {
+    private static ResourceLocation symbolTexture(String name) {
         return ResourceLocation.fromNamespaceAndPath(
                 MusaCore.MOD_ID,
-                "textures/gui/flintandpearl/symbols/" + fileName + ".png"
+                "textures/gui/flintandpearl/symbols/" + name + ".png"
         );
     }
 
-    private static ResourceLocation[] createPearlTextures(String prefix) {
-        ResourceLocation[] textures = new ResourceLocation[PEARL_LAYER_COUNT];
+    private static ResourceLocation[] textureArray(String prefix, int count) {
+        ResourceLocation[] textures = new ResourceLocation[count];
 
-        for (int layer = 0; layer < textures.length; layer++) {
-            textures[layer] = guiTexture(prefix + layer);
+        for (int i = 0; i < count; i++) {
+            textures[i] = guiTexture(prefix + i);
         }
 
         return textures;
     }
 
-    private static ResourceLocation[] createSymbolTextures() {
+    private static ResourceLocation[] symbolArray() {
         ResourceLocation[] textures = new ResourceLocation[16];
 
-        for (int value = 0; value < textures.length; value++) {
-            textures[value] = symbolTexture(Integer.toHexString(value));
+        for (int i = 0; i < textures.length; i++) {
+            textures[i] = symbolTexture(Integer.toHexString(i));
         }
 
         return textures;
     }
 
-    private static ArrowButton[] createArrowButtons() {
+    private static ArrowButton[] arrows() {
         ArrowButton[] buttons = new ArrowButton[SliderId.values().length * 2];
         int index = 0;
 
@@ -175,120 +195,100 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        this.updatePressedArrow();
-        this.updateHexBarHold();
-        this.updateHexFlash();
+        this.tickPressedTarget();
+        this.tickFlash();
+        this.flushColorSyncIfReady();
 
         int guiX = this.leftPos;
         int guiY = this.topPos;
-        int previewRgb = this.getPreviewRgb();
+        int rgb = this.getPreviewRgb();
 
-        this.blitPearl(graphics, guiX, guiY, previewRgb);
-        this.blitHexBar(graphics, guiX, guiY);
-        this.blitHexSymbols(graphics, guiX, guiY, previewRgb);
+        this.blitPearl(graphics, guiX, guiY, rgb);
+        this.blitHex(graphics, guiX, guiY, rgb);
 
         for (SliderId slider : SliderId.values()) {
-            this.renderStrip(graphics, guiX, guiY, slider, previewRgb);
-            this.blitBar(graphics, guiX, guiY, slider);
-            this.blitValueSymbols(graphics, guiX, guiY, slider);
-            this.blitSlider(graphics, guiX, guiY, slider);
+            this.blitSliderGroup(graphics, guiX, guiY, slider, rgb);
         }
 
-        for (ArrowButton arrow : ARROW_BUTTONS) {
+        for (ArrowButton arrow : ARROWS) {
             this.blitArrow(graphics, guiX, guiY, arrow);
         }
     }
 
     private void blitPearl(GuiGraphics graphics, int guiX, int guiY, int rgb) {
-        ResourceLocation[] textures = this.pearlPressed ? PEARL_PRESSED_TEXTURES : PEARL_TEXTURES;
+        ResourceLocation[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
 
         for (int layer = 0; layer < textures.length; layer++) {
-            int tint = PearlFireTintSource.profileTint(
-                    rgb,
-                    layer,
-                    PearlFireTintProfiles.FLINT_AND_PEARL
-            );
-
-            this.blitTintedTexture(
+            this.blitTinted(
                     graphics,
                     textures[layer],
                     guiX + PEARL_X,
                     guiY + PEARL_Y,
                     PEARL_WIDTH,
                     PEARL_HEIGHT,
-                    tint
+                    PearlFireTintSource.profileTint(rgb, layer, PearlFireTintProfiles.FLINT_AND_PEARL)
             );
         }
     }
 
-    private void blitHexBar(GuiGraphics graphics, int guiX, int guiY) {
-        this.blitPlainTexture(
+    private void blitHex(GuiGraphics graphics, int guiX, int guiY, int rgb) {
+        boolean pressed = this.isPressed(HEX_TARGET);
+
+        this.blit(
                 graphics,
-                this.getHexBarTexture(),
-                guiX + HEX_BAR_X,
-                guiY + HEX_BAR_Y,
-                HEX_BAR_WIDTH,
-                HEX_BAR_HEIGHT
+                stateTexture(pressed, this.isFlashing(HEX_TARGET), HEX_NORMAL, HEX_PRESSED, HEX_FLASH, HEX_PRESSED_FLASH),
+                guiX + HEX_X,
+                guiY + HEX_Y,
+                HEX_WIDTH,
+                HEX_HEIGHT
+        );
+
+        this.blitSymbols(
+                graphics,
+                guiX + HEX_X + HEX_SYMBOL_X,
+                guiY + HEX_Y + (pressed ? HEX_SYMBOL_PRESSED_Y : HEX_SYMBOL_Y),
+                toSixDigitHex(rgb),
+                16,
+                HEX_SYMBOL_COUNT,
+                false
         );
     }
 
-    private ResourceLocation getHexBarTexture() {
-        if (this.hexBarPressed) {
-            return this.hexFlashVisible ? HEX_BAR_PRESSED_FLASH_TEXTURE : HEX_BAR_PRESSED_TEXTURE;
-        }
+    private void blitSliderGroup(GuiGraphics graphics, int guiX, int guiY, SliderId slider, int rgb) {
+        int offsetY = this.barOffset(slider);
 
-        return this.hexFlashVisible ? HEX_BAR_FLASH_TEXTURE : HEX_BAR_TEXTURE;
+        this.blitStrip(graphics, guiX + slider.stripX(), guiY + slider.stripY() + offsetY, slider, rgb);
+
+        this.blit(
+                graphics,
+                stateTexture(this.isPressed(slider), this.isFlashing(slider), BAR_NORMAL, BAR_PRESSED, BAR_FLASH, BAR_PRESSED_FLASH),
+                guiX + slider.x,
+                guiY + slider.y,
+                BAR_WIDTH,
+                BAR_HEIGHT
+        );
+
+        this.blitSymbols(
+                graphics,
+                guiX + slider.x + VALUE_X,
+                guiY + slider.y + VALUE_Y + offsetY,
+                Integer.toString(this.displayValue(slider)),
+                10,
+                VALUE_SYMBOL_COUNT,
+                true
+        );
+
+        this.blit(
+                graphics,
+                SLIDER,
+                guiX + slider.sliderX(this.sliderProgress(slider)),
+                guiY + slider.sliderY() + offsetY,
+                SLIDER_WIDTH,
+                SLIDER_HEIGHT
+        );
     }
 
-    private void blitHexSymbols(GuiGraphics graphics, int guiX, int guiY, int rgb) {
-        String hex = toSixDigitHex(rgb);
-        int symbolY = this.hexBarPressed ? HEX_SYMBOL_PRESSED_Y : HEX_SYMBOL_Y;
-
-        for (int i = 0; i < HEX_SYMBOL_COUNT; i++) {
-            this.blitSymbol(
-                    graphics,
-                    guiX + HEX_BAR_X + HEX_SYMBOL_START_X + (i * HEX_SYMBOL_SPACING),
-                    guiY + HEX_BAR_Y + symbolY,
-                    Character.digit(hex.charAt(i), 16),
-                    HEX_SYMBOL_WIDTH,
-                    HEX_SYMBOL_HEIGHT
-            );
-        }
-    }
-
-    private void blitValueSymbols(GuiGraphics graphics, int guiX, int guiY, SliderId slider) {
-        String text = Integer.toString(this.getDisplayValue(slider));
-        int count = Math.min(text.length(), VALUE_SYMBOL_COUNT);
-        int startSlot = VALUE_SYMBOL_COUNT - count;
-        int firstChar = text.length() - count;
-
-        for (int i = 0; i < count; i++) {
-            int slot = startSlot + i;
-            int digit = Character.digit(text.charAt(firstChar + i), 10);
-
-            this.blitSymbol(
-                    graphics,
-                    guiX + slider.x + VALUE_SYMBOL_START_X + (slot * VALUE_SYMBOL_SPACING),
-                    guiY + slider.y + VALUE_SYMBOL_Y,
-                    digit,
-                    VALUE_SYMBOL_WIDTH,
-                    VALUE_SYMBOL_HEIGHT
-            );
-        }
-    }
-
-    private void blitSymbol(GuiGraphics graphics, int x, int y, int value, int width, int height) {
-        if (value < 0 || value >= SYMBOL_TEXTURES.length) {
-            return;
-        }
-
-        this.blitPlainTexture(graphics, SYMBOL_TEXTURES[value], x, y, width, height);
-    }
-
-    private void renderStrip(GuiGraphics graphics, int guiX, int guiY, SliderId slider, int previewRgb) {
-        int x = guiX + slider.stripX();
-        int y = guiY + slider.stripY();
-
+    private void blitStrip(GuiGraphics graphics, int x, int y, SliderId slider, int rgb) {
         for (int column = 0; column < STRIP_WIDTH; column++) {
             float t = column / (float) (STRIP_WIDTH - 1);
 
@@ -297,12 +297,67 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
                     y,
                     x + column + 1,
                     y + STRIP_HEIGHT,
-                    this.getStripColor(slider, t, previewRgb)
+                    this.stripColor(slider, t, rgb)
             );
         }
     }
 
-    private int getStripColor(SliderId slider, float t, int rgb) {
+    private void blitSymbols(
+            GuiGraphics graphics,
+            int x,
+            int y,
+            String text,
+            int radix,
+            int slots,
+            boolean rightAligned
+    ) {
+        int count = Math.min(text.length(), slots);
+        int firstChar = text.length() - count;
+        int firstSlot = rightAligned ? slots - count : 0;
+
+        for (int i = 0; i < count; i++) {
+            int value = Character.digit(text.charAt(firstChar + i), radix);
+
+            if (value >= 0 && value < SYMBOLS.length) {
+                this.blit(
+                        graphics,
+                        SYMBOLS[value],
+                        x + ((firstSlot + i) * SYMBOL_SPACING),
+                        y,
+                        SYMBOL_WIDTH,
+                        SYMBOL_HEIGHT
+                );
+            }
+        }
+    }
+
+    private void blitArrow(GuiGraphics graphics, int guiX, int guiY, ArrowButton arrow) {
+        this.blit(
+                graphics,
+                arrow.texture(this.isPressed(arrow)),
+                guiX + arrow.x(),
+                guiY + arrow.y(),
+                ARROW_WIDTH,
+                ARROW_HEIGHT
+        );
+    }
+
+    private static ResourceLocation stateTexture(
+            boolean pressed,
+            boolean flashing,
+            ResourceLocation normal,
+            ResourceLocation pressedTexture,
+            ResourceLocation flash,
+            ResourceLocation pressedFlash
+    ) {
+        if (pressed) {
+            return flashing ? pressedFlash : pressedTexture;
+        }
+
+        return flashing ? flash : normal;
+    }
+
+    private int stripColor(SliderId slider, float t, int rgb) {
         return switch (slider) {
             case HUE -> hsvToArgb(t, 1.0F, 1.0F);
             case SATURATION -> hsvToArgb(this.hue, t, this.value);
@@ -313,67 +368,23 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
         };
     }
 
-    private void blitBar(GuiGraphics graphics, int guiX, int guiY, SliderId slider) {
-        this.blitPlainTexture(
+    private void blit(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height) {
+        this.blitColored(graphics, texture, x, y, width, height, 0xFFFFFFFF);
+    }
+
+    private void blitTinted(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, int tint) {
+        this.blitColored(
                 graphics,
-                BAR_TEXTURE,
-                guiX + slider.x,
-                guiY + slider.y,
-                BAR_WIDTH,
-                BAR_HEIGHT
+                texture,
+                x,
+                y,
+                width,
+                height,
+                tint == TintColorUtil.NO_TINT ? 0xFFFFFFFF : 0xFF000000 | TintColorUtil.rgb(tint)
         );
     }
 
-    private void blitSlider(GuiGraphics graphics, int guiX, int guiY, SliderId slider) {
-        this.blitPlainTexture(
-                graphics,
-                SLIDER_TEXTURE,
-                guiX + slider.sliderX(this.getSliderProgress(slider)),
-                guiY + slider.sliderY(),
-                SLIDER_WIDTH,
-                SLIDER_HEIGHT
-        );
-    }
-
-    private void blitArrow(GuiGraphics graphics, int guiX, int guiY, ArrowButton arrow) {
-        this.blitPlainTexture(
-                graphics,
-                arrow.texture(arrow.equals(this.pressedArrow)),
-                guiX + arrow.x(),
-                guiY + arrow.y(),
-                ARROW_WIDTH,
-                ARROW_HEIGHT
-        );
-    }
-
-    private void blitPlainTexture(
-            GuiGraphics graphics,
-            ResourceLocation texture,
-            int x,
-            int y,
-            int width,
-            int height
-    ) {
-        this.blitColoredTexture(graphics, texture, x, y, width, height, 0xFFFFFFFF);
-    }
-
-    private void blitTintedTexture(
-            GuiGraphics graphics,
-            ResourceLocation texture,
-            int x,
-            int y,
-            int width,
-            int height,
-            int tint
-    ) {
-        int color = tint == TintColorUtil.NO_TINT
-                ? 0xFFFFFFFF
-                : 0xFF000000 | TintColorUtil.rgb(tint);
-
-        this.blitColoredTexture(graphics, texture, x, y, width, height, color);
-    }
-
-    private void blitColoredTexture(
+    private void blitColored(
             GuiGraphics graphics,
             ResourceLocation texture,
             int x,
@@ -425,10 +436,20 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
             return super.mouseClicked(mouseX, mouseY, button);
         }
 
-        if (this.tryPressPearl(mouseX, mouseY)
-                || this.tryPressHexBar(mouseX, mouseY)
-                || this.tryPressArrow(mouseX, mouseY)) {
+        if (this.press(mouseX, mouseY, PEARL_TARGET, PEARL_X, PEARL_Y, PEARL_WIDTH, PEARL_HEIGHT)) {
+            this.randomizeColor();
             return true;
+        }
+
+        if (this.press(mouseX, mouseY, HEX_TARGET, HEX_X, HEX_Y, HEX_WIDTH, HEX_HEIGHT)) {
+            return true;
+        }
+
+        for (ArrowButton arrow : ARROWS) {
+            if (this.press(mouseX, mouseY, arrow, arrow.x(), arrow.y(), ARROW_WIDTH, ARROW_HEIGHT)) {
+                this.stepArrow(arrow);
+                return true;
+            }
         }
 
         for (SliderId slider : SliderId.values()) {
@@ -437,64 +458,162 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
             }
         }
 
+        for (SliderId slider : SliderId.values()) {
+            if (this.press(mouseX, mouseY, slider, slider.x, slider.y, BAR_WIDTH, BAR_HEIGHT)) {
+                return true;
+            }
+        }
+
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    private boolean tryPressPearl(double mouseX, double mouseY) {
-        if (!this.contains(mouseX, mouseY, PEARL_X, PEARL_Y, PEARL_WIDTH, PEARL_HEIGHT)) {
+    private boolean press(double mouseX, double mouseY, Object target, int x, int y, int width, int height) {
+        if (!this.contains(mouseX, mouseY, x, y, width, height)) {
             return false;
         }
 
-        this.pearlPressed = true;
-        this.randomizeColor();
+        this.pressedTarget = target;
+        this.pressStartNanos = System.nanoTime();
+        this.repeatLastNanos = this.pressStartNanos;
+        this.repeatMode = false;
+        this.longClickHandled = false;
         return true;
+    }
+
+    private boolean tryStartSliderDrag(double mouseX, double mouseY, SliderId slider) {
+        float progress = this.sliderProgress(slider);
+
+        if (this.contains(mouseX, mouseY, slider.sliderX(progress), slider.sliderY(), SLIDER_WIDTH, SLIDER_HEIGHT)) {
+            this.activeSlider = slider;
+            this.sliderGrabOffsetX = mouseX - (this.leftPos + slider.sliderX(progress));
+            return true;
+        }
+
+        int trackWidth = (slider.sliderMaxX() - slider.sliderMinX()) + SLIDER_WIDTH;
+
+        if (this.contains(mouseX, mouseY, slider.sliderMinX(), slider.sliderY(), trackWidth, SLIDER_HEIGHT)) {
+            this.activeSlider = slider;
+            this.sliderGrabOffsetX = SLIDER_WIDTH / 2.0D;
+            this.updateSliderFromMouse(mouseX);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void tickPressedTarget() {
+        if (this.pressedTarget == PEARL_TARGET) {
+            this.tickRepeat(PEARL_REPEAT_DELAY_NANOS, PEARL_REPEAT_INTERVAL_NANOS, this::randomizeColor);
+            return;
+        }
+
+        if (this.pressedTarget instanceof ArrowButton arrow) {
+            this.tickRepeat(ARROW_REPEAT_DELAY_NANOS, ARROW_REPEAT_INTERVAL_NANOS, () -> this.stepArrow(arrow));
+            return;
+        }
+
+        if (this.pressedTarget == HEX_TARGET) {
+            this.tickLongClick(LONG_CLICK_NANOS, () -> {
+                if (this.injectHexFromClipboard()) {
+                    this.startFlash(HEX_TARGET, SINGLE_FLASH);
+                }
+            });
+            return;
+        }
+
+        if (this.pressedTarget instanceof SliderId slider) {
+            this.tickLongClick(LONG_CLICK_NANOS, () -> {
+                if (this.injectSliderFromClipboard(slider)) {
+                    this.startFlash(slider, SINGLE_FLASH);
+                }
+            });
+        }
+    }
+
+    private void tickRepeat(long delay, long interval, Runnable action) {
+        long now = System.nanoTime();
+        long wait = this.repeatMode ? interval : delay;
+
+        if (now - this.repeatLastNanos < wait) {
+            return;
+        }
+
+        int guard = 0;
+
+        do {
+            action.run();
+            this.repeatLastNanos += wait;
+            this.repeatMode = true;
+            wait = interval;
+            guard++;
+        } while (now - this.repeatLastNanos >= wait && guard < 20);
+    }
+
+    private void tickLongClick(long delay, Runnable action) {
+        if (this.longClickHandled || this.pressStartNanos == 0L) {
+            return;
+        }
+
+        if (System.nanoTime() - this.pressStartNanos < delay) {
+            return;
+        }
+
+        this.longClickHandled = true;
+        action.run();
+    }
+
+    private void tickFlash() {
+        if (this.flashTarget == null || this.flashStartNanos == 0L || this.flashPhaseCount <= 0) {
+            this.flashVisible = false;
+            return;
+        }
+
+        int phase = (int) ((System.nanoTime() - this.flashStartNanos) / FLASH_PHASE_NANOS);
+
+        if (phase >= this.flashPhaseCount) {
+            this.clearFlash();
+            return;
+        }
+
+        this.flashVisible = phase % 2 == 0;
+    }
+
+    private void startFlash(Object target, int flashes) {
+        this.flashTarget = target;
+        this.flashPhaseCount = Math.max(0, flashes * 2);
+
+        if (this.flashPhaseCount <= 0) {
+            this.clearFlash();
+            return;
+        }
+
+        this.flashStartNanos = System.nanoTime();
+        this.flashVisible = true;
+    }
+
+    private void clearFlash() {
+        this.flashTarget = null;
+        this.flashStartNanos = 0L;
+        this.flashPhaseCount = 0;
+        this.flashVisible = false;
     }
 
     private void randomizeColor() {
         this.setColorFromRgb(java.util.concurrent.ThreadLocalRandom.current().nextInt(0x1000000));
     }
 
-    private boolean tryPressHexBar(double mouseX, double mouseY) {
-        if (!this.contains(mouseX, mouseY, HEX_BAR_X, HEX_BAR_Y, HEX_BAR_WIDTH, HEX_BAR_HEIGHT)) {
-            return false;
-        }
+    private void stepArrow(ArrowButton arrow) {
+        float step = switch (arrow.slider()) {
+            case HUE -> 1.0F / 360.0F;
+            case SATURATION, VALUE -> 1.0F / 100.0F;
+            case RED, GREEN, BLUE -> 1.0F / 255.0F;
+        };
 
-        this.hexBarPressed = true;
-        this.hexBarPressStartNanos = System.nanoTime();
-        this.hexLongClickHandled = false;
-        return true;
+        this.setSliderProgress(arrow.slider(), this.sliderProgress(arrow.slider()) + (arrow.up() ? step : -step));
     }
 
-    private void updateHexBarHold() {
-        if (!this.hexBarPressed || this.hexLongClickHandled || this.hexBarPressStartNanos == 0L) {
-            return;
-        }
-
-        if (System.nanoTime() - this.hexBarPressStartNanos < HEX_LONG_CLICK_NANOS) {
-            return;
-        }
-
-        this.hexLongClickHandled = true;
-
-        if (this.tryInjectHexFromClipboard()) {
-            this.startHexFlash(HEX_SINGLE_FLASH_COUNT);
-        }
-    }
-
-    private void copyHexToClipboard() {
-        if (this.minecraft == null) {
-            return;
-        }
-
-        this.minecraft.keyboardHandler.setClipboard("#" + toSixDigitHex(this.getPreviewRgb()));
-    }
-
-    private boolean tryInjectHexFromClipboard() {
-        if (this.minecraft == null) {
-            return false;
-        }
-
-        String hex = normalizeClipboardHex(this.minecraft.keyboardHandler.getClipboard());
+    private boolean injectHexFromClipboard() {
+        String hex = this.clipboardHex();
 
         if (hex == null) {
             return false;
@@ -504,12 +623,29 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
         return true;
     }
 
-    private static String normalizeClipboardHex(String raw) {
-        if (raw == null) {
+    private boolean injectSliderFromClipboard(SliderId slider) {
+        Integer value = this.clipboardNumber(slider.max);
+
+        if (value == null) {
+            return false;
+        }
+
+        this.setDisplayValue(slider, value);
+        return true;
+    }
+
+    private String clipboardHex() {
+        if (this.minecraft == null) {
             return null;
         }
 
-        String value = raw.trim();
+        String value = this.minecraft.keyboardHandler.getClipboard();
+
+        if (value == null) {
+            return null;
+        }
+
+        value = value.trim();
 
         if (value.startsWith("#")) {
             value = value.substring(1);
@@ -528,87 +664,44 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
         return value;
     }
 
-    private void setColorFromRgb(int rgb) {
-        HsvColor hsv = rgbToHsv(rgb);
-
-        this.hue = hsv.hue();
-        this.saturation = hsv.saturation();
-        this.value = hsv.value();
-    }
-
-    private void startHexFlash(int flashCount) {
-        this.hexFlashPhaseCount = Math.max(0, flashCount * 2);
-
-        if (this.hexFlashPhaseCount <= 0) {
-            this.hexFlashStartNanos = 0L;
-            this.hexFlashVisible = false;
-            return;
+    private Integer clipboardNumber(int max) {
+        if (this.minecraft == null) {
+            return null;
         }
 
-        this.hexFlashStartNanos = System.nanoTime();
-        this.hexFlashVisible = true;
-    }
+        String value = this.minecraft.keyboardHandler.getClipboard();
 
-    private void updateHexFlash() {
-        if (this.hexFlashStartNanos == 0L || this.hexFlashPhaseCount <= 0) {
-            this.hexFlashVisible = false;
-            return;
+        if (value == null) {
+            return null;
         }
 
-        int phase = (int) ((System.nanoTime() - this.hexFlashStartNanos) / HEX_FLASH_PHASE_NANOS);
+        value = value.trim();
 
-        if (phase >= this.hexFlashPhaseCount) {
-            this.hexFlashStartNanos = 0L;
-            this.hexFlashPhaseCount = 0;
-            this.hexFlashVisible = false;
-            return;
+        if (value.isEmpty() || value.length() > VALUE_SYMBOL_COUNT) {
+            return null;
         }
 
-        this.hexFlashVisible = phase % 2 == 0;
-    }
-
-    private boolean tryPressArrow(double mouseX, double mouseY) {
-        for (ArrowButton arrow : ARROW_BUTTONS) {
-            if (this.contains(mouseX, mouseY, arrow.x(), arrow.y(), ARROW_WIDTH, ARROW_HEIGHT)) {
-                this.pressedArrow = arrow;
-                this.pressedArrowLastUpdateNanos = System.nanoTime();
-                this.pressedArrowRepeating = false;
-                this.applyArrowStep(arrow);
-                return true;
+        for (int i = 0; i < value.length(); i++) {
+            if (!Character.isDigit(value.charAt(i))) {
+                return null;
             }
         }
 
-        return false;
+        int number = Integer.parseInt(value);
+
+        return number <= max ? number : null;
     }
 
-    private boolean tryStartSliderDrag(double mouseX, double mouseY, SliderId slider) {
-        float progress = this.getSliderProgress(slider);
-
-        if (this.contains(mouseX, mouseY, slider.sliderX(progress), slider.sliderY(), SLIDER_WIDTH, SLIDER_HEIGHT)) {
-            this.activeSlider = slider;
-            this.sliderGrabOffsetX = mouseX - (this.leftPos + slider.sliderX(progress));
-            return true;
+    private void copyHex() {
+        if (this.minecraft != null) {
+            this.minecraft.keyboardHandler.setClipboard("#" + toSixDigitHex(this.getPreviewRgb()));
         }
-
-        int trackWidth = (slider.sliderMaxX() - slider.sliderMinX()) + SLIDER_WIDTH;
-        if (this.contains(mouseX, mouseY, slider.sliderMinX(), slider.sliderY(), trackWidth, SLIDER_HEIGHT)) {
-            this.activeSlider = slider;
-            this.sliderGrabOffsetX = SLIDER_WIDTH / 2.0D;
-            this.updateSliderFromMouse(mouseX);
-            return true;
-        }
-
-        return false;
     }
 
-    private boolean contains(double mouseX, double mouseY, int localX, int localY, int width, int height) {
-        int x = this.leftPos + localX;
-        int y = this.topPos + localY;
-
-        return mouseX >= x
-                && mouseX < x + width
-                && mouseY >= y
-                && mouseY < y + height;
+    private void copySlider(SliderId slider) {
+        if (this.minecraft != null) {
+            this.minecraft.keyboardHandler.setClipboard(Integer.toString(this.displayValue(slider)));
+        }
     }
 
     @Override
@@ -627,115 +720,79 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
             return super.mouseReleased(mouseX, mouseY, button);
         }
 
-        if (this.hexBarPressed) {
-            this.updateHexBarHold();
+        if (this.pressedTarget == HEX_TARGET || this.pressedTarget instanceof SliderId) {
+            this.tickPressedTarget();
         }
 
-        boolean handled = this.pearlPressed
-                || this.hexBarPressed
-                || this.pressedArrow != null
-                || this.activeSlider != null;
+        Object releasedTarget = this.pressedTarget;
+        boolean handled = releasedTarget != null || this.activeSlider != null;
 
-        if (this.hexBarPressed && !this.hexLongClickHandled) {
-            this.copyHexToClipboard();
-            this.startHexFlash(HEX_DOUBLE_FLASH_COUNT);
+        if (!this.longClickHandled) {
+            if (releasedTarget == HEX_TARGET) {
+                this.copyHex();
+                this.startFlash(HEX_TARGET, DOUBLE_FLASH);
+            } else if (releasedTarget instanceof SliderId slider) {
+                this.copySlider(slider);
+                this.startFlash(slider, DOUBLE_FLASH);
+            }
         }
-
-        this.pearlPressed = false;
-
-        this.hexBarPressed = false;
-        this.hexBarPressStartNanos = 0L;
-        this.hexLongClickHandled = false;
 
         this.activeSlider = null;
-        this.clearPressedArrow();
+        this.clearPress();
+        this.flushColorSync();
 
         return handled || super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     public void removed() {
-        this.pearlPressed = false;
-
-        this.hexBarPressed = false;
-        this.hexLongClickHandled = false;
-        this.hexBarPressStartNanos = 0L;
-
-        this.hexFlashVisible = false;
-        this.hexFlashStartNanos = 0L;
-        this.hexFlashPhaseCount = 0;
-
         this.activeSlider = null;
-        this.clearPressedArrow();
-
+        this.clearPress();
+        this.clearFlash();
+        this.flushColorSync();
         super.removed();
     }
 
+    private void clearPress() {
+        this.pressedTarget = null;
+        this.pressStartNanos = 0L;
+        this.repeatLastNanos = 0L;
+        this.repeatMode = false;
+        this.longClickHandled = false;
+    }
+
     private void updateSliderFromMouse(double mouseX) {
-        if (this.activeSlider == null) {
-            return;
-        }
+        double sliderX = mouseX - this.leftPos - this.sliderGrabOffsetX;
+        double clampedX = clamp(sliderX, this.activeSlider.sliderMinX(), this.activeSlider.sliderMaxX());
+        double range = this.activeSlider.sliderMaxX() - this.activeSlider.sliderMinX();
 
-        double localSliderX = mouseX - this.leftPos - this.sliderGrabOffsetX;
-        double clampedX = clamp(localSliderX, this.activeSlider.sliderMinX(), this.activeSlider.sliderMaxX());
-        float progress = (float) ((clampedX - this.activeSlider.sliderMinX())
-                / (double) (this.activeSlider.sliderMaxX() - this.activeSlider.sliderMinX()));
-
-        this.setSliderProgress(this.activeSlider, progress);
+        this.setSliderProgress(this.activeSlider, (float) ((clampedX - this.activeSlider.sliderMinX()) / range));
     }
 
-    private void updatePressedArrow() {
-        if (this.pressedArrow == null) {
-            return;
-        }
+    private boolean contains(double mouseX, double mouseY, int localX, int localY, int width, int height) {
+        int x = this.leftPos + localX;
+        int y = this.topPos + localY;
 
-        long now = System.nanoTime();
-        long waitTime = this.pressedArrowRepeating ? ARROW_REPEAT_INTERVAL_NANOS : ARROW_REPEAT_DELAY_NANOS;
-
-        if (now - this.pressedArrowLastUpdateNanos < waitTime) {
-            return;
-        }
-
-        int guard = 0;
-
-        do {
-            this.applyArrowStep(this.pressedArrow);
-            this.pressedArrowLastUpdateNanos += waitTime;
-            this.pressedArrowRepeating = true;
-            waitTime = ARROW_REPEAT_INTERVAL_NANOS;
-            guard++;
-        } while (now - this.pressedArrowLastUpdateNanos >= waitTime && guard < 20);
+        return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
-    private void applyArrowStep(ArrowButton arrow) {
-        float step = this.getArrowStep(arrow.slider());
-
-        if (!arrow.up()) {
-            step = -step;
-        }
-
-        this.setSliderProgress(arrow.slider(), this.getSliderProgress(arrow.slider()) + step);
+    private boolean isPressed(Object target) {
+        return java.util.Objects.equals(this.pressedTarget, target);
     }
 
-    private float getArrowStep(SliderId slider) {
-        return switch (slider) {
-            case HUE -> 1.0F / 360.0F;
-            case SATURATION, VALUE -> 1.0F / 100.0F;
-            case RED, GREEN, BLUE -> 1.0F / 255.0F;
-        };
+    private boolean isFlashing(Object target) {
+        return this.flashVisible && java.util.Objects.equals(this.flashTarget, target);
     }
 
-    private void clearPressedArrow() {
-        this.pressedArrow = null;
-        this.pressedArrowLastUpdateNanos = 0L;
-        this.pressedArrowRepeating = false;
+    private int barOffset(SliderId slider) {
+        return this.isPressed(slider) ? BAR_PRESSED_OFFSET_Y : 0;
     }
 
     private int getPreviewRgb() {
         return hsvToRgb(this.hue, this.saturation, this.value);
     }
 
-    private int getDisplayValue(SliderId slider) {
+    private int displayValue(SliderId slider) {
         int rgb = this.getPreviewRgb();
 
         return switch (slider) {
@@ -748,7 +805,27 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
         };
     }
 
-    private float getSliderProgress(SliderId slider) {
+    private void setDisplayValue(SliderId slider, int displayValue) {
+        displayValue = clampInt(displayValue, 0, slider.max);
+
+        switch (slider) {
+            case HUE -> {
+                this.hue = displayValue / 360.0F;
+                this.queueColorSync();
+            }
+            case SATURATION -> {
+                this.saturation = displayValue / 100.0F;
+                this.queueColorSync();
+            }
+            case VALUE -> {
+                this.value = displayValue / 100.0F;
+                this.queueColorSync();
+            }
+            case RED, GREEN, BLUE -> this.setSliderProgress(slider, displayValue / 255.0F);
+        }
+    }
+
+    private float sliderProgress(SliderId slider) {
         int rgb = this.getPreviewRgb();
 
         return switch (slider) {
@@ -765,93 +842,156 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
         progress = clamp01(progress);
 
         switch (slider) {
-            case HUE -> this.hue = progress;
-            case SATURATION -> this.saturation = progress;
-            case VALUE -> this.value = progress;
-            case RED, GREEN, BLUE -> this.setRgbProgress(slider, progress);
+            case HUE -> {
+                this.hue = progress;
+                this.queueColorSync();
+            }
+            case SATURATION -> {
+                this.saturation = progress;
+                this.queueColorSync();
+            }
+            case VALUE -> {
+                this.value = progress;
+                this.queueColorSync();
+            }
+            case RED, GREEN, BLUE -> this.setRgbComponent(slider, progress);
         }
     }
 
-    private void setRgbProgress(SliderId slider, float progress) {
+    private void setRgbComponent(SliderId slider, float progress) {
         int rgb = this.getPreviewRgb();
 
-        int red = red(rgb);
-        int green = green(rgb);
-        int blue = blue(rgb);
+        int r = red(rgb);
+        int g = green(rgb);
+        int b = blue(rgb);
         int component = clamp255(Math.round(progress * 255.0F));
 
         switch (slider) {
-            case RED -> red = component;
-            case GREEN -> green = component;
-            case BLUE -> blue = component;
+            case RED -> r = component;
+            case GREEN -> g = component;
+            case BLUE -> b = component;
             default -> {
             }
         }
 
-        HsvColor hsv = rgbToHsv(packRgb(red, green, blue));
+        this.setColorFromRgb(packRgb(r, g, b));
+    }
+
+    private void setColorFromRgb(int rgb) {
+        this.applyColorFromRgb(rgb);
+        this.queueColorSync();
+    }
+
+    private void applyColorFromRgb(int rgb) {
+        HsvColor hsv = rgbToHsv(rgb);
 
         this.hue = hsv.hue();
         this.saturation = hsv.saturation();
         this.value = hsv.value();
     }
 
+    private void queueColorSync() {
+        int rgb = TintColorUtil.rgb(this.getPreviewRgb());
+
+        this.menu.setHexColor(rgb);
+        this.updateLocalHeldStack(rgb);
+        this.pendingSyncRgb = rgb;
+        this.flushColorSyncIfReady();
+    }
+
+    private void updateLocalHeldStack(int rgb) {
+        ItemStack stack = this.getHeldStack();
+
+        if (!stack.isEmpty() && stack.getItem() instanceof FlintAndPearlItem) {
+            stack.set(ModDataComponents.HEX_COLOR.get(), TintColorUtil.rgb(rgb));
+        }
+    }
+
+    private ItemStack getHeldStack() {
+        if (this.minecraft == null || this.minecraft.player == null) {
+            return ItemStack.EMPTY;
+        }
+
+        return this.minecraft.player.getItemInHand(this.menu.getHand());
+    }
+
+    private void flushColorSyncIfReady() {
+        if (this.pendingSyncRgb < 0 || System.nanoTime() - this.lastSyncNanos < COLOR_SYNC_INTERVAL_NANOS) {
+            return;
+        }
+
+        this.flushColorSync();
+    }
+
+    private void flushColorSync() {
+        if (this.pendingSyncRgb < 0 || this.pendingSyncRgb == this.lastSyncedRgb) {
+            return;
+        }
+
+        this.lastSyncedRgb = this.pendingSyncRgb;
+        this.lastSyncNanos = System.nanoTime();
+
+        //? if >=1.21.7 {
+        ClientPacketDistributor.sendToServer(new FlintAndPearlColorPayload(this.pendingSyncRgb));
+        //?} else {
+        /*PacketDistributor.sendToServer(new FlintAndPearlColorPayload(this.pendingSyncRgb));
+         *///?}
+    }
+
     private static HsvColor rgbToHsv(int rgb) {
         rgb = TintColorUtil.rgb(rgb);
 
-        float red = red(rgb) / 255.0F;
-        float green = green(rgb) / 255.0F;
-        float blue = blue(rgb) / 255.0F;
+        float r = red(rgb) / 255.0F;
+        float g = green(rgb) / 255.0F;
+        float b = blue(rgb) / 255.0F;
 
-        float max = Math.max(red, Math.max(green, blue));
-        float min = Math.min(red, Math.min(green, blue));
+        float max = Math.max(r, Math.max(g, b));
+        float min = Math.min(r, Math.min(g, b));
         float delta = max - min;
 
-        float hue;
+        float h = 0.0F;
 
-        if (delta <= 0.00001F) {
-            hue = 0.0F;
-        } else if (max == red) {
-            hue = ((green - blue) / delta) / 6.0F;
-        } else if (max == green) {
-            hue = (((blue - red) / delta) + 2.0F) / 6.0F;
-        } else {
-            hue = (((red - green) / delta) + 4.0F) / 6.0F;
+        if (delta > 0.00001F) {
+            if (max == r) {
+                h = ((g - b) / delta) / 6.0F;
+            } else if (max == g) {
+                h = (((b - r) / delta) + 2.0F) / 6.0F;
+            } else {
+                h = (((r - g) / delta) + 4.0F) / 6.0F;
+            }
         }
 
-        if (hue < 0.0F) {
-            hue += 1.0F;
+        if (h < 0.0F) {
+            h += 1.0F;
         }
 
-        float saturation = max <= 0.0F ? 0.0F : delta / max;
-        float value = max;
-
-        return new HsvColor(clamp01(hue), clamp01(saturation), clamp01(value));
+        return new HsvColor(clamp01(h), max <= 0.0F ? 0.0F : clamp01(delta / max), clamp01(max));
     }
 
-    private static int hsvToArgb(float hue, float saturation, float value) {
-        return 0xFF000000 | hsvToRgb(hue, saturation, value);
+    private static int hsvToArgb(float h, float s, float v) {
+        return 0xFF000000 | hsvToRgb(h, s, v);
     }
 
-    private static int hsvToRgb(float hue, float saturation, float value) {
-        hue = clamp01(hue);
-        saturation = clamp01(saturation);
-        value = clamp01(value);
+    private static int hsvToRgb(float h, float s, float v) {
+        h = clamp01(h);
+        s = clamp01(s);
+        v = clamp01(v);
 
-        float scaled = hue * 6.0F;
+        float scaled = h * 6.0F;
         int sector = Math.min(5, (int) Math.floor(scaled));
-        float fraction = scaled - sector;
+        float f = scaled - sector;
 
-        float p = value * (1.0F - saturation);
-        float q = value * (1.0F - (saturation * fraction));
-        float t = value * (1.0F - (saturation * (1.0F - fraction)));
+        float p = v * (1.0F - s);
+        float q = v * (1.0F - (s * f));
+        float t = v * (1.0F - (s * (1.0F - f)));
 
         return switch (sector) {
-            case 0 -> packRgb(value, t, p);
-            case 1 -> packRgb(q, value, p);
-            case 2 -> packRgb(p, value, t);
-            case 3 -> packRgb(p, q, value);
-            case 4 -> packRgb(t, p, value);
-            default -> packRgb(value, p, q);
+            case 0 -> packRgb(v, t, p);
+            case 1 -> packRgb(q, v, p);
+            case 2 -> packRgb(p, v, t);
+            case 3 -> packRgb(p, q, v);
+            case 4 -> packRgb(t, p, v);
+            default -> packRgb(v, p, q);
         };
     }
 
@@ -861,18 +1001,12 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
         return "000000".substring(hex.length()) + hex;
     }
 
-    private static int packRgb(float red, float green, float blue) {
-        return packRgb(
-                clamp255(Math.round(red * 255.0F)),
-                clamp255(Math.round(green * 255.0F)),
-                clamp255(Math.round(blue * 255.0F))
-        );
+    private static int packRgb(float r, float g, float b) {
+        return packRgb(Math.round(r * 255.0F), Math.round(g * 255.0F), Math.round(b * 255.0F));
     }
 
-    private static int packRgb(int red, int green, int blue) {
-        return (clamp255(red) << 16)
-                | (clamp255(green) << 8)
-                | clamp255(blue);
+    private static int packRgb(int r, int g, int b) {
+        return (clamp255(r) << 16) | (clamp255(g) << 8) | clamp255(b);
     }
 
     private static int red(int rgb) {
@@ -916,39 +1050,41 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
     }
 
     private enum SliderId {
-        HUE(139, 64),
-        SATURATION(0, 170),
-        VALUE(0, 212),
-        RED(139, 127),
-        GREEN(139, 169),
-        BLUE(139, 211);
+        HUE(139, 64, 360),
+        SATURATION(0, 170, 100),
+        VALUE(0, 212, 100),
+        RED(139, 127, 255),
+        GREEN(139, 169, 255),
+        BLUE(139, 211, 255);
 
         private final int x;
         private final int y;
+        private final int max;
 
-        SliderId(int x, int y) {
+        SliderId(int x, int y, int max) {
             this.x = x;
             this.y = y;
+            this.max = max;
         }
 
         private int stripX() {
-            return this.x + STRIP_LOCAL_X;
+            return this.x + STRIP_X;
         }
 
         private int stripY() {
-            return this.y + STRIP_LOCAL_Y;
+            return this.y + STRIP_Y;
         }
 
         private int sliderMinX() {
-            return this.x + SLIDER_LOCAL_MIN_X;
+            return this.x + SLIDER_MIN_X;
         }
 
         private int sliderMaxX() {
-            return this.x + SLIDER_LOCAL_MAX_X;
+            return this.x + SLIDER_MAX_X;
         }
 
         private int sliderY() {
-            return this.y + SLIDER_LOCAL_Y;
+            return this.y + SLIDER_Y;
         }
 
         private int sliderX(float progress) {
@@ -958,19 +1094,19 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
 
     private record ArrowButton(SliderId slider, boolean up) {
         private int x() {
-            return this.slider.x + ARROW_LOCAL_X;
+            return this.slider.x + ARROW_X;
         }
 
         private int y() {
-            return this.slider.y + (this.up ? ARROW_UP_LOCAL_Y : ARROW_DOWN_LOCAL_Y);
+            return this.slider.y + (this.up ? ARROW_UP_Y : ARROW_DOWN_Y);
         }
 
         private ResourceLocation texture(boolean pressed) {
             if (this.up) {
-                return pressed ? ARROW_UP_PRESSED_TEXTURE : ARROW_UP_TEXTURE;
+                return pressed ? ARROW_UP_PRESSED : ARROW_UP;
             }
 
-            return pressed ? ARROW_DOWN_PRESSED_TEXTURE : ARROW_DOWN_TEXTURE;
+            return pressed ? ARROW_DOWN_PRESSED : ARROW_DOWN;
         }
     }
 

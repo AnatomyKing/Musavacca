@@ -1,4 +1,4 @@
-package space.anatomyuniverse.musavacca.bar;
+package space.anatomyuniverse.musavacca;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -8,6 +8,7 @@ import space.anatomyuniverse.musavacca.bar.balance.BalanceSyncPayload;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerSyncPayload;
 //? if <1.21.6
 //import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
+import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlColorPayload;
 
 public final class ModNetworking {
     private ModNetworking() {
@@ -27,6 +28,11 @@ public final class ModNetworking {
                 .playToClient(
                         BalanceSyncPayload.TYPE,
                         BalanceSyncPayload.STREAM_CODEC
+                )
+                .playToServer(
+                        FlintAndPearlColorPayload.TYPE,
+                        FlintAndPearlColorPayload.STREAM_CODEC,
+                        FlintAndPearlColorPayload::handle
                 );
         //?} else {
         /*event.registrar("musavacca")
@@ -46,6 +52,11 @@ public final class ModNetworking {
                                 payload.balance(),
                                 payload.active()
                         )
+                )
+                .playToServer(
+                        FlintAndPearlColorPayload.TYPE,
+                        FlintAndPearlColorPayload.STREAM_CODEC,
+                        FlintAndPearlColorPayload::handle
                 );
         *///?}
     }

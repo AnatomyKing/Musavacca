@@ -9,7 +9,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import space.anatomyuniverse.musavacca.bar.ModAttachments;
-import space.anatomyuniverse.musavacca.bar.ModNetworking;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceClientModEvents;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceEvents;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerClientModEvents;

@@ -12,22 +12,22 @@ import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
 public class FlintAndPearlMenu extends AbstractContainerMenu {
     private final InteractionHand hand;
-    private final int hexColor;
+    private int hexColor;
 
-    public FlintAndPearlMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buffer) {
+    public FlintAndPearlMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buffer) {
         this(
                 containerId,
-                playerInventory,
+                inventory,
                 buffer.readBoolean() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND,
                 buffer.readInt()
         );
     }
 
-    public FlintAndPearlMenu(int containerId, Inventory playerInventory, InteractionHand hand, int initialHex) {
+    public FlintAndPearlMenu(int containerId, Inventory inventory, InteractionHand hand, int hexColor) {
         super(ModMenus.FLINT_AND_PEARL_MENU.get(), containerId);
 
         this.hand = hand;
-        this.hexColor = TintColorUtil.rgb(initialHex);
+        this.hexColor = TintColorUtil.rgb(hexColor);
     }
 
     public InteractionHand getHand() {
@@ -36,6 +36,10 @@ public class FlintAndPearlMenu extends AbstractContainerMenu {
 
     public int getHexColor() {
         return this.hexColor;
+    }
+
+    public void setHexColor(int hexColor) {
+        this.hexColor = TintColorUtil.rgb(hexColor);
     }
 
     public static int getDefaultHexColor() {
