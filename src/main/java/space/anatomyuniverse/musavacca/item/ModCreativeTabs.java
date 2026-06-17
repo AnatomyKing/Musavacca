@@ -23,7 +23,9 @@ public final class ModCreativeTabs {
 
     // Optional: skip specific registry paths from showing up in the tab
     private static final Set<String> BLACKLIST = Set.of(
-            // "debug_item"
+            "open_invo_test_item",
+            "open_teleport_test_item",
+            "basuke_spawn_egg"
     );
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MUSAVACCA_TAB =

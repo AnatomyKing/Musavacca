@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/custom/FlintAndPearlItem.java
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.advancements.CriteriaTriggers;
@@ -31,7 +30,7 @@ import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.gui.menu.ItemInteractMenu;
+import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlMenu;
 import space.anatomyuniverse.musavacca.portal.PearlPortalCreator;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.tint.PearlPlacementColorMemory;
@@ -66,7 +65,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         serverPlayer.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, openingPlayer) ->
-                                new ItemInteractMenu(containerId, playerInventory, hand, initialHex),
+                                new FlintAndPearlMenu(containerId, playerInventory, hand, initialHex),
                         TITLE
                 ),
                 buf -> {

@@ -1,11 +1,7 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/gui/ModMenuScreens.java
 package space.anatomyuniverse.musavacca.gui;
 
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import space.anatomyuniverse.musavacca.gui.screen.HexTeleportScreen;
-import space.anatomyuniverse.musavacca.gui.screen.ItemInteractScreen;
-import space.anatomyuniverse.musavacca.gui.screen.TestInventoryScreen;
-import space.anatomyuniverse.musavacca.gui.screen.VocoSliderScreen;
+import space.anatomyuniverse.musavacca.gui.screen.*;
 
 public final class ModMenuScreens {
 
@@ -14,6 +10,7 @@ public final class ModMenuScreens {
         event.register(ModMenus.TEST_INVENTORY_MENU.get(), TestInventoryScreen::new);
         event.register(ModMenus.VOCO_SLIDER_MENU.get(), VocoSliderScreen::new);
         event.register(ModMenus.HEX_TELEPORT_MENU.get(), HexTeleportScreen::new);
+        event.register(ModMenus.FLINT_AND_PEARL_MENU.get(), FlintAndPearlScreen::new);
     }
 
     private ModMenuScreens() {}
