@@ -3,16 +3,17 @@ package space.anatomyuniverse.musavacca.data.language;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.item.ModSmithingTemplates;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-
+import java.util.Set;
 
 public final class ModLanguageProvider extends LanguageProvider {
 
@@ -25,6 +26,7 @@ public final class ModLanguageProvider extends LanguageProvider {
         // Examples (uncomment if needed):
         // OVERRIDES.put("item.anynology.purpish_anytomithium_ingot", "Purplish Anytomithium Ingot");
         // OVERRIDES.put("block.anynology.some_block", "Some Block");
+        OVERRIDES.put("block.musavacca.hex_block", "Lopha Flower");
     }
 
     public ModLanguageProvider(PackOutput output, String locale) {
@@ -34,34 +36,47 @@ public final class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         final String modid = MusaCore.MOD_ID;
-        final java.util.Set<String> generatedKeys = new java.util.HashSet<>();
+        final Set<String> generatedKeys = new HashSet<>();
 
         for (Block b : BuiltInRegistries.BLOCK) {
             ResourceLocation id = BuiltInRegistries.BLOCK.getKey(b);
             if (id == null || !modid.equals(id.getNamespace())) continue;
 
-            String key = b.getDescriptionId();
-            if (OVERRIDES.containsKey(key) || !generatedKeys.add(key)) continue;
-
-            add(key, humanize(id.getPath()));
+            addGenerated(generatedKeys, b.getDescriptionId(), humanize(id.getPath()));
         }
 
         for (Item it : BuiltInRegistries.ITEM) {
             ResourceLocation id = BuiltInRegistries.ITEM.getKey(it);
             if (id == null || !modid.equals(id.getNamespace())) continue;
 
-            String key = it.getDescriptionId();
-            if (OVERRIDES.containsKey(key) || !generatedKeys.add(key)) continue;
-
-            add(key, humanize(id.getPath()));
+            addGenerated(generatedKeys, it.getDescriptionId(), humanize(id.getPath()));
         }
+
+        addSmithingTemplateTranslations(generatedKeys);
 
         String tabKey = "itemGroup." + modid + ".musavacca_tab";
-        if (!OVERRIDES.containsKey(tabKey)) {
-            add(tabKey, "Musavacca");
-        }
+        addGenerated(generatedKeys, tabKey, "Musavacca");
 
         OVERRIDES.forEach(this::add);
+    }
+
+    private void addSmithingTemplateTranslations(Set<String> generatedKeys) {
+        for (ModSmithingTemplates.Entry entry : ModSmithingTemplates.ALL) {
+            addGenerated(generatedKeys, entry.upgradeKey(), entry.upgrade());
+            addGenerated(generatedKeys, entry.appliesToKey(), entry.appliesTo());
+            addGenerated(generatedKeys, entry.ingredientsKey(), entry.ingredients());
+            addGenerated(generatedKeys, entry.baseSlotDescriptionKey(), entry.baseSlotDescription());
+            addGenerated(generatedKeys, entry.additionsSlotDescriptionKey(), entry.additionsSlotDescription());
+        }
+    }
+
+    private void addGenerated(Set<String> generatedKeys, String key, String value) {
+        if (key == null || key.isBlank()) return;
+        if (value == null || value.isBlank()) return;
+        if (OVERRIDES.containsKey(key)) return;
+        if (!generatedKeys.add(key)) return;
+
+        add(key, value);
     }
 
     /** "lobby_wallpaper_plinth" -> "Lobby Wallpaper Plinth" (with acronym touch-ups). */

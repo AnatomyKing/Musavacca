@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "f": "musavacca:musavacca_fence",
+    "s": "musavacca:musavacca_slab"
+  },
+  "pattern": [
+    "s",
+    "f",
+    "s"
+  ],
+  "result": {
+    "count": 1,
+    "id": "musavacca:voco_post"
+  }
+}

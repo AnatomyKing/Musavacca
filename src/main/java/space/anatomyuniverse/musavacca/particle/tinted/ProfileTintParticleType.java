@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/particle/tinted/ProfileTintParticleType.java
 package space.anatomyuniverse.musavacca.particle.tinted;
 
 import com.mojang.serialization.Codec;

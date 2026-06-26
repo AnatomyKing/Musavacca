@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/logic/CandleParticleEffects.java
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.particles.ParticleTypes;

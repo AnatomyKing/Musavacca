@@ -48,7 +48,9 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.MUSAVACCA_LEAVES.get(),
                 ModBlocks.HARD_HEX_BLOCK.get(),
                 ModBlocks.VOCO_TABLE.get(),
-                ModBlocks.VOCO_POST.get()
+                ModBlocks.VOCO_POST.get(),
+                ModBlocks.MUSAVACCA_SLAB.get(),
+                ModBlocks.MUSAVACCA_FENCE.get()
         );
         pearlCandleDrops();
 

@@ -1,0 +1,43 @@
+{
+  "textures": [
+    "musavacca:glither/glither_7/glither_7_0",
+    "musavacca:glither/glither_7/glither_7_1",
+    "musavacca:glither/glither_7/glither_7_2",
+    "musavacca:glither/glither_7/glither_7_3",
+
+    "musavacca:glither/glither_6/glither_6_0",
+    "musavacca:glither/glither_6/glither_6_1",
+    "musavacca:glither/glither_6/glither_6_2",
+    "musavacca:glither/glither_6/glither_6_3",
+
+    "musavacca:glither/glither_5/glither_5_0",
+    "musavacca:glither/glither_5/glither_5_1",
+    "musavacca:glither/glither_5/glither_5_2",
+    "musavacca:glither/glither_5/glither_5_3",
+
+    "musavacca:glither/glither_4/glither_4_0",
+    "musavacca:glither/glither_4/glither_4_1",
+    "musavacca:glither/glither_4/glither_4_2",
+    "musavacca:glither/glither_4/glither_4_3",
+
+    "musavacca:glither/glither_3/glither_3_0",
+    "musavacca:glither/glither_3/glither_3_1",
+    "musavacca:glither/glither_3/glither_3_2",
+    "musavacca:glither/glither_3/glither_3_3",
+
+    "musavacca:glither/glither_2/glither_2_0",
+    "musavacca:glither/glither_2/glither_2_1",
+    "musavacca:glither/glither_2/glither_2_2",
+    "musavacca:glither/glither_2/glither_2_3",
+
+    "musavacca:glither/glither_1/glither_1_0",
+    "musavacca:glither/glither_1/glither_1_1",
+    "musavacca:glither/glither_1/glither_1_2",
+    "musavacca:glither/glither_1/glither_1_3",
+
+    "musavacca:glither/glither_0/glither_0_0",
+    "musavacca:glither/glither_0/glither_0_1",
+    "musavacca:glither/glither_0/glither_0_2",
+    "musavacca:glither/glither_0/glither_0_3"
+  ]
+}

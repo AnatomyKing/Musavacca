@@ -9,7 +9,8 @@ public record VocoTableCraftingRecipe(
         @NotNull ItemLike edible,
         @NotNull ItemLike result,
         int eatingTimeTicks,
-        int litReceptorCost
+        int litReceptorCost,
+        boolean hexColorInject
 ) {
     public VocoTableCraftingRecipe {
         if (eatingTimeTicks <= 0) {

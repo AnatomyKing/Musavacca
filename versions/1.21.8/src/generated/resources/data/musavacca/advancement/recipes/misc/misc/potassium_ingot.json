@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_banazo_gusma_lumpa_goop": {
+      "conditions": {
+        "items": [
+          {
+            "items": "musavacca:banazo_gusma_lumpa_goop"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "musavacca:misc/potassium_ingot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_vacaca": {
+      "conditions": {
+        "items": [
+          {
+            "items": "musavacca:vacaca"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_banazo_gusma_lumpa_goop",
+      "has_vacaca"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "musavacca:misc/potassium_ingot"
+    ]
+  }
+}

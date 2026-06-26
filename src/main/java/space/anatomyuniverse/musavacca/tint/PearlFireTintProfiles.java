@@ -58,6 +58,24 @@ public final class PearlFireTintProfiles {
             244, 228, 202, 186
     );
 
+    public static final Profile IMBUED_POTASSIUM = of(
+            settings(
+                    0.16F,  // coreToTailLightness
+                    0.15F,  // colorJumpiness
+                    0.46F   // layerContrast
+            ),
+            244, 228, 202
+    );
+
+    public static final Profile GLITHER_PARTICLE = of(
+            settings(
+                    0.48F,   // coreToTailLightness
+                    0.5F,  // colorJumpiness
+                    1.21F    // layerContrast
+            ),
+            255, 240, 199, 184
+    );
+
     public static final Profile PEARL_FLAME = of(
             settings(
                     0.80F,   // coreToTailLightness

@@ -23,6 +23,23 @@ public final class VocoTableCraftingRecipes {
             recipe(Items.DIAMOND_LEGGINGS, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_LEGGINGS.get(), 2),
             recipe(Items.DIAMOND_BOOTS, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_BOOTS.get(), 2),
 
+            /*
+             * hexColorInject = true
+             *
+             * If all 4 Voco candle/receptor corners have the same lit color,
+             * that color gets injected into the result stack as ModDataComponents.HEX_COLOR.
+             *
+             * The item does not need to support tinting for this to be safe.
+             * If the item model ignores HEX_COLOR, nothing visual happens.
+             */
+            recipe(
+                    ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
+                    ModItems.POTASSIUM_INGOT.get(),
+                    ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                    2,
+                    true
+            ),
+
             recipe(Items.NAME_TAG, ModItems.SMALL_BANANA_PEARL.get(), ModItems.SIM_CARD.get(), 1)
     );
 
@@ -52,12 +69,23 @@ public final class VocoTableCraftingRecipes {
             ItemLike result,
             int litReceptorCost
     ) {
+        return recipe(display, edible, result, litReceptorCost, false);
+    }
+
+    private static VocoTableCraftingRecipe recipe(
+            ItemLike display,
+            ItemLike edible,
+            ItemLike result,
+            int litReceptorCost,
+            boolean hexColorInject
+    ) {
         return new VocoTableCraftingRecipe(
                 display,
                 edible,
                 result,
                 DEFAULT_EATING_TIME_TICKS,
-                litReceptorCost
+                litReceptorCost,
+                hexColorInject
         );
     }
 }

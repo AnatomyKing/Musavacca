@@ -54,6 +54,8 @@ public final class ModModelProvider
         Chapiter.generate(blocks, ModelSets.chapiterBlocks());
         Log.generate(blocks, ModelSets.logBlocks());
         Stairs.generate(blocks, ModelSets.stairsBlocks());
+        Slabs.generate(blocks, ModelSets.slabBlocks());
+        Fences.generate(blocks, ModelSets.fenceBlocks());
         CubeCrafterLike.generate(blocks, ModelSets.cubeCrafterLikeBlocks());
 
         SmallBananaPearlOwn.generate(blocks, ModelSets.smallBananaPearlBlocks());
@@ -71,7 +73,8 @@ public final class ModModelProvider
         CubeVocoTable.generate(blocks, ModelSets.cubeVocoTableModels());
         CubeVocoPost.generate(blocks, ModelSets.cubeVocoPostModels());
 
-        ItemTintedLayered.generate(items, ModelSets.itemTintedLayeredItems());
+        ItemTintedMaxLayer5.generate(items, ModelSets.itemTintedMaxLayer5Items());
+        ItemTintedBypassLayer5.generate(items, ModelSets.itemTintedBypassLayer5Items());
         CustomItemModel.generate(items, ModelSets.customItemModels());
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());

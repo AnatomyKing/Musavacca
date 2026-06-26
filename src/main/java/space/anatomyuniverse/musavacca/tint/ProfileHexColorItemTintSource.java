@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/ProfileHexColorItemTintSource.java
 package space.anatomyuniverse.musavacca.tint;
 
 //? if >=1.21.4 {
@@ -24,6 +23,8 @@ public final class ProfileHexColorItemTintSource
     //?}
 
     //? if >=1.21.4 {
+    public static final int PASSTHROUGH_LAYER = -1;
+
     public static final MapCodec<ProfileHexColorItemTintSource> MAP_CODEC =
             RecordCodecBuilder.mapCodec(instance -> instance.group(
                     Codec.INT.fieldOf("layer").forGetter(ProfileHexColorItemTintSource::layerIndex),
@@ -37,6 +38,27 @@ public final class ProfileHexColorItemTintSource
     private final PearlFireTintProfiles.Profile profile;
     private final List<Float> grayFactors;
 
+    /*
+     * Use this for a model layer that needs a tint source entry,
+     * but should visually stay unchanged.
+     *
+     * Example:
+     * - ItemTintedMaxLayer5 layer0/base uses tintindex 0.
+     * - To make layer1 use tintindex 1, we still need a tint source at index 0.
+     * - This passthrough source returns white/no-tint.
+     */
+    public static ProfileHexColorItemTintSource noTint(PearlFireTintProfiles.Profile profile) {
+        return new ProfileHexColorItemTintSource(PASSTHROUGH_LAYER, profile);
+    }
+
+    /*
+     * Use this for actual tinted profile layers.
+     *
+     * layerIndex here is the profile layer:
+     * - 0 = first profile layer
+     * - 1 = second profile layer
+     * - etc.
+     */
     public static ProfileHexColorItemTintSource of(
             int layerIndex,
             PearlFireTintProfiles.Profile profile
@@ -52,7 +74,7 @@ public final class ProfileHexColorItemTintSource
             throw new IllegalArgumentException("profile must not be null");
         }
 
-        this.layerIndex = Math.max(0, layerIndex);
+        this.layerIndex = layerIndex;
         this.profile = profile;
         this.grayFactors = grayFactorsAsList(profile);
     }
@@ -64,7 +86,7 @@ public final class ProfileHexColorItemTintSource
             float layerContrast,
             List<Float> grayFactors
     ) {
-        this.layerIndex = Math.max(0, layerIndex);
+        this.layerIndex = layerIndex;
         this.grayFactors = sanitizeGrayFactors(grayFactors);
         this.profile = new PearlFireTintProfiles.Profile(
                 new PearlFireTintProfiles.Settings(
@@ -102,18 +124,22 @@ public final class ProfileHexColorItemTintSource
             @Nullable ClientLevel level,
             @Nullable LivingEntity entity
     ) {
-        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+        /*
+         * Negative layer = passthrough/no visual tint.
+         *
+         * Returning opaque white keeps the texture unchanged.
+         */
+        if (this.layerIndex < 0) {
+            return TintColorUtil.NO_TINT;
+        }
 
         /*
-         * Clean item = no color component.
+         * Dynamic item color source.
          *
-         * This is important for SIM cards:
-         * - clean SIM card has no HEX_COLOR
-         * - 000000 is a real assigned color
-         * - FFFFFF is a real assigned color
-         *
-         * So missing component must NOT fall back to FlintAndPearlItem.DEFAULT_HEX_COLOR.
+         * No HEX_COLOR component = no tint.
+         * This means the item can exist normally without color until Voco crafting injects one.
          */
+        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex == null) {
             return TintColorUtil.NO_TINT;
         }

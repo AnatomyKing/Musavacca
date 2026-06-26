@@ -100,6 +100,15 @@ public final class ModItems {
     public static final DeferredItem<Item> BANANA_PELLIS =
             ITEMS.registerItem("banana_pellis", props -> new Item(props.rarity(Rarity.COMMON)));
 
+    public static final DeferredItem<Item> POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
+            ITEMS.registerItem("potassium_upgrade_smithing_template", props -> new Item(props.rarity(Rarity.RARE)));
+
+    public static final DeferredItem<SmithingTemplateItem> IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
+            ITEMS.registerItem(
+                    ModSmithingTemplates.IMBUED_POTASSIUM_UPGRADE.registryPath(),
+                    props -> ModSmithingTemplates.IMBUED_POTASSIUM_UPGRADE.create(props)
+            );
+
     public static final DeferredItem<Item> MUSAVACCA_EXUDATE =
             ITEMS.registerItem("musavacca_exudate",
                     props -> new Item(

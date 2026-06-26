@@ -128,6 +128,223 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModItems.VACACA.get(), Items.AMETHYST_SHARD)
                 .save("misc/banana_pearl_from_vacaca");
 
+
+
+        // Flint + Banana Pearl -> Flint and Pearl
+        dsl.shapeless(RecipeCategory.MISC, ModItems.FLINT_AND_PEARL.get(), 1)
+                .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
+                .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())
+                .save("misc/flint_and_pearl");
+
+
+// Musavacca Slab
+// Musavacca Fence
+// Musavacca Slab
+// -> Voco Post
+        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.VOCO_POST.get(), 1)
+                .pattern("s")
+                .pattern("f")
+                .pattern("s")
+                .define('s', ModBlocks.MUSAVACCA_SLAB.get())
+                .define('f', ModBlocks.MUSAVACCA_FENCE.get())
+                .unlockedByHas(ModBlocks.MUSAVACCA_SLAB.get(), ModBlocks.MUSAVACCA_FENCE.get())
+                .save("blocks/voco_post");
+
+
+// Voco Posts in the corners + Musavacca Planks in the middle -> Voco Table
+        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.VOCO_TABLE.get(), 1)
+                .pattern("p p")
+                .pattern(" m ")
+                .pattern("p p")
+                .define('p', ModBlocks.VOCO_POST.get())
+                .define('m', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(ModBlocks.VOCO_POST.get(), ModBlocks.MUSAVACCA_PLANKS.get())
+                .save("blocks/voco_table");
+
+
+// 4 Musavacca Exudate + 4 Banana Pellis -> Banazo Gusma Lumpa Goop
+        dsl.shapelessCounts(
+                        RecipeCategory.MISC,
+                        ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), 1,
+                        ModItems.MUSAVACCA_EXUDATE.get(), 4,
+                        ModItems.BANANA_PELLIS.get(), 4
+                )
+                .unlockedByHas(ModItems.MUSAVACCA_EXUDATE.get(), ModItems.BANANA_PELLIS.get())
+                .save("misc/banazo_gusma_lumpa_goop");
+
+
+// 4 Banazo Gusma Lumpa Goop + 4 Vacacas -> Potassium Ingot
+        dsl.shapelessCounts(
+                        RecipeCategory.MISC,
+                        ModItems.POTASSIUM_INGOT.get(), 1,
+                        ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), 4,
+                        ModItems.VACACA.get(), 4
+                )
+                .unlockedByHas(ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), ModItems.VACACA.get())
+                .save("misc/potassium_ingot");
+
+
+        // 3 Musavacca Planks -> 6 Musavacca Slabs
+        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_SLAB.get(), 6)
+                .pattern("ppp")
+                .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
+                .save("blocks/musavacca_slab");
+
+
+// Musavacca Planks + Sticks -> 3 Musavacca Fences
+        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_FENCE.get(), 3)
+                .pattern("psp")
+                .pattern("psp")
+                .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
+                .define('s', Items.STICK)
+                .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get(), Items.STICK)
+                .save("blocks/musavacca_fence");
+
+// =========================
+// Potassium Smithing Upgrades
+// Diamond gear + Imbued Potassium Upgrade Template + Potassium Ingot
+// =========================
+
+// Sword
+        dsl.transform().of(
+                        Ingredient.of(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                        Ingredient.of(Items.DIAMOND_SWORD),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.COMBAT,
+                        ModItems.POTASSIUM_SWORD.get()
+                )
+                .unlocksHas(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
+                .save("smithing/potassium_sword_upgrade");
+
+
+// Pickaxe
+        dsl.transform().of(
+                        Ingredient.of(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                        Ingredient.of(Items.DIAMOND_PICKAXE),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.TOOLS,
+                        ModItems.POTASSIUM_PICKAXE.get()
+                )
+                .unlocksHas(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
+                .save("smithing/potassium_pickaxe_upgrade");
+
+
+// Axe
+        dsl.transform().of(
+                        Ingredient.of(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                        Ingredient.of(Items.DIAMOND_AXE),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.TOOLS,
+                        ModItems.POTASSIUM_AXE.get()
+                )
+                .unlocksHas(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
+                .save("smithing/potassium_axe_upgrade");
+
+
+// Shovel
+        dsl.transform().of(
+                        Ingredient.of(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                        Ingredient.of(Items.DIAMOND_SHOVEL),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.TOOLS,
+                        ModItems.POTASSIUM_SHOVEL.get()
+                )
+                .unlocksHas(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
+                .save("smithing/potassium_shovel_upgrade");
+
+
+// Hoe
+        dsl.transform().of(
+                        Ingredient.of(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                        Ingredient.of(Items.DIAMOND_HOE),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.TOOLS,
+                        ModItems.POTASSIUM_HOE.get()
+                )
+                .unlocksHas(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
+                .save("smithing/potassium_hoe_upgrade");
+
+
+// Helmet
+        dsl.transform().of(
+                        Ingredient.of(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                        Ingredient.of(Items.DIAMOND_HELMET),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.COMBAT,
+                        ModItems.POTASSIUM_HELMET.get()
+                )
+                .unlocksHas(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
+                .save("smithing/potassium_helmet_upgrade");
+
+
+// Chestplate
+        dsl.transform().of(
+                        Ingredient.of(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                        Ingredient.of(Items.DIAMOND_CHESTPLATE),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.COMBAT,
+                        ModItems.POTASSIUM_CHESTPLATE.get()
+                )
+                .unlocksHas(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
+                .save("smithing/potassium_chestplate_upgrade");
+
+
+// Leggings
+        dsl.transform().of(
+                        Ingredient.of(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                        Ingredient.of(Items.DIAMOND_LEGGINGS),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.COMBAT,
+                        ModItems.POTASSIUM_LEGGINGS.get()
+                )
+                .unlocksHas(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
+                .save("smithing/potassium_leggings_upgrade");
+
+
+// Boots
+        dsl.transform().of(
+                        Ingredient.of(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                        Ingredient.of(Items.DIAMOND_BOOTS),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.COMBAT,
+                        ModItems.POTASSIUM_BOOTS.get()
+                )
+                .unlocksHas(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
+                .save("smithing/potassium_boots_upgrade");
+
+
+        dsl.shaped(RecipeCategory.MISC, ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), 2)
+                .pattern("xAx")
+                .pattern("xPx")
+                .pattern("xxx")
+                .define('x', Items.DIAMOND)
+                .define('A', ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
+                .define('P', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(
+                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                        Items.DIAMOND,
+                        ModBlocks.MUSAVACCA_PLANKS.get()
+                )
+                .save("smithing/potassium_upgrade_smithing_template_duplication");
+
+
+// Imbued Potassium Upgrade Smithing Template duplication
+        dsl.shaped(RecipeCategory.MISC, ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), 2)
+                .pattern("xAx")
+                .pattern("xPx")
+                .pattern("xxx")
+                .define('x', Items.DIAMOND)
+                .define('A', ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
+                .define('P', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(
+                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                        Items.DIAMOND,
+                        ModBlocks.MUSAVACCA_PLANKS.get()
+                )
+                .save("smithing/imbued_potassium_upgrade_smithing_template_duplication");
+
+
 //        dsl.shapeless(RecipeCategory.MISC, ModItems.RAW_ANYTOMITHIUM.get(), 1)
 //                .requires(Items.AMETHYST_SHARD, Items.RAW_IRON, Items.PRISMARINE_CRYSTALS)
 //                // NOTE: multiple unlockedBy criteria unlock as OR in vanilla recipe advancements

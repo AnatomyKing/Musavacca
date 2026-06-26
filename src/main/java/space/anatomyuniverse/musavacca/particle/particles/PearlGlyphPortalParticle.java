@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/particle/particles/PearlGlyphPortalParticle.java
 package space.anatomyuniverse.musavacca.particle.particles;
 
 import net.minecraft.client.multiplayer.ClientLevel;

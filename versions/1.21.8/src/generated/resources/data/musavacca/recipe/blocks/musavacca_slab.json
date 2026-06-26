@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "p": "musavacca:musavacca_planks"
+  },
+  "pattern": [
+    "ppp"
+  ],
+  "result": {
+    "count": 6,
+    "id": "musavacca:musavacca_slab"
+  }
+}

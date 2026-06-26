@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/crafting/craft/VocoTableCrafting.java
 package space.anatomyuniverse.musavacca.crafting.craft;
 
 import net.minecraft.core.BlockPos;
@@ -14,11 +13,17 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
+import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
+import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
 
 public final class VocoTableCrafting {
-    private static final int END_ROD_PARTICLE_COUNT = 24;
+    private static final int GLITHER_PARTICLE_COUNT = 24;
+
+    private static final int DEFAULT_GLITHER_COLOR = 0xFFFFFF;
 
     /*
      * Matches VocoTableBlockEntityItemDisplayRenderer:
@@ -97,11 +102,22 @@ public final class VocoTableCrafting {
             return false;
         }
 
+        /*
+         * Check color before consuming candles/receptors.
+         * This makes the craft burst and injected color match the candle state that caused the craft.
+         */
+        Integer matchingCandleColor = matchingFourCandleColor(tableBe);
+        int glitherColor = matchingCandleColor == null
+                ? DEFAULT_GLITHER_COLOR
+                : matchingCandleColor;
+
         if (!tableBe.consumeLitReceptorsForCrafting(level, recipe.litReceptorCost())) {
             return false;
         }
 
         ItemStack resultStack = recipe.createResultStack();
+        injectHexColorIfAllowed(resultStack, recipe, matchingCandleColor);
+
         tableBe.setDisplayedItem(resultStack);
 
         edibleStack.shrink(1);
@@ -110,18 +126,42 @@ public final class VocoTableCrafting {
                 edibleStack.isEmpty() ? ItemStack.EMPTY : edibleStack
         );
 
-        playCraftingEffects(level, tablePos, resultStack);
+        playCraftingEffects(level, tablePos, resultStack, glitherColor);
         return true;
+    }
+
+    private static void injectHexColorIfAllowed(
+            @NotNull ItemStack resultStack,
+            @NotNull VocoTableCraftingRecipe recipe,
+            @Nullable Integer matchingCandleColor
+    ) {
+        if (!recipe.hexColorInject()) {
+            return;
+        }
+
+        if (matchingCandleColor == null) {
+            return;
+        }
+
+        /*
+         * Safe even when the item has no tinted model.
+         * Items that do not read ModDataComponents.HEX_COLOR will simply ignore it visually.
+         */
+        resultStack.set(
+                ModDataComponents.HEX_COLOR.get(),
+                matchingCandleColor & 0xFFFFFF
+        );
     }
 
     private static void playCraftingEffects(
             @NotNull ServerLevel level,
             @NotNull BlockPos tablePos,
-            @NotNull ItemStack resultStack
+            @NotNull ItemStack resultStack,
+            int glitherColor
     ) {
         Vec3 itemDisplayCenter = itemDisplayCenter(tablePos);
 
-        spawnEndRodTransformationParticles(level, itemDisplayCenter);
+        spawnGlitherTransformationParticles(level, itemDisplayCenter, glitherColor);
 
         level.sendParticles(
                 new ItemParticleOption(ParticleTypes.ITEM, resultStack.copyWithCount(1)),
@@ -166,20 +206,50 @@ public final class VocoTableCrafting {
         );
     }
 
-    private static void spawnEndRodTransformationParticles(
+    private static void spawnGlitherTransformationParticles(
             @NotNull ServerLevel level,
-            @NotNull Vec3 center
+            @NotNull Vec3 center,
+            int glitherColor
     ) {
-        level.sendParticles(
-                ParticleTypes.END_ROD,
+        ProfileTintParticles.send(
+                level,
+                level.random,
+                ModParticleTypes.GLITHER.get(),
+                glitherColor,
                 center.x,
                 center.y,
                 center.z,
-                END_ROD_PARTICLE_COUNT,
+                GLITHER_PARTICLE_COUNT,
                 0.22D,
                 0.16D,
                 0.22D,
                 0.045D
         );
+    }
+
+    @Nullable
+    private static Integer matchingFourCandleColor(@NotNull VocoTableBlockEntity tableBe) {
+        Integer matchingColor = null;
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            int cornerColor = tableBe.getCornerHexColor(receptor);
+
+            if (cornerColor == VocoTableBlockEntity.UNSET_HEX_COLOR) {
+                return null;
+            }
+
+            cornerColor &= 0xFFFFFF;
+
+            if (matchingColor == null) {
+                matchingColor = cornerColor;
+                continue;
+            }
+
+            if (!matchingColor.equals(cornerColor)) {
+                return null;
+            }
+        }
+
+        return matchingColor;
     }
 }

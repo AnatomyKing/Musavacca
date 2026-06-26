@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_banana_pellis": {
+      "conditions": {
+        "items": [
+          {
+            "items": "musavacca:banana_pellis"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_musavacca_exudate": {
+      "conditions": {
+        "items": [
+          {
+            "items": "musavacca:musavacca_exudate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "musavacca:misc/banazo_gusma_lumpa_goop"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_musavacca_exudate",
+      "has_banana_pellis"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "musavacca:misc/banazo_gusma_lumpa_goop"
+    ]
+  }
+}

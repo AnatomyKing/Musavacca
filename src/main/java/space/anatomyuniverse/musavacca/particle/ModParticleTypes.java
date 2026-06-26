@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/particle/ModParticleTypes.java
 package space.anatomyuniverse.musavacca.particle;
 
 import net.minecraft.core.particles.ParticleType;
@@ -16,6 +15,10 @@ public final class ModParticleTypes {
 
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
             DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, MusaCore.MOD_ID);
+
+    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> GLITHER =
+            PARTICLE_TYPES.register("glither",
+                    () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.GLITHER_PARTICLE));
 
     public static final DeferredHolder<ParticleType<?>, HexColorParticleType> HEX_FALLING_SPORE_BLOSSOM =
             PARTICLE_TYPES.register("hex_falling_spore_blossom", () -> new HexColorParticleType(false));

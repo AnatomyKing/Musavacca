@@ -1,0 +1,56 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "musavacca:item/imbued_potassium_upgrade_smithing_template",
+    "tints": [
+      {
+        "type": "musavacca:profile_hex_color",
+        "color_jumpiness": 0.15,
+        "core_to_tail_lightness": 0.16,
+        "gray_factors": [
+          0.95686275,
+          0.89411765,
+          0.7921569
+        ],
+        "layer": -1,
+        "layer_contrast": 0.46
+      },
+      {
+        "type": "musavacca:profile_hex_color",
+        "color_jumpiness": 0.15,
+        "core_to_tail_lightness": 0.16,
+        "gray_factors": [
+          0.95686275,
+          0.89411765,
+          0.7921569
+        ],
+        "layer": 0,
+        "layer_contrast": 0.46
+      },
+      {
+        "type": "musavacca:profile_hex_color",
+        "color_jumpiness": 0.15,
+        "core_to_tail_lightness": 0.16,
+        "gray_factors": [
+          0.95686275,
+          0.89411765,
+          0.7921569
+        ],
+        "layer": 1,
+        "layer_contrast": 0.46
+      },
+      {
+        "type": "musavacca:profile_hex_color",
+        "color_jumpiness": 0.15,
+        "core_to_tail_lightness": 0.16,
+        "gray_factors": [
+          0.95686275,
+          0.89411765,
+          0.7921569
+        ],
+        "layer": 2,
+        "layer_contrast": 0.46
+      }
+    ]
+  }
+}

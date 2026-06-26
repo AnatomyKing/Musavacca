@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/HexColorItemTintSource.java
 package space.anatomyuniverse.musavacca.tint;
 
 //? if >=1.21.4 {

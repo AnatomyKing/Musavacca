@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "musavacca:item/imbued_potassium_upgrade_smithing_template",
+    "layer1": "musavacca:item/imbued_potassium_upgrade_smithing_template_0",
+    "layer2": "musavacca:item/imbued_potassium_upgrade_smithing_template_1",
+    "layer3": "musavacca:item/imbued_potassium_upgrade_smithing_template_2"
+  }
+}

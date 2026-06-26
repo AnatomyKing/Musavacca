@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "musavacca:item/potassium_upgrade_smithing_template"
+  }
+}

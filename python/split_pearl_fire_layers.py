@@ -4,7 +4,7 @@ from pathlib import Path
 from PIL import Image
 
 INPUT_FILES = [
-    "sim_card.png"
+    "glither_0.png"
 ]
 
 

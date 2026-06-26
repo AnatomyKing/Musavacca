@@ -7,13 +7,9 @@ from typing import List, Set
 from PIL import Image
 
 INPUT_FILES = [
-    "sim_card_0.png",
-    "sim_card_1.png",
-    "sim_card_2.png",
-    "sim_card_3.png",
-    "sim_card_4.png",
-    "sim_card_5.png",
-    "sim_card_6.png"
+    "imbued_potassium_upgrade_smithing_template_0.png",
+    "imbued_potassium_upgrade_smithing_template_1.png",
+    "imbued_potassium_upgrade_smithing_template_2.png"
 ]
 
 PER_LINE = 8

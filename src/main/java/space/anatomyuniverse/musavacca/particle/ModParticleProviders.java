@@ -1,8 +1,8 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/particle/ModParticleProviders.java
 package space.anatomyuniverse.musavacca.particle;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import space.anatomyuniverse.musavacca.particle.particles.GlitherParticle;
 import space.anatomyuniverse.musavacca.particle.particles.HexFallingSporeBlossomProvider;
 import space.anatomyuniverse.musavacca.particle.particles.HexSporeBlossomAirParticle;
 import space.anatomyuniverse.musavacca.particle.particles.PearlFlameParticle;
@@ -16,6 +16,11 @@ public final class ModParticleProviders {
     }
 
     private static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(
+                ModParticleTypes.GLITHER.get(),
+                GlitherParticle.Provider::new
+        );
+
         event.registerSpriteSet(
                 ModParticleTypes.HEX_FALLING_SPORE_BLOSSOM.get(),
                 HexFallingSporeBlossomProvider::new

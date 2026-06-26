@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/particle/tinted/ProfileTintSprite.java
 package space.anatomyuniverse.musavacca.particle.tinted;
 
 import net.minecraft.client.particle.Particle;

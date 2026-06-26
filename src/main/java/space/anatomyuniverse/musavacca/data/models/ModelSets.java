@@ -7,10 +7,7 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.data.models.block.*;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
-import space.anatomyuniverse.musavacca.data.models.item.CustomItemModel;
-import space.anatomyuniverse.musavacca.data.models.item.ItemTintedLayered;
-import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
+import space.anatomyuniverse.musavacca.data.models.item.*;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 
@@ -176,6 +173,18 @@ public final class ModelSets {
         return new Block[] {};
     }
 
+    public static Block[] slabBlocks() {
+        return new Block[] {
+                ModBlocks.MUSAVACCA_SLAB.get()
+        };
+    }
+
+    public static Block[] fenceBlocks() {
+        return new Block[] {
+                ModBlocks.MUSAVACCA_FENCE.get()
+        };
+    }
+
     public static Block[] cubeCrafterLikeBlocks() {
         return new Block[] {};
     }
@@ -236,7 +245,8 @@ public final class ModelSets {
                 ModBlocks.UNRIPE_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPE_MUSAVACCA_EGG.get(),
-                ModItems.POTASSIUM_INGOT.get()
+                ModItems.POTASSIUM_INGOT.get(),
+                ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()
         };
     }
 
@@ -259,9 +269,18 @@ public final class ModelSets {
         };
     }
 
-    public static ItemTintedLayered.Entry[] itemTintedLayeredItems() {
-        return new ItemTintedLayered.Entry[] {
-                ItemTintedLayered.root(
+    public static ItemTintedMaxLayer5.Entry[] itemTintedMaxLayer5Items() {
+        return new ItemTintedMaxLayer5.Entry[] {
+                ItemTintedMaxLayer5.root(
+                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                        PearlFireTintProfiles.IMBUED_POTASSIUM
+                )
+        };
+    }
+
+    public static ItemTintedBypassLayer5.Entry[] itemTintedBypassLayer5Items() {
+        return new ItemTintedBypassLayer5.Entry[] {
+                ItemTintedBypassLayer5.root(
                         ModItems.SIM_CARD.get(),
                         PearlFireTintProfiles.SIM_CARD_TINT
                 )
