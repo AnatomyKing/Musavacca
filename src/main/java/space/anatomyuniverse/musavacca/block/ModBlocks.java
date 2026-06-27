@@ -242,14 +242,40 @@ public final class ModBlocks {
                                     .noLootTable()
                     ));
 
-    public static final DeferredBlock<BananaPearlChaliceBlock> BANANA_PEARL_CHALICE =
+    public static final DeferredBlock<DecorationBlock> BANANA_PEARL_CHALICE =
             BLOCKS.registerBlock("banana_pearl_chalice",
-                    props -> new BananaPearlChaliceBlock(
+                    props -> new DecorationBlock(
                             props.mapColor(MapColor.COLOR_ORANGE)
                                     .strength(0.2F, 3.0F)
                                     .sound(SoundType.CHAIN)
                                     .noOcclusion()
-                                    .pushReaction(PushReaction.DESTROY)
+                                    .pushReaction(PushReaction.DESTROY),
+                            DecorationBlock.Options.builder()
+
+                                    // Pick ONE per placement:
+                                    // .floor() / .floorFacing() / .floorRotating()
+                                    // .sneak() / .sneakFacing() / .sneakRotating()
+                                    // .roof()  / .roofFacing()  / .roofRotating()
+                                    //
+                                    // .side() is always wall-facing only.
+                                    //
+                                    // fixed    = no rotation
+                                    // facing   = 4-way north/east/south/west
+                                    // rotating = 16-step skull-like rotation
+
+                                    .floorRotating()
+                                    .sneakRotating()
+                                    .side()
+
+                                    // Shape order: floor, sneak, side, roof.
+                                    // Side shape is authored north-facing and auto-rotates hitbox.
+                                    .shapes(DecorationBlock.ShapeSet.of(
+                                            Block.box(4.0D, 0.0D, 4.0D, 12.0D, 12.0D, 12.0D),
+                                            Block.box(1.75D, 0.0D, 2.0D, 14.25D, 7.0D, 14.0D),
+                                            Block.box(4.5D, 0.5D, 2.25D, 11.5D, 12.5D, 9.25D),
+                                            Block.box(4.0D, 4.0D, 4.0D, 12.0D, 16.0D, 12.0D)
+                                    ))
+                                    .build()
                     ));
 
     public static final DeferredBlock<VocoTableBlock> VOCO_TABLE =

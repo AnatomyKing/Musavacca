@@ -1,0 +1,9 @@
+{
+  "parent": "musavacca:block/banana_pearl_chalice_sneak",
+  "transform": {
+    "origin": "center",
+    "rotation": {
+      "y": -45.0
+    }
+  }
+}

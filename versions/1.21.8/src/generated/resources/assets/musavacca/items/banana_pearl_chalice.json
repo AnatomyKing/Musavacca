@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "musavacca:block/banana_pearl_chalice_up/banana_pearl_chalice_up_north"
+    "model": "musavacca:block/banana_pearl_chalice_floor"
   }
 }

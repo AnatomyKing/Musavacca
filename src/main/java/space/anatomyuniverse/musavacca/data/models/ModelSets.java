@@ -113,10 +113,11 @@ public final class ModelSets {
         );
     }
 
-    public static Block[] bananaPearlChaliceBlocks() {
-        return new Block[] {
-                ModBlocks.BANANA_PEARL_CHALICE.get()
-        };
+    public static Map<Block, DecorationModelBlocks.Models> decorationBlockModels() {
+        return Map.of(
+                ModBlocks.BANANA_PEARL_CHALICE.get(),
+                DecorationModelBlocks.Models.auto()
+        );
     }
 
     public static Block[] smallBananaPearlBlocks() {
