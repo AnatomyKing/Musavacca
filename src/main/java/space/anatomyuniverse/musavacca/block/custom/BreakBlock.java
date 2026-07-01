@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -227,8 +226,8 @@ public class BreakBlock extends Block implements BonemealableBlock {
 
 
     @Override
-    public BonemealableBlock.Type getType() {
-        return BonemealableBlock.Type.GROWER;
+    public Type getType() {
+        return Type.GROWER;
     }
 
     private static <T extends Entity> void spawnEntitySafely(ServerLevel level, BlockPos pos, boolean attached, EntityType<T> type) {

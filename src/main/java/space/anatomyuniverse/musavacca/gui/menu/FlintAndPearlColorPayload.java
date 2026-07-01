@@ -10,7 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
@@ -48,7 +48,7 @@ public record FlintAndPearlColorPayload(int hexColor) implements CustomPacketPay
 
         int color = TintColorUtil.rgb(payload.hexColor());
 
-        stack.set(ModDataComponents.HEX_COLOR.get(), color);
+        HexColorComponent.setSlot(stack, FlintAndPearlItem.HEX_SLOT, color);
         menu.setHexColor(color);
 
         player.containerMenu.broadcastChanges();

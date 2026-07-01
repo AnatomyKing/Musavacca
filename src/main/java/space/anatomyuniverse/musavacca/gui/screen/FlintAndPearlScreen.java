@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlColorPayload;
 import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlMenu;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
@@ -903,7 +903,7 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
         ItemStack stack = this.getHeldStack();
 
         if (!stack.isEmpty() && stack.getItem() instanceof FlintAndPearlItem) {
-            stack.set(ModDataComponents.HEX_COLOR.get(), TintColorUtil.rgb(rgb));
+            HexColorComponent.setSlot(stack, FlintAndPearlItem.HEX_SLOT, rgb);
         }
     }
 

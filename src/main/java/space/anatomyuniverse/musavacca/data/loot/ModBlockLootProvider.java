@@ -23,6 +23,8 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
+import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
@@ -138,7 +140,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                                 .apply(
                                                                         SetComponentsFunction.setComponent(
                                                                                 ModDataComponents.HEX_COLOR.get(),
-                                                                                assignedHexColor
+                                                                                HexColorComponent.single(HexBlockEntity.HEX_SLOT, assignedHexColor)
                                                                         )
                                                                 )
                                                 )

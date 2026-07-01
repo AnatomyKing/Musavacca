@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/gui/menu/HexTeleportMenu.java
 package space.anatomyuniverse.musavacca.gui.menu;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;

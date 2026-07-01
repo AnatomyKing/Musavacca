@@ -29,7 +29,7 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlMenu;
 import space.anatomyuniverse.musavacca.portal.PearlPortalCreator;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
@@ -37,7 +37,8 @@ import space.anatomyuniverse.musavacca.tint.PearlPlacementColorMemory;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
 public class FlintAndPearlItem extends FlintAndSteelItem {
-    public static final int DEFAULT_HEX_COLOR = 0xD5CD49;
+    public static final String HEX_SLOT = "flint_and_pearl";
+    public static final int DEFAULT_HEX_COLOR = TintColorUtil.HARD_HEX;
 
     private static final Component TITLE = Component.literal("Pearl Fire Hex");
 
@@ -76,13 +77,12 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     }
 
     public static int getStoredHexOrDefault(ItemStack stack) {
-        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-        return TintColorUtil.rgb(savedHex != null ? savedHex : DEFAULT_HEX_COLOR);
+        return HexColorComponent.getSlotOr(stack, HEX_SLOT, DEFAULT_HEX_COLOR);
     }
 
     public static void ensureDefaultColorComponent(ItemStack stack) {
-        if (stack.get(ModDataComponents.HEX_COLOR.get()) == null) {
-            stack.set(ModDataComponents.HEX_COLOR.get(), DEFAULT_HEX_COLOR);
+        if (!HexColorComponent.has(stack)) {
+            HexColorComponent.setSlot(stack, HEX_SLOT, DEFAULT_HEX_COLOR);
         }
     }
 

@@ -21,16 +21,21 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorSource;
+import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 import space.anatomyuniverse.musavacca.portal.PearlPortalDestroyer;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
 
+import java.util.Map;
 import java.util.UUID;
 
-public class PearlPortalBlockEntity extends BlockEntity {
+public class PearlPortalBlockEntity extends BlockEntity implements HexColorSource {
     private static final String TAG_PORTAL_ID = "portal_id";
     private static final String TAG_HEX_COLOR = "hex_color";
+    public static final String HEX_SLOT = "pearl_portal";
     private static final String TAG_ORIGIN_X = "origin_x";
     private static final String TAG_ORIGIN_Y = "origin_y";
     private static final String TAG_ORIGIN_Z = "origin_z";
@@ -43,7 +48,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
     private static final String TAG_EXIT_ANCHOR_Y = "exit_anchor_y";
     private static final String TAG_EXIT_ANCHOR_Z = "exit_anchor_z";
 
-    private static final int DEFAULT_HEX_COLOR = 0xD5CD49;
+    private static final int DEFAULT_HEX_COLOR = TintColorUtil.HARD_HEX;
 
     private UUID portalId = UUID.randomUUID();
     private int hexColor = DEFAULT_HEX_COLOR;
@@ -106,6 +111,23 @@ public class PearlPortalBlockEntity extends BlockEntity {
 
     public int getHexColor() {
         return this.hexColor;
+    }
+
+    @Override
+    public int getHexColorOrUnset(String slot) {
+        String cleaned = HexColorComponent.cleanSlot(slot);
+        if (!HEX_SLOT.equals(cleaned)) {
+            return TintColorUtil.UNSET_HEX;
+        }
+
+        return this.isValidPortalTile() ? this.hexColor : TintColorUtil.UNSET_HEX;
+    }
+
+    @Override
+    public Map<String, Integer> getHexColors() {
+        return this.isValidPortalTile()
+                ? Map.of(HEX_SLOT, normalizeHex(this.hexColor))
+                : Map.of();
     }
 
     public BlockPos getOriginPos() {
@@ -362,8 +384,8 @@ public class PearlPortalBlockEntity extends BlockEntity {
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
 
-        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        if (savedHex != null) {
+        int savedHex = HexColorComponent.getSlotOrUnset(input, HEX_SLOT);
+        if (savedHex != TintColorUtil.UNSET_HEX) {
             this.hexColor = normalizeHex(savedHex);
         }
     }
@@ -371,7 +393,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
-        components.set(ModDataComponents.HEX_COLOR.get(), this.hexColor);
+        components.set(ModDataComponents.HEX_COLOR.get(), this.getHexColors());
     }
 
     @Override
@@ -520,7 +542,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
     }
 
     private static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
+        return TintColorUtil.normalizeHex(hexColor);
     }
 
     private static int clampWidth(int value) {

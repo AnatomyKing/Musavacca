@@ -8,11 +8,11 @@ import space.anatomyuniverse.musavacca.data.loot.ModBlockLootProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModGlobalLootModifierProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModSnifferDiggingLootProvider;
 import space.anatomyuniverse.musavacca.data.models.ModModelProvider;
+import space.anatomyuniverse.musavacca.data.models.ModelSets;
+import space.anatomyuniverse.musavacca.data.models.item.ArmorItems;
 import space.anatomyuniverse.musavacca.data.recipes.ModRecipeProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModBlockTagsProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModItemTagsProvider;
-import space.anatomyuniverse.musavacca.data.models.ModelSets;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
 import space.anatomyuniverse.musavacca.data.worldgen.MusavaccaTreeFeatureProvider;
 
 import java.util.List;
@@ -24,6 +24,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 *///?}
 
 public final class ModDataGenerators {
+    private ModDataGenerators() {}
 
     //? if <1.21.4 {
     /*public static void gatherData(final GatherDataEvent event) {
@@ -31,25 +32,47 @@ public final class ModDataGenerators {
         final ExistingFileHelper efh = event.getExistingFileHelper();
 
         if (event.includeClient()) {
-            event.getGenerator().addProvider(true, new ModLanguageProvider(output, "en_us"));
-            event.getGenerator().addProvider(true, new ModModelProvider(output, efh));
+            event.getGenerator().addProvider(
+                    true,
+                    new ModLanguageProvider(output, "en_us")
+            );
+
+            event.getGenerator().addProvider(
+                    true,
+                    new ModModelProvider(output, efh)
+            );
         }
 
         if (event.includeServer()) {
             // Recipes
             //? if <1.21.3 {
-            /^event.getGenerator().addProvider(true, new ModRecipeProvider(output, event.getLookupProvider()));
+            /^event.getGenerator().addProvider(
+                    true,
+                    new ModRecipeProvider(output, event.getLookupProvider())
+            );
             ^///?}
+
             //? if >=1.21.3 {
-            event.getGenerator().addProvider(true, new ModRecipeProvider.Runner(output, event.getLookupProvider()));
+            event.getGenerator().addProvider(
+                    true,
+                    new ModRecipeProvider.Runner(output, event.getLookupProvider())
+            );
             //?}
 
             final ModBlockTagsProvider blockTagsProvider =
-                    new ModBlockTagsProvider(output, event.getLookupProvider(), efh);
+                    new ModBlockTagsProvider(
+                            output,
+                            event.getLookupProvider(),
+                            efh
+                    );
 
-            event.getGenerator().addProvider(true, blockTagsProvider);
+            event.getGenerator().addProvider(
+                    true,
+                    blockTagsProvider
+            );
 
-            event.getGenerator().addProvider(true,
+            event.getGenerator().addProvider(
+                    true,
                     new ModItemTagsProvider(
                             output,
                             event.getLookupProvider(),
@@ -58,18 +81,29 @@ public final class ModDataGenerators {
                     )
             );
 
-            event.getGenerator().addProvider(true, new CustomArmorSet.Provider(
-                    output,
-                    ModelSets.customArmorSets()
-            ));
-
-            event.getGenerator().addProvider(true, new MusavaccaTreeFeatureProvider(output));
-
-            event.getGenerator().addProvider(true,
-                    new ModGlobalLootModifierProvider(output, event.getLookupProvider())
+            event.getGenerator().addProvider(
+                    true,
+                    new ArmorItems.Provider(
+                            output,
+                            ModelSets.armorItems()
+                    )
             );
 
-            event.getGenerator().addProvider(true,
+            event.getGenerator().addProvider(
+                    true,
+                    new MusavaccaTreeFeatureProvider(output)
+            );
+
+            event.getGenerator().addProvider(
+                    true,
+                    new ModGlobalLootModifierProvider(
+                            output,
+                            event.getLookupProvider()
+                    )
+            );
+
+            event.getGenerator().addProvider(
+                    true,
                     new LootTableProvider(
                             output,
                             Set.of(),
@@ -91,27 +125,25 @@ public final class ModDataGenerators {
     *///?}
 
     //? if >=1.21.4 {
-    /**
-     * 1.21.4+: unified model datagen through ModModelProvider.
-     */
     public static void gatherData(final GatherDataEvent.Client event) {
-        // Client-side generators
         event.createProvider(output -> new ModLanguageProvider(output, "en_us"));
         event.createProvider(ModModelProvider::new);
 
-        // Server/datapack generators
         event.createProvider(ModRecipeProvider.Runner::new);
 
         //? if >=1.21.6 {
         event.createProvider(ModBlockTagsProvider::new);
         event.createProvider(ModItemTagsProvider::new);
         //?} else {
-        /*event.createBlockAndItemTags(ModBlockTagsProvider::new, ModItemTagsProvider::new);
+        /*event.createBlockAndItemTags(
+                ModBlockTagsProvider::new,
+                ModItemTagsProvider::new
+        );
         *///?}
 
-        event.createProvider(output -> new CustomArmorSet.Provider(
+        event.createProvider(output -> new ArmorItems.Provider(
                 output,
-                ModelSets.customArmorSets()
+                ModelSets.armorItems()
         ));
 
         event.createProvider(MusavaccaTreeFeatureProvider::new);
@@ -134,6 +166,4 @@ public final class ModDataGenerators {
         ));
     }
     //?}
-
-    private ModDataGenerators() {}
 }

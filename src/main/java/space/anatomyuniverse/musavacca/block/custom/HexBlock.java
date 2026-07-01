@@ -38,7 +38,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import space.anatomyuniverse.musavacca.block.custom.logic.BreakHexLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
@@ -166,7 +166,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
             return;
         }
 
-        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+        Integer savedHex = HexColorComponent.getSlot(stack, HexBlockEntity.HEX_SLOT);
         if (savedHex == null) {
             return;
         }
@@ -302,7 +302,7 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
             return hexBe.getHexColor();
         }
 
-        return TintColorUtil.defaultHexBlockItemTint();
+        return TintColorUtil.defaultHexItemTint();
     }
 
     @Override
@@ -349,7 +349,7 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
     }
 
     @Override
-    public BonemealableBlock.Type getType() {
-        return BonemealableBlock.Type.GROWER;
+    public Type getType() {
+        return Type.GROWER;
     }
 }

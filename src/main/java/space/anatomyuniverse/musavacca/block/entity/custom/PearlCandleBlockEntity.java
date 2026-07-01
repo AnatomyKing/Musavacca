@@ -18,15 +18,19 @@ import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
 import net.minecraft.world.level.storage.ValueOutput;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.component.MutableHexColorSource;
+import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
-public class PearlCandleBlockEntity extends BlockEntity {
+import java.util.Map;
+
+public class PearlCandleBlockEntity extends BlockEntity implements MutableHexColorSource {
     public static final String TAG_HEX_COLOR = "hex_color";
-
-    public static final int UNSET_HEX_COLOR = VocoReceptorLogic.UNSET_HEX_COLOR;
+    public static final String HEX_SLOT = "pearl_candle";
+    public static final int UNSET_HEX_COLOR = TintColorUtil.UNSET_HEX;
 
     private int hexColor = UNSET_HEX_COLOR;
 
@@ -49,15 +53,55 @@ public class PearlCandleBlockEntity extends BlockEntity {
     }
 
     public void setHexColor(int hexColor) {
-        int normalized = normalizeHex(hexColor);
+        this.setHexColorSlot(HEX_SLOT, hexColor);
+    }
 
+    @Override
+    public int getHexColorOrUnset(String slot) {
+        String cleaned = HexColorComponent.cleanSlot(slot);
+        return HEX_SLOT.equals(cleaned) ? this.hexColor : UNSET_HEX_COLOR;
+    }
+
+    @Override
+    public boolean setHexColorSlot(String slot, int hexColor) {
+        String cleaned = HexColorComponent.cleanSlot(slot);
+        if (!HEX_SLOT.equals(cleaned)) {
+            return false;
+        }
+
+        int normalized = normalizeHex(hexColor);
         if (this.hexColor == normalized) {
-            return;
+            return false;
         }
 
         this.hexColor = normalized;
         this.markChangedAndSync();
         this.refreshPostBelow();
+        return true;
+    }
+
+    @Override
+    public boolean clearHexColorSlot(String slot) {
+        String cleaned = HexColorComponent.cleanSlot(slot);
+        if (!HEX_SLOT.equals(cleaned)) {
+            return false;
+        }
+
+        if (this.hexColor == UNSET_HEX_COLOR) {
+            return false;
+        }
+
+        this.hexColor = UNSET_HEX_COLOR;
+        this.markChangedAndSync();
+        this.refreshPostBelow();
+        return true;
+    }
+
+    @Override
+    public Map<String, Integer> getHexColors() {
+        return this.hasHexColor()
+                ? Map.of(HEX_SLOT, normalizeHex(this.hexColor))
+                : Map.of();
     }
 
     private void refreshPostBelow() {
@@ -141,8 +185,8 @@ public class PearlCandleBlockEntity extends BlockEntity {
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
 
-        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        this.hexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+        int savedHex = HexColorComponent.getSlotOrUnset(input, HEX_SLOT);
+        this.hexColor = savedHex == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(savedHex);
     }
 
     @Override
@@ -150,7 +194,7 @@ public class PearlCandleBlockEntity extends BlockEntity {
         super.collectImplicitComponents(components);
 
         if (this.hasHexColor()) {
-            components.set(ModDataComponents.HEX_COLOR.get(), this.hexColor);
+            components.set(ModDataComponents.HEX_COLOR.get(), this.getHexColors());
         }
     }
 
@@ -210,6 +254,6 @@ public class PearlCandleBlockEntity extends BlockEntity {
     *///?}
 
     private static int normalizeHex(int hexColor) {
-        return VocoReceptorLogic.normalizeHex(hexColor);
+        return TintColorUtil.normalizeHex(hexColor);
     }
 }

@@ -1,18 +1,18 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/custom/SimCardItem.java
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
 public class SimCardItem extends Item {
+    public static final String HEX_SLOT = "sim_card";
     public SimCardItem(Properties properties) {
         super(properties);
     }
 
     public static boolean hasStoredHex(ItemStack stack) {
-        return stack.get(ModDataComponents.HEX_COLOR.get()) != null;
+        return HexColorComponent.has(stack);
     }
 
     public static boolean isClean(ItemStack stack) {
@@ -20,11 +20,10 @@ public class SimCardItem extends Item {
     }
 
     public static int getStoredHexOrFallback(ItemStack stack, int fallbackHexColor) {
-        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-        return TintColorUtil.rgb(savedHex != null ? savedHex : fallbackHexColor);
+        return HexColorComponent.getSlotOr(stack, HEX_SLOT, fallbackHexColor);
     }
 
     public static void setStoredHex(ItemStack stack, int hexColor) {
-        stack.set(ModDataComponents.HEX_COLOR.get(), TintColorUtil.rgb(hexColor));
+        HexColorComponent.setSlot(stack, HEX_SLOT, hexColor);
     }
 }

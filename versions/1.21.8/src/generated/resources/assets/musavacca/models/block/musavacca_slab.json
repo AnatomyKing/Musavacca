@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/slab",
-  "textures": {
-    "bottom": "musavacca:block/musavacca_planks",
-    "side": "musavacca:block/musavacca_planks",
-    "top": "musavacca:block/musavacca_planks"
-  }
-}

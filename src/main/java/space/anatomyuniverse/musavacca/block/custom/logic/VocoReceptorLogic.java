@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -22,10 +21,11 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceApi;
 import space.anatomyuniverse.musavacca.gui.menu.VocoSliderMenu;
 import space.anatomyuniverse.musavacca.item.ModItems;
+import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
 public final class VocoReceptorLogic {
     public static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
-    public static final int UNSET_HEX_COLOR = -1;
+    public static final int UNSET_HEX_COLOR = TintColorUtil.UNSET_HEX;
 
     public static final int RECEPTOR_LIGHT_BALANCE_COST = 1;
 
@@ -403,7 +403,7 @@ public final class VocoReceptorLogic {
     }
 
     public static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
+        return TintColorUtil.normalizeHex(hexColor);
     }
 
     public static int clampYaw(int yawDegrees) {

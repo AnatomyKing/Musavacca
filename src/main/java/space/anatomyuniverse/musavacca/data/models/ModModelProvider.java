@@ -2,8 +2,22 @@ package space.anatomyuniverse.musavacca.data.models;
 
 import net.minecraft.data.PackOutput;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.data.models.block.*;
-import space.anatomyuniverse.musavacca.data.models.item.*;
+import space.anatomyuniverse.musavacca.data.models.block.AgeBlocks;
+import space.anatomyuniverse.musavacca.data.models.block.ColumnBlocks;
+import space.anatomyuniverse.musavacca.data.models.block.CrossBlocks;
+import space.anatomyuniverse.musavacca.data.models.block.FireBlocks;
+import space.anatomyuniverse.musavacca.data.models.block.PortalBlocks;
+import space.anatomyuniverse.musavacca.data.models.block.SimpleBlocks;
+import space.anatomyuniverse.musavacca.data.models.item.ArmorItems;
+import space.anatomyuniverse.musavacca.data.models.item.SimpleItems;
+import space.anatomyuniverse.musavacca.data.models.item.SpawnEggItems;
+import space.anatomyuniverse.musavacca.data.models.old.CubeCrafterLike;
+import space.anatomyuniverse.musavacca.data.models.old.CubePearlCandles;
+import space.anatomyuniverse.musavacca.data.models.old.DecorationBlocks;
+import space.anatomyuniverse.musavacca.data.models.old.Fences;
+import space.anatomyuniverse.musavacca.data.models.old.Slabs;
+import space.anatomyuniverse.musavacca.data.models.old.SmallBananaPearlOwn;
+import space.anatomyuniverse.musavacca.data.models.old.Stairs;
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
@@ -22,7 +36,6 @@ public final class ModModelProvider
         extends ModelProvider
         //?}
 {
-
     //? if <1.21.4 {
     /*public ModModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
         super(output, MusaCore.MOD_ID, existingFileHelper);
@@ -50,35 +63,41 @@ public final class ModModelProvider
             BlockModelGenerators blocks, ItemModelGenerators items
             //?}
     ) {
-        CubeAll.generate(blocks, ModelSets.cubeAllBlocks());
-        Chapiter.generate(blocks, ModelSets.chapiterBlocks());
-        Log.generate(blocks, ModelSets.logBlocks());
+        /*
+         * Engine-backed block helpers.
+         */
+        SimpleBlocks.generate(blocks, items, ModelSets.simpleBlocks());
+        CrossBlocks.generate(blocks, items, ModelSets.crossBlocks());
+        AgeBlocks.generate(blocks, items, ModelSets.ageBlocks());
+
+        ColumnBlocks.generate(blocks, items, ModelSets.columnBlocks());
+
+        /*
+         * Engine-backed special block helpers.
+         */
+        FireBlocks.generate(blocks, ModelSets.fireBlocks());
+        PortalBlocks.generate(blocks, ModelSets.portalBlocks());
+
+        /*
+         * Old wrappers that are intentionally not migrated yet.
+         */
         Stairs.generate(blocks, ModelSets.stairsBlocks());
         Slabs.generate(blocks, ModelSets.slabBlocks());
         Fences.generate(blocks, ModelSets.fenceBlocks());
         CubeCrafterLike.generate(blocks, ModelSets.cubeCrafterLikeBlocks());
-
         SmallBananaPearlOwn.generate(blocks, ModelSets.smallBananaPearlBlocks());
-        CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
-        CubeFireBlockTinted32.generate(blocks, ModelSets.cubeFireBlockTinted32Models());
-        PanePortalBlockTinted15.generate(blocks, ModelSets.panePortalBlockTinted15Models());
-        DecorationModelBlocks.generate(blocks, ModelSets.decorationBlockModels());
-        BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());
+        DecorationBlocks.generate(blocks, ModelSets.decorationBlockModels());
         CubePearlCandles.generate(blocks, ModelSets.pearlCandleBlocks());
 
-        BarrelCropOwnTintedFoliage.generate(blocks, items, ModelSets.barrelCropOwnTintedFoliageModels());
-        CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());
-        CubeOwnTintedHexColorClipped.generate(blocks, items, ModelSets.cubeOwnTintedHexColorClippedModels());
-        CubeMusavaccaCropOwnTintedFoliage.generate(blocks,ModelSets.cubeMusavaccaCropOwnTintedFoliageModels());
-        CubeVocoTable.generate(blocks, ModelSets.cubeVocoTableModels());
-        CubeVocoPost.generate(blocks, ModelSets.cubeVocoPostModels());
+        /*
+         * Engine-backed item helpers.
+         */
+        SimpleItems.generate(items, ModelSets.simpleItems());
 
-        ItemTintedMaxLayer5.generate(items, ModelSets.itemTintedMaxLayer5Items());
-        ItemTintedBypassLayer5.generate(items, ModelSets.itemTintedBypassLayer5Items());
-        CustomItemModel.generate(items, ModelSets.customItemModels());
-        FlatItems.generate(items, ModelSets.flatItems());
-        HandheldItems.generate(items, ModelSets.handheldItems());
-        CustomArmorSet.generate(items, ModelSets.customArmorSets());
+        /*
+         * Dedicated item wrappers that still add extra behavior on top of the engine.
+         */
+        ArmorItems.generate(items, ModelSets.armorItems());
         SpawnEggItems.generate(items, ModelSets.spawnEggItems());
     }
 }

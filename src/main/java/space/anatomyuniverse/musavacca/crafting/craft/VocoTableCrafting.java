@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
@@ -24,6 +24,8 @@ public final class VocoTableCrafting {
     private static final int GLITHER_PARTICLE_COUNT = 24;
 
     private static final int DEFAULT_GLITHER_COLOR = 0xFFFFFF;
+
+    public static final String HEX_SLOT_RESULT = "voco_table_result";
 
     /*
      * Matches VocoTableBlockEntityItemDisplayRenderer:
@@ -147,9 +149,10 @@ public final class VocoTableCrafting {
          * Safe even when the item has no tinted model.
          * Items that do not read ModDataComponents.HEX_COLOR will simply ignore it visually.
          */
-        resultStack.set(
-                ModDataComponents.HEX_COLOR.get(),
-                matchingCandleColor & 0xFFFFFF
+        HexColorComponent.setSlot(
+                resultStack,
+                HEX_SLOT_RESULT,
+                matchingCandleColor
         );
     }
 

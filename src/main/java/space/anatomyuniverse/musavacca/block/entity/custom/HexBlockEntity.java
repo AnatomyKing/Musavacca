@@ -1,11 +1,10 @@
-
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
- //?}
+//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -22,14 +21,18 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.MutableHexColorSource;
+import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class HexBlockEntity extends BlockEntity {
-
+public class HexBlockEntity extends BlockEntity implements MutableHexColorSource {
     public static final String TAG_HEX_COLOR = "hex_color";
-    public static final int UNSET_HEX_COLOR = -1;
+    public static final String HEX_SLOT = "hex";
+    public static final int UNSET_HEX_COLOR = TintColorUtil.UNSET_HEX;
 
     private int hexColor = UNSET_HEX_COLOR;
 
@@ -46,14 +49,55 @@ public class HexBlockEntity extends BlockEntity {
     }
 
     public void setHexColor(int hexColor) {
+        this.setHexColorSlot(HEX_SLOT, hexColor);
+    }
+
+    @Override
+    public int getHexColorOrUnset(String slot) {
+        String cleaned = HexColorComponent.cleanSlot(slot);
+        return HEX_SLOT.equals(cleaned) ? this.hexColor : UNSET_HEX_COLOR;
+    }
+
+    @Override
+    public boolean setHexColorSlot(String slot, int hexColor) {
+        String cleaned = HexColorComponent.cleanSlot(slot);
+        if (!HEX_SLOT.equals(cleaned)) {
+            return false;
+        }
+
         int normalized = normalizeHex(hexColor);
         if (this.hexColor == normalized) {
-            return;
+            return false;
         }
 
         this.hexColor = normalized;
         this.setChanged();
         this.syncToClientAndRerender();
+        return true;
+    }
+
+    @Override
+    public boolean clearHexColorSlot(String slot) {
+        String cleaned = HexColorComponent.cleanSlot(slot);
+        if (!HEX_SLOT.equals(cleaned)) {
+            return false;
+        }
+
+        if (this.hexColor == UNSET_HEX_COLOR) {
+            return false;
+        }
+
+        this.hexColor = UNSET_HEX_COLOR;
+        this.setChanged();
+        this.syncToClientAndRerender();
+        return true;
+    }
+
+    @Override
+    public Map<String, Integer> getHexColors() {
+        return this.hasHexColor()
+                ? Map.of(HEX_SLOT, normalizeHex(this.hexColor))
+                : Map.of();
     }
 
     public void ensureRandomHexColor() {
@@ -67,7 +111,7 @@ public class HexBlockEntity extends BlockEntity {
     }
 
     private static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
+        return TintColorUtil.normalizeHex(hexColor);
     }
 
     private static int readIntOr(CompoundTag tag, String key, int fallback) {
@@ -153,8 +197,8 @@ public class HexBlockEntity extends BlockEntity {
     protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
         super.applyImplicitComponents(input);
 
-        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        if (savedHex != null) {
+        int savedHex = HexColorComponent.getSlotOrUnset(input, HEX_SLOT);
+        if (savedHex != UNSET_HEX_COLOR) {
             this.hexColor = normalizeHex(savedHex);
         }
     }
@@ -163,10 +207,8 @@ public class HexBlockEntity extends BlockEntity {
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
 
-        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        if (savedHex != null) {
-            this.hexColor = normalizeHex(savedHex);
-        }
+        int savedHex = HexColorComponent.getSlotOrUnset(input, HEX_SLOT);
+        this.hexColor = savedHex == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(savedHex);
     }
     //?}
 
@@ -175,7 +217,7 @@ public class HexBlockEntity extends BlockEntity {
         super.collectImplicitComponents(components);
 
         if (this.hasHexColor()) {
-            components.set(ModDataComponents.HEX_COLOR.get(), this.hexColor);
+            components.set(ModDataComponents.HEX_COLOR.get(), this.getHexColors());
         }
     }
 

@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.data.models;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -42,3 +41,6 @@ public final class ModelUtil {
         return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
     }
 }
+
+
+//

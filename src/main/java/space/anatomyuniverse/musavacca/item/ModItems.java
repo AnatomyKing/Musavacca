@@ -25,6 +25,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.*;
@@ -195,7 +196,13 @@ public final class ModItems {
                     props -> new FlintAndPearlItem(
                             props
                                     .durability(64)
-                                    .component(ModDataComponents.HEX_COLOR.get(), FlintAndPearlItem.DEFAULT_HEX_COLOR)
+                                    .component(
+                                            ModDataComponents.HEX_COLOR.get(),
+                                            HexColorComponent.single(
+                                                    FlintAndPearlItem.HEX_SLOT,
+                                                    FlintAndPearlItem.DEFAULT_HEX_COLOR
+                                            )
+                                    )
                     ));
 
     public static final DeferredItem<Item> POTASSIUM_INGOT =

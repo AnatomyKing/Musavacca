@@ -415,7 +415,7 @@ public final class ModBlocks {
 
 
 
-    private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
+    public static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
 //            HEX_BLOCK
             PEARL_FIRE,
             MUSAVACCA_EGG,

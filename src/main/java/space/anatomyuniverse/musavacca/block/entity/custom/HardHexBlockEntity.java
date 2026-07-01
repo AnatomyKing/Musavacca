@@ -1,11 +1,10 @@
-
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
- //?}
+//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -21,12 +20,17 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorSource;
+import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
-public class HardHexBlockEntity extends BlockEntity {
+import java.util.Map;
 
+public class HardHexBlockEntity extends BlockEntity implements HexColorSource {
     public static final String TAG_HEX_COLOR = "hex_color";
-    public static final int HARD_HEX_COLOR = 0xD5CD49;
+    public static final String HEX_SLOT = "hard_hex";
+    public static final int HARD_HEX_COLOR = TintColorUtil.HARD_HEX;
 
     private int hexColor = HARD_HEX_COLOR;
 
@@ -35,7 +39,7 @@ public class HardHexBlockEntity extends BlockEntity {
     }
 
     public int getHexColor() {
-        return this.hexColor;
+        return HARD_HEX_COLOR;
     }
 
     public boolean hasHexColor() {
@@ -43,12 +47,22 @@ public class HardHexBlockEntity extends BlockEntity {
     }
 
     public void setHexColor(int ignoredHexColor) {
-        int normalized = HARD_HEX_COLOR;
-        if (this.hexColor != normalized) {
-            this.hexColor = normalized;
+        if (this.hexColor != HARD_HEX_COLOR) {
+            this.hexColor = HARD_HEX_COLOR;
             this.setChanged();
             this.syncToClientAndRerender();
         }
+    }
+
+    @Override
+    public int getHexColorOrUnset(String slot) {
+        String cleaned = HexColorComponent.cleanSlot(slot);
+        return HEX_SLOT.equals(cleaned) ? HARD_HEX_COLOR : TintColorUtil.UNSET_HEX;
+    }
+
+    @Override
+    public Map<String, Integer> getHexColors() {
+        return Map.of(HEX_SLOT, HARD_HEX_COLOR);
     }
 
     private static int readIntOr(CompoundTag tag, String key, int fallback) {
@@ -127,7 +141,7 @@ public class HardHexBlockEntity extends BlockEntity {
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
-        components.set(ModDataComponents.HEX_COLOR.get(), HARD_HEX_COLOR);
+        components.set(ModDataComponents.HEX_COLOR.get(), this.getHexColors());
     }
 
     @Override

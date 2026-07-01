@@ -37,14 +37,19 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.component.MutableHexColorSource;
+import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
-public class VocoTableBlockEntity extends BlockEntity {
+public class VocoTableBlockEntity extends BlockEntity implements MutableHexColorSource {
     private static final String TAG_BASUKE_VISIBLE = "basuke_visible";
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
 
@@ -129,7 +134,14 @@ public class VocoTableBlockEntity extends BlockEntity {
     };
 
     public static final int DEFAULT_HEX_COLOR = FlintAndPearlItem.DEFAULT_HEX_COLOR;
-    public static final int UNSET_HEX_COLOR = VocoReceptorLogic.UNSET_HEX_COLOR;
+    public static final int UNSET_HEX_COLOR = TintColorUtil.UNSET_HEX;
+
+    public static final String HEX_SLOT_LATEST = "voco_table_latest";
+    public static final String HEX_SLOT_PORTAL = "voco_table_portal";
+    public static final String HEX_SLOT_PORTAL_NORTH_EAST = "portal_north_east";
+    public static final String HEX_SLOT_PORTAL_NORTH_WEST = "portal_north_west";
+    public static final String HEX_SLOT_PORTAL_SOUTH_EAST = "portal_south_east";
+    public static final String HEX_SLOT_PORTAL_SOUTH_WEST = "portal_south_west";
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
@@ -295,6 +307,101 @@ public class VocoTableBlockEntity extends BlockEntity {
         return slot.hasCandle() && slot.lit && slot.hasHexColor
                 ? slot.hexColor
                 : UNSET_HEX_COLOR;
+    }
+
+    @Override
+    public int getHexColorOrUnset(String slotName) {
+        String cleaned = HexColorComponent.cleanSlot(slotName);
+
+        if (HEX_SLOT_LATEST.equals(cleaned) || HEX_SLOT_PORTAL.equals(cleaned)) {
+            return this.hasLatestHexColor() ? this.latestHexColor : UNSET_HEX_COLOR;
+        }
+
+        ReceptorPosition receptor = receptorFromPortalSlot(cleaned);
+        return receptor == null ? UNSET_HEX_COLOR : this.getPortalHexColorOrUnset(receptor);
+    }
+
+    @Override
+    public boolean setHexColorSlot(String slotName, int hexColor) {
+        String cleaned = HexColorComponent.cleanSlot(slotName);
+        int normalized = normalizeHex(hexColor);
+
+        if (HEX_SLOT_LATEST.equals(cleaned) || HEX_SLOT_PORTAL.equals(cleaned)) {
+            if (this.latestHexColor == normalized) {
+                return false;
+            }
+
+            this.latestHexColor = normalized;
+            this.markChangedAndSync();
+            return true;
+        }
+
+        ReceptorPosition receptor = receptorFromPortalSlot(cleaned);
+        if (receptor == null) {
+            return false;
+        }
+
+        CandleSlot slot = this.slot(receptor);
+        if (slot.hasHexColor && slot.hexColor == normalized) {
+            return false;
+        }
+
+        slot.hasHexColor = true;
+        slot.hexColor = normalized;
+        this.setLatest(receptor, normalized);
+        this.markChangedAndSync();
+        this.resyncEndpoint(receptor);
+        return true;
+    }
+
+    @Override
+    public boolean clearHexColorSlot(String slotName) {
+        String cleaned = HexColorComponent.cleanSlot(slotName);
+
+        if (HEX_SLOT_LATEST.equals(cleaned) || HEX_SLOT_PORTAL.equals(cleaned)) {
+            if (!this.hasLatestHexColor()) {
+                return false;
+            }
+
+            this.latestHexColor = UNSET_HEX_COLOR;
+            this.markChangedAndSync();
+            return true;
+        }
+
+        ReceptorPosition receptor = receptorFromPortalSlot(cleaned);
+        if (receptor == null) {
+            return false;
+        }
+
+        CandleSlot slot = this.slot(receptor);
+        if (!slot.hasHexColor) {
+            return false;
+        }
+
+        slot.hasHexColor = false;
+        slot.hexColor = UNSET_HEX_COLOR;
+        this.refreshLatestHexFromLitCandles();
+        this.markChangedAndSync();
+        this.resyncEndpoint(receptor);
+        return true;
+    }
+
+    @Override
+    public Map<String, Integer> getHexColors() {
+        Map<String, Integer> result = new LinkedHashMap<>();
+
+        if (this.hasLatestHexColor()) {
+            result.put(HEX_SLOT_LATEST, normalizeHex(this.latestHexColor));
+        }
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            int hex = this.getPortalHexColorOrUnset(receptor);
+            if (hex != UNSET_HEX_COLOR) {
+                result.put(portalSlot(receptor), normalizeHex(hex));
+            }
+        }
+
+        return Map.copyOf(result);
     }
 
     public void activatePortal(ReceptorPosition receptor) {
@@ -716,7 +823,7 @@ public class VocoTableBlockEntity extends BlockEntity {
                     this.getBlockPos(),
                     receptor,
                     false,
-                    VocoReceptorLogic.UNSET_HEX_COLOR
+                    TintColorUtil.UNSET_HEX
             );
         }
     }
@@ -1104,8 +1211,27 @@ public class VocoTableBlockEntity extends BlockEntity {
                 ItemContainerContents.EMPTY
         ).copyInto(this.items);
 
-        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        this.latestHexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+        Map<String, Integer> savedHexes = HexColorComponent.get(input);
+        this.latestHexColor = TintColorUtil.UNSET_HEX;
+
+        Integer latest = savedHexes.get(HEX_SLOT_LATEST);
+        if (latest == null) {
+            latest = savedHexes.get(HEX_SLOT_PORTAL);
+        }
+        if (latest != null) {
+            this.latestHexColor = normalizeHex(latest);
+        }
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            Integer slotHex = savedHexes.get(portalSlot(receptor));
+            if (slotHex == null) {
+                continue;
+            }
+
+            CandleSlot slot = this.slot(receptor);
+            slot.hasHexColor = true;
+            slot.hexColor = normalizeHex(slotHex);
+        }
     }
 
     @Override
@@ -1113,8 +1239,9 @@ public class VocoTableBlockEntity extends BlockEntity {
         super.collectImplicitComponents(components);
         components.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.items));
 
-        if (this.hasLatestHexColor()) {
-            components.set(ModDataComponents.HEX_COLOR.get(), this.latestHexColor);
+        Map<String, Integer> hexColors = this.getHexColors();
+        if (!hexColors.isEmpty()) {
+            components.set(ModDataComponents.HEX_COLOR.get(), hexColors);
         }
     }
 
@@ -1156,6 +1283,31 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     *///?}
 
+    public static String portalSlot(ReceptorPosition receptor) {
+        if (receptor == null) {
+            return HEX_SLOT_PORTAL;
+        }
+
+        return switch (receptor) {
+            case NORTH_EAST -> HEX_SLOT_PORTAL_NORTH_EAST;
+            case NORTH_WEST -> HEX_SLOT_PORTAL_NORTH_WEST;
+            case SOUTH_EAST -> HEX_SLOT_PORTAL_SOUTH_EAST;
+            case SOUTH_WEST -> HEX_SLOT_PORTAL_SOUTH_WEST;
+        };
+    }
+
+    @Nullable
+    private static ReceptorPosition receptorFromPortalSlot(String slotName) {
+        String cleaned = HexColorComponent.cleanSlot(slotName);
+
+        if (HEX_SLOT_PORTAL_NORTH_EAST.equals(cleaned)) return ReceptorPosition.NORTH_EAST;
+        if (HEX_SLOT_PORTAL_NORTH_WEST.equals(cleaned)) return ReceptorPosition.NORTH_WEST;
+        if (HEX_SLOT_PORTAL_SOUTH_EAST.equals(cleaned)) return ReceptorPosition.SOUTH_EAST;
+        if (HEX_SLOT_PORTAL_SOUTH_WEST.equals(cleaned)) return ReceptorPosition.SOUTH_WEST;
+
+        return null;
+    }
+
     private void clearAllCandleSlots() {
         for (CandleSlot slot : this.candleSlots) {
             slot.clear();
@@ -1163,7 +1315,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     public static int normalizeHex(int hexColor) {
-        return VocoReceptorLogic.normalizeHex(hexColor);
+        return TintColorUtil.normalizeHex(hexColor);
     }
 
     //? if >=1.21.6 {
@@ -1250,4 +1402,3 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 }
-

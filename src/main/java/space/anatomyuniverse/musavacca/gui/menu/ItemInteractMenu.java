@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.gui.ModMenus;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
@@ -150,7 +150,7 @@ public class ItemInteractMenu extends AbstractContainerMenu {
             return;
         }
 
-        stack.set(ModDataComponents.HEX_COLOR.get(), this.packDigits());
+        HexColorComponent.setSlot(stack, FlintAndPearlItem.HEX_SLOT, this.packDigits());
         this.player.getInventory().setChanged();
 
         if (this.player instanceof ServerPlayer serverPlayer) {

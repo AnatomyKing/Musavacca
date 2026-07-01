@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.client;
 
 import net.minecraft.client.Minecraft;
@@ -9,7 +8,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+
+import java.util.Map;
 
 //? if <1.21.9 {
 import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
@@ -26,31 +28,32 @@ import net.neoforged.neoforge.client.event.RegisterDebugEntriesEvent;
 public final class HexDebugOverlay {
     private HexDebugOverlay() {}
 
-    private static Integer getLookedAtHexColor() {
+    private static Map<String, Integer> getLookedAtHexColors() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || !(mc.hitResult instanceof BlockHitResult hit)) {
-            return null;
+            return Map.of();
         }
 
         BlockEntity be = mc.level.getBlockEntity(hit.getBlockPos());
         if (be == null) {
-            return null;
+            return Map.of();
         }
 
         DataComponentMap components = be.collectComponents();
-        return components.get(ModDataComponents.HEX_COLOR.get());
+        return HexColorComponent.normalizeMap(components.get(ModDataComponents.HEX_COLOR.get()));
     }
 
     //? if <1.21.9 {
     @SubscribeEvent
     public static void onDebugText(CustomizeGuiOverlayEvent.DebugText event) {
-        Integer hex = getLookedAtHexColor();
-        if (hex == null) {
+        Map<String, Integer> hexColors = getLookedAtHexColors();
+        if (hexColors.isEmpty()) {
             return;
         }
 
-        event.getRight().add("hex_color: " + hex);
-        event.getRight().add(String.format("HexColorDisplay: #%06X", hex & 0xFFFFFF));
+        for (Map.Entry<String, Integer> entry : hexColors.entrySet()) {
+            event.getRight().add(String.format("hex_color[%s]: #%06X", entry.getKey(), entry.getValue() & 0xFFFFFF));
+        }
     }
     //?} else {
     /*public static void registerDebugEntries(RegisterDebugEntriesEvent event) {
@@ -59,13 +62,10 @@ public final class HexDebugOverlay {
         event.register(id, new DebugScreenEntry() {
             @Override
             public void display(DebugScreenDisplayer displayer, Level level, LevelChunk clientChunk, LevelChunk serverChunk) {
-                Integer hex = getLookedAtHexColor();
-                if (hex == null) {
-                    return;
+                Map<String, Integer> hexColors = getLookedAtHexColors();
+                for (Map.Entry<String, Integer> entry : hexColors.entrySet()) {
+                    displayer.addLine(String.format("hex_color[%s]: #%06X", entry.getKey(), entry.getValue() & 0xFFFFFF));
                 }
-
-                displayer.addLine("hex_color: " + hex);
-                displayer.addLine(String.format("HexColorDisplay: #%06X", hex & 0xFFFFFF));
             }
 
             @Override

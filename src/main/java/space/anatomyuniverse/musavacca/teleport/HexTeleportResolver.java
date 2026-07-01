@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/teleport/HexTeleportResolver.java
 package space.anatomyuniverse.musavacca.teleport;
 
 import net.minecraft.core.BlockPos;

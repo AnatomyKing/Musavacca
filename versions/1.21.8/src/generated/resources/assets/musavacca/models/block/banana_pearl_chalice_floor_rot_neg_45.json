@@ -1,9 +1,0 @@
-{
-  "parent": "musavacca:block/banana_pearl_chalice_floor",
-  "transform": {
-    "origin": "center",
-    "rotation": {
-      "y": -45.0
-    }
-  }
-}

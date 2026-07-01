@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -10,7 +9,7 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 
 public class HardHexBlock extends Block implements EntityBlock {
 
@@ -49,15 +48,11 @@ public class HardHexBlock extends Block implements EntityBlock {
             return;
         }
 
-        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+        Integer savedHex = HexColorComponent.getSlot(stack, HardHexBlockEntity.HEX_SLOT);
 
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HardHexBlockEntity hardHexBe) {
-            if (savedHex != null) {
-                hardHexBe.setHexColor(savedHex);
-            } else {
-                hardHexBe.setHexColor(HardHexBlockEntity.HARD_HEX_COLOR);
-            }
+            hardHexBe.setHexColor(savedHex != null ? savedHex : HardHexBlockEntity.HARD_HEX_COLOR);
         }
     }
 }

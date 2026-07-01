@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/teleport/HexTeleportDirectory.java
 package space.anatomyuniverse.musavacca.teleport;
 
 import com.mojang.serialization.Codec;
@@ -803,3 +802,4 @@ public final class HexTeleportDirectory extends SavedData {
         }
     }
 }
+

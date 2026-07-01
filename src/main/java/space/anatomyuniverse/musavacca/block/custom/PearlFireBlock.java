@@ -23,11 +23,11 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.component.HexColorComponent;
 import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
 
 public class PearlFireBlock extends FireBlock implements EntityBlock {
-    public PearlFireBlock(BlockBehaviour.Properties properties) {
+    public PearlFireBlock(Properties properties) {
         super(properties);
     }
 
@@ -67,7 +67,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             return;
         }
 
-        if (oldStack.get(ModDataComponents.HEX_COLOR.get()) != null) {
+        if (HexColorComponent.has(oldStack)) {
             return;
         }
 
@@ -90,7 +90,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             return;
         }
 
-        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+        Integer savedHex = HexColorComponent.getSlot(stack, PearlFireBlockEntity.HEX_SLOT);
         if (savedHex == null) {
             return;
         }

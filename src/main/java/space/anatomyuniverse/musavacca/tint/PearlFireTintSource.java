@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/PearlFireTintSource.java
 package space.anatomyuniverse.musavacca.tint;
 
 public final class PearlFireTintSource {

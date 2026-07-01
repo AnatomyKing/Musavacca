@@ -23,7 +23,7 @@ import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntit
 public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
     private final Block vanillaCandleBlock;
 
-    public PearlCandleBlock(Block vanillaCandleBlock, BlockBehaviour.Properties properties) {
+    public PearlCandleBlock(Block vanillaCandleBlock, Properties properties) {
         super(properties);
 
         if (!(vanillaCandleBlock instanceof CandleBlock)) {
