@@ -247,7 +247,8 @@ public final class ModelSets {
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPE_MUSAVACCA_EGG.get(),
                 ModItems.POTASSIUM_INGOT.get(),
-                ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()
+                ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                ModItems.BANANA_MILK_BUCKET.get(),
         };
     }
 

@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/loot/ModLootTables.java
 package space.anatomyuniverse.musavacca.data.loot;
 
 import net.minecraft.core.registries.Registries;
@@ -8,6 +7,11 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class ModLootTables {
+
+    public static final ResourceKey<LootTable> BANANA_COW = create(
+            MusaCore.MOD_ID,
+            "entities/banana_cow"
+    );
 
     public static final ResourceKey<LootTable> VANILLA_SNIFFER_DIGGING = create(
             "minecraft",
@@ -19,12 +23,19 @@ public final class ModLootTables {
             "inject/sniffer_digging_musavacca_pup"
     );
 
-    private ModLootTables() {}
+    private ModLootTables() {
+    }
 
-    private static ResourceKey<LootTable> create(String namespace, String path) {
+    private static ResourceKey<LootTable> create(
+            String namespace,
+            String path
+    ) {
         return ResourceKey.create(
                 Registries.LOOT_TABLE,
-                ResourceLocation.fromNamespaceAndPath(namespace, path)
+                ResourceLocation.fromNamespaceAndPath(
+                        namespace,
+                        path
+                )
         );
     }
 }

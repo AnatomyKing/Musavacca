@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/entity/mob/bananacow/clientmodel/BananaCowRenderer.java
 package space.anatomyuniverse.musavacca.entity.mob.bananacow.clientmodel;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -10,9 +9,18 @@ import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 
 //? if <1.21.2 {
-/*public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowModel> {
+/*public final class BananaCowRenderer
+        extends MobRenderer<
+                BananaCow,
+                BananaCowModel
+        > {
  *///?} else {
-public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowModel.State, BananaCowModel> {
+public final class BananaCowRenderer
+        extends MobRenderer<
+        BananaCow,
+        BananaCowModel.State,
+        BananaCowModel
+        > {
 //?}
 
     private static final ResourceLocation DEFAULT =
@@ -38,22 +46,47 @@ public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowMod
 
     private static final float SHADOW = 0.7F;
 
-    public BananaCowRenderer(EntityRendererProvider.Context ctx) {
-        super(ctx, new BananaCowModel(ctx.bakeLayer(BananaCowModel.LAYER_LOCATION)), SHADOW);
+    public BananaCowRenderer(
+            EntityRendererProvider.Context context
+    ) {
+        super(
+                context,
+                new BananaCowModel(
+                        context.bakeLayer(
+                                BananaCowModel.LAYER_LOCATION
+                        )
+                ),
+                SHADOW
+        );
     }
 
     private static ResourceLocation texture(String name) {
         return ResourceLocation.fromNamespaceAndPath(
                 MusaCore.MOD_ID,
-                "textures/entity/cow/" + name + ".png"
+                "textures/entity/cow/"
+                        + name
+                        + ".png"
         );
     }
 
-    private static ResourceLocation selectTexture(int peelStage, int eatenBites) {
-        int safePeelStage = clampInt(peelStage, BananaCow.PEEL_STAGE_DEFAULT, BananaCow.PEEL_STAGE_PEELD);
-        int safeEatenBites = clampInt(eatenBites, 0, BananaCow.MAX_VISIBLE_EATEN_BITES);
+    private static ResourceLocation selectTexture(
+            int peelStage,
+            int eatenBites
+    ) {
+        int safePeelStage = clampInt(
+                peelStage,
+                BananaCow.PEEL_STAGE_DEFAULT,
+                BananaCow.PEEL_STAGE_PEELD
+        );
 
-        if (safePeelStage == BananaCow.PEEL_STAGE_PEELD) {
+        int safeEatenBites = clampInt(
+                eatenBites,
+                0,
+                BananaCow.MAX_VISIBLE_EATEN_BITES
+        );
+
+        if (safePeelStage
+                == BananaCow.PEEL_STAGE_PEELD) {
             if (safeEatenBites >= 2) {
                 return PEELD_EATEN_2;
             }
@@ -65,7 +98,8 @@ public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowMod
             return PEELD;
         }
 
-        if (safePeelStage == BananaCow.PEEL_STAGE_SHEARED) {
+        if (safePeelStage
+                == BananaCow.PEEL_STAGE_SHEARED) {
             if (safeEatenBites >= 2) {
                 return SHEARED_EATEN_2;
             }
@@ -80,8 +114,15 @@ public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowMod
         return DEFAULT;
     }
 
-    private static int clampInt(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
+    private static int clampInt(
+            int value,
+            int min,
+            int max
+    ) {
+        return Math.max(
+                min,
+                Math.min(max, value)
+        );
     }
 
     //? if >=1.21.2 {
@@ -91,39 +132,106 @@ public final class BananaCowRenderer extends MobRenderer<BananaCow, BananaCowMod
     }
 
     @Override
-    public void extractRenderState(@NotNull BananaCow entity,
-                                   @NotNull BananaCowModel.State s,
-                                   float partialTick) {
-        super.extractRenderState(entity, s, partialTick);
+    public void extractRenderState(
+            @NotNull BananaCow entity,
+            @NotNull BananaCowModel.State state,
+            float partialTick
+    ) {
+        super.extractRenderState(
+                entity,
+                state,
+                partialTick
+        );
 
-        float bodyYaw = Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
-        float headYaw = Mth.rotLerp(partialTick, entity.yHeadRotO, entity.yHeadRot);
-        float netHeadYawDeg = Mth.wrapDegrees(headYaw - bodyYaw);
+        float bodyYaw = Mth.rotLerp(
+                partialTick,
+                entity.yBodyRotO,
+                entity.yBodyRot
+        );
 
-        float headPitchDeg = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
+        float headYaw = Mth.rotLerp(
+                partialTick,
+                entity.yHeadRotO,
+                entity.yHeadRot
+        );
 
-        netHeadYawDeg = Mth.clamp(netHeadYawDeg, -90.0F, 90.0F);
-        headPitchDeg = Mth.clamp(headPitchDeg, -45.0F, 45.0F);
+        float netHeadYawDegrees =
+                Mth.wrapDegrees(
+                        headYaw - bodyYaw
+                );
 
-        s.headYawRad = netHeadYawDeg * Mth.DEG_TO_RAD;
-        s.headPitchRad = headPitchDeg * Mth.DEG_TO_RAD;
+        float headPitchDegrees = Mth.lerp(
+                partialTick,
+                entity.xRotO,
+                entity.getXRot()
+        );
 
-        s.limbSwing = entity.walkAnimation.position(partialTick);
-        s.limbSwingAmount = entity.walkAnimation.speed();
-        s.ageTicks = entity.tickCount + partialTick;
+        netHeadYawDegrees = Mth.clamp(
+                netHeadYawDegrees,
+                -90.0F,
+                90.0F
+        );
 
-        s.peelStage = entity.getPeelStage();
-        s.eatenBites = entity.getEatenBites();
+        headPitchDegrees = Mth.clamp(
+                headPitchDegrees,
+                -45.0F,
+                45.0F
+        );
+
+        state.headYawRad =
+                netHeadYawDegrees
+                        * Mth.DEG_TO_RAD;
+
+        state.headPitchRad =
+                headPitchDegrees
+                        * Mth.DEG_TO_RAD;
+
+        state.limbSwing =
+                entity.walkAnimation.position(
+                        partialTick
+                );
+
+        state.limbSwingAmount =
+                entity.walkAnimation.speed();
+
+        state.ageTicks =
+                entity.tickCount + partialTick;
+
+        state.headEatPositionScale =
+                entity.getHeadEatPositionScale(
+                        partialTick
+                );
+
+        state.headEatAngleRad =
+                entity.getHeadEatAngleScale(
+                        partialTick
+                );
+
+        state.peelStage =
+                entity.getPeelStage();
+
+        state.eatenBites =
+                entity.getEatenBites();
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull BananaCowModel.State s) {
-        return selectTexture(s.peelStage, s.eatenBites);
+    public @NotNull ResourceLocation getTextureLocation(
+            @NotNull BananaCowModel.State state
+    ) {
+        return selectTexture(
+                state.peelStage,
+                state.eatenBites
+        );
     }
     //?} else {
     /*@Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull BananaCow entity) {
-        return selectTexture(entity.getPeelStage(), entity.getEatenBites());
+    public @NotNull ResourceLocation getTextureLocation(
+            @NotNull BananaCow entity
+    ) {
+        return selectTexture(
+                entity.getPeelStage(),
+                entity.getEatenBites()
+        );
     }
     *///?}
 }

@@ -198,6 +198,19 @@ public final class ModItems {
                                     .component(ModDataComponents.HEX_COLOR.get(), FlintAndPearlItem.DEFAULT_HEX_COLOR)
                     ));
 
+    public static final DeferredItem<Item> BANANA_MILK_BUCKET =
+            ITEMS.registerItem("banana_milk_bucket",
+                    props -> new Item(
+                            props
+                                    .stacksTo(1)
+                                    .craftRemainder(Items.BUCKET)
+                                    .usingConvertsTo(Items.BUCKET)
+                                    .component(
+                                            DataComponents.CONSUMABLE,
+                                            Consumables.MILK_BUCKET
+                                    )
+                    ));
+
     public static final DeferredItem<Item> POTASSIUM_INGOT =
             ITEMS.registerItem("potassium_ingot", Item::new);
 
