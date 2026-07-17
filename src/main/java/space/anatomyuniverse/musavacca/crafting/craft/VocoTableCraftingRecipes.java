@@ -50,7 +50,7 @@ public final class VocoTableCraftingRecipes {
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                    4,
+                    1,
                     true
             ),
 

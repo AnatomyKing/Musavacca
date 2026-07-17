@@ -42,12 +42,7 @@ public final class VocoTableCrafting {
     private static final double GLITHER_SPAWN_SPREAD = 0.025D;
     private static final double GLITHER_START_Y_OFFSET = -0.13D;
 
-    /*
-     * Matches VocoTableBlockEntityItemDisplayRenderer:
-     * ITEM_X = 0.5
-     * ITEM_Y = 1.20
-     * ITEM_Z = 0.5
-     */
+
     private static final double ITEM_DISPLAY_X = 0.5D;
     private static final double ITEM_DISPLAY_Y = 1.20D;
     private static final double ITEM_DISPLAY_Z = 0.5D;
@@ -94,9 +89,16 @@ public final class VocoTableCrafting {
             return null;
         }
 
-        return tableBe.hasLitReceptorCost(recipe.litReceptorCost())
-                ? recipe
-                : null;
+        if (!tableBe.hasLitReceptorCost(recipe.litReceptorCost())) {
+            return null;
+        }
+
+        if (recipe.hexColorInject()
+                && matchingFourCandleColor(tableBe) == null) {
+            return null;
+        }
+
+        return recipe;
     }
 
     public static boolean completeActiveRecipe(
@@ -119,13 +121,15 @@ public final class VocoTableCrafting {
             return false;
         }
 
-        /*
-         * Check color before consuming candles/receptors.
-         * This makes the craft burst and injected color match the candle state that caused the craft.
-         */
-        Integer matchingCandleColor = recipe.hexColorInject()
-                ? matchingFourCandleColor(tableBe)
-                : null;
+        Integer matchingCandleColor = null;
+
+        if (recipe.hexColorInject()) {
+            matchingCandleColor = matchingFourCandleColor(tableBe);
+
+            if (matchingCandleColor == null) {
+                return false;
+            }
+        }
 
         int glitherColor = matchingCandleColor == null
                 ? DEFAULT_GLITHER_COLOR
@@ -177,10 +181,7 @@ public final class VocoTableCrafting {
             return;
         }
 
-        /*
-         * Safe even when the item has no tinted model.
-         * Items that do not read ModDataComponents.HEX_COLOR will simply ignore it visually.
-         */
+
         resultStack.set(
                 ModDataComponents.HEX_COLOR.get(),
                 matchingCandleColor & 0xFFFFFF
@@ -369,6 +370,10 @@ public final class VocoTableCrafting {
         Integer matchingColor = null;
 
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            if (!tableBe.isCandleLit(receptor)) {
+                return null;
+            }
+
             int cornerColor = tableBe.getCornerHexColor(receptor);
 
             if (cornerColor == VocoTableBlockEntity.UNSET_HEX_COLOR) {
