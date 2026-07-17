@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -20,10 +21,26 @@ import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
 
-public final class VocoTableCrafting {
-    private static final int GLITHER_PARTICLE_COUNT = 24;
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final int DEFAULT_GLITHER_COLOR = 0xFFFFFF;
+public final class VocoTableCrafting {
+    private static final int GLITHER_PARTICLE_COUNT = 3;
+
+    private static final int DEFAULT_GLITHER_COLOR = 0xCDB249;
+
+    private static final double GLITHER_FORWARD_SPEED = 0.085D;
+    private static final double GLITHER_FORWARD_SPEED_SPREAD = 0.018D;
+    private static final double GLITHER_MIN_FORWARD_SPEED = 0.055D;
+
+    private static final double GLITHER_SIDEWAYS_SPEED_SPREAD = 0.030D;
+
+    private static final double GLITHER_UPWARD_SPEED = -0.055D;
+    private static final double GLITHER_UPWARD_SPEED_SPREAD = -0.016D;
+    private static final double GLITHER_MIN_UPWARD_SPEED = -0.018D;
+
+    private static final double GLITHER_SPAWN_SPREAD = 0.025D;
+    private static final double GLITHER_START_Y_OFFSET = -0.13D;
 
     /*
      * Matches VocoTableBlockEntityItemDisplayRenderer:
@@ -106,14 +123,24 @@ public final class VocoTableCrafting {
          * Check color before consuming candles/receptors.
          * This makes the craft burst and injected color match the candle state that caused the craft.
          */
-        Integer matchingCandleColor = matchingFourCandleColor(tableBe);
+        Integer matchingCandleColor = recipe.hexColorInject()
+                ? matchingFourCandleColor(tableBe)
+                : null;
+
         int glitherColor = matchingCandleColor == null
                 ? DEFAULT_GLITHER_COLOR
                 : matchingCandleColor;
 
+        BlockState stateBeforeConsumption = level.getBlockState(tablePos);
+
         if (!tableBe.consumeLitReceptorsForCrafting(level, recipe.litReceptorCost())) {
             return false;
         }
+
+        List<ReceptorPosition> consumedReceptors = findConsumedReceptors(
+                stateBeforeConsumption,
+                level.getBlockState(tablePos)
+        );
 
         ItemStack resultStack = recipe.createResultStack();
         injectHexColorIfAllowed(resultStack, recipe, matchingCandleColor);
@@ -126,7 +153,14 @@ public final class VocoTableCrafting {
                 edibleStack.isEmpty() ? ItemStack.EMPTY : edibleStack
         );
 
-        playCraftingEffects(level, tablePos, resultStack, glitherColor);
+        playCraftingEffects(
+                level,
+                tablePos,
+                resultStack,
+                glitherColor,
+                consumedReceptors
+        );
+
         return true;
     }
 
@@ -157,11 +191,27 @@ public final class VocoTableCrafting {
             @NotNull ServerLevel level,
             @NotNull BlockPos tablePos,
             @NotNull ItemStack resultStack,
-            int glitherColor
+            int glitherColor,
+            @NotNull List<ReceptorPosition> consumedReceptors
     ) {
         Vec3 itemDisplayCenter = itemDisplayCenter(tablePos);
 
-        spawnGlitherTransformationParticles(level, itemDisplayCenter, glitherColor);
+        if (consumedReceptors.isEmpty()) {
+            spawnGlitherTransformationParticles(
+                    level,
+                    itemDisplayCenter,
+                    glitherColor
+            );
+        } else {
+            for (ReceptorPosition receptor : consumedReceptors) {
+                spawnDirectionalGlitherParticles(
+                        level,
+                        tablePos,
+                        receptor,
+                        glitherColor
+                );
+            }
+        }
 
         level.sendParticles(
                 new ItemParticleOption(ParticleTypes.ITEM, resultStack.copyWithCount(1)),
@@ -198,12 +248,99 @@ public final class VocoTableCrafting {
         );
     }
 
+    private static List<ReceptorPosition> findConsumedReceptors(
+            @NotNull BlockState stateBeforeConsumption,
+            @NotNull BlockState stateAfterConsumption
+    ) {
+        List<ReceptorPosition> consumedReceptors = new ArrayList<>();
+
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            if (stateBeforeConsumption.getValue(VocoTableBlock.lightProperty(receptor))
+                    && !stateAfterConsumption.getValue(VocoTableBlock.lightProperty(receptor))) {
+                consumedReceptors.add(receptor);
+            }
+        }
+
+        return List.copyOf(consumedReceptors);
+    }
+
     private static Vec3 itemDisplayCenter(BlockPos tablePos) {
         return new Vec3(
                 tablePos.getX() + ITEM_DISPLAY_X,
                 tablePos.getY() + ITEM_DISPLAY_Y,
                 tablePos.getZ() + ITEM_DISPLAY_Z
         );
+    }
+
+    private static void spawnDirectionalGlitherParticles(
+            @NotNull ServerLevel level,
+            @NotNull BlockPos tablePos,
+            @NotNull ReceptorPosition receptor,
+            int glitherColor
+    ) {
+        Vec3 source = VocoReceptorLogic.pearlPopPosition(tablePos, receptor);
+        Vec3 tableCenter = itemDisplayCenter(tablePos);
+
+        Vec3 outwardDirection = new Vec3(
+                source.x - tableCenter.x,
+                0.0D,
+                source.z - tableCenter.z
+        ).normalize();
+
+        Vec3 sidewaysDirection = new Vec3(
+                -outwardDirection.z,
+                0.0D,
+                outwardDirection.x
+        );
+
+        for (int i = 0; i < GLITHER_PARTICLE_COUNT; ++i) {
+            double forwardSpeed = Math.max(
+                    GLITHER_MIN_FORWARD_SPEED,
+                    GLITHER_FORWARD_SPEED
+                            + level.random.nextGaussian() * GLITHER_FORWARD_SPEED_SPREAD
+            );
+
+            double sidewaysSpeed =
+                    level.random.nextGaussian() * GLITHER_SIDEWAYS_SPEED_SPREAD;
+
+            double upwardSpeed = Math.max(
+                    GLITHER_MIN_UPWARD_SPEED,
+                    GLITHER_UPWARD_SPEED
+                            + level.random.nextGaussian() * GLITHER_UPWARD_SPEED_SPREAD
+            );
+
+            double particleX =
+                    source.x + level.random.nextGaussian() * GLITHER_SPAWN_SPREAD;
+
+            double particleY =
+                    source.y
+                            + GLITHER_START_Y_OFFSET
+                            + level.random.nextGaussian() * GLITHER_SPAWN_SPREAD;
+
+            double particleZ =
+                    source.z + level.random.nextGaussian() * GLITHER_SPAWN_SPREAD;
+
+            double particleXd =
+                    outwardDirection.x * forwardSpeed
+                            + sidewaysDirection.x * sidewaysSpeed;
+
+            double particleZd =
+                    outwardDirection.z * forwardSpeed
+                            + sidewaysDirection.z * sidewaysSpeed;
+
+            ProfileTintParticles.sendExact(
+                    level,
+                    level.random,
+                    ModParticleTypes.GLITHER.get(),
+                    glitherColor,
+                    particleX,
+                    particleY,
+                    particleZ,
+                    particleXd,
+                    upwardSpeed,
+                    particleZd
+            );
+        }
     }
 
     private static void spawnGlitherTransformationParticles(

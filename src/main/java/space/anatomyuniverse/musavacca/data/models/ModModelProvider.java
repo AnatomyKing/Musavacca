@@ -73,8 +73,7 @@ public final class ModModelProvider
         CubeVocoTable.generate(blocks, ModelSets.cubeVocoTableModels());
         CubeVocoPost.generate(blocks, ModelSets.cubeVocoPostModels());
 
-        ItemTintedMaxLayer5.generate(items, ModelSets.itemTintedMaxLayer5Items());
-        ItemTintedBypassLayer5.generate(items, ModelSets.itemTintedBypassLayer5Items());
+        ItemTintedLayers.generate(items, ModelSets.itemTintedLayers());
         CustomItemModel.generate(items, ModelSets.customItemModels());
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());

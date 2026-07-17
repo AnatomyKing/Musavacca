@@ -247,6 +247,7 @@ public final class ModelSets {
                 ModBlocks.RIPENING_MUSAVACCA_EGG.get(),
                 ModBlocks.RIPE_MUSAVACCA_EGG.get(),
                 ModItems.POTASSIUM_INGOT.get(),
+                ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
                 ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
                 ModItems.BANANA_MILK_BUCKET.get(),
         };
@@ -271,18 +272,14 @@ public final class ModelSets {
         };
     }
 
-    public static ItemTintedMaxLayer5.Entry[] itemTintedMaxLayer5Items() {
-        return new ItemTintedMaxLayer5.Entry[] {
-                ItemTintedMaxLayer5.root(
+    public static ItemTintedLayers.Entry[] itemTintedLayers() {
+        return new ItemTintedLayers.Entry[] {
+                ItemTintedLayers.folder(
                         ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
                         PearlFireTintProfiles.IMBUED_POTASSIUM
-                )
-        };
-    }
+                ),
 
-    public static ItemTintedBypassLayer5.Entry[] itemTintedBypassLayer5Items() {
-        return new ItemTintedBypassLayer5.Entry[] {
-                ItemTintedBypassLayer5.root(
+                ItemTintedLayers.folder(
                         ModItems.SIM_CARD.get(),
                         PearlFireTintProfiles.SIM_CARD_TINT
                 )

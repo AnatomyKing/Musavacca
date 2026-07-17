@@ -33,10 +33,24 @@ public final class VocoTableCraftingRecipes {
              * If the item model ignores HEX_COLOR, nothing visual happens.
              */
             recipe(
+                    ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
+                    ModItems.POTASSIUM_INGOT.get(),
+                    ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                    2
+            ),
+            recipe(
                     ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                    2,
+                    1,
+                    true
+            ),
+
+            recipe(
+                    ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
+                    ModItems.POTASSIUM_INGOT.get(),
+                    ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                    4,
                     true
             ),
 

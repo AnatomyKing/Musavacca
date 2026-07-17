@@ -100,8 +100,14 @@ public final class ModItems {
     public static final DeferredItem<Item> BANANA_PELLIS =
             ITEMS.registerItem("banana_pellis", props -> new Item(props.rarity(Rarity.COMMON)));
 
-    public static final DeferredItem<Item> POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
-            ITEMS.registerItem("potassium_upgrade_smithing_template", props -> new Item(props.rarity(Rarity.RARE)));
+    public static final DeferredItem<Item> FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
+            ITEMS.registerItem("fractured_potassium_upgrade_smithing_template", props -> new Item(props.rarity(Rarity.RARE)));
+
+    public static final DeferredItem<SmithingTemplateItem> POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
+            ITEMS.registerItem(
+                    ModSmithingTemplates.POTASSIUM_UPGRADE.registryPath(),
+                    props -> ModSmithingTemplates.POTASSIUM_UPGRADE.create(props)
+            );
 
     public static final DeferredItem<SmithingTemplateItem> IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
             ITEMS.registerItem(
