@@ -100,7 +100,7 @@ public final class PearlFireTintProfiles {
                     0.80F,  // coreToTailLightness
                     0.5F,   // colorJumpiness
                     0.21F,   // colorAmountTakeOver
-                    1.21F   // layerContrast
+                    0.36F   // layerContrast
             ),
             244, 228, 202
     );

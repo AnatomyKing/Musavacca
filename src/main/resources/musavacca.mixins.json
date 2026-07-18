@@ -4,7 +4,8 @@
   "package": "space.anatomyuniverse.musavacca.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "client.BlockModelWrapperMixin"
+    "client.BlockModelWrapperMixin",
+    "client.HumanoidMobRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

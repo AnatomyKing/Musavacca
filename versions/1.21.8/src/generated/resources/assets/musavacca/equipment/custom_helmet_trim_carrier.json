@@ -1,0 +1,10 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "dyeable": {},
+        "texture": "musavacca:custom_helmet_trim_carrier"
+      }
+    ]
+  }
+}

@@ -15,7 +15,7 @@
           0.7921569
         ],
         "layer": -1,
-        "layer_contrast": 1.21
+        "layer_contrast": 0.36
       },
       {
         "type": "musavacca:profile_hex_color",
@@ -29,7 +29,7 @@
           0.7921569
         ],
         "layer": 0,
-        "layer_contrast": 1.21
+        "layer_contrast": 0.36
       },
       {
         "type": "musavacca:profile_hex_color",
@@ -43,7 +43,7 @@
           0.7921569
         ],
         "layer": 1,
-        "layer_contrast": 1.21
+        "layer_contrast": 0.36
       },
       {
         "type": "musavacca:profile_hex_color",
@@ -57,7 +57,7 @@
           0.7921569
         ],
         "layer": 2,
-        "layer_contrast": 1.21
+        "layer_contrast": 0.36
       }
     ]
   }
