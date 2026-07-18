@@ -1,0 +1,3517 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_0",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": true,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 0,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_1",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 1,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_2",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 2,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_3",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 3,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_4",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 4,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_5",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 5,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_6",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 6,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_7",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 7,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_8",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 8,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_9",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 9,
+                  "layer_contrast": 0.36
+                }
+              ]
+            },
+            {
+              "type": "minecraft:model",
+              "model": "musavacca:item/imbued_potassium_helmet_model_layer_10",
+              "tints": [
+                {
+                  "type": "musavacca:profile_hex_color",
+                  "color_amount_take_over": 0.76,
+                  "color_jumpiness": 0.64,
+                  "core_to_tail_lightness": 0.76,
+                  "foil_carrier": false,
+                  "gray_factors": [
+                    0.9372549,
+                    0.8745098,
+                    0.8,
+                    0.7294118,
+                    0.6431373,
+                    0.5686275,
+                    0.45882353,
+                    0.34117648,
+                    0.29411766,
+                    0.26666668,
+                    0.21176471
+                  ],
+                  "layer": 10,
+                  "layer_contrast": 0.36
+                }
+              ]
+            }
+          ]
+        },
+        "when": "head"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_quartz_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:quartz"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_iron_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:iron"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_netherite_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:netherite"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_redstone_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:redstone"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_copper_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:copper"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_gold_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:gold"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_emerald_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:emerald"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_diamond_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:diamond"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_lapis_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:lapis"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_amethyst_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:amethyst"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": true,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 0,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 2,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 3,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 4,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 5,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 6,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 7,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": 8,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              },
+              {
+                "type": "minecraft:model",
+                "model": "musavacca:item/imbued_potassium_helmet_resin_trim",
+                "tints": [
+                  {
+                    "type": "musavacca:profile_hex_color",
+                    "color_amount_take_over": 0.42,
+                    "color_jumpiness": 0.64,
+                    "core_to_tail_lightness": 0.76,
+                    "foil_carrier": false,
+                    "gray_factors": [
+                      0.98039216,
+                      0.92941177,
+                      0.8745098,
+                      0.8117647,
+                      0.75686276,
+                      0.7058824,
+                      0.6509804,
+                      0.59607846,
+                      0.54509807
+                    ],
+                    "layer": -1,
+                    "layer_contrast": 0.36
+                  }
+                ]
+              }
+            ]
+          },
+          "when": "minecraft:resin"
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:composite",
+        "models": [
+          {
+            "type": "minecraft:model",
+            "model": "musavacca:item/imbued_potassium_helmet_layer_0",
+            "tints": [
+              {
+                "type": "musavacca:profile_hex_color",
+                "color_amount_take_over": 0.42,
+                "color_jumpiness": 0.64,
+                "core_to_tail_lightness": 0.76,
+                "foil_carrier": true,
+                "gray_factors": [
+                  0.98039216,
+                  0.92941177,
+                  0.8745098,
+                  0.8117647,
+                  0.75686276,
+                  0.7058824,
+                  0.6509804,
+                  0.59607846,
+                  0.54509807
+                ],
+                "layer": 0,
+                "layer_contrast": 0.36
+              }
+            ]
+          },
+          {
+            "type": "minecraft:model",
+            "model": "musavacca:item/imbued_potassium_helmet_layer_1",
+            "tints": [
+              {
+                "type": "musavacca:profile_hex_color",
+                "color_amount_take_over": 0.42,
+                "color_jumpiness": 0.64,
+                "core_to_tail_lightness": 0.76,
+                "foil_carrier": false,
+                "gray_factors": [
+                  0.98039216,
+                  0.92941177,
+                  0.8745098,
+                  0.8117647,
+                  0.75686276,
+                  0.7058824,
+                  0.6509804,
+                  0.59607846,
+                  0.54509807
+                ],
+                "layer": 1,
+                "layer_contrast": 0.36
+              }
+            ]
+          },
+          {
+            "type": "minecraft:model",
+            "model": "musavacca:item/imbued_potassium_helmet_layer_2",
+            "tints": [
+              {
+                "type": "musavacca:profile_hex_color",
+                "color_amount_take_over": 0.42,
+                "color_jumpiness": 0.64,
+                "core_to_tail_lightness": 0.76,
+                "foil_carrier": false,
+                "gray_factors": [
+                  0.98039216,
+                  0.92941177,
+                  0.8745098,
+                  0.8117647,
+                  0.75686276,
+                  0.7058824,
+                  0.6509804,
+                  0.59607846,
+                  0.54509807
+                ],
+                "layer": 2,
+                "layer_contrast": 0.36
+              }
+            ]
+          },
+          {
+            "type": "minecraft:model",
+            "model": "musavacca:item/imbued_potassium_helmet_layer_3",
+            "tints": [
+              {
+                "type": "musavacca:profile_hex_color",
+                "color_amount_take_over": 0.42,
+                "color_jumpiness": 0.64,
+                "core_to_tail_lightness": 0.76,
+                "foil_carrier": false,
+                "gray_factors": [
+                  0.98039216,
+                  0.92941177,
+                  0.8745098,
+                  0.8117647,
+                  0.75686276,
+                  0.7058824,
+                  0.6509804,
+                  0.59607846,
+                  0.54509807
+                ],
+                "layer": 3,
+                "layer_contrast": 0.36
+              }
+            ]
+          },
+          {
+            "type": "minecraft:model",
+            "model": "musavacca:item/imbued_potassium_helmet_layer_4",
+            "tints": [
+              {
+                "type": "musavacca:profile_hex_color",
+                "color_amount_take_over": 0.42,
+                "color_jumpiness": 0.64,
+                "core_to_tail_lightness": 0.76,
+                "foil_carrier": false,
+                "gray_factors": [
+                  0.98039216,
+                  0.92941177,
+                  0.8745098,
+                  0.8117647,
+                  0.75686276,
+                  0.7058824,
+                  0.6509804,
+                  0.59607846,
+                  0.54509807
+                ],
+                "layer": 4,
+                "layer_contrast": 0.36
+              }
+            ]
+          },
+          {
+            "type": "minecraft:model",
+            "model": "musavacca:item/imbued_potassium_helmet_layer_5",
+            "tints": [
+              {
+                "type": "musavacca:profile_hex_color",
+                "color_amount_take_over": 0.42,
+                "color_jumpiness": 0.64,
+                "core_to_tail_lightness": 0.76,
+                "foil_carrier": false,
+                "gray_factors": [
+                  0.98039216,
+                  0.92941177,
+                  0.8745098,
+                  0.8117647,
+                  0.75686276,
+                  0.7058824,
+                  0.6509804,
+                  0.59607846,
+                  0.54509807
+                ],
+                "layer": 5,
+                "layer_contrast": 0.36
+              }
+            ]
+          },
+          {
+            "type": "minecraft:model",
+            "model": "musavacca:item/imbued_potassium_helmet_layer_6",
+            "tints": [
+              {
+                "type": "musavacca:profile_hex_color",
+                "color_amount_take_over": 0.42,
+                "color_jumpiness": 0.64,
+                "core_to_tail_lightness": 0.76,
+                "foil_carrier": false,
+                "gray_factors": [
+                  0.98039216,
+                  0.92941177,
+                  0.8745098,
+                  0.8117647,
+                  0.75686276,
+                  0.7058824,
+                  0.6509804,
+                  0.59607846,
+                  0.54509807
+                ],
+                "layer": 6,
+                "layer_contrast": 0.36
+              }
+            ]
+          },
+          {
+            "type": "minecraft:model",
+            "model": "musavacca:item/imbued_potassium_helmet_layer_7",
+            "tints": [
+              {
+                "type": "musavacca:profile_hex_color",
+                "color_amount_take_over": 0.42,
+                "color_jumpiness": 0.64,
+                "core_to_tail_lightness": 0.76,
+                "foil_carrier": false,
+                "gray_factors": [
+                  0.98039216,
+                  0.92941177,
+                  0.8745098,
+                  0.8117647,
+                  0.75686276,
+                  0.7058824,
+                  0.6509804,
+                  0.59607846,
+                  0.54509807
+                ],
+                "layer": 7,
+                "layer_contrast": 0.36
+              }
+            ]
+          },
+          {
+            "type": "minecraft:model",
+            "model": "musavacca:item/imbued_potassium_helmet_layer_8",
+            "tints": [
+              {
+                "type": "musavacca:profile_hex_color",
+                "color_amount_take_over": 0.42,
+                "color_jumpiness": 0.64,
+                "core_to_tail_lightness": 0.76,
+                "foil_carrier": false,
+                "gray_factors": [
+                  0.98039216,
+                  0.92941177,
+                  0.8745098,
+                  0.8117647,
+                  0.75686276,
+                  0.7058824,
+                  0.6509804,
+                  0.59607846,
+                  0.54509807
+                ],
+                "layer": 8,
+                "layer_contrast": 0.36
+              }
+            ]
+          }
+        ]
+      },
+      "property": "minecraft:trim_material"
+    },
+    "property": "minecraft:display_context"
+  }
+}

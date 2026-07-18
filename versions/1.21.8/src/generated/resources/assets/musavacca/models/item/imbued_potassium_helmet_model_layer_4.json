@@ -1,0 +1,7 @@
+{
+  "parent": "musavacca:item/imbued_potassium_helmet_model",
+  "textures": {
+    "1": "musavacca:item/imbued_potassium_helmet_model/imbued_potassium_helmet_model_4",
+    "particle": "musavacca:item/imbued_potassium_helmet_model/imbued_potassium_helmet_model_4"
+  }
+}

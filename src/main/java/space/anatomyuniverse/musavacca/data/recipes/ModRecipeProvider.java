@@ -280,6 +280,69 @@ public final class ModRecipeProvider extends RecipeProvider {
                         ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
                                 .require(ModDataComponents.HEX_COLOR)
                                 .transfer(ModDataComponents.HEX_COLOR),
+                        Ingredient.of(Items.DIAMOND_HELMET),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.COMBAT,
+                        ModItems.IMBUED_POTASSIUM_HELMET.get()
+                )
+                .unlocksHas(
+                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                        ModItems.POTASSIUM_INGOT.get()
+                )
+                .save("smithing/imbued_potassium_helmet_upgrade");
+
+
+        dsl.transform().of(
+                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
+                                .require(ModDataComponents.HEX_COLOR)
+                                .transfer(ModDataComponents.HEX_COLOR),
+                        Ingredient.of(Items.DIAMOND_CHESTPLATE),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.COMBAT,
+                        ModItems.IMBUED_POTASSIUM_CHESTPLATE.get()
+                )
+                .unlocksHas(
+                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                        ModItems.POTASSIUM_INGOT.get()
+                )
+                .save("smithing/imbued_potassium_chestplate_upgrade");
+
+
+        dsl.transform().of(
+                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
+                                .require(ModDataComponents.HEX_COLOR)
+                                .transfer(ModDataComponents.HEX_COLOR),
+                        Ingredient.of(Items.DIAMOND_LEGGINGS),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.COMBAT,
+                        ModItems.IMBUED_POTASSIUM_LEGGINGS.get()
+                )
+                .unlocksHas(
+                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                        ModItems.POTASSIUM_INGOT.get()
+                )
+                .save("smithing/imbued_potassium_leggings_upgrade");
+
+
+        dsl.transform().of(
+                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
+                                .require(ModDataComponents.HEX_COLOR)
+                                .transfer(ModDataComponents.HEX_COLOR),
+                        Ingredient.of(Items.DIAMOND_BOOTS),
+                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
+                        RecipeCategory.COMBAT,
+                        ModItems.IMBUED_POTASSIUM_BOOTS.get()
+                )
+                .unlocksHas(
+                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                        ModItems.POTASSIUM_INGOT.get()
+                )
+                .save("smithing/imbued_potassium_boots_upgrade");
+
+        dsl.transform().of(
+                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
+                                .require(ModDataComponents.HEX_COLOR)
+                                .transfer(ModDataComponents.HEX_COLOR),
                         Ingredient.of(Items.DIAMOND_SWORD),
                         Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
                         RecipeCategory.COMBAT,

@@ -79,6 +79,11 @@ public final class ModModelProvider
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());
         CustomArmorSet.generate(items, ModelSets.customArmorSets());
+        CustomArmorSetTintedLayers.generate(
+                items,
+                ModelSets.customArmorSetTintedLayers()
+        );
         SpawnEggItems.generate(items, ModelSets.spawnEggItems());
     }
 }
+

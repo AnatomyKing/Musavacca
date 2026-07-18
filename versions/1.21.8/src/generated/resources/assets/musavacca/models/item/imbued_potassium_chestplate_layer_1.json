@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "musavacca:item/imbued_potassium_chestplate/imbued_potassium_chestplate_1"
+  }
+}

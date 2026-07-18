@@ -32,6 +32,17 @@ public final class PearlFireTintProfiles {
             172, 162, 151, 142, 0
     );
 
+    public static final Profile IMBUED_POTASSIUM_ARMOR_ITEMS = of(
+            settings(
+                    0.76F,  // coreToTailLightness
+                    0.64F,  // colorJumpiness
+                    0.42F,   // colorAmountTakeOver
+                    0.36F   // layerContrast
+            ),
+            250, 237, 223, 207, 193, 180, 166, 152,
+            139
+    );
+
     public static final Profile IMBUED_POTASSIUM_TOOLS = of(
             settings(
                     0.82F,  // coreToTailLightness
@@ -45,20 +56,20 @@ public final class PearlFireTintProfiles {
 
     public static final Profile IMBUED_POTASSIUM_ARMOR = of(
             settings(
-                    0.62F,  // coreToTailLightness
-                    0.32F,  // colorJumpiness
-                    0.0F,   // colorAmountTakeOver
-                    0.98F   // layerContrast
+                    0.76F,  // coreToTailLightness
+                    0.64F,  // colorJumpiness
+                    0.71F,   // colorAmountTakeOver
+                    0.36F   // layerContrast
             ),
             239, 223, 204, 186, 164, 145, 117
     );
 
     public static final Profile IMBUED_POTASSIUM_HELMET = of(
             settings(
-                    0.62F,  // coreToTailLightness
-                    0.32F,  // colorJumpiness
-                    0.0F,   // colorAmountTakeOver
-                    0.98F   // layerContrast
+                    0.76F,  // coreToTailLightness
+                    0.64F,  // colorJumpiness
+                    0.76F,   // colorAmountTakeOver
+                    0.36F   // layerContrast
             ),
             239, 223, 204, 186, 164, 145, 117, 87,
             75, 68, 54

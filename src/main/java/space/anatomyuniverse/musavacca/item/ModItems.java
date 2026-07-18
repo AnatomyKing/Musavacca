@@ -34,132 +34,214 @@ import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumShovelItem;
 
 public final class ModItems {
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MusaCore.MOD_ID);
+    public static final DeferredRegister.Items ITEMS =
+            DeferredRegister.createItems(MusaCore.MOD_ID);
 
-    public static final TagKey<Item> REPAIRS_POTASSIUM_ARMOR = TagKey.create(
-            Registries.ITEM,
-            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "repairs_potassium_armor")
-    );
+    public static final TagKey<Item> REPAIRS_POTASSIUM_ARMOR =
+            TagKey.create(
+                    Registries.ITEM,
+                    ResourceLocation.fromNamespaceAndPath(
+                            MusaCore.MOD_ID,
+                            "repairs_potassium_armor"
+                    )
+            );
 
-    public static final TagKey<Item> REPAIRS_POTASSIUM_TOOLS = TagKey.create(
-            Registries.ITEM,
-            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "repairs_potassium_tools")
-    );
+    public static final TagKey<Item> REPAIRS_POTASSIUM_TOOLS =
+            TagKey.create(
+                    Registries.ITEM,
+                    ResourceLocation.fromNamespaceAndPath(
+                            MusaCore.MOD_ID,
+                            "repairs_potassium_tools"
+                    )
+            );
 
-    public static final ToolMaterial POTASSIUM_TOOL_MATERIAL = new ToolMaterial(
-            BlockTags.INCORRECT_FOR_NETHERITE_TOOL,
-            1850,
-            8.5F,
-            3.5F,
-            12,
-            REPAIRS_POTASSIUM_TOOLS
-    );
+    public static final ToolMaterial POTASSIUM_TOOL_MATERIAL =
+            new ToolMaterial(
+                    BlockTags.INCORRECT_FOR_NETHERITE_TOOL,
+                    1850,
+                    8.5F,
+                    3.5F,
+                    12,
+                    REPAIRS_POTASSIUM_TOOLS
+            );
 
-    private static final FoodProperties POTASSIUM_FOOD = new FoodProperties.Builder()
-            .nutrition(8)
-            .saturationModifier(0.8F)
-            .build();
+    private static final FoodProperties POTASSIUM_FOOD =
+            new FoodProperties.Builder()
+                    .nutrition(8)
+                    .saturationModifier(0.8F)
+                    .build();
 
-    private static final Consumable POTASSIUM_CONSUMABLE = Consumables.defaultFood()
-            .consumeSeconds(1.6F)
-            .build();
+    private static final Consumable POTASSIUM_CONSUMABLE =
+            Consumables.defaultFood()
+                    .consumeSeconds(1.6F)
+                    .build();
+
+    public static final ResourceKey<EquipmentAsset>
+            POTASSIUM_EQUIPMENT_ASSET =
+            equipmentAsset("potassium");
+
+    public static final ResourceKey<EquipmentAsset>
+            IMBUED_POTASSIUM_EQUIPMENT_ASSET =
+            equipmentAsset("imbued_potassium");
+
+    public static final ArmorMaterial POTASSIUM_ARMOR_MATERIAL =
+            potassiumArmorMaterial(
+                    POTASSIUM_EQUIPMENT_ASSET
+            );
+
+    public static final ArmorMaterial
+            IMBUED_POTASSIUM_ARMOR_MATERIAL =
+            potassiumArmorMaterial(
+                    IMBUED_POTASSIUM_EQUIPMENT_ASSET
+            );
 
     public static final DeferredItem<BlockItem> MUSAVACCA_PUP =
-            ITEMS.registerItem("musavacca_pup",
+            ITEMS.registerItem(
+                    "musavacca_pup",
                     props -> new BlockItem(
                             ModBlocks.MUSAVACCA_SPROUT.get(),
                             props.component(
                                     DataComponents.ITEM_NAME,
-                                    Component.translatable("item.musavacca.musavacca_pup")
+                                    Component.translatable(
+                                            "item.musavacca.musavacca_pup"
+                                    )
                             )
-                    ));
-
-    public static final ResourceKey<EquipmentAsset> POTASSIUM_EQUIPMENT_ASSET = equipmentAsset("potassium");
-
-    public static final ArmorMaterial POTASSIUM_ARMOR_MATERIAL =
-            potassiumArmorMaterial(POTASSIUM_EQUIPMENT_ASSET);
-
-    public static final DeferredItem<Item> BANANA_PEARL =
-            ITEMS.registerItem("banana_pearl", props -> new Item(
-                    props.rarity(Rarity.RARE)
-                            .food(
-                                    new FoodProperties.Builder()
-                                            .nutrition(1)
-                                            .saturationModifier(0.3F)
-                                            .alwaysEdible()
-                                            .build(),
-                                    Consumables.defaultFood()
-                                            .consumeSeconds(0.8F)
-                                            .build()
-                            )
-            ));
-
-    public static final DeferredItem<Item> BANAZO_GUSMA_LUMPA_GOOP =
-            ITEMS.registerItem("banazo_gusma_lumpa_goop", props -> new Item(props.rarity(Rarity.EPIC)));
-
-    public static final DeferredItem<Item> BANANA_PELLIS =
-            ITEMS.registerItem("banana_pellis", props -> new Item(props.rarity(Rarity.COMMON)));
-
-    public static final DeferredItem<Item> FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
-            ITEMS.registerItem("fractured_potassium_upgrade_smithing_template", props -> new Item(props.rarity(Rarity.RARE)));
-
-    public static final DeferredItem<SmithingTemplateItem> POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
-            ITEMS.registerItem(
-                    ModSmithingTemplates.POTASSIUM_UPGRADE.registryPath(),
-                    props -> ModSmithingTemplates.POTASSIUM_UPGRADE.create(props)
+                    )
             );
 
-    public static final DeferredItem<SmithingTemplateItem> IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
+    public static final DeferredItem<Item> BANANA_PEARL =
             ITEMS.registerItem(
-                    ModSmithingTemplates.IMBUED_POTASSIUM_UPGRADE.registryPath(),
-                    props -> ModSmithingTemplates.IMBUED_POTASSIUM_UPGRADE.create(props)
+                    "banana_pearl",
+                    props -> new Item(
+                            props.rarity(Rarity.RARE)
+                                    .food(
+                                            new FoodProperties.Builder()
+                                                    .nutrition(1)
+                                                    .saturationModifier(0.3F)
+                                                    .alwaysEdible()
+                                                    .build(),
+                                            Consumables.defaultFood()
+                                                    .consumeSeconds(0.8F)
+                                                    .build()
+                                    )
+                    )
+            );
+
+    public static final DeferredItem<Item>
+            BANAZO_GUSMA_LUMPA_GOOP =
+            ITEMS.registerItem(
+                    "banazo_gusma_lumpa_goop",
+                    props -> new Item(
+                            props.rarity(Rarity.EPIC)
+                    )
+            );
+
+    public static final DeferredItem<Item> BANANA_PELLIS =
+            ITEMS.registerItem(
+                    "banana_pellis",
+                    props -> new Item(
+                            props.rarity(Rarity.COMMON)
+                    )
+            );
+
+    public static final DeferredItem<Item>
+            FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
+            ITEMS.registerItem(
+                    "fractured_potassium_upgrade_smithing_template",
+                    props -> new Item(
+                            props.rarity(Rarity.RARE)
+                    )
+            );
+
+    public static final DeferredItem<SmithingTemplateItem>
+            POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
+            ITEMS.registerItem(
+                    ModSmithingTemplates.POTASSIUM_UPGRADE
+                            .registryPath(),
+                    props -> ModSmithingTemplates
+                            .POTASSIUM_UPGRADE
+                            .create(props)
+            );
+
+    public static final DeferredItem<SmithingTemplateItem>
+            IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
+            ITEMS.registerItem(
+                    ModSmithingTemplates.IMBUED_POTASSIUM_UPGRADE
+                            .registryPath(),
+                    props -> ModSmithingTemplates
+                            .IMBUED_POTASSIUM_UPGRADE
+                            .create(props)
             );
 
     public static final DeferredItem<Item> MUSAVACCA_EXUDATE =
-            ITEMS.registerItem("musavacca_exudate",
+            ITEMS.registerItem(
+                    "musavacca_exudate",
                     props -> new Item(
                             props.stacksTo(16)
                                     .craftRemainder(Items.GLASS_BOTTLE)
                                     .usingConvertsTo(Items.GLASS_BOTTLE)
-                                    .food(Foods.HONEY_BOTTLE, Consumables.HONEY_BOTTLE)
+                                    .food(
+                                            Foods.HONEY_BOTTLE,
+                                            Consumables.HONEY_BOTTLE
+                                    )
                                     .rarity(Rarity.UNCOMMON)
-                    ));
+                    )
+            );
 
     public static final DeferredItem<Item> BANANA_PHONE =
-            ITEMS.registerItem("banana_phone",
+            ITEMS.registerItem(
+                    "banana_phone",
                     props -> new OpenTestInventoryItem(
                             props.rarity(Rarity.RARE)
-                    ));
+                    )
+            );
 
     public static final DeferredItem<Item> BIG_BANANA_PEARL =
-            ITEMS.registerItem("big_banana_pearl", props -> new Item(props.rarity(Rarity.RARE)));
+            ITEMS.registerItem(
+                    "big_banana_pearl",
+                    props -> new Item(
+                            props.rarity(Rarity.RARE)
+                    )
+            );
 
     public static final DeferredItem<Item> SIM_CARD =
-            ITEMS.registerItem("sim_card", props -> new SimCardItem(
-                    props.rarity(Rarity.RARE)
-                            .fireResistant()
-            ));
+            ITEMS.registerItem(
+                    "sim_card",
+                    props -> new SimCardItem(
+                            props.rarity(Rarity.RARE)
+                                    .fireResistant()
+                    )
+            );
 
     public static final DeferredItem<Item> SMALL_BANANA_PEARL =
-            ITEMS.registerItem("small_banana_pearl",
+            ITEMS.registerItem(
+                    "small_banana_pearl",
                     props -> new SmallBananaPearlItem(
                             props.rarity(Rarity.RARE)
-                    ));
+                    )
+            );
 
     public static final DeferredItem<Item> OPEN_INVO_TEST_ITEM =
-            ITEMS.registerItem("open_invo_test_item",
+            ITEMS.registerItem(
+                    "open_invo_test_item",
                     props -> new OpenTestInventoryItem(
                             props.rarity(Rarity.RARE)
-                    ));
+                    )
+            );
 
-    public static final DeferredItem<Item> OPEN_TELEPORT_TEST_ITEM =
-            ITEMS.registerItem("open_teleport_test_item",
+    public static final DeferredItem<Item>
+            OPEN_TELEPORT_TEST_ITEM =
+            ITEMS.registerItem(
+                    "open_teleport_test_item",
                     props -> new OpenTeleportInventoryItem(
                             props.rarity(Rarity.RARE)
-                    ));
+                    )
+            );
 
-    public static final DeferredItem<SpawnEggItem> BANANA_COW_SPAWN_EGG =
-            ITEMS.registerItem("banana_cow_spawn_egg",
+    public static final DeferredItem<SpawnEggItem>
+            BANANA_COW_SPAWN_EGG =
+            ITEMS.registerItem(
+                    "banana_cow_spawn_egg",
                     props ->
                             //? if <1.21.4 {
                             /*new SpawnEggItem(
@@ -169,14 +251,23 @@ public final class ModItems {
                                     props
                             )
                             *///?} else if <1.21.9 {
-                            new SpawnEggItem(ModEntities.BANANA_COW.get(), props)
+                            new SpawnEggItem(
+                                    ModEntities.BANANA_COW.get(),
+                                    props
+                            )
                     //?} else {
-                    /*new SpawnEggItem(props.spawnEgg(ModEntities.BANANA_COW.get()))
-                     *///?}
+                    /*new SpawnEggItem(
+                            props.spawnEgg(
+                                    ModEntities.BANANA_COW.get()
+                            )
+                    )
+                    *///?}
             );
 
-    public static final DeferredItem<SpawnEggItem> BASUKE_SPAWN_EGG =
-            ITEMS.registerItem("basuke_spawn_egg",
+    public static final DeferredItem<SpawnEggItem>
+            BASUKE_SPAWN_EGG =
+            ITEMS.registerItem(
+                    "basuke_spawn_egg",
                     props ->
                             //? if <1.21.4 {
                             /*new SpawnEggItem(
@@ -186,192 +277,373 @@ public final class ModItems {
                                     props
                             )
                             *///?} else if <1.21.9 {
-                            new SpawnEggItem(ModEntities.BASUKE.get(), props)
+                            new SpawnEggItem(
+                                    ModEntities.BASUKE.get(),
+                                    props
+                            )
                     //?} else {
-                    /*new SpawnEggItem(props.spawnEgg(ModEntities.BASUKE.get()))
-                     *///?}
+                    /*new SpawnEggItem(
+                            props.spawnEgg(
+                                    ModEntities.BASUKE.get()
+                            )
+                    )
+                    *///?}
             );
 
     public static final DeferredItem<Item> VACACA =
-            ITEMS.registerItem("vacaca",
-                    props -> new Item(props.food(Foods.APPLE)));
+            ITEMS.registerItem(
+                    "vacaca",
+                    props -> new Item(
+                            props.food(Foods.APPLE)
+                    )
+            );
 
     public static final DeferredItem<Item> FLINT_AND_PEARL =
-            ITEMS.registerItem("flint_and_pearl",
+            ITEMS.registerItem(
+                    "flint_and_pearl",
                     props -> new FlintAndPearlItem(
-                            props
-                                    .durability(64)
-                                    .component(ModDataComponents.HEX_COLOR.get(), FlintAndPearlItem.DEFAULT_HEX_COLOR)
-                    ));
+                            props.durability(64)
+                                    .component(
+                                            ModDataComponents
+                                                    .HEX_COLOR
+                                                    .get(),
+                                            FlintAndPearlItem
+                                                    .DEFAULT_HEX_COLOR
+                                    )
+                    )
+            );
 
     public static final DeferredItem<Item> BANANA_MILK_BUCKET =
-            ITEMS.registerItem("banana_milk_bucket",
+            ITEMS.registerItem(
+                    "banana_milk_bucket",
                     props -> new Item(
-                            props
-                                    .stacksTo(1)
+                            props.stacksTo(1)
                                     .craftRemainder(Items.BUCKET)
                                     .usingConvertsTo(Items.BUCKET)
                                     .component(
                                             DataComponents.CONSUMABLE,
                                             Consumables.MILK_BUCKET
                                     )
-                    ));
+                    )
+            );
 
-    public static final DeferredItem<Item> IMBUED_POTASSIUM_SWORD =
-            ITEMS.registerItem("imbued_potassium_sword",
+    public static final DeferredItem<Item>
+            IMBUED_POTASSIUM_SWORD =
+            ITEMS.registerItem(
+                    "imbued_potassium_sword",
                     props -> new PotassiumItem(
-                            props.sword(POTASSIUM_TOOL_MATERIAL, 3.0F, -2.4F)
-                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.sword(
+                                            POTASSIUM_TOOL_MATERIAL,
+                                            3.0F,
+                                            -2.4F
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
 
-    public static final DeferredItem<Item> IMBUED_POTASSIUM_SHOVEL =
-            ITEMS.registerItem("imbued_potassium_shovel",
+    public static final DeferredItem<Item>
+            IMBUED_POTASSIUM_SHOVEL =
+            ITEMS.registerItem(
+                    "imbued_potassium_shovel",
                     props -> new PotassiumShovelItem(
                             POTASSIUM_TOOL_MATERIAL,
                             1.5F,
                             -3.0F,
-                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.food(
+                                    POTASSIUM_FOOD,
+                                    POTASSIUM_CONSUMABLE
+                            )
+                    )
+            );
 
-    public static final DeferredItem<Item> IMBUED_POTASSIUM_PICKAXE =
-            ITEMS.registerItem("imbued_potassium_pickaxe",
+    public static final DeferredItem<Item>
+            IMBUED_POTASSIUM_PICKAXE =
+            ITEMS.registerItem(
+                    "imbued_potassium_pickaxe",
                     props -> new PotassiumItem(
-                            props.pickaxe(POTASSIUM_TOOL_MATERIAL, 1.0F, -2.8F)
-                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.pickaxe(
+                                            POTASSIUM_TOOL_MATERIAL,
+                                            1.0F,
+                                            -2.8F
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
 
-    public static final DeferredItem<Item> IMBUED_POTASSIUM_AXE =
-            ITEMS.registerItem("imbued_potassium_axe",
+    public static final DeferredItem<Item>
+            IMBUED_POTASSIUM_AXE =
+            ITEMS.registerItem(
+                    "imbued_potassium_axe",
                     props -> new PotassiumAxeItem(
                             POTASSIUM_TOOL_MATERIAL,
                             5.0F,
                             -3.0F,
-                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.food(
+                                    POTASSIUM_FOOD,
+                                    POTASSIUM_CONSUMABLE
+                            )
+                    )
+            );
 
-    public static final DeferredItem<Item> IMBUED_POTASSIUM_HOE =
-            ITEMS.registerItem("imbued_potassium_hoe",
+    public static final DeferredItem<Item>
+            IMBUED_POTASSIUM_HOE =
+            ITEMS.registerItem(
+                    "imbued_potassium_hoe",
                     props -> new PotassiumHoeItem(
                             POTASSIUM_TOOL_MATERIAL,
                             -3.5F,
                             0.0F,
-                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.food(
+                                    POTASSIUM_FOOD,
+                                    POTASSIUM_CONSUMABLE
+                            )
+                    )
+            );
 
+    public static final DeferredItem<Item>
+            IMBUED_POTASSIUM_HELMET =
+            ITEMS.registerItem(
+                    "imbued_potassium_helmet",
+                    props -> new PotassiumItem(
+                            potassiumCustomHeadHelmetProperties(
+                                    props,
+                                    IMBUED_POTASSIUM_ARMOR_MATERIAL
+                            )
+                    )
+            );
+
+    public static final DeferredItem<Item>
+            IMBUED_POTASSIUM_CHESTPLATE =
+            ITEMS.registerItem(
+                    "imbued_potassium_chestplate",
+                    props -> new PotassiumItem(
+                            props.humanoidArmor(
+                                            IMBUED_POTASSIUM_ARMOR_MATERIAL,
+                                            ArmorType.CHESTPLATE
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
+
+    public static final DeferredItem<Item>
+            IMBUED_POTASSIUM_LEGGINGS =
+            ITEMS.registerItem(
+                    "imbued_potassium_leggings",
+                    props -> new PotassiumItem(
+                            props.humanoidArmor(
+                                            IMBUED_POTASSIUM_ARMOR_MATERIAL,
+                                            ArmorType.LEGGINGS
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
+
+    public static final DeferredItem<Item>
+            IMBUED_POTASSIUM_BOOTS =
+            ITEMS.registerItem(
+                    "imbued_potassium_boots",
+                    props -> new PotassiumItem(
+                            props.humanoidArmor(
+                                            IMBUED_POTASSIUM_ARMOR_MATERIAL,
+                                            ArmorType.BOOTS
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
 
     public static final DeferredItem<Item> POTASSIUM_INGOT =
-            ITEMS.registerItem("potassium_ingot", Item::new);
+            ITEMS.registerItem(
+                    "potassium_ingot",
+                    Item::new
+            );
 
     public static final DeferredItem<Item> POTASSIUM_SWORD =
-            ITEMS.registerItem("potassium_sword",
+            ITEMS.registerItem(
+                    "potassium_sword",
                     props -> new PotassiumItem(
-                            props.sword(POTASSIUM_TOOL_MATERIAL, 3.0F, -2.4F)
-                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.sword(
+                                            POTASSIUM_TOOL_MATERIAL,
+                                            3.0F,
+                                            -2.4F
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
 
     public static final DeferredItem<Item> POTASSIUM_SHOVEL =
-            ITEMS.registerItem("potassium_shovel",
+            ITEMS.registerItem(
+                    "potassium_shovel",
                     props -> new PotassiumShovelItem(
                             POTASSIUM_TOOL_MATERIAL,
                             1.5F,
                             -3.0F,
-                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.food(
+                                    POTASSIUM_FOOD,
+                                    POTASSIUM_CONSUMABLE
+                            )
+                    )
+            );
 
     public static final DeferredItem<Item> POTASSIUM_PICKAXE =
-            ITEMS.registerItem("potassium_pickaxe",
+            ITEMS.registerItem(
+                    "potassium_pickaxe",
                     props -> new PotassiumItem(
-                            props.pickaxe(POTASSIUM_TOOL_MATERIAL, 1.0F, -2.8F)
-                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.pickaxe(
+                                            POTASSIUM_TOOL_MATERIAL,
+                                            1.0F,
+                                            -2.8F
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
 
     public static final DeferredItem<Item> POTASSIUM_AXE =
-            ITEMS.registerItem("potassium_axe",
+            ITEMS.registerItem(
+                    "potassium_axe",
                     props -> new PotassiumAxeItem(
                             POTASSIUM_TOOL_MATERIAL,
                             5.0F,
                             -3.0F,
-                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.food(
+                                    POTASSIUM_FOOD,
+                                    POTASSIUM_CONSUMABLE
+                            )
+                    )
+            );
 
     public static final DeferredItem<Item> POTASSIUM_HOE =
-            ITEMS.registerItem("potassium_hoe",
+            ITEMS.registerItem(
+                    "potassium_hoe",
                     props -> new PotassiumHoeItem(
                             POTASSIUM_TOOL_MATERIAL,
                             -3.5F,
                             0.0F,
-                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.food(
+                                    POTASSIUM_FOOD,
+                                    POTASSIUM_CONSUMABLE
+                            )
+                    )
+            );
 
     public static final DeferredItem<Item> POTASSIUM_HELMET =
-            ITEMS.registerItem("potassium_helmet",
+            ITEMS.registerItem(
+                    "potassium_helmet",
                     props -> new PotassiumItem(
-                            potassiumCustomHeadHelmetProperties(props)
-                    ));
+                            potassiumCustomHeadHelmetProperties(
+                                    props,
+                                    POTASSIUM_ARMOR_MATERIAL
+                            )
+                    )
+            );
 
     public static final DeferredItem<Item> POTASSIUM_CHESTPLATE =
-            ITEMS.registerItem("potassium_chestplate",
+            ITEMS.registerItem(
+                    "potassium_chestplate",
                     props -> new PotassiumItem(
-                            props.humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.CHESTPLATE)
-                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.humanoidArmor(
+                                            POTASSIUM_ARMOR_MATERIAL,
+                                            ArmorType.CHESTPLATE
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
 
     public static final DeferredItem<Item> POTASSIUM_LEGGINGS =
-            ITEMS.registerItem("potassium_leggings",
+            ITEMS.registerItem(
+                    "potassium_leggings",
                     props -> new PotassiumItem(
-                            props.humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.LEGGINGS)
-                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.humanoidArmor(
+                                            POTASSIUM_ARMOR_MATERIAL,
+                                            ArmorType.LEGGINGS
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
 
     public static final DeferredItem<Item> POTASSIUM_BOOTS =
-            ITEMS.registerItem("potassium_boots",
+            ITEMS.registerItem(
+                    "potassium_boots",
                     props -> new PotassiumItem(
-                            props.humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.BOOTS)
-                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
-                    ));
+                            props.humanoidArmor(
+                                            POTASSIUM_ARMOR_MATERIAL,
+                                            ArmorType.BOOTS
+                                    )
+                                    .food(
+                                            POTASSIUM_FOOD,
+                                            POTASSIUM_CONSUMABLE
+                                    )
+                    )
+            );
 
-    private static Item.Properties potassiumCustomHeadHelmetProperties(Item.Properties props) {
+    private static Item.Properties
+    potassiumCustomHeadHelmetProperties(
+            Item.Properties props,
+            ArmorMaterial armorMaterial
+    ) {
         return props
-                /*
-                 * First: apply normal armor stats, durability, repairability,
-                 * enchantability, and armor attributes.
-                 */
-                .humanoidArmor(POTASSIUM_ARMOR_MATERIAL, ArmorType.HELMET)
-
-                /*
-                 * Then: overwrite only EQUIPPABLE.
-                 *
-                 * humanoidArmor(...) gives the item an equipment asset_id,
-                 * which makes Minecraft render it through the normal armor layer.
-                 *
-                 * For this custom helmet we intentionally DO NOT call .setAsset(...).
-                 * That makes the head slot use the item model instead, so your
-                 * assets/musavacca/items/potassium_helmet.json display_context=head
-                 * selector can render:
-                 *
-                 * musavacca:item/potassium_helmet_model
-                 */
+                .humanoidArmor(
+                        armorMaterial,
+                        ArmorType.HELMET
+                )
                 .component(
                         DataComponents.EQUIPPABLE,
                         Equippable.builder(EquipmentSlot.HEAD)
-                                .setEquipSound(SoundEvents.ARMOR_EQUIP_DIAMOND)
+                                .setEquipSound(
+                                        SoundEvents.ARMOR_EQUIP_DIAMOND
+                                )
                                 .setDamageOnHurt(true)
                                 .build()
                 )
-
-                .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE);
+                .food(
+                        POTASSIUM_FOOD,
+                        POTASSIUM_CONSUMABLE
+                );
     }
 
-    private static ArmorMaterial potassiumArmorMaterial(ResourceKey<EquipmentAsset> equipmentAsset) {
+    private static ArmorMaterial potassiumArmorMaterial(
+            ResourceKey<EquipmentAsset> equipmentAsset
+    ) {
         return new ArmorMaterial(
                 35,
-                Util.make(new java.util.EnumMap<>(ArmorType.class), map -> {
-                    map.put(ArmorType.BOOTS, 3);
-                    map.put(ArmorType.LEGGINGS, 6);
-                    map.put(ArmorType.CHESTPLATE, 8);
-                    map.put(ArmorType.HELMET, 3);
-                    map.put(ArmorType.BODY, 11);
-                }),
+                Util.make(
+                        new java.util.EnumMap<>(
+                                ArmorType.class
+                        ),
+                        map -> {
+                            map.put(ArmorType.BOOTS, 3);
+                            map.put(ArmorType.LEGGINGS, 6);
+                            map.put(ArmorType.CHESTPLATE, 8);
+                            map.put(ArmorType.HELMET, 3);
+                            map.put(ArmorType.BODY, 11);
+                        }
+                ),
                 12,
                 SoundEvents.ARMOR_EQUIP_DIAMOND,
                 2.5F,
@@ -381,10 +653,15 @@ public final class ModItems {
         );
     }
 
-    private static ResourceKey<EquipmentAsset> equipmentAsset(String path) {
+    private static ResourceKey<EquipmentAsset> equipmentAsset(
+            String path
+    ) {
         return ResourceKey.create(
                 EquipmentAssets.ROOT_ID,
-                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, path)
+                ResourceLocation.fromNamespaceAndPath(
+                        MusaCore.MOD_ID,
+                        path
+                )
         );
     }
 

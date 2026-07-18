@@ -1,0 +1,92 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_0"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_1"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_2"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_3"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_4"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_5"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_6"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_0"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_1"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_2"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_3"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_4"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_5"
+      },
+      {
+        "dyeable": {
+          "color_when_undyed": 16777215
+        },
+        "texture": "musavacca:imbued_potassium/imbued_potassium_6"
+      }
+    ]
+  }
+}

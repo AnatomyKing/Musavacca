@@ -11,6 +11,7 @@ import space.anatomyuniverse.musavacca.data.loot.ModSnifferDiggingLootProvider;
 import space.anatomyuniverse.musavacca.data.models.ModModelProvider;
 import space.anatomyuniverse.musavacca.data.models.ModelSets;
 import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
+import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSetTintedLayers;
 import space.anatomyuniverse.musavacca.data.recipes.ModRecipeProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModBlockTagsProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModItemTagsProvider;
@@ -44,7 +45,6 @@ public final class ModDataGenerators {
         }
 
         if (event.includeServer()) {
-            // Recipes
             //? if <1.21.3 {
             /^event.getGenerator().addProvider(
                     true,
@@ -97,6 +97,14 @@ public final class ModDataGenerators {
 
             event.getGenerator().addProvider(
                     true,
+                    new CustomArmorSetTintedLayers.Provider(
+                            output,
+                            ModelSets.customArmorSetTintedLayers()
+                    )
+            );
+
+            event.getGenerator().addProvider(
+                    true,
                     new MusavaccaTreeFeatureProvider(output)
             );
 
@@ -135,18 +143,13 @@ public final class ModDataGenerators {
     *///?}
 
     //? if >=1.21.4 {
-    /**
-     * 1.21.4+: unified model datagen through ModModelProvider.
-     */
     public static void gatherData(final GatherDataEvent.Client event) {
-        // Client generators
         event.createProvider(
                 output -> new ModLanguageProvider(output, "en_us")
         );
 
         event.createProvider(ModModelProvider::new);
 
-        // Server/datapack generators
         event.createProvider(ModRecipeProvider.Runner::new);
 
         //? if >=1.21.6 {
@@ -163,6 +166,13 @@ public final class ModDataGenerators {
                 output -> new CustomArmorSet.Provider(
                         output,
                         ModelSets.customArmorSets()
+                )
+        );
+
+        event.createProvider(
+                output -> new CustomArmorSetTintedLayers.Provider(
+                        output,
+                        ModelSets.customArmorSetTintedLayers()
                 )
         );
 

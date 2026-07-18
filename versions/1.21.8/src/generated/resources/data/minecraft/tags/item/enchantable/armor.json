@@ -3,6 +3,10 @@
     "musavacca:potassium_helmet",
     "musavacca:potassium_chestplate",
     "musavacca:potassium_leggings",
-    "musavacca:potassium_boots"
+    "musavacca:potassium_boots",
+    "musavacca:imbued_potassium_helmet",
+    "musavacca:imbued_potassium_chestplate",
+    "musavacca:imbued_potassium_leggings",
+    "musavacca:imbued_potassium_boots"
   ]
 }

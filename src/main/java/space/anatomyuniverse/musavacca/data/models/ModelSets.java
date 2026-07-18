@@ -223,6 +223,24 @@ public final class ModelSets {
         };
     }
 
+    public static CustomArmorSetTintedLayers.Entry[]
+    customArmorSetTintedLayers() {
+        return new CustomArmorSetTintedLayers.Entry[] {
+                CustomArmorSetTintedLayers.fullyTintedFolder(
+                        ModItems.IMBUED_POTASSIUM_HELMET.get(),
+                        ModItems.IMBUED_POTASSIUM_CHESTPLATE.get(),
+                        ModItems.IMBUED_POTASSIUM_LEGGINGS.get(),
+                        ModItems.IMBUED_POTASSIUM_BOOTS.get(),
+                        "musavacca:imbued_potassium",
+                        "musavacca:imbued_potassium/imbued_potassium",
+                        "musavacca:item/imbued_potassium_helmet_model",
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_ARMOR_ITEMS,
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_HELMET,
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_ARMOR
+                )
+        };
+    }
+
     public static Map<Block, PanePortalBlockTinted15.Entry> panePortalBlockTinted15Models() {
         return Map.of(
                 ModBlocks.PEARL_PORTAL.get(),
