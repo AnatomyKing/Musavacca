@@ -25,13 +25,6 @@ public final class ProfileHexColorItemTintSource
     //? if >=1.21.4 {
     public static final int PASSTHROUGH_LAYER = -1;
 
-    /*
-     * foil_carrier defaults to true so old generated JSON keeps
-     * normal vanilla glint behaviour until datagen is rerun.
-     *
-     * Composite overlay children explicitly write:
-     *     "foil_carrier": false
-     */
     public static final MapCodec<ProfileHexColorItemTintSource> MAP_CODEC =
             RecordCodecBuilder.mapCodec(instance -> instance.group(
                     Codec.INT
@@ -50,6 +43,11 @@ public final class ProfileHexColorItemTintSource
                                     ProfileHexColorItemTintSource::colorJumpiness
                             ),
                     Codec.FLOAT
+                            .fieldOf("color_amount_take_over")
+                            .forGetter(
+                                    ProfileHexColorItemTintSource::colorAmountTakeOver
+                            ),
+                    Codec.FLOAT
                             .fieldOf("layer_contrast")
                             .forGetter(
                                     ProfileHexColorItemTintSource::layerContrast
@@ -61,10 +59,7 @@ public final class ProfileHexColorItemTintSource
                                     ProfileHexColorItemTintSource::grayFactors
                             ),
                     Codec.BOOL
-                            .optionalFieldOf(
-                                    "foil_carrier",
-                                    true
-                            )
+                            .fieldOf("foil_carrier")
                             .forGetter(
                                     ProfileHexColorItemTintSource::isFoilCarrier
                             )
@@ -78,23 +73,6 @@ public final class ProfileHexColorItemTintSource
     private final List<Float> grayFactors;
     private final boolean foilCarrier;
 
-    /*
-     * Backwards-compatible factory.
-     *
-     * A standalone model using this overload keeps normal foil.
-     */
-    public static ProfileHexColorItemTintSource noTint(
-            PearlFireTintProfiles.Profile profile
-    ) {
-        return noTint(
-                profile,
-                true
-        );
-    }
-
-    /*
-     * Explicit factory used by layered item generation.
-     */
     public static ProfileHexColorItemTintSource noTint(
             PearlFireTintProfiles.Profile profile,
             boolean foilCarrier
@@ -106,25 +84,6 @@ public final class ProfileHexColorItemTintSource
         );
     }
 
-    /*
-     * Backwards-compatible factory.
-     *
-     * A standalone model using this overload keeps normal foil.
-     */
-    public static ProfileHexColorItemTintSource of(
-            int layerIndex,
-            PearlFireTintProfiles.Profile profile
-    ) {
-        return of(
-                layerIndex,
-                profile,
-                true
-        );
-    }
-
-    /*
-     * Explicit factory used by layered item generation.
-     */
     public static ProfileHexColorItemTintSource of(
             int layerIndex,
             PearlFireTintProfiles.Profile profile,
@@ -154,14 +113,11 @@ public final class ProfileHexColorItemTintSource
         this.foilCarrier = foilCarrier;
     }
 
-    /*
-     * Constructor used by MAP_CODEC when the generated item JSON
-     * is decoded by Minecraft.
-     */
     private ProfileHexColorItemTintSource(
             int layerIndex,
             float coreToTailLightness,
             float colorJumpiness,
+            float colorAmountTakeOver,
             float layerContrast,
             List<Float> grayFactors,
             boolean foilCarrier
@@ -174,6 +130,7 @@ public final class ProfileHexColorItemTintSource
                 new PearlFireTintProfiles.Settings(
                         coreToTailLightness,
                         colorJumpiness,
+                        colorAmountTakeOver,
                         layerContrast
                 ),
                 grayFactorsAsArray(this.grayFactors)
@@ -184,16 +141,6 @@ public final class ProfileHexColorItemTintSource
         return this.layerIndex;
     }
 
-    /*
-     * Read by BlockModelWrapperMixin.
-     *
-     * true:
-     *     This model child receives normal enchantment foil.
-     *
-     * false:
-     *     This model child still renders and tints normally,
-     *     but cannot add another overlapping foil pass.
-     */
     public boolean isFoilCarrier() {
         return this.foilCarrier;
     }
@@ -204,6 +151,10 @@ public final class ProfileHexColorItemTintSource
 
     private float colorJumpiness() {
         return this.profile.colorJumpiness();
+    }
+
+    private float colorAmountTakeOver() {
+        return this.profile.colorAmountTakeOver();
     }
 
     private float layerContrast() {
@@ -220,16 +171,10 @@ public final class ProfileHexColorItemTintSource
             @Nullable ClientLevel level,
             @Nullable LivingEntity entity
     ) {
-        /*
-         * Negative layer = passthrough/no visual tint.
-         */
         if (this.layerIndex < 0) {
             return TintColorUtil.NO_TINT;
         }
 
-        /*
-         * No HEX_COLOR component means no visual tint.
-         */
         Integer savedHex =
                 stack.get(
                         ModDataComponents.HEX_COLOR.get()
@@ -255,16 +200,10 @@ public final class ProfileHexColorItemTintSource
             PearlFireTintProfiles.Profile profile
     ) {
         float[] factors = profile.grayFactors();
-
-        List<Float> list =
-                new ArrayList<>(
-                        factors.length
-                );
+        List<Float> list = new ArrayList<>(factors.length);
 
         for (float factor : factors) {
-            list.add(
-                    clamp01(factor)
-            );
+            list.add(clamp01(factor));
         }
 
         return List.copyOf(list);
@@ -279,19 +218,16 @@ public final class ProfileHexColorItemTintSource
             );
         }
 
-        List<Float> list =
-                new ArrayList<>(
-                        input.size()
-                );
+        List<Float> list = new ArrayList<>(input.size());
 
         for (Float value : input) {
-            list.add(
-                    clamp01(
-                            value == null
-                                    ? 1.0F
-                                    : value
-                    )
-            );
+            if (value == null) {
+                throw new IllegalArgumentException(
+                        "grayFactors must not contain null"
+                );
+            }
+
+            list.add(clamp01(value));
         }
 
         return List.copyOf(list);
@@ -300,33 +236,17 @@ public final class ProfileHexColorItemTintSource
     private static float[] grayFactorsAsArray(
             List<Float> input
     ) {
-        float[] array =
-                new float[input.size()];
+        float[] array = new float[input.size()];
 
-        for (
-                int index = 0;
-                index < input.size();
-                ++index
-        ) {
-            array[index] =
-                    clamp01(
-                            input.get(index)
-                    );
+        for (int index = 0; index < input.size(); ++index) {
+            array[index] = clamp01(input.get(index));
         }
 
         return array;
     }
 
-    private static float clamp01(
-            float value
-    ) {
-        return Math.max(
-                0.0F,
-                Math.min(
-                        1.0F,
-                        value
-                )
-        );
+    private static float clamp01(float value) {
+        return Math.max(0.0F, Math.min(1.0F, value));
     }
     //?}
 }

@@ -18,27 +18,41 @@ public final class HexColorItemTintSource
         implements ItemTintSource {
     //?}
 
-    public static final HexColorItemTintSource INSTANCE = new HexColorItemTintSource();
+    public static final HexColorItemTintSource INSTANCE =
+            new HexColorItemTintSource();
 
     //? if >=1.21.4 {
-    public static final MapCodec<HexColorItemTintSource> MAP_CODEC = MapCodec.unit(INSTANCE);
+    public static final MapCodec<HexColorItemTintSource> MAP_CODEC =
+            MapCodec.unit(INSTANCE);
     //?}
 
     private HexColorItemTintSource() {}
 
     //? if >=1.21.4 {
     @Override
-    public int calculate(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity) {
-        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+    public int calculate(
+            ItemStack stack,
+            @Nullable ClientLevel level,
+            @Nullable LivingEntity entity
+    ) {
+        Integer savedHex =
+                stack.get(
+                        ModDataComponents.HEX_COLOR.get()
+                );
+
         if (savedHex != null) {
             return TintColorUtil.opaqueRgb(savedHex);
         }
 
         if (stack.getItem() instanceof FlintAndPearlItem) {
-            return TintColorUtil.opaqueRgb(FlintAndPearlItem.DEFAULT_HEX_COLOR);
+            return TintColorUtil.opaqueRgb(
+                    FlintAndPearlItem.DEFAULT_HEX_COLOR
+            );
         }
 
-        return TintColorUtil.opaqueRgb(TintColorUtil.defaultHexBlockItemTint());
+        return TintColorUtil.opaqueRgb(
+                TintColorUtil.defaultHexBlockItemTint()
+        );
     }
 
     @Override

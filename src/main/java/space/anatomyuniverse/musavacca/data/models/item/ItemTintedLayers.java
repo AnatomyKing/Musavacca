@@ -238,7 +238,6 @@ public final class ItemTintedLayers {
         }
     }
 
-    // Root textures with an unnumbered, untinted base.
     public static Entry root(
             ItemLike item,
             PearlFireTintProfiles.Profile profile
@@ -254,7 +253,6 @@ public final class ItemTintedLayers {
         );
     }
 
-    // Root textures where every numbered texture is tinted.
     public static Entry fullyTintedRoot(
             ItemLike item,
             PearlFireTintProfiles.Profile profile
@@ -270,7 +268,6 @@ public final class ItemTintedLayers {
         );
     }
 
-    // Folder textures with the untinted base in the folder.
     public static Entry folder(
             ItemLike item,
             PearlFireTintProfiles.Profile profile
@@ -286,7 +283,6 @@ public final class ItemTintedLayers {
         );
     }
 
-    // Folder textures where every numbered texture is tinted.
     public static Entry fullyTintedFolder(
             ItemLike item,
             PearlFireTintProfiles.Profile profile
@@ -302,7 +298,6 @@ public final class ItemTintedLayers {
         );
     }
 
-    // Custom paths with an untinted base.
     public static Entry of(
             ItemLike item,
             String modelStem,
@@ -318,7 +313,6 @@ public final class ItemTintedLayers {
         );
     }
 
-    // Custom paths where every numbered texture is tinted.
     public static Entry fullyTintedOf(
             ItemLike item,
             String modelStem,
@@ -371,7 +365,6 @@ public final class ItemTintedLayers {
                 itemModels.mcLoc("item/generated")
         );
 
-        // More than five layers uses NeoForge's unlimited loader.
         if (entry.usesLayerBypass()) {
             builder.customLoader(
                     ItemLayerModelBuilder::begin
@@ -532,7 +525,8 @@ public final class ItemTintedLayers {
             sources.add(
                     tintSource(
                             entry,
-                            modelLayer
+                            modelLayer,
+                            true
                     )
             );
         }
@@ -586,7 +580,8 @@ public final class ItemTintedLayers {
                             List.of(
                                     tintSource(
                                             entry,
-                                            modelLayer
+                                            modelLayer,
+                                            modelLayer == 0
                                     )
                             )
                     )
@@ -598,11 +593,13 @@ public final class ItemTintedLayers {
 
     private static ItemTintSource tintSource(
             Entry entry,
-            int modelLayer
+            int modelLayer,
+            boolean foilCarrier
     ) {
         if (entry.isUntintedBaseLayer(modelLayer)) {
             return ProfileHexColorItemTintSource.noTint(
-                    entry.profile()
+                    entry.profile(),
+                    foilCarrier
             );
         }
 
@@ -610,7 +607,8 @@ public final class ItemTintedLayers {
                 entry.profileLayerForModelLayer(
                         modelLayer
                 ),
-                entry.profile()
+                entry.profile(),
+                foilCarrier
         );
     }
     //?}

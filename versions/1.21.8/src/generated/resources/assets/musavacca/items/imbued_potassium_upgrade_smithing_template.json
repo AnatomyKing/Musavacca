@@ -5,51 +5,59 @@
     "tints": [
       {
         "type": "musavacca:profile_hex_color",
-        "color_jumpiness": 0.15,
-        "core_to_tail_lightness": 0.16,
+        "color_amount_take_over": 0.21,
+        "color_jumpiness": 0.5,
+        "core_to_tail_lightness": 0.8,
+        "foil_carrier": true,
         "gray_factors": [
           0.95686275,
           0.89411765,
           0.7921569
         ],
         "layer": -1,
-        "layer_contrast": 0.46
+        "layer_contrast": 1.21
       },
       {
         "type": "musavacca:profile_hex_color",
-        "color_jumpiness": 0.15,
-        "core_to_tail_lightness": 0.16,
+        "color_amount_take_over": 0.21,
+        "color_jumpiness": 0.5,
+        "core_to_tail_lightness": 0.8,
+        "foil_carrier": true,
         "gray_factors": [
           0.95686275,
           0.89411765,
           0.7921569
         ],
         "layer": 0,
-        "layer_contrast": 0.46
+        "layer_contrast": 1.21
       },
       {
         "type": "musavacca:profile_hex_color",
-        "color_jumpiness": 0.15,
-        "core_to_tail_lightness": 0.16,
+        "color_amount_take_over": 0.21,
+        "color_jumpiness": 0.5,
+        "core_to_tail_lightness": 0.8,
+        "foil_carrier": true,
         "gray_factors": [
           0.95686275,
           0.89411765,
           0.7921569
         ],
         "layer": 1,
-        "layer_contrast": 0.46
+        "layer_contrast": 1.21
       },
       {
         "type": "musavacca:profile_hex_color",
-        "color_jumpiness": 0.15,
-        "core_to_tail_lightness": 0.16,
+        "color_amount_take_over": 0.21,
+        "color_jumpiness": 0.5,
+        "core_to_tail_lightness": 0.8,
+        "foil_carrier": true,
         "gray_factors": [
           0.95686275,
           0.89411765,
           0.7921569
         ],
         "layer": 2,
-        "layer_contrast": 0.46
+        "layer_contrast": 1.21
       }
     ]
   }

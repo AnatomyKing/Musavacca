@@ -438,13 +438,6 @@ public final class HandheldItemsTintedLayers {
             ItemModelGenerators items,
             Entry entry
     ) {
-        /*
-         * Always use a composite for these profile-tinted items.
-         *
-         * This gives every texture its own BlockModelWrapper,
-         * allowing BlockModelWrapperMixin to disable foil on
-         * every child except model layer 0.
-         */
         generateCompositeLayeredItem(
                 items,
                 entry
@@ -505,7 +498,8 @@ public final class HandheldItemsTintedLayers {
                             List.of(
                                     tintSource(
                                             entry,
-                                            modelLayer
+                                            modelLayer,
+                                            modelLayer == 0
                                     )
                             )
                     )
@@ -517,15 +511,9 @@ public final class HandheldItemsTintedLayers {
 
     private static ItemTintSource tintSource(
             Entry entry,
-            int modelLayer
+            int modelLayer,
+            boolean foilCarrier
     ) {
-        /*
-         * The first model child is the only child allowed
-         * to carry enchantment foil.
-         */
-        boolean foilCarrier =
-                modelLayer == 0;
-
         if (
                 entry.isUntintedBaseLayer(
                         modelLayer

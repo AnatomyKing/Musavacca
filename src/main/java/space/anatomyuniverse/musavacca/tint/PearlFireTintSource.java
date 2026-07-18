@@ -1,9 +1,9 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/PearlFireTintSource.java
 package space.anatomyuniverse.musavacca.tint;
 
 public final class PearlFireTintSource {
     private static final float EPS = 0.0005F;
     private static final float TAU = 6.2831855F;
+    private static final float FULL_COLOR_LIGHTNESS_REMAINDER = 0.15F;
 
     private PearlFireTintSource() {}
 
@@ -36,7 +36,11 @@ public final class PearlFireTintSource {
     private static int desiredLayerRgb(int baseRgb, float t, PearlFireTintProfiles.Profile profile) {
         t = clamp01(t);
 
-        float whiteCore = clamp01(profile.coreToTailLightness());
+        float configuredWhiteCore = clamp01(profile.coreToTailLightness());
+        float colorAmountTakeOver = clamp01(profile.colorAmountTakeOver());
+        float whiteCore = configuredWhiteCore
+                * mix(1.0F, FULL_COLOR_LIGHTNESS_REMAINDER, colorAmountTakeOver);
+        float colorWhiteCore = configuredWhiteCore * (1.0F - colorAmountTakeOver);
         float jumpiness = Math.max(0.0F, profile.colorJumpiness());
         float layerContrast = Math.max(0.0F, profile.layerContrast());
 
@@ -218,12 +222,12 @@ public final class PearlFireTintSource {
 
         l = clamp01(l);
 
-        float whiteKill = whiteCore * core;
+        float colorWhiteKill = colorWhiteCore * core;
 
         float hotChromaRamp = mix(
                 0.72F + (0.16F * core) + (0.12F * ramp),
                 smooth((t + 0.010F) / 0.455F),
-                whiteCore
+                colorWhiteCore
         );
 
         float bodyBoost = 1.0F
@@ -240,7 +244,7 @@ public final class PearlFireTintSource {
 
         float tailHold = 1.0F
                 + tail
-                * (0.026F + (0.030F * (1.0F - whiteCore)) + (0.040F * inkTail) + (0.018F * glowTail))
+                * (0.026F + (0.030F * (1.0F - colorWhiteCore)) + (0.040F * inkTail) + (0.018F * glowTail))
                 * (1.0F + (0.42F * jumpCurve));
 
         float colorHold = 1.0F
@@ -253,26 +257,26 @@ public final class PearlFireTintSource {
                 + ink
                 * (0.075F + (0.125F * chromaStrength))
                 * (0.35F + (0.65F * bodyWeight) + (0.30F * tail))
-                * (1.0F - (0.45F * whiteKill))
+                * (1.0F - (0.45F * colorWhiteKill))
                 + glow
                 * hasColor
                 * (0.040F + (0.075F * chromaStrength) + (0.055F * (1.0F - chromaStrength) * bodyWeight))
-                * (1.0F - (0.40F * whiteKill));
+                * (1.0F - (0.40F * colorWhiteKill));
 
         float c = ((baseC * bodyBoost) + lowChromaRescue)
                 * hotChromaRamp
-                * (1.0F - (0.285F * whiteKill))
+                * (1.0F - (0.285F * colorWhiteKill))
                 * tailHold
                 * colorHold
                 * toneColorHold
-                * (1.0F - (0.014F * tail * whiteCore))
+                * (1.0F - (0.014F * tail * colorWhiteCore))
                 * (1.0F + (0.014F * chromaStrength * bodyWeight));
 
         c = Math.max(c,
                 baseC
                         * hotChromaRamp
                         * (0.900F + (0.100F * body))
-                        * (1.0F - (0.240F * whiteKill))
+                        * (1.0F - (0.240F * colorWhiteKill))
                         * (1.0F - (0.006F * tail))
                         * (1.0F - (0.040F * gamutPressure * core))
                         * (1.0F + (0.095F * ink * (1.0F - core)))
@@ -316,7 +320,8 @@ public final class PearlFireTintSource {
                 * secondary
                 * ((0.14F * core) + (0.07F * body) - (0.36F * tail));
 
-        float h = wrap360(baseH + (((arc + swing + harmonic) * travel * jumpScale) + waveJump(t, baseH, body, tail, jumpiness)));
+        float h = wrap360(baseH + (((arc + swing + harmonic) * travel * jumpScale)
+                + waveJump(t, baseH, body, tail, jumpiness)));
 
         float anchor = 0.255F
                 + (0.090F * core)
@@ -334,6 +339,7 @@ public final class PearlFireTintSource {
 
     private static float waveJump(float t, float hue, float body, float tail, float jumpiness) {
         float extra = Math.max(0.0F, jumpiness - 0.5F);
+
         if (extra <= 0.0F) {
             return 0.0F;
         }
@@ -382,6 +388,7 @@ public final class PearlFireTintSource {
         h = wrap360(h);
 
         float[] direct = oklchToLinearRgb(l, c, h);
+
         if (inGamut(direct)) {
             return linearRgbToInt(direct[0], direct[1], direct[2]);
         }
