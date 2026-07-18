@@ -1,18 +1,41 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "misc",
-  "key": {
-    "A": "musavacca:imbued_potassium_upgrade_smithing_template",
-    "P": "musavacca:musavacca_planks",
-    "x": "minecraft:diamond"
+  "type": "musavacca:component_shaped",
+  "base": {
+    "category": "misc",
+    "key": {
+      "A": "musavacca:imbued_potassium_upgrade_smithing_template",
+      "P": "musavacca:musavacca_planks",
+      "x": "minecraft:diamond"
+    },
+    "pattern": [
+      "xAx",
+      "xPx",
+      "xxx"
+    ],
+    "result": {
+      "count": 2,
+      "id": "musavacca:imbued_potassium_upgrade_smithing_template"
+    }
   },
-  "pattern": [
-    "xAx",
-    "xPx",
-    "xxx"
-  ],
-  "result": {
-    "count": 2,
-    "id": "musavacca:imbued_potassium_upgrade_smithing_template"
-  }
+  "sources": [
+    {
+      "ingredient": "musavacca:imbued_potassium_upgrade_smithing_template",
+      "rules": [
+        {
+          "required": true,
+          "selection": {
+            "component": "musavacca:hex_color"
+          },
+          "transfer": false
+        },
+        {
+          "required": false,
+          "selection": {
+            "component": "musavacca:hex_color"
+          },
+          "transfer": true
+        }
+      ]
+    }
+  ]
 }

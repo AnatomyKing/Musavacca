@@ -1,7 +1,10 @@
 license = "CC0-1.0"
 
-modLoader="javafml"
-loaderVersion="[1,)"
+modLoader = "javafml"
+loaderVersion = "[1,)"
+
+[[mixins]]
+config = "musavacca.mixins.json"
 
 [[mods]]
 modId = "${id}"
@@ -14,7 +17,6 @@ logoFile = "assets/${id}/icon.png"
 
 #displayURL = "..."
 #issueTrackerUrl = "..."
-
 
 [[dependencies."${id}"]]
 modId = "minecraft"

@@ -263,6 +263,32 @@ public final class ModelSets {
         };
     }
 
+    public static HandheldItemsTintedLayers.Entry[] handheldItemsTintedLayers() {
+        return new HandheldItemsTintedLayers.Entry[] {
+                HandheldItemsTintedLayers.fullyTintedFolder(
+                        ModItems.IMBUED_POTASSIUM_AXE.get(),
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                ),
+                HandheldItemsTintedLayers.fullyTintedFolder(
+                        ModItems.IMBUED_POTASSIUM_PICKAXE.get(),
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                ),
+                HandheldItemsTintedLayers.fullyTintedFolder(
+                        ModItems.IMBUED_POTASSIUM_SHOVEL.get(),
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                ),
+                HandheldItemsTintedLayers.fullyTintedFolder(
+                        ModItems.IMBUED_POTASSIUM_SWORD.get(),
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                ),
+                HandheldItemsTintedLayers.fullyTintedFolder(
+                        ModItems.IMBUED_POTASSIUM_HOE.get(),
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                )
+        };
+    }
+
+
     public static CustomItemModel.Entry[] customItemModels() {
         return new CustomItemModel.Entry[] {
                 CustomItemModel.of(

@@ -1,0 +1,35 @@
+{
+  "type": "musavacca:component_smithing_transform",
+  "base": {
+    "addition": "musavacca:potassium_ingot",
+    "base": "minecraft:diamond_hoe",
+    "result": {
+      "id": "musavacca:imbued_potassium_hoe"
+    },
+    "template": "musavacca:imbued_potassium_upgrade_smithing_template"
+  },
+  "sources": [
+    {
+      "slot": 0,
+      "source": {
+        "ingredient": "musavacca:imbued_potassium_upgrade_smithing_template",
+        "rules": [
+          {
+            "required": true,
+            "selection": {
+              "component": "musavacca:hex_color"
+            },
+            "transfer": false
+          },
+          {
+            "required": false,
+            "selection": {
+              "component": "musavacca:hex_color"
+            },
+            "transfer": true
+          }
+        ]
+      }
+    }
+  ]
+}

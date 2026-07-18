@@ -1,6 +1,8 @@
 {
   "values": [
     "musavacca:potassium_sword",
-    "musavacca:potassium_axe"
+    "musavacca:potassium_axe",
+    "musavacca:imbued_potassium_sword",
+    "musavacca:imbued_potassium_axe"
   ]
 }

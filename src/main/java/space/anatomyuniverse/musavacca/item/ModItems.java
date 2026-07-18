@@ -217,6 +217,48 @@ public final class ModItems {
                                     )
                     ));
 
+    public static final DeferredItem<Item> IMBUED_POTASSIUM_SWORD =
+            ITEMS.registerItem("imbued_potassium_sword",
+                    props -> new PotassiumItem(
+                            props.sword(POTASSIUM_TOOL_MATERIAL, 3.0F, -2.4F)
+                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
+                    ));
+
+    public static final DeferredItem<Item> IMBUED_POTASSIUM_SHOVEL =
+            ITEMS.registerItem("imbued_potassium_shovel",
+                    props -> new PotassiumShovelItem(
+                            POTASSIUM_TOOL_MATERIAL,
+                            1.5F,
+                            -3.0F,
+                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
+                    ));
+
+    public static final DeferredItem<Item> IMBUED_POTASSIUM_PICKAXE =
+            ITEMS.registerItem("imbued_potassium_pickaxe",
+                    props -> new PotassiumItem(
+                            props.pickaxe(POTASSIUM_TOOL_MATERIAL, 1.0F, -2.8F)
+                                    .food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
+                    ));
+
+    public static final DeferredItem<Item> IMBUED_POTASSIUM_AXE =
+            ITEMS.registerItem("imbued_potassium_axe",
+                    props -> new PotassiumAxeItem(
+                            POTASSIUM_TOOL_MATERIAL,
+                            5.0F,
+                            -3.0F,
+                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
+                    ));
+
+    public static final DeferredItem<Item> IMBUED_POTASSIUM_HOE =
+            ITEMS.registerItem("imbued_potassium_hoe",
+                    props -> new PotassiumHoeItem(
+                            POTASSIUM_TOOL_MATERIAL,
+                            -3.5F,
+                            0.0F,
+                            props.food(POTASSIUM_FOOD, POTASSIUM_CONSUMABLE)
+                    ));
+
+
     public static final DeferredItem<Item> POTASSIUM_INGOT =
             ITEMS.registerItem("potassium_ingot", Item::new);
 

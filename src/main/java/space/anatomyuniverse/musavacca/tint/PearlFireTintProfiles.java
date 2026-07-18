@@ -22,13 +22,44 @@ public final class PearlFireTintProfiles {
 
     public static final Profile FLINT_AND_PEARL = of(
             settings(
-                    0.33F,   // coreToTailLightness
+                    1.0F,   // coreToTailLightness
+                    0.5F,  // colorJumpiness
+                    1.21F   // layerContrast
+            ),
+            252, 242, 232, 222, 211, 201, 192, 182,
+            172, 162, 151, 142, 0
+    );
+
+    public static final Profile IMBUED_POTASSIUM_TOOLS = of(
+            settings(
+                    0.36F,   // coreToTailLightness
+                    0.64F,  // colorJumpiness
+                    0.46F   // layerContrast
+            ),
+            255, 241, 215, 187, 155, 120, 87, 68,
+            51
+    );
+
+    public static final Profile IMBUED_POTASSIUM_ARMOR = of(
+            settings(
+                    0.62F,   // coreToTailLightness
                     0.32F,  // colorJumpiness
                     0.98F   // layerContrast
             ),
-            228, 217, 207, 195, 184, 174, 163, 152,
-            102, 76, 60, 46, 0
+            239, 223, 204, 186, 164, 145, 117
     );
+
+    public static final Profile IMBUED_POTASSIUM_HELMET = of(
+            settings(
+                    0.62F,   // coreToTailLightness
+                    0.32F,  // colorJumpiness
+                    0.98F   // layerContrast
+            ),
+            239, 223, 204, 186, 164, 145, 117, 87,
+            75, 68, 54
+    );
+
+
 
     public static final Profile SIM_CARD_TINT = of(
             settings(

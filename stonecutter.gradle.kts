@@ -3,7 +3,7 @@ import java.io.File
 
 plugins {
     id("dev.kikugie.stonecutter")
-    id("net.neoforged.moddev") version "2.0.119" apply false
+    id("net.neoforged.moddev") version "2.0.141" apply false
 }
 
 stonecutter active "1.21.8"

@@ -1,0 +1,231 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/imbued_potassium_pickaxe_layer_0",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.64,
+            "core_to_tail_lightness": 0.36,
+            "gray_factors": [
+              1.0,
+              0.94509804,
+              0.84313726,
+              0.73333335,
+              0.60784316,
+              0.47058824,
+              0.34117648,
+              0.26666668,
+              0.2
+            ],
+            "layer": 0,
+            "layer_contrast": 0.46
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/imbued_potassium_pickaxe_layer_1",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.64,
+            "core_to_tail_lightness": 0.36,
+            "foil_carrier": false,
+            "gray_factors": [
+              1.0,
+              0.94509804,
+              0.84313726,
+              0.73333335,
+              0.60784316,
+              0.47058824,
+              0.34117648,
+              0.26666668,
+              0.2
+            ],
+            "layer": 1,
+            "layer_contrast": 0.46
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/imbued_potassium_pickaxe_layer_2",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.64,
+            "core_to_tail_lightness": 0.36,
+            "foil_carrier": false,
+            "gray_factors": [
+              1.0,
+              0.94509804,
+              0.84313726,
+              0.73333335,
+              0.60784316,
+              0.47058824,
+              0.34117648,
+              0.26666668,
+              0.2
+            ],
+            "layer": 2,
+            "layer_contrast": 0.46
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/imbued_potassium_pickaxe_layer_3",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.64,
+            "core_to_tail_lightness": 0.36,
+            "foil_carrier": false,
+            "gray_factors": [
+              1.0,
+              0.94509804,
+              0.84313726,
+              0.73333335,
+              0.60784316,
+              0.47058824,
+              0.34117648,
+              0.26666668,
+              0.2
+            ],
+            "layer": 3,
+            "layer_contrast": 0.46
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/imbued_potassium_pickaxe_layer_4",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.64,
+            "core_to_tail_lightness": 0.36,
+            "foil_carrier": false,
+            "gray_factors": [
+              1.0,
+              0.94509804,
+              0.84313726,
+              0.73333335,
+              0.60784316,
+              0.47058824,
+              0.34117648,
+              0.26666668,
+              0.2
+            ],
+            "layer": 4,
+            "layer_contrast": 0.46
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/imbued_potassium_pickaxe_layer_5",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.64,
+            "core_to_tail_lightness": 0.36,
+            "foil_carrier": false,
+            "gray_factors": [
+              1.0,
+              0.94509804,
+              0.84313726,
+              0.73333335,
+              0.60784316,
+              0.47058824,
+              0.34117648,
+              0.26666668,
+              0.2
+            ],
+            "layer": 5,
+            "layer_contrast": 0.46
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/imbued_potassium_pickaxe_layer_6",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.64,
+            "core_to_tail_lightness": 0.36,
+            "foil_carrier": false,
+            "gray_factors": [
+              1.0,
+              0.94509804,
+              0.84313726,
+              0.73333335,
+              0.60784316,
+              0.47058824,
+              0.34117648,
+              0.26666668,
+              0.2
+            ],
+            "layer": 6,
+            "layer_contrast": 0.46
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/imbued_potassium_pickaxe_layer_7",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.64,
+            "core_to_tail_lightness": 0.36,
+            "foil_carrier": false,
+            "gray_factors": [
+              1.0,
+              0.94509804,
+              0.84313726,
+              0.73333335,
+              0.60784316,
+              0.47058824,
+              0.34117648,
+              0.26666668,
+              0.2
+            ],
+            "layer": 7,
+            "layer_contrast": 0.46
+          }
+        ]
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/imbued_potassium_pickaxe_layer_8",
+        "tints": [
+          {
+            "type": "musavacca:profile_hex_color",
+            "color_jumpiness": 0.64,
+            "core_to_tail_lightness": 0.36,
+            "foil_carrier": false,
+            "gray_factors": [
+              1.0,
+              0.94509804,
+              0.84313726,
+              0.73333335,
+              0.60784316,
+              0.47058824,
+              0.34117648,
+              0.26666668,
+              0.2
+            ],
+            "layer": 8,
+            "layer_contrast": 0.46
+          }
+        ]
+      }
+    ]
+  }
+}
