@@ -2,8 +2,17 @@ package space.anatomyuniverse.musavacca.tint;
 
 public final class PearlFireTintSource {
     private static final float EPS = 0.0005F;
+    private static final float GAMUT_EPS = 0.00001F;
     private static final float TAU = 6.2831855F;
     private static final float FULL_COLOR_LIGHTNESS_REMAINDER = 0.15F;
+    private static final float GRAY_TONE_MIDPOINT = 0.32F;
+    private static final float PALETTE_ANCHOR_GRAY = 0.80F;
+    private static final float PALETTE_NEUTRAL_BLEND = 0.56F;
+    private static final float PALETTE_ADAPTIVE_TAKEOVER = 0.78F;
+    private static final float PALETTE_ACTIVATION_RANGE = 0.20F;
+    private static final float PALETTE_SHADOW_EXPONENT = 0.75F;
+    private static final float PALETTE_ANCHOR_LIGHTNESS =
+            perceptualGrayLightness(PALETTE_ANCHOR_GRAY);
 
     private PearlFireTintSource() {}
 
@@ -20,11 +29,36 @@ public final class PearlFireTintSource {
             return TintColorUtil.NO_TINT;
         }
 
-        int layerCount = profile.layerCount();
-        float t = layerCount <= 1 ? 0.0F : tintIndex / (float) (layerCount - 1);
-
-        int desired = desiredLayerRgb(TintColorUtil.rgb(baseRgb), t, profile);
         float gray = profile.grayFactor(tintIndex);
+
+        int layerCount = profile.layerCount();
+
+        float proceduralT = layerCount <= 1
+                ? 0.0F
+                : tintIndex
+                / (float) (layerCount - 1);
+
+        float paletteT =
+                grayTonePosition(gray);
+
+        float paletteActivation =
+                paletteActivation(
+                        profile.colorAmountTakeOver()
+                );
+
+        float t = mix(
+                proceduralT,
+                paletteT,
+                paletteActivation
+        );
+
+        int desired = desiredLayerRgb(
+                TintColorUtil.rgb(baseRgb),
+                t,
+                gray,
+                paletteActivation,
+                profile
+        );
 
         if (gray > 0.0F && gray < 1.0F) {
             desired = unMultiplyGray(desired, gray);
@@ -33,14 +67,25 @@ public final class PearlFireTintSource {
         return TintColorUtil.opaqueRgb(desired);
     }
 
-    private static int desiredLayerRgb(int baseRgb, float t, PearlFireTintProfiles.Profile profile) {
+    private static int desiredLayerRgb(
+            int baseRgb,
+            float t,
+            float grayFactor,
+            float paletteActivation,
+            PearlFireTintProfiles.Profile profile
+    ) {
         t = clamp01(t);
 
-        float configuredWhiteCore = clamp01(profile.coreToTailLightness());
+        float configuredWhiteCore =
+                Math.max(
+                        0.0F,
+                        profile.coreToTailLightness()
+                );
         float colorAmountTakeOver = clamp01(profile.colorAmountTakeOver());
         float whiteCore = configuredWhiteCore
                 * mix(1.0F, FULL_COLOR_LIGHTNESS_REMAINDER, colorAmountTakeOver);
         float colorWhiteCore = configuredWhiteCore * (1.0F - colorAmountTakeOver);
+        float vibrancyDarkening = clamp01(profile.vibrancyDarkening());
         float jumpiness = Math.max(0.0F, profile.colorJumpiness());
         float layerContrast = Math.max(0.0F, profile.layerContrast());
 
@@ -220,6 +265,28 @@ public final class PearlFireTintSource {
                 contrastMask
         );
 
+        float sourceDarkness =
+                smooth((0.720F - baseL) / 0.620F);
+
+        float vibrancyDepth = clamp01(
+                sourceDarkness
+                        + ((1.0F - sourceDarkness)
+                        * vividness
+                        * (0.36F + (0.24F * chromaStrength)))
+        );
+
+        float vibrancyScale = mix(
+                1.0F,
+                0.18F + (0.32F * baseL),
+                vibrancyDepth
+        );
+
+        l *= mix(
+                1.0F,
+                vibrancyScale,
+                vibrancyDarkening
+        );
+
         l = clamp01(l);
 
         float colorWhiteKill = colorWhiteCore * core;
@@ -334,7 +401,126 @@ public final class PearlFireTintSource {
 
         h = angleMix(h, baseH, anchor);
 
+        float carrierL =
+                perceptualGrayLightness(grayFactor);
+
+        float structuredL;
+
+        if (carrierL >= PALETTE_ANCHOR_LIGHTNESS) {
+            structuredL = baseL
+                    + ((carrierL - PALETTE_ANCHOR_LIGHTNESS)
+                    * configuredWhiteCore);
+        } else {
+            float shadowRatio = carrierL
+                    / PALETTE_ANCHOR_LIGHTNESS;
+
+            float shadowExponent = mix(
+                    1.0F,
+                    1.0F + PALETTE_SHADOW_EXPONENT,
+                    vibrancyDarkening
+            );
+
+            structuredL = baseL
+                    * (float) Math.pow(
+                    shadowRatio,
+                    shadowExponent
+            );
+        }
+
+        structuredL = clamp01(
+                baseL
+                        + ((structuredL - baseL)
+                        * layerContrast)
+        );
+
+        float adaptiveTakeOver = colorAmountTakeOver
+                + ((1.0F - colorAmountTakeOver)
+                * sourceDarkness
+                * vividness
+                * PALETTE_ADAPTIVE_TAKEOVER
+                * paletteActivation);
+
+        float paletteBlend = clamp01(
+                adaptiveTakeOver
+                        * mix(
+                        PALETTE_NEUTRAL_BLEND,
+                        1.0F,
+                        vividness
+                )
+                        * paletteActivation
+        );
+
+        float baseChromaLimit =
+                gamutChromaLimit(baseL, baseH);
+
+        float relativeSaturation = baseChromaLimit <= EPS
+                ? 0.0F
+                : clamp01(baseC / baseChromaLimit);
+
+        float structuredChroma =
+                gamutChromaLimit(structuredL, baseH)
+                        * relativeSaturation;
+
+        l = mix(l, structuredL, paletteBlend);
+        c = mix(c, structuredChroma, paletteBlend);
+        h = angleMix(h, baseH, paletteBlend);
+
         return oklchToRgb(l, c, h);
+    }
+
+    private static float paletteActivation(
+            float colorAmountTakeOver
+    ) {
+        return smooth(
+                clamp01(
+                        colorAmountTakeOver
+                                / PALETTE_ACTIVATION_RANGE
+                )
+        );
+    }
+
+    private static float grayTonePosition(float grayFactor) {
+        float perceptualLightness =
+                perceptualGrayLightness(grayFactor);
+
+        float darkness = clamp01(
+                1.0F - perceptualLightness
+        );
+
+        float denominator = darkness
+                + (GRAY_TONE_MIDPOINT
+                * (1.0F - darkness));
+
+        return denominator <= 0.0F
+                ? 0.0F
+                : clamp01(darkness / denominator);
+    }
+
+    private static float perceptualGrayLightness(
+            float grayFactor
+    ) {
+        return (float) Math.cbrt(
+                srgbToLinear(
+                        clamp01(grayFactor)
+                )
+        );
+    }
+
+    private static float gamutChromaLimit(
+            float l,
+            float h
+    ) {
+        l = clamp01(l);
+
+        if (l <= EPS || l >= 1.0F - EPS) {
+            return 0.0F;
+        }
+
+        return maxChroma(
+                l,
+                0.5F,
+                h
+        );
     }
 
     private static float waveJump(float t, float hue, float body, float tail, float jumpiness) {
@@ -473,9 +659,12 @@ public final class PearlFireTintSource {
                 && Float.isFinite(rgb[0])
                 && Float.isFinite(rgb[1])
                 && Float.isFinite(rgb[2])
-                && rgb[0] >= 0.0F && rgb[0] <= 1.0F
-                && rgb[1] >= 0.0F && rgb[1] <= 1.0F
-                && rgb[2] >= 0.0F && rgb[2] <= 1.0F;
+                && rgb[0] >= -GAMUT_EPS
+                && rgb[0] <= 1.0F + GAMUT_EPS
+                && rgb[1] >= -GAMUT_EPS
+                && rgb[1] <= 1.0F + GAMUT_EPS
+                && rgb[2] >= -GAMUT_EPS
+                && rgb[2] <= 1.0F + GAMUT_EPS;
     }
 
     private static int linearRgbToInt(float r, float g, float b) {

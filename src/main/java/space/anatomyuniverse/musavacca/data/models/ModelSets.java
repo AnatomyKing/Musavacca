@@ -234,7 +234,7 @@ public final class ModelSets {
                         "musavacca:imbued_potassium",
                         "musavacca:imbued_potassium/imbued_potassium",
                         "musavacca:item/imbued_potassium_helmet_model",
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_ARMOR_ITEMS,
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS,
                         PearlFireTintProfiles.IMBUED_POTASSIUM_HELMET,
                         PearlFireTintProfiles.IMBUED_POTASSIUM_ARMOR
                 )
@@ -268,6 +268,7 @@ public final class ModelSets {
                 ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
                 ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
                 ModItems.BANANA_MILK_BUCKET.get(),
+                ModItems.MUSAVACCA_BOAT.get()
         };
     }
 
@@ -285,23 +286,23 @@ public final class ModelSets {
         return new HandheldItemsTintedLayers.Entry[] {
                 HandheldItemsTintedLayers.fullyTintedFolder(
                         ModItems.IMBUED_POTASSIUM_AXE.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
                 ),
                 HandheldItemsTintedLayers.fullyTintedFolder(
                         ModItems.IMBUED_POTASSIUM_PICKAXE.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
                 ),
                 HandheldItemsTintedLayers.fullyTintedFolder(
                         ModItems.IMBUED_POTASSIUM_SHOVEL.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
                 ),
                 HandheldItemsTintedLayers.fullyTintedFolder(
                         ModItems.IMBUED_POTASSIUM_SWORD.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
                 ),
                 HandheldItemsTintedLayers.fullyTintedFolder(
                         ModItems.IMBUED_POTASSIUM_HOE.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_TOOLS
+                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
                 )
         };
     }

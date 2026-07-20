@@ -37,6 +37,16 @@ public final class ModItems {
     public static final DeferredRegister.Items ITEMS =
             DeferredRegister.createItems(MusaCore.MOD_ID);
 
+    public static final DeferredItem<MusavaccaBoatItem>
+            MUSAVACCA_BOAT =
+            ITEMS.registerItem(
+                    "musavacca_boat",
+                    properties -> new MusavaccaBoatItem(
+                            ModEntities.MUSAVACCA_BOAT.get(),
+                            properties.stacksTo(1)
+                    )
+            );
+
     public static final TagKey<Item> REPAIRS_POTASSIUM_ARMOR =
             TagKey.create(
                     Registries.ITEM,

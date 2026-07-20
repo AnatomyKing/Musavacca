@@ -7,6 +7,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.entity.boat.musavacca.MusavaccaBoat;
 import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
@@ -43,6 +44,33 @@ public final class ModEntities {
                     *///?} else {
                     .build(net.minecraft.resources.ResourceKey.create(Registries.ENTITY_TYPE, registryName))
                      //?}
+            );
+
+    public static final Supplier<EntityType<MusavaccaBoat>>
+            MUSAVACCA_BOAT =
+            ENTITY_TYPES.register(
+                    "musavacca_boat",
+                    registryName -> EntityType.Builder
+                            .of(
+                                    MusavaccaBoat::new,
+                                    MobCategory.MISC
+                            )
+                            .sized(
+                                    MusavaccaBoat.HITBOX_WIDTH,
+                                    MusavaccaBoat.HITBOX_HEIGHT
+                            )
+                            .clientTrackingRange(10)
+                            .updateInterval(3)
+                            //? if <1.21.2 {
+                            /*.build(registryName.toString())
+                             *///?} else {
+                            .build(
+                                    net.minecraft.resources.ResourceKey.create(
+                                            Registries.ENTITY_TYPE,
+                                            registryName
+                                    )
+                            )
+                    //?}
             );
 
     public static void register(IEventBus modBus) {

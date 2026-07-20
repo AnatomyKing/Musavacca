@@ -25,55 +25,88 @@ public final class ProfileHexColorItemTintSource
     //? if >=1.21.4 {
     public static final int PASSTHROUGH_LAYER = -1;
 
-    public static final MapCodec<ProfileHexColorItemTintSource> MAP_CODEC =
-            RecordCodecBuilder.mapCodec(instance -> instance.group(
-                    Codec.INT
-                            .fieldOf("layer")
-                            .forGetter(
-                                    ProfileHexColorItemTintSource::layerIndex
-                            ),
-                    Codec.FLOAT
-                            .fieldOf("core_to_tail_lightness")
-                            .forGetter(
-                                    ProfileHexColorItemTintSource::coreToTailLightness
-                            ),
-                    Codec.FLOAT
-                            .fieldOf("color_jumpiness")
-                            .forGetter(
-                                    ProfileHexColorItemTintSource::colorJumpiness
-                            ),
-                    Codec.FLOAT
-                            .fieldOf("color_amount_take_over")
-                            .forGetter(
-                                    ProfileHexColorItemTintSource::colorAmountTakeOver
-                            ),
-                    Codec.FLOAT
-                            .fieldOf("layer_contrast")
-                            .forGetter(
-                                    ProfileHexColorItemTintSource::layerContrast
-                            ),
-                    Codec.FLOAT
-                            .listOf()
-                            .fieldOf("gray_factors")
-                            .forGetter(
-                                    ProfileHexColorItemTintSource::grayFactors
-                            ),
-                    Codec.BOOL
-                            .fieldOf("foil_carrier")
-                            .forGetter(
-                                    ProfileHexColorItemTintSource::isFoilCarrier
-                            )
-            ).apply(
-                    instance,
-                    ProfileHexColorItemTintSource::new
-            ));
+    public static final MapCodec<
+            ProfileHexColorItemTintSource
+            > MAP_CODEC =
+            RecordCodecBuilder.mapCodec(
+                    instance -> instance.group(
+                            Codec.INT
+                                    .fieldOf("layer")
+                                    .forGetter(
+                                            ProfileHexColorItemTintSource
+                                                    ::layerIndex
+                                    ),
+                            Codec.FLOAT
+                                    .fieldOf(
+                                            "core_to_tail_lightness"
+                                    )
+                                    .forGetter(
+                                            ProfileHexColorItemTintSource
+                                                    ::coreToTailLightness
+                                    ),
+                            Codec.FLOAT
+                                    .fieldOf(
+                                            "color_jumpiness"
+                                    )
+                                    .forGetter(
+                                            ProfileHexColorItemTintSource
+                                                    ::colorJumpiness
+                                    ),
+                            Codec.FLOAT
+                                    .fieldOf(
+                                            "color_amount_take_over"
+                                    )
+                                    .forGetter(
+                                            ProfileHexColorItemTintSource
+                                                    ::colorAmountTakeOver
+                                    ),
+                            Codec.FLOAT
+                                    .optionalFieldOf(
+                                            "vibrancy_darkening",
+                                            0.0F
+                                    )
+                                    .forGetter(
+                                            ProfileHexColorItemTintSource
+                                                    ::vibrancyDarkening
+                                    ),
+                            Codec.FLOAT
+                                    .fieldOf(
+                                            "layer_contrast"
+                                    )
+                                    .forGetter(
+                                            ProfileHexColorItemTintSource
+                                                    ::layerContrast
+                                    ),
+                            Codec.FLOAT
+                                    .listOf()
+                                    .fieldOf("gray_factors")
+                                    .forGetter(
+                                            ProfileHexColorItemTintSource
+                                                    ::grayFactors
+                                    ),
+                            Codec.BOOL
+                                    .fieldOf("foil_carrier")
+                                    .forGetter(
+                                            ProfileHexColorItemTintSource
+                                                    ::isFoilCarrier
+                                    )
+                    ).apply(
+                            instance,
+                            ProfileHexColorItemTintSource::new
+                    )
+            );
 
     private final int layerIndex;
-    private final PearlFireTintProfiles.Profile profile;
+
+    private final PearlFireTintProfiles.Profile
+            profile;
+
     private final List<Float> grayFactors;
+
     private final boolean foilCarrier;
 
-    public static ProfileHexColorItemTintSource noTint(
+    public static ProfileHexColorItemTintSource
+    noTint(
             PearlFireTintProfiles.Profile profile,
             boolean foilCarrier
     ) {
@@ -109,7 +142,10 @@ public final class ProfileHexColorItemTintSource
 
         this.layerIndex = layerIndex;
         this.profile = profile;
-        this.grayFactors = grayFactorsAsList(profile);
+
+        this.grayFactors =
+                grayFactorsAsList(profile);
+
         this.foilCarrier = foilCarrier;
     }
 
@@ -118,23 +154,31 @@ public final class ProfileHexColorItemTintSource
             float coreToTailLightness,
             float colorJumpiness,
             float colorAmountTakeOver,
+            float vibrancyDarkening,
             float layerContrast,
             List<Float> grayFactors,
             boolean foilCarrier
     ) {
         this.layerIndex = layerIndex;
-        this.grayFactors = sanitizeGrayFactors(grayFactors);
+
+        this.grayFactors =
+                sanitizeGrayFactors(grayFactors);
+
         this.foilCarrier = foilCarrier;
 
-        this.profile = new PearlFireTintProfiles.Profile(
-                new PearlFireTintProfiles.Settings(
-                        coreToTailLightness,
-                        colorJumpiness,
-                        colorAmountTakeOver,
-                        layerContrast
-                ),
-                grayFactorsAsArray(this.grayFactors)
-        );
+        this.profile =
+                new PearlFireTintProfiles.Profile(
+                        new PearlFireTintProfiles.Settings(
+                                coreToTailLightness,
+                                colorJumpiness,
+                                colorAmountTakeOver,
+                                vibrancyDarkening,
+                                layerContrast
+                        ),
+                        grayFactorsAsArray(
+                                this.grayFactors
+                        )
+                );
     }
 
     public int layerIndex() {
@@ -146,19 +190,28 @@ public final class ProfileHexColorItemTintSource
     }
 
     private float coreToTailLightness() {
-        return this.profile.coreToTailLightness();
+        return this.profile
+                .coreToTailLightness();
     }
 
     private float colorJumpiness() {
-        return this.profile.colorJumpiness();
+        return this.profile
+                .colorJumpiness();
     }
 
     private float colorAmountTakeOver() {
-        return this.profile.colorAmountTakeOver();
+        return this.profile
+                .colorAmountTakeOver();
+    }
+
+    private float vibrancyDarkening() {
+        return this.profile
+                .vibrancyDarkening();
     }
 
     private float layerContrast() {
-        return this.profile.layerContrast();
+        return this.profile
+                .layerContrast();
     }
 
     private List<Float> grayFactors() {
@@ -177,7 +230,9 @@ public final class ProfileHexColorItemTintSource
 
         Integer savedHex =
                 stack.get(
-                        ModDataComponents.HEX_COLOR.get()
+                        ModDataComponents
+                                .HEX_COLOR
+                                .get()
                 );
 
         if (savedHex == null) {
@@ -192,15 +247,20 @@ public final class ProfileHexColorItemTintSource
     }
 
     @Override
-    public MapCodec<ProfileHexColorItemTintSource> type() {
+    public MapCodec<
+            ProfileHexColorItemTintSource
+            > type() {
         return MAP_CODEC;
     }
 
-    private static List<Float> grayFactorsAsList(
+    private static List<Float>
+    grayFactorsAsList(
             PearlFireTintProfiles.Profile profile
     ) {
         float[] factors = profile.grayFactors();
-        List<Float> list = new ArrayList<>(factors.length);
+
+        List<Float> list =
+                new ArrayList<>(factors.length);
 
         for (float factor : factors) {
             list.add(clamp01(factor));
@@ -209,7 +269,8 @@ public final class ProfileHexColorItemTintSource
         return List.copyOf(list);
     }
 
-    private static List<Float> sanitizeGrayFactors(
+    private static List<Float>
+    sanitizeGrayFactors(
             List<Float> input
     ) {
         if (input == null || input.isEmpty()) {
@@ -218,7 +279,8 @@ public final class ProfileHexColorItemTintSource
             );
         }
 
-        List<Float> list = new ArrayList<>(input.size());
+        List<Float> list =
+                new ArrayList<>(input.size());
 
         for (Float value : input) {
             if (value == null) {
@@ -236,17 +298,26 @@ public final class ProfileHexColorItemTintSource
     private static float[] grayFactorsAsArray(
             List<Float> input
     ) {
-        float[] array = new float[input.size()];
+        float[] array =
+                new float[input.size()];
 
-        for (int index = 0; index < input.size(); ++index) {
-            array[index] = clamp01(input.get(index));
+        for (
+                int index = 0;
+                index < input.size();
+                ++index
+        ) {
+            array[index] =
+                    clamp01(input.get(index));
         }
 
         return array;
     }
 
     private static float clamp01(float value) {
-        return Math.max(0.0F, Math.min(1.0F, value));
+        return Math.max(
+                0.0F,
+                Math.min(1.0F, value)
+        );
     }
     //?}
 }

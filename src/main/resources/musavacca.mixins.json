@@ -3,6 +3,9 @@
   "minVersion": "0.8",
   "package": "space.anatomyuniverse.musavacca.mixin",
   "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractBoatFloatMixin"
+  ],
   "client": [
     "client.BlockModelWrapperMixin",
     "client.HumanoidMobRendererMixin",
