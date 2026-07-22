@@ -155,28 +155,49 @@ public final class VocoTableLogic {
         ReceptorPosition receptorHit = receptorPart.receptor();
 
         if (receptorHit != null) {
-            BooleanProperty litProperty = lightProperty(receptorHit);
+            BooleanProperty litProperty =
+                    lightProperty(receptorHit);
 
-            if (!state.getValue(litProperty)) {
-                if (!level.isClientSide()) {
-                    boolean lit = VocoReceptorLogic.lightReceptorWithBalance(
-                            state,
-                            level,
-                            pos,
-                            player,
-                            litProperty
+            BooleanProperty portalProperty =
+                    portalProperty(receptorHit);
+
+            PearlSlotIgnition.Slot pearlSlot =
+                    VocoReceptorLogic.pearlSlot(
+                            litProperty,
+                            portalProperty,
+                            receptorHit
                     );
 
-                    if (lit) {
-                        VocoTableCandleLogic.syncPortalStateFromCandles(level, pos, receptorHit);
-                        BasukeSummon.trySummonFromVocoTable(level, pos);
-                    }
+            if (!PearlSlotIgnition.isLit(state, pearlSlot)) {
+                if (
+                        !level.isClientSide()
+                                && PearlSlotIgnition.igniteFromBalance(
+                                state,
+                                level,
+                                pos,
+                                player,
+                                pearlSlot
+                        )
+                ) {
+                    VocoTableCandleLogic.syncPortalStateFromCandles(
+                            level,
+                            pos,
+                            receptorHit
+                    );
+
+                    BasukeSummon.trySummonFromVocoTable(
+                            level,
+                            pos
+                    );
                 }
 
                 return InteractionResult.SUCCESS;
             }
 
-            if (!state.getValue(portalProperty(receptorHit)) && level.isClientSide()) {
+            if (
+                    !state.getValue(portalProperty)
+                            && level.isClientSide()
+            ) {
                 VocoReceptorLogic.showNeedsPortalMessage(player);
             }
 
@@ -351,20 +372,29 @@ public final class VocoTableLogic {
             InteractionHand hand,
             ReceptorPosition receptor
     ) {
-        BooleanProperty litProperty = lightProperty(receptor);
-        BooleanProperty portalProperty = portalProperty(receptor);
+        BooleanProperty litProperty =
+                lightProperty(receptor);
 
-        InteractionResult result = VocoReceptorLogic.handleReceptorHeldItemUse(
-                stack,
-                state,
-                level,
-                pos,
-                player,
-                hand,
-                litProperty,
-                portalProperty,
-                receptor
-        );
+        BooleanProperty portalProperty =
+                portalProperty(receptor);
+
+        PearlSlotIgnition.Slot pearlSlot =
+                VocoReceptorLogic.pearlSlot(
+                        litProperty,
+                        portalProperty,
+                        receptor
+                );
+
+        InteractionResult result =
+                PearlSlotIgnition.handleHeldItemUse(
+                        stack,
+                        state,
+                        level,
+                        pos,
+                        player,
+                        hand,
+                        pearlSlot
+                );
 
         if (result == InteractionResult.SUCCESS && !level.isClientSide()) {
             VocoTableCandleLogic.syncPortalStateFromCandles(level, pos, receptor);

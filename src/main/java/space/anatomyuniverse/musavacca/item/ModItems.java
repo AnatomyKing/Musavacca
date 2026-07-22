@@ -47,6 +47,25 @@ public final class ModItems {
                     )
             );
 
+    public static final DeferredItem<BlockItem> MUSAVACCA_DOOR_ITEM =
+            ITEMS.registerItem(
+                    "musavacca_door",
+                    props -> new DoubleHighBlockItem(
+                            ModBlocks.MUSAVACCA_DOOR.get(),
+                            props
+                    )
+            );
+
+    public static final DeferredItem<BlockItem>
+            MUSAVACCA_PORTAL_DOOR_ITEM =
+            ITEMS.registerItem(
+                    "musavacca_portal_door",
+                    properties -> new DoubleHighBlockItem(
+                            ModBlocks.MUSAVACCA_PORTAL_DOOR.get(),
+                            properties
+                    )
+            );
+
     public static final TagKey<Item> REPAIRS_POTASSIUM_ARMOR =
             TagKey.create(
                     Registries.ITEM,

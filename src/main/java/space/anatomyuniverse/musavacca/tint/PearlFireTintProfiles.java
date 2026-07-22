@@ -13,6 +13,7 @@ package space.anatomyuniverse.musavacca.tint;
  * coreToTailLightness
  *   0.0 = no white/light core influence
  *   1.0 = strongest white-hot highlights and core-to-tail lightness travel
+ *   >1.0 = overdriven white-core influence; affects more of the palette
  *
  * colorJumpiness
  *   0.0 = hue stays close to the selected color
@@ -24,7 +25,7 @@ package space.anatomyuniverse.musavacca.tint;
  *   0.01–0.19 = transition between procedural fire and grayscale palette behavior
  *   >=0.20     = fully gray-value-driven layer positioning
  *   Higher values also make the authored grayscale palette and selected hue
- *   override more of the expressive procedural fire result.
+ *   override more of the expressive procedural fire result(coreToTailLightness).
  *
  * vibrancyDarkening
  *   0.0 = no additional dark/vivid-color deepening

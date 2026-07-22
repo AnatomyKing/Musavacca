@@ -13,10 +13,11 @@ import net.minecraft.data.tags.KeyTagProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
-//? if <1.21.6
-//import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.item.CustomHelmetArmorTrims;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
@@ -31,8 +32,7 @@ public final class ModItemTagsProvider
     //? if >=1.21.6 {
     public ModItemTagsProvider(
             PackOutput output,
-            CompletableFuture<HolderLookup.Provider>
-                    lookupProvider
+            CompletableFuture<HolderLookup.Provider> lookupProvider
     ) {
         super(
                 output,
@@ -47,7 +47,11 @@ public final class ModItemTagsProvider
             CompletableFuture<HolderLookup.Provider> lookupProvider,
             CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider
     ) {
-        super(output, lookupProvider, blockTagsProvider);
+        super(
+                output,
+                lookupProvider,
+                blockTagsProvider
+        );
     }
     *///?}
 
@@ -55,6 +59,58 @@ public final class ModItemTagsProvider
     protected void addTags(
             HolderLookup.Provider provider
     ) {
+        /*
+         * Musavacca wood-family item tags.
+         */
+
+        tag(ItemTags.PLANKS)
+                .add(key(ModBlocks.MUSAVACCA_PLANKS));
+
+        tag(ItemTags.LOGS)
+                .add(key(ModBlocks.MUSAVACCA_STEM))
+                .add(key(ModBlocks.STRIPPED_MUSAVACCA_STEM))
+                .add(key(ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM));
+
+        tag(ItemTags.LOGS_THAT_BURN)
+                .add(key(ModBlocks.MUSAVACCA_STEM))
+                .add(key(ModBlocks.STRIPPED_MUSAVACCA_STEM))
+                .add(key(ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM));
+
+        tag(ItemTags.LEAVES)
+                .add(key(ModBlocks.MUSAVACCA_LEAVES));
+
+        tag(ItemTags.WOODEN_STAIRS)
+                .add(key(ModBlocks.MUSAVACCA_STAIRS));
+
+        tag(ItemTags.WOODEN_SLABS)
+                .add(key(ModBlocks.MUSAVACCA_SLAB));
+
+        tag(ItemTags.WOODEN_FENCES)
+                .add(key(ModBlocks.MUSAVACCA_FENCE));
+
+        tag(ItemTags.FENCE_GATES)
+                .add(key(ModBlocks.MUSAVACCA_FENCE_GATE));
+
+        tag(ItemTags.WOODEN_DOORS)
+                .add(key(ModBlocks.MUSAVACCA_DOOR))
+                .add(key(ModBlocks.MUSAVACCA_PORTAL_DOOR));
+
+        tag(ItemTags.WOODEN_TRAPDOORS)
+                .add(key(ModBlocks.MUSAVACCA_TRAPDOOR));
+
+        tag(ItemTags.WOODEN_PRESSURE_PLATES)
+                .add(key(ModBlocks.MUSAVACCA_PRESSURE_PLATE));
+
+        tag(ItemTags.WOODEN_BUTTONS)
+                .add(key(ModBlocks.MUSAVACCA_BUTTON));
+
+
+
+
+        /*
+         * Potassium tools.
+         */
+
         tag(ItemTags.SWORDS)
                 .add(key(ModItems.POTASSIUM_SWORD))
                 .add(key(ModItems.IMBUED_POTASSIUM_SWORD));
@@ -74,6 +130,11 @@ public final class ModItemTagsProvider
         tag(ItemTags.HOES)
                 .add(key(ModItems.POTASSIUM_HOE))
                 .add(key(ModItems.IMBUED_POTASSIUM_HOE));
+
+
+        /*
+         * General durability enchantments.
+         */
 
         tag(ItemTags.DURABILITY_ENCHANTABLE)
                 .add(key(ModItems.POTASSIUM_SWORD))
@@ -115,6 +176,11 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.IMBUED_POTASSIUM_LEGGINGS))
                 .add(key(ModItems.IMBUED_POTASSIUM_BOOTS));
 
+
+        /*
+         * Mining enchantment categories.
+         */
+
         tag(ItemTags.MINING_ENCHANTABLE)
                 .add(key(ModItems.POTASSIUM_PICKAXE))
                 .add(key(ModItems.POTASSIUM_AXE))
@@ -135,6 +201,11 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.IMBUED_POTASSIUM_SHOVEL))
                 .add(key(ModItems.IMBUED_POTASSIUM_HOE));
 
+
+        /*
+         * Weapon enchantment categories.
+         */
+
         tag(ItemTags.SWORD_ENCHANTABLE)
                 .add(key(ModItems.POTASSIUM_SWORD))
                 .add(key(ModItems.IMBUED_POTASSIUM_SWORD));
@@ -153,8 +224,18 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.POTASSIUM_SWORD))
                 .add(key(ModItems.IMBUED_POTASSIUM_SWORD));
 
+
+        /*
+         * Potassium armor repair material.
+         */
+
         tag(ModItems.REPAIRS_POTASSIUM_ARMOR)
                 .add(key(ModItems.POTASSIUM_INGOT));
+
+
+        /*
+         * Armor slots.
+         */
 
         tag(ItemTags.HEAD_ARMOR)
                 .add(key(ModItems.POTASSIUM_HELMET))
@@ -172,6 +253,11 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.POTASSIUM_BOOTS))
                 .add(key(ModItems.IMBUED_POTASSIUM_BOOTS));
 
+
+        /*
+         * Armor trims.
+         */
+
         tag(ItemTags.TRIMMABLE_ARMOR)
                 .add(key(ModItems.POTASSIUM_HELMET))
                 .add(key(ModItems.POTASSIUM_CHESTPLATE))
@@ -185,6 +271,11 @@ public final class ModItemTagsProvider
         tag(CustomHelmetArmorTrims.CUSTOM_HEAD_HELMETS)
                 .add(key(ModItems.POTASSIUM_HELMET))
                 .add(key(ModItems.IMBUED_POTASSIUM_HELMET));
+
+
+        /*
+         * Armor enchantment categories.
+         */
 
         tag(ItemTags.HEAD_ARMOR_ENCHANTABLE)
                 .add(key(ModItems.POTASSIUM_HELMET))
@@ -232,9 +323,26 @@ public final class ModItemTagsProvider
                 item.getId()
         );
     }
+
+    private static ResourceKey<Item> key(
+            DeferredBlock<? extends Block> block
+    ) {
+        return ResourceKey.create(
+                Registries.ITEM,
+                block.getId()
+        );
+    }
     //?} else {
-    /*private static Item key(DeferredItem<? extends Item> item) {
+    /*private static Item key(
+            DeferredItem<? extends Item> item
+    ) {
         return item.get();
+    }
+
+    private static Item key(
+            DeferredBlock<? extends Block> block
+    ) {
+        return block.get().asItem();
     }
     *///?}
 }

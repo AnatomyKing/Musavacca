@@ -7,27 +7,20 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.bar.balance.BalanceApi;
 import space.anatomyuniverse.musavacca.gui.menu.VocoSliderMenu;
-import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class VocoReceptorLogic {
     public static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
     public static final int UNSET_HEX_COLOR = -1;
-
-    public static final int RECEPTOR_LIGHT_BALANCE_COST = 1;
 
     public static final int MIN_YAW_DEGREES = -180;
     public static final int MAX_YAW_DEGREES = 180;
@@ -102,107 +95,48 @@ public final class VocoReceptorLogic {
                 && player.getOffhandItem().isEmpty();
     }
 
-    public static InteractionResult handleReceptorHeldItemUse(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
+
+    public static PearlSlotIgnition.Slot pearlSlot(
             BooleanProperty litProperty,
             @Nullable BooleanProperty portalProperty,
             ReceptorPosition receptor
     ) {
-        ItemStack mainHand = player.getMainHandItem();
-        ItemStack offHand = player.getOffhandItem();
-
-        if (hand == InteractionHand.OFF_HAND && !mainHand.isEmpty()) {
-            return InteractionResult.PASS;
-        }
-
-        if (stack.isEmpty()) {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
-        }
-
-        if (stack.is(ModItems.BANANA_PEARL.get())) {
-            return useBananaPearlOnReceptor(
-                    stack,
-                    offHand,
-                    hand,
-                    state,
-                    level,
-                    pos,
-                    player,
-                    litProperty,
-                    portalProperty,
-                    receptor
-            );
-        }
-
-        if (stack.is(Items.SHEARS)) {
-            if (!level.isClientSide()) {
-                if (state.getValue(litProperty)) {
-                    depleteReceptorPearl(
-                            stack,
-                            state,
-                            level,
-                            pos,
-                            player,
-                            hand,
-                            litProperty,
-                            portalProperty,
-                            receptor
-                    );
-                } else {
-                    lightReceptorWithBalance(state, level, pos, player, litProperty);
-                }
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.PASS;
+        return PearlSlotIgnition.Slot.of(
+                litProperty,
+                portalProperty,
+                pearlPopOffset(receptor),
+                pearlPopMotion(receptor)
+        );
     }
 
-    private static InteractionResult useBananaPearlOnReceptor(
-            ItemStack pearl,
-            ItemStack offHand,
-            InteractionHand hand,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            BooleanProperty litProperty,
-            @Nullable BooleanProperty portalProperty,
+    private static Vec3 pearlPopOffset(
             ReceptorPosition receptor
     ) {
-        if (!state.getValue(litProperty)) {
-            if (!level.isClientSide()) {
-                lightReceptorWithPearl(pearl, state, level, pos, player, litProperty);
-            }
+        return switch (receptor) {
+            case NORTH_EAST ->
+                    new Vec3(0.8125D, 1.05D, 0.1875D);
+            case NORTH_WEST ->
+                    new Vec3(0.1875D, 1.05D, 0.1875D);
+            case SOUTH_EAST ->
+                    new Vec3(0.8125D, 1.05D, 0.8125D);
+            case SOUTH_WEST ->
+                    new Vec3(0.1875D, 1.05D, 0.8125D);
+        };
+    }
 
-            return InteractionResult.SUCCESS;
-        }
-
-        if (hand == InteractionHand.MAIN_HAND && offHand.is(Items.SHEARS)) {
-            if (!level.isClientSide()) {
-                depleteReceptorPearl(
-                        offHand,
-                        state,
-                        level,
-                        pos,
-                        player,
-                        InteractionHand.OFF_HAND,
-                        litProperty,
-                        portalProperty,
-                        receptor
-                );
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.PASS;
+    private static Vec3 pearlPopMotion(
+            ReceptorPosition receptor
+    ) {
+        return switch (receptor) {
+            case NORTH_EAST ->
+                    new Vec3(0.08D, 0.18D, -0.08D);
+            case NORTH_WEST ->
+                    new Vec3(-0.08D, 0.18D, -0.08D);
+            case SOUTH_EAST ->
+                    new Vec3(0.08D, 0.18D, 0.08D);
+            case SOUTH_WEST ->
+                    new Vec3(-0.08D, 0.18D, 0.08D);
+        };
     }
 
     public static boolean canTeleport(
@@ -212,100 +146,6 @@ public final class VocoReceptorLogic {
     ) {
         return state.getValue(litProperty)
                 && (portalProperty == null || state.getValue(portalProperty));
-    }
-
-    public static boolean lightReceptorWithBalance(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            BooleanProperty litProperty
-    ) {
-        if (level.isClientSide()) {
-            return true;
-        }
-
-        if (state.getValue(litProperty) || !(player instanceof ServerPlayer serverPlayer)) {
-            return false;
-        }
-
-        if (!BalanceApi.deductBalance(serverPlayer, RECEPTOR_LIGHT_BALANCE_COST)) {
-            showNeedsBalanceMessage(player);
-            return false;
-        }
-
-        chargeReceptor(state, level, pos, litProperty);
-        return true;
-    }
-
-    public static boolean lightReceptorWithPearl(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            BooleanProperty litProperty
-    ) {
-        if (!stack.is(ModItems.BANANA_PEARL.get()) || state.getValue(litProperty)) {
-            return false;
-        }
-
-        chargeReceptor(state, level, pos, litProperty);
-        stack.consume(1, player);
-        return true;
-    }
-
-    private static void chargeReceptor(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            BooleanProperty litProperty
-    ) {
-        level.setBlock(pos, state.setValue(litProperty, true), UPDATE_FLAGS);
-
-        level.playSound(
-                null,
-                pos,
-                SoundEvents.RESPAWN_ANCHOR_CHARGE,
-                SoundSource.BLOCKS,
-                0.65F,
-                1.54F
-        );
-    }
-
-    public static boolean depleteReceptorPearl(
-            ItemStack shears,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BooleanProperty litProperty,
-            @Nullable BooleanProperty portalProperty,
-            ReceptorPosition receptor
-    ) {
-        if (!shears.is(Items.SHEARS) || !state.getValue(litProperty)) {
-            return false;
-        }
-
-        boolean wasPortal = portalProperty != null && state.getValue(portalProperty);
-
-        BlockState newState = state.setValue(litProperty, false);
-        if (portalProperty != null) {
-            newState = newState.setValue(portalProperty, false);
-        }
-
-        level.setBlock(pos, newState, UPDATE_FLAGS);
-
-        if (wasPortal) {
-            playPortalDisappearSound(level, pos);
-        }
-
-        playDepleteEffects(level, pos, receptor);
-        popBananaPearl(level, pos, receptor);
-        damageItem(shears, player, hand);
-
-        return true;
     }
 
     public static void playPortalAppearSound(Level level, BlockPos pos) {
@@ -330,56 +170,6 @@ public final class VocoReceptorLogic {
                 player,
                 hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND
         );
-    }
-
-    public static Vec3 pearlPopPosition(BlockPos pos, ReceptorPosition receptor) {
-        return switch (receptor) {
-            case NORTH_EAST -> new Vec3(pos.getX() + 0.8125D, pos.getY() + 1.05D, pos.getZ() + 0.1875D);
-            case NORTH_WEST -> new Vec3(pos.getX() + 0.1875D, pos.getY() + 1.05D, pos.getZ() + 0.1875D);
-            case SOUTH_EAST -> new Vec3(pos.getX() + 0.8125D, pos.getY() + 1.05D, pos.getZ() + 0.8125D);
-            case SOUTH_WEST -> new Vec3(pos.getX() + 0.1875D, pos.getY() + 1.05D, pos.getZ() + 0.8125D);
-        };
-    }
-
-    private static Vec3 pearlPopMotion(ReceptorPosition receptor) {
-        return switch (receptor) {
-            case NORTH_EAST -> new Vec3(0.08D, 0.18D, -0.08D);
-            case NORTH_WEST -> new Vec3(-0.08D, 0.18D, -0.08D);
-            case SOUTH_EAST -> new Vec3(0.08D, 0.18D, 0.08D);
-            case SOUTH_WEST -> new Vec3(-0.08D, 0.18D, 0.08D);
-        };
-    }
-
-    private static void playDepleteEffects(Level level, BlockPos pos, ReceptorPosition receptor) {
-        Vec3 popPos = pearlPopPosition(pos, receptor);
-
-        level.playSound(null, popPos.x, popPos.y, popPos.z, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
-        level.playSound(null, popPos.x, popPos.y, popPos.z, SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
-    }
-
-    private static void popBananaPearl(Level level, BlockPos pos, ReceptorPosition receptor) {
-        if (level.isClientSide()) {
-            return;
-        }
-
-        ItemEntity item = new ItemEntity(
-                level,
-                pearlPopPosition(pos, receptor).x,
-                pearlPopPosition(pos, receptor).y,
-                pearlPopPosition(pos, receptor).z,
-                new ItemStack(ModItems.BANANA_PEARL.get())
-        );
-
-        item.setDeltaMovement(pearlPopMotion(receptor));
-        level.addFreshEntity(item);
-    }
-
-    public static void showNeedsPearlMessage(Player player) {
-        player.displayClientMessage(Component.literal("This receptor needs a Banana Pearl or 1 balance."), false);
-    }
-
-    public static void showNeedsBalanceMessage(Player player) {
-        player.displayClientMessage(Component.literal("You need 1 balance to charge this receptor."), true);
     }
 
     public static void showNeedsPortalMessage(Player player) {

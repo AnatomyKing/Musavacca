@@ -56,6 +56,20 @@ public final class ModModelProvider
         Stairs.generate(blocks, ModelSets.stairsBlocks());
         Slabs.generate(blocks, ModelSets.slabBlocks());
         Fences.generate(blocks, ModelSets.fenceBlocks());
+        FenceGates.generate(blocks, ModelSets.fenceGateBlocks());
+        Doors.generate(
+                blocks,
+                ModelSets.doorBlocks()
+        );
+
+        CubeMusavaccaPortalDoor.generate(
+                blocks,
+                ModelSets.cubeMusavaccaPortalDoorModels()
+        );
+
+        Trapdoors.generate(blocks, ModelSets.trapdoorBlocks());
+        PressurePlates.generate(blocks, ModelSets.pressurePlateBlocks());
+        Buttons.generate(blocks, ModelSets.buttonBlocks());
         CubeCrafterLike.generate(blocks, ModelSets.cubeCrafterLikeBlocks());
 
         SmallBananaPearlOwn.generate(blocks, ModelSets.smallBananaPearlBlocks());

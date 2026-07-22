@@ -3,9 +3,10 @@ package space.anatomyuniverse.musavacca.data.models.block;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.ButtonBlock;
 
 import java.util.Optional;
+
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
@@ -14,45 +15,46 @@ import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 import net.minecraft.client.data.models.BlockModelGenerators;
 //?}
 
-public final class Stairs {
-    private Stairs() {}
+public final class Buttons {
+    private Buttons() {}
 
     //? if <1.21.4 {
     /*public static void generate(
             BlockStateProvider gen,
-            Block... stairsBlocks
+            Block... blocks
     ) {
-        if (stairsBlocks == null) {
+        if (blocks == null) {
             return;
         }
 
-        for (Block block : stairsBlocks) {
-            if (!(block instanceof StairBlock stairs)) {
+        for (Block block : blocks) {
+            if (!(block instanceof ButtonBlock typedBlock)) {
                 continue;
             }
 
             Block fullBlock = inferBaseBlock(
-                    stairs,
-                    "_stairs"
+                    typedBlock,
+                    "_button"
             );
 
             ResourceLocation texture =
                     ModelUtil.blockTex(fullBlock);
 
-            gen.stairsBlock(
-                    stairs,
+            gen.buttonBlock(
+                    typedBlock,
                     texture
             );
 
             gen.simpleBlockItem(
-                    stairs,
+                    typedBlock,
                     gen.models().getExistingFile(
                             ResourceLocation.fromNamespaceAndPath(
                                     texture.getNamespace(),
                                     "block/"
                                             + BuiltInRegistries.BLOCK
-                                            .getKey(stairs)
+                                            .getKey(typedBlock)
                                             .getPath()
+                                            + "_inventory"
                             )
                     )
             );
@@ -61,20 +63,20 @@ public final class Stairs {
     *///?} else {
     public static void generate(
             BlockModelGenerators gen,
-            Block... stairsBlocks
+            Block... blocks
     ) {
-        if (stairsBlocks == null) {
+        if (blocks == null) {
             return;
         }
 
-        for (Block stairs : stairsBlocks) {
+        for (Block block : blocks) {
             Block fullBlock = inferBaseBlock(
-                    stairs,
-                    "_stairs"
+                    block,
+                    "_button"
             );
 
             gen.familyWithExistingFullBlock(fullBlock)
-                    .stairs(stairs);
+                    .button(block);
         }
     }
     //?}

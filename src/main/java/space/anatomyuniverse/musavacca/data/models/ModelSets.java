@@ -68,6 +68,49 @@ public final class ModelSets {
         );
     }
 
+    public static Map<Block, CubeMusavaccaPortalDoor.Models>
+    cubeMusavaccaPortalDoorModels() {
+        return Map.of(
+                ModBlocks.MUSAVACCA_PORTAL_DOOR.get(),
+                new CubeMusavaccaPortalDoor.Models(
+
+                        new CubeMusavaccaPortalDoor.DoorModels(
+                                "musavacca:block/musavacca_door_bottom_left",
+                                "musavacca:block/musavacca_door_bottom_left_open",
+                                "musavacca:block/musavacca_door_bottom_right",
+                                "musavacca:block/musavacca_door_bottom_right_open",
+                                "musavacca:block/musavacca_door_top_left",
+                                "musavacca:block/musavacca_door_top_left_open",
+                                "musavacca:block/musavacca_door_top_right",
+                                "musavacca:block/musavacca_door_top_right_open"
+                        ),
+                        new CubeMusavaccaPortalDoor.DoorModels(
+                                "musavacca:block/musavacca_door/knob/lit_door_bottom_left",
+                                "musavacca:block/musavacca_door/knob/lit_door_bottom_left_open",
+                                "musavacca:block/musavacca_door/knob/lit_door_bottom_right",
+                                "musavacca:block/musavacca_door/knob/lit_door_bottom_right_open",
+                                "musavacca:block/musavacca_door/knob/lit_door_top_left",
+                                "musavacca:block/musavacca_door/knob/lit_door_top_left_open",
+                                "musavacca:block/musavacca_door/knob/lit_door_top_right",
+                                "musavacca:block/musavacca_door/knob/lit_door_top_right_open"
+                        ),
+                        new CubeMusavaccaPortalDoor.PortalModels(
+                                "musavacca:block/musavacca_door/portal/portal_bottom_left_open",
+                                "musavacca:block/musavacca_door/portal/portal_bottom_right_open",
+                                "musavacca:block/musavacca_door/door_portal/door_portal_top_left",
+                                "musavacca:block/musavacca_door/door_portal/door_portal_top_right",
+                                "musavacca:block/musavacca_door/portal/portal_top_left_open",
+                                "musavacca:block/musavacca_door/portal/portal_top_right_open"
+                        ),
+                        "musavacca:block/musavacca_door_bottom",
+                        "musavacca:block/musavacca_door_top",
+
+                        "musavacca:item/musavacca_door"
+                )
+        );
+    }
+
+
     public static Map<Block, CubeVocoPost.Models> cubeVocoPostModels() {
         return Map.of(
                 ModBlocks.VOCO_POST.get(),
@@ -171,7 +214,9 @@ public final class ModelSets {
     }
 
     public static Block[] stairsBlocks() {
-        return new Block[] {};
+        return new Block[] {
+                ModBlocks.MUSAVACCA_STAIRS.get()
+        };
     }
 
     public static Block[] slabBlocks() {
@@ -183,6 +228,36 @@ public final class ModelSets {
     public static Block[] fenceBlocks() {
         return new Block[] {
                 ModBlocks.MUSAVACCA_FENCE.get()
+        };
+    }
+
+    public static Block[] fenceGateBlocks() {
+        return new Block[] {
+                ModBlocks.MUSAVACCA_FENCE_GATE.get()
+        };
+    }
+
+    public static Block[] doorBlocks() {
+        return new Block[] {
+                ModBlocks.MUSAVACCA_DOOR.get()
+        };
+    }
+
+    public static Block[] trapdoorBlocks() {
+        return new Block[] {
+                ModBlocks.MUSAVACCA_TRAPDOOR.get()
+        };
+    }
+
+    public static Block[] pressurePlateBlocks() {
+        return new Block[] {
+                ModBlocks.MUSAVACCA_PRESSURE_PLATE.get()
+        };
+    }
+
+    public static Block[] buttonBlocks() {
+        return new Block[] {
+                ModBlocks.MUSAVACCA_BUTTON.get()
         };
     }
 
@@ -269,8 +344,13 @@ public final class ModelSets {
                 ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
                 ModItems.BANANA_MILK_BUCKET.get(),
                 ModItems.MUSAVACCA_BOAT.get()
+                //? if <1.21.4 {
+                /*,
+                ModItems.MUSAVACCA_DOOR_ITEM.get()
+                *///?}
         };
     }
+
 
     public static ItemLike[] handheldItems() {
         return new ItemLike[] {

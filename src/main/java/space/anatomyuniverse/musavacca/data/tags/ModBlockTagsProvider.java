@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/tags/ModBlockTagsProvider.java
 package space.anatomyuniverse.musavacca.data.tags;
 
 import net.minecraft.core.HolderLookup;
@@ -17,17 +18,30 @@ import java.util.concurrent.CompletableFuture;
 public final class ModBlockTagsProvider extends BlockTagsProvider {
 
     //? if <1.21.4 {
-    /*public ModBlockTagsProvider(PackOutput output,
-                                CompletableFuture<HolderLookup.Provider> lookupProvider,
-                                ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, MusaCore.MOD_ID, existingFileHelper);
+    /*public ModBlockTagsProvider(
+            PackOutput output,
+            CompletableFuture<HolderLookup.Provider> lookupProvider,
+            ExistingFileHelper existingFileHelper
+    ) {
+        super(
+                output,
+                lookupProvider,
+                MusaCore.MOD_ID,
+                existingFileHelper
+        );
     }
     *///?}
 
     //? if >=1.21.4 {
-    public ModBlockTagsProvider(PackOutput output,
-                                CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, lookupProvider, MusaCore.MOD_ID);
+    public ModBlockTagsProvider(
+            PackOutput output,
+            CompletableFuture<HolderLookup.Provider> lookupProvider
+    ) {
+        super(
+                output,
+                lookupProvider,
+                MusaCore.MOD_ID
+        );
     }
     //?}
 
@@ -56,11 +70,23 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.BANANA_PEARL_BRICKS.get()
         );
 
+        /*
+         * Entire Musavacca wood family is axe-mineable.
+         */
         tag(BlockTags.MINEABLE_WITH_AXE).add(
                 ModBlocks.MUSAVACCA_STEM.get(),
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get(),
-                ModBlocks.MUSAVACCA_PLANKS.get()
+
+                ModBlocks.MUSAVACCA_PLANKS.get(),
+                ModBlocks.MUSAVACCA_STAIRS.get(),
+                ModBlocks.MUSAVACCA_SLAB.get(),
+                ModBlocks.MUSAVACCA_FENCE.get(),
+                ModBlocks.MUSAVACCA_FENCE_GATE.get(),
+                ModBlocks.MUSAVACCA_DOOR.get(),
+                ModBlocks.MUSAVACCA_TRAPDOOR.get(),
+                ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(),
+                ModBlocks.MUSAVACCA_BUTTON.get()
         );
 
         tag(BlockTags.MINEABLE_WITH_HOE).add(
@@ -89,6 +115,60 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
 
         tag(BlockTags.PLANKS).add(
                 ModBlocks.MUSAVACCA_PLANKS.get()
+        );
+
+        tag(BlockTags.WOODEN_STAIRS).add(
+                ModBlocks.MUSAVACCA_STAIRS.get()
+        );
+
+        tag(BlockTags.WOODEN_SLABS).add(
+                ModBlocks.MUSAVACCA_SLAB.get()
+        );
+
+        tag(BlockTags.WOODEN_FENCES).add(
+                ModBlocks.MUSAVACCA_FENCE.get()
+        );
+
+        tag(BlockTags.FENCE_GATES).add(
+                ModBlocks.MUSAVACCA_FENCE_GATE.get()
+        );
+
+        tag(BlockTags.WOODEN_DOORS).add(
+                ModBlocks.MUSAVACCA_DOOR.get(),
+                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
+        );
+
+        tag(BlockTags.MINEABLE_WITH_AXE).add(
+                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
+        );
+
+        tag(BlockTags.WOODEN_DOORS).add(
+                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
+        );
+
+        tag(BlockTags.MOB_INTERACTABLE_DOORS).add(
+                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
+        );
+
+
+        /*
+         * Allows mobs with door-opening AI, such as villagers,
+         * to recognize this as an interactable door.
+         */
+        tag(BlockTags.MOB_INTERACTABLE_DOORS).add(
+                ModBlocks.MUSAVACCA_DOOR.get()
+        );
+
+        tag(BlockTags.WOODEN_TRAPDOORS).add(
+                ModBlocks.MUSAVACCA_TRAPDOOR.get()
+        );
+
+        tag(BlockTags.WOODEN_PRESSURE_PLATES).add(
+                ModBlocks.MUSAVACCA_PRESSURE_PLATE.get()
+        );
+
+        tag(BlockTags.WOODEN_BUTTONS).add(
+                ModBlocks.MUSAVACCA_BUTTON.get()
         );
 
         tag(BlockTags.FIRE).add(

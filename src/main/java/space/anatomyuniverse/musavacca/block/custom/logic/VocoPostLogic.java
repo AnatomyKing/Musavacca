@@ -36,9 +36,24 @@ public final class VocoPostLogic {
             return InteractionResult.PASS;
         }
 
-        if (!state.getValue(VocoPostBlock.LIT)) {
-            if (!level.isClientSide()
-                    && VocoReceptorLogic.lightReceptorWithBalance(state, level, pos, player, VocoPostBlock.LIT)) {
+        PearlSlotIgnition.Slot pearlSlot =
+                VocoReceptorLogic.pearlSlot(
+                        VocoPostBlock.LIT,
+                        VocoPostBlock.PORTAL,
+                        receptor
+                );
+
+        if (!PearlSlotIgnition.isLit(state, pearlSlot)) {
+            if (
+                    !level.isClientSide()
+                            && PearlSlotIgnition.igniteFromBalance(
+                            state,
+                            level,
+                            pos,
+                            player,
+                            pearlSlot
+                    )
+            ) {
                 VocoPostCandleLogic.refreshPortalAt(level, pos);
             }
 
@@ -74,17 +89,23 @@ public final class VocoPostLogic {
             return InteractionResult.SUCCESS;
         }
 
-        InteractionResult result = VocoReceptorLogic.handleReceptorHeldItemUse(
-                stack,
-                state,
-                level,
-                pos,
-                player,
-                hand,
-                VocoPostBlock.LIT,
-                VocoPostBlock.PORTAL,
-                receptor
-        );
+        PearlSlotIgnition.Slot pearlSlot =
+                VocoReceptorLogic.pearlSlot(
+                        VocoPostBlock.LIT,
+                        VocoPostBlock.PORTAL,
+                        receptor
+                );
+
+        InteractionResult result =
+                PearlSlotIgnition.handleHeldItemUse(
+                        stack,
+                        state,
+                        level,
+                        pos,
+                        player,
+                        hand,
+                        pearlSlot
+                );
 
         if (result == InteractionResult.SUCCESS && !level.isClientSide()) {
             VocoPostCandleLogic.refreshPortalAt(level, pos);

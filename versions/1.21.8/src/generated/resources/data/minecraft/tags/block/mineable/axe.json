@@ -3,6 +3,15 @@
     "musavacca:musavacca_stem",
     "musavacca:stripped_musavacca_stem",
     "musavacca:exudated_stripped_musavacca_stem",
-    "musavacca:musavacca_planks"
+    "musavacca:musavacca_planks",
+    "musavacca:musavacca_stairs",
+    "musavacca:musavacca_slab",
+    "musavacca:musavacca_fence",
+    "musavacca:musavacca_fence_gate",
+    "musavacca:musavacca_door",
+    "musavacca:musavacca_trapdoor",
+    "musavacca:musavacca_pressure_plate",
+    "musavacca:musavacca_button",
+    "musavacca:musavacca_portal_door"
   ]
 }

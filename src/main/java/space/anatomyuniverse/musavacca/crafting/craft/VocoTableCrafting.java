@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
@@ -42,7 +43,6 @@ public final class VocoTableCrafting {
     private static final double GLITHER_SPAWN_SPREAD = 0.025D;
     private static final double GLITHER_START_Y_OFFSET = -0.13D;
 
-
     private static final double ITEM_DISPLAY_X = 0.5D;
     private static final double ITEM_DISPLAY_Y = 1.20D;
     private static final double ITEM_DISPLAY_Z = 0.5D;
@@ -55,46 +55,69 @@ public final class VocoTableCrafting {
             @NotNull ServerLevel level,
             @NotNull ItemStack edibleStack
     ) {
-        if (edibleStack.isEmpty() || !basuke.isBoundToVocoTable()) {
+        if (
+                edibleStack.isEmpty()
+                        || !basuke.isBoundToVocoTable()
+        ) {
             return null;
         }
 
         BlockPos tablePos = basuke.getVocoTablePos();
+
         if (tablePos == null) {
             return null;
         }
 
         BlockState state = level.getBlockState(tablePos);
-        if (!(state.getBlock() instanceof VocoTableBlock)
-                || !state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
-                || !state.getValue(VocoTableBlock.ROTARY_DIALERS)) {
+
+        if (
+                !(state.getBlock() instanceof VocoTableBlock)
+                        || !state.hasProperty(
+                        VocoTableBlock.ROTARY_DIALERS
+                )
+                        || !state.getValue(
+                        VocoTableBlock.ROTARY_DIALERS
+                )
+        ) {
             return null;
         }
 
-        if (!(level.getBlockEntity(tablePos) instanceof VocoTableBlockEntity tableBe)) {
+        if (
+                !(level.getBlockEntity(tablePos)
+                        instanceof VocoTableBlockEntity tableBe)
+        ) {
             return null;
         }
 
-        ItemStack displayedStack = tableBe.getDisplayedItem();
+        ItemStack displayedStack =
+                tableBe.getDisplayedItem();
+
         if (displayedStack.isEmpty()) {
             return null;
         }
 
-        VocoTableCraftingRecipe recipe = VocoTableCraftingRecipes.findMatchingRecipe(
-                displayedStack,
-                edibleStack
-        );
+        VocoTableCraftingRecipe recipe =
+                VocoTableCraftingRecipes.findMatchingRecipe(
+                        displayedStack,
+                        edibleStack
+                );
 
         if (recipe == null) {
             return null;
         }
 
-        if (!tableBe.hasLitReceptorCost(recipe.litReceptorCost())) {
+        if (
+                !tableBe.hasLitReceptorCost(
+                        recipe.litReceptorCost()
+                )
+        ) {
             return null;
         }
 
-        if (recipe.hexColorInject()
-                && matchingFourCandleColor(tableBe) == null) {
+        if (
+                recipe.hexColorInject()
+                        && matchingFourCandleColor(tableBe) == null
+        ) {
             return null;
         }
 
@@ -108,15 +131,21 @@ public final class VocoTableCrafting {
             @NotNull VocoTableCraftingRecipe recipe
     ) {
         BlockPos tablePos = basuke.getVocoTablePos();
+
         if (tablePos == null) {
             return false;
         }
 
-        if (!(level.getBlockEntity(tablePos) instanceof VocoTableBlockEntity tableBe)) {
+        if (
+                !(level.getBlockEntity(tablePos)
+                        instanceof VocoTableBlockEntity tableBe)
+        ) {
             return false;
         }
 
-        ItemStack displayedStack = tableBe.getDisplayedItem();
+        ItemStack displayedStack =
+                tableBe.getDisplayedItem();
+
         if (!recipe.matches(displayedStack, edibleStack)) {
             return false;
         }
@@ -124,37 +153,55 @@ public final class VocoTableCrafting {
         Integer matchingCandleColor = null;
 
         if (recipe.hexColorInject()) {
-            matchingCandleColor = matchingFourCandleColor(tableBe);
+            matchingCandleColor =
+                    matchingFourCandleColor(tableBe);
 
             if (matchingCandleColor == null) {
                 return false;
             }
         }
 
-        int glitherColor = matchingCandleColor == null
-                ? DEFAULT_GLITHER_COLOR
-                : matchingCandleColor;
+        int glitherColor =
+                matchingCandleColor == null
+                        ? DEFAULT_GLITHER_COLOR
+                        : matchingCandleColor;
 
-        BlockState stateBeforeConsumption = level.getBlockState(tablePos);
+        BlockState stateBeforeConsumption =
+                level.getBlockState(tablePos);
 
-        if (!tableBe.consumeLitReceptorsForCrafting(level, recipe.litReceptorCost())) {
+        if (
+                !tableBe.consumeLitReceptorsForCrafting(
+                        level,
+                        recipe.litReceptorCost()
+                )
+        ) {
             return false;
         }
 
-        List<ReceptorPosition> consumedReceptors = findConsumedReceptors(
-                stateBeforeConsumption,
-                level.getBlockState(tablePos)
-        );
+        List<ReceptorPosition> consumedReceptors =
+                findConsumedReceptors(
+                        stateBeforeConsumption,
+                        level.getBlockState(tablePos)
+                );
 
-        ItemStack resultStack = recipe.createResultStack();
-        injectHexColorIfAllowed(resultStack, recipe, matchingCandleColor);
+        ItemStack resultStack =
+                recipe.createResultStack();
+
+        injectHexColorIfAllowed(
+                resultStack,
+                recipe,
+                matchingCandleColor
+        );
 
         tableBe.setDisplayedItem(resultStack);
 
         edibleStack.shrink(1);
+
         basuke.setItemInHand(
                 InteractionHand.MAIN_HAND,
-                edibleStack.isEmpty() ? ItemStack.EMPTY : edibleStack
+                edibleStack.isEmpty()
+                        ? ItemStack.EMPTY
+                        : edibleStack
         );
 
         playCraftingEffects(
@@ -181,7 +228,6 @@ public final class VocoTableCrafting {
             return;
         }
 
-
         resultStack.set(
                 ModDataComponents.HEX_COLOR.get(),
                 matchingCandleColor & 0xFFFFFF
@@ -195,7 +241,8 @@ public final class VocoTableCrafting {
             int glitherColor,
             @NotNull List<ReceptorPosition> consumedReceptors
     ) {
-        Vec3 itemDisplayCenter = itemDisplayCenter(tablePos);
+        Vec3 itemDisplayCenter =
+                itemDisplayCenter(tablePos);
 
         if (consumedReceptors.isEmpty()) {
             spawnGlitherTransformationParticles(
@@ -204,7 +251,10 @@ public final class VocoTableCrafting {
                     glitherColor
             );
         } else {
-            for (ReceptorPosition receptor : consumedReceptors) {
+            for (
+                    ReceptorPosition receptor
+                    : consumedReceptors
+            ) {
                 spawnDirectionalGlitherParticles(
                         level,
                         tablePos,
@@ -215,7 +265,10 @@ public final class VocoTableCrafting {
         }
 
         level.sendParticles(
-                new ItemParticleOption(ParticleTypes.ITEM, resultStack.copyWithCount(1)),
+                new ItemParticleOption(
+                        ParticleTypes.ITEM,
+                        resultStack.copyWithCount(1)
+                ),
                 itemDisplayCenter.x,
                 itemDisplayCenter.y,
                 itemDisplayCenter.z,
@@ -249,15 +302,30 @@ public final class VocoTableCrafting {
         );
     }
 
-    private static List<ReceptorPosition> findConsumedReceptors(
+    private static List<ReceptorPosition>
+    findConsumedReceptors(
             @NotNull BlockState stateBeforeConsumption,
             @NotNull BlockState stateAfterConsumption
     ) {
-        List<ReceptorPosition> consumedReceptors = new ArrayList<>();
+        List<ReceptorPosition> consumedReceptors =
+                new ArrayList<>();
 
-        for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            if (stateBeforeConsumption.getValue(VocoTableBlock.lightProperty(receptor))
-                    && !stateAfterConsumption.getValue(VocoTableBlock.lightProperty(receptor))) {
+        for (
+                ReceptorPosition receptor
+                : ReceptorPosition.values()
+        ) {
+            if (
+                    stateBeforeConsumption.getValue(
+                            VocoTableBlock.lightProperty(
+                                    receptor
+                            )
+                    )
+                            && !stateAfterConsumption.getValue(
+                            VocoTableBlock.lightProperty(
+                                    receptor
+                            )
+                    )
+            ) {
                 consumedReceptors.add(receptor);
             }
         }
@@ -265,7 +333,9 @@ public final class VocoTableCrafting {
         return List.copyOf(consumedReceptors);
     }
 
-    private static Vec3 itemDisplayCenter(BlockPos tablePos) {
+    private static Vec3 itemDisplayCenter(
+            BlockPos tablePos
+    ) {
         return new Vec3(
                 tablePos.getX() + ITEM_DISPLAY_X,
                 tablePos.getY() + ITEM_DISPLAY_Y,
@@ -279,8 +349,27 @@ public final class VocoTableCrafting {
             @NotNull ReceptorPosition receptor,
             int glitherColor
     ) {
-        Vec3 source = VocoReceptorLogic.pearlPopPosition(tablePos, receptor);
-        Vec3 tableCenter = itemDisplayCenter(tablePos);
+        /*
+         * Use the same shared slot definition as ignition
+         * and shearing, so every system agrees on the exact
+         * Banana Pearl position.
+         */
+        PearlSlotIgnition.Slot pearlSlot =
+                VocoReceptorLogic.pearlSlot(
+                        VocoTableBlock.lightProperty(
+                                receptor
+                        ),
+                        VocoTableBlock.portalProperty(
+                                receptor
+                        ),
+                        receptor
+                );
+
+        Vec3 source =
+                pearlSlot.pearlPopPosition(tablePos);
+
+        Vec3 tableCenter =
+                itemDisplayCenter(tablePos);
 
         Vec3 outwardDirection = new Vec3(
                 source.x - tableCenter.x,
@@ -294,40 +383,56 @@ public final class VocoTableCrafting {
                 outwardDirection.x
         );
 
-        for (int i = 0; i < GLITHER_PARTICLE_COUNT; ++i) {
+        for (
+                int i = 0;
+                i < GLITHER_PARTICLE_COUNT;
+                ++i
+        ) {
             double forwardSpeed = Math.max(
                     GLITHER_MIN_FORWARD_SPEED,
                     GLITHER_FORWARD_SPEED
-                            + level.random.nextGaussian() * GLITHER_FORWARD_SPEED_SPREAD
+                            + level.random.nextGaussian()
+                            * GLITHER_FORWARD_SPEED_SPREAD
             );
 
             double sidewaysSpeed =
-                    level.random.nextGaussian() * GLITHER_SIDEWAYS_SPEED_SPREAD;
+                    level.random.nextGaussian()
+                            * GLITHER_SIDEWAYS_SPEED_SPREAD;
 
             double upwardSpeed = Math.max(
                     GLITHER_MIN_UPWARD_SPEED,
                     GLITHER_UPWARD_SPEED
-                            + level.random.nextGaussian() * GLITHER_UPWARD_SPEED_SPREAD
+                            + level.random.nextGaussian()
+                            * GLITHER_UPWARD_SPEED_SPREAD
             );
 
             double particleX =
-                    source.x + level.random.nextGaussian() * GLITHER_SPAWN_SPREAD;
+                    source.x
+                            + level.random.nextGaussian()
+                            * GLITHER_SPAWN_SPREAD;
 
             double particleY =
                     source.y
                             + GLITHER_START_Y_OFFSET
-                            + level.random.nextGaussian() * GLITHER_SPAWN_SPREAD;
+                            + level.random.nextGaussian()
+                            * GLITHER_SPAWN_SPREAD;
 
             double particleZ =
-                    source.z + level.random.nextGaussian() * GLITHER_SPAWN_SPREAD;
+                    source.z
+                            + level.random.nextGaussian()
+                            * GLITHER_SPAWN_SPREAD;
 
             double particleXd =
-                    outwardDirection.x * forwardSpeed
-                            + sidewaysDirection.x * sidewaysSpeed;
+                    outwardDirection.x
+                            * forwardSpeed
+                            + sidewaysDirection.x
+                            * sidewaysSpeed;
 
             double particleZd =
-                    outwardDirection.z * forwardSpeed
-                            + sidewaysDirection.z * sidewaysSpeed;
+                    outwardDirection.z
+                            * forwardSpeed
+                            + sidewaysDirection.z
+                            * sidewaysSpeed;
 
             ProfileTintParticles.sendExact(
                     level,
@@ -366,17 +471,26 @@ public final class VocoTableCrafting {
     }
 
     @Nullable
-    private static Integer matchingFourCandleColor(@NotNull VocoTableBlockEntity tableBe) {
+    private static Integer matchingFourCandleColor(
+            @NotNull VocoTableBlockEntity tableBe
+    ) {
         Integer matchingColor = null;
 
-        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+        for (
+                ReceptorPosition receptor
+                : ReceptorPosition.values()
+        ) {
             if (!tableBe.isCandleLit(receptor)) {
                 return null;
             }
 
-            int cornerColor = tableBe.getCornerHexColor(receptor);
+            int cornerColor =
+                    tableBe.getCornerHexColor(receptor);
 
-            if (cornerColor == VocoTableBlockEntity.UNSET_HEX_COLOR) {
+            if (
+                    cornerColor
+                            == VocoTableBlockEntity.UNSET_HEX_COLOR
+            ) {
                 return null;
             }
 
