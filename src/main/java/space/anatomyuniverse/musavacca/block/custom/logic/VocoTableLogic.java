@@ -22,7 +22,7 @@ import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableDialerHitboxes.HitPart;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
-import space.anatomyuniverse.musavacca.crafting.summon.BasukeSummon;
+import space.anatomyuniverse.musavacca.basuke.summon.BasukeSummon;
 import space.anatomyuniverse.musavacca.gui.menu.TestInventoryMenu;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 
@@ -110,6 +110,7 @@ public final class VocoTableLogic {
     ) {
         ReceptorPosition candleHit = VocoTableCandleLogic.detectExistingCandleHit(level, pos, hit);
         VocoTableReceptorHitboxes.HitPart receptorPart = VocoTableReceptorHitboxes.detectHitPart(pos, hit);
+        VocoTableItemDisplayHitboxes.HitPart itemDisplayPart = VocoTableItemDisplayHitboxes.detectHitPart(pos, hit);
         HitPart dialerPart = detectDialerHitIfActive(state, pos, hit);
 
         if (dialerPart.isDialer()) {
@@ -127,11 +128,16 @@ public final class VocoTableLogic {
                 return InteractionResult.SUCCESS;
             }
 
-            if (!level.isClientSide()) {
-                removeDisplayedItem(level, pos, player, true);
+            if (!itemDisplayPart.isItemDisplay()) {
+                return InteractionResult.PASS;
             }
 
-            return InteractionResult.SUCCESS;
+            return VocoTableItemDisplayLogic.useWithoutItem(
+                    level,
+                    pos,
+                    player,
+                    true
+            );
         }
 
         if (candleHit != null) {
@@ -210,11 +216,16 @@ public final class VocoTableLogic {
             return InteractionResult.SUCCESS;
         }
 
-        if (!level.isClientSide()) {
-            removeDisplayedItem(level, pos, player, false);
+        if (!itemDisplayPart.isItemDisplay()) {
+            return InteractionResult.PASS;
         }
 
-        return InteractionResult.SUCCESS;
+        return VocoTableItemDisplayLogic.useWithoutItem(
+                level,
+                pos,
+                player,
+                false
+        );
     }
 
     public static InteractionResult useItemOn(
@@ -228,10 +239,15 @@ public final class VocoTableLogic {
     ) {
         ReceptorPosition candleHit = VocoTableCandleLogic.detectExistingCandleHit(level, pos, hit);
         VocoTableReceptorHitboxes.HitPart receptorPart = VocoTableReceptorHitboxes.detectHitPart(pos, hit);
+        VocoTableItemDisplayHitboxes.HitPart itemDisplayPart = VocoTableItemDisplayHitboxes.detectHitPart(pos, hit);
         HitPart dialerPart = detectDialerHitIfActive(state, pos, hit);
 
         if (dialerPart.isDialer()) {
             return openDialerMenu(level, pos, player);
+        }
+
+        if (stack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         if (player.isShiftKeyDown()) {
@@ -245,15 +261,11 @@ public final class VocoTableLogic {
                 return InteractionResult.SUCCESS;
             }
 
-            if (hand == InteractionHand.OFF_HAND) {
+            if (!itemDisplayPart.isItemDisplay()) {
                 return InteractionResult.PASS;
             }
 
-            if (level.isClientSide()) {
-                return InteractionResult.SUCCESS;
-            }
-
-            boolean changed = insertDisplayedItem(
+            return VocoTableItemDisplayLogic.useItemOn(
                     stack,
                     level,
                     pos,
@@ -261,16 +273,6 @@ public final class VocoTableLogic {
                     hand,
                     true
             );
-
-            if (changed) {
-                BasukeSummon.trySummonFromVocoTable(level, pos);
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
-        if (stack.isEmpty()) {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         if (candleHit != null) {
@@ -377,15 +379,11 @@ public final class VocoTableLogic {
             );
         }
 
-        if (hand == InteractionHand.OFF_HAND) {
+        if (!itemDisplayPart.isItemDisplay()) {
             return InteractionResult.PASS;
         }
 
-        if (level.isClientSide()) {
-            return InteractionResult.SUCCESS;
-        }
-
-        boolean changed = insertDisplayedItem(
+        return VocoTableItemDisplayLogic.useItemOn(
                 stack,
                 level,
                 pos,
@@ -393,12 +391,6 @@ public final class VocoTableLogic {
                 hand,
                 false
         );
-
-        if (changed) {
-            BasukeSummon.trySummonFromVocoTable(level, pos);
-        }
-
-        return InteractionResult.SUCCESS;
     }
 
     private static InteractionResult useReceptorCornerItem(
@@ -482,79 +474,4 @@ public final class VocoTableLogic {
         return block instanceof CandleBlock ? block : null;
     }
 
-    private static boolean removeDisplayedItem(
-            Level level,
-            BlockPos pos,
-            Player player,
-            boolean bulk
-    ) {
-        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)
-                || !tableBe.hasDisplayedItem()) {
-            return false;
-        }
-
-        ItemStack displayed = tableBe.getDisplayedItem();
-        int requestedAmount = bulk
-                ? displayed.getMaxStackSize()
-                : 1;
-
-        ItemStack removed = tableBe.removeDisplayedItems(requestedAmount);
-        if (removed.isEmpty()) {
-            return false;
-        }
-
-        if (!player.addItem(removed)) {
-            player.drop(removed, false);
-        }
-
-        return true;
-    }
-
-    private static boolean insertDisplayedItem(
-            ItemStack stack,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            boolean bulk
-    ) {
-        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
-            return false;
-        }
-
-        ItemStack displayed = tableBe.getDisplayedItem();
-
-        if (displayed.isEmpty() || tableBe.canMergeDisplayedItem(stack)) {
-            int requestedAmount = bulk
-                    ? Math.min(stack.getCount(), stack.getMaxStackSize())
-                    : 1;
-
-            int moved = tableBe.addDisplayedItems(stack, requestedAmount);
-            if (moved <= 0) {
-                return false;
-            }
-
-            if (!player.getAbilities().instabuild) {
-                stack.shrink(moved);
-            }
-
-            return true;
-        }
-
-        if (ItemStack.isSameItemSameComponents(displayed, stack)) {
-            return false;
-        }
-
-        if (displayed.getCount() > displayed.getMaxStackSize()) {
-            return false;
-        }
-
-        ItemStack inserted = stack.copy();
-        ItemStack removed = displayed.copy();
-
-        tableBe.setDisplayedItem(inserted);
-        player.setItemInHand(hand, removed);
-
-        return true;
-    }
 }

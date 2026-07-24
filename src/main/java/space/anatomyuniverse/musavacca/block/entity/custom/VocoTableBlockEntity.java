@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -47,6 +48,7 @@ import java.util.UUID;
 public class VocoTableBlockEntity extends BlockEntity {
     private static final String TAG_BASUKE_VISIBLE = "basuke_visible";
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
+    private static final String TAG_DISPLAYED_ITEM_COUNT = "displayed_item_count";
 
     private static final String TAG_LATEST_HEX_COLOR = "latest_hex_color";
     private static final String TAG_LATEST_HEX_RECEPTOR_ID = "latest_hex_receptor_id";
@@ -132,6 +134,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     public static final int UNSET_HEX_COLOR = VocoReceptorLogic.UNSET_HEX_COLOR;
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
+    private int displayedItemCount = 0;
 
     private final int[] yawDegrees = new int[ReceptorPosition.COUNT];
     private final int[] pitchDegrees = new int[ReceptorPosition.COUNT];
@@ -166,50 +169,87 @@ public class VocoTableBlockEntity extends BlockEntity {
         return this.items.get(0);
     }
 
+    public int getDisplayedItemCount() {
+        return this.hasDisplayedItem()
+                ? this.displayedItemCount
+                : 0;
+    }
+
     public boolean hasDisplayedItem() {
-        return !this.getDisplayedItem().isEmpty();
+        return !this.getDisplayedItem().isEmpty()
+                && this.displayedItemCount > 0;
     }
 
     public void setDisplayedItem(ItemStack stack) {
-        if (stack.isEmpty() || stack.getCount() <= 0) {
+        this.setDisplayedItem(
+                stack,
+                stack.isEmpty()
+                        ? 0
+                        : stack.getCount()
+        );
+    }
+
+    public void setDisplayedItem(
+            ItemStack stack,
+            int count
+    ) {
+        if (stack.isEmpty() || count <= 0) {
             this.items.set(0, ItemStack.EMPTY);
+            this.displayedItemCount = 0;
             this.markChangedAndSync();
             return;
         }
 
-        ItemStack copy = stack.copy();
-
-        if (copy.getMaxStackSize() <= 1) {
-            copy.setCount(1);
-        }
+        ItemStack copy =
+                stack.copyWithCount(1);
 
         this.items.set(0, copy);
+        this.displayedItemCount =
+                copy.getMaxStackSize() <= 1
+                        ? 1
+                        : count;
+
         this.markChangedAndSync();
     }
 
     public boolean canMergeDisplayedItem(ItemStack stack) {
-        ItemStack displayed = this.getDisplayedItem();
+        ItemStack displayed =
+                this.getDisplayedItem();
 
-        return !displayed.isEmpty()
+        return this.hasDisplayedItem()
                 && !stack.isEmpty()
                 && displayed.getMaxStackSize() > 1
-                && ItemStack.isSameItemSameComponents(displayed, stack);
+                && ItemStack.isSameItemSameComponents(
+                displayed,
+                stack
+        );
     }
 
-    public int addDisplayedItems(ItemStack stack, int requestedAmount) {
+    public int addDisplayedItems(
+            ItemStack stack,
+            int requestedAmount
+    ) {
         if (stack.isEmpty() || requestedAmount <= 0) {
             return 0;
         }
 
-        ItemStack displayed = this.getDisplayedItem();
+        ItemStack displayed =
+                this.getDisplayedItem();
 
-        if (displayed.isEmpty()) {
-            int moved = stack.getMaxStackSize() <= 1
-                    ? 1
-                    : Math.min(requestedAmount, stack.getCount());
+        if (!this.hasDisplayedItem()) {
+            int moved =
+                    stack.getMaxStackSize() <= 1
+                            ? 1
+                            : Math.min(
+                            requestedAmount,
+                            stack.getCount()
+                    );
 
-            ItemStack inserted = stack.copyWithCount(moved);
-            this.items.set(0, inserted);
+            this.items.set(
+                    0,
+                    stack.copyWithCount(1)
+            );
+            this.displayedItemCount = moved;
             this.markChangedAndSync();
             return moved;
         }
@@ -218,13 +258,19 @@ public class VocoTableBlockEntity extends BlockEntity {
             return 0;
         }
 
-        long capacity = (long) Integer.MAX_VALUE - displayed.getCount();
+        long capacity =
+                (long) Integer.MAX_VALUE
+                        - this.displayedItemCount;
+
         if (capacity <= 0L) {
             return 0;
         }
 
         int moved = (int) Math.min(
-                Math.min((long) requestedAmount, stack.getCount()),
+                Math.min(
+                        (long) requestedAmount,
+                        stack.getCount()
+                ),
                 capacity
         );
 
@@ -232,33 +278,88 @@ public class VocoTableBlockEntity extends BlockEntity {
             return 0;
         }
 
-        displayed.grow(moved);
+        this.displayedItemCount += moved;
         this.markChangedAndSync();
         return moved;
     }
 
-    public ItemStack removeDisplayedItems(int requestedAmount) {
-        ItemStack displayed = this.getDisplayedItem();
+    public ItemStack removeDisplayedItems(
+            int requestedAmount
+    ) {
+        ItemStack displayed =
+                this.getDisplayedItem();
 
-        if (displayed.isEmpty() || requestedAmount <= 0) {
+        if (
+                !this.hasDisplayedItem()
+                        || requestedAmount <= 0
+        ) {
             return ItemStack.EMPTY;
         }
 
-        int removedCount = Math.min(requestedAmount, displayed.getCount());
-        ItemStack removed = displayed.copyWithCount(removedCount);
+        int legalStackSize =
+                Math.max(
+                        1,
+                        displayed.getMaxStackSize()
+                );
 
-        displayed.shrink(removedCount);
+        int removedCount =
+                Math.min(
+                        Math.min(
+                                requestedAmount,
+                                legalStackSize
+                        ),
+                        this.displayedItemCount
+                );
 
-        if (displayed.isEmpty()) {
+        ItemStack removed =
+                displayed.copyWithCount(
+                        removedCount
+                );
+
+        this.displayedItemCount -= removedCount;
+
+        if (this.displayedItemCount <= 0) {
             this.items.set(0, ItemStack.EMPTY);
+            this.displayedItemCount = 0;
         }
 
         this.markChangedAndSync();
         return removed;
     }
 
+    public boolean consumeDisplayedItems(
+            int amount
+    ) {
+        if (
+                amount <= 0
+                        || !this.hasDisplayedItem()
+                        || this.displayedItemCount < amount
+        ) {
+            return false;
+        }
+
+        this.displayedItemCount -= amount;
+
+        if (this.displayedItemCount <= 0) {
+            this.items.set(0, ItemStack.EMPTY);
+            this.displayedItemCount = 0;
+        }
+
+        this.markChangedAndSync();
+        return true;
+    }
+
     public ItemStack removeDisplayedItem() {
-        return this.removeDisplayedItems(Integer.MAX_VALUE);
+        ItemStack displayed =
+                this.getDisplayedItem();
+
+        if (displayed.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        return this.removeDisplayedItems(
+                displayed.getMaxStackSize()
+        );
     }
 
     public int getYawDegrees(ReceptorPosition receptor) {
@@ -954,7 +1055,16 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         this.items.clear();
         ContainerHelper.loadAllItems(input, this.items);
-        this.normalizeDisplayedItem();
+
+        int loadedDisplayedItemCount =
+                input.getIntOr(
+                        TAG_DISPLAYED_ITEM_COUNT,
+                        this.items.get(0).getCount()
+                );
+
+        this.normalizeDisplayedItem(
+                loadedDisplayedItemCount
+        );
 
         this.basukeVisible = input.getBooleanOr(TAG_BASUKE_VISIBLE, false);
         this.basukeUuid = readUuid(input.getStringOr(TAG_BASUKE_UUID, ""));
@@ -1016,7 +1126,16 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         this.items.clear();
         ContainerHelper.loadAllItems(tag, this.items, provider);
-        this.normalizeDisplayedItem();
+
+        int loadedDisplayedItemCount =
+                tag.getIntOr(
+                        TAG_DISPLAYED_ITEM_COUNT,
+                        this.items.get(0).getCount()
+                );
+
+        this.normalizeDisplayedItem(
+                loadedDisplayedItemCount
+        );
 
         this.basukeVisible = tag.getBooleanOr(TAG_BASUKE_VISIBLE, false);
         this.basukeUuid = readUuid(tag.getStringOr(TAG_BASUKE_UUID, ""));
@@ -1080,6 +1199,14 @@ public class VocoTableBlockEntity extends BlockEntity {
         super.saveAdditional(output);
 
         ContainerHelper.saveAllItems(output, this.items, true);
+
+        if (this.hasDisplayedItem()) {
+            output.putInt(
+                    TAG_DISPLAYED_ITEM_COUNT,
+                    this.displayedItemCount
+            );
+        }
+
         output.putBoolean(TAG_BASUKE_VISIBLE, this.basukeVisible);
 
         if (this.basukeUuid != null) {
@@ -1124,6 +1251,14 @@ public class VocoTableBlockEntity extends BlockEntity {
         super.saveAdditional(tag, provider);
 
         ContainerHelper.saveAllItems(tag, this.items, provider);
+
+        if (this.hasDisplayedItem()) {
+            tag.putInt(
+                    TAG_DISPLAYED_ITEM_COUNT,
+                    this.displayedItemCount
+            );
+        }
+
         tag.putBoolean(TAG_BASUKE_VISIBLE, this.basukeVisible);
 
         if (this.basukeUuid != null) {
@@ -1173,7 +1308,10 @@ public class VocoTableBlockEntity extends BlockEntity {
                 DataComponents.CONTAINER,
                 ItemContainerContents.EMPTY
         ).copyInto(this.items);
-        this.normalizeDisplayedItem();
+
+        this.normalizeDisplayedItem(
+                this.items.get(0).getCount()
+        );
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         this.latestHexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
@@ -1227,17 +1365,24 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     *///?}
 
-    private void normalizeDisplayedItem() {
-        ItemStack displayed = this.items.get(0);
+    private void normalizeDisplayedItem(
+            int requestedCount
+    ) {
+        ItemStack displayed =
+                this.items.get(0);
 
-        if (displayed.isEmpty() || displayed.getCount() <= 0) {
+        if (displayed.isEmpty() || requestedCount <= 0) {
             this.items.set(0, ItemStack.EMPTY);
+            this.displayedItemCount = 0;
             return;
         }
 
-        if (displayed.getMaxStackSize() <= 1 && displayed.getCount() > 1) {
-            displayed.setCount(1);
-        }
+        displayed.setCount(1);
+
+        this.displayedItemCount =
+                displayed.getMaxStackSize() <= 1
+                        ? 1
+                        : requestedCount;
     }
 
     private void clearAllCandleSlots() {

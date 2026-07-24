@@ -1,4 +1,4 @@
-package space.anatomyuniverse.musavacca.crafting.craft;
+package space.anatomyuniverse.musavacca.basuke.craft;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;

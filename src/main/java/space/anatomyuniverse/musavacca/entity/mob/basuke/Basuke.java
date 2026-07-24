@@ -14,6 +14,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -33,8 +35,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.crafting.craft.VocoTableCrafting;
-import space.anatomyuniverse.musavacca.crafting.craft.VocoTableCraftingRecipe;
+import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingAction;
+import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic;
 
 import java.util.EnumSet;
 
@@ -49,7 +51,6 @@ public class Basuke extends Allay {
     private static final EntityDataAccessor<Integer> DATA_EATING_TOTAL_TICKS =
             SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
 
-    public static final int DEFAULT_CRAFTING_EATING_TICKS = 28;
     public static final int EATING_CHEW_BEAT_TICKS = 4;
     public static final int MAX_EATING_TICKS = 20 * 60;
 
@@ -109,6 +110,35 @@ public class Basuke extends Allay {
 
     public int getBasukeEatingTotalTicks() {
         return this.entityData.get(DATA_EATING_TOTAL_TICKS);
+    }
+
+    @Override
+    protected InteractionResult mobInteract(
+            Player player,
+            InteractionHand hand
+    ) {
+        VocoTableEatingLogic.beforeItemInteraction(
+                this,
+                player,
+                hand
+        );
+
+        boolean wasHoldingNothing =
+                this.getMainHandItem().isEmpty();
+
+        InteractionResult result =
+                super.mobInteract(
+                        player,
+                        hand
+                );
+
+        VocoTableEatingLogic.afterItemInteraction(
+                this,
+                player,
+                wasHoldingNothing
+        );
+
+        return result;
     }
 
     private void setBasukeEatingTicks(int ticks) {
@@ -183,10 +213,10 @@ public class Basuke extends Allay {
             this.confineTo(allowed, pos);
         }
 
-        this.tickHeldItemCrafting(serverLevel);
+        this.tickHeldItemEating(serverLevel);
     }
 
-    private void tickHeldItemCrafting(@NotNull ServerLevel level) {
+    private void tickHeldItemEating(@NotNull ServerLevel level) {
         ItemStack held = this.getMainHandItem();
 
         if (held.isEmpty()) {
@@ -194,38 +224,82 @@ public class Basuke extends Allay {
             return;
         }
 
-        VocoTableCraftingRecipe recipe = VocoTableCrafting.findActiveRecipe(this, level, held);
-        if (recipe == null) {
+        VocoTableEatingAction action =
+                VocoTableEatingLogic.findActiveAction(
+                        this,
+                        level,
+                        held
+                );
+
+        if (action == null) {
             this.stopEatingHeldItem();
             return;
         }
 
-        int recipeEatingTime = Mth.clamp(recipe.eatingTimeTicks(), 1, MAX_EATING_TICKS);
+        int actionEatingTime =
+                Mth.clamp(
+                        action.eatingTimeTicks(),
+                        1,
+                        MAX_EATING_TICKS
+                );
 
-        if (this.eatingTicks <= 0 || this.eatingTotalTicks != recipeEatingTime) {
-            this.startEatingHeldItem(recipeEatingTime);
+        if (
+                this.eatingTicks <= 0
+                        || this.eatingTotalTicks
+                        != actionEatingTime
+        ) {
+            this.startEatingHeldItem(
+                    actionEatingTime
+            );
             return;
         }
 
         this.eatingTicks--;
-        this.setBasukeEatingTicks(this.eatingTicks);
-
-        int elapsedEatingTicks = this.eatingTotalTicks - this.eatingTicks;
-        float eatingProgress = Mth.clamp(
-                elapsedEatingTicks / (float) Math.max(1, this.eatingTotalTicks),
-                0.0F,
-                1.0F
+        this.setBasukeEatingTicks(
+                this.eatingTicks
         );
 
-        ItemStack particleStack = held.copyWithCount(1);
+        int elapsedEatingTicks =
+                this.eatingTotalTicks
+                        - this.eatingTicks;
+
+        float eatingProgress =
+                Mth.clamp(
+                        elapsedEatingTicks
+                                / (float) Math.max(
+                                1,
+                                this.eatingTotalTicks
+                        ),
+                        0.0F,
+                        1.0F
+                );
+
+        ItemStack particleStack =
+                held.copyWithCount(1);
 
         if (isChewBeat(elapsedEatingTicks)) {
-            this.spawnEatingItemParticles(level, particleStack, particleCountForProgress(eatingProgress));
-            this.playChewBeatSound(level, elapsedEatingTicks, eatingProgress);
+            this.spawnEatingItemParticles(
+                    level,
+                    particleStack,
+                    particleCountForProgress(
+                            eatingProgress
+                    )
+            );
+
+            this.playChewBeatSound(
+                    level,
+                    elapsedEatingTicks,
+                    eatingProgress
+            );
         }
 
         if (this.eatingTicks <= 0) {
-            this.finishCraftingHeldItem(level, held, particleStack, recipe);
+            this.finishEatingHeldItem(
+                    level,
+                    held,
+                    particleStack,
+                    action
+            );
         }
     }
 
@@ -277,17 +351,32 @@ public class Basuke extends Allay {
         this.playBasukeSound(level, SoundEvents.GENERIC_EAT, volume, pitch);
     }
 
-    private void finishCraftingHeldItem(
+    private void finishEatingHeldItem(
             @NotNull ServerLevel level,
             @NotNull ItemStack held,
             @NotNull ItemStack particleStack,
-            @NotNull VocoTableCraftingRecipe recipe
+            @NotNull VocoTableEatingAction action
     ) {
-        boolean crafted = VocoTableCrafting.completeActiveRecipe(this, level, held, recipe);
+        boolean completed =
+                action.complete(
+                        this,
+                        level,
+                        held
+                );
 
-        if (crafted) {
-            this.spawnEatingItemParticles(level, particleStack, 8);
-            this.playBasukeSound(level, SoundEvents.PLAYER_BURP, 0.30F, 1.58F);
+        if (completed) {
+            this.spawnEatingItemParticles(
+                    level,
+                    particleStack,
+                    8
+            );
+
+            this.playBasukeSound(
+                    level,
+                    SoundEvents.PLAYER_BURP,
+                    0.30F,
+                    1.58F
+            );
         }
 
         this.stopEatingHeldItem();

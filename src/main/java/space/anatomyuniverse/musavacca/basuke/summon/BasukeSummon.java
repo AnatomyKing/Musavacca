@@ -1,4 +1,4 @@
-package space.anatomyuniverse.musavacca.crafting.summon;
+package space.anatomyuniverse.musavacca.basuke.summon;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

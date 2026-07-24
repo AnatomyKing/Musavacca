@@ -1,16 +1,17 @@
-package space.anatomyuniverse.musavacca.crafting.craft;
+package space.anatomyuniverse.musavacca.basuke.craft;
 
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
+import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 import java.util.List;
 
 public final class VocoTableCraftingRecipes {
-    public static final int DEFAULT_EATING_TIME_TICKS = Basuke.DEFAULT_CRAFTING_EATING_TICKS;
+    public static final int DEFAULT_EATING_TIME_TICKS =
+            VocoTableEatingLogic.DEFAULT_EATING_TIME_TICKS;
 
     private static final List<VocoTableCraftingRecipe> RECIPES = List.of(
             recipe(Items.DIAMOND_SWORD, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_SWORD.get(), 2),
@@ -24,15 +25,6 @@ public final class VocoTableCraftingRecipes {
             recipe(Items.DIAMOND_LEGGINGS, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_LEGGINGS.get(), 2),
             recipe(Items.DIAMOND_BOOTS, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_BOOTS.get(), 2),
 
-            /*
-             * hexColorInject = true
-             *
-             * If all 4 Voco candle/receptor corners have the same lit color,
-             * that color gets injected into the result stack as ModDataComponents.HEX_COLOR.
-             *
-             * The item does not need to support tinting for this to be safe.
-             * If the item model ignores HEX_COLOR, nothing visual happens.
-             */
             recipe(
                     ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),

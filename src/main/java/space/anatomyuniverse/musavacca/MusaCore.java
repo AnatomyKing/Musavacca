@@ -15,6 +15,7 @@ import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerClientModEvents;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerEvents;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableItemDisplayLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
 import space.anatomyuniverse.musavacca.client.ModClientRenderLayers;
@@ -83,6 +84,11 @@ public final class MusaCore {
 
         NeoForge.EVENT_BUS.register(
                 BalanceEvents.class
+        );
+
+        NeoForge.EVENT_BUS.addListener(
+                VocoTableItemDisplayLogic
+                        ::onRightClickBlock
         );
 
         if (

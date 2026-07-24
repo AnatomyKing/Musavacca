@@ -141,7 +141,7 @@ public final class PearlFireTintProfiles {
 
     public static final Profile IMBUED_POTASSIUM = of(
             settings(
-                    0.36F,  // coreToTailLightness
+                    0.60F,  // coreToTailLightness
                     0.5F,   // colorJumpiness
                     0.21F,  // colorAmountTakeOver
                     0.36F   // layerContrast
@@ -151,10 +151,10 @@ public final class PearlFireTintProfiles {
 
     public static final Profile GLITHER_PARTICLE = of(
             settings(
-                    0.13F,
-                    0.12F,
+                    0.80F,
+                    0.5F,
                     0.0F,
-                    0.36F
+                    1.21F
             ),
             255, 240, 199, 184
     );

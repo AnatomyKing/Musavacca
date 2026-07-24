@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -33,6 +32,13 @@ public final class VocoTableVoxelShapes {
     private VocoTableVoxelShapes() {}
 
     public static VoxelShape shape(BlockState state, BlockGetter level, BlockPos pos) {
+        return Shapes.or(
+                collisionShape(state, level, pos),
+                VocoTableItemDisplayHitboxes.SHAPE
+        );
+    }
+
+    public static VoxelShape collisionShape(BlockState state, BlockGetter level, BlockPos pos) {
         boolean rotaryDialers = state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
                 && state.getValue(VocoTableBlock.ROTARY_DIALERS);
 
