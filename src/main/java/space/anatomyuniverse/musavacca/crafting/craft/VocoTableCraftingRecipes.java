@@ -3,6 +3,7 @@ package space.anatomyuniverse.musavacca.crafting.craft;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
@@ -42,6 +43,14 @@ public final class VocoTableCraftingRecipes {
                     ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                    1,
+                    true
+            ),
+
+            recipe(
+                    ModBlocks.MUSAVACCA_DOOR,
+                    ModItems.BANANA_PEARL.get(),
+                    ModBlocks.MUSAVACCA_PORTAL_DOOR.get(),
                     1,
                     true
             ),

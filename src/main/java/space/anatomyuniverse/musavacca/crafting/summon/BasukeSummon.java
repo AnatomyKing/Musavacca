@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/crafting/summon/BasukeSummon.java
 package space.anatomyuniverse.musavacca.crafting.summon;
 
 import net.minecraft.core.BlockPos;
@@ -84,7 +83,7 @@ public final class BasukeSummon {
             BlockState state,
             VocoTableBlockEntity tableBe
     ) {
-        tableBe.removeDisplayedItem();
+        tableBe.removeDisplayedItems(1);
         tableBe.extinguishAllCandlesForSummon();
 
         BlockState newState = state;
@@ -127,12 +126,7 @@ public final class BasukeSummon {
                 pos.getZ() + 0.5D
         );
 
-        /*
-         * Visual-only keeps the ritual dramatic without burning nearby blocks
-         * or damaging entities. Remove this line if you want real lightning.
-         */
         lightning.setVisualOnly(true);
-
         level.addFreshEntity(lightning);
     }
 }

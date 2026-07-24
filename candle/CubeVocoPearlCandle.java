@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/models/block/CubeVocoPearlCandle.java
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import com.mojang.math.Quadrant;

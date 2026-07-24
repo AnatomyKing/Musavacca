@@ -87,6 +87,40 @@ public final class ModBlockEntities {
                     //?}
             );
 
+    public static final Supplier<
+            BlockEntityType<
+                    MusavaccaPortalDoorBlockEntity
+                    >
+            >
+            MUSAVACCA_PORTAL_DOOR_BLOCK_ENTITY =
+            BLOCK_ENTITY_TYPES.register(
+                    "musavacca_portal_door_block_entity",
+                    () ->
+                            //? if <1.21.2 {
+                        /*BlockEntityType.Builder.of(
+                                MusavaccaPortalDoorBlockEntity::new,
+                                ModBlocks
+                                        .MUSAVACCA_PORTAL_DOOR
+                                        .get()
+                        ).build(null)
+                        *///?} else if <1.21.4 {
+                        /*new BlockEntityType<>(
+                                MusavaccaPortalDoorBlockEntity::new,
+                                ModBlocks
+                                        .MUSAVACCA_PORTAL_DOOR
+                                        .get()
+                        )
+                        *///?} else {
+                            new BlockEntityType<>(
+                                    MusavaccaPortalDoorBlockEntity::new,
+                                    false,
+                                    ModBlocks
+                                            .MUSAVACCA_PORTAL_DOOR
+                                            .get()
+                            )
+                    //?}
+            );
+
     public static final Supplier<BlockEntityType<PearlCandleBlockEntity>> PEARL_CANDLE_BLOCK_ENTITY =
             BLOCK_ENTITY_TYPES.register(
                     "pearl_candle_block_entity",

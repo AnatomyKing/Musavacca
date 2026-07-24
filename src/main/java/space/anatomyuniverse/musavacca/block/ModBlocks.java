@@ -239,27 +239,35 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                     ));
 
-    public static final DeferredBlock<MusavaccaPortalDoorBlock>
+    public static final DeferredBlock<
+            MusavaccaPortalDoorBlock
+            >
             MUSAVACCA_PORTAL_DOOR =
             BLOCKS.registerBlock(
                     "musavacca_portal_door",
-                    props -> new MusavaccaPortalDoorBlock(
-                            ModWoodTypes.MUSAVACCA_BLOCK_SET,
-                            props
-                                    .mapColor(MapColor.COLOR_ORANGE)
-                                    .strength(3.0F, 3.0F)
-                                    .sound(
-                                            ModWoodTypes
-                                                    .MUSAVACCA_BLOCK_SET
-                                                    .soundType()
-                                    )
-                                    .noOcclusion()
-                                    .pushReaction(
-                                            PushReaction.DESTROY
-                                    )
-                    )
+                    props ->
+                            new MusavaccaPortalDoorBlock(
+                                    ModWoodTypes
+                                            .MUSAVACCA_BLOCK_SET,
+                                    props
+                                            .mapColor(
+                                                    MapColor.COLOR_ORANGE
+                                            )
+                                            .strength(
+                                                    3.0F,
+                                                    3.0F
+                                            )
+                                            .sound(
+                                                    ModWoodTypes
+                                                            .MUSAVACCA_BLOCK_SET
+                                                            .soundType()
+                                            )
+                                            .noOcclusion()
+                                            .pushReaction(
+                                                    PushReaction.DESTROY
+                                            )
+                            )
             );
-
 
     public static final DeferredBlock<TrapDoorBlock> MUSAVACCA_TRAPDOOR =
             BLOCKS.registerBlock("musavacca_trapdoor",

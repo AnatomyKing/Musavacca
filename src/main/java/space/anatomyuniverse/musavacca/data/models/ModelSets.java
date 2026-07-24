@@ -17,6 +17,7 @@ import java.util.Map;
 public final class ModelSets {
     private ModelSets() {}
 
+
     public static Block[] cubeAllBlocks() {
         return new Block[] {
                 ModBlocks.BANANA_PEARL_BLOCK.get(),
@@ -68,13 +69,12 @@ public final class ModelSets {
         );
     }
 
-    public static Map<Block, CubeMusavaccaPortalDoor.Models>
-    cubeMusavaccaPortalDoorModels() {
+    public static Map<Block, CubeMusavaccaPortalDoorTinted.Models>
+    cubeMusavaccaPortalDoorTintedModels() {
         return Map.of(
                 ModBlocks.MUSAVACCA_PORTAL_DOOR.get(),
-                new CubeMusavaccaPortalDoor.Models(
-
-                        new CubeMusavaccaPortalDoor.DoorModels(
+                new CubeMusavaccaPortalDoorTinted.Models(
+                        new CubeMusavaccaPortalDoorTinted.DoorModels(
                                 "musavacca:block/musavacca_door_bottom_left",
                                 "musavacca:block/musavacca_door_bottom_left_open",
                                 "musavacca:block/musavacca_door_bottom_right",
@@ -84,7 +84,7 @@ public final class ModelSets {
                                 "musavacca:block/musavacca_door_top_right",
                                 "musavacca:block/musavacca_door_top_right_open"
                         ),
-                        new CubeMusavaccaPortalDoor.DoorModels(
+                        new CubeMusavaccaPortalDoorTinted.DoorModels(
                                 "musavacca:block/musavacca_door/knob/lit_door_bottom_left",
                                 "musavacca:block/musavacca_door/knob/lit_door_bottom_left_open",
                                 "musavacca:block/musavacca_door/knob/lit_door_bottom_right",
@@ -94,7 +94,7 @@ public final class ModelSets {
                                 "musavacca:block/musavacca_door/knob/lit_door_top_right",
                                 "musavacca:block/musavacca_door/knob/lit_door_top_right_open"
                         ),
-                        new CubeMusavaccaPortalDoor.PortalModels(
+                        new CubeMusavaccaPortalDoorTinted.PortalModels(
                                 "musavacca:block/musavacca_door/portal/portal_bottom_left_open",
                                 "musavacca:block/musavacca_door/portal/portal_bottom_right_open",
                                 "musavacca:block/musavacca_door/door_portal/door_portal_top_left",
@@ -102,14 +102,11 @@ public final class ModelSets {
                                 "musavacca:block/musavacca_door/portal/portal_top_left_open",
                                 "musavacca:block/musavacca_door/portal/portal_top_right_open"
                         ),
-                        "musavacca:block/musavacca_door_bottom",
-                        "musavacca:block/musavacca_door_top",
-
-                        "musavacca:item/musavacca_door"
+                        "musavacca:item/musavacca_door",
+                        PearlFireTintProfiles.PORTAL_BLOCK
                 )
         );
     }
-
 
     public static Map<Block, CubeVocoPost.Models> cubeVocoPostModels() {
         return Map.of(

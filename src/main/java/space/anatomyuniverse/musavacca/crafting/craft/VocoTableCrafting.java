@@ -121,6 +121,15 @@ public final class VocoTableCrafting {
             return null;
         }
 
+        ItemStack resultStack = recipe.createResultStack();
+
+        if (
+                displayedStack.getCount() > 1
+                        && resultStack.getMaxStackSize() <= 1
+        ) {
+            return null;
+        }
+
         return recipe;
     }
 
@@ -161,6 +170,18 @@ public final class VocoTableCrafting {
             }
         }
 
+        ItemStack resultStack =
+                recipe.createResultStack();
+
+        if (
+                displayedStack.getCount() > 1
+                        && resultStack.getMaxStackSize() <= 1
+        ) {
+            return false;
+        }
+
+        resultStack.setCount(displayedStack.getCount());
+
         int glitherColor =
                 matchingCandleColor == null
                         ? DEFAULT_GLITHER_COLOR
@@ -183,9 +204,6 @@ public final class VocoTableCrafting {
                         stateBeforeConsumption,
                         level.getBlockState(tablePos)
                 );
-
-        ItemStack resultStack =
-                recipe.createResultStack();
 
         injectHexColorIfAllowed(
                 resultStack,
@@ -349,11 +367,6 @@ public final class VocoTableCrafting {
             @NotNull ReceptorPosition receptor,
             int glitherColor
     ) {
-        /*
-         * Use the same shared slot definition as ignition
-         * and shearing, so every system agrees on the exact
-         * Banana Pearl position.
-         */
         PearlSlotIgnition.Slot pearlSlot =
                 VocoReceptorLogic.pearlSlot(
                         VocoTableBlock.lightProperty(

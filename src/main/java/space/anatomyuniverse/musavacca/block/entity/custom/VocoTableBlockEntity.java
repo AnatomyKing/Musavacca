@@ -171,20 +171,94 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     public void setDisplayedItem(ItemStack stack) {
+        if (stack.isEmpty() || stack.getCount() <= 0) {
+            this.items.set(0, ItemStack.EMPTY);
+            this.markChangedAndSync();
+            return;
+        }
+
         ItemStack copy = stack.copy();
-        copy.setCount(1);
+
+        if (copy.getMaxStackSize() <= 1) {
+            copy.setCount(1);
+        }
 
         this.items.set(0, copy);
         this.markChangedAndSync();
     }
 
-    public ItemStack removeDisplayedItem() {
-        ItemStack removed = this.getDisplayedItem().copy();
+    public boolean canMergeDisplayedItem(ItemStack stack) {
+        ItemStack displayed = this.getDisplayedItem();
 
-        this.items.set(0, ItemStack.EMPTY);
+        return !displayed.isEmpty()
+                && !stack.isEmpty()
+                && displayed.getMaxStackSize() > 1
+                && ItemStack.isSameItemSameComponents(displayed, stack);
+    }
+
+    public int addDisplayedItems(ItemStack stack, int requestedAmount) {
+        if (stack.isEmpty() || requestedAmount <= 0) {
+            return 0;
+        }
+
+        ItemStack displayed = this.getDisplayedItem();
+
+        if (displayed.isEmpty()) {
+            int moved = stack.getMaxStackSize() <= 1
+                    ? 1
+                    : Math.min(requestedAmount, stack.getCount());
+
+            ItemStack inserted = stack.copyWithCount(moved);
+            this.items.set(0, inserted);
+            this.markChangedAndSync();
+            return moved;
+        }
+
+        if (!this.canMergeDisplayedItem(stack)) {
+            return 0;
+        }
+
+        long capacity = (long) Integer.MAX_VALUE - displayed.getCount();
+        if (capacity <= 0L) {
+            return 0;
+        }
+
+        int moved = (int) Math.min(
+                Math.min((long) requestedAmount, stack.getCount()),
+                capacity
+        );
+
+        if (moved <= 0) {
+            return 0;
+        }
+
+        displayed.grow(moved);
         this.markChangedAndSync();
+        return moved;
+    }
 
+    public ItemStack removeDisplayedItems(int requestedAmount) {
+        ItemStack displayed = this.getDisplayedItem();
+
+        if (displayed.isEmpty() || requestedAmount <= 0) {
+            return ItemStack.EMPTY;
+        }
+
+        int removedCount = Math.min(requestedAmount, displayed.getCount());
+        ItemStack removed = displayed.copyWithCount(removedCount);
+
+        displayed.shrink(removedCount);
+
+        if (displayed.isEmpty()) {
+            this.items.set(0, ItemStack.EMPTY);
+        }
+
+        this.markChangedAndSync();
         return removed;
+    }
+
+    public ItemStack removeDisplayedItem() {
+        return this.removeDisplayedItems(Integer.MAX_VALUE);
     }
 
     public int getYawDegrees(ReceptorPosition receptor) {
@@ -880,6 +954,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         this.items.clear();
         ContainerHelper.loadAllItems(input, this.items);
+        this.normalizeDisplayedItem();
 
         this.basukeVisible = input.getBooleanOr(TAG_BASUKE_VISIBLE, false);
         this.basukeUuid = readUuid(input.getStringOr(TAG_BASUKE_UUID, ""));
@@ -916,10 +991,6 @@ public class VocoTableBlockEntity extends BlockEntity {
                 slot.count = Math.max(1, Math.min(CandleBlock.MAX_CANDLES, candleCount));
                 slot.lit = input.getBooleanOr(TAG_CANDLE_LIT[index], false);
 
-                /*
-                 * Backwards compatible:
-                 * old saves did not have candle_has_hex_*, and old lit candles were always Pearl-lit.
-                 */
                 slot.hasHexColor = input.getBooleanOr(TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
                 slot.hexColor = slot.hasHexColor
                         ? normalizeHex(input.getIntOr(TAG_CANDLE_HEX_COLORS[index], DEFAULT_HEX_COLOR))
@@ -945,6 +1016,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         this.items.clear();
         ContainerHelper.loadAllItems(tag, this.items, provider);
+        this.normalizeDisplayedItem();
 
         this.basukeVisible = tag.getBooleanOr(TAG_BASUKE_VISIBLE, false);
         this.basukeUuid = readUuid(tag.getStringOr(TAG_BASUKE_UUID, ""));
@@ -981,8 +1053,6 @@ public class VocoTableBlockEntity extends BlockEntity {
                 slot.count = Math.max(1, Math.min(CandleBlock.MAX_CANDLES, candleCount));
                 slot.lit = tag.getBooleanOr(TAG_CANDLE_LIT[index], false);
 
-                // Backwards compatible:
-                // old saves did not have candle_has_hex_*, and old lit candles were always Pearl-lit.
                 slot.hasHexColor = tag.getBooleanOr(TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
                 slot.hexColor = slot.hasHexColor
                         ? normalizeHex(tag.getIntOr(TAG_CANDLE_HEX_COLORS[index], DEFAULT_HEX_COLOR))
@@ -1103,6 +1173,7 @@ public class VocoTableBlockEntity extends BlockEntity {
                 DataComponents.CONTAINER,
                 ItemContainerContents.EMPTY
         ).copyInto(this.items);
+        this.normalizeDisplayedItem();
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         this.latestHexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
@@ -1155,6 +1226,19 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     *///?}
+
+    private void normalizeDisplayedItem() {
+        ItemStack displayed = this.items.get(0);
+
+        if (displayed.isEmpty() || displayed.getCount() <= 0) {
+            this.items.set(0, ItemStack.EMPTY);
+            return;
+        }
+
+        if (displayed.getMaxStackSize() <= 1 && displayed.getCount() > 1) {
+            displayed.setCount(1);
+        }
+    }
 
     private void clearAllCandleSlots() {
         for (CandleSlot slot : this.candleSlots) {
@@ -1250,4 +1334,6 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 }
+
+
 

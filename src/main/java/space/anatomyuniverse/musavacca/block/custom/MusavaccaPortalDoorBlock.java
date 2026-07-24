@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/block/custom/MusavaccaPortalDoorBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -8,19 +7,30 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
+import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
+import space.anatomyuniverse.musavacca.item.ModItems;
 
-public final class MusavaccaPortalDoorBlock extends DoorBlock {
+public final class MusavaccaPortalDoorBlock
+        extends DoorBlock
+        implements EntityBlock {
+
     public static final BooleanProperty LIT =
             BooleanProperty.create("lit");
 
@@ -29,6 +39,28 @@ public final class MusavaccaPortalDoorBlock extends DoorBlock {
 
     private static final int UPDATE_FLAGS =
             Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
+
+    /*
+     * The lower door half is used as the canonical pearl slot.
+     *
+     * The pearl drops from the vertical center of the complete
+     * two-block-tall door and pops slightly upward.
+     */
+    private static final PearlSlotIgnition.Slot PEARL_SLOT =
+            PearlSlotIgnition.Slot.of(
+                    LIT,
+                    PORTAL,
+                    new Vec3(
+                            0.5D,
+                            1.0D,
+                            0.5D
+                    ),
+                    new Vec3(
+                            0.0D,
+                            0.18D,
+                            0.0D
+                    )
+            );
 
     public MusavaccaPortalDoorBlock(
             BlockSetType blockSetType,
@@ -43,6 +75,31 @@ public final class MusavaccaPortalDoorBlock extends DoorBlock {
         );
     }
 
+    /**
+     * Only the lower half owns the block entity.
+     *
+     * The HEX_COLOR component from the placed door item
+     * is stored inside this block entity.
+     */
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(
+            BlockPos pos,
+            BlockState state
+    ) {
+        if (
+                state.getValue(HALF)
+                        != DoubleBlockHalf.LOWER
+        ) {
+            return null;
+        }
+
+        return new MusavaccaPortalDoorBlockEntity(
+                pos,
+                state
+        );
+    }
+
     @Override
     protected void createBlockStateDefinition(
             StateDefinition.Builder<Block, BlockState> builder
@@ -52,34 +109,23 @@ public final class MusavaccaPortalDoorBlock extends DoorBlock {
     }
 
     /**
-     * Empty-hand shift-right-click test interaction.
+     * Handles only Banana Pearl and shears interactions through
+     * the shared PearlSlotIgnition system.
      *
-     * State order:
-     * normal -> lit -> portal -> lit + portal -> normal
-     */
-    @Override
-    protected InteractionResult useWithoutItem(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            BlockHitResult hit
-    ) {
-        if (player.isShiftKeyDown()) {
-            return cycleTestState(state, level, pos);
-        }
-
-        return super.useWithoutItem(
-                state,
-                level,
-                pos,
-                player,
-                hit
-        );
-    }
-
-    /**
-     * Also allows the temporary test cycle while holding an item.
+     * Banana Pearl on unlit door:
+     * - lights the door
+     * - consumes one Banana Pearl
+     * - automatically enables the portal
+     *
+     * Shears on lit door:
+     * - extinguishes the door
+     * - disables the portal
+     * - drops one Banana Pearl
+     * - damages the shears
+     *
+     * Shears on unlit door:
+     * - charges it using balance through PearlSlotIgnition
+     * - automatically enables the portal
      */
     @Override
     protected InteractionResult useItemOn(
@@ -91,35 +137,26 @@ public final class MusavaccaPortalDoorBlock extends DoorBlock {
             InteractionHand hand,
             BlockHitResult hit
     ) {
-        if (player.isShiftKeyDown()) {
-            return cycleTestState(state, level, pos);
-        }
-
-        return super.useItemOn(
-                stack,
-                state,
-                level,
-                pos,
-                player,
-                hand,
-                hit
-        );
-    }
-
-    private InteractionResult cycleTestState(
-            BlockState clickedState,
-            Level level,
-            BlockPos clickedPos
-    ) {
-        if (level.isClientSide()) {
-            return InteractionResult.SUCCESS;
+        if (
+                !stack.is(ModItems.BANANA_PEARL.get())
+                        && !stack.is(Items.SHEARS)
+        ) {
+            return super.useItemOn(
+                    stack,
+                    state,
+                    level,
+                    pos,
+                    player,
+                    hand,
+                    hit
+            );
         }
 
         BlockPos lowerPos =
-                clickedState.getValue(HALF)
-                        == DoubleBlockHalf.UPPER
-                        ? clickedPos.below()
-                        : clickedPos;
+                lowerDoorPos(
+                        state,
+                        pos
+                );
 
         BlockState lowerState =
                 level.getBlockState(lowerPos);
@@ -128,55 +165,67 @@ public final class MusavaccaPortalDoorBlock extends DoorBlock {
             return InteractionResult.PASS;
         }
 
-        boolean lit =
-                lowerState.getValue(LIT);
+        InteractionResult result =
+                PearlSlotIgnition.handleHeldItemUse(
+                        stack,
+                        lowerState,
+                        level,
+                        lowerPos,
+                        player,
+                        hand,
+                        PEARL_SLOT
+                );
 
-        boolean portal =
-                lowerState.getValue(PORTAL);
-
-        boolean nextLit;
-        boolean nextPortal;
-
-        if (!lit && !portal) {
-            nextLit = true;
-            nextPortal = false;
-        } else if (lit && !portal) {
-            nextLit = false;
-            nextPortal = true;
-        } else if (!lit) {
-            nextLit = true;
-            nextPortal = true;
-        } else {
-            nextLit = false;
-            nextPortal = false;
+        if (
+                result == InteractionResult.SUCCESS
+                        && !level.isClientSide()
+        ) {
+            synchronizePearlState(
+                    level,
+                    lowerPos
+            );
         }
 
-        /*
-         * Update both halves explicitly.
-         * Their normal door properties remain untouched.
-         */
-        setVisualState(
-                level,
-                lowerPos.above(),
-                nextLit,
-                nextPortal
-        );
+        return result;
+    }
+
+    /**
+     * PearlSlotIgnition changes the canonical lower half.
+     * This copies that result to both halves and ensures:
+     *
+     *     PORTAL == LIT
+     */
+    private void synchronizePearlState(
+            Level level,
+            BlockPos lowerPos
+    ) {
+        BlockState lowerState =
+                level.getBlockState(lowerPos);
+
+        if (!lowerState.is(this)) {
+            return;
+        }
+
+        boolean lit =
+                lowerState.getValue(LIT);
 
         setVisualState(
                 level,
                 lowerPos,
-                nextLit,
-                nextPortal
+                lit
         );
 
-        return InteractionResult.SUCCESS;
+        setVisualState(
+                level,
+                lowerPos.above(),
+                lit
+        );
     }
 
     private void setVisualState(
             Level level,
             BlockPos pos,
-            boolean lit,
-            boolean portal
+            boolean lit
     ) {
         BlockState state =
                 level.getBlockState(pos);
@@ -189,9 +238,23 @@ public final class MusavaccaPortalDoorBlock extends DoorBlock {
                 pos,
                 state
                         .setValue(LIT, lit)
-                        .setValue(PORTAL, portal),
+                        .setValue(PORTAL, lit),
                 UPDATE_FLAGS
         );
+    }
+
+    /**
+     * Returns the canonical lower-half position used by both
+     * the pearl-slot logic and the block tint handler.
+     */
+    public static BlockPos lowerDoorPos(
+            BlockState clickedState,
+            BlockPos clickedPos
+    ) {
+        return clickedState.getValue(HALF)
+                == DoubleBlockHalf.UPPER
+                ? clickedPos.below()
+                : clickedPos;
     }
 
     /**
@@ -221,25 +284,27 @@ public final class MusavaccaPortalDoorBlock extends DoorBlock {
                         random
                 );
 
-        if (!updatedState.is(this)
-                || direction.getAxis() != Direction.Axis.Y
-                || !neighborState.is(this)) {
+        if (
+                !updatedState.is(this)
+                        || direction.getAxis()
+                        != Direction.Axis.Y
+                        || !neighborState.is(this)
+        ) {
             return updatedState;
         }
 
-        if (updatedState.getValue(HALF)
-                == neighborState.getValue(HALF)) {
+        if (
+                updatedState.getValue(HALF)
+                        == neighborState.getValue(HALF)
+        ) {
             return updatedState;
         }
+
+        boolean lit =
+                neighborState.getValue(LIT);
 
         return updatedState
-                .setValue(
-                        LIT,
-                        neighborState.getValue(LIT)
-                )
-                .setValue(
-                        PORTAL,
-                        neighborState.getValue(PORTAL)
-                );
+                .setValue(LIT, lit)
+                .setValue(PORTAL, lit);
     }
 }

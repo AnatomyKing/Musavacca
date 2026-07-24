@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/tint/ModTints.java
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.client.renderer.BiomeColors;
@@ -10,11 +9,13 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
@@ -31,6 +32,7 @@ public final class ModTints {
     private static final PearlFireTintProfiles.Profile PEARL_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
     private static final PearlFireTintProfiles.Profile VOCO_POST_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
     private static final PearlFireTintProfiles.Profile VOCO_TABLE_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
+    private static final PearlFireTintProfiles.Profile MUSAVACCA_PORTAL_DOOR_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
 
     private static final VocoTableTintRange[] VOCO_TABLE_TINT_RANGES = {
             new VocoTableTintRange(ReceptorPosition.NORTH_EAST, 0),
@@ -69,6 +71,7 @@ public final class ModTints {
 
         event.register(ModTints::getVocoPostPortalTint, ModBlocks.VOCO_POST.get());
         event.register(ModTints::getVocoTablePortalTint, ModBlocks.VOCO_TABLE.get());
+        event.register(ModTints::getMusavaccaPortalDoorTint, ModBlocks.MUSAVACCA_PORTAL_DOOR.get());
     }
 
     private static int getMusavaccaFoliageTint(
@@ -250,6 +253,39 @@ public final class ModTints {
         );
     }
 
+    private static int getMusavaccaPortalDoorTint(
+            BlockState state,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            int tintIndex
+    ) {
+        if (!state.hasProperty(MusavaccaPortalDoorBlock.PORTAL)
+                || !state.getValue(MusavaccaPortalDoorBlock.PORTAL)) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        if (!PearlFireTintSource.supportsLayer(MUSAVACCA_PORTAL_DOOR_PROFILE, tintIndex)) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        if (level == null || pos == null) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        BlockPos lowerPos = MusavaccaPortalDoorBlock.lowerDoorPos(state, pos);
+
+        if (level.getBlockEntity(lowerPos) instanceof MusavaccaPortalDoorBlockEntity doorBe
+                && doorBe.hasHexColor()) {
+            return PearlFireTintSource.blockTint(
+                    doorBe.getHexColor(),
+                    tintIndex,
+                    MUSAVACCA_PORTAL_DOOR_PROFILE
+            );
+        }
+
+        return TintColorUtil.NO_TINT;
+    }
+
     private static VocoTableTintLayer tableTintLayer(int tintIndex) {
         int layerCount = VOCO_TABLE_PORTAL_PROFILE.layerCount();
 
@@ -342,6 +378,25 @@ public final class ModTints {
                     );
                 },
                 ModBlocks.PEARL_PORTAL.get()
+        );
+
+        event.register((stack, tintIndex) -> {
+                    if (!PearlFireTintSource.supportsLayer(MUSAVACCA_PORTAL_DOOR_PROFILE, tintIndex)) {
+                        return TintColorUtil.NO_TINT;
+                    }
+
+                    Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+                    if (savedHex == null) {
+                        return TintColorUtil.NO_TINT;
+                    }
+
+                    return PearlFireTintSource.blockTint(
+                            savedHex,
+                            tintIndex,
+                            MUSAVACCA_PORTAL_DOOR_PROFILE
+                    );
+                },
+                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
         );
     }
     *///?} else {

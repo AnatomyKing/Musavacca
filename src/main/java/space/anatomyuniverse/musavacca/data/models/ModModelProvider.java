@@ -62,9 +62,11 @@ public final class ModModelProvider
                 ModelSets.doorBlocks()
         );
 
-        CubeMusavaccaPortalDoor.generate(
+        CubeMusavaccaPortalDoorTinted.generate(
                 blocks,
-                ModelSets.cubeMusavaccaPortalDoorModels()
+                items,
+                ModelSets
+                        .cubeMusavaccaPortalDoorTintedModels()
         );
 
         Trapdoors.generate(blocks, ModelSets.trapdoorBlocks());

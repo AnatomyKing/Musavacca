@@ -151,20 +151,20 @@ public final class PearlFireTintProfiles {
 
     public static final Profile GLITHER_PARTICLE = of(
             settings(
-                    0.13F,  // coreToTailLightness
-                    0.12F,  // colorJumpiness
-                    0.0F,   // colorAmountTakeOver
-                    0.36F   // layerContrast
+                    0.13F,
+                    0.12F,
+                    0.0F,
+                    0.36F
             ),
             255, 240, 199, 184
     );
 
     public static final Profile PEARL_FLAME = of(
             settings(
-                    0.80F,  // coreToTailLightness
-                    0.5F,   // colorJumpiness
-                    0.0F,   // colorAmountTakeOver
-                    1.21F   // layerContrast
+                    0.80F,
+                    0.5F,
+                    0.0F,
+                    1.21F
             ),
             255, 228, 196, 167
     );

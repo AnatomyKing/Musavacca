@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -120,9 +119,16 @@ public final class VocoTableLogic {
         if (player.isShiftKeyDown()) {
             ReceptorPosition receptor = candleHit != null ? candleHit : receptorPart.receptor();
 
-            if (receptor != null
-                    && VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
+            if (receptor != null) {
+                if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
+                    return InteractionResult.SUCCESS;
+                }
+
                 return InteractionResult.SUCCESS;
+            }
+
+            if (!level.isClientSide()) {
+                removeDisplayedItem(level, pos, player, true);
             }
 
             return InteractionResult.SUCCESS;
@@ -205,7 +211,7 @@ public final class VocoTableLogic {
         }
 
         if (!level.isClientSide()) {
-            removeDisplayedItem(level, pos, player);
+            removeDisplayedItem(level, pos, player, false);
         }
 
         return InteractionResult.SUCCESS;
@@ -231,9 +237,33 @@ public final class VocoTableLogic {
         if (player.isShiftKeyDown()) {
             ReceptorPosition receptor = candleHit != null ? candleHit : receptorPart.receptor();
 
-            if (receptor != null
-                    && VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
+            if (receptor != null) {
+                if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
+                    return InteractionResult.SUCCESS;
+                }
+
                 return InteractionResult.SUCCESS;
+            }
+
+            if (hand == InteractionHand.OFF_HAND) {
+                return InteractionResult.PASS;
+            }
+
+            if (level.isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+
+            boolean changed = insertDisplayedItem(
+                    stack,
+                    level,
+                    pos,
+                    player,
+                    hand,
+                    true
+            );
+
+            if (changed) {
+                BasukeSummon.trySummonFromVocoTable(level, pos);
             }
 
             return InteractionResult.SUCCESS;
@@ -355,12 +385,20 @@ public final class VocoTableLogic {
             return InteractionResult.SUCCESS;
         }
 
-        boolean inserted = insertDisplayedItem(stack, level, pos, player);
-        if (inserted) {
+        boolean changed = insertDisplayedItem(
+                stack,
+                level,
+                pos,
+                player,
+                hand,
+                false
+        );
+
+        if (changed) {
             BasukeSummon.trySummonFromVocoTable(level, pos);
         }
 
-        return inserted ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 
     private static InteractionResult useReceptorCornerItem(
@@ -444,13 +482,27 @@ public final class VocoTableLogic {
         return block instanceof CandleBlock ? block : null;
     }
 
-    private static boolean removeDisplayedItem(Level level, BlockPos pos, Player player) {
+    private static boolean removeDisplayedItem(
+            Level level,
+            BlockPos pos,
+            Player player,
+            boolean bulk
+    ) {
         if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)
                 || !tableBe.hasDisplayedItem()) {
             return false;
         }
 
-        ItemStack removed = tableBe.removeDisplayedItem();
+        ItemStack displayed = tableBe.getDisplayedItem();
+        int requestedAmount = bulk
+                ? displayed.getMaxStackSize()
+                : 1;
+
+        ItemStack removed = tableBe.removeDisplayedItems(requestedAmount);
+        if (removed.isEmpty()) {
+            return false;
+        }
+
         if (!player.addItem(removed)) {
             player.drop(removed, false);
         }
@@ -462,20 +514,46 @@ public final class VocoTableLogic {
             ItemStack stack,
             Level level,
             BlockPos pos,
-            Player player
+            Player player,
+            InteractionHand hand,
+            boolean bulk
     ) {
-        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)
-                || tableBe.hasDisplayedItem()) {
+        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
+            return false;
+        }
+
+        ItemStack displayed = tableBe.getDisplayedItem();
+
+        if (displayed.isEmpty() || tableBe.canMergeDisplayedItem(stack)) {
+            int requestedAmount = bulk
+                    ? Math.min(stack.getCount(), stack.getMaxStackSize())
+                    : 1;
+
+            int moved = tableBe.addDisplayedItems(stack, requestedAmount);
+            if (moved <= 0) {
+                return false;
+            }
+
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(moved);
+            }
+
+            return true;
+        }
+
+        if (ItemStack.isSameItemSameComponents(displayed, stack)) {
+            return false;
+        }
+
+        if (displayed.getCount() > displayed.getMaxStackSize()) {
             return false;
         }
 
         ItemStack inserted = stack.copy();
-        inserted.setCount(1);
-        tableBe.setDisplayedItem(inserted);
+        ItemStack removed = displayed.copy();
 
-        if (!player.getAbilities().instabuild) {
-            stack.shrink(1);
-        }
+        tableBe.setDisplayedItem(inserted);
+        player.setItemInHand(hand, removed);
 
         return true;
     }
