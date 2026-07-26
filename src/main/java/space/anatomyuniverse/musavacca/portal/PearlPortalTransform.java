@@ -96,6 +96,11 @@ public final class PearlPortalTransform {
         TransformBasis sourceBasis = basisOf(sourceShape);
         TransformBasis targetBasis = basisOf(targetShape);
 
+        double rightSign = rightTransformSign(
+                sourceBasis,
+                targetBasis
+        );
+
         double entityHalfWidth = Math.max(0.0D, entity.getBbWidth() * 0.5D);
         double entityHeight = Math.max(0.0D, entity.getBbHeight());
 
@@ -112,7 +117,8 @@ public final class PearlPortalTransform {
                 targetBasis.rightSize(),
                 entityHalfWidth,
                 entityHeight,
-                false
+                false,
+                rightSign < 0.0D
         );
 
         double targetUp = mapLocalAxis(
@@ -123,7 +129,8 @@ public final class PearlPortalTransform {
                 targetBasis.upSize(),
                 entityHalfWidth,
                 entityHeight,
-                true
+                true,
+                false
         );
 
         int exitSide = chooseExitSide(sourceShape, sourceBasis, entityPos, entityDelta);
@@ -141,7 +148,7 @@ public final class PearlPortalTransform {
         LocalVector localDelta = sourceBasis.localVector(entityDelta);
 
         Vec3 targetDelta = targetBasis.worldVector(
-                localDelta.right(),
+                localDelta.right() * rightSign,
                 localDelta.up(),
                 -localDelta.front()
         );
@@ -152,19 +159,26 @@ public final class PearlPortalTransform {
                     targetBasis,
                     targetPos,
                     localDelta,
-                    targetDelta
+                    targetDelta,
+                    rightSign
             );
         } else if (sourceShape.exitsUp() && !targetShape.isFlat()) {
             targetDelta = makeStandingExitFromFlatUpVelocity(
                     targetShape,
                     targetPos,
                     localDelta,
-                    targetDelta
+                    targetDelta,
+                    rightSign
             );
         }
 
         LocalVector localLook = sourceBasis.localVector(entity.getLookAngle());
-        double lookRightSign = lookRightSign(sourceShape, targetShape, exitSide);
+        double lookRightSign = lookRightSign(
+                sourceShape,
+                targetShape,
+                rightSign,
+                exitSide
+        );
 
         Vec3 transformedLook = targetBasis.worldVector(
                 localLook.right() * lookRightSign,
@@ -204,7 +218,8 @@ public final class PearlPortalTransform {
             TransformBasis targetBasis,
             Vec3 targetPos,
             LocalVector localDelta,
-            Vec3 transformedDelta
+            Vec3 transformedDelta,
+            double rightSign
     ) {
         Vec3 anchorForward = flatAnchorDirectionVector(targetShape, targetPos);
         Vec3 sideDirection = horizontalOnly(targetBasis.rightVector());
@@ -231,7 +246,7 @@ public final class PearlPortalTransform {
         );
 
         double sideSpeed = clamp(
-                localDelta.right() * 0.35D,
+                localDelta.right() * rightSign * 0.35D,
                 -horizontalSpeed * 0.45D,
                 horizontalSpeed * 0.45D
         );
@@ -260,13 +275,14 @@ public final class PearlPortalTransform {
             PearlPortalFrame.Shape targetShape,
             Vec3 targetPos,
             LocalVector localDelta,
-            Vec3 transformedDelta
+            Vec3 transformedDelta,
+            double rightSign
     ) {
         Vec3 forward = standingExitForward(targetShape, targetPos);
         Vec3 right = perpendicularHorizontal(forward);
 
         double forwardSpeed = Math.abs(localDelta.up());
-        double sideSpeed = -localDelta.right();
+        double sideSpeed = localDelta.right() * rightSign;
 
         Vec3 horizontalVelocity = forward.scale(forwardSpeed)
                 .add(right.scale(sideSpeed));
@@ -388,24 +404,36 @@ public final class PearlPortalTransform {
         );
     }
 
+    private static double rightTransformSign(
+            TransformBasis sourceBasis,
+            TransformBasis targetBasis
+    ) {
+        return -basisHandedness(sourceBasis)
+                * basisHandedness(targetBasis);
+    }
+
+    private static double basisHandedness(
+            TransformBasis basis
+    ) {
+        double handedness = cross(
+                basis.rightVector(),
+                basis.upVector()
+        ).dot(basis.frontVector());
+
+        return handedness < 0.0D
+                ? -1.0D
+                : 1.0D;
+    }
+
     private static double lookRightSign(
             PearlPortalFrame.Shape sourceShape,
             PearlPortalFrame.Shape targetShape,
+            double rightSign,
             int exitSide
     ) {
-        /*
-         * Default:
-         * -1 keeps perceived left/right stable through normal portal exits.
-         *
-         * Special cross-orientation mirror:
-         * Returning +1 performs one extra left/right mirror for only these cases:
-         *
-         * 1. standing backside -> flat underside
-         * 2. flat top side -> standing front side
-         */
         return shouldMirrorCrossOrientationLook(sourceShape, targetShape, exitSide)
-                ? 1.0D
-                : -1.0D;
+                ? -rightSign
+                : rightSign;
     }
 
     private static boolean shouldMirrorCrossOrientationLook(
@@ -448,18 +476,27 @@ public final class PearlPortalTransform {
             int targetSize,
             double entityHalfWidth,
             double entityHeight,
-            boolean upAxis
+            boolean upAxis,
+            boolean reverseTargetAxis
     ) {
         AxisRange sourceRange = axisRange(sourceShape, sourceSize, entityHalfWidth, entityHeight, upAxis);
         AxisRange targetRange = axisRange(targetShape, targetSize, entityHalfWidth, entityHeight, upAxis);
 
-        return mapRangeClamped(
+        double mapped = mapRangeClamped(
                 sourceValue,
                 sourceRange.min(),
                 sourceRange.max(),
                 targetRange.min(),
                 targetRange.max()
         );
+
+        if (!reverseTargetAxis) {
+            return mapped;
+        }
+
+        return targetRange.min()
+                + targetRange.max()
+                - mapped;
     }
 
     private static AxisRange axisRange(

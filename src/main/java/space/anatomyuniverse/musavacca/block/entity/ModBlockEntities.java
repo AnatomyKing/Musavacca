@@ -92,22 +92,22 @@ public final class ModBlockEntities {
                     MusavaccaPortalDoorBlockEntity
                     >
             >
-            MUSAVACCA_PORTAL_DOOR_BLOCK_ENTITY =
+            MUSAVACCA_DOOR_BLOCK_ENTITY =
             BLOCK_ENTITY_TYPES.register(
-                    "musavacca_portal_door_block_entity",
+                    "musavacca_door_block_entity",
                     () ->
                             //? if <1.21.2 {
                         /*BlockEntityType.Builder.of(
                                 MusavaccaPortalDoorBlockEntity::new,
                                 ModBlocks
-                                        .MUSAVACCA_PORTAL_DOOR
+                                        .MUSAVACCA_DOOR
                                         .get()
                         ).build(null)
                         *///?} else if <1.21.4 {
                         /*new BlockEntityType<>(
                                 MusavaccaPortalDoorBlockEntity::new,
                                 ModBlocks
-                                        .MUSAVACCA_PORTAL_DOOR
+                                        .MUSAVACCA_DOOR
                                         .get()
                         )
                         *///?} else {
@@ -115,7 +115,7 @@ public final class ModBlockEntities {
                                     MusavaccaPortalDoorBlockEntity::new,
                                     false,
                                     ModBlocks
-                                            .MUSAVACCA_PORTAL_DOOR
+                                            .MUSAVACCA_DOOR
                                             .get()
                             )
                     //?}

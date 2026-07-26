@@ -5,9 +5,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
@@ -22,7 +24,10 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalDoorVoxelShapes;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
 import space.anatomyuniverse.musavacca.item.ModItems;
@@ -40,12 +45,6 @@ public final class MusavaccaPortalDoorBlock
     private static final int UPDATE_FLAGS =
             Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
 
-    /*
-     * The lower door half is used as the canonical pearl slot.
-     *
-     * The pearl drops from the vertical center of the complete
-     * two-block-tall door and pops slightly upward.
-     */
     private static final PearlSlotIgnition.Slot PEARL_SLOT =
             PearlSlotIgnition.Slot.of(
                     LIT,
@@ -75,12 +74,6 @@ public final class MusavaccaPortalDoorBlock
         );
     }
 
-    /**
-     * Only the lower half owns the block entity.
-     *
-     * The HEX_COLOR component from the placed door item
-     * is stored inside this block entity.
-     */
     @Nullable
     @Override
     public BlockEntity newBlockEntity(
@@ -108,25 +101,102 @@ public final class MusavaccaPortalDoorBlock
         builder.add(LIT, PORTAL);
     }
 
-    /**
-     * Handles only Banana Pearl and shears interactions through
-     * the shared PearlSlotIgnition system.
-     *
-     * Banana Pearl on unlit door:
-     * - lights the door
-     * - consumes one Banana Pearl
-     * - automatically enables the portal
-     *
-     * Shears on lit door:
-     * - extinguishes the door
-     * - disables the portal
-     * - drops one Banana Pearl
-     * - damages the shears
-     *
-     * Shears on unlit door:
-     * - charges it using balance through PearlSlotIgnition
-     * - automatically enables the portal
-     */
+    @Override
+    protected VoxelShape getShape(
+            BlockState state,
+            BlockGetter level,
+            BlockPos pos,
+            CollisionContext context
+    ) {
+        VoxelShape doorShape =
+                super.getShape(
+                        state,
+                        level,
+                        pos,
+                        context
+                );
+
+        return MusavaccaPortalDoorVoxelShapes
+                .outlineShape(
+                        state,
+                        doorShape
+                );
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(
+            BlockState state,
+            BlockGetter level,
+            BlockPos pos,
+            CollisionContext context
+    ) {
+        /*
+         * Call DoorBlock#getShape directly instead of using this
+         * block's overridden getShape method.
+         *
+         * That preserves vanilla door collision without including
+         * the non-solid portal selection panel.
+         */
+        VoxelShape doorShape =
+                super.getShape(
+                        state,
+                        level,
+                        pos,
+                        context
+                );
+
+        return MusavaccaPortalDoorVoxelShapes
+                .collisionShape(
+                        doorShape
+                );
+    }
+
+    @Override
+    public void setPlacedBy(
+            Level level,
+            BlockPos pos,
+            BlockState state,
+            @Nullable LivingEntity placer,
+            ItemStack stack
+    ) {
+        super.setPlacedBy(
+                level,
+                pos,
+                state,
+                placer,
+                stack
+        );
+
+        if (!level.isClientSide()) {
+            BlockPos lowerPos =
+                    lowerDoorPos(
+                            state,
+                            pos
+                    );
+
+            synchronizePearlState(
+                    level,
+                    lowerPos,
+                    false
+            );
+
+            BlockState placedState =
+                    level.getBlockState(lowerPos);
+
+            boolean portal =
+                    placedState.is(this)
+                            && placedState.getValue(PORTAL);
+
+            PearlSlotIgnition
+                    .playPortalStateChangeSound(
+                            level,
+                            lowerPos,
+                            false,
+                            portal
+                    );
+        }
+    }
+
     @Override
     protected InteractionResult useItemOn(
             ItemStack stack,
@@ -165,6 +235,9 @@ public final class MusavaccaPortalDoorBlock
             return InteractionResult.PASS;
         }
 
+        boolean wasPortal =
+                lowerState.getValue(PORTAL);
+
         InteractionResult result =
                 PearlSlotIgnition.handleHeldItemUse(
                         stack,
@@ -180,6 +253,22 @@ public final class MusavaccaPortalDoorBlock
                 result == InteractionResult.SUCCESS
                         && !level.isClientSide()
         ) {
+            BlockState updatedLowerState =
+                    level.getBlockState(lowerPos);
+
+            boolean portalWasSheared =
+                    wasPortal
+                            && updatedLowerState.is(this)
+                            && !updatedLowerState.getValue(LIT);
+
+            if (
+                    portalWasSheared
+                            && level.getBlockEntity(lowerPos)
+                            instanceof MusavaccaPortalDoorBlockEntity doorBe
+            ) {
+                doorBe.clearHexColor();
+            }
+
             synchronizePearlState(
                     level,
                     lowerPos
@@ -189,48 +278,100 @@ public final class MusavaccaPortalDoorBlock
         return result;
     }
 
-    /**
-     * PearlSlotIgnition changes the canonical lower half.
-     * This copies that result to both halves and ensures:
-     *
-     *     PORTAL == LIT
-     */
-    private void synchronizePearlState(
+    public static void synchronizePearlState(
             Level level,
             BlockPos lowerPos
     ) {
+        synchronizePearlState(
+                level,
+                lowerPos,
+                true
+        );
+    }
+
+    public static void synchronizePearlState(
+            Level level,
+            BlockPos lowerPos,
+            boolean playPortalSound
+    ) {
+        if (level.isClientSide()) {
+            return;
+        }
+
         BlockState lowerState =
                 level.getBlockState(lowerPos);
 
-        if (!lowerState.is(this)) {
+        if (
+                !(lowerState.getBlock()
+                        instanceof MusavaccaPortalDoorBlock)
+                        || lowerState.getValue(HALF)
+                        != DoubleBlockHalf.LOWER
+        ) {
             return;
         }
+
+        boolean wasPortal =
+                lowerState.getValue(PORTAL);
 
         boolean lit =
                 lowerState.getValue(LIT);
 
+        boolean portal =
+                lit
+                        && hasAssignedHexColor(
+                        level,
+                        lowerPos
+                );
+
         setVisualState(
                 level,
                 lowerPos,
-                lit
+                lit,
+                portal
         );
 
         setVisualState(
                 level,
                 lowerPos.above(),
-                lit
+                lit,
+                portal
         );
+
+        if (playPortalSound) {
+            PearlSlotIgnition
+                    .playPortalStateChangeSound(
+                            level,
+                            lowerPos,
+                            wasPortal,
+                            portal
+                    );
+        }
     }
 
-    private void setVisualState(
+    private static void setVisualState(
             Level level,
             BlockPos pos,
-            boolean lit
+            boolean lit,
+            boolean portal
     ) {
         BlockState state =
                 level.getBlockState(pos);
 
-        if (!state.is(this)) {
+        if (
+                !(state.getBlock()
+                        instanceof MusavaccaPortalDoorBlock)
+        ) {
+            return;
+        }
+
+        boolean resolvedPortal =
+                lit && portal;
+
+        if (
+                state.getValue(LIT) == lit
+                        && state.getValue(PORTAL)
+                        == resolvedPortal
+        ) {
             return;
         }
 
@@ -238,15 +379,20 @@ public final class MusavaccaPortalDoorBlock
                 pos,
                 state
                         .setValue(LIT, lit)
-                        .setValue(PORTAL, lit),
+                        .setValue(PORTAL, resolvedPortal),
                 UPDATE_FLAGS
         );
     }
 
-    /**
-     * Returns the canonical lower-half position used by both
-     * the pearl-slot logic and the block tint handler.
-     */
+    private static boolean hasAssignedHexColor(
+            LevelReader level,
+            BlockPos lowerPos
+    ) {
+        return level.getBlockEntity(lowerPos)
+                instanceof MusavaccaPortalDoorBlockEntity doorBe
+                && doorBe.hasHexColor();
+    }
+
     public static BlockPos lowerDoorPos(
             BlockState clickedState,
             BlockPos clickedPos
@@ -257,10 +403,6 @@ public final class MusavaccaPortalDoorBlock
                 : clickedPos;
     }
 
-    /**
-     * Keeps the two custom properties synchronized between
-     * the upper and lower door halves during normal neighbor updates.
-     */
     @Override
     protected BlockState updateShape(
             BlockState state,
@@ -303,8 +445,21 @@ public final class MusavaccaPortalDoorBlock
         boolean lit =
                 neighborState.getValue(LIT);
 
+        BlockPos lowerPos =
+                lowerDoorPos(
+                        updatedState,
+                        pos
+                );
+
+        boolean portal =
+                lit
+                        && hasAssignedHexColor(
+                        levelReader,
+                        lowerPos
+                );
+
         return updatedState
                 .setValue(LIT, lit)
-                .setValue(PORTAL, lit);
+                .setValue(PORTAL, portal);
     }
 }

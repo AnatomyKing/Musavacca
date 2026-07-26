@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/loot/ModBlockLootProvider.java
 package space.anatomyuniverse.musavacca.data.loot;
 
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
@@ -8,6 +7,8 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CandleBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -20,9 +21,11 @@ import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
+import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
@@ -72,21 +75,8 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 )
         );
 
-        /*
-         * Only the lower half of a door should produce the door item.
-         */
-        this.add(
-                ModBlocks.MUSAVACCA_DOOR.get(),
-                this.createDoorTable(
-                        ModBlocks.MUSAVACCA_DOOR.get()
-                )
-        );
-
-        this.add(
-                ModBlocks.MUSAVACCA_PORTAL_DOOR.get(),
-                this.createDoorTable(
-                        ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
-                )
+        musavaccaDoorDrops(
+                ModBlocks.MUSAVACCA_DOOR.get()
         );
 
         pearlCandleDrops();
@@ -118,6 +108,233 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         for (Block block : blocks) {
             dropSelf(block);
         }
+    }
+
+    private void musavaccaDoorDrops(Block block) {
+        this.add(
+                block,
+                LootTable.lootTable()
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(
+                                                ConstantValue.exactly(1.0F)
+                                        )
+                                        .when(
+                                                lowerDoorHalf(block)
+                                        )
+                                        .add(
+                                                unlitMusavaccaDoorDrop(
+                                                        block
+                                                )
+                                        )
+                                        .add(
+                                                litMusavaccaDoorWithoutSilkTouchDrop(
+                                                        block
+                                                )
+                                        )
+                                        .add(
+                                                chargedMusavaccaDoorWithSilkTouchDrop(
+                                                        block
+                                                )
+                                        )
+                                        .add(
+                                                chargedPortalMusavaccaDoorWithSilkTouchDrop(
+                                                        block
+                                                )
+                                        )
+                        )
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(
+                                                ConstantValue.exactly(1.0F)
+                                        )
+                                        .when(
+                                                lowerDoorHalf(block)
+                                        )
+                                        .add(
+                                                bananaPearlFromLitDoorDrop(
+                                                        block
+                                                )
+                                        )
+                        )
+        );
+    }
+
+    private LootItem.Builder<?> unlitMusavaccaDoorDrop(
+            Block block
+    ) {
+        return this.applyExplosionCondition(
+                block,
+                LootItem.lootTableItem(
+                                ModItems.MUSAVACCA_DOOR.get()
+                        )
+                        .when(
+                                musavaccaDoorState(
+                                        block,
+                                        false,
+                                        false
+                                )
+                        )
+        );
+    }
+
+    private LootItem.Builder<?>
+    litMusavaccaDoorWithoutSilkTouchDrop(
+            Block block
+    ) {
+        return this.applyExplosionCondition(
+                block,
+                LootItem.lootTableItem(
+                                ModItems.MUSAVACCA_DOOR.get()
+                        )
+                        .when(
+                                musavaccaDoorLitState(
+                                        block,
+                                        true
+                                )
+                        )
+                        .when(
+                                this.doesNotHaveSilkTouch()
+                        )
+        );
+    }
+
+    private LootItem.Builder<?>
+    chargedMusavaccaDoorWithSilkTouchDrop(
+            Block block
+    ) {
+        return this.applyExplosionCondition(
+                block,
+                LootItem.lootTableItem(
+                                ModItems.MUSAVACCA_CHARGED_DOOR.get()
+                        )
+                        .when(
+                                musavaccaDoorState(
+                                        block,
+                                        true,
+                                        false
+                                )
+                        )
+                        .when(
+                                this.hasSilkTouch()
+                        )
+        );
+    }
+
+    private LootItem.Builder<?>
+    chargedPortalMusavaccaDoorWithSilkTouchDrop(
+            Block block
+    ) {
+        return this.applyExplosionCondition(
+                block,
+                LootItem.lootTableItem(
+                                ModItems.MUSAVACCA_CHARGED_PORTAL_DOOR.get()
+                        )
+                        .when(
+                                musavaccaDoorState(
+                                        block,
+                                        true,
+                                        true
+                                )
+                        )
+                        .when(
+                                this.hasSilkTouch()
+                        )
+                        .apply(
+                                //? if <1.21.9 {
+                                CopyComponentsFunction
+                                        .copyComponents(
+                                                CopyComponentsFunction.Source.BLOCK_ENTITY
+                                        )
+                                        .include(
+                                                ModDataComponents.HEX_COLOR.get()
+                                        )
+                                //?} else {
+                                /*CopyComponentsFunction
+                                        .copyComponentsFromBlockEntity(
+                                                LootContext.BlockEntityTarget.BLOCK_ENTITY
+                                                        .getParam()
+                                        )
+                                        .include(
+                                                ModDataComponents.HEX_COLOR.get()
+                                        )
+                                *///?}
+                        )
+        );
+    }
+
+    private LootItem.Builder<?> bananaPearlFromLitDoorDrop(
+            Block block
+    ) {
+        return this.applyExplosionCondition(
+                block,
+                LootItem.lootTableItem(
+                                ModItems.BANANA_PEARL.get()
+                        )
+                        .when(
+                                musavaccaDoorLitState(
+                                        block,
+                                        true
+                                )
+                        )
+                        .when(
+                                this.doesNotHaveSilkTouch()
+                        )
+        );
+    }
+
+    private static LootItemCondition.Builder lowerDoorHalf(
+            Block block
+    ) {
+        return LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(block)
+                .setProperties(
+                        StatePropertiesPredicate.Builder
+                                .properties()
+                                .hasProperty(
+                                        DoorBlock.HALF,
+                                        DoubleBlockHalf.LOWER
+                                )
+                );
+    }
+
+    private static LootItemCondition.Builder
+    musavaccaDoorLitState(
+            Block block,
+            boolean lit
+    ) {
+        return LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(block)
+                .setProperties(
+                        StatePropertiesPredicate.Builder
+                                .properties()
+                                .hasProperty(
+                                        MusavaccaPortalDoorBlock.LIT,
+                                        lit
+                                )
+                );
+    }
+
+    private static LootItemCondition.Builder
+    musavaccaDoorState(
+            Block block,
+            boolean lit,
+            boolean portal
+    ) {
+        return LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(block)
+                .setProperties(
+                        StatePropertiesPredicate.Builder
+                                .properties()
+                                .hasProperty(
+                                        MusavaccaPortalDoorBlock.LIT,
+                                        lit
+                                )
+                                .hasProperty(
+                                        MusavaccaPortalDoorBlock.PORTAL,
+                                        portal
+                                )
+                );
     }
 
     private void silkTouchMusavaccaEggByAge(Block block) {

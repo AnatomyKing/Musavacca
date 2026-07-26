@@ -92,8 +92,7 @@ public final class ModItemTagsProvider
                 .add(key(ModBlocks.MUSAVACCA_FENCE_GATE));
 
         tag(ItemTags.WOODEN_DOORS)
-                .add(key(ModBlocks.MUSAVACCA_DOOR))
-                .add(key(ModBlocks.MUSAVACCA_PORTAL_DOOR));
+                .add(key(ModBlocks.MUSAVACCA_DOOR));
 
         tag(ItemTags.WOODEN_TRAPDOORS)
                 .add(key(ModBlocks.MUSAVACCA_TRAPDOOR));

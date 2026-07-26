@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/tags/ModBlockTagsProvider.java
 package space.anatomyuniverse.musavacca.data.tags;
 
 import net.minecraft.core.HolderLookup;
@@ -134,22 +133,12 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         );
 
         tag(BlockTags.WOODEN_DOORS).add(
-                ModBlocks.MUSAVACCA_DOOR.get(),
-                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
+                ModBlocks.MUSAVACCA_DOOR.get()
         );
 
         tag(BlockTags.MINEABLE_WITH_AXE).add(
-                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
+                ModBlocks.MUSAVACCA_DOOR.get()
         );
-
-        tag(BlockTags.WOODEN_DOORS).add(
-                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
-        );
-
-        tag(BlockTags.MOB_INTERACTABLE_DOORS).add(
-                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
-        );
-
 
         /*
          * Allows mobs with door-opening AI, such as villagers,

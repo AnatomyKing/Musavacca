@@ -40,9 +40,9 @@ public final class VocoTableCraftingRecipes {
             ),
 
             recipe(
-                    ModBlocks.MUSAVACCA_DOOR,
+                    ModItems.MUSAVACCA_DOOR,
                     ModItems.BANANA_PEARL.get(),
-                    ModBlocks.MUSAVACCA_PORTAL_DOOR.get(),
+                    ModItems.MUSAVACCA_CHARGED_PORTAL_DOOR.get(),
                     1,
                     true
             ),

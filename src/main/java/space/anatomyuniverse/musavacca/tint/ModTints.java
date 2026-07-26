@@ -32,7 +32,7 @@ public final class ModTints {
     private static final PearlFireTintProfiles.Profile PEARL_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
     private static final PearlFireTintProfiles.Profile VOCO_POST_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
     private static final PearlFireTintProfiles.Profile VOCO_TABLE_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
-    private static final PearlFireTintProfiles.Profile MUSAVACCA_PORTAL_DOOR_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
+    private static final PearlFireTintProfiles.Profile MUSAVACCA_DOOR_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
 
     private static final VocoTableTintRange[] VOCO_TABLE_TINT_RANGES = {
             new VocoTableTintRange(ReceptorPosition.NORTH_EAST, 0),
@@ -71,7 +71,7 @@ public final class ModTints {
 
         event.register(ModTints::getVocoPostPortalTint, ModBlocks.VOCO_POST.get());
         event.register(ModTints::getVocoTablePortalTint, ModBlocks.VOCO_TABLE.get());
-        event.register(ModTints::getMusavaccaPortalDoorTint, ModBlocks.MUSAVACCA_PORTAL_DOOR.get());
+        event.register(ModTints::getMusavaccaPortalDoorTint, ModBlocks.MUSAVACCA_DOOR.get());
     }
 
     private static int getMusavaccaFoliageTint(
@@ -264,7 +264,7 @@ public final class ModTints {
             return TintColorUtil.NO_TINT;
         }
 
-        if (!PearlFireTintSource.supportsLayer(MUSAVACCA_PORTAL_DOOR_PROFILE, tintIndex)) {
+        if (!PearlFireTintSource.supportsLayer(MUSAVACCA_DOOR_PROFILE, tintIndex)) {
             return TintColorUtil.NO_TINT;
         }
 
@@ -279,7 +279,7 @@ public final class ModTints {
             return PearlFireTintSource.blockTint(
                     doorBe.getHexColor(),
                     tintIndex,
-                    MUSAVACCA_PORTAL_DOOR_PROFILE
+                    MUSAVACCA_DOOR_PROFILE
             );
         }
 
@@ -381,7 +381,7 @@ public final class ModTints {
         );
 
         event.register((stack, tintIndex) -> {
-                    if (!PearlFireTintSource.supportsLayer(MUSAVACCA_PORTAL_DOOR_PROFILE, tintIndex)) {
+                    if (!PearlFireTintSource.supportsLayer(MUSAVACCA_DOOR_PROFILE, tintIndex)) {
                         return TintColorUtil.NO_TINT;
                     }
 
@@ -393,10 +393,10 @@ public final class ModTints {
                     return PearlFireTintSource.blockTint(
                             savedHex,
                             tintIndex,
-                            MUSAVACCA_PORTAL_DOOR_PROFILE
+                            MUSAVACCA_DOOR_PROFILE
                     );
                 },
-                ModBlocks.MUSAVACCA_PORTAL_DOOR.get()
+                ModBlocks.MUSAVACCA_DOOR.get()
         );
     }
     *///?} else {

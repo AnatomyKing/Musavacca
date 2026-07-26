@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -121,17 +120,19 @@ public final class VocoTableCandleLogic {
         boolean wasPortal = state.getValue(portalProperty);
 
         if (wasPortal != sync.portal()) {
-            if (sync.portal()) {
-                VocoReceptorLogic.playPortalAppearSound(level, pos);
-            } else {
-                VocoReceptorLogic.playPortalDisappearSound(level, pos);
-            }
-
             level.setBlock(
                     pos,
                     state.setValue(portalProperty, sync.portal()),
                     VocoReceptorLogic.UPDATE_FLAGS
             );
+
+            PearlSlotIgnition
+                    .playPortalStateChangeSound(
+                            level,
+                            pos,
+                            wasPortal,
+                            sync.portal()
+                    );
         }
 
         if (sync.portal()) {

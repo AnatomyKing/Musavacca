@@ -23,6 +23,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
 
+import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
@@ -44,7 +45,7 @@ public final class MusavaccaPortalDoorBlockEntity
     ) {
         super(
                 ModBlockEntities
-                        .MUSAVACCA_PORTAL_DOOR_BLOCK_ENTITY
+                        .MUSAVACCA_DOOR_BLOCK_ENTITY
                         .get(),
                 pos,
                 state
@@ -61,17 +62,25 @@ public final class MusavaccaPortalDoorBlockEntity
     }
 
     public void setHexColor(int hexColor) {
-        int normalized =
-                normalizeHex(hexColor);
+        int resolved =
+                hexColor == UNSET_HEX_COLOR
+                        ? UNSET_HEX_COLOR
+                        : normalizeHex(hexColor);
 
-        if (this.hexColor == normalized) {
+        if (this.hexColor == resolved) {
             return;
         }
 
-        this.hexColor = normalized;
+        this.hexColor = resolved;
 
         this.setChanged();
-        this.syncDoor();
+        this.syncDoor(true);
+    }
+
+    public void clearHexColor() {
+        this.setHexColor(
+                UNSET_HEX_COLOR
+        );
     }
 
     private static int normalizeHex(
@@ -80,7 +89,15 @@ public final class MusavaccaPortalDoorBlockEntity
         return hexColor & 0xFFFFFF;
     }
 
-    private void syncDoor() {
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        this.syncDoor(false);
+    }
+
+    private void syncDoor(
+            boolean playPortalSound
+    ) {
         Level level =
                 this.getLevel();
 
@@ -88,15 +105,17 @@ public final class MusavaccaPortalDoorBlockEntity
             return;
         }
 
-        rerenderPosition(
-                level,
-                this.getBlockPos()
-        );
+        if (!level.isClientSide()) {
+            MusavaccaPortalDoorBlock
+                    .synchronizePearlState(
+                            level,
+                            this.getBlockPos(),
+                            playPortalSound
+                    );
+            return;
+        }
 
-        rerenderPosition(
-                level,
-                this.getBlockPos().above()
-        );
+        this.rerenderClientDoor();
     }
 
     private void rerenderClientDoor() {
@@ -236,11 +255,6 @@ public final class MusavaccaPortalDoorBlockEntity
     }
     //?}
 
-    /*
-     * Reads HEX_COLOR directly from the placed
-     * Musavacca portal-door ItemStack.
-     */
-
     //? if <1.21.5 {
     /*@Override
     protected void applyImplicitComponents(
@@ -255,10 +269,10 @@ public final class MusavaccaPortalDoorBlockEntity
                                 .get()
                 );
 
-        if (savedHex != null) {
-            this.hexColor =
-                    normalizeHex(savedHex);
-        }
+        this.hexColor =
+                savedHex == null
+                        ? UNSET_HEX_COLOR
+                        : normalizeHex(savedHex);
     }
     *///?} else {
     @Override
@@ -274,18 +288,13 @@ public final class MusavaccaPortalDoorBlockEntity
                                 .get()
                 );
 
-        if (savedHex != null) {
-            this.hexColor =
-                    normalizeHex(savedHex);
-        }
+        this.hexColor =
+                savedHex == null
+                        ? UNSET_HEX_COLOR
+                        : normalizeHex(savedHex);
     }
     //?}
 
-    /*
-     * Copies the block entity color back into an
-     * ItemStack whenever Minecraft collects its
-     * implicit block-entity components.
-     */
     @Override
     protected void collectImplicitComponents(
             DataComponentMap.Builder components

@@ -4,19 +4,23 @@ import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
+import space.anatomyuniverse.musavacca.tint.HexColorItemTintSource;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 import space.anatomyuniverse.musavacca.tint.ProfileHexColorItemTintSource;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,15 +35,15 @@ import net.minecraft.client.renderer.block.model.Variant;
 public final class CubeMusavaccaPortalDoorTinted {
     private CubeMusavaccaPortalDoorTinted() {}
 
-    public record DoorModels(
-            String bottomLeft,
-            String bottomLeftOpen,
-            String bottomRight,
-            String bottomRightOpen,
-            String topLeft,
-            String topLeftOpen,
-            String topRight,
-            String topRightOpen
+    private record DoorModels(
+            ResourceLocation bottomLeft,
+            ResourceLocation bottomLeftOpen,
+            ResourceLocation bottomRight,
+            ResourceLocation bottomRightOpen,
+            ResourceLocation topLeft,
+            ResourceLocation topLeftOpen,
+            ResourceLocation topRight,
+            ResourceLocation topRightOpen
     ) {
         public ResourceLocation model(
                 DoubleBlockHalf half,
@@ -48,32 +52,78 @@ public final class CubeMusavaccaPortalDoorTinted {
         ) {
             if (half == DoubleBlockHalf.LOWER) {
                 if (hinge == DoorHingeSide.LEFT) {
-                    return ResourceLocation.parse(
-                            open
-                                    ? this.bottomLeftOpen
-                                    : this.bottomLeft
-                    );
+                    return open
+                            ? this.bottomLeftOpen
+                            : this.bottomLeft;
                 }
 
-                return ResourceLocation.parse(
-                        open
-                                ? this.bottomRightOpen
-                                : this.bottomRight
-                );
+                return open
+                        ? this.bottomRightOpen
+                        : this.bottomRight;
+            }
+
+            if (hinge == DoorHingeSide.LEFT) {
+                return open
+                        ? this.topLeftOpen
+                        : this.topLeft;
+            }
+
+            return open
+                    ? this.topRightOpen
+                    : this.topRight;
+        }
+    }
+
+    public record LitModels(
+            String bottomLeft,
+            String bottomLeftOpen,
+            String bottomRight,
+            String bottomRightOpen
+    ) {
+        public LitModels {
+            requireModel(
+                    bottomLeft,
+                    "bottomLeft"
+            );
+
+            requireModel(
+                    bottomLeftOpen,
+                    "bottomLeftOpen"
+            );
+
+            requireModel(
+                    bottomRight,
+                    "bottomRight"
+            );
+
+            requireModel(
+                    bottomRightOpen,
+                    "bottomRightOpen"
+            );
+        }
+
+        @Nullable
+        public ResourceLocation model(
+                DoubleBlockHalf half,
+                DoorHingeSide hinge,
+                boolean open
+        ) {
+            if (half != DoubleBlockHalf.LOWER) {
+                return null;
             }
 
             if (hinge == DoorHingeSide.LEFT) {
                 return ResourceLocation.parse(
                         open
-                                ? this.topLeftOpen
-                                : this.topLeft
+                                ? this.bottomLeftOpen
+                                : this.bottomLeft
                 );
             }
 
             return ResourceLocation.parse(
                     open
-                            ? this.topRightOpen
-                            : this.topRight
+                            ? this.bottomRightOpen
+                            : this.bottomRight
             );
         }
     }
@@ -86,16 +136,44 @@ public final class CubeMusavaccaPortalDoorTinted {
             String topLeftOpen,
             String topRightOpen
     ) {
+        public PortalModels {
+            requireModel(
+                    bottomLeftOpen,
+                    "bottomLeftOpen"
+            );
+
+            requireModel(
+                    bottomRightOpen,
+                    "bottomRightOpen"
+            );
+
+            requireModel(
+                    doorPortalTopLeft,
+                    "doorPortalTopLeft"
+            );
+
+            requireModel(
+                    doorPortalTopRight,
+                    "doorPortalTopRight"
+            );
+
+            requireModel(
+                    topLeftOpen,
+                    "topLeftOpen"
+            );
+
+            requireModel(
+                    topRightOpen,
+                    "topRightOpen"
+            );
+        }
+
         @Nullable
         public ResourceLocation model(
                 DoubleBlockHalf half,
                 DoorHingeSide hinge,
                 boolean open
         ) {
-            /*
-             * Closed door:
-             * portal only exists in the upper half.
-             */
             if (!open) {
                 if (half == DoubleBlockHalf.LOWER) {
                     return null;
@@ -108,10 +186,6 @@ public final class CubeMusavaccaPortalDoorTinted {
                 );
             }
 
-            /*
-             * Open door:
-             * portal occupies both block positions.
-             */
             if (half == DoubleBlockHalf.LOWER) {
                 return ResourceLocation.parse(
                         hinge == DoorHingeSide.LEFT
@@ -129,16 +203,29 @@ public final class CubeMusavaccaPortalDoorTinted {
     }
 
     public record Models(
-            DoorModels baseModels,
-            DoorModels litModels,
+            ItemLike doorItem,
+            ItemLike chargedDoorItem,
+            ItemLike chargedPortalDoorItem,
+            LitModels litModels,
             PortalModels portalModels,
-            String itemModel,
             PearlFireTintProfiles.Profile tintProfile
     ) {
         public Models {
-            if (baseModels == null) {
+            if (doorItem == null) {
                 throw new IllegalArgumentException(
-                        "baseModels must not be null"
+                        "doorItem must not be null"
+                );
+            }
+
+            if (chargedDoorItem == null) {
+                throw new IllegalArgumentException(
+                        "chargedDoorItem must not be null"
+                );
+            }
+
+            if (chargedPortalDoorItem == null) {
+                throw new IllegalArgumentException(
+                        "chargedPortalDoorItem must not be null"
                 );
             }
 
@@ -154,26 +241,11 @@ public final class CubeMusavaccaPortalDoorTinted {
                 );
             }
 
-            if (
-                    itemModel == null
-                            || itemModel.isBlank()
-            ) {
-                throw new IllegalArgumentException(
-                        "itemModel must not be blank"
-                );
-            }
-
             if (tintProfile == null) {
                 throw new IllegalArgumentException(
                         "tintProfile must not be null"
                 );
             }
-        }
-
-        public ResourceLocation itemModelLocation() {
-            return ResourceLocation.parse(
-                    this.itemModel
-            );
         }
     }
 
@@ -190,33 +262,125 @@ public final class CubeMusavaccaPortalDoorTinted {
         }
 
         models.forEach(
-                (block, stateModels) -> {
+                (block, modelsForBlock) -> {
                     if (
                             !(block instanceof
                                     MusavaccaPortalDoorBlock)
-                                    || stateModels == null
+                                    || modelsForBlock == null
                     ) {
                         return;
                     }
 
+                    DoorModels baseModels =
+                            generateBaseDoorModels(
+                                    blocks,
+                                    block
+                            );
+
                     generateBlockState(
                             blocks,
                             block,
-                            stateModels
+                            baseModels,
+                            modelsForBlock
                     );
 
-                    generateItemModel(
+                    generateItemModels(
+                            blocks,
                             items,
                             block,
-                            stateModels
+                            modelsForBlock
                     );
                 }
+        );
+    }
+
+    private static DoorModels generateBaseDoorModels(
+            BlockModelGenerators blocks,
+            Block block
+    ) {
+        TextureMapping textures =
+                TextureMapping.door(block);
+
+        ResourceLocation bottomLeft =
+                ModelTemplates.DOOR_BOTTOM_LEFT
+                        .create(
+                                block,
+                                textures,
+                                blocks.modelOutput
+                        );
+
+        ResourceLocation bottomLeftOpen =
+                ModelTemplates.DOOR_BOTTOM_LEFT_OPEN
+                        .create(
+                                block,
+                                textures,
+                                blocks.modelOutput
+                        );
+
+        ResourceLocation bottomRight =
+                ModelTemplates.DOOR_BOTTOM_RIGHT
+                        .create(
+                                block,
+                                textures,
+                                blocks.modelOutput
+                        );
+
+        ResourceLocation bottomRightOpen =
+                ModelTemplates.DOOR_BOTTOM_RIGHT_OPEN
+                        .create(
+                                block,
+                                textures,
+                                blocks.modelOutput
+                        );
+
+        ResourceLocation topLeft =
+                ModelTemplates.DOOR_TOP_LEFT
+                        .create(
+                                block,
+                                textures,
+                                blocks.modelOutput
+                        );
+
+        ResourceLocation topLeftOpen =
+                ModelTemplates.DOOR_TOP_LEFT_OPEN
+                        .create(
+                                block,
+                                textures,
+                                blocks.modelOutput
+                        );
+
+        ResourceLocation topRight =
+                ModelTemplates.DOOR_TOP_RIGHT
+                        .create(
+                                block,
+                                textures,
+                                blocks.modelOutput
+                        );
+
+        ResourceLocation topRightOpen =
+                ModelTemplates.DOOR_TOP_RIGHT_OPEN
+                        .create(
+                                block,
+                                textures,
+                                blocks.modelOutput
+                        );
+
+        return new DoorModels(
+                bottomLeft,
+                bottomLeftOpen,
+                bottomRight,
+                bottomRightOpen,
+                topLeft,
+                topLeftOpen,
+                topRight,
+                topRightOpen
         );
     }
 
     private static void generateBlockState(
             BlockModelGenerators blocks,
             Block block,
+            DoorModels baseModels,
             Models models
     ) {
         MultiPartGenerator multi =
@@ -250,13 +414,11 @@ public final class CubeMusavaccaPortalDoorTinted {
 
                         multi = addPart(
                                 multi,
-                                models
-                                        .baseModels()
-                                        .model(
-                                                half,
-                                                hinge,
-                                                open
-                                        ),
+                                baseModels.model(
+                                        half,
+                                        hinge,
+                                        open
+                                ),
                                 facing,
                                 half,
                                 hinge,
@@ -265,22 +427,27 @@ public final class CubeMusavaccaPortalDoorTinted {
                                 yRotation
                         );
 
-                        multi = addPart(
-                                multi,
+                        ResourceLocation litModel =
                                 models
                                         .litModels()
                                         .model(
                                                 half,
                                                 hinge,
                                                 open
-                                        ),
-                                facing,
-                                half,
-                                hinge,
-                                open,
-                                MusavaccaPortalDoorBlock.LIT,
-                                yRotation
-                        );
+                                        );
+
+                        if (litModel != null) {
+                            multi = addPart(
+                                    multi,
+                                    litModel,
+                                    facing,
+                                    half,
+                                    hinge,
+                                    open,
+                                    MusavaccaPortalDoorBlock.LIT,
+                                    yRotation
+                            );
+                        }
 
                         ResourceLocation portalModel =
                                 models
@@ -311,46 +478,150 @@ public final class CubeMusavaccaPortalDoorTinted {
         blocks.blockStateOutput.accept(multi);
     }
 
-    private static void generateItemModel(
+    private static void generateItemModels(
+            BlockModelGenerators blocks,
             ItemModelGenerators items,
             Block block,
             Models models
     ) {
+        ResourceLocation blockId =
+                blockId(block);
+
+        ResourceLocation baseTexture =
+                itemTexture(
+                        blockId,
+                        ""
+                );
+
+        ResourceLocation knobTexture =
+                itemTexture(
+                        blockId,
+                        "_knob"
+                );
+
+        ResourceLocation portalTexture =
+                itemTexture(
+                        blockId,
+                        "_portal"
+                );
+
+        ResourceLocation doorModel =
+                ModelTemplates.FLAT_ITEM
+                        .create(
+                                itemModelLocation(
+                                        models.doorItem()
+                                ),
+                                TextureMapping.layer0(
+                                        baseTexture
+                                ),
+                                blocks.modelOutput
+                        );
+
+        ResourceLocation chargedDoorModel =
+                ModelTemplates.TWO_LAYERED_ITEM
+                        .create(
+                                itemModelLocation(
+                                        models.chargedDoorItem()
+                                ),
+                                TextureMapping.layered(
+                                        baseTexture,
+                                        knobTexture
+                                ),
+                                blocks.modelOutput
+                        );
+
+        ResourceLocation chargedPortalDoorModel =
+                ModelTemplates.THREE_LAYERED_ITEM
+                        .create(
+                                itemModelLocation(
+                                        models.chargedPortalDoorItem()
+                                ),
+                                TextureMapping.layered(
+                                        baseTexture,
+                                        knobTexture,
+                                        portalTexture
+                                ),
+                                blocks.modelOutput
+                        );
+
+        ItemTintSource noTint =
+                ProfileHexColorItemTintSource.noTint(
+                        models.tintProfile(),
+                        false
+                );
+
         items.itemModelOutput.accept(
-                block.asItem(),
+                models
+                        .doorItem()
+                        .asItem(),
                 new BlockModelWrapper.Unbaked(
-                        models.itemModelLocation(),
-                        createItemTintSources(
-                                models.tintProfile()
+                        doorModel,
+                        List.of(
+                                noTint
+                        )
+                )
+        );
+
+        items.itemModelOutput.accept(
+                models
+                        .chargedDoorItem()
+                        .asItem(),
+                new BlockModelWrapper.Unbaked(
+                        chargedDoorModel,
+                        List.of(
+                                noTint,
+                                noTint
+                        )
+                )
+        );
+
+        items.itemModelOutput.accept(
+                models
+                        .chargedPortalDoorItem()
+                        .asItem(),
+                new BlockModelWrapper.Unbaked(
+                        chargedPortalDoorModel,
+                        List.of(
+                                noTint,
+                                noTint,
+                                HexColorItemTintSource.INSTANCE
                         )
                 )
         );
     }
 
-    private static List<ItemTintSource>
-    createItemTintSources(
-            PearlFireTintProfiles.Profile profile
+    private static ResourceLocation itemTexture(
+            ResourceLocation blockId,
+            String suffix
     ) {
-        List<ItemTintSource> tintSources =
-                new ArrayList<>(
-                        profile.layerCount()
-                );
+        return ResourceLocation.fromNamespaceAndPath(
+                blockId.getNamespace(),
+                "item/"
+                        + blockId.getPath()
+                        + suffix
+        );
+    }
 
-        for (
-                int layerIndex = 0;
-                layerIndex < profile.layerCount();
-                ++layerIndex
-        ) {
-            tintSources.add(
-                    ProfileHexColorItemTintSource.of(
-                            layerIndex,
-                            profile,
-                            false
-                    )
+    private static ResourceLocation itemModelLocation(
+            ItemLike item
+    ) {
+        ResourceLocation itemId =
+                BuiltInRegistries.ITEM
+                        .getKey(
+                                item.asItem()
+                        );
+
+        if (itemId == null) {
+            throw new IllegalStateException(
+                    "Cannot generate a model for an "
+                            + "unregistered item"
             );
         }
 
-        return List.copyOf(tintSources);
+        return ResourceLocation.fromNamespaceAndPath(
+                itemId.getNamespace(),
+                "item/" + itemId.getPath()
+        );
     }
 
     private static MultiPartGenerator addPart(
@@ -430,7 +701,8 @@ public final class CubeMusavaccaPortalDoorTinted {
         return Math.floorMod(
                 closedRotation
                         + (
-                        hinge == DoorHingeSide.LEFT
+                        hinge
+                                == DoorHingeSide.LEFT
                                 ? 90
                                 : -90
                 ),
@@ -464,8 +736,11 @@ public final class CubeMusavaccaPortalDoorTinted {
             int degrees
     ) {
         return switch (
-                Math.floorMod(degrees, 360)
-                ) {
+                Math.floorMod(
+                        degrees,
+                        360
+                )
+        ) {
             case 90 ->
                     VariantProperties.Rotation.R90;
 
@@ -499,7 +774,10 @@ public final class CubeMusavaccaPortalDoorTinted {
             int degrees
     ) {
         return switch (
-                Math.floorMod(degrees, 360)
+                Math.floorMod(
+                        degrees,
+                        360
+                )
                 ) {
             case 90 -> Quadrant.R90;
             case 180 -> Quadrant.R180;
@@ -508,6 +786,37 @@ public final class CubeMusavaccaPortalDoorTinted {
         };
     }
     //?}
+
+    private static ResourceLocation blockId(
+            Block block
+    ) {
+        ResourceLocation blockId =
+                BuiltInRegistries.BLOCK
+                        .getKey(block);
+
+        if (blockId == null) {
+            throw new IllegalStateException(
+                    "Cannot generate models for an "
+                            + "unregistered block"
+            );
+        }
+
+        return blockId;
+    }
+
+    private static void requireModel(
+            String model,
+            String name
+    ) {
+        if (
+                model == null
+                        || model.isBlank()
+        ) {
+            throw new IllegalArgumentException(
+                    name + " must not be blank"
+            );
+        }
+    }
 
     private static Direction[]
     horizontalDirections() {

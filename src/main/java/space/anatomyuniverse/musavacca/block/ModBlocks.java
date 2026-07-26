@@ -3,6 +3,8 @@ package space.anatomyuniverse.musavacca.block;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DoubleHighBlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -227,9 +229,9 @@ public final class ModBlocks {
                     ));
 
 
-    public static final DeferredBlock<DoorBlock> MUSAVACCA_DOOR =
+    public static final DeferredBlock<MusavaccaPortalDoorBlock> MUSAVACCA_DOOR =
             BLOCKS.registerBlock("musavacca_door",
-                    props -> new DoorBlock(
+                    props -> new MusavaccaPortalDoorBlock(
                             ModWoodTypes.MUSAVACCA_BLOCK_SET,
                             props
                                     .mapColor(MapColor.COLOR_ORANGE)
@@ -239,35 +241,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                     ));
 
-    public static final DeferredBlock<
-            MusavaccaPortalDoorBlock
-            >
-            MUSAVACCA_PORTAL_DOOR =
-            BLOCKS.registerBlock(
-                    "musavacca_portal_door",
-                    props ->
-                            new MusavaccaPortalDoorBlock(
-                                    ModWoodTypes
-                                            .MUSAVACCA_BLOCK_SET,
-                                    props
-                                            .mapColor(
-                                                    MapColor.COLOR_ORANGE
-                                            )
-                                            .strength(
-                                                    3.0F,
-                                                    3.0F
-                                            )
-                                            .sound(
-                                                    ModWoodTypes
-                                                            .MUSAVACCA_BLOCK_SET
-                                                            .soundType()
-                                            )
-                                            .noOcclusion()
-                                            .pushReaction(
-                                                    PushReaction.DESTROY
-                                            )
-                            )
-            );
 
     public static final DeferredBlock<TrapDoorBlock> MUSAVACCA_TRAPDOOR =
             BLOCKS.registerBlock("musavacca_trapdoor",
@@ -550,8 +523,7 @@ public final class ModBlocks {
             MUSAVACCA_PLANT,
             MUSAVACCA_PSEUDOSTEM,
             PEARL_PORTAL,
-            MUSAVACCA_DOOR,
-            MUSAVACCA_PORTAL_DOOR
+            MUSAVACCA_DOOR
     );
 
     static {
@@ -569,5 +541,3 @@ public final class ModBlocks {
 
     private ModBlocks() {}
 }
-
-

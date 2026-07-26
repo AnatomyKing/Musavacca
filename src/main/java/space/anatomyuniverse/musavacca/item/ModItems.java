@@ -13,6 +13,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.equipment.ArmorMaterial;
@@ -25,6 +26,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.*;
@@ -44,25 +46,6 @@ public final class ModItems {
                     properties -> new MusavaccaBoatItem(
                             ModEntities.MUSAVACCA_BOAT.get(),
                             properties.stacksTo(1)
-                    )
-            );
-
-    public static final DeferredItem<BlockItem> MUSAVACCA_DOOR_ITEM =
-            ITEMS.registerItem(
-                    "musavacca_door",
-                    props -> new DoubleHighBlockItem(
-                            ModBlocks.MUSAVACCA_DOOR.get(),
-                            props
-                    )
-            );
-
-    public static final DeferredItem<BlockItem>
-            MUSAVACCA_PORTAL_DOOR_ITEM =
-            ITEMS.registerItem(
-                    "musavacca_portal_door",
-                    properties -> new DoubleHighBlockItem(
-                            ModBlocks.MUSAVACCA_PORTAL_DOOR.get(),
-                            properties
                     )
             );
 
@@ -123,6 +106,30 @@ public final class ModItems {
             potassiumArmorMaterial(
                     IMBUED_POTASSIUM_EQUIPMENT_ASSET
             );
+
+    private static DeferredItem<BlockItem> MusavaccaDoorItems(String name, boolean lit, boolean portal) {
+        return ITEMS.registerItem(
+                name,
+                props -> new DoubleHighBlockItem(
+                        ModBlocks.MUSAVACCA_DOOR.get(),
+                        props.component(
+                                DataComponents.BLOCK_STATE,
+                                BlockItemStateProperties.EMPTY
+                                        .with(MusavaccaPortalDoorBlock.LIT, lit)
+                                        .with(MusavaccaPortalDoorBlock.PORTAL, portal)
+                        )
+                )
+        );
+    }
+
+    public static final DeferredItem<BlockItem> MUSAVACCA_DOOR =
+            MusavaccaDoorItems("musavacca_door", false, false);
+
+    public static final DeferredItem<BlockItem> MUSAVACCA_CHARGED_DOOR =
+            MusavaccaDoorItems("musavacca_charged_door", true, false);
+
+    public static final DeferredItem<BlockItem> MUSAVACCA_CHARGED_PORTAL_DOOR =
+            MusavaccaDoorItems("musavacca_charged_portal_door", true, true);
 
     public static final DeferredItem<BlockItem> MUSAVACCA_PUP =
             ITEMS.registerItem(

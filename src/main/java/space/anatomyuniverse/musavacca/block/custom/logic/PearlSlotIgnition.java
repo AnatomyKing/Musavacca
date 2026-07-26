@@ -262,7 +262,6 @@ public final class PearlSlotIgnition {
         return true;
     }
 
-
     public static boolean igniteFromPearl(
             ItemStack stack,
             BlockState state,
@@ -345,9 +344,12 @@ public final class PearlSlotIgnition {
                 UPDATE_FLAGS
         );
 
-        if (wasLinked) {
-            playLinkedStateDisappearSound(level, pos);
-        }
+        playPortalStateChangeSound(
+                level,
+                pos,
+                wasLinked,
+                false
+        );
 
         playShearEffects(level, pos, slot);
         popBananaPearl(level, pos, slot);
@@ -381,14 +383,25 @@ public final class PearlSlotIgnition {
         );
     }
 
-    private static void playLinkedStateDisappearSound(
+    public static void playPortalStateChangeSound(
             Level level,
-            BlockPos pos
+            BlockPos pos,
+            boolean wasPortal,
+            boolean portal
     ) {
+        if (
+                level.isClientSide()
+                        || wasPortal == portal
+        ) {
+            return;
+        }
+
         level.playSound(
                 null,
                 pos,
-                SoundEvents.BEACON_DEACTIVATE,
+                portal
+                        ? SoundEvents.BEACON_ACTIVATE
+                        : SoundEvents.BEACON_DEACTIVATE,
                 SoundSource.BLOCKS,
                 0.65F,
                 1.25F

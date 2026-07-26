@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -125,17 +124,21 @@ public final class VocoPostCandleLogic {
             return state;
         }
 
-        boolean wasPortal = state.getValue(VocoPostBlock.PORTAL);
+        boolean wasPortal =
+                state.getValue(VocoPostBlock.PORTAL);
 
-        if (wasPortal != portal) {
-            if (portal) {
-                VocoReceptorLogic.playPortalAppearSound(level, pos);
-            } else {
-                VocoReceptorLogic.playPortalDisappearSound(level, pos);
-            }
-        }
+        PearlSlotIgnition
+                .playPortalStateChangeSound(
+                        level,
+                        pos,
+                        wasPortal,
+                        portal
+                );
 
-        return state.setValue(VocoPostBlock.PORTAL, portal);
+        return state.setValue(
+                VocoPostBlock.PORTAL,
+                portal
+        );
     }
 
     private static PortalInfo readPortalInfo(

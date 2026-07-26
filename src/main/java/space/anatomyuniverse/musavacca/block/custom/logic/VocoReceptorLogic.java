@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -95,7 +94,6 @@ public final class VocoReceptorLogic {
                 && player.getOffhandItem().isEmpty();
     }
 
-
     public static PearlSlotIgnition.Slot pearlSlot(
             BooleanProperty litProperty,
             @Nullable BooleanProperty portalProperty,
@@ -146,14 +144,6 @@ public final class VocoReceptorLogic {
     ) {
         return state.getValue(litProperty)
                 && (portalProperty == null || state.getValue(portalProperty));
-    }
-
-    public static void playPortalAppearSound(Level level, BlockPos pos) {
-        level.playSound(null, pos, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 0.65F, 1.25F);
-    }
-
-    public static void playPortalDisappearSound(Level level, BlockPos pos) {
-        level.playSound(null, pos, SoundEvents.BEACON_DEACTIVATE, SoundSource.BLOCKS, 0.65F, 1.25F);
     }
 
     public static void playUiClick(Level level, BlockPos pos) {

@@ -61,7 +61,6 @@ public final class MusaRenderLayers {
             ModBlocks.MUSAVACCA_PLANT.get(),
             ModBlocks.MUSAVACCA_PSEUDOSTEM.get(),
             ModBlocks.MUSAVACCA_DOOR.get(),
-            ModBlocks.MUSAVACCA_PORTAL_DOOR.get(),
             ModBlocks.MUSAVACCA_TRAPDOOR.get()
     );
 
