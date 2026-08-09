@@ -142,6 +142,20 @@ public final class VocoTeleportLogic {
                 .ifPresent(removed -> promoteFirstPending(level.getServer(), removed.hexColor()));
     }
 
+    public static void promotePendingForHex(
+            ServerLevel level,
+            int hexColor
+    ) {
+        if (level == null) {
+            return;
+        }
+
+        promoteFirstPending(
+                level.getServer(),
+                hexColor
+        );
+    }
+
     private static void promoteFirstPending(MinecraftServer server, int hexColor) {
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
         int hex = HexTeleportDirectory.normalizeHex(hexColor);

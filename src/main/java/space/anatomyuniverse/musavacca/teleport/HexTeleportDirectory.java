@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/teleport/HexTeleportDirectory.java
 package space.anatomyuniverse.musavacca.teleport;
 
 import com.mojang.serialization.Codec;
@@ -84,6 +83,8 @@ public final class HexTeleportDirectory extends SavedData {
         UPDATED,
         WAITING_FOR_SECOND_PORTAL,
         LINKED_TO_EXISTING_PORTAL,
+        WAITING_FOR_SECOND_DOOR,
+        LINKED_TO_EXISTING_DOOR,
         ALREADY_REGISTERED,
         HEX_OCCUPIED,
         INVALID_OWNER;
@@ -93,6 +94,8 @@ public final class HexTeleportDirectory extends SavedData {
                     || this == UPDATED
                     || this == WAITING_FOR_SECOND_PORTAL
                     || this == LINKED_TO_EXISTING_PORTAL
+                    || this == WAITING_FOR_SECOND_DOOR
+                    || this == LINKED_TO_EXISTING_DOOR
                     || this == ALREADY_REGISTERED;
         }
     }
@@ -247,11 +250,45 @@ public final class HexTeleportDirectory extends SavedData {
         }
     }
 
+    public record DoorEndpoint(
+            String ownerKey,
+            int hexColor,
+            ResourceLocation dimensionId,
+            BlockPos ownerPos
+    ) {
+        public static final Codec<DoorEndpoint> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.STRING.fieldOf("owner_key").forGetter(DoorEndpoint::ownerKey),
+                Codec.INT.fieldOf("hex_color").forGetter(DoorEndpoint::hexColor),
+                ResourceLocation.CODEC.fieldOf("dimension").forGetter(DoorEndpoint::dimensionId),
+                BlockPos.CODEC.fieldOf("owner_pos").forGetter(DoorEndpoint::ownerPos)
+        ).apply(instance, DoorEndpoint::new));
+
+        public DoorEndpoint normalized() {
+            return new DoorEndpoint(
+                    normalizeOwnerKey(this.ownerKey),
+                    normalizeHex(this.hexColor),
+                    this.dimensionId,
+                    this.ownerPos == null ? BlockPos.ZERO : this.ownerPos.immutable()
+            );
+        }
+
+        public boolean hasValidOwner() {
+            return this.dimensionId != null
+                    && !normalizeOwnerKey(this.ownerKey).isEmpty();
+        }
+    }
+
     public record VocoRegistration(Result result, Endpoint removedActiveEndpoint) {}
 
     public static final Codec<HexTeleportDirectory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Endpoint.CODEC.listOf().fieldOf("endpoints").forGetter(data -> data.active.entries),
-            Endpoint.CODEC.listOf().fieldOf("pending_voco_endpoints").forGetter(data -> data.pending.entries)
+            Endpoint.CODEC.listOf().fieldOf("pending_voco_endpoints").forGetter(data -> data.pending.entries),
+            DoorEndpoint.CODEC.listOf()
+                    .optionalFieldOf("door_endpoints", List.<DoorEndpoint>of())
+                    .forGetter(data -> data.doors.entries),
+            DoorEndpoint.CODEC.listOf()
+                    .optionalFieldOf("pending_door_endpoints", List.<DoorEndpoint>of())
+                    .forGetter(data -> data.pendingDoors.entries)
     ).apply(instance, HexTeleportDirectory::new));
 
     public static final SavedDataType<HexTeleportDirectory> TYPE =
@@ -259,12 +296,21 @@ public final class HexTeleportDirectory extends SavedData {
 
     private final EndpointStore active = new EndpointStore();
     private final EndpointStore pending = new EndpointStore();
+    private final DoorEndpointStore doors = new DoorEndpointStore();
+    private final DoorEndpointStore pendingDoors = new DoorEndpointStore();
 
     public HexTeleportDirectory() {}
 
-    private HexTeleportDirectory(List<Endpoint> endpoints, List<Endpoint> pendingVocoEndpoints) {
+    private HexTeleportDirectory(
+            List<Endpoint> endpoints,
+            List<Endpoint> pendingVocoEndpoints,
+            List<DoorEndpoint> doorEndpoints,
+            List<DoorEndpoint> pendingDoorEndpoints
+    ) {
         this.active.entries.addAll(endpoints);
         this.pending.entries.addAll(pendingVocoEndpoints);
+        this.doors.entries.addAll(doorEndpoints);
+        this.pendingDoors.entries.addAll(pendingDoorEndpoints);
         this.rebuildIndex();
     }
 
@@ -381,6 +427,10 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     private boolean isHexOccupiedByOther(int hexColor, Endpoint self) {
+        if (this.isDoorHexReserved(hexColor)) {
+            return true;
+        }
+
         for (Endpoint endpoint : this.active.byHex(hexColor)) {
             if (self == null || !endpoint.endpointId.equals(self.endpointId)) {
                 return true;
@@ -395,9 +445,15 @@ public final class HexTeleportDirectory extends SavedData {
             return Result.INVALID_OWNER;
         }
 
+        int hex = normalizeHex(hexColor);
+
+        if (this.isDoorHexReserved(hex)) {
+            return Result.HEX_OCCUPIED;
+        }
+
         int otherPortals = 0;
 
-        for (Endpoint endpoint : this.active.byHex(normalizeHex(hexColor))) {
+        for (Endpoint endpoint : this.active.byHex(hex)) {
             if (endpoint.endpointId.equals(portalId)) {
                 continue;
             }
@@ -451,6 +507,64 @@ public final class HexTeleportDirectory extends SavedData {
         return this.checkPortalEndpoint(portalId, hexColor);
     }
 
+    public Result registerDoorEndpoint(
+            String ownerKey,
+            int hexColor,
+            ResourceLocation dimensionId,
+            BlockPos ownerPos
+    ) {
+        ownerKey = normalizeOwnerKey(ownerKey);
+
+        if (ownerKey.isEmpty()
+                || dimensionId == null
+                || ownerPos == null) {
+            return Result.INVALID_OWNER;
+        }
+
+        int hex = normalizeHex(hexColor);
+
+        DoorEndpoint existingActive = this.doors.byOwner(ownerKey).orElse(null);
+        DoorEndpoint existingPending = this.pendingDoors.byOwner(ownerKey).orElse(null);
+
+        if (matchesDoorEndpoint(existingActive, hex, dimensionId, ownerPos)) {
+            return Result.LINKED_TO_EXISTING_DOOR;
+        }
+
+        if (matchesDoorEndpoint(existingPending, hex, dimensionId, ownerPos)) {
+            return Result.WAITING_FOR_SECOND_DOOR;
+        }
+
+        if (existingActive != null || existingPending != null) {
+            this.removeDoorOwner(ownerKey);
+        }
+
+        if (!this.active.byHex(hex).isEmpty()
+                || this.doors.byHex(hex).size() >= 2) {
+            return Result.HEX_OCCUPIED;
+        }
+
+        DoorEndpoint candidate = new DoorEndpoint(
+                ownerKey,
+                hex,
+                dimensionId,
+                ownerPos.immutable()
+        ).normalized();
+
+        DoorEndpoint partner = this.pendingDoors.firstByHex(hex).orElse(null);
+
+        if (partner != null && !partner.ownerKey.equals(ownerKey)) {
+            this.pendingDoors.removeOwner(partner.ownerKey);
+            this.doors.add(partner);
+            this.doors.add(candidate);
+            this.setDirty();
+            return Result.LINKED_TO_EXISTING_DOOR;
+        }
+
+        this.pendingDoors.add(candidate);
+        this.setDirty();
+        return Result.WAITING_FOR_SECOND_DOOR;
+    }
+
     public Optional<Endpoint> getEndpoint(UUID endpointId) {
         return this.active.byId(endpointId);
     }
@@ -490,10 +604,55 @@ public final class HexTeleportDirectory extends SavedData {
         return Optional.empty();
     }
 
+    public Optional<DoorEndpoint> getDoorEndpointByOwner(String ownerKey) {
+        DoorEndpoint activeDoor = this.doors.byOwner(ownerKey).orElse(null);
+        if (activeDoor != null) {
+            return Optional.of(activeDoor);
+        }
+
+        return this.pendingDoors.byOwner(ownerKey);
+    }
+
+    public Optional<DoorEndpoint> getLinkedDoorEndpoint(String sourceOwnerKey) {
+        DoorEndpoint source = this.doors.byOwner(sourceOwnerKey).orElse(null);
+        if (source == null) {
+            return Optional.empty();
+        }
+
+        for (DoorEndpoint endpoint : this.doors.byHex(source.hexColor)) {
+            if (!endpoint.ownerKey.equals(source.ownerKey)) {
+                return Optional.of(endpoint);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<DoorEndpoint> getFirstPendingDoorEndpointByHex(int hexColor) {
+        return this.pendingDoors.firstByHex(normalizeHex(hexColor));
+    }
+
+    public boolean isDoorHexReserved(int hexColor) {
+        int hex = normalizeHex(hexColor);
+
+        return !this.doors.byHex(hex).isEmpty()
+                || !this.pendingDoors.byHex(hex).isEmpty();
+    }
+
+    public boolean isDoorWaitingForSecond(int hexColor) {
+        return !this.pendingDoors.byHex(normalizeHex(hexColor)).isEmpty();
+    }
+
     public boolean isHexFullyOccupiedByPortals(int hexColor) {
+        int hex = normalizeHex(hexColor);
+
+        if (this.isDoorHexReserved(hex)) {
+            return true;
+        }
+
         int portals = 0;
 
-        for (Endpoint endpoint : this.active.byHex(normalizeHex(hexColor))) {
+        for (Endpoint endpoint : this.active.byHex(hex)) {
             if (!endpoint.kind.isPortal()) {
                 return true;
             }
@@ -505,9 +664,15 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     public boolean isHexWaitingForSecondPortal(int hexColor) {
+        int hex = normalizeHex(hexColor);
+
+        if (this.isDoorHexReserved(hex)) {
+            return false;
+        }
+
         int portals = 0;
 
-        for (Endpoint endpoint : this.active.byHex(normalizeHex(hexColor))) {
+        for (Endpoint endpoint : this.active.byHex(hex)) {
             if (endpoint.kind.isPortal()) {
                 portals++;
             }
@@ -538,6 +703,27 @@ public final class HexTeleportDirectory extends SavedData {
         return Optional.ofNullable(removedActive);
     }
 
+    public Optional<DoorEndpoint> removeDoorOwner(String ownerKey) {
+        ownerKey = normalizeOwnerKey(ownerKey);
+
+        DoorEndpoint removedActive = this.doors.removeOwner(ownerKey);
+        DoorEndpoint removedPending = this.pendingDoors.removeOwner(ownerKey);
+
+        DoorEndpoint removed = removedActive != null
+                ? removedActive
+                : removedPending;
+
+        if (removedActive != null) {
+            this.demoteRemainingDoorAtHex(removedActive.hexColor);
+        }
+
+        if (removed != null) {
+            this.setDirty();
+        }
+
+        return Optional.ofNullable(removed);
+    }
+
     public boolean removePendingEndpoint(UUID endpointId) {
         Endpoint removed = this.pending.remove(endpointId);
 
@@ -548,9 +734,61 @@ public final class HexTeleportDirectory extends SavedData {
         return removed != null;
     }
 
+    private void demoteRemainingDoorAtHex(int hexColor) {
+        List<DoorEndpoint> remaining = this.doors.byHex(hexColor);
+
+        if (remaining.size() != 1) {
+            return;
+        }
+
+        DoorEndpoint partner = remaining.get(0);
+
+        this.doors.removeOwner(partner.ownerKey);
+        this.pendingDoors.removeOwner(partner.ownerKey);
+        this.pendingDoors.add(partner);
+    }
+
+    private static boolean matchesDoorEndpoint(
+            DoorEndpoint endpoint,
+            int hexColor,
+            ResourceLocation dimensionId,
+            BlockPos ownerPos
+    ) {
+        return endpoint != null
+                && endpoint.hexColor == normalizeHex(hexColor)
+                && endpoint.dimensionId.equals(dimensionId)
+                && endpoint.ownerPos.equals(ownerPos);
+    }
+
     private void rebuildIndex() {
         this.active.rebuild(this::canIndexActive);
+        this.doors.rebuild(this::canIndexActiveDoor);
+        this.normalizeLoadedDoorPairs();
+        this.pendingDoors.rebuild(this::canIndexPendingDoor);
         this.pending.rebuild(this::canIndexPending);
+    }
+
+    private void normalizeLoadedDoorPairs() {
+        ArrayList<Integer> hexes = new ArrayList<>();
+
+        for (DoorEndpoint endpoint : this.doors.entries) {
+            if (!hexes.contains(endpoint.hexColor)) {
+                hexes.add(endpoint.hexColor);
+            }
+        }
+
+        for (int hex : hexes) {
+            List<DoorEndpoint> endpoints = this.doors.byHex(hex);
+
+            if (endpoints.size() != 1) {
+                continue;
+            }
+
+            DoorEndpoint endpoint = endpoints.get(0);
+
+            this.doors.removeOwner(endpoint.ownerKey);
+            this.pendingDoors.entries.add(endpoint);
+        }
     }
 
     private boolean canIndexActive(Endpoint endpoint) {
@@ -564,7 +802,12 @@ public final class HexTeleportDirectory extends SavedData {
         List<Endpoint> existingAtHex = this.active.byHex(endpoint.hexColor);
 
         if (!endpoint.kind.isPortal()) {
-            return existingAtHex.isEmpty();
+            return existingAtHex.isEmpty()
+                    && !this.isDoorHexReserved(endpoint.hexColor);
+        }
+
+        if (this.isDoorHexReserved(endpoint.hexColor)) {
+            return false;
         }
 
         int portals = 0;
@@ -580,11 +823,34 @@ public final class HexTeleportDirectory extends SavedData {
         return portals < 2;
     }
 
+    private boolean canIndexActiveDoor(DoorEndpoint endpoint) {
+        if (!endpoint.hasValidOwner()
+                || this.doors.hasOwner(endpoint.ownerKey)
+                || !this.active.byHex(endpoint.hexColor).isEmpty()) {
+            return false;
+        }
+
+        return this.doors.byHex(endpoint.hexColor).size() < 2;
+    }
+
+    private boolean canIndexPendingDoor(DoorEndpoint endpoint) {
+        return endpoint.hasValidOwner()
+                && this.active.byHex(endpoint.hexColor).isEmpty()
+                && this.doors.byHex(endpoint.hexColor).isEmpty()
+                && this.pendingDoors.byHex(endpoint.hexColor).isEmpty()
+                && !this.doors.hasOwner(endpoint.ownerKey)
+                && !this.pendingDoors.hasOwner(endpoint.ownerKey);
+    }
+
     private boolean canIndexPending(Endpoint endpoint) {
+        boolean addressOccupied =
+                !this.active.byHex(endpoint.hexColor).isEmpty()
+                        || this.isDoorHexReserved(endpoint.hexColor);
+
         return endpoint.dimensionId != null
                 && endpoint.kind.isVoco()
                 && endpoint.hasValidOwner()
-                && !this.active.byHex(endpoint.hexColor).isEmpty()
+                && addressOccupied
                 && !this.active.hasOwner(endpoint.ownerKey)
                 && !this.pending.hasId(endpoint.endpointId)
                 && !this.pending.hasOwner(endpoint.ownerKey);
@@ -600,6 +866,14 @@ public final class HexTeleportDirectory extends SavedData {
 
     public static String vocoPostReceptorCornerOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
         return ownerKey(Kind.VOCO_POST_RECEPTOR_CORNER, dimensionId, pos, 0);
+    }
+
+    public static String doorOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
+        return "musavacca_door"
+                + "|"
+                + dimensionId
+                + "|"
+                + pos.getX() + "," + pos.getY() + "," + pos.getZ();
     }
 
     public static String ownerKey(Kind kind, ResourceLocation dimensionId, BlockPos pos, int slotId) {
@@ -800,6 +1074,113 @@ public final class HexTeleportDirectory extends SavedData {
 
         private boolean hasOwner(String ownerKey) {
             return this.idByOwner.containsKey(normalizeOwnerKey(ownerKey));
+        }
+    }
+
+    private static final class DoorEndpointStore {
+        private final ArrayList<DoorEndpoint> entries = new ArrayList<>();
+        private final HashMap<String, DoorEndpoint> byOwner = new HashMap<>();
+        private final HashMap<Integer, ArrayList<String>> ownersByHex = new HashMap<>();
+
+        private void rebuild(Predicate<DoorEndpoint> validator) {
+            ArrayList<DoorEndpoint> raw = new ArrayList<>(this.entries);
+            this.clear();
+
+            for (DoorEndpoint endpoint : raw) {
+                if (endpoint == null) {
+                    continue;
+                }
+
+                DoorEndpoint normalized = endpoint.normalized();
+
+                if (validator.test(normalized)) {
+                    this.add(normalized);
+                }
+            }
+        }
+
+        private void clear() {
+            this.entries.clear();
+            this.byOwner.clear();
+            this.ownersByHex.clear();
+        }
+
+        private void add(DoorEndpoint endpoint) {
+            endpoint = endpoint.normalized();
+
+            this.entries.add(endpoint);
+            this.byOwner.put(endpoint.ownerKey, endpoint);
+
+            this.ownersByHex
+                    .computeIfAbsent(endpoint.hexColor, ignored -> new ArrayList<>())
+                    .add(endpoint.ownerKey);
+        }
+
+        private DoorEndpoint removeOwner(String ownerKey) {
+            ownerKey = normalizeOwnerKey(ownerKey);
+
+            DoorEndpoint endpoint = this.byOwner.remove(ownerKey);
+
+            if (endpoint == null) {
+                return null;
+            }
+
+            ArrayList<String> owners = this.ownersByHex.get(endpoint.hexColor);
+
+            if (owners != null) {
+                owners.remove(ownerKey);
+
+                if (owners.isEmpty()) {
+                    this.ownersByHex.remove(endpoint.hexColor);
+                }
+            }
+
+            String finalOwnerKey = ownerKey;
+            this.entries.removeIf(entry -> entry.ownerKey.equals(finalOwnerKey));
+
+            return endpoint;
+        }
+
+        private Optional<DoorEndpoint> byOwner(String ownerKey) {
+            return Optional.ofNullable(
+                    this.byOwner.get(
+                            normalizeOwnerKey(ownerKey)
+                    )
+            );
+        }
+
+        private List<DoorEndpoint> byHex(int hexColor) {
+            ArrayList<String> owners = this.ownersByHex.get(normalizeHex(hexColor));
+
+            if (owners == null || owners.isEmpty()) {
+                return List.of();
+            }
+
+            ArrayList<DoorEndpoint> result = new ArrayList<>();
+
+            for (String ownerKey : owners) {
+                DoorEndpoint endpoint = this.byOwner.get(ownerKey);
+
+                if (endpoint != null) {
+                    result.add(endpoint);
+                }
+            }
+
+            return result;
+        }
+
+        private Optional<DoorEndpoint> firstByHex(int hexColor) {
+            List<DoorEndpoint> endpoints = this.byHex(hexColor);
+
+            return endpoints.isEmpty()
+                    ? Optional.empty()
+                    : Optional.of(endpoints.get(0));
+        }
+
+        private boolean hasOwner(String ownerKey) {
+            return this.byOwner.containsKey(
+                    normalizeOwnerKey(ownerKey)
+            );
         }
     }
 }

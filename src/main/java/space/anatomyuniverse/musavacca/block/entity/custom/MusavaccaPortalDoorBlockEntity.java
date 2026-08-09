@@ -6,7 +6,8 @@ import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
 //?}
-import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportEvent;
+import net.minecraft.server.level.ServerLevel;
+import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportNetwork;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -76,7 +77,7 @@ public final class MusavaccaPortalDoorBlockEntity
         this.setChanged();
         this.syncDoor(true);
 
-        MusavaccaDoorTeleportEvent.refresh(this);
+        MusavaccaDoorTeleportNetwork.refresh(this);
     }
 
     public void clearHexColor() {
@@ -97,7 +98,29 @@ public final class MusavaccaPortalDoorBlockEntity
 
         this.syncDoor(false);
 
-        MusavaccaDoorTeleportEvent.refresh(this);
+        MusavaccaDoorTeleportNetwork.refresh(this);
+    }
+
+    @Override
+    public void preRemoveSideEffects(
+            BlockPos pos,
+            BlockState state
+    ) {
+        if (
+                this.level
+                        instanceof ServerLevel serverLevel
+        ) {
+            MusavaccaDoorTeleportNetwork
+                    .removeDoor(
+                            serverLevel,
+                            this.getBlockPos()
+                    );
+        }
+
+        super.preRemoveSideEffects(
+                pos,
+                state
+        );
     }
 
     private void syncDoor(
