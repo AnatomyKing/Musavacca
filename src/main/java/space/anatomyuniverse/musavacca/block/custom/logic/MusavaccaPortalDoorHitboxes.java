@@ -9,12 +9,6 @@ import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 
 public final class MusavaccaPortalDoorHitboxes {
 
-    /*
-     * Portal panel after all model rotations have been applied.
-     *
-     * Each panel is exactly two pixels thick.
-     * The tiny 0.02 model offsets are intentionally ignored.
-     */
 
     private static final VoxelShape NORTH =
             Block.box(
@@ -75,6 +69,14 @@ public final class MusavaccaPortalDoorHitboxes {
         );
     }
 
+    public static Direction portalFacing(
+            BlockState state
+    ) {
+        return state.getValue(
+                MusavaccaPortalDoorBlock.FACING
+        );
+    }
+
     public static VoxelShape portalPanel(
             BlockState state
     ) {
@@ -83,17 +85,25 @@ public final class MusavaccaPortalDoorHitboxes {
         }
 
         Direction facing =
-                state.getValue(
-                        MusavaccaPortalDoorBlock.FACING
+                portalFacing(
+                        state
                 );
 
         return switch (facing) {
-            case NORTH -> NORTH;
-            case EAST -> EAST;
-            case SOUTH -> SOUTH;
-            case WEST -> WEST;
+            case NORTH ->
+                    NORTH;
 
-            default -> Shapes.empty();
+            case EAST ->
+                    EAST;
+
+            case SOUTH ->
+                    SOUTH;
+
+            case WEST ->
+                    WEST;
+
+            default ->
+                    Shapes.empty();
         };
     }
 }

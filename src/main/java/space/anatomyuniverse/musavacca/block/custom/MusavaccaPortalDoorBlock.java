@@ -2,9 +2,12 @@ package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -16,25 +19,30 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalDoorHitboxes;
 import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalDoorVoxelShapes;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
+import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportEvent;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class MusavaccaPortalDoorBlock
         extends DoorBlock
-        implements EntityBlock {
+        implements EntityBlock, Portal {
 
     public static final BooleanProperty LIT =
             BooleanProperty.create("lit");
@@ -44,6 +52,9 @@ public final class MusavaccaPortalDoorBlock
 
     private static final int UPDATE_FLAGS =
             Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
+
+    private static final double PORTAL_TRIGGER_EPSILON =
+            1.0D / 1024.0D;
 
     private static final PearlSlotIgnition.Slot PEARL_SLOT =
             PearlSlotIgnition.Slot.of(
@@ -65,12 +76,21 @@ public final class MusavaccaPortalDoorBlock
             BlockSetType blockSetType,
             Properties properties
     ) {
-        super(blockSetType, properties);
+        super(
+                blockSetType,
+                properties
+        );
 
         this.registerDefaultState(
                 this.defaultBlockState()
-                        .setValue(LIT, false)
-                        .setValue(PORTAL, false)
+                        .setValue(
+                                LIT,
+                                false
+                        )
+                        .setValue(
+                                PORTAL,
+                                false
+                        )
         );
     }
 
@@ -97,8 +117,14 @@ public final class MusavaccaPortalDoorBlock
     protected void createBlockStateDefinition(
             StateDefinition.Builder<Block, BlockState> builder
     ) {
-        super.createBlockStateDefinition(builder);
-        builder.add(LIT, PORTAL);
+        super.createBlockStateDefinition(
+                builder
+        );
+
+        builder.add(
+                LIT,
+                PORTAL
+        );
     }
 
     @Override
@@ -130,13 +156,6 @@ public final class MusavaccaPortalDoorBlock
             BlockPos pos,
             CollisionContext context
     ) {
-        /*
-         * Call DoorBlock#getShape directly instead of using this
-         * block's overridden getShape method.
-         *
-         * That preserves vanilla door collision without including
-         * the non-solid portal selection panel.
-         */
         VoxelShape doorShape =
                 super.getShape(
                         state,
@@ -149,6 +168,100 @@ public final class MusavaccaPortalDoorBlock
                 .collisionShape(
                         doorShape
                 );
+    }
+
+    @Override
+    protected void entityInside(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Entity entity,
+            InsideBlockEffectApplier effectApplier
+    ) {
+        if (
+                !entity.canUsePortal(false)
+                        || !MusavaccaPortalDoorHitboxes
+                        .hasOpenPortal(state)
+        ) {
+            return;
+        }
+
+        VoxelShape portalPanel =
+                MusavaccaPortalDoorHitboxes
+                        .portalPanel(
+                                state
+                        );
+
+        if (portalPanel.isEmpty()) {
+            return;
+        }
+
+        AABB portalBox =
+                portalPanel
+                        .bounds()
+                        .move(
+                                pos.getX(),
+                                pos.getY(),
+                                pos.getZ()
+                        )
+                        .inflate(
+                                PORTAL_TRIGGER_EPSILON
+                        );
+
+        Vec3 movement =
+                entity.getDeltaMovement();
+
+        AABB sweptEntityBox =
+                entity.getBoundingBox()
+                        .expandTowards(
+                                -movement.x,
+                                -movement.y,
+                                -movement.z
+                        );
+
+        if (
+                !portalBox.intersects(
+                        sweptEntityBox
+                )
+        ) {
+            return;
+        }
+
+        entity.setAsInsidePortal(
+                this,
+                lowerDoorPos(
+                        state,
+                        pos
+                )
+        );
+    }
+
+    @Override
+    public int getPortalTransitionTime(
+            ServerLevel level,
+            Entity entity
+    ) {
+        return 0;
+    }
+
+    @Nullable
+    @Override
+    public TeleportTransition getPortalDestination(
+            ServerLevel currentLevel,
+            Entity entity,
+            BlockPos entryPos
+    ) {
+        return MusavaccaDoorTeleportEvent
+                .getPortalDestination(
+                        currentLevel,
+                        entity,
+                        entryPos
+                );
+    }
+
+    @Override
+    public Portal.Transition getLocalTransition() {
+        return Portal.Transition.CONFUSION;
     }
 
     @Override
@@ -181,11 +294,15 @@ public final class MusavaccaPortalDoorBlock
             );
 
             BlockState placedState =
-                    level.getBlockState(lowerPos);
+                    level.getBlockState(
+                            lowerPos
+                    );
 
             boolean portal =
                     placedState.is(this)
-                            && placedState.getValue(PORTAL);
+                            && placedState.getValue(
+                            PORTAL
+                    );
 
             PearlSlotIgnition
                     .playPortalStateChangeSound(
@@ -208,8 +325,12 @@ public final class MusavaccaPortalDoorBlock
             BlockHitResult hit
     ) {
         if (
-                !stack.is(ModItems.BANANA_PEARL.get())
-                        && !stack.is(Items.SHEARS)
+                !stack.is(
+                        ModItems.BANANA_PEARL.get()
+                )
+                        && !stack.is(
+                        Items.SHEARS
+                )
         ) {
             return super.useItemOn(
                     stack,
@@ -229,41 +350,52 @@ public final class MusavaccaPortalDoorBlock
                 );
 
         BlockState lowerState =
-                level.getBlockState(lowerPos);
+                level.getBlockState(
+                        lowerPos
+                );
 
         if (!lowerState.is(this)) {
             return InteractionResult.PASS;
         }
 
         boolean wasPortal =
-                lowerState.getValue(PORTAL);
+                lowerState.getValue(
+                        PORTAL
+                );
 
         InteractionResult result =
-                PearlSlotIgnition.handleHeldItemUse(
-                        stack,
-                        lowerState,
-                        level,
-                        lowerPos,
-                        player,
-                        hand,
-                        PEARL_SLOT
-                );
+                PearlSlotIgnition
+                        .handleHeldItemUse(
+                                stack,
+                                lowerState,
+                                level,
+                                lowerPos,
+                                player,
+                                hand,
+                                PEARL_SLOT
+                        );
 
         if (
                 result == InteractionResult.SUCCESS
                         && !level.isClientSide()
         ) {
             BlockState updatedLowerState =
-                    level.getBlockState(lowerPos);
+                    level.getBlockState(
+                            lowerPos
+                    );
 
             boolean portalWasSheared =
                     wasPortal
                             && updatedLowerState.is(this)
-                            && !updatedLowerState.getValue(LIT);
+                            && !updatedLowerState.getValue(
+                            LIT
+                    );
 
             if (
                     portalWasSheared
-                            && level.getBlockEntity(lowerPos)
+                            && level.getBlockEntity(
+                            lowerPos
+                    )
                             instanceof MusavaccaPortalDoorBlockEntity doorBe
             ) {
                 doorBe.clearHexColor();
@@ -299,7 +431,9 @@ public final class MusavaccaPortalDoorBlock
         }
 
         BlockState lowerState =
-                level.getBlockState(lowerPos);
+                level.getBlockState(
+                        lowerPos
+                );
 
         if (
                 !(lowerState.getBlock()
@@ -311,10 +445,14 @@ public final class MusavaccaPortalDoorBlock
         }
 
         boolean wasPortal =
-                lowerState.getValue(PORTAL);
+                lowerState.getValue(
+                        PORTAL
+                );
 
         boolean lit =
-                lowerState.getValue(LIT);
+                lowerState.getValue(
+                        LIT
+                );
 
         boolean portal =
                 lit
@@ -355,7 +493,9 @@ public final class MusavaccaPortalDoorBlock
             boolean portal
     ) {
         BlockState state =
-                level.getBlockState(pos);
+                level.getBlockState(
+                        pos
+                );
 
         if (
                 !(state.getBlock()
@@ -368,7 +508,8 @@ public final class MusavaccaPortalDoorBlock
                 lit && portal;
 
         if (
-                state.getValue(LIT) == lit
+                state.getValue(LIT)
+                        == lit
                         && state.getValue(PORTAL)
                         == resolvedPortal
         ) {
@@ -378,8 +519,14 @@ public final class MusavaccaPortalDoorBlock
         level.setBlock(
                 pos,
                 state
-                        .setValue(LIT, lit)
-                        .setValue(PORTAL, resolvedPortal),
+                        .setValue(
+                                LIT,
+                                lit
+                        )
+                        .setValue(
+                                PORTAL,
+                                resolvedPortal
+                        ),
                 UPDATE_FLAGS
         );
     }
@@ -388,7 +535,9 @@ public final class MusavaccaPortalDoorBlock
             LevelReader level,
             BlockPos lowerPos
     ) {
-        return level.getBlockEntity(lowerPos)
+        return level.getBlockEntity(
+                lowerPos
+        )
                 instanceof MusavaccaPortalDoorBlockEntity doorBe
                 && doorBe.hasHexColor();
     }
@@ -443,7 +592,9 @@ public final class MusavaccaPortalDoorBlock
         }
 
         boolean lit =
-                neighborState.getValue(LIT);
+                neighborState.getValue(
+                        LIT
+                );
 
         BlockPos lowerPos =
                 lowerDoorPos(
@@ -459,7 +610,13 @@ public final class MusavaccaPortalDoorBlock
                 );
 
         return updatedState
-                .setValue(LIT, lit)
-                .setValue(PORTAL, portal);
+                .setValue(
+                        LIT,
+                        lit
+                )
+                .setValue(
+                        PORTAL,
+                        portal
+                );
     }
 }
