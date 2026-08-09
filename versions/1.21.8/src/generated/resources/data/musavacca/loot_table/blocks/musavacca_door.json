@@ -1,0 +1,194 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "musavacca:musavacca_door",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "half": "lower"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_door",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit": "false",
+                "portal": "false"
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "name": "musavacca:musavacca_door"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_door",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit": "true"
+              }
+            },
+            {
+              "condition": "minecraft:inverted",
+              "term": {
+                "condition": "minecraft:match_tool",
+                "predicate": {
+                  "predicates": {
+                    "minecraft:enchantments": [
+                      {
+                        "enchantments": "minecraft:silk_touch",
+                        "levels": {
+                          "min": 1
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "name": "musavacca:musavacca_door"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_door",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit": "true",
+                "portal": "false"
+              }
+            },
+            {
+              "condition": "minecraft:match_tool",
+              "predicate": {
+                "predicates": {
+                  "minecraft:enchantments": [
+                    {
+                      "enchantments": "minecraft:silk_touch",
+                      "levels": {
+                        "min": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "name": "musavacca:musavacca_charged_door"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_door",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit": "true",
+                "portal": "true"
+              }
+            },
+            {
+              "condition": "minecraft:match_tool",
+              "predicate": {
+                "predicates": {
+                  "minecraft:enchantments": [
+                    {
+                      "enchantments": "minecraft:silk_touch",
+                      "levels": {
+                        "min": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "musavacca:hex_color"
+              ],
+              "source": "block_entity"
+            }
+          ],
+          "name": "musavacca:musavacca_charged_portal_door"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "musavacca:musavacca_door",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "half": "lower"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_door",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit": "true"
+              }
+            },
+            {
+              "condition": "minecraft:inverted",
+              "term": {
+                "condition": "minecraft:match_tool",
+                "predicate": {
+                  "predicates": {
+                    "minecraft:enchantments": [
+                      {
+                        "enchantments": "minecraft:silk_touch",
+                        "levels": {
+                          "min": 1
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "name": "musavacca:banana_pearl"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "musavacca:blocks/musavacca_door"
+}

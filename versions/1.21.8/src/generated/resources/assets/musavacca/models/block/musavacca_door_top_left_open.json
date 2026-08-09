@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_top_left_open",
+  "textures": {
+    "bottom": "musavacca:block/musavacca_door_bottom",
+    "top": "musavacca:block/musavacca_door_top"
+  }
+}

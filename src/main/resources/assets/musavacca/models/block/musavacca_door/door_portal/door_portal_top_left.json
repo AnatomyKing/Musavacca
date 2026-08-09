@@ -1,0 +1,21 @@
+{
+  "parent": "musavacca:block/custom_parent/tinted_door_portal_top_left",
+  "textures": {
+    "particle": "musavacca:block/pearl_portal/pearl_portal_0",
+    "portal_0": "musavacca:block/pearl_portal/pearl_portal_0",
+    "portal_1": "musavacca:block/pearl_portal/pearl_portal_1",
+    "portal_2": "musavacca:block/pearl_portal/pearl_portal_2",
+    "portal_3": "musavacca:block/pearl_portal/pearl_portal_3",
+    "portal_4": "musavacca:block/pearl_portal/pearl_portal_4",
+    "portal_5": "musavacca:block/pearl_portal/pearl_portal_5",
+    "portal_6": "musavacca:block/pearl_portal/pearl_portal_6",
+    "portal_7": "musavacca:block/pearl_portal/pearl_portal_7",
+    "portal_8": "musavacca:block/pearl_portal/pearl_portal_8",
+    "portal_9": "musavacca:block/pearl_portal/pearl_portal_9",
+    "portal_10": "musavacca:block/pearl_portal/pearl_portal_10",
+    "portal_11": "musavacca:block/pearl_portal/pearl_portal_11",
+    "portal_12": "musavacca:block/pearl_portal/pearl_portal_12",
+    "portal_13": "musavacca:block/pearl_portal/pearl_portal_13",
+    "portal_14": "musavacca:block/pearl_portal/pearl_portal_14"
+  }
+}

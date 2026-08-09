@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "musavacca:block/musavacca_pressure_plate"
+    },
+    "powered=true": {
+      "model": "musavacca:block/musavacca_pressure_plate_down"
+    }
+  }
+}

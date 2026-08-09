@@ -289,13 +289,19 @@ public class BananaCow extends Cow {
     public void ate() {
         super.ate();
 
+        if (this.getEatenBites() > 0) {
+            this.setEatenBites(
+                    this.getEatenBites() - 1
+            );
+            return;
+        }
+
         if (this.getPeelStage() > PEEL_STAGE_DEFAULT) {
             this.setPeelStage(
                     this.getPeelStage() - 1
             );
         }
     }
-
     @Override
     public @NotNull InteractionResult mobInteract(
             @NotNull Player player,
