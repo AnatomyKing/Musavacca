@@ -529,8 +529,8 @@ public final class HexTeleportResolver {
     ) {
         if (
                 !level.getBlockState(
-                        pos
-                )
+                                pos
+                        )
                         .is(
                                 ModBlocks.PEARL_PORTAL.get()
                         )
@@ -670,6 +670,12 @@ public final class HexTeleportResolver {
                         player,
                         dimensions
                 );
+
+        HexTeleportPreloader.prepare(
+                player,
+                targetLevel,
+                safePos
+        );
 
         if (
                 player.level()

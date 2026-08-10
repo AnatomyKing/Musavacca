@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.portal.TeleportTransition;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportPreloader;
 
 import java.util.Set;
 
@@ -48,6 +49,12 @@ public final class MusavaccaDoorTeleportEvent {
                                 source,
                                 target
                         );
+
+        HexTeleportPreloader.prepare(
+                entity,
+                target.level(),
+                transform.position()
+        );
 
         BlockPos targetTicketPos =
                 BlockPos.containing(

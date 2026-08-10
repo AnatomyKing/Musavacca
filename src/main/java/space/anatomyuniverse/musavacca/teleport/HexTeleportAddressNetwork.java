@@ -81,12 +81,7 @@ public final class HexTeleportAddressNetwork {
                         )
                         .orElse(null);
 
-        /*
-         * removeOwner also removes a queued Voco claim.
-         *
-         * removeDoorOwner handles either an active linked door
-         * or the single waiting door for an address.
-         */
+
         directory.removeOwner(
                 ownerKey
         );
@@ -160,11 +155,7 @@ public final class HexTeleportAddressNetwork {
                                 hexColor
                         );
 
-        /*
-         * A linked/waiting door owns the address.
-         *
-         * Any active endpoint also owns the address.
-         */
+
         if (
                 directory.isDoorHexReserved(
                         hex
@@ -190,12 +181,6 @@ public final class HexTeleportAddressNetwork {
                 return;
             }
 
-            /*
-             * Pull it from the queue first.
-             *
-             * Refreshing the actual block then performs a fresh
-             * registration if that block is still valid.
-             */
             directory.removePendingEndpoint(
                     pending.endpointId()
             );
@@ -221,13 +206,6 @@ public final class HexTeleportAddressNetwork {
                     pending
             );
 
-            /*
-             * If refreshing successfully claimed the address,
-             * promotion is complete.
-             *
-             * Otherwise the candidate was stale and we continue
-             * to the next waiting endpoint.
-             */
             if (
                     directory.isDoorHexReserved(
                             hex
@@ -285,9 +263,7 @@ public final class HexTeleportAddressNetwork {
                             );
 
             case PEARL_PORTAL -> {
-                /*
-                 * Pearl portals never live in the Voco waiting queue.
-                 */
+
             }
         }
     }
