@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/door/MusavaccaDoorTeleportTransform.java
 package space.anatomyuniverse.musavacca.door;
 
 import net.minecraft.core.Direction;
@@ -8,7 +7,7 @@ import net.minecraft.world.phys.Vec3;
 public final class MusavaccaDoorTeleportTransform {
 
     public static final double PORTAL_ENTRANCE_NUDGE =
-            0.37D;
+            0.17D;
 
     public static final double PORTAL_EXIT_NUDGE =
             0.07D;

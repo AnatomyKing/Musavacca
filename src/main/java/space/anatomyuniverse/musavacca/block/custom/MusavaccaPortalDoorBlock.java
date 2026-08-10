@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/MusavaccaPortalDoorBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -22,6 +21,8 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -32,6 +33,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalDoorHitboxes;
@@ -132,6 +134,45 @@ public final class MusavaccaPortalDoorBlock
         );
     }
 
+    @Nullable
+    @Override
+    public <T extends BlockEntity>
+    BlockEntityTicker<T> getTicker(
+            Level level,
+            BlockState state,
+            BlockEntityType<T> blockEntityType
+    ) {
+        if (
+                level.isClientSide()
+                        || state.getValue(
+                        HALF
+                )
+                        != DoubleBlockHalf.LOWER
+        ) {
+            return null;
+        }
+
+        return (
+                tickLevel,
+                tickPos,
+                tickState,
+                blockEntity
+        ) -> {
+            if (
+                    tickLevel
+                            instanceof ServerLevel serverLevel
+                            && blockEntity
+                            instanceof MusavaccaPortalDoorBlockEntity
+            ) {
+                tickEntranceNudge(
+                        serverLevel,
+                        tickPos,
+                        tickState
+                );
+            }
+        };
+    }
+
     @Override
     protected void createBlockStateDefinition(
             StateDefinition.Builder<
@@ -194,6 +235,33 @@ public final class MusavaccaPortalDoorBlock
     }
 
     @Override
+    protected VoxelShape getEntityInsideCollisionShape(
+            BlockState state,
+            BlockGetter level,
+            BlockPos pos,
+            Entity entity
+    ) {
+        if (
+                !MusavaccaPortalDoorHitboxes
+                        .hasOpenPortal(
+                                state
+                        )
+        ) {
+            return super
+                    .getEntityInsideCollisionShape(
+                            state,
+                            level,
+                            pos,
+                            entity
+                    );
+        }
+
+        return entranceTriggerShape(
+                state
+        );
+    }
+
+    @Override
     protected void entityInside(
             BlockState state,
             Level level,
@@ -213,18 +281,17 @@ public final class MusavaccaPortalDoorBlock
             return;
         }
 
-        VoxelShape portalPanel =
-                MusavaccaPortalDoorHitboxes
-                        .portalPanel(
-                                state
-                        );
+        VoxelShape entranceShape =
+                entranceTriggerShape(
+                        state
+                );
 
-        if (portalPanel.isEmpty()) {
+        if (entranceShape.isEmpty()) {
             return;
         }
 
-        AABB portalBox =
-                portalPanel
+        AABB entranceBox =
+                entranceShape
                         .bounds()
                         .move(
                                 pos.getX(),
@@ -232,20 +299,18 @@ public final class MusavaccaPortalDoorBlock
                                 pos.getZ()
                         );
 
-        AABB entranceBox =
-                entranceTriggerBox(
-                        state,
-                        portalBox
-                );
-
         Vec3 movement =
                 entity.getDeltaMovement();
 
         /*
-         * Preserve the original swept movement test.
+         * Preserve the swept movement test.
          *
-         * This prevents a fast-moving entity from skipping
-         * completely over the entrance region between ticks.
+         * The server-side entrance ticker provides the early
+         * PORTAL_ENTRANCE_NUDGE from both sides of the portal.
+         *
+         * This swept test remains important for fast entities
+         * that can move across the entrance corridor between
+         * two entity-inside checks.
          */
         AABB sweptEntityBox =
                 entity.getBoundingBox()
@@ -272,10 +337,183 @@ public final class MusavaccaPortalDoorBlock
         );
     }
 
-    private static AABB entranceTriggerBox(
-            BlockState state,
-            AABB portalBox
+    private void tickEntranceNudge(
+            ServerLevel level,
+            BlockPos lowerPos,
+            BlockState lowerState
     ) {
+        if (
+                !lowerState.is(
+                        this
+                )
+                        || lowerState.getValue(
+                        HALF
+                )
+                        != DoubleBlockHalf.LOWER
+                        || !MusavaccaPortalDoorHitboxes
+                        .hasOpenPortal(
+                                lowerState
+                        )
+        ) {
+            return;
+        }
+
+        AABB lowerEntranceBox =
+                entranceTriggerWorldBox(
+                        lowerState,
+                        lowerPos
+                );
+
+        BlockPos upperPos =
+                lowerPos.above();
+
+        BlockState upperState =
+                level.getBlockState(
+                        upperPos
+                );
+
+        AABB upperEntranceBox =
+                null;
+
+        if (
+                upperState.is(
+                        this
+                )
+                        && upperState.getValue(
+                        HALF
+                )
+                        == DoubleBlockHalf.UPPER
+                        && MusavaccaPortalDoorHitboxes
+                        .hasOpenPortal(
+                                upperState
+                        )
+        ) {
+            upperEntranceBox =
+                    entranceTriggerWorldBox(
+                            upperState,
+                            upperPos
+                    );
+        }
+
+        AABB entranceBox =
+                combineEntranceBoxes(
+                        lowerEntranceBox,
+                        upperEntranceBox
+                );
+
+        if (entranceBox == null) {
+            return;
+        }
+
+        /*
+         * entityInside() can only participate once Minecraft
+         * is already evaluating the door's block coordinate.
+         *
+         * This small server-side check supplies the missing
+         * part of PORTAL_ENTRANCE_NUDGE that extends into the
+         * neighboring block.
+         *
+         * The exact same entranceTriggerShape() is used here,
+         * so NORTH/SOUTH and EAST/WEST receive the same nudge.
+         */
+        for (
+                Entity entity
+                : level.getEntities(
+                (Entity) null,
+                entranceBox,
+                entity -> entity
+                        .canUsePortal(
+                                false
+                        )
+        )
+        ) {
+            entity.setAsInsidePortal(
+                    this,
+                    lowerPos
+            );
+        }
+    }
+
+    @Nullable
+    private static AABB entranceTriggerWorldBox(
+            BlockState state,
+            BlockPos pos
+    ) {
+        VoxelShape shape =
+                entranceTriggerShape(
+                        state
+                );
+
+        if (shape.isEmpty()) {
+            return null;
+        }
+
+        return shape
+                .bounds()
+                .move(
+                        pos.getX(),
+                        pos.getY(),
+                        pos.getZ()
+                );
+    }
+
+    @Nullable
+    private static AABB combineEntranceBoxes(
+            @Nullable AABB first,
+            @Nullable AABB second
+    ) {
+        if (first == null) {
+            return second;
+        }
+
+        if (second == null) {
+            return first;
+        }
+
+        return new AABB(
+                Math.min(
+                        first.minX,
+                        second.minX
+                ),
+                Math.min(
+                        first.minY,
+                        second.minY
+                ),
+                Math.min(
+                        first.minZ,
+                        second.minZ
+                ),
+                Math.max(
+                        first.maxX,
+                        second.maxX
+                ),
+                Math.max(
+                        first.maxY,
+                        second.maxY
+                ),
+                Math.max(
+                        first.maxZ,
+                        second.maxZ
+                )
+        );
+    }
+
+    private static VoxelShape entranceTriggerShape(
+            BlockState state
+    ) {
+        VoxelShape portalPanel =
+                MusavaccaPortalDoorHitboxes
+                        .portalPanel(
+                                state
+                        );
+
+        if (portalPanel.isEmpty()) {
+            return Shapes.empty();
+        }
+
+        AABB portalBox =
+                portalPanel.bounds();
+
         Direction facing =
                 MusavaccaPortalDoorHitboxes
                         .portalFacing(
@@ -307,52 +545,54 @@ public final class MusavaccaPortalDoorBlock
          * PORTAL_ENTRANCE_NUDGE is measured from the CENTER
          * of the 2px portal panel.
          *
-         * We create an entrance corridor extending equally
+         * The shape extends by exactly the same distance
          * to BOTH sides of that center.
          *
-         * This deliberately does NOT depend on getDeltaMovement()
-         * to determine which side is allowed to trigger.
-         *
-         * The movement sweep is used only to prevent fast entities
-         * from skipping across the corridor between ticks.
+         * This is deliberately independent of entity movement
+         * direction. Movement is only used by entityInside()
+         * for the swept fast-crossing test.
          */
         if (
                 facing.getAxis()
                         == Direction.Axis.X
         ) {
-            return new AABB(
-                    centerX
-                            - entranceNudge
-                            - PORTAL_TRIGGER_EPSILON,
-                    portalBox.minY
-                            - PORTAL_TRIGGER_EPSILON,
-                    portalBox.minZ
-                            - PORTAL_TRIGGER_EPSILON,
-                    centerX
-                            + entranceNudge
-                            + PORTAL_TRIGGER_EPSILON,
-                    portalBox.maxY
-                            + PORTAL_TRIGGER_EPSILON,
-                    portalBox.maxZ
-                            + PORTAL_TRIGGER_EPSILON
+            return Shapes.create(
+                    new AABB(
+                            centerX
+                                    - entranceNudge
+                                    - PORTAL_TRIGGER_EPSILON,
+                            portalBox.minY
+                                    - PORTAL_TRIGGER_EPSILON,
+                            portalBox.minZ
+                                    - PORTAL_TRIGGER_EPSILON,
+                            centerX
+                                    + entranceNudge
+                                    + PORTAL_TRIGGER_EPSILON,
+                            portalBox.maxY
+                                    + PORTAL_TRIGGER_EPSILON,
+                            portalBox.maxZ
+                                    + PORTAL_TRIGGER_EPSILON
+                    )
             );
         }
 
-        return new AABB(
-                portalBox.minX
-                        - PORTAL_TRIGGER_EPSILON,
-                portalBox.minY
-                        - PORTAL_TRIGGER_EPSILON,
-                centerZ
-                        - entranceNudge
-                        - PORTAL_TRIGGER_EPSILON,
-                portalBox.maxX
-                        + PORTAL_TRIGGER_EPSILON,
-                portalBox.maxY
-                        + PORTAL_TRIGGER_EPSILON,
-                centerZ
-                        + entranceNudge
-                        + PORTAL_TRIGGER_EPSILON
+        return Shapes.create(
+                new AABB(
+                        portalBox.minX
+                                - PORTAL_TRIGGER_EPSILON,
+                        portalBox.minY
+                                - PORTAL_TRIGGER_EPSILON,
+                        centerZ
+                                - entranceNudge
+                                - PORTAL_TRIGGER_EPSILON,
+                        portalBox.maxX
+                                + PORTAL_TRIGGER_EPSILON,
+                        portalBox.maxY
+                                + PORTAL_TRIGGER_EPSILON,
+                        centerZ
+                                + entranceNudge
+                                + PORTAL_TRIGGER_EPSILON
+                )
         );
     }
 
