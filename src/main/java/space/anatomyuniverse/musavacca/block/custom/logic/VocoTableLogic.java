@@ -121,7 +121,7 @@ public final class VocoTableLogic {
             ReceptorPosition receptor = candleHit != null ? candleHit : receptorPart.receptor();
 
             if (receptor != null) {
-                if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
+                if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) {
                     return InteractionResult.SUCCESS;
                 }
 
@@ -254,7 +254,7 @@ public final class VocoTableLogic {
             ReceptorPosition receptor = candleHit != null ? candleHit : receptorPart.receptor();
 
             if (receptor != null) {
-                if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
+                if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) {
                     return InteractionResult.SUCCESS;
                 }
 

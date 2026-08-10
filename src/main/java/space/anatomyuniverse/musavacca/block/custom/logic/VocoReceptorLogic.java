@@ -15,7 +15,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.gui.menu.VocoSliderMenu;
+import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
+import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
+import space.anatomyuniverse.musavacca.gui.voco.VocoCameraStartPayload;
 
 public final class VocoReceptorLogic {
     public static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
@@ -71,7 +73,7 @@ public final class VocoReceptorLogic {
         }
     }
 
-    public static boolean tryOpenSliderMenu(
+    public static boolean tryOpenCameraEditor(
             Level level,
             BlockPos pos,
             Player player,
@@ -81,11 +83,50 @@ public final class VocoReceptorLogic {
             return false;
         }
 
-        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
-            VocoSliderMenu.open(serverPlayer, pos, receptor);
+        if (!isReceptorLit(level, pos, receptor)) {
+            return true;
         }
 
+        //? if >=1.21.6 {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+            VocoCameraStartPayload.open(serverPlayer, pos, receptor);
+        }
+        //?} else {
+        /*if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.displayClientMessage(
+                    Component.literal("Voco camera editing requires Minecraft 1.21.6 or newer."),
+                    true
+            );
+        }
+        *///?}
+
         return true;
+    }
+
+
+    public static boolean isReceptorLit(
+            Level level,
+            BlockPos pos,
+            ReceptorPosition receptor
+    ) {
+        if (level == null || pos == null || receptor == null) {
+            return false;
+        }
+
+        BlockState state = level.getBlockState(pos);
+
+        if (state.getBlock() instanceof VocoPostBlock) {
+            return state.hasProperty(VocoPostBlock.LIT)
+                    && state.getValue(VocoPostBlock.LIT);
+        }
+
+        if (state.getBlock() instanceof VocoTableBlock) {
+            BooleanProperty litProperty = VocoTableBlock.lightProperty(receptor);
+            return state.hasProperty(litProperty)
+                    && state.getValue(litProperty);
+        }
+
+        return false;
     }
 
     public static boolean isCompletelyEmptyHanded(Player player) {

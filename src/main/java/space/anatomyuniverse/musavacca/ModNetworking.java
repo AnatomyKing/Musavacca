@@ -9,6 +9,8 @@ import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerSyncPayload;
 //? if <1.21.6
 //import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
 import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlColorPayload;
+import space.anatomyuniverse.musavacca.gui.voco.VocoCameraSelectionPayload;
+import space.anatomyuniverse.musavacca.gui.voco.VocoCameraStartPayload;
 
 public final class ModNetworking {
     private ModNetworking() {
@@ -28,6 +30,15 @@ public final class ModNetworking {
                 .playToClient(
                         BalanceSyncPayload.TYPE,
                         BalanceSyncPayload.STREAM_CODEC
+                )
+                .playToClient(
+                        VocoCameraStartPayload.TYPE,
+                        VocoCameraStartPayload.STREAM_CODEC
+                )
+                .playToServer(
+                        VocoCameraSelectionPayload.TYPE,
+                        VocoCameraSelectionPayload.STREAM_CODEC,
+                        VocoCameraSelectionPayload::handle
                 )
                 .playToServer(
                         FlintAndPearlColorPayload.TYPE,

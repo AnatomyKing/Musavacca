@@ -61,18 +61,21 @@ public final class VocoTeleportLogic {
             return;
         }
 
-        Vec3 target =
-                getDefaultTeleportPosition(
-                        pos,
-                        actualReceptor
-                );
-
-        Facing facing =
-                getFacing(
+        /*
+         * Directory lookup normally performs the teleport. If the owner lookup
+         * is unavailable for any reason, the local fallback must still honor
+         * the exact same endpoint target instead of silently falling back to a
+         * default position with a possibly custom angle.
+         */
+        EndpointTarget endpointTarget =
+                getEndpointTarget(
                         level,
                         pos,
                         actualReceptor
                 );
+
+        Vec3 target = endpointTarget.pos();
+        Facing facing = endpointTarget.facing();
 
         serverPlayer.connection.teleport(
                 target.x,
@@ -313,75 +316,41 @@ public final class VocoTeleportLogic {
             BlockPos pos,
             ReceptorPosition receptor
     ) {
-        BlockEntity be =
-                level.getBlockEntity(
-                        pos
-                );
+        BlockEntity be = level.getBlockEntity(pos);
 
-        if (
-                be instanceof VocoTableBlockEntity tableBe
-                        && tableBe.isCustomTargetEnabled(
-                        receptor
-                )
-        ) {
-            return new EndpointTarget(
-                    tableBe.getCustomTarget(
-                            receptor
-                    ),
-                    new Facing(
-                            tableBe.getYawDegrees(
-                                    receptor
-                            ),
-                            tableBe.getPitchDegrees(
-                                    receptor
-                            )
-                    ),
-                    true
-            );
+        if (be instanceof VocoTableBlockEntity tableBe) {
+            if (tableBe.isCustomTargetEnabled(receptor)) {
+                return new EndpointTarget(
+                        tableBe.getCustomTarget(receptor),
+                        new Facing(
+                                tableBe.getYawDegrees(receptor),
+                                tableBe.getPitchDegrees(receptor)
+                        ),
+                        true
+                );
+            }
+
+            return defaultEndpointTarget(pos, receptor);
         }
 
         if (be instanceof VocoPostBlockEntity postBe) {
-            ReceptorPosition postReceptor =
-                    actualReceptor(
-                            level,
-                            pos,
-                            receptor
-                    );
+            ReceptorPosition postReceptor = actualReceptor(level, pos, receptor);
 
-            return postBe.isCustomTargetEnabled()
-                    ? new EndpointTarget(
-                    postBe.getCustomTarget(),
-                    new Facing(
-                            postBe.getYawDegrees(),
-                            postBe.getPitchDegrees()
-                    ),
-                    true
-            )
-                    : new EndpointTarget(
-                    getDefaultTeleportPosition(
-                            pos,
-                            postReceptor
-                    ),
-                    new Facing(
-                            postBe.getYawDegrees(),
-                            postBe.getPitchDegrees()
-                    ),
-                    false
-            );
+            if (postBe.isCustomTargetEnabled()) {
+                return new EndpointTarget(
+                        postBe.getCustomTarget(),
+                        new Facing(
+                                postBe.getYawDegrees(),
+                                postBe.getPitchDegrees()
+                        ),
+                        true
+                );
+            }
+
+            return defaultEndpointTarget(pos, postReceptor);
         }
 
-        return new EndpointTarget(
-                getDefaultTeleportPosition(
-                        pos,
-                        receptor
-                ),
-                getFacing(
-                        level,
-                        pos,
-                        receptor
-                ),
-                false
-        );
+        return defaultEndpointTarget(pos, receptor);
     }
 
     public static Facing getFacing(
@@ -389,33 +358,52 @@ public final class VocoTeleportLogic {
             BlockPos pos,
             ReceptorPosition receptor
     ) {
-        BlockEntity be =
-                level.getBlockEntity(
-                        pos
-                );
+        BlockEntity be = level.getBlockEntity(pos);
 
-        if (
-                be instanceof VocoTableBlockEntity tableBe
-        ) {
+        if (be instanceof VocoTableBlockEntity tableBe
+                && tableBe.isCustomTargetEnabled(receptor)) {
             return new Facing(
-                    tableBe.getYawDegrees(
-                            receptor
-                    ),
-                    tableBe.getPitchDegrees(
-                            receptor
-                    )
+                    tableBe.getYawDegrees(receptor),
+                    tableBe.getPitchDegrees(receptor)
             );
         }
 
-        if (
-                be instanceof VocoPostBlockEntity postBe
-        ) {
+        if (be instanceof VocoPostBlockEntity postBe
+                && postBe.isCustomTargetEnabled()) {
             return new Facing(
                     postBe.getYawDegrees(),
                     postBe.getPitchDegrees()
             );
         }
 
+        ReceptorPosition actual = actualReceptor(level, pos, receptor);
+        return defaultFacing(actual);
+    }
+
+    public static Vec3 getCameraEditorPosition(
+            BlockPos pos,
+            ReceptorPosition receptor
+    ) {
+        /*
+         * The detached camera uses a fake player entity. Returning the same
+         * feet position as the normal safe receptor arrival means the camera
+         * automatically sits at normal player eye height while previewing.
+         */
+        return getDefaultTeleportPosition(pos, receptor);
+    }
+
+    private static EndpointTarget defaultEndpointTarget(
+            BlockPos pos,
+            ReceptorPosition receptor
+    ) {
+        return new EndpointTarget(
+                getDefaultTeleportPosition(pos, receptor),
+                defaultFacing(receptor),
+                false
+        );
+    }
+
+    private static Facing defaultFacing(ReceptorPosition receptor) {
         return new Facing(
                 receptor.defaultYawDegrees(),
                 receptor.defaultPitchDegrees()

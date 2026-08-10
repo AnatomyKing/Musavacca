@@ -26,12 +26,6 @@ public final class ModMenus {
                     () -> IMenuTypeExtension.create(TestInventoryMenu::new)
             );
 
-    public static final Supplier<MenuType<VocoSliderMenu>> VOCO_SLIDER_MENU =
-            MENUS.register(
-                    "voco_slider_menu",
-                    () -> IMenuTypeExtension.create(VocoSliderMenu::new)
-            );
-
     public static final Supplier<MenuType<HexTeleportMenu>> HEX_TELEPORT_MENU =
             MENUS.register(
                     "hex_teleport_menu",

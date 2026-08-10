@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -443,6 +442,21 @@ public class VocoTableBlockEntity extends BlockEntity {
         this.targetZ[index] = target.z;
         this.yawDegrees[index] = VocoReceptorLogic.clampYaw(yawDegrees);
         this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(pitchDegrees);
+
+        this.markChangedAndSync();
+        this.resyncEndpoint(receptor);
+    }
+
+    public void resetCustomTarget(ReceptorPosition receptor) {
+        int index = receptor.id();
+        Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
+
+        this.customTargetEnabled[index] = false;
+        this.targetX[index] = fallback.x;
+        this.targetY[index] = fallback.y;
+        this.targetZ[index] = fallback.z;
+        this.yawDegrees[index] = receptor.defaultYawDegrees();
+        this.pitchDegrees[index] = receptor.defaultPitchDegrees();
 
         this.markChangedAndSync();
         this.resyncEndpoint(receptor);
@@ -1479,6 +1493,3 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 }
-
-
-

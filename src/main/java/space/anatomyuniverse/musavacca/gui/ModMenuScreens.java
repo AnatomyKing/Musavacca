@@ -8,7 +8,6 @@ public final class ModMenuScreens {
     public static void register(RegisterMenuScreensEvent event) {
         event.register(ModMenus.ITEM_INTERACT_MENU.get(), ItemInteractScreen::new);
         event.register(ModMenus.TEST_INVENTORY_MENU.get(), TestInventoryScreen::new);
-        event.register(ModMenus.VOCO_SLIDER_MENU.get(), VocoSliderScreen::new);
         event.register(ModMenus.HEX_TELEPORT_MENU.get(), HexTeleportScreen::new);
         event.register(ModMenus.FLINT_AND_PEARL_MENU.get(), FlintAndPearlScreen::new);
     }

@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -28,7 +27,7 @@ public final class VocoPostLogic {
             return InteractionResult.PASS;
         }
 
-        if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
+        if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) {
             return InteractionResult.SUCCESS;
         }
 
@@ -85,7 +84,7 @@ public final class VocoPostLogic {
             return InteractionResult.PASS;
         }
 
-        if (VocoReceptorLogic.tryOpenSliderMenu(level, pos, player, receptor)) {
+        if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) {
             return InteractionResult.SUCCESS;
         }
 

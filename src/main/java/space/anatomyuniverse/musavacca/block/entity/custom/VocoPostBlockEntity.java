@@ -104,6 +104,16 @@ public class VocoPostBlockEntity extends BlockEntity {
         this.changed();
     }
 
+    public void resetCustomTarget() {
+        ReceptorPosition receptor = this.getPostReceptor();
+        Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
+
+        this.customTargetEnabled = false;
+        this.setTarget(fallback);
+        this.setFacingRaw(receptor.defaultYawDegrees(), receptor.defaultPitchDegrees());
+        this.changed();
+    }
+
     public void setYawDegrees(int yawDegrees) {
         int clamped = clampYaw(yawDegrees);
         if (this.yawDegrees == clamped) {
