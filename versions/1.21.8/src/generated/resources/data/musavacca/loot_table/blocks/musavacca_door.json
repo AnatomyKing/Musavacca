@@ -21,6 +21,7 @@
               "condition": "minecraft:block_state_property",
               "properties": {
                 "lit": "false",
+                "lit_portal": "false",
                 "portal": "false"
               }
             },
@@ -37,7 +38,9 @@
               "block": "musavacca:musavacca_door",
               "condition": "minecraft:block_state_property",
               "properties": {
-                "lit": "true"
+                "lit": "true",
+                "lit_portal": "false",
+                "portal": "false"
               }
             },
             {
@@ -72,6 +75,7 @@
               "condition": "minecraft:block_state_property",
               "properties": {
                 "lit": "true",
+                "lit_portal": "false",
                 "portal": "false"
               }
             },
@@ -103,8 +107,41 @@
               "block": "musavacca:musavacca_door",
               "condition": "minecraft:block_state_property",
               "properties": {
-                "lit": "true",
-                "portal": "true"
+                "lit_portal": "true"
+              }
+            },
+            {
+              "condition": "minecraft:inverted",
+              "term": {
+                "condition": "minecraft:match_tool",
+                "predicate": {
+                  "predicates": {
+                    "minecraft:enchantments": [
+                      {
+                        "enchantments": "minecraft:silk_touch",
+                        "levels": {
+                          "min": 1
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "name": "musavacca:musavacca_door"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_door",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit_portal": "true"
               }
             },
             {
@@ -135,7 +172,7 @@
               "source": "block_entity"
             }
           ],
-          "name": "musavacca:musavacca_charged_portal_door"
+          "name": "musavacca:musavacca_imbued_door"
         }
       ],
       "rolls": 1.0
@@ -159,7 +196,9 @@
               "block": "musavacca:musavacca_door",
               "condition": "minecraft:block_state_property",
               "properties": {
-                "lit": "true"
+                "lit": "true",
+                "lit_portal": "false",
+                "portal": "false"
               }
             },
             {
@@ -178,6 +217,23 @@
                     ]
                   }
                 }
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "name": "musavacca:banana_pearl"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_door",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit": "true",
+                "lit_portal": "true"
               }
             },
             {

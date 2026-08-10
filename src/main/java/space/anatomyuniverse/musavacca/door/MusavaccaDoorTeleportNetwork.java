@@ -6,8 +6,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 public final class MusavaccaDoorTeleportNetwork {
@@ -32,6 +32,15 @@ public final class MusavaccaDoorTeleportNetwork {
                         lowerPos
                 );
 
+        /*
+         * A door with only a hex address is NOT pending.
+         *
+         * Registration starts only when the complete portal state is:
+         *
+         * LIT=true
+         * LIT_PORTAL=true
+         * PORTAL=true
+         */
         if (
                 !door.hasHexColor()
                         || !(state.getBlock()
@@ -40,6 +49,15 @@ public final class MusavaccaDoorTeleportNetwork {
                         MusavaccaPortalDoorBlock.HALF
                 )
                         != DoubleBlockHalf.LOWER
+                        || !state.getValue(
+                        MusavaccaPortalDoorBlock.LIT
+                )
+                        || !state.getValue(
+                        MusavaccaPortalDoorBlock.LIT_PORTAL
+                )
+                        || !state.getValue(
+                        MusavaccaPortalDoorBlock.PORTAL
+                )
         ) {
             removeDoor(
                     level,
@@ -49,9 +67,12 @@ public final class MusavaccaDoorTeleportNetwork {
             return;
         }
 
+        MinecraftServer server =
+                level.getServer();
+
         HexTeleportDirectory directory =
                 HexTeleportDirectory.get(
-                        level.getServer()
+                        server
                 );
 
         String ownerKey =
@@ -92,10 +113,12 @@ public final class MusavaccaDoorTeleportNetwork {
                 previousHex >= 0
                         && previousHex != resolvedHex
         ) {
-            promoteVocoIfAddressBecameFree(
-                    level,
-                    previousHex
-            );
+            HexTeleportAddressNetwork
+                    .addressChanged(
+                            server,
+                            previousHex,
+                            resolvedHex
+                    );
         }
     }
 
@@ -110,11 +133,6 @@ public final class MusavaccaDoorTeleportNetwork {
             return;
         }
 
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        level.getServer()
-                );
-
         String ownerKey =
                 HexTeleportDirectory
                         .doorOwnerKey(
@@ -123,21 +141,11 @@ public final class MusavaccaDoorTeleportNetwork {
                                 lowerPos
                         );
 
-        HexTeleportDirectory.DoorEndpoint removed =
-                directory
-                        .removeDoorOwner(
-                                ownerKey
-                        )
-                        .orElse(null);
-
-        if (removed == null) {
-            return;
-        }
-
-        promoteVocoIfAddressBecameFree(
-                level,
-                removed.hexColor()
-        );
+        HexTeleportAddressNetwork
+                .releaseOwner(
+                        level.getServer(),
+                        ownerKey
+                );
     }
 
     public static void removeStaleEndpoint(
@@ -179,53 +187,10 @@ public final class MusavaccaDoorTeleportNetwork {
             return;
         }
 
-        HexTeleportDirectory.DoorEndpoint removed =
-                directory
-                        .removeDoorOwner(
-                                endpoint.ownerKey()
-                        )
-                        .orElse(null);
-
-        if (removed == null) {
-            return;
-        }
-
-        promoteVocoIfAddressBecameFree(
-                server.overworld(),
-                removed.hexColor()
-        );
-    }
-
-    private static void promoteVocoIfAddressBecameFree(
-            ServerLevel level,
-            int hexColor
-    ) {
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        level.getServer()
+        HexTeleportAddressNetwork
+                .releaseOwner(
+                        server,
+                        endpoint.ownerKey()
                 );
-
-        int hex =
-                HexTeleportDirectory.normalizeHex(
-                        hexColor
-                );
-
-        if (
-                directory.isDoorHexReserved(
-                        hex
-                )
-                        || !directory
-                        .getEndpointsByHex(
-                                hex
-                        )
-                        .isEmpty()
-        ) {
-            return;
-        }
-
-        VocoTeleportLogic.promotePendingForHex(
-                level,
-                hex
-        );
     }
 }

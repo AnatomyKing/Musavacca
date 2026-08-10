@@ -92,7 +92,9 @@ public final class ModItemTagsProvider
                 .add(key(ModBlocks.MUSAVACCA_FENCE_GATE));
 
         tag(ItemTags.WOODEN_DOORS)
-                .add(key(ModBlocks.MUSAVACCA_DOOR));
+                .add(key(ModItems.MUSAVACCA_DOOR))
+                .add(key(ModItems.MUSAVACCA_CHARGED_DOOR))
+                .add(key(ModItems.MUSAVACCA_IMBUED_DOOR));
 
         tag(ItemTags.WOODEN_TRAPDOORS)
                 .add(key(ModBlocks.MUSAVACCA_TRAPDOOR));
@@ -102,9 +104,6 @@ public final class ModItemTagsProvider
 
         tag(ItemTags.WOODEN_BUTTONS)
                 .add(key(ModBlocks.MUSAVACCA_BUTTON));
-
-
-
 
         /*
          * Potassium tools.
@@ -129,7 +128,6 @@ public final class ModItemTagsProvider
         tag(ItemTags.HOES)
                 .add(key(ModItems.POTASSIUM_HOE))
                 .add(key(ModItems.IMBUED_POTASSIUM_HOE));
-
 
         /*
          * General durability enchantments.
@@ -175,7 +173,6 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.IMBUED_POTASSIUM_LEGGINGS))
                 .add(key(ModItems.IMBUED_POTASSIUM_BOOTS));
 
-
         /*
          * Mining enchantment categories.
          */
@@ -200,7 +197,6 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.IMBUED_POTASSIUM_SHOVEL))
                 .add(key(ModItems.IMBUED_POTASSIUM_HOE));
 
-
         /*
          * Weapon enchantment categories.
          */
@@ -223,14 +219,12 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.POTASSIUM_SWORD))
                 .add(key(ModItems.IMBUED_POTASSIUM_SWORD));
 
-
         /*
          * Potassium armor repair material.
          */
 
         tag(ModItems.REPAIRS_POTASSIUM_ARMOR)
                 .add(key(ModItems.POTASSIUM_INGOT));
-
 
         /*
          * Armor slots.
@@ -252,7 +246,6 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.POTASSIUM_BOOTS))
                 .add(key(ModItems.IMBUED_POTASSIUM_BOOTS));
 
-
         /*
          * Armor trims.
          */
@@ -270,7 +263,6 @@ public final class ModItemTagsProvider
         tag(CustomHelmetArmorTrims.CUSTOM_HEAD_HELMETS)
                 .add(key(ModItems.POTASSIUM_HELMET))
                 .add(key(ModItems.IMBUED_POTASSIUM_HELMET));
-
 
         /*
          * Armor enchantment categories.

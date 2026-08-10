@@ -107,7 +107,12 @@ public final class ModItems {
                     IMBUED_POTASSIUM_EQUIPMENT_ASSET
             );
 
-    private static DeferredItem<BlockItem> MusavaccaDoorItems(String name, boolean lit, boolean portal) {
+    private static DeferredItem<BlockItem> MusavaccaDoorItems(
+            String name,
+            boolean lit,
+            boolean litPortal,
+            boolean portal
+    ) {
         return ITEMS.registerItem(
                 name,
                 props -> new DoubleHighBlockItem(
@@ -115,21 +120,46 @@ public final class ModItems {
                         props.component(
                                 DataComponents.BLOCK_STATE,
                                 BlockItemStateProperties.EMPTY
-                                        .with(MusavaccaPortalDoorBlock.LIT, lit)
-                                        .with(MusavaccaPortalDoorBlock.PORTAL, portal)
+                                        .with(
+                                                MusavaccaPortalDoorBlock.LIT,
+                                                lit
+                                        )
+                                        .with(
+                                                MusavaccaPortalDoorBlock.LIT_PORTAL,
+                                                litPortal
+                                        )
+                                        .with(
+                                                MusavaccaPortalDoorBlock.PORTAL,
+                                                portal
+                                        )
                         )
                 )
         );
     }
 
     public static final DeferredItem<BlockItem> MUSAVACCA_DOOR =
-            MusavaccaDoorItems("musavacca_door", false, false);
+            MusavaccaDoorItems(
+                    "musavacca_door",
+                    false,
+                    false,
+                    false
+            );
 
     public static final DeferredItem<BlockItem> MUSAVACCA_CHARGED_DOOR =
-            MusavaccaDoorItems("musavacca_charged_door", true, false);
+            MusavaccaDoorItems(
+                    "musavacca_charged_door",
+                    true,
+                    false,
+                    false
+            );
 
-    public static final DeferredItem<BlockItem> MUSAVACCA_CHARGED_PORTAL_DOOR =
-            MusavaccaDoorItems("musavacca_charged_portal_door", true, true);
+    public static final DeferredItem<BlockItem> MUSAVACCA_IMBUED_DOOR =
+            MusavaccaDoorItems(
+                    "musavacca_imbued_door",
+                    false,
+                    true,
+                    false
+            );
 
     public static final DeferredItem<BlockItem> MUSAVACCA_PUP =
             ITEMS.registerItem(

@@ -33,6 +33,7 @@ import net.minecraft.client.renderer.block.model.Variant;
 //?}
 
 public final class CubeMusavaccaPortalDoorTinted {
+
     private CubeMusavaccaPortalDoorTinted() {}
 
     private record DoorModels(
@@ -50,8 +51,14 @@ public final class CubeMusavaccaPortalDoorTinted {
                 DoorHingeSide hinge,
                 boolean open
         ) {
-            if (half == DoubleBlockHalf.LOWER) {
-                if (hinge == DoorHingeSide.LEFT) {
+            if (
+                    half
+                            == DoubleBlockHalf.LOWER
+            ) {
+                if (
+                        hinge
+                                == DoorHingeSide.LEFT
+                ) {
                     return open
                             ? this.bottomLeftOpen
                             : this.bottomLeft;
@@ -62,7 +69,10 @@ public final class CubeMusavaccaPortalDoorTinted {
                         : this.bottomRight;
             }
 
-            if (hinge == DoorHingeSide.LEFT) {
+            if (
+                    hinge
+                            == DoorHingeSide.LEFT
+            ) {
                 return open
                         ? this.topLeftOpen
                         : this.topLeft;
@@ -74,6 +84,24 @@ public final class CubeMusavaccaPortalDoorTinted {
         }
     }
 
+    /*
+     * Normal charged Banana Pearl knob.
+     *
+     * Used by:
+     *
+     * LIT=true
+     * LIT_PORTAL=false
+     * PORTAL=false
+     *
+     * AND:
+     *
+     * LIT=true
+     * LIT_PORTAL=true
+     * PORTAL=true
+     *
+     * In other words, once an imbued door becomes an active portal,
+     * the normal lit knob replaces the tinted lit_portal knob.
+     */
     public record LitModels(
             String bottomLeft,
             String bottomLeftOpen,
@@ -108,11 +136,17 @@ public final class CubeMusavaccaPortalDoorTinted {
                 DoorHingeSide hinge,
                 boolean open
         ) {
-            if (half != DoubleBlockHalf.LOWER) {
+            if (
+                    half
+                            != DoubleBlockHalf.LOWER
+            ) {
                 return null;
             }
 
-            if (hinge == DoorHingeSide.LEFT) {
+            if (
+                    hinge
+                            == DoorHingeSide.LEFT
+            ) {
                 return ResourceLocation.parse(
                         open
                                 ? this.bottomLeftOpen
@@ -128,6 +162,90 @@ public final class CubeMusavaccaPortalDoorTinted {
         }
     }
 
+    /*
+     * Hex-imbued knob.
+     *
+     * This model is tinted using the stored HEX_COLOR.
+     *
+     * It is ONLY visible while:
+     *
+     * LIT=false
+     * LIT_PORTAL=true
+     * PORTAL=false
+     *
+     * Once a Banana Pearl is inserted:
+     *
+     * LIT=true
+     * LIT_PORTAL=true
+     * PORTAL=true
+     *
+     * and this model disappears, being replaced by LitModels.
+     */
+    public record LitPortalModels(
+            String bottomLeft,
+            String bottomLeftOpen,
+            String bottomRight,
+            String bottomRightOpen
+    ) {
+        public LitPortalModels {
+            requireModel(
+                    bottomLeft,
+                    "bottomLeft"
+            );
+
+            requireModel(
+                    bottomLeftOpen,
+                    "bottomLeftOpen"
+            );
+
+            requireModel(
+                    bottomRight,
+                    "bottomRight"
+            );
+
+            requireModel(
+                    bottomRightOpen,
+                    "bottomRightOpen"
+            );
+        }
+
+        @Nullable
+        public ResourceLocation model(
+                DoubleBlockHalf half,
+                DoorHingeSide hinge,
+                boolean open
+        ) {
+            if (
+                    half
+                            != DoubleBlockHalf.LOWER
+            ) {
+                return null;
+            }
+
+            if (
+                    hinge
+                            == DoorHingeSide.LEFT
+            ) {
+                return ResourceLocation.parse(
+                        open
+                                ? this.bottomLeftOpen
+                                : this.bottomLeft
+                );
+            }
+
+            return ResourceLocation.parse(
+                    open
+                            ? this.bottomRightOpen
+                            : this.bottomRight
+            );
+        }
+    }
+
+    /*
+     * Actual portal surface.
+     *
+     * Only visible while PORTAL=true.
+     */
     public record PortalModels(
             String bottomLeftOpen,
             String bottomRightOpen,
@@ -175,27 +293,36 @@ public final class CubeMusavaccaPortalDoorTinted {
                 boolean open
         ) {
             if (!open) {
-                if (half == DoubleBlockHalf.LOWER) {
+                if (
+                        half
+                                == DoubleBlockHalf.LOWER
+                ) {
                     return null;
                 }
 
                 return ResourceLocation.parse(
-                        hinge == DoorHingeSide.LEFT
+                        hinge
+                                == DoorHingeSide.LEFT
                                 ? this.doorPortalTopLeft
                                 : this.doorPortalTopRight
                 );
             }
 
-            if (half == DoubleBlockHalf.LOWER) {
+            if (
+                    half
+                            == DoubleBlockHalf.LOWER
+            ) {
                 return ResourceLocation.parse(
-                        hinge == DoorHingeSide.LEFT
+                        hinge
+                                == DoorHingeSide.LEFT
                                 ? this.bottomLeftOpen
                                 : this.bottomRightOpen
                 );
             }
 
             return ResourceLocation.parse(
-                    hinge == DoorHingeSide.LEFT
+                    hinge
+                            == DoorHingeSide.LEFT
                             ? this.topLeftOpen
                             : this.topRightOpen
             );
@@ -205,43 +332,71 @@ public final class CubeMusavaccaPortalDoorTinted {
     public record Models(
             ItemLike doorItem,
             ItemLike chargedDoorItem,
-            ItemLike chargedPortalDoorItem,
+            ItemLike imbuedDoorItem,
             LitModels litModels,
+            LitPortalModels litPortalModels,
             PortalModels portalModels,
             PearlFireTintProfiles.Profile tintProfile
     ) {
         public Models {
-            if (doorItem == null) {
+            if (
+                    doorItem
+                            == null
+            ) {
                 throw new IllegalArgumentException(
                         "doorItem must not be null"
                 );
             }
 
-            if (chargedDoorItem == null) {
+            if (
+                    chargedDoorItem
+                            == null
+            ) {
                 throw new IllegalArgumentException(
                         "chargedDoorItem must not be null"
                 );
             }
 
-            if (chargedPortalDoorItem == null) {
+            if (
+                    imbuedDoorItem
+                            == null
+            ) {
                 throw new IllegalArgumentException(
-                        "chargedPortalDoorItem must not be null"
+                        "imbuedDoorItem must not be null"
                 );
             }
 
-            if (litModels == null) {
+            if (
+                    litModels
+                            == null
+            ) {
                 throw new IllegalArgumentException(
                         "litModels must not be null"
                 );
             }
 
-            if (portalModels == null) {
+            if (
+                    litPortalModels
+                            == null
+            ) {
+                throw new IllegalArgumentException(
+                        "litPortalModels must not be null"
+                );
+            }
+
+            if (
+                    portalModels
+                            == null
+            ) {
                 throw new IllegalArgumentException(
                         "portalModels must not be null"
                 );
             }
 
-            if (tintProfile == null) {
+            if (
+                    tintProfile
+                            == null
+            ) {
                 throw new IllegalArgumentException(
                         "tintProfile must not be null"
                 );
@@ -264,9 +419,10 @@ public final class CubeMusavaccaPortalDoorTinted {
         models.forEach(
                 (block, modelsForBlock) -> {
                     if (
-                            !(block instanceof
-                                    MusavaccaPortalDoorBlock)
-                                    || modelsForBlock == null
+                            !(block
+                                    instanceof MusavaccaPortalDoorBlock)
+                                    || modelsForBlock
+                                    == null
                     ) {
                         return;
                     }
@@ -299,7 +455,9 @@ public final class CubeMusavaccaPortalDoorTinted {
             Block block
     ) {
         TextureMapping textures =
-                TextureMapping.door(block);
+                TextureMapping.door(
+                        block
+                );
 
         ResourceLocation bottomLeft =
                 ModelTemplates.DOOR_BOTTOM_LEFT
@@ -384,7 +542,9 @@ public final class CubeMusavaccaPortalDoorTinted {
             Models models
     ) {
         MultiPartGenerator multi =
-                MultiPartGenerator.multiPart(block);
+                MultiPartGenerator.multiPart(
+                        block
+                );
 
         for (
                 Direction facing
@@ -412,6 +572,11 @@ public final class CubeMusavaccaPortalDoorTinted {
                                         open
                                 );
 
+                        /*
+                         * Base wooden door model.
+                         *
+                         * Always present.
+                         */
                         multi = addPart(
                                 multi,
                                 baseModels.model(
@@ -423,6 +588,7 @@ public final class CubeMusavaccaPortalDoorTinted {
                                 half,
                                 hinge,
                                 open,
+                                null,
                                 null,
                                 yRotation
                         );
@@ -436,7 +602,20 @@ public final class CubeMusavaccaPortalDoorTinted {
                                                 open
                                         );
 
-                        if (litModel != null) {
+                        if (
+                                litModel
+                                        != null
+                        ) {
+                            /*
+                             * NORMAL CHARGED DOOR
+                             *
+                             * LIT=true
+                             * LIT_PORTAL=false
+                             *
+                             * Shows:
+                             *
+                             * lit_knob_door_*
+                             */
                             multi = addPart(
                                     multi,
                                     litModel,
@@ -445,6 +624,73 @@ public final class CubeMusavaccaPortalDoorTinted {
                                     hinge,
                                     open,
                                     MusavaccaPortalDoorBlock.LIT,
+                                    MusavaccaPortalDoorBlock.LIT_PORTAL,
+                                    yRotation
+                            );
+
+                            /*
+                             * ACTIVE IMBUED PORTAL DOOR
+                             *
+                             * LIT=true
+                             * LIT_PORTAL=true
+                             * PORTAL=true
+                             *
+                             * IMPORTANT:
+                             *
+                             * Once the portal activates, the normal
+                             * lit knob is rendered again.
+                             *
+                             * The tinted lit_portal knob disappears.
+                             */
+                            multi = addPart(
+                                    multi,
+                                    litModel,
+                                    facing,
+                                    half,
+                                    hinge,
+                                    open,
+                                    MusavaccaPortalDoorBlock.PORTAL,
+                                    null,
+                                    yRotation
+                            );
+                        }
+
+                        ResourceLocation litPortalModel =
+                                models
+                                        .litPortalModels()
+                                        .model(
+                                                half,
+                                                hinge,
+                                                open
+                                        );
+
+                        if (
+                                litPortalModel
+                                        != null
+                        ) {
+                            /*
+                             * IMBUED BUT NOT CHARGED
+                             *
+                             * LIT_PORTAL=true
+                             * PORTAL=false
+                             *
+                             * Shows the tinted:
+                             *
+                             * lit_portal_door_*
+                             *
+                             * PORTAL=false is explicitly required,
+                             * so these models disappear as soon as
+                             * the Banana Pearl activates the portal.
+                             */
+                            multi = addPart(
+                                    multi,
+                                    litPortalModel,
+                                    facing,
+                                    half,
+                                    hinge,
+                                    open,
+                                    MusavaccaPortalDoorBlock.LIT_PORTAL,
+                                    MusavaccaPortalDoorBlock.PORTAL,
                                     yRotation
                             );
                         }
@@ -458,7 +704,15 @@ public final class CubeMusavaccaPortalDoorTinted {
                                                 open
                                         );
 
-                        if (portalModel != null) {
+                        if (
+                                portalModel
+                                        != null
+                        ) {
+                            /*
+                             * Actual portal surface.
+                             *
+                             * Only exists while PORTAL=true.
+                             */
                             multi = addPart(
                                     multi,
                                     portalModel,
@@ -467,6 +721,7 @@ public final class CubeMusavaccaPortalDoorTinted {
                                     hinge,
                                     open,
                                     MusavaccaPortalDoorBlock.PORTAL,
+                                    null,
                                     yRotation
                             );
                         }
@@ -475,7 +730,9 @@ public final class CubeMusavaccaPortalDoorTinted {
             }
         }
 
-        blocks.blockStateOutput.accept(multi);
+        blocks.blockStateOutput.accept(
+                multi
+        );
     }
 
     private static void generateItemModels(
@@ -485,7 +742,9 @@ public final class CubeMusavaccaPortalDoorTinted {
             Models models
     ) {
         ResourceLocation blockId =
-                blockId(block);
+                blockId(
+                        block
+                );
 
         ResourceLocation baseTexture =
                 itemTexture(
@@ -505,6 +764,12 @@ public final class CubeMusavaccaPortalDoorTinted {
                         "_portal"
                 );
 
+        /*
+         * MUSAVACCA_DOOR
+         *
+         * layer0:
+         * musavacca_door
+         */
         ResourceLocation doorModel =
                 ModelTemplates.FLAT_ITEM
                         .create(
@@ -517,6 +782,15 @@ public final class CubeMusavaccaPortalDoorTinted {
                                 blocks.modelOutput
                         );
 
+        /*
+         * MUSAVACCA_CHARGED_DOOR
+         *
+         * layer0:
+         * musavacca_door
+         *
+         * layer1:
+         * musavacca_door_knob
+         */
         ResourceLocation chargedDoorModel =
                 ModelTemplates.TWO_LAYERED_ITEM
                         .create(
@@ -530,25 +804,38 @@ public final class CubeMusavaccaPortalDoorTinted {
                                 blocks.modelOutput
                         );
 
-        ResourceLocation chargedPortalDoorModel =
-                ModelTemplates.THREE_LAYERED_ITEM
+        /*
+         * MUSAVACCA_IMBUED_DOOR
+         *
+         * layer0:
+         * musavacca_door
+         *
+         * layer1:
+         * musavacca_door_portal
+         *
+         * The second layer receives HEX_COLOR tinting.
+         *
+         * There is deliberately NO knob layer.
+         */
+        ResourceLocation imbuedDoorModel =
+                ModelTemplates.TWO_LAYERED_ITEM
                         .create(
                                 itemModelLocation(
-                                        models.chargedPortalDoorItem()
+                                        models.imbuedDoorItem()
                                 ),
                                 TextureMapping.layered(
                                         baseTexture,
-                                        knobTexture,
                                         portalTexture
                                 ),
                                 blocks.modelOutput
                         );
 
         ItemTintSource noTint =
-                ProfileHexColorItemTintSource.noTint(
-                        models.tintProfile(),
-                        false
-                );
+                ProfileHexColorItemTintSource
+                        .noTint(
+                                models.tintProfile(),
+                                false
+                        );
 
         items.itemModelOutput.accept(
                 models
@@ -577,12 +864,11 @@ public final class CubeMusavaccaPortalDoorTinted {
 
         items.itemModelOutput.accept(
                 models
-                        .chargedPortalDoorItem()
+                        .imbuedDoorItem()
                         .asItem(),
                 new BlockModelWrapper.Unbaked(
-                        chargedPortalDoorModel,
+                        imbuedDoorModel,
                         List.of(
-                                noTint,
                                 noTint,
                                 HexColorItemTintSource.INSTANCE
                         )
@@ -594,12 +880,13 @@ public final class CubeMusavaccaPortalDoorTinted {
             ResourceLocation blockId,
             String suffix
     ) {
-        return ResourceLocation.fromNamespaceAndPath(
-                blockId.getNamespace(),
-                "item/"
-                        + blockId.getPath()
-                        + suffix
-        );
+        return ResourceLocation
+                .fromNamespaceAndPath(
+                        blockId.getNamespace(),
+                        "item/"
+                                + blockId.getPath()
+                                + suffix
+                );
     }
 
     private static ResourceLocation itemModelLocation(
@@ -611,19 +898,45 @@ public final class CubeMusavaccaPortalDoorTinted {
                                 item.asItem()
                         );
 
-        if (itemId == null) {
+        if (
+                itemId
+                        == null
+        ) {
             throw new IllegalStateException(
                     "Cannot generate a model for an "
                             + "unregistered item"
             );
         }
 
-        return ResourceLocation.fromNamespaceAndPath(
-                itemId.getNamespace(),
-                "item/" + itemId.getPath()
-        );
+        return ResourceLocation
+                .fromNamespaceAndPath(
+                        itemId.getNamespace(),
+                        "item/"
+                                + itemId.getPath()
+                );
     }
 
+    /*
+     * requiredTrue:
+     *
+     * If supplied, this property must be true.
+     *
+     *
+     * requiredFalse:
+     *
+     * If supplied, this property must be false.
+     *
+     *
+     * This allows exact multipart states such as:
+     *
+     * LIT=true
+     * LIT_PORTAL=false
+     *
+     * or:
+     *
+     * LIT_PORTAL=true
+     * PORTAL=false
+     */
     private static MultiPartGenerator addPart(
             MultiPartGenerator multi,
             ResourceLocation model,
@@ -632,6 +945,7 @@ public final class CubeMusavaccaPortalDoorTinted {
             DoorHingeSide hinge,
             boolean open,
             @Nullable BooleanProperty requiredTrue,
+            @Nullable BooleanProperty requiredFalse,
             int yRotation
     ) {
         var condition =
@@ -654,10 +968,23 @@ public final class CubeMusavaccaPortalDoorTinted {
                                 open
                         );
 
-        if (requiredTrue != null) {
+        if (
+                requiredTrue
+                        != null
+        ) {
             condition.term(
                     requiredTrue,
                     true
+            );
+        }
+
+        if (
+                requiredFalse
+                        != null
+        ) {
+            condition.term(
+                    requiredFalse,
+                    false
             );
         }
 
@@ -687,11 +1014,20 @@ public final class CubeMusavaccaPortalDoorTinted {
     ) {
         int closedRotation =
                 switch (facing) {
-                    case EAST -> 0;
-                    case SOUTH -> 90;
-                    case WEST -> 180;
-                    case NORTH -> 270;
-                    default -> 0;
+                    case EAST ->
+                            0;
+
+                    case SOUTH ->
+                            90;
+
+                    case WEST ->
+                            180;
+
+                    case NORTH ->
+                            270;
+
+                    default ->
+                            0;
                 };
 
         if (!open) {
@@ -722,10 +1058,15 @@ public final class CubeMusavaccaPortalDoorTinted {
                                 model
                         );
 
-        if (yRotation != 0) {
+        if (
+                yRotation
+                        != 0
+        ) {
             variant = variant.with(
                     VariantProperties.Y_ROT,
-                    rotation(yRotation)
+                    rotation(
+                            yRotation
+                    )
             );
         }
 
@@ -760,14 +1101,21 @@ public final class CubeMusavaccaPortalDoorTinted {
             int yRotation
     ) {
         Variant variant =
-                new Variant(model);
+                new Variant(
+                        model
+                );
 
         Quadrant rotation =
-                quadrant(yRotation);
+                quadrant(
+                        yRotation
+                );
 
-        return rotation == Quadrant.R0
+        return rotation
+                == Quadrant.R0
                 ? variant
-                : variant.withYRot(rotation);
+                : variant.withYRot(
+                rotation
+        );
     }
 
     private static Quadrant quadrant(
@@ -779,10 +1127,17 @@ public final class CubeMusavaccaPortalDoorTinted {
                         360
                 )
                 ) {
-            case 90 -> Quadrant.R90;
-            case 180 -> Quadrant.R180;
-            case 270 -> Quadrant.R270;
-            default -> Quadrant.R0;
+            case 90 ->
+                    Quadrant.R90;
+
+            case 180 ->
+                    Quadrant.R180;
+
+            case 270 ->
+                    Quadrant.R270;
+
+            default ->
+                    Quadrant.R0;
         };
     }
     //?}
@@ -792,9 +1147,14 @@ public final class CubeMusavaccaPortalDoorTinted {
     ) {
         ResourceLocation blockId =
                 BuiltInRegistries.BLOCK
-                        .getKey(block);
+                        .getKey(
+                                block
+                        );
 
-        if (blockId == null) {
+        if (
+                blockId
+                        == null
+        ) {
             throw new IllegalStateException(
                     "Cannot generate models for an "
                             + "unregistered block"
@@ -813,7 +1173,8 @@ public final class CubeMusavaccaPortalDoorTinted {
                         || model.isBlank()
         ) {
             throw new IllegalArgumentException(
-                    name + " must not be blank"
+                    name
+                            + " must not be blank"
             );
         }
     }

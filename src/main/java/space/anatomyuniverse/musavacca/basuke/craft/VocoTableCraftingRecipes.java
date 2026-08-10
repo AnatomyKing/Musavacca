@@ -42,7 +42,7 @@ public final class VocoTableCraftingRecipes {
             recipe(
                     ModItems.MUSAVACCA_DOOR,
                     ModItems.BANANA_PEARL.get(),
-                    ModItems.MUSAVACCA_CHARGED_PORTAL_DOOR.get(),
+                    ModItems.MUSAVACCA_IMBUED_DOOR.get(),
                     1,
                     true
             ),

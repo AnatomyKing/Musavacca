@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/door/MusavaccaDoorTeleportTransform.java
 package space.anatomyuniverse.musavacca.door;
 
 import net.minecraft.core.Direction;
@@ -6,19 +7,9 @@ import net.minecraft.world.phys.Vec3;
 
 public final class MusavaccaDoorTeleportTransform {
 
-    /*
-     * The exact portal slab is two Minecraft pixels thick.
-     *
-     * Half the slab thickness is:
-     *
-     *     1 / 16 = 0.0625 blocks
-     *
-     * 0.07D therefore places the entity only a tiny amount
-     * beyond the outgoing face of the target portal slab.
-     *
-     * Increase this value if you want a slightly stronger
-     * push beyond the portal surface.
-     */
+    public static final double PORTAL_ENTRANCE_NUDGE =
+            0.37D;
+
     public static final double PORTAL_EXIT_NUDGE =
             0.07D;
 

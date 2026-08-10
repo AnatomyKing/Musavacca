@@ -1,3 +1,4 @@
+// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/block/custom/MusavaccaPortalDoorBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -38,6 +39,8 @@ import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalDoorVox
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
 import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportEvent;
+import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportNetwork;
+import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportTransform;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class MusavaccaPortalDoorBlock
@@ -45,13 +48,23 @@ public final class MusavaccaPortalDoorBlock
         implements EntityBlock, Portal {
 
     public static final BooleanProperty LIT =
-            BooleanProperty.create("lit");
+            BooleanProperty.create(
+                    "lit"
+            );
+
+    public static final BooleanProperty LIT_PORTAL =
+            BooleanProperty.create(
+                    "lit_portal"
+            );
 
     public static final BooleanProperty PORTAL =
-            BooleanProperty.create("portal");
+            BooleanProperty.create(
+                    "portal"
+            );
 
     private static final int UPDATE_FLAGS =
-            Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
+            Block.UPDATE_ALL
+                    | Block.UPDATE_IMMEDIATE;
 
     private static final double PORTAL_TRIGGER_EPSILON =
             1.0D / 1024.0D;
@@ -88,6 +101,10 @@ public final class MusavaccaPortalDoorBlock
                                 false
                         )
                         .setValue(
+                                LIT_PORTAL,
+                                false
+                        )
+                        .setValue(
                                 PORTAL,
                                 false
                         )
@@ -101,7 +118,9 @@ public final class MusavaccaPortalDoorBlock
             BlockState state
     ) {
         if (
-                state.getValue(HALF)
+                state.getValue(
+                        HALF
+                )
                         != DoubleBlockHalf.LOWER
         ) {
             return null;
@@ -115,7 +134,10 @@ public final class MusavaccaPortalDoorBlock
 
     @Override
     protected void createBlockStateDefinition(
-            StateDefinition.Builder<Block, BlockState> builder
+            StateDefinition.Builder<
+                    Block,
+                    BlockState
+                    > builder
     ) {
         super.createBlockStateDefinition(
                 builder
@@ -123,6 +145,7 @@ public final class MusavaccaPortalDoorBlock
 
         builder.add(
                 LIT,
+                LIT_PORTAL,
                 PORTAL
         );
     }
@@ -179,9 +202,13 @@ public final class MusavaccaPortalDoorBlock
             InsideBlockEffectApplier effectApplier
     ) {
         if (
-                !entity.canUsePortal(false)
+                !entity.canUsePortal(
+                        false
+                )
                         || !MusavaccaPortalDoorHitboxes
-                        .hasOpenPortal(state)
+                        .hasOpenPortal(
+                                state
+                        )
         ) {
             return;
         }
@@ -203,14 +230,23 @@ public final class MusavaccaPortalDoorBlock
                                 pos.getX(),
                                 pos.getY(),
                                 pos.getZ()
-                        )
-                        .inflate(
-                                PORTAL_TRIGGER_EPSILON
                         );
+
+        AABB entranceBox =
+                entranceTriggerBox(
+                        state,
+                        portalBox
+                );
 
         Vec3 movement =
                 entity.getDeltaMovement();
 
+        /*
+         * Preserve the original swept movement test.
+         *
+         * This prevents a fast-moving entity from skipping
+         * completely over the entrance region between ticks.
+         */
         AABB sweptEntityBox =
                 entity.getBoundingBox()
                         .expandTowards(
@@ -220,7 +256,7 @@ public final class MusavaccaPortalDoorBlock
                         );
 
         if (
-                !portalBox.intersects(
+                !entranceBox.intersects(
                         sweptEntityBox
                 )
         ) {
@@ -233,6 +269,90 @@ public final class MusavaccaPortalDoorBlock
                         state,
                         pos
                 )
+        );
+    }
+
+    private static AABB entranceTriggerBox(
+            BlockState state,
+            AABB portalBox
+    ) {
+        Direction facing =
+                MusavaccaPortalDoorHitboxes
+                        .portalFacing(
+                                state
+                        );
+
+        double entranceNudge =
+                Math.max(
+                        0.0D,
+                        MusavaccaDoorTeleportTransform
+                                .PORTAL_ENTRANCE_NUDGE
+                );
+
+        double centerX =
+                (
+                        portalBox.minX
+                                + portalBox.maxX
+                )
+                        * 0.5D;
+
+        double centerZ =
+                (
+                        portalBox.minZ
+                                + portalBox.maxZ
+                )
+                        * 0.5D;
+
+        /*
+         * PORTAL_ENTRANCE_NUDGE is measured from the CENTER
+         * of the 2px portal panel.
+         *
+         * We create an entrance corridor extending equally
+         * to BOTH sides of that center.
+         *
+         * This deliberately does NOT depend on getDeltaMovement()
+         * to determine which side is allowed to trigger.
+         *
+         * The movement sweep is used only to prevent fast entities
+         * from skipping across the corridor between ticks.
+         */
+        if (
+                facing.getAxis()
+                        == Direction.Axis.X
+        ) {
+            return new AABB(
+                    centerX
+                            - entranceNudge
+                            - PORTAL_TRIGGER_EPSILON,
+                    portalBox.minY
+                            - PORTAL_TRIGGER_EPSILON,
+                    portalBox.minZ
+                            - PORTAL_TRIGGER_EPSILON,
+                    centerX
+                            + entranceNudge
+                            + PORTAL_TRIGGER_EPSILON,
+                    portalBox.maxY
+                            + PORTAL_TRIGGER_EPSILON,
+                    portalBox.maxZ
+                            + PORTAL_TRIGGER_EPSILON
+            );
+        }
+
+        return new AABB(
+                portalBox.minX
+                        - PORTAL_TRIGGER_EPSILON,
+                portalBox.minY
+                        - PORTAL_TRIGGER_EPSILON,
+                centerZ
+                        - entranceNudge
+                        - PORTAL_TRIGGER_EPSILON,
+                portalBox.maxX
+                        + PORTAL_TRIGGER_EPSILON,
+                portalBox.maxY
+                        + PORTAL_TRIGGER_EPSILON,
+                centerZ
+                        + entranceNudge
+                        + PORTAL_TRIGGER_EPSILON
         );
     }
 
@@ -280,38 +400,42 @@ public final class MusavaccaPortalDoorBlock
                 stack
         );
 
-        if (!level.isClientSide()) {
-            BlockPos lowerPos =
-                    lowerDoorPos(
-                            state,
-                            pos
-                    );
-
-            synchronizePearlState(
-                    level,
-                    lowerPos,
-                    false
-            );
-
-            BlockState placedState =
-                    level.getBlockState(
-                            lowerPos
-                    );
-
-            boolean portal =
-                    placedState.is(this)
-                            && placedState.getValue(
-                            PORTAL
-                    );
-
-            PearlSlotIgnition
-                    .playPortalStateChangeSound(
-                            level,
-                            lowerPos,
-                            false,
-                            portal
-                    );
+        if (level.isClientSide()) {
+            return;
         }
+
+        BlockPos lowerPos =
+                lowerDoorPos(
+                        state,
+                        pos
+                );
+
+        synchronizePearlState(
+                level,
+                lowerPos,
+                false
+        );
+
+        BlockState placedState =
+                level.getBlockState(
+                        lowerPos
+                );
+
+        boolean portal =
+                placedState.is(
+                        this
+                )
+                        && placedState.getValue(
+                        PORTAL
+                );
+
+        PearlSlotIgnition
+                .playPortalStateChangeSound(
+                        level,
+                        lowerPos,
+                        false,
+                        portal
+                );
     }
 
     @Override
@@ -358,11 +482,6 @@ public final class MusavaccaPortalDoorBlock
             return InteractionResult.PASS;
         }
 
-        boolean wasPortal =
-                lowerState.getValue(
-                        PORTAL
-                );
-
         InteractionResult result =
                 PearlSlotIgnition
                         .handleHeldItemUse(
@@ -376,31 +495,10 @@ public final class MusavaccaPortalDoorBlock
                         );
 
         if (
-                result == InteractionResult.SUCCESS
+                result
+                        == InteractionResult.SUCCESS
                         && !level.isClientSide()
         ) {
-            BlockState updatedLowerState =
-                    level.getBlockState(
-                            lowerPos
-                    );
-
-            boolean portalWasSheared =
-                    wasPortal
-                            && updatedLowerState.is(this)
-                            && !updatedLowerState.getValue(
-                            LIT
-                    );
-
-            if (
-                    portalWasSheared
-                            && level.getBlockEntity(
-                            lowerPos
-                    )
-                            instanceof MusavaccaPortalDoorBlockEntity doorBe
-            ) {
-                doorBe.clearHexColor();
-            }
-
             synchronizePearlState(
                     level,
                     lowerPos
@@ -437,8 +535,11 @@ public final class MusavaccaPortalDoorBlock
 
         if (
                 !(lowerState.getBlock()
-                        instanceof MusavaccaPortalDoorBlock)
-                        || lowerState.getValue(HALF)
+                        instanceof
+                        MusavaccaPortalDoorBlock)
+                        || lowerState.getValue(
+                        HALF
+                )
                         != DoubleBlockHalf.LOWER
         ) {
             return;
@@ -454,17 +555,21 @@ public final class MusavaccaPortalDoorBlock
                         LIT
                 );
 
-        boolean portal =
-                lit
-                        && hasAssignedHexColor(
+        boolean litPortal =
+                hasAssignedHexColor(
                         level,
                         lowerPos
                 );
+
+        boolean portal =
+                lit
+                        && litPortal;
 
         setVisualState(
                 level,
                 lowerPos,
                 lit,
+                litPortal,
                 portal
         );
 
@@ -472,6 +577,7 @@ public final class MusavaccaPortalDoorBlock
                 level,
                 lowerPos.above(),
                 lit,
+                litPortal,
                 portal
         );
 
@@ -484,12 +590,26 @@ public final class MusavaccaPortalDoorBlock
                             portal
                     );
         }
+
+        if (
+                level.getBlockEntity(
+                        lowerPos
+                )
+                        instanceof
+                        MusavaccaPortalDoorBlockEntity doorBe
+        ) {
+            MusavaccaDoorTeleportNetwork
+                    .refresh(
+                            doorBe
+                    );
+        }
     }
 
     private static void setVisualState(
             Level level,
             BlockPos pos,
             boolean lit,
+            boolean litPortal,
             boolean portal
     ) {
         BlockState state =
@@ -499,18 +619,29 @@ public final class MusavaccaPortalDoorBlock
 
         if (
                 !(state.getBlock()
-                        instanceof MusavaccaPortalDoorBlock)
+                        instanceof
+                        MusavaccaPortalDoorBlock)
         ) {
             return;
         }
 
         boolean resolvedPortal =
-                lit && portal;
+                lit
+                        && litPortal
+                        && portal;
 
         if (
-                state.getValue(LIT)
+                state.getValue(
+                        LIT
+                )
                         == lit
-                        && state.getValue(PORTAL)
+                        && state.getValue(
+                        LIT_PORTAL
+                )
+                        == litPortal
+                        && state.getValue(
+                        PORTAL
+                )
                         == resolvedPortal
         ) {
             return;
@@ -522,6 +653,10 @@ public final class MusavaccaPortalDoorBlock
                         .setValue(
                                 LIT,
                                 lit
+                        )
+                        .setValue(
+                                LIT_PORTAL,
+                                litPortal
                         )
                         .setValue(
                                 PORTAL,
@@ -538,7 +673,8 @@ public final class MusavaccaPortalDoorBlock
         return level.getBlockEntity(
                 lowerPos
         )
-                instanceof MusavaccaPortalDoorBlockEntity doorBe
+                instanceof
+                MusavaccaPortalDoorBlockEntity doorBe
                 && doorBe.hasHexColor();
     }
 
@@ -546,7 +682,9 @@ public final class MusavaccaPortalDoorBlock
             BlockState clickedState,
             BlockPos clickedPos
     ) {
-        return clickedState.getValue(HALF)
+        return clickedState.getValue(
+                HALF
+        )
                 == DoubleBlockHalf.UPPER
                 ? clickedPos.below()
                 : clickedPos;
@@ -576,17 +714,25 @@ public final class MusavaccaPortalDoorBlock
                 );
 
         if (
-                !updatedState.is(this)
+                !updatedState.is(
+                        this
+                )
                         || direction.getAxis()
                         != Direction.Axis.Y
-                        || !neighborState.is(this)
+                        || !neighborState.is(
+                        this
+                )
         ) {
             return updatedState;
         }
 
         if (
-                updatedState.getValue(HALF)
-                        == neighborState.getValue(HALF)
+                updatedState.getValue(
+                        HALF
+                )
+                        == neighborState.getValue(
+                        HALF
+                )
         ) {
             return updatedState;
         }
@@ -602,17 +748,24 @@ public final class MusavaccaPortalDoorBlock
                         pos
                 );
 
-        boolean portal =
-                lit
-                        && hasAssignedHexColor(
+        boolean litPortal =
+                hasAssignedHexColor(
                         levelReader,
                         lowerPos
                 );
+
+        boolean portal =
+                lit
+                        && litPortal;
 
         return updatedState
                 .setValue(
                         LIT,
                         lit
+                )
+                .setValue(
+                        LIT_PORTAL,
+                        litPortal
                 )
                 .setValue(
                         PORTAL,

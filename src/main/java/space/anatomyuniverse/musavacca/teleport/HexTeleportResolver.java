@@ -22,12 +22,12 @@ import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -81,19 +81,50 @@ public final class HexTeleportResolver {
                         server
                 );
 
-        List<HexTeleportDirectory.Endpoint> endpoints =
-                directory.getEndpointsByHex(
-                        normalizedHex
-                );
+        /*
+         * Re-read the hex index after stale cleanup.
+         *
+         * That means if removing a stale active endpoint immediately
+         * promotes a queued claim for the same hex, this same teleport
+         * attempt can use the newly promoted endpoint instead of making
+         * the player try a second time.
+         */
+        Set<UUID> attempted =
+                new HashSet<>();
 
-        for (
-                HexTeleportDirectory.Endpoint endpoint :
-                endpoints
-        ) {
+        while (true) {
+            List<HexTeleportDirectory.Endpoint> endpoints =
+                    directory.getEndpointsByHex(
+                            normalizedHex
+                    );
+
+            HexTeleportDirectory.Endpoint next =
+                    null;
+
+            for (
+                    HexTeleportDirectory.Endpoint endpoint :
+                    endpoints
+            ) {
+                if (
+                        attempted.add(
+                                endpoint.endpointId()
+                        )
+                ) {
+                    next =
+                            endpoint;
+
+                    break;
+                }
+            }
+
+            if (next == null) {
+                break;
+            }
+
             Optional<ResolvedEndpoint> resolved =
                     resolveEndpoint(
                             server,
-                            endpoint
+                            next
                     );
 
             if (resolved.isPresent()) {
@@ -105,10 +136,11 @@ public final class HexTeleportResolver {
                 return true;
             }
 
-            VocoTeleportLogic.removeEndpointAndPromote(
-                    server,
-                    endpoint
-            );
+            HexTeleportAddressNetwork
+                    .releaseEndpoint(
+                            server,
+                            next.endpointId()
+                    );
         }
 
         player.displayClientMessage(
@@ -166,10 +198,11 @@ public final class HexTeleportResolver {
                 );
 
         if (resolved.isEmpty()) {
-            VocoTeleportLogic.removeEndpointAndPromote(
-                    server,
-                    endpoint
-            );
+            HexTeleportAddressNetwork
+                    .releaseEndpoint(
+                            server,
+                            endpoint.endpointId()
+                    );
 
             player.displayClientMessage(
                     Component.literal(
@@ -219,10 +252,11 @@ public final class HexTeleportResolver {
                 );
 
         if (resolved.isEmpty()) {
-            VocoTeleportLogic.removeEndpointAndPromote(
-                    server,
-                    target
-            );
+            HexTeleportAddressNetwork
+                    .releaseEndpoint(
+                            server,
+                            target.endpointId()
+                    );
         }
 
         return resolved;
@@ -251,16 +285,35 @@ public final class HexTeleportResolver {
             return Optional.empty();
         }
 
-        return resolveDoorEndpoint(
-                server,
-                target
-        );
+        Optional<ResolvedDoorEndpoint> resolved =
+                resolveDoorEndpoint(
+                        server,
+                        target
+                );
+
+        if (resolved.isEmpty()) {
+            HexTeleportAddressNetwork
+                    .releaseOwner(
+                            server,
+                            target.ownerKey()
+                    );
+        }
+
+        return resolved;
     }
 
     public static Optional<ResolvedEndpoint> resolveEndpoint(
             MinecraftServer server,
             HexTeleportDirectory.Endpoint endpoint
     ) {
+        if (
+                server == null
+                        || endpoint == null
+                        || endpoint.dimensionId() == null
+        ) {
+            return Optional.empty();
+        }
+
         ResourceKey<Level> dimensionKey =
                 ResourceKey.create(
                         Registries.DIMENSION,
@@ -276,6 +329,12 @@ public final class HexTeleportResolver {
             return Optional.empty();
         }
 
+        /*
+         * Owner chunk first:
+         *
+         * this makes a remote unloaded endpoint inspectable before
+         * we validate its block/block entity.
+         */
         keepChunkLoaded(
                 level,
                 endpoint.ownerPos()
@@ -290,6 +349,10 @@ public final class HexTeleportResolver {
             return Optional.empty();
         }
 
+        /*
+         * Voco custom targets can be in a different chunk than the
+         * endpoint owner, so keep the actual landing chunk alive too.
+         */
         keepChunkLoaded(
                 level,
                 BlockPos.containing(
@@ -333,6 +396,11 @@ public final class HexTeleportResolver {
             return Optional.empty();
         }
 
+        /*
+         * Doors can be arbitrarily far away and completely unloaded.
+         * Ticket/load the stored lower-door owner chunk before touching
+         * its block state or block entity.
+         */
         keepChunkLoaded(
                 level,
                 endpoint.ownerPos()
@@ -438,6 +506,15 @@ public final class HexTeleportResolver {
                 .equals(
                         expectedOwnerKey
                 )
+                && state.getValue(
+                MusavaccaPortalDoorBlock.LIT
+        )
+                && state.getValue(
+                MusavaccaPortalDoorBlock.LIT_PORTAL
+        )
+                && state.getValue(
+                MusavaccaPortalDoorBlock.PORTAL
+        )
                 && HexTeleportDirectory
                 .normalizeHex(
                         doorBe.getHexColor()

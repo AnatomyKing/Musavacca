@@ -123,12 +123,12 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                 lowerDoorHalf(block)
                                         )
                                         .add(
-                                                unlitMusavaccaDoorDrop(
+                                                plainMusavaccaDoorDrop(
                                                         block
                                                 )
                                         )
                                         .add(
-                                                litMusavaccaDoorWithoutSilkTouchDrop(
+                                                plainChargedMusavaccaDoorWithoutSilkTouchDrop(
                                                         block
                                                 )
                                         )
@@ -138,7 +138,12 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                 )
                                         )
                                         .add(
-                                                chargedPortalMusavaccaDoorWithSilkTouchDrop(
+                                                imbuedMusavaccaDoorWithoutSilkTouchDrop(
+                                                        block
+                                                )
+                                        )
+                                        .add(
+                                                imbuedMusavaccaDoorWithSilkTouchDrop(
                                                         block
                                                 )
                                         )
@@ -152,7 +157,12 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                 lowerDoorHalf(block)
                                         )
                                         .add(
-                                                bananaPearlFromLitDoorDrop(
+                                                bananaPearlFromPlainChargedDoorDrop(
+                                                        block
+                                                )
+                                        )
+                                        .add(
+                                                bananaPearlFromImbuedChargedDoorDrop(
                                                         block
                                                 )
                                         )
@@ -160,7 +170,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         );
     }
 
-    private LootItem.Builder<?> unlitMusavaccaDoorDrop(
+    private LootItem.Builder<?> plainMusavaccaDoorDrop(
             Block block
     ) {
         return this.applyExplosionCondition(
@@ -172,6 +182,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 musavaccaDoorState(
                                         block,
                                         false,
+                                        false,
                                         false
                                 )
                         )
@@ -179,7 +190,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
     }
 
     private LootItem.Builder<?>
-    litMusavaccaDoorWithoutSilkTouchDrop(
+    plainChargedMusavaccaDoorWithoutSilkTouchDrop(
             Block block
     ) {
         return this.applyExplosionCondition(
@@ -188,9 +199,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 ModItems.MUSAVACCA_DOOR.get()
                         )
                         .when(
-                                musavaccaDoorLitState(
+                                musavaccaDoorState(
                                         block,
-                                        true
+                                        true,
+                                        false,
+                                        false
                                 )
                         )
                         .when(
@@ -212,6 +225,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 musavaccaDoorState(
                                         block,
                                         true,
+                                        false,
                                         false
                                 )
                         )
@@ -222,18 +236,38 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
     }
 
     private LootItem.Builder<?>
-    chargedPortalMusavaccaDoorWithSilkTouchDrop(
+    imbuedMusavaccaDoorWithoutSilkTouchDrop(
             Block block
     ) {
         return this.applyExplosionCondition(
                 block,
                 LootItem.lootTableItem(
-                                ModItems.MUSAVACCA_CHARGED_PORTAL_DOOR.get()
+                                ModItems.MUSAVACCA_DOOR.get()
                         )
                         .when(
-                                musavaccaDoorState(
+                                musavaccaDoorLitPortalState(
                                         block,
-                                        true,
+                                        true
+                                )
+                        )
+                        .when(
+                                this.doesNotHaveSilkTouch()
+                        )
+        );
+    }
+
+    private LootItem.Builder<?>
+    imbuedMusavaccaDoorWithSilkTouchDrop(
+            Block block
+    ) {
+        return this.applyExplosionCondition(
+                block,
+                LootItem.lootTableItem(
+                                ModItems.MUSAVACCA_IMBUED_DOOR.get()
+                        )
+                        .when(
+                                musavaccaDoorLitPortalState(
+                                        block,
                                         true
                                 )
                         )
@@ -241,29 +275,13 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 this.hasSilkTouch()
                         )
                         .apply(
-                                //? if <1.21.9 {
-                                CopyComponentsFunction
-                                        .copyComponents(
-                                                CopyComponentsFunction.Source.BLOCK_ENTITY
-                                        )
-                                        .include(
-                                                ModDataComponents.HEX_COLOR.get()
-                                        )
-                                //?} else {
-                                /*CopyComponentsFunction
-                                        .copyComponentsFromBlockEntity(
-                                                LootContext.BlockEntityTarget.BLOCK_ENTITY
-                                                        .getParam()
-                                        )
-                                        .include(
-                                                ModDataComponents.HEX_COLOR.get()
-                                        )
-                                *///?}
+                                copyHexColorFromBlockEntity()
                         )
         );
     }
 
-    private LootItem.Builder<?> bananaPearlFromLitDoorDrop(
+    private LootItem.Builder<?>
+    bananaPearlFromPlainChargedDoorDrop(
             Block block
     ) {
         return this.applyExplosionCondition(
@@ -272,13 +290,34 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 ModItems.BANANA_PEARL.get()
                         )
                         .when(
-                                musavaccaDoorLitState(
+                                musavaccaDoorState(
                                         block,
-                                        true
+                                        true,
+                                        false,
+                                        false
                                 )
                         )
                         .when(
                                 this.doesNotHaveSilkTouch()
+                        )
+        );
+    }
+
+    private LootItem.Builder<?>
+    bananaPearlFromImbuedChargedDoorDrop(
+            Block block
+    ) {
+        return this.applyExplosionCondition(
+                block,
+                LootItem.lootTableItem(
+                                ModItems.BANANA_PEARL.get()
+                        )
+                        .when(
+                                musavaccaDoorLitAndLitPortalState(
+                                        block,
+                                        true,
+                                        true
+                                )
                         )
         );
     }
@@ -299,9 +338,27 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
     }
 
     private static LootItemCondition.Builder
-    musavaccaDoorLitState(
+    musavaccaDoorLitPortalState(
             Block block,
-            boolean lit
+            boolean litPortal
+    ) {
+        return LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(block)
+                .setProperties(
+                        StatePropertiesPredicate.Builder
+                                .properties()
+                                .hasProperty(
+                                        MusavaccaPortalDoorBlock.LIT_PORTAL,
+                                        litPortal
+                                )
+                );
+    }
+
+    private static LootItemCondition.Builder
+    musavaccaDoorLitAndLitPortalState(
+            Block block,
+            boolean lit,
+            boolean litPortal
     ) {
         return LootItemBlockStatePropertyCondition
                 .hasBlockStateProperties(block)
@@ -312,6 +369,10 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                         MusavaccaPortalDoorBlock.LIT,
                                         lit
                                 )
+                                .hasProperty(
+                                        MusavaccaPortalDoorBlock.LIT_PORTAL,
+                                        litPortal
+                                )
                 );
     }
 
@@ -319,6 +380,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
     musavaccaDoorState(
             Block block,
             boolean lit,
+            boolean litPortal,
             boolean portal
     ) {
         return LootItemBlockStatePropertyCondition
@@ -331,10 +393,37 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                         lit
                                 )
                                 .hasProperty(
+                                        MusavaccaPortalDoorBlock.LIT_PORTAL,
+                                        litPortal
+                                )
+                                .hasProperty(
                                         MusavaccaPortalDoorBlock.PORTAL,
                                         portal
                                 )
                 );
+    }
+
+    private static CopyComponentsFunction.Builder
+    copyHexColorFromBlockEntity() {
+        return
+                //? if <1.21.9 {
+                CopyComponentsFunction
+                        .copyComponents(
+                                CopyComponentsFunction.Source.BLOCK_ENTITY
+                        )
+                        .include(
+                                ModDataComponents.HEX_COLOR.get()
+                        );
+                //?} else {
+                /*CopyComponentsFunction
+                        .copyComponentsFromBlockEntity(
+                                LootContext.BlockEntityTarget.BLOCK_ENTITY
+                                        .getParam()
+                        )
+                        .include(
+                                ModDataComponents.HEX_COLOR.get()
+                        );
+                *///?}
     }
 
     private void silkTouchMusavaccaEggByAge(Block block) {

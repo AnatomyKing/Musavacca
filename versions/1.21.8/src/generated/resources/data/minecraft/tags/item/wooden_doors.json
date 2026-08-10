@@ -1,5 +1,7 @@
 {
   "values": [
-    "musavacca:musavacca_door"
+    "musavacca:musavacca_door",
+    "musavacca:musavacca_charged_door",
+    "musavacca:musavacca_imbued_door"
   ]
 }

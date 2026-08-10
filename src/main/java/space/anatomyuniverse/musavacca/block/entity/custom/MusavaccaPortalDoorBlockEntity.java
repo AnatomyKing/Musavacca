@@ -76,8 +76,6 @@ public final class MusavaccaPortalDoorBlockEntity
 
         this.setChanged();
         this.syncDoor(true);
-
-        MusavaccaDoorTeleportNetwork.refresh(this);
     }
 
     public void clearHexColor() {
@@ -97,8 +95,6 @@ public final class MusavaccaPortalDoorBlockEntity
         super.onLoad();
 
         this.syncDoor(false);
-
-        MusavaccaDoorTeleportNetwork.refresh(this);
     }
 
     @Override

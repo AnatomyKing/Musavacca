@@ -259,8 +259,38 @@ public final class ModTints {
             BlockPos pos,
             int tintIndex
     ) {
-        if (!state.hasProperty(MusavaccaPortalDoorBlock.PORTAL)
-                || !state.getValue(MusavaccaPortalDoorBlock.PORTAL)) {
+        boolean litPortal =
+                state.hasProperty(
+                        MusavaccaPortalDoorBlock.LIT_PORTAL
+                )
+                        && state.getValue(
+                        MusavaccaPortalDoorBlock.LIT_PORTAL
+                );
+
+        boolean portal =
+                state.hasProperty(
+                        MusavaccaPortalDoorBlock.PORTAL
+                )
+                        && state.getValue(
+                        MusavaccaPortalDoorBlock.PORTAL
+                );
+
+        /*
+         * Both door states may contain hex-tinted model faces:
+         *
+         * LIT_PORTAL:
+         *     imbued door before it has been charged.
+         *
+         * PORTAL:
+         *     fully charged active portal door.
+         *
+         * The model's tintindex still determines which individual
+         * model faces actually receive this tint.
+         */
+        if (
+                !litPortal
+                        && !portal
+        ) {
             return TintColorUtil.NO_TINT;
         }
 

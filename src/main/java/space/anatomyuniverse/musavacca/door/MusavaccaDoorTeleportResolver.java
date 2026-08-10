@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.door;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -77,6 +76,10 @@ public final class MusavaccaDoorTeleportResolver {
             return Optional.empty();
         }
 
+        /*
+         * Refreshing the source is cheap and makes its persisted claim
+         * authoritative before we resolve the pair.
+         */
         MusavaccaDoorTeleportNetwork.refresh(
                 doorBe
         );
@@ -126,46 +129,31 @@ public final class MusavaccaDoorTeleportResolver {
     public static Optional<ResolvedDoor> resolveLinkedDoor(
             ResolvedDoor source
     ) {
-        MinecraftServer server =
-                source.level()
-                        .getServer();
-
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        server
-                );
-
-        HexTeleportDirectory.DoorEndpoint targetEndpoint =
-                directory
-                        .getLinkedDoorEndpoint(
+        /*
+         * The shared HexTeleportResolver now owns:
+         *
+         * - persistent linked-door lookup
+         * - remote dimension resolution
+         * - destination chunk ticket/load
+         * - stale endpoint cleanup through the shared address network
+         */
+        HexTeleportResolver.ResolvedDoorEndpoint loaded =
+                HexTeleportResolver
+                        .resolveLinkedDoor(
+                                source.level(),
                                 source.ownerKey()
                         )
                         .orElse(null);
 
-        if (targetEndpoint == null) {
-            return Optional.empty();
-        }
-
-        HexTeleportResolver.ResolvedDoorEndpoint loaded =
-                HexTeleportResolver
-                        .resolveDoorEndpoint(
-                                server,
-                                targetEndpoint
-                        )
-                        .orElse(null);
-
         if (loaded == null) {
-            MusavaccaDoorTeleportNetwork
-                    .removeStaleEndpoint(
-                            server,
-                            targetEndpoint
-                    );
-
             return Optional.empty();
         }
 
         ServerLevel targetLevel =
                 loaded.level();
+
+        HexTeleportDirectory.DoorEndpoint targetEndpoint =
+                loaded.endpoint();
 
         BlockPos targetPos =
                 targetEndpoint.ownerPos();
@@ -182,12 +170,6 @@ public final class MusavaccaDoorTeleportResolver {
                         instanceof MusavaccaPortalDoorBlockEntity targetBe)
                         || !targetBe.hasHexColor()
         ) {
-            MusavaccaDoorTeleportNetwork
-                    .removeStaleEndpoint(
-                            server,
-                            targetEndpoint
-                    );
-
             return Optional.empty();
         }
 
@@ -197,6 +179,10 @@ public final class MusavaccaDoorTeleportResolver {
                 )
                         != source.hexColor()
         ) {
+            /*
+             * The live block entity changed after persistent resolution.
+             * Refresh it so the directory immediately reflects reality.
+             */
             MusavaccaDoorTeleportNetwork
                     .refresh(
                             targetBe
@@ -205,6 +191,11 @@ public final class MusavaccaDoorTeleportResolver {
             return Optional.empty();
         }
 
+        /*
+         * A linked door may remain registered while physically closed.
+         * Registration represents its address relationship.
+         * Actual traversal still requires the target door portal to be open.
+         */
         if (
                 !isOpenPortalDoor(
                         targetState
