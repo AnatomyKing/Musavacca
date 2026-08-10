@@ -15,6 +15,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock;
 import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
@@ -23,6 +24,7 @@ import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalTrapdoorBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
@@ -56,6 +58,11 @@ public final class HexTeleportResolver {
     }
 
     public record ResolvedDoorEndpoint(
+            ServerLevel level,
+            HexTeleportDirectory.DoorEndpoint endpoint
+    ) {}
+
+    public record ResolvedTrapdoorEndpoint(
             ServerLevel level,
             HexTeleportDirectory.DoorEndpoint endpoint
     ) {}
@@ -302,6 +309,46 @@ public final class HexTeleportResolver {
         return resolved;
     }
 
+    public static Optional<ResolvedTrapdoorEndpoint> resolveLinkedTrapdoor(
+            ServerLevel sourceLevel,
+            String sourceOwnerKey
+    ) {
+        MinecraftServer server =
+                sourceLevel.getServer();
+
+        HexTeleportDirectory directory =
+                HexTeleportDirectory.get(
+                        server
+                );
+
+        HexTeleportDirectory.DoorEndpoint target =
+                directory
+                        .getLinkedTrapdoorEndpoint(
+                                sourceOwnerKey
+                        )
+                        .orElse(null);
+
+        if (target == null) {
+            return Optional.empty();
+        }
+
+        Optional<ResolvedTrapdoorEndpoint> resolved =
+                resolveTrapdoorEndpoint(
+                        server,
+                        target
+                );
+
+        if (resolved.isEmpty()) {
+            HexTeleportAddressNetwork
+                    .releaseOwner(
+                            server,
+                            target.ownerKey()
+                    );
+        }
+
+        return resolved;
+    }
+
     public static Optional<ResolvedEndpoint> resolveEndpoint(
             MinecraftServer server,
             HexTeleportDirectory.Endpoint endpoint
@@ -423,6 +470,55 @@ public final class HexTeleportResolver {
         );
     }
 
+    public static Optional<ResolvedTrapdoorEndpoint> resolveTrapdoorEndpoint(
+            MinecraftServer server,
+            HexTeleportDirectory.DoorEndpoint endpoint
+    ) {
+        if (
+                server == null
+                        || endpoint == null
+                        || endpoint.dimensionId() == null
+        ) {
+            return Optional.empty();
+        }
+
+        ResourceKey<Level> dimensionKey =
+                ResourceKey.create(
+                        Registries.DIMENSION,
+                        endpoint.dimensionId()
+                );
+
+        ServerLevel level =
+                server.getLevel(
+                        dimensionKey
+                );
+
+        if (level == null) {
+            return Optional.empty();
+        }
+
+        keepChunkLoaded(
+                level,
+                endpoint.ownerPos()
+        );
+
+        if (
+                !isTrapdoorEndpointStillValid(
+                        level,
+                        endpoint
+                )
+        ) {
+            return Optional.empty();
+        }
+
+        return Optional.of(
+                new ResolvedTrapdoorEndpoint(
+                        level,
+                        endpoint
+                )
+        );
+    }
+
     private static boolean isEndpointStillValid(
             ServerLevel level,
             HexTeleportDirectory.Endpoint endpoint
@@ -518,6 +614,63 @@ public final class HexTeleportResolver {
                 && HexTeleportDirectory
                 .normalizeHex(
                         doorBe.getHexColor()
+                )
+                == endpoint.hexColor();
+    }
+
+    private static boolean isTrapdoorEndpointStillValid(
+            ServerLevel level,
+            HexTeleportDirectory.DoorEndpoint endpoint
+    ) {
+        BlockPos pos =
+                endpoint.ownerPos();
+
+        BlockState state =
+                level.getBlockState(
+                        pos
+                );
+
+        if (
+                !(state.getBlock()
+                        instanceof MusavaccaPortalTrapdoorBlock)
+        ) {
+            return false;
+        }
+
+        if (
+                !(level.getBlockEntity(
+                        pos
+                )
+                        instanceof MusavaccaPortalTrapdoorBlockEntity trapdoorBe)
+                        || !trapdoorBe.hasHexColor()
+        ) {
+            return false;
+        }
+
+        String expectedOwnerKey =
+                HexTeleportDirectory
+                        .trapdoorOwnerKey(
+                                level.dimension()
+                                        .location(),
+                                pos
+                        );
+
+        return endpoint.ownerKey()
+                .equals(
+                        expectedOwnerKey
+                )
+                && state.getValue(
+                MusavaccaPortalTrapdoorBlock.LIT
+        )
+                && state.getValue(
+                MusavaccaPortalTrapdoorBlock.LIT_PORTAL
+        )
+                && state.getValue(
+                MusavaccaPortalTrapdoorBlock.PORTAL
+        )
+                && HexTeleportDirectory
+                .normalizeHex(
+                        trapdoorBe.getHexColor()
                 )
                 == endpoint.hexColor();
     }

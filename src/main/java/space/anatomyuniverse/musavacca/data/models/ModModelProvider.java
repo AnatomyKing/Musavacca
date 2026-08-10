@@ -69,6 +69,12 @@ public final class ModModelProvider
                         .cubeMusavaccaPortalDoorTintedModels()
         );
 
+        CubeMusavaccaPortalTrapdoorTinted.generate(
+                blocks,
+                ModelSets
+                        .cubeMusavaccaPortalTrapdoorTintedModels()
+        );
+
         Trapdoors.generate(blocks, ModelSets.trapdoorBlocks());
         PressurePlates.generate(blocks, ModelSets.pressurePlateBlocks());
         Buttons.generate(blocks, ModelSets.buttonBlocks());
@@ -102,4 +108,3 @@ public final class ModModelProvider
         SpawnEggItems.generate(items, ModelSets.spawnEggItems());
     }
 }
-

@@ -26,6 +26,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
+import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
@@ -54,7 +55,6 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.MUSAVACCA_STAIRS.get(),
                 ModBlocks.MUSAVACCA_FENCE.get(),
                 ModBlocks.MUSAVACCA_FENCE_GATE.get(),
-                ModBlocks.MUSAVACCA_TRAPDOOR.get(),
                 ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(),
                 ModBlocks.MUSAVACCA_BUTTON.get(),
 
@@ -77,6 +77,10 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
 
         musavaccaDoorDrops(
                 ModBlocks.MUSAVACCA_DOOR.get()
+        );
+
+        musavaccaTrapdoorDrops(
+                ModBlocks.MUSAVACCA_TRAPDOOR.get()
         );
 
         pearlCandleDrops();
@@ -320,6 +324,120 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 )
                         )
         );
+    }
+
+    private void musavaccaTrapdoorDrops(
+            Block block
+    ) {
+        this.add(
+                block,
+                LootTable.lootTable()
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(
+                                                ConstantValue.exactly(1.0F)
+                                        )
+                                        .add(
+                                                this.applyExplosionCondition(
+                                                        block,
+                                                        LootItem.lootTableItem(block)
+                                                                .when(
+                                                                        musavaccaTrapdoorLitPortalState(
+                                                                                block,
+                                                                                false
+                                                                        )
+                                                                )
+                                                )
+                                        )
+                                        .add(
+                                                this.applyExplosionCondition(
+                                                        block,
+                                                        LootItem.lootTableItem(block)
+                                                                .when(
+                                                                        musavaccaTrapdoorLitPortalState(
+                                                                                block,
+                                                                                true
+                                                                        )
+                                                                )
+                                                                .when(
+                                                                        this.doesNotHaveSilkTouch()
+                                                                )
+                                                )
+                                        )
+                                        .add(
+                                                this.applyExplosionCondition(
+                                                        block,
+                                                        LootItem.lootTableItem(block)
+                                                                .when(
+                                                                        musavaccaTrapdoorLitPortalState(
+                                                                                block,
+                                                                                true
+                                                                        )
+                                                                )
+                                                                .when(
+                                                                        this.hasSilkTouch()
+                                                                )
+                                                                .apply(
+                                                                        copyHexColorFromBlockEntity()
+                                                                )
+                                                )
+                                        )
+                        )
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(
+                                                ConstantValue.exactly(1.0F)
+                                        )
+                                        .add(
+                                                this.applyExplosionCondition(
+                                                        block,
+                                                        LootItem.lootTableItem(
+                                                                        ModItems.BANANA_PEARL.get()
+                                                                )
+                                                                .when(
+                                                                        musavaccaTrapdoorLitState(
+                                                                                block,
+                                                                                true
+                                                                        )
+                                                                )
+                                                )
+                                        )
+                        )
+        );
+    }
+
+    private static LootItemCondition.Builder
+    musavaccaTrapdoorLitState(
+            Block block,
+            boolean lit
+    ) {
+        return LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(block)
+                .setProperties(
+                        StatePropertiesPredicate.Builder
+                                .properties()
+                                .hasProperty(
+                                        MusavaccaPortalTrapdoorBlock.LIT,
+                                        lit
+                                )
+                );
+    }
+
+    private static LootItemCondition.Builder
+    musavaccaTrapdoorLitPortalState(
+            Block block,
+            boolean litPortal
+    ) {
+        return LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(block)
+                .setProperties(
+                        StatePropertiesPredicate.Builder
+                                .properties()
+                                .hasProperty(
+                                        MusavaccaPortalTrapdoorBlock.LIT_PORTAL,
+                                        litPortal
+                                )
+                );
     }
 
     private static LootItemCondition.Builder lowerDoorHalf(

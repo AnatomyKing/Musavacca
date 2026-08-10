@@ -183,6 +183,14 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .save("blocks/musavacca_slab");
 
 
+        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_TRAPDOOR.get(), 2)
+                .pattern("ppp")
+                .pattern("ppp")
+                .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
+                .save("blocks/musavacca_trapdoor");
+
+
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_FENCE.get(), 3)
                 .pattern("psp")
                 .pattern("psp")

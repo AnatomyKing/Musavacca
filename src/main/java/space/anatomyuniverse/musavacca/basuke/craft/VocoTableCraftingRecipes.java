@@ -5,6 +5,7 @@ import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 import java.util.List;
@@ -47,6 +48,20 @@ public final class VocoTableCraftingRecipes {
                     true
             ),
 
+            /*
+             * The trapdoor keeps one block-item id for now. The Voco Table
+             * injects HEX_COLOR into that stack; the trapdoor block entity
+             * consumes the component on placement and immediately derives
+             * LIT_PORTAL from the stored address.
+             */
+            recipe(
+                    ModBlocks.MUSAVACCA_TRAPDOOR.get(),
+                    ModItems.BANANA_PEARL.get(),
+                    ModBlocks.MUSAVACCA_TRAPDOOR.get(),
+                    1,
+                    true
+            ),
+
             recipe(
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
@@ -70,6 +85,23 @@ public final class VocoTableCraftingRecipes {
             net.minecraft.world.item.ItemStack edibleStack
     ) {
         for (VocoTableCraftingRecipe recipe : RECIPES) {
+            /*
+             * Equivalent to the door's base -> imbued item transition:
+             * once this one-id trapdoor already carries HEX_COLOR, it is
+             * considered imbued and cannot consume another Banana Pearl
+             * through the base trapdoor recipe.
+             */
+            if (
+                    displayedStack.is(
+                            ModBlocks.MUSAVACCA_TRAPDOOR.get().asItem()
+                    )
+                            && displayedStack.get(
+                            ModDataComponents.HEX_COLOR.get()
+                    ) != null
+            ) {
+                continue;
+            }
+
             if (recipe.matches(displayedStack, edibleStack)) {
                 return recipe;
             }

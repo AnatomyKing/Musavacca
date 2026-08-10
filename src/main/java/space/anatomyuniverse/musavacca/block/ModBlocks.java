@@ -242,9 +242,9 @@ public final class ModBlocks {
                     ));
 
 
-    public static final DeferredBlock<TrapDoorBlock> MUSAVACCA_TRAPDOOR =
+    public static final DeferredBlock<MusavaccaPortalTrapdoorBlock> MUSAVACCA_TRAPDOOR =
             BLOCKS.registerBlock("musavacca_trapdoor",
-                    props -> new TrapDoorBlock(
+                    props -> new MusavaccaPortalTrapdoorBlock(
                             ModWoodTypes.MUSAVACCA_BLOCK_SET,
                             props
                                     .mapColor(MapColor.COLOR_ORANGE)

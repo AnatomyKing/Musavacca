@@ -108,6 +108,35 @@ public final class ModelSets {
         );
     }
 
+    public static Map<
+            Block,
+            CubeMusavaccaPortalTrapdoorTinted.Models
+            >
+    cubeMusavaccaPortalTrapdoorTintedModels() {
+        return Map.of(
+                ModBlocks.MUSAVACCA_TRAPDOOR.get(),
+                new CubeMusavaccaPortalTrapdoorTinted.Models(
+                        new CubeMusavaccaPortalTrapdoorTinted.LitModels(
+                                "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_bottom",
+                                "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_top",
+                                "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open"
+                        ),
+
+                        new CubeMusavaccaPortalTrapdoorTinted.LitPortalModels(
+                                "musavacca:block/musavacca_trapdoor/knob/lit_portal_trapdoor_bottom",
+                                "musavacca:block/musavacca_trapdoor/knob/lit_portal_trapdoor_top",
+                                "musavacca:block/musavacca_trapdoor/knob/lit_portal_trapdoor_open"
+                        ),
+
+                        new CubeMusavaccaPortalTrapdoorTinted.PortalModels(
+                                "musavacca:block/musavacca_trapdoor/trapdoor_portal/trapdoor_portal_bottom",
+                                "musavacca:block/musavacca_trapdoor/trapdoor_portal/trapdoor_portal_top",
+                                "musavacca:block/musavacca_trapdoor/portal/portal_open"
+                        )
+                )
+        );
+    }
+
     public static Map<Block, CubeVocoPost.Models> cubeVocoPostModels() {
         return Map.of(
                 ModBlocks.VOCO_POST.get(),
@@ -241,7 +270,6 @@ public final class ModelSets {
 
     public static Block[] trapdoorBlocks() {
         return new Block[] {
-                ModBlocks.MUSAVACCA_TRAPDOOR.get()
         };
     }
 

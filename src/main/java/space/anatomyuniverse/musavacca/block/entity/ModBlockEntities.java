@@ -121,6 +121,40 @@ public final class ModBlockEntities {
                     //?}
             );
 
+    public static final Supplier<
+            BlockEntityType<
+                    MusavaccaPortalTrapdoorBlockEntity
+                    >
+            >
+            MUSAVACCA_TRAPDOOR_BLOCK_ENTITY =
+            BLOCK_ENTITY_TYPES.register(
+                    "musavacca_trapdoor_block_entity",
+                    () ->
+                            //? if <1.21.2 {
+                        /*BlockEntityType.Builder.of(
+                                MusavaccaPortalTrapdoorBlockEntity::new,
+                                ModBlocks
+                                        .MUSAVACCA_TRAPDOOR
+                                        .get()
+                        ).build(null)
+                        *///?} else if <1.21.4 {
+                        /*new BlockEntityType<>(
+                                MusavaccaPortalTrapdoorBlockEntity::new,
+                                ModBlocks
+                                        .MUSAVACCA_TRAPDOOR
+                                        .get()
+                        )
+                        *///?} else {
+                            new BlockEntityType<>(
+                                    MusavaccaPortalTrapdoorBlockEntity::new,
+                                    false,
+                                    ModBlocks
+                                            .MUSAVACCA_TRAPDOOR
+                                            .get()
+                            )
+                    //?}
+            );
+
     public static final Supplier<BlockEntityType<PearlCandleBlockEntity>> PEARL_CANDLE_BLOCK_ENTITY =
             BLOCK_ENTITY_TYPES.register(
                     "pearl_candle_block_entity",

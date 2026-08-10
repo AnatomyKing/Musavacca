@@ -3,15 +3,118 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ],
       "entries": [
         {
           "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_trapdoor",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit_portal": "false"
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
           "name": "musavacca:musavacca_trapdoor"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_trapdoor",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit_portal": "true"
+              }
+            },
+            {
+              "condition": "minecraft:inverted",
+              "term": {
+                "condition": "minecraft:match_tool",
+                "predicate": {
+                  "predicates": {
+                    "minecraft:enchantments": [
+                      {
+                        "enchantments": "minecraft:silk_touch",
+                        "levels": {
+                          "min": 1
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "name": "musavacca:musavacca_trapdoor"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_trapdoor",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit_portal": "true"
+              }
+            },
+            {
+              "condition": "minecraft:match_tool",
+              "predicate": {
+                "predicates": {
+                  "minecraft:enchantments": [
+                    {
+                      "enchantments": "minecraft:silk_touch",
+                      "levels": {
+                        "min": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "musavacca:hex_color"
+              ],
+              "source": "block_entity"
+            }
+          ],
+          "name": "musavacca:musavacca_trapdoor"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "musavacca:musavacca_trapdoor",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "lit": "true"
+              }
+            },
+            {
+              "condition": "minecraft:survives_explosion"
+            }
+          ],
+          "name": "musavacca:banana_pearl"
         }
       ],
       "rolls": 1.0

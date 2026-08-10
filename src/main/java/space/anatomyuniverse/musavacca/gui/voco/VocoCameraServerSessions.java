@@ -11,13 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Short-lived, server-authoritative editor state.
- *
- * The important rule here is that the arrival position is captured once, at
- * the instant the player opens the receptor camera editor. The client never
- * gets to replace that position when it later submits the chosen camera angle.
- */
 public final class VocoCameraServerSessions {
     private static final long SESSION_LIFETIME_TICKS = 20L * 60L * 10L;
 

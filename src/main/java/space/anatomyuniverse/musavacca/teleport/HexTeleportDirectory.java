@@ -89,6 +89,8 @@ public final class HexTeleportDirectory extends SavedData {
         LINKED_TO_EXISTING_PORTAL,
         WAITING_FOR_SECOND_DOOR,
         LINKED_TO_EXISTING_DOOR,
+        WAITING_FOR_SECOND_TRAPDOOR,
+        LINKED_TO_EXISTING_TRAPDOOR,
         ALREADY_REGISTERED,
         HEX_OCCUPIED,
         INVALID_OWNER;
@@ -100,6 +102,8 @@ public final class HexTeleportDirectory extends SavedData {
                     || this == LINKED_TO_EXISTING_PORTAL
                     || this == WAITING_FOR_SECOND_DOOR
                     || this == LINKED_TO_EXISTING_DOOR
+                    || this == WAITING_FOR_SECOND_TRAPDOOR
+                    || this == LINKED_TO_EXISTING_TRAPDOOR
                     || this == ALREADY_REGISTERED;
         }
     }
@@ -348,8 +352,8 @@ public final class HexTeleportDirectory extends SavedData {
      * - one Voco endpoint
      * - one waiting Pearl portal
      * - one linked Pearl portal pair
-     * - one waiting Musavacca door
-     * - one linked Musavacca door pair
+     * - one waiting Musavacca door/trapdoor
+     * - one linked Musavacca door/trapdoor pair
      */
     public boolean isHexReserved(int hexColor) {
         int hex = normalizeHex(hexColor);
@@ -613,6 +617,13 @@ public final class HexTeleportDirectory extends SavedData {
 
         DoorEndpoint partner = this.pendingDoors.firstByHex(hex).orElse(null);
 
+        if (
+                partner != null
+                        && !isDoorOwnerKey(partner.ownerKey())
+        ) {
+            return Result.HEX_OCCUPIED;
+        }
+
         if (partner != null && !partner.ownerKey.equals(ownerKey)) {
             this.pendingDoors.removeOwner(partner.ownerKey);
             this.doors.add(partner);
@@ -627,6 +638,80 @@ public final class HexTeleportDirectory extends SavedData {
         this.pendingDoors.add(candidate);
         this.setDirty();
         return Result.WAITING_FOR_SECOND_DOOR;
+    }
+
+    /*
+     * Trapdoors intentionally reuse the persisted DoorEndpoint store.
+     *
+     * The endpoint payload is identical (owner key, hex, dimension, position),
+     * so sharing the store avoids a saved-data schema migration. Door and
+     * trapdoor endpoints still NEVER pair with each other: the owner-key
+     * prefix below keeps each hinged portal family isolated.
+     */
+    public Result registerTrapdoorEndpoint(
+            String ownerKey,
+            int hexColor,
+            ResourceLocation dimensionId,
+            BlockPos ownerPos
+    ) {
+        ownerKey = normalizeOwnerKey(ownerKey);
+
+        if (ownerKey.isEmpty()
+                || dimensionId == null
+                || ownerPos == null
+                || !isTrapdoorOwnerKey(ownerKey)) {
+            return Result.INVALID_OWNER;
+        }
+
+        int hex = normalizeHex(hexColor);
+
+        DoorEndpoint existingActive = this.doors.byOwner(ownerKey).orElse(null);
+        DoorEndpoint existingPending = this.pendingDoors.byOwner(ownerKey).orElse(null);
+
+        if (matchesDoorEndpoint(existingActive, hex, dimensionId, ownerPos)) {
+            return Result.LINKED_TO_EXISTING_TRAPDOOR;
+        }
+
+        if (matchesDoorEndpoint(existingPending, hex, dimensionId, ownerPos)) {
+            return Result.WAITING_FOR_SECOND_TRAPDOOR;
+        }
+
+        if (existingActive != null || existingPending != null) {
+            this.removeDoorOwner(ownerKey);
+        }
+
+        if (this.active.hasHex(hex)
+                || this.doors.countByHex(hex) >= 2) {
+            return Result.HEX_OCCUPIED;
+        }
+
+        DoorEndpoint candidate = new DoorEndpoint(
+                ownerKey,
+                hex,
+                dimensionId,
+                ownerPos.immutable()
+        ).normalized();
+
+        DoorEndpoint partner = this.pendingDoors.firstByHex(hex).orElse(null);
+
+        if (
+                partner != null
+                        && !isTrapdoorOwnerKey(partner.ownerKey())
+        ) {
+            return Result.HEX_OCCUPIED;
+        }
+
+        if (partner != null && !partner.ownerKey.equals(ownerKey)) {
+            this.pendingDoors.removeOwner(partner.ownerKey);
+            this.doors.add(partner);
+            this.doors.add(candidate);
+            this.setDirty();
+            return Result.LINKED_TO_EXISTING_TRAPDOOR;
+        }
+
+        this.pendingDoors.add(candidate);
+        this.setDirty();
+        return Result.WAITING_FOR_SECOND_TRAPDOOR;
     }
 
     public Optional<Endpoint> getEndpoint(UUID endpointId) {
@@ -685,12 +770,53 @@ public final class HexTeleportDirectory extends SavedData {
     public Optional<DoorEndpoint> getLinkedDoorEndpoint(String sourceOwnerKey) {
         DoorEndpoint source = this.doors.byOwner(sourceOwnerKey).orElse(null);
 
-        if (source == null) {
+        if (
+                source == null
+                        || !isDoorOwnerKey(source.ownerKey())
+        ) {
             return Optional.empty();
         }
 
         for (DoorEndpoint endpoint : this.doors.byHex(source.hexColor)) {
-            if (!endpoint.ownerKey.equals(source.ownerKey)) {
+            if (
+                    !endpoint.ownerKey.equals(source.ownerKey)
+                            && isDoorOwnerKey(endpoint.ownerKey())
+            ) {
+                return Optional.of(endpoint);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<DoorEndpoint> getTrapdoorEndpointByOwner(String ownerKey) {
+        DoorEndpoint endpoint = this.doors.byOwner(ownerKey).orElse(null);
+
+        if (endpoint == null) {
+            endpoint = this.pendingDoors.byOwner(ownerKey).orElse(null);
+        }
+
+        return endpoint != null
+                && isTrapdoorOwnerKey(endpoint.ownerKey())
+                ? Optional.of(endpoint)
+                : Optional.empty();
+    }
+
+    public Optional<DoorEndpoint> getLinkedTrapdoorEndpoint(String sourceOwnerKey) {
+        DoorEndpoint source = this.doors.byOwner(sourceOwnerKey).orElse(null);
+
+        if (
+                source == null
+                        || !isTrapdoorOwnerKey(source.ownerKey())
+        ) {
+            return Optional.empty();
+        }
+
+        for (DoorEndpoint endpoint : this.doors.byHex(source.hexColor)) {
+            if (
+                    !endpoint.ownerKey.equals(source.ownerKey)
+                            && isTrapdoorOwnerKey(endpoint.ownerKey())
+            ) {
                 return Optional.of(endpoint);
             }
         }
@@ -932,7 +1058,22 @@ public final class HexTeleportDirectory extends SavedData {
             return false;
         }
 
-        return this.doors.byHex(endpoint.hexColor).size() < 2;
+        List<DoorEndpoint> sameHex = this.doors.byHex(endpoint.hexColor);
+
+        if (sameHex.size() >= 2) {
+            return false;
+        }
+
+        if (!sameHex.isEmpty()) {
+            boolean endpointTrapdoor = isTrapdoorOwnerKey(endpoint.ownerKey());
+            boolean existingTrapdoor = isTrapdoorOwnerKey(sameHex.get(0).ownerKey());
+
+            if (endpointTrapdoor != existingTrapdoor) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private boolean canIndexPendingDoor(DoorEndpoint endpoint) {
@@ -988,6 +1129,35 @@ public final class HexTeleportDirectory extends SavedData {
                 + dimensionId
                 + "|"
                 + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+    }
+
+    public static String trapdoorOwnerKey(
+            ResourceLocation dimensionId,
+            BlockPos pos
+    ) {
+        return "musavacca_trapdoor"
+                + "|"
+                + dimensionId
+                + "|"
+                + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+    }
+
+    private static boolean isDoorOwnerKey(
+            String ownerKey
+    ) {
+        return normalizeOwnerKey(ownerKey)
+                .startsWith(
+                        "musavacca_door|"
+                );
+    }
+
+    private static boolean isTrapdoorOwnerKey(
+            String ownerKey
+    ) {
+        return normalizeOwnerKey(ownerKey)
+                .startsWith(
+                        "musavacca_trapdoor|"
+                );
     }
 
     public static String ownerKey(
