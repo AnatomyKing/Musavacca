@@ -1,0 +1,20 @@
+{
+	"format_version": "1.21.11",
+	"credit": "AnatomyKing(𝕏🐦@LuukMus,ᵈᶦˢᶜᵒʳᵈ@anatomyking)",
+	"ambientocclusion": false,
+	"textures": {
+		"particle": "musavacca:block/lit_musavacca_trapdoor_knob",
+		"knob": "musavacca:block/lit_musavacca_trapdoor_knob"
+	},
+	"elements": [
+		{
+			"from": [5, 13, 12.98],
+			"to": [11, 15, 16.02],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 14, 14.5]},
+			"faces": {
+				"north": {"uv": [5, 15, 11, 13], "texture": "#knob"},
+				"south": {"uv": [5, 15, 11, 13], "texture": "#knob"}
+			}
+		}
+	]
+}

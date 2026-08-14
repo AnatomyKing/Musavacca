@@ -23,7 +23,7 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableDialerHitboxes.HitPart;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.basuke.summon.BasukeSummon;
-import space.anatomyuniverse.musavacca.gui.menu.TestInventoryMenu;
+import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 
 public final class VocoTableLogic {
@@ -447,7 +447,7 @@ public final class VocoTableLogic {
             serverPlayer.openMenu(
                     new SimpleMenuProvider(
                             (containerId, playerInventory, ignoredPlayer) ->
-                                    new TestInventoryMenu(containerId, playerInventory),
+                                    new VocoDialerMenu(containerId, playerInventory),
                             Component.literal("Voco Table Dialer")
                     ),
                     buffer -> buffer.writeBlockPos(pos)

@@ -257,7 +257,7 @@ public final class ModItems {
     public static final DeferredItem<Item> BANANA_PHONE =
             ITEMS.registerItem(
                     "banana_phone",
-                    props -> new OpenTestInventoryItem(
+                    props -> new OpenVocoCallerItem(
                             props.rarity(Rarity.RARE)
                     )
             );
@@ -287,22 +287,6 @@ public final class ModItems {
                     )
             );
 
-    public static final DeferredItem<Item> OPEN_INVO_TEST_ITEM =
-            ITEMS.registerItem(
-                    "open_invo_test_item",
-                    props -> new OpenTestInventoryItem(
-                            props.rarity(Rarity.RARE)
-                    )
-            );
-
-    public static final DeferredItem<Item>
-            OPEN_TELEPORT_TEST_ITEM =
-            ITEMS.registerItem(
-                    "open_teleport_test_item",
-                    props -> new OpenTeleportInventoryItem(
-                            props.rarity(Rarity.RARE)
-                    )
-            );
 
     public static final DeferredItem<SpawnEggItem>
             BANANA_COW_SPAWN_EGG =

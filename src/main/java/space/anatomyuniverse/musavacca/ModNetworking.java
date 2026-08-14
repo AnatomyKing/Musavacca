@@ -8,7 +8,7 @@ import space.anatomyuniverse.musavacca.bar.balance.BalanceSyncPayload;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerSyncPayload;
 //? if <1.21.6
 //import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
-import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlColorPayload;
+import space.anatomyuniverse.musavacca.gui.menu.payloads.FlintAndPearlColorPayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraSelectionPayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraStartPayload;
 

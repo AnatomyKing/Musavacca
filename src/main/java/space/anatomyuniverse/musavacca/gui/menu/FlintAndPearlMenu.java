@@ -6,48 +6,76 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import space.anatomyuniverse.musavacca.gui.ModMenus;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
+import space.anatomyuniverse.musavacca.gui.ModMenuRegistries;
+import space.anatomyuniverse.musavacca.gui.backend.FlintAndPearlBackend;
 
 public class FlintAndPearlMenu extends AbstractContainerMenu {
-    private final InteractionHand hand;
-    private int hexColor;
+    private final FlintAndPearlBackend backend;
 
-    public FlintAndPearlMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buffer) {
+    public FlintAndPearlMenu(
+            int containerId,
+            Inventory inventory,
+            RegistryFriendlyByteBuf buffer
+    ) {
         this(
                 containerId,
                 inventory,
-                buffer.readBoolean() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND,
+                buffer.readBoolean()
+                        ? InteractionHand.OFF_HAND
+                        : InteractionHand.MAIN_HAND,
                 buffer.readInt()
         );
     }
 
-    public FlintAndPearlMenu(int containerId, Inventory inventory, InteractionHand hand, int hexColor) {
-        super(ModMenus.FLINT_AND_PEARL_MENU.get(), containerId);
+    public FlintAndPearlMenu(
+            int containerId,
+            Inventory inventory,
+            InteractionHand hand,
+            int hexColor
+    ) {
+        super(
+                ModMenuRegistries.FLINT_AND_PEARL_MENU.get(),
+                containerId
+        );
 
-        this.hand = hand;
-        this.hexColor = TintColorUtil.rgb(hexColor);
+        this.backend =
+                new FlintAndPearlBackend(
+                        hand,
+                        hexColor
+                );
     }
 
     public InteractionHand getHand() {
-        return this.hand;
+        return this.backend.getHand();
     }
 
     public int getHexColor() {
-        return this.hexColor;
+        return this.backend.getHexColor();
     }
 
     public void setHexColor(int hexColor) {
-        this.hexColor = TintColorUtil.rgb(hexColor);
+        this.backend.setHexColor(hexColor);
+    }
+
+    public boolean applyHexColor(
+            Player player,
+            int hexColor
+    ) {
+        return this.backend.applyHexColor(
+                player,
+                hexColor
+        );
     }
 
     public static int getDefaultHexColor() {
-        return TintColorUtil.rgb(FlintAndPearlItem.DEFAULT_HEX_COLOR);
+        return FlintAndPearlBackend.getDefaultHexColor();
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int index) {
+    public ItemStack quickMoveStack(
+            Player player,
+            int index
+    ) {
         return ItemStack.EMPTY;
     }
 

@@ -24,8 +24,8 @@ import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntityRenderers;
-import space.anatomyuniverse.musavacca.gui.ModMenuScreens;
-import space.anatomyuniverse.musavacca.gui.ModMenus;
+import space.anatomyuniverse.musavacca.gui.ModMenuEvents;
+import space.anatomyuniverse.musavacca.gui.ModMenuRegistries;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraClientModEvents;
 import space.anatomyuniverse.musavacca.item.ModCreativeTabs;
 import space.anatomyuniverse.musavacca.item.ModItems;
@@ -63,7 +63,7 @@ public final class MusaCore {
         ModDataComponents.register(modBus);
         ComponentRecipeDSL.register(modBus);
         ModBlockEntities.register(modBus);
-        ModMenus.register(modBus);
+        ModMenuRegistries.register(modBus);
         ModParticleTypes.register(modBus);
         ModEntities.register(modBus);
 
@@ -108,7 +108,7 @@ public final class MusaCore {
             );
 
             modBus.addListener(
-                    ModMenuScreens::register
+                    ModMenuEvents::register
             );
 
             modBus.addListener(
