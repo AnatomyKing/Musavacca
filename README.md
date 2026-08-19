@@ -56,7 +56,7 @@ This project is set up to keep datagen consistent across all supported Minecraft
 
 ### Shared resources snapshot
 IDEs, especially IntelliJ, don’t love multiple modules sharing the same physical content root resource folder,
-So we sync shared resources into a build folder to keep each version project clean and consistent.
+So we sync shared resources into a build folder to keep each version project clean and consistent. The only downside of this is that you will need quite some Gigabits 
 - `syncSharedResources`in [`build.gradle.kts`](build.gradle.kts) creates a stable snapshot under `build/…/stonecutterSharedResources`.
 - Every version project uses that snapshot for:
     - `processResources` packaging

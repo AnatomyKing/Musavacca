@@ -13,45 +13,21 @@ import space.anatomyuniverse.musavacca.gui.backend.VocoCallerBackend;
 
 public final class VocoCallerMenu extends AbstractContainerMenu {
 
-    private final VocoCallerBackend backend =
-            new VocoCallerBackend();
+    private final VocoCallerBackend backend = new VocoCallerBackend();
 
-    public VocoCallerMenu(
-            int containerId,
-            Inventory playerInventory,
-            RegistryFriendlyByteBuf ignored
-    ) {
-        this(
-                containerId,
-                playerInventory
-        );
+    public VocoCallerMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf ignored) {
+        this(containerId, playerInventory);
     }
 
-    public VocoCallerMenu(
-            int containerId,
-            Inventory playerInventory
-    ) {
-        super(
-                ModMenuRegistries.VOCO_CALLER_MENU.get(),
-                containerId
-        );
+    public VocoCallerMenu(int containerId, Inventory playerInventory) {
+        super(ModMenuRegistries.VOCO_CALLER_MENU.get(), containerId);
     }
 
     public static void open(ServerPlayer player) {
-        player.openMenu(
-                new SimpleMenuProvider(
-                        (
-                                containerId,
-                                inventory,
-                                ignoredPlayer
-                        ) ->
-                                new VocoCallerMenu(
-                                        containerId,
-                                        inventory
-                                ),
-                        Component.literal("Voco Caller")
-                )
-        );
+        player.openMenu(new SimpleMenuProvider(
+                (containerId, inventory, ignoredPlayer) -> new VocoCallerMenu(containerId, inventory),
+                Component.literal("Voco Caller")
+        ));
     }
 
     public VocoCallerBackend getBackend() {
@@ -59,10 +35,7 @@ public final class VocoCallerMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public ItemStack quickMoveStack(
-            Player player,
-            int index
-    ) {
+    public ItemStack quickMoveStack(Player player, int index) {
         return ItemStack.EMPTY;
     }
 
