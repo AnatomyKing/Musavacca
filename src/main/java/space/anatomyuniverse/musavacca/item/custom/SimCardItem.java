@@ -1,4 +1,4 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/item/custom/SimCardItem.java
+
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.world.item.Item;

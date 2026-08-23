@@ -5,22 +5,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
 import space.anatomyuniverse.musavacca.gui.ModMenuRegistries;
 import space.anatomyuniverse.musavacca.gui.backend.VocoCallerBackend;
 
-public final class VocoCallerMenu extends AbstractContainerMenu {
-
-    private final VocoCallerBackend backend = new VocoCallerBackend();
-
+public final class VocoCallerMenu extends VocoDialerMenu {
     public VocoCallerMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf ignored) {
         this(containerId, playerInventory);
     }
 
     public VocoCallerMenu(int containerId, Inventory playerInventory) {
-        super(ModMenuRegistries.VOCO_CALLER_MENU.get(), containerId);
+        super(ModMenuRegistries.VOCO_CALLER_MENU.get(), containerId, new VocoCallerBackend(playerInventory.player));
     }
 
     public static void open(ServerPlayer player) {
@@ -30,17 +24,8 @@ public final class VocoCallerMenu extends AbstractContainerMenu {
         ));
     }
 
+    @Override
     public VocoCallerBackend getBackend() {
-        return this.backend;
-    }
-
-    @Override
-    public ItemStack quickMoveStack(Player player, int index) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean stillValid(Player player) {
-        return true;
+        return (VocoCallerBackend) super.getBackend();
     }
 }

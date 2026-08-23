@@ -14,20 +14,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.gui.backend.VocoCallerBackend;
+import space.anatomyuniverse.musavacca.gui.backend.VocoDialerBackend;
 import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
 
 public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCallerMenu> {
-
     private static final int GUI_WIDTH = 286;
     private static final int GUI_HEIGHT = 206;
     private static final int PHONE_X = 0;
     private static final int PHONE_Y = 0;
     private static final int PHONE_WIDTH = 126;
     private static final int PHONE_HEIGHT = 206;
-    private static final int BASE_X = 129;
-    private static final int BASE_Y = 42;
-    private static final int BASE_WIDTH = 157;
-    private static final int BASE_HEIGHT = 164;
+    private static final int DIALER_X = 129;
+    private static final int DIALER_Y = 42;
     private static final int BUTTON_BAR_X = 129;
     private static final int BUTTON_BAR_Y = 0;
     private static final int BUTTON_BAR_WIDTH = 157;
@@ -44,7 +42,6 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
     private static final int SYMBOL_HEIGHT = 7;
     private static final int SYMBOL_STEP = 4;
     private static final int HEX_LENGTH = 6;
-    private static final int HEX_CODE_WIDTH = SYMBOL_WIDTH + (HEX_LENGTH - 1) * SYMBOL_STEP;
     private static final int SELECTION_COUNT = VocoCallerBackend.ROW_COUNT * 2;
     private static final int RECENT_CARET_X = 19;
     private static final int SAVED_CARET_X = 72;
@@ -56,8 +53,8 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
     private static final long ARROW_REPEAT_INTERVAL_NANOS = 35_000_000L;
     private static final long DOUBLE_CLICK_NANOS = 300_000_000L;
     private static final long LONG_PRESS_NANOS = 650_000_000L;
+
     private static final ResourceLocation PHONE_SCREEN_TEXTURE = texture("phone_screen");
-    private static final ResourceLocation BASE_TEXTURE = texture("base");
     private static final ResourceLocation BUTTON_BAR_TEXTURE = texture("button_bar");
     private static final ResourceLocation ARROW_LEFT_TEXTURE = texture("arrow_left");
     private static final ResourceLocation ARROW_LEFT_PRESSED_TEXTURE = texture("arrow_left_pressed");
@@ -66,6 +63,8 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
     private static final ResourceLocation ARROW_RIGHT_TEXTURE = texture("arrow_right");
     private static final ResourceLocation ARROW_RIGHT_PRESSED_TEXTURE = texture("arrow_right_pressed");
     private static final ResourceLocation[] SYMBOL_TEXTURES = createSymbolTextures();
+
+    private final VocoDialerControl dialer = new VocoDialerControl(this::sendBackendButton);
     private int selectedPosition = 0;
 
     /** Also controls the direction used when reordering Saved numbers. */
@@ -75,12 +74,12 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
     private long buttonRepeatLastNanos = 0L;
     private boolean buttonRepeatMode = false;
 
-    /** Shared entry-press state for direct clicks and the middle button. */
-    private int pressedEntryPosition = -1;
-    private long entryPressStartNanos = 0L;
-    private boolean entryPressConsumed = false;
-    private int lastClickedEntryPosition = -1;
-    private long lastEntryClickNanos = 0L;
+    private int spacePressPosition = -1;
+    private long spacePressStartNanos = 0L;
+    private boolean spacePressConsumed = false;
+    private int pendingSpacePosition = -1;
+    private long pendingSpaceClickNanos = 0L;
+    private VocoCallerBackend.CallStateSnapshot pendingSpaceSnapshot = null;
 
     public VocoCallerFrontend(VocoCallerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -93,9 +92,9 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         this.tickHeldArrow();
-        this.tickHeldEntry();
+        this.tickSpaceButton();
         blit(graphics, PHONE_SCREEN_TEXTURE, this.leftPos + PHONE_X, this.topPos + PHONE_Y, PHONE_WIDTH, PHONE_HEIGHT);
-        blit(graphics, BASE_TEXTURE, this.leftPos + BASE_X, this.topPos + BASE_Y, BASE_WIDTH, BASE_HEIGHT);
+        this.dialer.render(graphics, this.leftPos + DIALER_X, this.topPos + DIALER_Y);
         nextLayer(graphics);
         blit(graphics, BUTTON_BAR_TEXTURE, this.leftPos + BUTTON_BAR_X, this.topPos + BUTTON_BAR_Y, BUTTON_BAR_WIDTH, BUTTON_BAR_HEIGHT);
         nextLayer(graphics);
@@ -124,102 +123,91 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
     }
 
     private void drawHexCode(GuiGraphics graphics, String hexCode, int x, int y) {
-        if (hexCode == null) {
-            return;
-        }
+        if (hexCode == null) return;
         for (int index = 0; index < Math.min(HEX_LENGTH, hexCode.length()); index++) {
             int symbol = Character.digit(hexCode.charAt(index), 16);
-            if (symbol < 0) {
-                continue;
-            }
-            blit(graphics, SYMBOL_TEXTURES[symbol], x + index * SYMBOL_STEP, y, SYMBOL_WIDTH, SYMBOL_HEIGHT);
+            if (symbol >= 0) blit(graphics, SYMBOL_TEXTURES[symbol], x + index * SYMBOL_STEP, y, SYMBOL_WIDTH, SYMBOL_HEIGHT);
         }
     }
 
     private void renderSelectionCaret(GuiGraphics graphics) {
-        if (!this.hasEntry(this.selectedPosition)) {
-            return;
-        }
-        if (!this.isCaretVisible()) {
-            return;
-        }
+        if (!this.hasEntry(this.selectedPosition) || !this.isCaretVisible()) return;
         int row = rowOf(this.selectedPosition);
-        boolean savedNumber = isSavedPosition(this.selectedPosition);
-        int x = savedNumber ? SAVED_CARET_X : RECENT_CARET_X;
+        int x = isSavedPosition(this.selectedPosition) ? SAVED_CARET_X : RECENT_CARET_X;
         int y = LIST_Y + row * ROW_HEIGHT;
         graphics.fill(x, y, x + CARET_WIDTH, y + CARET_HEIGHT, CARET_COLOR);
     }
 
     private boolean isCaretVisible() {
-        long elapsed = System.nanoTime() - this.caretBlinkStartNanos;
-        return (elapsed / CARET_BLINK_NANOS & 1L) == 0L;
+        return ((System.nanoTime() - this.caretBlinkStartNanos) / CARET_BLINK_NANOS & 1L) == 0L;
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button != 0) {
-            return super.mouseClicked(mouseX, mouseY, button);
-        }
-        int entryPosition = this.findEntryPosition(mouseX, mouseY);
-        if (entryPosition >= 0) {
-            this.selectPosition(entryPosition);
-            this.beginEntryPress(entryPosition);
-            return true;
-        }
+        if (button != 0) return super.mouseClicked(mouseX, mouseY, button);
         for (CallerButton callerButton : CallerButton.values()) {
-            if (!this.contains(mouseX, mouseY, callerButton.x, BUTTON_Y, callerButton.width, BUTTON_HEIGHT)) {
-                continue;
-            }
+            if (!this.contains(mouseX, mouseY, callerButton.x, BUTTON_Y, callerButton.width, BUTTON_HEIGHT)) continue;
             this.startButtonPress(callerButton);
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        this.clearPendingSpaceClick();
+        return this.dialer.mouseClicked(mouseX, mouseY, button, this.leftPos + DIALER_X, this.topPos + DIALER_Y)
+                || super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        return this.dialer.mouseDragged(mouseX, mouseY, button, this.leftPos + DIALER_X, this.topPos + DIALER_Y)
+                || super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button != 0) {
-            return super.mouseReleased(mouseX, mouseY, button);
-        }
-        boolean handled = false;
-        if (this.pressedEntryPosition >= 0) {
-            this.clearEntryPress();
-            handled = true;
-        }
+        if (button != 0) return super.mouseReleased(mouseX, mouseY, button);
         if (this.pressedButton != null) {
+            if (this.pressedButton == CallerButton.SPACE) this.finishSpacePress();
             this.clearButtonPress();
-            handled = true;
-        }
-        if (handled) {
             return true;
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return this.dialer.mouseReleased(button) || super.mouseReleased(mouseX, mouseY, button);
     }
 
     private void startButtonPress(CallerButton button) {
         this.pressedButton = button;
         this.buttonRepeatLastNanos = System.nanoTime();
         this.buttonRepeatMode = false;
-        this.activateButton(button);
+        if (button == CallerButton.SPACE) this.beginSpacePress();
+        else {
+            this.clearPendingSpaceClick();
+            this.activateButton(button);
+        }
     }
 
     private void activateButton(CallerButton button) {
         switch (button) {
             case LEFT -> this.moveSelection(-1);
-            case SPACE -> this.beginEntryPress(this.selectedPosition);
+            case SPACE -> { }
             case RIGHT -> this.moveSelection(1);
         }
     }
 
+    private void dialEntry(int position) {
+        String hexCode = this.hexCodeAt(position);
+        if (hexCode == null) return;
+        this.sendBackendButton(VocoDialerBackend.buttonForAddress(VocoCallerBackend.parseHex(hexCode)));
+    }
+
+    private String hexCodeAt(int position) {
+        if (!this.hasEntry(position)) return null;
+        int row = rowOf(position);
+        return isSavedPosition(position) ? this.backend().getSavedNumber(row) : this.backend().getRecentCall(row);
+    }
+
     private void tickHeldArrow() {
-        if (this.pressedButton != CallerButton.LEFT && this.pressedButton != CallerButton.RIGHT) {
-            return;
-        }
+        if (this.pressedButton != CallerButton.LEFT && this.pressedButton != CallerButton.RIGHT) return;
         long now = System.nanoTime();
         long wait = this.buttonRepeatMode ? ARROW_REPEAT_INTERVAL_NANOS : ARROW_REPEAT_DELAY_NANOS;
-        if (now - this.buttonRepeatLastNanos < wait) {
-            return;
-        }
+        if (now - this.buttonRepeatLastNanos < wait) return;
         int guard = 0;
         do {
             this.activateButton(this.pressedButton);
@@ -230,61 +218,81 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
         } while (now - this.buttonRepeatLastNanos >= wait && guard < 20);
     }
 
-    private void beginEntryPress(int position) {
-        if (!this.hasEntry(position)) {
-            return;
-        }
+    private void beginSpacePress() {
         long now = System.nanoTime();
-        this.pressedEntryPosition = position;
-        this.entryPressStartNanos = now;
-        this.entryPressConsumed = false;
-        boolean doubleClick = position == this.lastClickedEntryPosition && now - this.lastEntryClickNanos <= DOUBLE_CLICK_NANOS;
-        if (doubleClick) {
-            this.clearLastEntryClick();
-            this.entryPressConsumed = true;
-            this.activateDoubleClick(position);
+        this.spacePressPosition = this.hasEntry(this.selectedPosition) ? this.selectedPosition : -1;
+        this.spacePressStartNanos = now;
+        this.spacePressConsumed = false;
+        if (this.spacePressPosition < 0) return;
+        if (this.pendingSpaceSnapshot == null || now - this.pendingSpaceClickNanos > DOUBLE_CLICK_NANOS) {
+            this.clearPendingSpaceClick();
             return;
         }
-        this.lastClickedEntryPosition = position;
-        this.lastEntryClickNanos = now;
+        int originalPosition = this.pendingSpacePosition;
+        VocoCallerBackend.CallStateSnapshot snapshot = this.pendingSpaceSnapshot;
+        this.clearPendingSpaceClick();
+        this.backend().restoreCallState(snapshot);
+        this.selectedPosition = originalPosition;
+        this.spacePressPosition = originalPosition;
+        this.spacePressConsumed = true;
+        this.deleteEntry(originalPosition);
     }
 
-    private void tickHeldEntry() {
-        if (this.pressedEntryPosition < 0 || this.entryPressConsumed) {
-            return;
-        }
+    private void tickSpaceButton() {
         long now = System.nanoTime();
-        if (now - this.entryPressStartNanos < LONG_PRESS_NANOS) {
-            return;
+        if (this.pressedButton == CallerButton.SPACE && this.spacePressPosition >= 0 && !this.spacePressConsumed
+                && now - this.spacePressStartNanos >= LONG_PRESS_NANOS) {
+            this.clearPendingSpaceClick();
+            this.spacePressConsumed = true;
+            this.dialEntry(this.spacePressPosition);
         }
-        int position = this.pressedEntryPosition;
-        this.entryPressConsumed = true;
-        this.clearLastEntryClick();
-        this.deleteEntry(position);
+        if (this.pendingSpaceSnapshot != null && now - this.pendingSpaceClickNanos > DOUBLE_CLICK_NANOS) this.clearPendingSpaceClick();
     }
 
-    private void activateDoubleClick(int position) {
+    private void finishSpacePress() {
+        if (this.spacePressPosition >= 0 && !this.spacePressConsumed) {
+            long now = System.nanoTime();
+            if (now - this.spacePressStartNanos >= LONG_PRESS_NANOS) {
+                this.clearPendingSpaceClick();
+                this.dialEntry(this.spacePressPosition);
+            } else {
+                this.clearPendingSpaceClick();
+                this.pendingSpacePosition = this.spacePressPosition;
+                this.pendingSpaceSnapshot = this.backend().snapshotCallState();
+                this.pendingSpaceClickNanos = now;
+                this.activateSingleSpaceClick(this.spacePressPosition);
+            }
+        }
+        this.clearSpacePress();
+    }
+
+    private void activateSingleSpaceClick(int position) {
+        if (!this.hasEntry(position)) return;
         int row = rowOf(position);
-        boolean savedNumber = isSavedPosition(position);
-        if (savedNumber) {
-            this.moveSavedEntry(row);
-            return;
-        }
-        this.moveRecentEntryToSaved(row);
+        if (isSavedPosition(position)) this.moveSavedEntry(row);
+        else this.moveRecentEntryToSaved(row);
+    }
+
+    private void clearPendingSpaceClick() {
+        this.pendingSpacePosition = -1;
+        this.pendingSpaceClickNanos = 0L;
+        this.pendingSpaceSnapshot = null;
+    }
+
+    private void clearSpacePress() {
+        this.spacePressPosition = -1;
+        this.spacePressStartNanos = 0L;
+        this.spacePressConsumed = false;
     }
 
     private void moveRecentEntryToSaved(int row) {
-        if (!this.backend().moveRecentCallToSavedTop(row)) {
-            return;
-        }
+        if (!this.backend().moveRecentCallToSavedTop(row)) return;
         this.selectedPosition = positionOf(0, true);
         this.restartCaretBlink();
     }
 
     private void moveSavedEntry(int row) {
-        if (!this.backend().hasSavedNumber(row)) {
-            return;
-        }
+        if (!this.backend().hasSavedNumber(row)) return;
         int newRow = this.backend().moveSavedNumber(row, this.lastNavigationDirection);
         this.selectedPosition = positionOf(newRow, true);
         this.restartCaretBlink();
@@ -292,40 +300,17 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
 
     private void deleteEntry(int position) {
         int row = rowOf(position);
-        boolean savedNumber = isSavedPosition(position);
-        if (savedNumber) {
-            this.backend().deleteSavedNumberToRecent(row);
-        } else {
-            this.backend().deleteRecentCall(row);
-        }
+        if (isSavedPosition(position)) this.backend().deleteSavedNumberToRecent(row);
+        else this.backend().deleteRecentCall(row);
         this.ensureCaretOnFilledEntry();
         this.restartCaretBlink();
     }
 
     private void ensureCaretOnFilledEntry() {
-        if (this.hasEntry(this.selectedPosition)) {
-            return;
-        }
+        if (this.hasEntry(this.selectedPosition)) return;
         int nextPosition = this.findNextFilledPosition(this.selectedPosition, this.lastNavigationDirection);
-        if (nextPosition >= 0) {
-            this.selectedPosition = nextPosition;
-            return;
-        }
-        nextPosition = this.findNextFilledPosition(this.selectedPosition, -this.lastNavigationDirection);
-        if (nextPosition >= 0) {
-            this.selectedPosition = nextPosition;
-        }
-    }
-
-    private void clearEntryPress() {
-        this.pressedEntryPosition = -1;
-        this.entryPressStartNanos = 0L;
-        this.entryPressConsumed = false;
-    }
-
-    private void clearLastEntryClick() {
-        this.lastClickedEntryPosition = -1;
-        this.lastEntryClickNanos = 0L;
+        if (nextPosition < 0) nextPosition = this.findNextFilledPosition(this.selectedPosition, -this.lastNavigationDirection);
+        if (nextPosition >= 0) this.selectedPosition = nextPosition;
     }
 
     private void clearButtonPress() {
@@ -336,42 +321,23 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
 
     private void moveSelection(int direction) {
         int step = Integer.compare(direction, 0);
-        if (step == 0) {
-            return;
-        }
+        if (step == 0) return;
         this.lastNavigationDirection = step;
         int nextPosition = this.findNextFilledPosition(this.selectedPosition, step);
-        if (nextPosition < 0) {
-            return;
-        }
+        if (nextPosition < 0) return;
         this.selectedPosition = nextPosition;
         this.restartCaretBlink();
     }
 
     private int findNextFilledPosition(int fromPosition, int direction) {
         int step = Integer.compare(direction, 0);
-        if (step == 0) {
-            return -1;
-        }
+        if (step == 0) return -1;
         int position = fromPosition;
         for (int checked = 0; checked < SELECTION_COUNT; checked++) {
             position = Math.floorMod(position + step, SELECTION_COUNT);
-            if (this.hasEntry(position)) {
-                return position;
-            }
+            if (this.hasEntry(position)) return position;
         }
         return -1;
-    }
-
-    private void selectPosition(int position) {
-        if (position < 0 || position >= SELECTION_COUNT) {
-            return;
-        }
-        if (!this.hasEntry(position)) {
-            return;
-        }
-        this.selectedPosition = position;
-        this.restartCaretBlink();
     }
 
     private void restartCaretBlink() {
@@ -379,24 +345,9 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
     }
 
     private boolean hasEntry(int position) {
-        if (position < 0 || position >= SELECTION_COUNT) {
-            return false;
-        }
+        if (position < 0 || position >= SELECTION_COUNT) return false;
         int row = rowOf(position);
         return isSavedPosition(position) ? this.backend().hasSavedNumber(row) : this.backend().hasRecentCall(row);
-    }
-
-    private int findEntryPosition(double mouseX, double mouseY) {
-        for (int row = 0; row < VocoCallerBackend.ROW_COUNT; row++) {
-            int y = LIST_Y + row * ROW_HEIGHT;
-            if (this.backend().hasRecentCall(row) && this.contains(mouseX, mouseY, RECENT_X, y, HEX_CODE_WIDTH, SYMBOL_HEIGHT)) {
-                return positionOf(row, false);
-            }
-            if (this.backend().hasSavedNumber(row) && this.contains(mouseX, mouseY, SAVED_X, y, HEX_CODE_WIDTH, SYMBOL_HEIGHT)) {
-                return positionOf(row, true);
-            }
-        }
-        return -1;
     }
 
     private static int rowOf(int position) {
@@ -415,16 +366,11 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
         return this.menu.getBackend();
     }
 
-    public void setCurrentDialed(String hexCode) {
-        this.backend().setCurrentDialed(hexCode);
-    }
-
-    public void setCurrentDialed(int hexColor) {
-        this.backend().setCurrentDialed(hexColor);
-    }
-
-    public void clearCurrentDialed() {
-        this.backend().clearCurrentDialed();
+    private void sendBackendButton(int buttonId) {
+        if (!VocoDialerBackend.isKnownButton(buttonId)) return;
+        if (this.minecraft == null || this.minecraft.player == null || this.minecraft.gameMode == null) return;
+        if (!this.menu.clickMenuButton(this.minecraft.player, buttonId)) return;
+        this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, buttonId);
     }
 
     public void setRecentCall(int row, String hexCode) {
@@ -459,8 +405,11 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
 
     @Override
     public void removed() {
-        this.clearEntryPress();
+        this.clearSpacePress();
+        this.clearPendingSpaceClick();
         this.clearButtonPress();
+        this.dialer.cancel();
+        this.backend().commitPendingRecentCall();
         super.removed();
     }
 
@@ -479,9 +428,7 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
 
     private static ResourceLocation[] createSymbolTextures() {
         ResourceLocation[] textures = new ResourceLocation[16];
-        for (int value = 0; value < textures.length; value++) {
-            textures[value] = texture("symbols/" + Character.forDigit(value, 16));
-        }
+        for (int value = 0; value < textures.length; value++) textures[value] = texture("symbols/" + Character.forDigit(value, 16));
         return textures;
     }
 
@@ -517,12 +464,15 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
         LEFT(155, 20),
         SPACE(183, 49),
         RIGHT(240, 20);
+
         private final int x;
         private final int width;
+
         CallerButton(int x, int width) {
             this.x = x;
             this.width = width;
         }
+
         private ResourceLocation texture(boolean pressed) {
             return switch (this) {
                 case LEFT -> pressed ? ARROW_LEFT_PRESSED_TEXTURE : ARROW_LEFT_TEXTURE;
