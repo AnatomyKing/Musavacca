@@ -396,16 +396,16 @@ public final class CaroteneGrassModels {
         // -----------------------------------------------------
 
         //? if <1.21.5 {
-        /*
-         * Vanilla-style grass rotation:
+        
+         /** Vanilla-style grass rotation:
          *
          * snowy=false:
          *   0 / 90 / 180 / 270
          *
          * snowy=true:
          *   snowy model only
-         */
-        /*gen.blockStateOutput.accept(
+         
+        gen.blockStateOutput.accept(
                 MultiVariantGenerator
                         .multiVariant(entry.grass())
                         .with(

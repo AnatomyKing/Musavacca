@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/basuke/summon/BasukeSealed.java
 package space.anatomyuniverse.musavacca.basuke.summon;
 
 import net.minecraft.core.BlockPos;
@@ -9,32 +10,27 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
+import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
-public final class BasukeSummon {
+import java.util.List;
 
-    private BasukeSummon() {
+public final class BasukeSealed {
+
+    private BasukeSealed() {
     }
 
-    public static boolean trySummonFromVocoTable(
+    public static boolean trySealFromVocoTable(
             Level level,
             BlockPos pos
     ) {
-        if (
-                BasukeSealed.trySealFromVocoTable(
-                        level,
-                        pos
-                )
-        ) {
-            return true;
-        }
-
         if (!(level instanceof ServerLevel serverLevel)) {
             return false;
         }
@@ -47,7 +43,7 @@ public final class BasukeSummon {
         }
 
         if (
-                state.getValue(
+                !state.getValue(
                         VocoTableBlock.ROTARY_DIALERS
                 )
         ) {
@@ -61,21 +57,31 @@ public final class BasukeSummon {
             return false;
         }
 
-        if (!matchesSummonRecipe(state, tableBe)) {
+        if (!matchesSealingRecipe(state, tableBe)) {
             return false;
         }
 
-        completeSummon(
+        List<Basuke> boundBasukes =
+                findPresentBoundBasukes(
+                        serverLevel,
+                        pos
+                );
+
+        if (boundBasukes.isEmpty()) {
+            return false;
+        }
+
+        completeSealing(
                 serverLevel,
                 pos,
-                state,
-                tableBe
+                tableBe,
+                boundBasukes
         );
 
         return true;
     }
 
-    private static boolean matchesSummonRecipe(
+    private static boolean matchesSealingRecipe(
             @NotNull BlockState state,
             @NotNull VocoTableBlockEntity tableBe
     ) {
@@ -83,7 +89,7 @@ public final class BasukeSummon {
                 tableBe.getDisplayedItem();
 
         return displayed.is(
-                ModItems.BIG_BANANA_PEARL.get()
+                ModItems.INACTIVE_VOCO_CALLER.get()
         )
                 && allReceptorsCharged(state)
                 && allCandleCornersLit(tableBe);
@@ -119,16 +125,49 @@ public final class BasukeSummon {
         return true;
     }
 
-    private static void completeSummon(
+    private static List<Basuke> findPresentBoundBasukes(
+            ServerLevel level,
+            BlockPos tablePos
+    ) {
+        AABB searchArea =
+                new AABB(
+                        tablePos.getX() - 0.5D,
+                        tablePos.getY(),
+                        tablePos.getZ() - 0.5D,
+                        tablePos.getX() + 1.5D,
+                        tablePos.getY() + 3.0D,
+                        tablePos.getZ() + 1.5D
+                );
+
+        return level.getEntitiesOfClass(
+                Basuke.class,
+                searchArea,
+                basuke ->
+                        basuke.isAlive()
+                                && basuke.isBoundToVocoTable()
+                                && tablePos.equals(
+                                basuke.getVocoTablePos()
+                        )
+        );
+    }
+
+    private static void completeSealing(
             ServerLevel level,
             BlockPos pos,
-            BlockState state,
-            VocoTableBlockEntity tableBe
+            VocoTableBlockEntity tableBe,
+            List<Basuke> boundBasukes
     ) {
-        tableBe.removeDisplayedItems(1);
+        tableBe.setDisplayedItem(
+                new ItemStack(
+                        ModItems.BANANA_PHONE.get()
+                ),
+                1
+        );
+
         tableBe.extinguishAllCandlesForSummon();
 
-        BlockState newState = state;
+        BlockState newState =
+                level.getBlockState(pos);
 
         for (
                 ReceptorPosition receptor
@@ -161,7 +200,7 @@ public final class BasukeSummon {
         newState =
                 newState.setValue(
                         VocoTableBlock.ROTARY_DIALERS,
-                        true
+                        false
                 );
 
         level.setBlock(
@@ -170,11 +209,17 @@ public final class BasukeSummon {
                 VocoReceptorLogic.UPDATE_FLAGS
         );
 
-        spawnSummonLightning(level, pos);
-        tableBe.activateBasukeFromRotaryDialers(level);
+        spawnSealingLightning(level, pos);
+        tableBe.deactivateBasukeFromRotaryDialers(level);
+
+        for (Basuke basuke : boundBasukes) {
+            if (basuke.isAlive()) {
+                basuke.discard();
+            }
+        }
     }
 
-    private static void spawnSummonLightning(
+    private static void spawnSealingLightning(
             ServerLevel level,
             BlockPos pos
     ) {

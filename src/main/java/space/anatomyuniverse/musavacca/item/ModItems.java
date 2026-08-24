@@ -204,6 +204,16 @@ public final class ModItems {
                     )
             );
 
+    public static final DeferredItem<Item>
+            INACTIVE_VOCO_CALLER =
+            ITEMS.registerItem(
+                    "inactive_voco_caller",
+                    props -> new Item(
+                            props.rarity(Rarity.EPIC)
+                                    .stacksTo(1)
+                    )
+            );
+
     public static final DeferredItem<Item> BANANA_PELLIS =
             ITEMS.registerItem(
                     "banana_pellis",
@@ -255,7 +265,7 @@ public final class ModItems {
                                     .rarity(Rarity.UNCOMMON)
                     )
             );
-    
+
     public static final DeferredItem<Item> BANANA_PHONE =
             ITEMS.registerItem(
                     "banana_phone",

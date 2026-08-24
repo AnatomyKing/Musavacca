@@ -428,6 +428,10 @@ public final class ModelSets {
                 CustomItemModel.of(
                         ModItems.BANANA_PHONE.get(),
                         "musavacca:item/banana_phone"
+                ),
+                CustomItemModel.of(
+                        ModItems.INACTIVE_VOCO_CALLER.get(),
+                        "musavacca:item/banana_phone_off"
                 )
         };
     }

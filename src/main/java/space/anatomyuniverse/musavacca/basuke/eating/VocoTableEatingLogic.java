@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/basuke/eating/VocoTableEatingLogic.java
 package space.anatomyuniverse.musavacca.basuke.eating;
 
 import net.minecraft.server.level.ServerLevel;
@@ -11,6 +12,7 @@ import space.anatomyuniverse.musavacca.basuke.craft.VocoTableCraftingRecipe;
 import space.anatomyuniverse.musavacca.basuke.sending.VocoTableSending;
 import space.anatomyuniverse.musavacca.basuke.sending.VocoTableSendingAuthorization;
 import space.anatomyuniverse.musavacca.basuke.sending.VocoTableSendingCommand;
+import space.anatomyuniverse.musavacca.basuke.summon.BasukeVocoCalling;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
 public final class VocoTableEatingLogic {
@@ -33,6 +35,17 @@ public final class VocoTableEatingLogic {
 
         if (activeSending != null) {
             return new SendingAction(activeSending);
+        }
+
+        BasukeVocoCalling.ActiveCalling activeCalling =
+                BasukeVocoCalling.findActiveCalling(
+                        basuke,
+                        level,
+                        heldStack
+                );
+
+        if (activeCalling != null) {
+            return new CallingAction(activeCalling);
         }
 
         VocoTableCraftingRecipe recipe =
@@ -69,6 +82,10 @@ public final class VocoTableEatingLogic {
             VocoTableSendingAuthorization
                     .clear(heldStack);
         }
+
+        BasukeVocoCalling.clearGivingPlayer(
+                heldStack
+        );
     }
 
     public static void afterItemInteraction(
@@ -95,6 +112,11 @@ public final class VocoTableEatingLogic {
                     player.getUUID()
             );
         }
+
+        BasukeVocoCalling.stampGivingPlayer(
+                heldStack,
+                player.getUUID()
+        );
     }
 
     private record CraftingAction(
@@ -141,6 +163,30 @@ public final class VocoTableEatingLogic {
                             level,
                             heldStack,
                             this.activeSending
+                    );
+        }
+    }
+
+    private record CallingAction(
+            @NotNull BasukeVocoCalling.ActiveCalling activeCalling
+    ) implements VocoTableEatingAction {
+        @Override
+        public int eatingTimeTicks() {
+            return BasukeVocoCalling.EATING_TIME_TICKS;
+        }
+
+        @Override
+        public boolean complete(
+                Basuke basuke,
+                ServerLevel level,
+                ItemStack heldStack
+        ) {
+            return BasukeVocoCalling
+                    .completeActiveCalling(
+                            basuke,
+                            level,
+                            heldStack,
+                            this.activeCalling
                     );
         }
     }

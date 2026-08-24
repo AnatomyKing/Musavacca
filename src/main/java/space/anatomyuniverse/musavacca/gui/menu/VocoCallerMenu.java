@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/gui/menu/VocoCallerMenu.java
 package space.anatomyuniverse.musavacca.gui.menu;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -18,6 +17,9 @@ import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
 public final class VocoCallerMenu extends VocoDialerMenu {
     private final int phoneHex;
 
+    private final int openingSlot;
+    private final ItemStack openingPhoneReference;
+
     public VocoCallerMenu(
             int containerId,
             Inventory playerInventory,
@@ -29,14 +31,18 @@ public final class VocoCallerMenu extends VocoDialerMenu {
                 VocoCallerPhonebook.of(
                         readAddresses(buffer),
                         readAddresses(buffer)
-                )
+                ),
+                -1,
+                ItemStack.EMPTY
         );
     }
 
     private VocoCallerMenu(
             int containerId,
             int phoneHex,
-            VocoCallerPhonebook phonebook
+            VocoCallerPhonebook phonebook,
+            int openingSlot,
+            ItemStack openingPhoneReference
     ) {
         super(
                 ModMenuRegistries.VOCO_CALLER_MENU.get(),
@@ -44,7 +50,16 @@ public final class VocoCallerMenu extends VocoDialerMenu {
                 new VocoCallerBackend(phonebook)
         );
 
-        this.phoneHex = phoneHex & 0xFFFFFF;
+        this.phoneHex =
+                phoneHex & 0xFFFFFF;
+
+        this.openingSlot =
+                openingSlot;
+
+        this.openingPhoneReference =
+                openingPhoneReference == null
+                        ? ItemStack.EMPTY
+                        : openingPhoneReference;
     }
 
     public static void open(
@@ -54,8 +69,20 @@ public final class VocoCallerMenu extends VocoDialerMenu {
         ItemStack sim =
                 OpenVocoCallerItem.getSim(phone);
 
-        if (sim.isEmpty()
-                || !SimCardItem.hasStoredHex(sim)) {
+        if (
+                sim.isEmpty()
+                        || !SimCardItem.hasStoredHex(sim)
+        ) {
+            return;
+        }
+
+        int openingSlot =
+                findExactInventorySlot(
+                        player,
+                        phone
+                );
+
+        if (openingSlot < 0) {
             return;
         }
 
@@ -75,7 +102,9 @@ public final class VocoCallerMenu extends VocoDialerMenu {
                                 new VocoCallerMenu(
                                         containerId,
                                         phoneHex,
-                                        phonebook
+                                        phonebook,
+                                        openingSlot,
+                                        phone
                                 ),
                         Component.literal(
                                 "Voco Caller"
@@ -106,10 +135,7 @@ public final class VocoCallerMenu extends VocoDialerMenu {
             int[] recent,
             int[] saved
     ) {
-        if (!VocoCallerNetwork.carriesPhone(
-                player,
-                this.phoneHex
-        )) {
+        if (!this.hasOpeningPhone(player)) {
             return;
         }
 
@@ -125,11 +151,10 @@ public final class VocoCallerMenu extends VocoDialerMenu {
             Player player,
             int id
     ) {
-        if (!player.level().isClientSide()
-                && !VocoCallerNetwork.carriesPhone(
-                        player,
-                        this.phoneHex
-                )) {
+        if (
+                !player.level().isClientSide()
+                        && !this.hasOpeningPhone(player)
+        ) {
             return false;
         }
 
@@ -140,24 +165,36 @@ public final class VocoCallerMenu extends VocoDialerMenu {
     }
 
     @Override
-    public boolean stillValid(Player player) {
+    public boolean stillValid(
+            Player player
+    ) {
         return player.level().isClientSide()
-                || VocoCallerNetwork.carriesPhone(
-                        player,
-                        this.phoneHex
-                );
+                || this.hasOpeningPhone(player);
     }
 
     @Override
-    public void removed(Player player) {
-        if (!player.level().isClientSide()
-                && player instanceof ServerPlayer serverPlayer) {
-            VocoCallerNetwork.writePhonebook(
-                    serverPlayer,
-                    this.phoneHex,
-                    this.getBackend()
-                            .toPhonebook()
-            );
+    public void removed(
+            Player player
+    ) {
+        if (
+                !player.level().isClientSide()
+                        && player
+                        instanceof ServerPlayer serverPlayer
+        ) {
+            ItemStack openingPhone =
+                    this.getOpeningPhone(
+                            serverPlayer
+                    );
+
+            if (!openingPhone.isEmpty()) {
+                VocoCallerNetwork.writePhonebook(
+                        serverPlayer,
+                        openingPhone,
+                        this.phoneHex,
+                        this.getBackend()
+                                .toPhonebook()
+                );
+            }
         }
 
         super.removed(player);
@@ -169,14 +206,92 @@ public final class VocoCallerMenu extends VocoDialerMenu {
                 super.getBackend();
     }
 
+    private boolean hasOpeningPhone(
+            Player player
+    ) {
+        return !this.getOpeningPhone(player)
+                .isEmpty();
+    }
+
+    private ItemStack getOpeningPhone(
+            Player player
+    ) {
+        Inventory inventory =
+                player.getInventory();
+
+        if (
+                this.openingSlot < 0
+                        || this.openingSlot
+                        >= inventory.getContainerSize()
+                        || this.openingPhoneReference.isEmpty()
+        ) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemStack phone =
+                inventory.getItem(
+                        this.openingSlot
+                );
+
+        if (phone != this.openingPhoneReference) {
+            return ItemStack.EMPTY;
+        }
+
+        if (
+                !(phone.getItem()
+                        instanceof OpenVocoCallerItem)
+        ) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemStack sim =
+                OpenVocoCallerItem.getSim(phone);
+
+        if (
+                sim.isEmpty()
+                        || !SimCardItem.hasStoredHex(sim)
+                        || OpenVocoCallerItem.getSimHex(phone)
+                        != this.phoneHex
+        ) {
+            return ItemStack.EMPTY;
+        }
+
+        return phone;
+    }
+
+    private static int findExactInventorySlot(
+            ServerPlayer player,
+            ItemStack phone
+    ) {
+        Inventory inventory =
+                player.getInventory();
+
+        for (
+                int slot = 0;
+                slot < inventory.getContainerSize();
+                slot++
+        ) {
+            if (inventory.getItem(slot) == phone) {
+                return slot;
+            }
+        }
+
+        return -1;
+    }
+
     private static int[] readAddresses(
             RegistryFriendlyByteBuf buffer
     ) {
         int[] result =
                 new int[VocoCallerPhonebook.ROW_COUNT];
 
-        for (int row = 0; row < result.length; row++) {
-            result[row] = buffer.readInt();
+        for (
+                int row = 0;
+                row < result.length;
+                row++
+        ) {
+            result[row] =
+                    buffer.readInt();
         }
 
         return result;
