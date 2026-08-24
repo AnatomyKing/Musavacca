@@ -1,8 +1,10 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/data/language/ModLanguageProvider.java
 package space.anatomyuniverse.musavacca.data.language;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -26,7 +28,14 @@ public final class ModLanguageProvider extends LanguageProvider {
         // Examples (uncomment if needed):
         // OVERRIDES.put("item.anynology.purpish_anytomithium_ingot", "Purplish Anytomithium Ingot");
         // OVERRIDES.put("block.anynology.some_block", "Some Block");
-        OVERRIDES.put("block.musavacca.hex_block", "Lopha Flower");
+        OVERRIDES.put(
+                "block.musavacca.hex_block",
+                "Lopha Flower"
+        );
+        OVERRIDES.put(
+                "item.musavacca.banana_phone.empty.description",
+                "Can hold one valid SIM card"
+        );
     }
 
     public ModLanguageProvider(PackOutput output, String locale) {
@@ -50,6 +59,13 @@ public final class ModLanguageProvider extends LanguageProvider {
             if (id == null || !modid.equals(id.getNamespace())) continue;
 
             addGenerated(generatedKeys, it.getDescriptionId(), humanize(id.getPath()));
+        }
+
+        for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
+            ResourceLocation id = BuiltInRegistries.MOB_EFFECT.getKey(effect);
+            if (id == null || !modid.equals(id.getNamespace())) continue;
+
+            addGenerated(generatedKeys, effect.getDescriptionId(), humanize(id.getPath()));
         }
 
         addSmithingTemplateTranslations(generatedKeys);
@@ -83,13 +99,17 @@ public final class ModLanguageProvider extends LanguageProvider {
     private static String humanize(String registryPath) {
         String[] parts = registryPath.toLowerCase(Locale.ROOT).split("[_\\-]+");
         StringBuilder out = new StringBuilder(parts.length * 6);
+
         for (String p : parts) {
             if (p.isEmpty()) continue;
+
             out.append(Character.toUpperCase(p.charAt(0)))
                     .append(p.length() > 1 ? p.substring(1) : "")
                     .append(' ');
         }
+
         String s = out.toString().trim();
+
         return s.replace("Tnt", "TNT")
                 .replace("Tv", "TV")
                 .replace("Gps", "GPS");

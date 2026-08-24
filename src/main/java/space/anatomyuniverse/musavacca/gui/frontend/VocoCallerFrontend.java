@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/gui/frontend/VocoCallerFrontend.java
 package space.anatomyuniverse.musavacca.gui.frontend;
 
 //? if <1.21.6
@@ -12,10 +13,15 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+//? if >=1.21.7
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+//? if <1.21.7
+//import net.neoforged.neoforge.network.PacketDistributor;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.gui.backend.VocoCallerBackend;
 import space.anatomyuniverse.musavacca.gui.backend.VocoDialerBackend;
 import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
+import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 
 public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCallerMenu> {
     private static final int GUI_WIDTH = 286;
@@ -369,8 +375,43 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
     private void sendBackendButton(int buttonId) {
         if (!VocoDialerBackend.isKnownButton(buttonId)) return;
         if (this.minecraft == null || this.minecraft.player == null || this.minecraft.gameMode == null) return;
+
+        String before = this.backend().getCurrentDialed();
+
+        boolean completesCall =
+                buttonId > VocoDialerBackend.BUTTON_CLEAR
+                        || buttonId >= VocoDialerBackend.BUTTON_HEX_0
+                        && buttonId <= VocoDialerBackend.BUTTON_HEX_F
+                        && before != null
+                        && before.length() == 5;
+
         if (!this.menu.clickMenuButton(this.minecraft.player, buttonId)) return;
+
+        /*
+         * Only flush list edits when a call is about to let the server close
+         * this menu. Normal list editing stays entirely local until onClose().
+         */
+        if (completesCall) {
+            this.syncCallStateToServer();
+        }
+
         this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, buttonId);
+    }
+
+    private void syncCallStateToServer() {
+        VocoCallerStatePayload payload =
+                new VocoCallerStatePayload(
+                        this.menu.containerId,
+                        this.menu.getPhoneHex(),
+                        this.backend().copyRecentAddresses(),
+                        this.backend().copySavedAddresses()
+                );
+
+        //? if >=1.21.7 {
+        ClientPacketDistributor.sendToServer(payload);
+        //?} else {
+        /*PacketDistributor.sendToServer(payload);
+        *///?}
     }
 
     public void setRecentCall(int row, String hexCode) {
@@ -401,6 +442,12 @@ public final class VocoCallerFrontend extends AbstractContainerScreen<VocoCaller
     public void clearSavedNumber(int row) {
         this.backend().clearSavedNumber(row);
         this.ensureCaretOnFilledEntry();
+    }
+
+    @Override
+    public void onClose() {
+        this.syncCallStateToServer();
+        super.onClose();
     }
 
     @Override

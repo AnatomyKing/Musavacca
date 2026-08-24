@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/ModNetworking.java
 package space.anatomyuniverse.musavacca;
 
 import net.neoforged.bus.api.IEventBus;
@@ -9,6 +10,7 @@ import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerSyncPayload;
 //? if <1.21.6
 //import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
 import space.anatomyuniverse.musavacca.gui.menu.payloads.FlintAndPearlColorPayload;
+import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraSelectionPayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraStartPayload;
 
@@ -44,6 +46,11 @@ public final class ModNetworking {
                         FlintAndPearlColorPayload.TYPE,
                         FlintAndPearlColorPayload.STREAM_CODEC,
                         FlintAndPearlColorPayload::handle
+                )
+                .playToServer(
+                        VocoCallerStatePayload.TYPE,
+                        VocoCallerStatePayload.STREAM_CODEC,
+                        VocoCallerStatePayload::handle
                 );
         //?} else {
         /*event.registrar("musavacca")
@@ -68,6 +75,11 @@ public final class ModNetworking {
                         FlintAndPearlColorPayload.TYPE,
                         FlintAndPearlColorPayload.STREAM_CODEC,
                         FlintAndPearlColorPayload::handle
+                )
+                .playToServer(
+                        VocoCallerStatePayload.TYPE,
+                        VocoCallerStatePayload.STREAM_CODEC,
+                        VocoCallerStatePayload::handle
                 );
         *///?}
     }

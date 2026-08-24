@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/teleport/HexTeleportDirectory.java
 package space.anatomyuniverse.musavacca.teleport;
 
 import com.mojang.serialization.Codec;
@@ -286,6 +287,23 @@ public final class HexTeleportDirectory extends SavedData {
         }
     }
 
+    public record PhoneRegistration(
+            int hexColor,
+            UUID ownerUuid
+    ) {
+        public static final Codec<PhoneRegistration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.INT.fieldOf("hex_color").forGetter(PhoneRegistration::hexColor),
+                UUID_CODEC.fieldOf("owner_uuid").forGetter(PhoneRegistration::ownerUuid)
+        ).apply(instance, PhoneRegistration::new));
+
+        public PhoneRegistration normalized() {
+            return new PhoneRegistration(
+                    normalizeHex(this.hexColor),
+                    this.ownerUuid
+            );
+        }
+    }
+
     public record VocoRegistration(Result result, Endpoint removedActiveEndpoint) {}
 
     /*
@@ -301,7 +319,8 @@ public final class HexTeleportDirectory extends SavedData {
             Endpoint.CODEC.listOf().fieldOf("endpoints").forGetter(data -> data.active.entries),
             Endpoint.CODEC.listOf().fieldOf("pending_endpoints").forGetter(data -> data.pending.entries),
             DoorEndpoint.CODEC.listOf().fieldOf("door_endpoints").forGetter(data -> data.doors.entries),
-            DoorEndpoint.CODEC.listOf().fieldOf("pending_door_endpoints").forGetter(data -> data.pendingDoors.entries)
+            DoorEndpoint.CODEC.listOf().fieldOf("pending_door_endpoints").forGetter(data -> data.pendingDoors.entries),
+            PhoneRegistration.CODEC.listOf().optionalFieldOf("phone_registrations", List.of()).forGetter(data -> data.phoneRegistrations)
     ).apply(instance, HexTeleportDirectory::new));
 
     public static final SavedDataType<HexTeleportDirectory> TYPE =
@@ -326,6 +345,7 @@ public final class HexTeleportDirectory extends SavedData {
     private final EndpointStore pending = new EndpointStore();
     private final DoorEndpointStore doors = new DoorEndpointStore();
     private final DoorEndpointStore pendingDoors = new DoorEndpointStore();
+    private final ArrayList<PhoneRegistration> phoneRegistrations = new ArrayList<>();
 
     public HexTeleportDirectory() {}
 
@@ -333,13 +353,27 @@ public final class HexTeleportDirectory extends SavedData {
             List<Endpoint> endpoints,
             List<Endpoint> pendingEndpoints,
             List<DoorEndpoint> doorEndpoints,
-            List<DoorEndpoint> pendingDoorEndpoints
+            List<DoorEndpoint> pendingDoorEndpoints,
+            List<PhoneRegistration> phoneRegistrations
     ) {
         this.active.entries.addAll(endpoints);
         this.pending.entries.addAll(pendingEndpoints);
         this.doors.entries.addAll(doorEndpoints);
         this.pendingDoors.entries.addAll(pendingDoorEndpoints);
+
+        if (phoneRegistrations != null) {
+            for (PhoneRegistration registration : phoneRegistrations) {
+                if (registration != null
+                        && registration.ownerUuid() != null) {
+                    this.phoneRegistrations.add(
+                            registration.normalized()
+                    );
+                }
+            }
+        }
+
         this.rebuildIndex();
+        this.normalizeLoadedPhoneRegistrations();
     }
 
     public static HexTeleportDirectory get(MinecraftServer server) {
@@ -359,13 +393,14 @@ public final class HexTeleportDirectory extends SavedData {
         int hex = normalizeHex(hexColor);
 
         return this.active.hasHex(hex)
-                || this.isDoorHexReserved(hex);
+                || this.isDoorHexReserved(hex)
+                || this.hasPhoneHex(hex);
     }
 
     private boolean isHexReservedByOther(int hexColor, Endpoint self) {
         int hex = normalizeHex(hexColor);
 
-        if (this.isDoorHexReserved(hex)) {
+        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) {
             return true;
         }
 
@@ -499,7 +534,7 @@ public final class HexTeleportDirectory extends SavedData {
 
         int hex = normalizeHex(hexColor);
 
-        if (this.isDoorHexReserved(hex)) {
+        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) {
             return Result.HEX_OCCUPIED;
         }
 
@@ -604,6 +639,7 @@ public final class HexTeleportDirectory extends SavedData {
          * Voco/Pearl ownership blocks door ownership.
          */
         if (this.active.hasHex(hex)
+                || this.hasPhoneHex(hex)
                 || this.doors.countByHex(hex) >= 2) {
             return Result.HEX_OCCUPIED;
         }
@@ -681,6 +717,7 @@ public final class HexTeleportDirectory extends SavedData {
         }
 
         if (this.active.hasHex(hex)
+                || this.hasPhoneHex(hex)
                 || this.doors.countByHex(hex) >= 2) {
             return Result.HEX_OCCUPIED;
         }
@@ -712,6 +749,87 @@ public final class HexTeleportDirectory extends SavedData {
         this.pendingDoors.add(candidate);
         this.setDirty();
         return Result.WAITING_FOR_SECOND_TRAPDOOR;
+    }
+
+    public Result registerPhone(
+            int hexColor,
+            UUID ownerUuid
+    ) {
+        if (ownerUuid == null) {
+            return Result.INVALID_OWNER;
+        }
+
+        int hex = normalizeHex(hexColor);
+
+        if (this.isHexReserved(hex)) {
+            return Result.HEX_OCCUPIED;
+        }
+
+        this.phoneRegistrations.add(
+                new PhoneRegistration(
+                        hex,
+                        ownerUuid
+                )
+        );
+
+        this.setDirty();
+        return Result.REGISTERED;
+    }
+
+    public Optional<PhoneRegistration> getPhoneRegistrationByHex(
+            int hexColor
+    ) {
+        int hex = normalizeHex(hexColor);
+
+        for (PhoneRegistration registration : this.phoneRegistrations) {
+            if (registration.hexColor() == hex) {
+                return Optional.of(registration);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<PhoneRegistration> removePhoneRegistration(
+            int hexColor,
+            UUID ownerUuid
+    ) {
+        int hex = normalizeHex(hexColor);
+
+        for (int index = 0; index < this.phoneRegistrations.size(); index++) {
+            PhoneRegistration registration =
+                    this.phoneRegistrations.get(index);
+
+            if (registration.hexColor() == hex
+                    && registration.ownerUuid().equals(ownerUuid)) {
+                this.phoneRegistrations.remove(index);
+                this.setDirty();
+                return Optional.of(registration);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private boolean hasPhoneHex(int hexColor) {
+        return this.getPhoneRegistrationByHex(hexColor).isPresent();
+    }
+
+    private void normalizeLoadedPhoneRegistrations() {
+        ArrayList<PhoneRegistration> raw =
+                new ArrayList<>(
+                        this.phoneRegistrations
+                );
+
+        this.phoneRegistrations.clear();
+
+        for (PhoneRegistration registration : raw) {
+            if (!this.active.hasHex(registration.hexColor())
+                    && !this.isDoorHexReserved(registration.hexColor())
+                    && !this.hasPhoneHex(registration.hexColor())) {
+                this.phoneRegistrations.add(registration);
+            }
+        }
     }
 
     public Optional<Endpoint> getEndpoint(UUID endpointId) {
@@ -842,7 +960,7 @@ public final class HexTeleportDirectory extends SavedData {
     public boolean isHexFullyOccupiedByPortals(int hexColor) {
         int hex = normalizeHex(hexColor);
 
-        if (this.isDoorHexReserved(hex)) {
+        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) {
             return true;
         }
 
@@ -862,7 +980,7 @@ public final class HexTeleportDirectory extends SavedData {
     public boolean isHexWaitingForSecondPortal(int hexColor) {
         int hex = normalizeHex(hexColor);
 
-        if (this.isDoorHexReserved(hex)) {
+        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) {
             return false;
         }
 

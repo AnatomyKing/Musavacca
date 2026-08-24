@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/teleport/HexTeleportAddressNetwork.java
 package space.anatomyuniverse.musavacca.teleport;
 
 import net.minecraft.core.registries.Registries;
@@ -156,16 +157,7 @@ public final class HexTeleportAddressNetwork {
                         );
 
 
-        if (
-                directory.isDoorHexReserved(
-                        hex
-                )
-                        || !directory
-                        .getEndpointsByHex(
-                                hex
-                        )
-                        .isEmpty()
-        ) {
+        if (directory.isHexReserved(hex)) {
             return;
         }
 
@@ -206,16 +198,7 @@ public final class HexTeleportAddressNetwork {
                     pending
             );
 
-            if (
-                    directory.isDoorHexReserved(
-                            hex
-                    )
-                            || !directory
-                            .getEndpointsByHex(
-                                    hex
-                            )
-                            .isEmpty()
-            ) {
+            if (directory.isHexReserved(hex)) {
                 return;
             }
         }

@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/teleport/HexTeleportResolver.java
 package space.anatomyuniverse.musavacca.teleport;
 
 import net.minecraft.core.BlockPos;
@@ -28,6 +29,7 @@ import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalTrapdo
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
+import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 
 import java.util.HashSet;
 import java.util.List;
@@ -87,6 +89,21 @@ public final class HexTeleportResolver {
                 HexTeleportDirectory.get(
                         server
                 );
+
+        HexTeleportDirectory.PhoneRegistration phone =
+                directory
+                        .getPhoneRegistrationByHex(
+                                normalizedHex
+                        )
+                        .orElse(null);
+
+        if (phone != null) {
+            return VocoCallerNetwork
+                    .teleportToPhone(
+                            player,
+                            phone
+                    );
+        }
 
         /*
          * Re-read the hex index after stale cleanup.
@@ -805,12 +822,22 @@ public final class HexTeleportResolver {
             ServerPlayer player,
             ResolvedEndpoint resolved
     ) {
-        ServerLevel targetLevel =
-                resolved.level();
+        teleportToTarget(
+                player,
+                resolved.level(),
+                resolved.targetPos(),
+                resolved.yaw(),
+                resolved.pitch()
+        );
+    }
 
-        Vec3 wantedPos =
-                resolved.targetPos();
-
+    public static void teleportToTarget(
+            ServerPlayer player,
+            ServerLevel targetLevel,
+            Vec3 wantedPos,
+            float yaw,
+            float pitch
+    ) {
         EntityDimensions dimensions =
                 player.getDimensions(
                         player.getPose()
@@ -838,8 +865,8 @@ public final class HexTeleportResolver {
                     safePos.x,
                     safePos.y,
                     safePos.z,
-                    resolved.yaw(),
-                    resolved.pitch()
+                    yaw,
+                    pitch
             );
         } else {
             player.teleportTo(
@@ -848,20 +875,14 @@ public final class HexTeleportResolver {
                     safePos.y,
                     safePos.z,
                     Set.of(),
-                    resolved.yaw(),
-                    resolved.pitch(),
+                    yaw,
+                    pitch,
                     true
             );
         }
 
-        player.setYHeadRot(
-                resolved.yaw()
-        );
-
-        player.setYBodyRot(
-                resolved.yaw()
-        );
-
+        player.setYHeadRot(yaw);
+        player.setYBodyRot(yaw);
         player.setPortalCooldown();
 
         targetLevel.playSound(

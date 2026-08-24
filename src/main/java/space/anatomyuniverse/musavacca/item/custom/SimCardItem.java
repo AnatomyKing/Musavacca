@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/item/custom/SimCardItem.java
 
 package space.anatomyuniverse.musavacca.item.custom;
 
@@ -5,6 +6,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
+import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
 
 public class SimCardItem extends Item {
     public SimCardItem(Properties properties) {
@@ -26,5 +28,12 @@ public class SimCardItem extends Item {
 
     public static void setStoredHex(ItemStack stack, int hexColor) {
         stack.set(ModDataComponents.HEX_COLOR.get(), TintColorUtil.rgb(hexColor));
+    }
+
+    public static VocoCallerPhonebook getPhonebook(ItemStack stack) {
+        return stack.getOrDefault(
+                ModDataComponents.VOCO_CALLER_PHONEBOOK.get(),
+                VocoCallerPhonebook.EMPTY_PHONEBOOK
+        );
     }
 }

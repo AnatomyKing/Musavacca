@@ -22,6 +22,8 @@ import space.anatomyuniverse.musavacca.client.ModClientRenderLayers;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
+import space.anatomyuniverse.musavacca.effect.BananaCowBlessingEvents;
+import space.anatomyuniverse.musavacca.effect.ModMobEffects;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntityRenderers;
 import space.anatomyuniverse.musavacca.gui.ModMenuEvents;
@@ -34,6 +36,7 @@ import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.portal.PearlPortalServerEvents;
 import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.tint.ModTints;
+import space.anatomyuniverse.musavacca.vococaller.VocoCallerTooltipClient;
 
 //? if <1.21.9
 import net.neoforged.fml.loading.FMLLoader;
@@ -61,12 +64,12 @@ public final class MusaCore {
         ModCreativeTabs.register(modBus);
         ModFeatures.register(modBus);
         ModDataComponents.register(modBus);
+        ModMobEffects.register(modBus);
         ComponentRecipeDSL.register(modBus);
         ModBlockEntities.register(modBus);
         ModMenuRegistries.register(modBus);
         ModParticleTypes.register(modBus);
         ModEntities.register(modBus);
-
         ModAttachments.register(modBus);
         ModNetworking.register(modBus);
 
@@ -87,6 +90,10 @@ public final class MusaCore {
                 BalanceEvents.class
         );
 
+        NeoForge.EVENT_BUS.register(
+                BananaCowBlessingEvents.class
+        );
+
         NeoForge.EVENT_BUS.addListener(
                 VocoTableItemDisplayLogic
                         ::onRightClickBlock
@@ -98,6 +105,10 @@ public final class MusaCore {
                 .getDist() == Dist.CLIENT
         ) {
             ModTints.register(modBus);
+
+            modBus.addListener(
+                    VocoCallerTooltipClient::register
+            );
 
             modBus.addListener(
                     MusaRenderLayers::onModifyBakingResult

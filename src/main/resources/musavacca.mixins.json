@@ -9,7 +9,8 @@
   "client": [
     "client.BlockModelWrapperMixin",
     "client.HumanoidMobRendererMixin",
-    "client.EquipmentLayerRendererMixin"
+    "client.EquipmentLayerRendererMixin",
+    "client.ClientBundleTooltipAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

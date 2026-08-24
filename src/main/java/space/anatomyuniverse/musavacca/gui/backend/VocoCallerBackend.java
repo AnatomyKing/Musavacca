@@ -1,30 +1,42 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/gui/backend/VocoCallerBackend.java
 package space.anatomyuniverse.musavacca.gui.backend;
 
 import net.minecraft.world.entity.player.Player;
+import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
 
 import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class VocoCallerBackend extends VocoDialerBackend {
-    public static final int ROW_COUNT = 13;
+    public static final int ROW_COUNT = VocoCallerPhonebook.ROW_COUNT;
 
-    private static final Map<UUID, CallState> CLIENT_SESSIONS = new ConcurrentHashMap<>();
-    private static final Map<UUID, CallState> SERVER_SESSIONS = new ConcurrentHashMap<>();
+    private final CallState state = new CallState();
 
-    private final CallState state;
+    public VocoCallerBackend(VocoCallerPhonebook phonebook) {
+        VocoCallerPhonebook initial =
+                phonebook == null
+                        ? VocoCallerPhonebook.EMPTY_PHONEBOOK
+                        : phonebook;
 
-    public VocoCallerBackend(Player player) {
-        Map<UUID, CallState> sessions = player.level().isClientSide() ? CLIENT_SESSIONS : SERVER_SESSIONS;
-        this.state = sessions.computeIfAbsent(player.getUUID(), ignored -> new CallState());
+        this.replaceCallState(
+                initial.recentArray(),
+                initial.savedArray()
+        );
     }
 
     @Override
     protected void onAddressDialed(Player player, int address) {
+        if (player.level().isClientSide()) {
+            this.state.pendingRecentCall = formatHex(address);
+            super.onAddressDialed(player, address);
+            return;
+        }
+
+        /*
+         * Record first. A successful teleport closes the menu, and menu close
+         * is what writes this session back into the SIM component.
+         */
+        this.pushRecentCallToTop(address);
         super.onAddressDialed(player, address);
-        if (player.level().isClientSide()) this.state.pendingRecentCall = formatHex(address);
-        else this.pushRecentCallToTop(address);
     }
 
     @Override
@@ -45,6 +57,40 @@ public final class VocoCallerBackend extends VocoDialerBackend {
     public void restoreCallState(CallStateSnapshot snapshot) {
         System.arraycopy(snapshot.recentCalls, 0, this.state.recentCalls, 0, ROW_COUNT);
         System.arraycopy(snapshot.savedNumbers, 0, this.state.savedNumbers, 0, ROW_COUNT);
+    }
+
+    public void replaceCallState(
+            int[] recent,
+            int[] saved
+    ) {
+        fillFromAddresses(
+                this.state.recentCalls,
+                recent
+        );
+
+        fillFromAddresses(
+                this.state.savedNumbers,
+                saved
+        );
+    }
+
+    public VocoCallerPhonebook toPhonebook() {
+        return VocoCallerPhonebook.of(
+                this.copyRecentAddresses(),
+                this.copySavedAddresses()
+        );
+    }
+
+    public int[] copyRecentAddresses() {
+        return copyAddresses(
+                this.state.recentCalls
+        );
+    }
+
+    public int[] copySavedAddresses() {
+        return copyAddresses(
+                this.state.savedNumbers
+        );
     }
 
     public String getRecentCall(int row) {
@@ -210,6 +256,37 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         int targetRow = filledRows[filledCount - 1];
         this.state.savedNumbers[targetRow] = moving;
         return targetRow;
+    }
+
+    private static int[] copyAddresses(
+            String[] values
+    ) {
+        int[] result = new int[ROW_COUNT];
+
+        for (int row = 0; row < ROW_COUNT; row++) {
+            result[row] =
+                    values[row] == null
+                            ? VocoCallerPhonebook.EMPTY
+                            : parseHex(values[row]);
+        }
+
+        return result;
+    }
+
+    private static void fillFromAddresses(
+            String[] target,
+            int[] values
+    ) {
+        for (int row = 0; row < ROW_COUNT; row++) {
+            target[row] =
+                    values != null
+                            && row < values.length
+                            && values[row] >= 0
+                            ? formatHex(values[row])
+                            : null;
+        }
+
+        compact(target);
     }
 
     private static void swap(String[] values, int first, int second) {

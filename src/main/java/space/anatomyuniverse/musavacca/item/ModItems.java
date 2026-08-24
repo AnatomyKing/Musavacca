@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/item/ModItems.java
 package space.anatomyuniverse.musavacca.item;
 
 import net.minecraft.Util;
@@ -14,6 +15,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.BlockItemStateProperties;
+import net.minecraft.world.item.component.BundleContents;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.equipment.ArmorMaterial;
@@ -259,6 +261,11 @@ public final class ModItems {
                     "banana_phone",
                     props -> new OpenVocoCallerItem(
                             props.rarity(Rarity.RARE)
+                                    .stacksTo(1)
+                                    .component(
+                                            DataComponents.BUNDLE_CONTENTS,
+                                            BundleContents.EMPTY
+                                    )
                     )
             );
 
@@ -276,6 +283,7 @@ public final class ModItems {
                     props -> new SimCardItem(
                             props.rarity(Rarity.RARE)
                                     .fireResistant()
+                                    .stacksTo(1)
                     )
             );
 
@@ -363,18 +371,24 @@ public final class ModItems {
                     )
             );
 
-    public static final DeferredItem<Item> BANANA_MILK_BUCKET =
+    public static final DeferredItem<BananaMilkBucketItem>
+            BANANA_MILK_BUCKET =
             ITEMS.registerItem(
                     "banana_milk_bucket",
-                    props -> new Item(
-                            props.stacksTo(1)
-                                    .craftRemainder(Items.BUCKET)
-                                    .usingConvertsTo(Items.BUCKET)
-                                    .component(
-                                            DataComponents.CONSUMABLE,
-                                            Consumables.MILK_BUCKET
-                                    )
-                    )
+                    props ->
+                            new BananaMilkBucketItem(
+                                    props.stacksTo(1)
+                                            .craftRemainder(
+                                                    Items.BUCKET
+                                            )
+                                            .usingConvertsTo(
+                                                    Items.BUCKET
+                                            )
+                                            .component(
+                                                    DataComponents.CONSUMABLE,
+                                                    Consumables.MILK_BUCKET
+                                            )
+                            )
             );
 
     public static final DeferredItem<Item>
