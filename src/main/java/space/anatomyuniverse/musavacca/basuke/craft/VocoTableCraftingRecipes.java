@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.basuke.craft;
 
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
@@ -15,22 +16,18 @@ public final class VocoTableCraftingRecipes {
             VocoTableEatingLogic.DEFAULT_EATING_TIME_TICKS;
 
     private static final List<VocoTableCraftingRecipe> RECIPES = List.of(
-            recipe(Items.DIAMOND_SWORD, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_SWORD.get(), 2),
-            recipe(Items.DIAMOND_PICKAXE, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_PICKAXE.get(), 2),
-            recipe(Items.DIAMOND_SHOVEL, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_SHOVEL.get(), 2),
-            recipe(Items.DIAMOND_HOE, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_HOE.get(), 2),
-            recipe(Items.DIAMOND_AXE, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_AXE.get(), 2),
-
-            recipe(Items.DIAMOND_HELMET, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_HELMET.get(), 2),
-            recipe(Items.DIAMOND_CHESTPLATE, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_CHESTPLATE.get(), 2),
-            recipe(Items.DIAMOND_LEGGINGS, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_LEGGINGS.get(), 2),
-            recipe(Items.DIAMOND_BOOTS, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_BOOTS.get(), 2),
-
             recipe(
                     ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
                     ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
                     2
+            ),
+            recipe(
+                    ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
+                    ModItems.POTASSIUM_INGOT.get(),
+                    ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
+                    1,
+                    true
             ),
             recipe(
                     ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
@@ -40,6 +37,7 @@ public final class VocoTableCraftingRecipes {
                     true
             ),
 
+
             recipe(
                     ModItems.MUSAVACCA_DOOR,
                     ModItems.BANANA_PEARL.get(),
@@ -47,13 +45,6 @@ public final class VocoTableCraftingRecipes {
                     1,
                     true
             ),
-
-            /*
-             * The trapdoor keeps one block-item id for now. The Voco Table
-             * injects HEX_COLOR into that stack; the trapdoor block entity
-             * consumes the component on placement and immediately derives
-             * LIT_PORTAL from the stored address.
-             */
             recipe(
                     ModBlocks.MUSAVACCA_TRAPDOOR.get(),
                     ModItems.BANANA_PEARL.get(),
@@ -61,7 +52,6 @@ public final class VocoTableCraftingRecipes {
                     1,
                     true
             ),
-
             recipe(
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
@@ -70,7 +60,12 @@ public final class VocoTableCraftingRecipes {
                     true
             ),
 
-            recipe(Items.NAME_TAG, ModItems.SMALL_BANANA_PEARL.get(), ModItems.SIM_CARD.get(), 1)
+            recipe(
+                    Items.NAME_TAG,
+                    ModItems.SMALL_BANANA_PEARL.get(),
+                    ModItems.SIM_CARD.get(),
+                    1
+            )
     );
 
     private VocoTableCraftingRecipes() {}
@@ -81,33 +76,53 @@ public final class VocoTableCraftingRecipes {
 
     @Nullable
     public static VocoTableCraftingRecipe findMatchingRecipe(
-            net.minecraft.world.item.ItemStack displayedStack,
-            net.minecraft.world.item.ItemStack edibleStack
+            ItemStack displayedStack,
+            ItemStack edibleStack
     ) {
+        return findMatchingRecipe(
+                displayedStack,
+                edibleStack,
+                false
+        );
+    }
+
+    @Nullable
+    public static VocoTableCraftingRecipe findMatchingRecipe(
+            ItemStack displayedStack,
+            ItemStack edibleStack,
+            boolean matchingCandleColorAvailable
+    ) {
+        if (
+                displayedStack.is(
+                        ModBlocks.MUSAVACCA_TRAPDOOR.get().asItem()
+                )
+                        && displayedStack.get(
+                        ModDataComponents.HEX_COLOR.get()
+                ) != null
+        ) {
+            return null;
+        }
+
+        VocoTableCraftingRecipe normalFallback = null;
+
         for (VocoTableCraftingRecipe recipe : RECIPES) {
-            /*
-             * Equivalent to the door's base -> imbued item transition:
-             * once this one-id trapdoor already carries HEX_COLOR, it is
-             * considered imbued and cannot consume another Banana Pearl
-             * through the base trapdoor recipe.
-             */
-            if (
-                    displayedStack.is(
-                            ModBlocks.MUSAVACCA_TRAPDOOR.get().asItem()
-                    )
-                            && displayedStack.get(
-                            ModDataComponents.HEX_COLOR.get()
-                    ) != null
-            ) {
+            if (!recipe.matches(displayedStack, edibleStack)) {
+                continue;
+            }
+            if (recipe.hexColorInject()) {
+                if (matchingCandleColorAvailable) {
+                    return recipe;
+                }
+
                 continue;
             }
 
-            if (recipe.matches(displayedStack, edibleStack)) {
-                return recipe;
+            if (normalFallback == null) {
+                normalFallback = recipe;
             }
         }
 
-        return null;
+        return normalFallback;
     }
 
     private static VocoTableCraftingRecipe recipe(
@@ -116,7 +131,13 @@ public final class VocoTableCraftingRecipes {
             ItemLike result,
             int litReceptorCost
     ) {
-        return recipe(display, edible, result, litReceptorCost, false);
+        return recipe(
+                display,
+                edible,
+                result,
+                litReceptorCost,
+                false
+        );
     }
 
     private static VocoTableCraftingRecipe recipe(

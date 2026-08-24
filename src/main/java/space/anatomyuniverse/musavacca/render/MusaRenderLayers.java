@@ -61,7 +61,9 @@ public final class MusaRenderLayers {
             ModBlocks.MUSAVACCA_PLANT.get(),
             ModBlocks.MUSAVACCA_PSEUDOSTEM.get(),
             ModBlocks.MUSAVACCA_DOOR.get(),
-            ModBlocks.MUSAVACCA_TRAPDOOR.get()
+            ModBlocks.MUSAVACCA_TRAPDOOR.get(),
+            ModBlocks.CAROTENE_SHORT_GRASS.get(),
+            ModBlocks.CAROTENE_TALL_GRASS.get()
     );
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(

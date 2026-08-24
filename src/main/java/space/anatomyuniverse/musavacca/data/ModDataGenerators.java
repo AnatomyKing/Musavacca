@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/data/ModDataGenerators.java
 package space.anatomyuniverse.musavacca.data;
 
 import net.minecraft.data.loot.LootTableProvider;
@@ -6,6 +7,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import space.anatomyuniverse.musavacca.data.language.ModLanguageProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModBlockLootProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModGlobalLootModifierProvider;
+import space.anatomyuniverse.musavacca.data.loot.ModJungleTempleLootProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModMobLootProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModSnifferDiggingLootProvider;
 import space.anatomyuniverse.musavacca.data.models.ModModelProvider;
@@ -133,6 +135,10 @@ public final class ModDataGenerators {
                                     new LootTableProvider.SubProviderEntry(
                                             ModSnifferDiggingLootProvider::new,
                                             LootContextParamSets.GIFT
+                                    ),
+                                    new LootTableProvider.SubProviderEntry(
+                                            ModJungleTempleLootProvider::new,
+                                            LootContextParamSets.CHEST
                                     )
                             ),
                             event.getLookupProvider()
@@ -195,6 +201,10 @@ public final class ModDataGenerators {
                                 new LootTableProvider.SubProviderEntry(
                                         ModSnifferDiggingLootProvider::new,
                                         LootContextParamSets.GIFT
+                                ),
+                                new LootTableProvider.SubProviderEntry(
+                                        ModJungleTempleLootProvider::new,
+                                        LootContextParamSets.CHEST
                                 )
                         ),
                         lookup

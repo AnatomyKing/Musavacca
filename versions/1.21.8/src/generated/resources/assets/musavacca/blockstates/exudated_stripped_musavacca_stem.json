@@ -1,15 +1,39 @@
 {
   "variants": {
-    "axis=x": {
+    "axis=x,stage=0": {
       "model": "musavacca:block/exudated_stripped_musavacca_stem",
       "x": 90,
       "y": 90
     },
-    "axis=y": {
+    "axis=x,stage=1": {
+      "model": "musavacca:block/exudated_stripped_musavacca_stem_stage1",
+      "x": 90,
+      "y": 90
+    },
+    "axis=x,stage=2": {
+      "model": "musavacca:block/exudated_stripped_musavacca_stem_stage2",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,stage=0": {
       "model": "musavacca:block/exudated_stripped_musavacca_stem"
     },
-    "axis=z": {
+    "axis=y,stage=1": {
+      "model": "musavacca:block/exudated_stripped_musavacca_stem_stage1"
+    },
+    "axis=y,stage=2": {
+      "model": "musavacca:block/exudated_stripped_musavacca_stem_stage2"
+    },
+    "axis=z,stage=0": {
       "model": "musavacca:block/exudated_stripped_musavacca_stem",
+      "x": 90
+    },
+    "axis=z,stage=1": {
+      "model": "musavacca:block/exudated_stripped_musavacca_stem_stage1",
+      "x": 90
+    },
+    "axis=z,stage=2": {
+      "model": "musavacca:block/exudated_stripped_musavacca_stem_stage2",
       "x": 90
     }
   }

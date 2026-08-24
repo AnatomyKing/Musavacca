@@ -7,6 +7,7 @@ import net.minecraft.world.item.DoubleHighBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
@@ -104,14 +105,20 @@ public final class ModBlocks {
                             .requiresCorrectToolForDrops()
                             .pushReaction(PushReaction.NORMAL)));
 
-    public static final DeferredBlock<RotatedPillarBlock> EXUDATED_STRIPPED_MUSAVACCA_STEM =
-            BLOCKS.registerBlock("exudated_stripped_musavacca_stem",
-                    props -> new RotatedPillarBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
-                            .strength(3.0F, 6.0F)
-                            .sound(SoundType.WOOD)
-                            .requiresCorrectToolForDrops()
-                            .pushReaction(PushReaction.NORMAL)));
+    public static final DeferredBlock<ExudatedStrippedMusavaccaStemBlock>
+            EXUDATED_STRIPPED_MUSAVACCA_STEM =
+            BLOCKS.registerBlock(
+                    "exudated_stripped_musavacca_stem",
+                    props -> new ExudatedStrippedMusavaccaStemBlock(
+                            props
+                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .strength(3.0F, 6.0F)
+                                    .sound(SoundType.WOOD)
+                                    .requiresCorrectToolForDrops()
+                                    .pushReaction(PushReaction.NORMAL),
+                            STRIPPED_MUSAVACCA_STEM
+                    )
+            );
 
     public static final DeferredBlock<StrippableMusavaccaStemBlock> MUSAVACCA_STEM =
             BLOCKS.registerBlock("musavacca_stem",
@@ -513,6 +520,49 @@ public final class ModBlocks {
 
 
 
+
+
+    public static final DeferredBlock<CaroteneGrassBlock> CAROTENE_GRASS =
+            BLOCKS.registerBlock("carotene_grass",
+                    props -> new CaroteneGrassBlock(
+                            props.mapColor(MapColor.COLOR_ORANGE)
+                                    .strength(0.6F)
+                                    .sound(SoundType.GRASS)
+                                    .randomTicks()
+                                    .pushReaction(PushReaction.NORMAL)
+                    ));
+
+    public static final DeferredBlock<CaroteneShortGrassBlock> CAROTENE_SHORT_GRASS =
+            BLOCKS.registerBlock("carotene_short_grass",
+                    props -> new CaroteneShortGrassBlock(
+                            props.mapColor(MapColor.PLANT)
+                                    .replaceable()
+                                    //? if <1.21.10 {
+                                    .noCollission()
+                                    //?} else {
+                                    /*.noCollision()
+                                     *///?}
+                                    .instabreak()
+                                    .sound(SoundType.GRASS)
+                                    .offsetType(BlockBehaviour.OffsetType.XZ)
+                                    .pushReaction(PushReaction.DESTROY)
+                    ));
+
+    public static final DeferredBlock<DoublePlantBlock> CAROTENE_TALL_GRASS =
+            BLOCKS.registerBlock("carotene_tall_grass",
+                    props -> new DoublePlantBlock(
+                            props.mapColor(MapColor.PLANT)
+                                    .replaceable()
+                                    //? if <1.21.10 {
+                                    .noCollission()
+                                    //?} else {
+                                    /*.noCollision()
+                                     *///?}
+                                    .instabreak()
+                                    .sound(SoundType.GRASS)
+                                    .offsetType(BlockBehaviour.OffsetType.XZ)
+                                    .pushReaction(PushReaction.DESTROY)
+                    ));
 
     private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
 //            HEX_BLOCK

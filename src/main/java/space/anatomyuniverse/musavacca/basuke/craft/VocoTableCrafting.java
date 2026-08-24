@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/basuke/craft/VocoTableCrafting.java
 package space.anatomyuniverse.musavacca.basuke.craft;
 
 import net.minecraft.core.BlockPos;
@@ -67,10 +68,20 @@ public final class VocoTableCrafting {
             return null;
         }
 
+        /*
+         * Determine candle availability before selecting the recipe.
+         *
+         * When matching candles exist, a HEX_COLOR recipe receives
+         * priority over an otherwise identical normal recipe.
+         */
+        Integer matchingCandleColor =
+                matchingFourCandleColor(tableBe);
+
         VocoTableCraftingRecipe recipe =
                 VocoTableCraftingRecipes.findMatchingRecipe(
                         displayedStack,
-                        edibleStack
+                        edibleStack,
+                        matchingCandleColor != null
                 );
 
         if (recipe == null) {
@@ -85,9 +96,13 @@ public final class VocoTableCrafting {
             return null;
         }
 
+        /*
+         * Additional safety check in case the selected recipe requires
+         * HEX_COLOR but the candle arrangement is no longer valid.
+         */
         if (
                 recipe.hexColorInject()
-                        && matchingFourCandleColor(tableBe) == null
+                        && matchingCandleColor == null
         ) {
             return null;
         }

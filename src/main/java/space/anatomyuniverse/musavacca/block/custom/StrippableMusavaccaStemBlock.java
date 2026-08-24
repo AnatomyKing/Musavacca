@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 public class StrippableMusavaccaStemBlock extends RotatedPillarBlock {
-    private static final float EXUDATED_CHANCE = 0.037F; // 3.7%
+    private static final float EXUDATED_CHANCE = 0.095F; // 9.5%
 
     private final Supplier<? extends Block> stripped;
     private final Supplier<? extends Block> exudatedStripped;

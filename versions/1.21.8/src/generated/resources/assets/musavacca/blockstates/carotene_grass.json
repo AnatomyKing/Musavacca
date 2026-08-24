@@ -1,0 +1,24 @@
+{
+  "variants": {
+    "snowy=false": [
+      {
+        "model": "musavacca:block/carotene_grass"
+      },
+      {
+        "model": "musavacca:block/carotene_grass",
+        "y": 90
+      },
+      {
+        "model": "musavacca:block/carotene_grass",
+        "y": 180
+      },
+      {
+        "model": "musavacca:block/carotene_grass",
+        "y": 270
+      }
+    ],
+    "snowy=true": {
+      "model": "musavacca:block/carotene_grass_snowy"
+    }
+  }
+}

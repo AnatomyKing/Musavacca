@@ -5,6 +5,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.DoorBlock;
@@ -99,6 +100,30 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 this.createSingleItemTable(
                         ModItems.SMALL_BANANA_PEARL.get(),
                         ConstantValue.exactly(6.0F)
+                )
+        );
+
+
+        this.add(
+                ModBlocks.CAROTENE_GRASS.get(),
+                this.createSingleItemTableWithSilkTouch(
+                        ModBlocks.CAROTENE_GRASS.get(),
+                        Items.DIRT
+                )
+        );
+
+        this.add(
+                ModBlocks.CAROTENE_SHORT_GRASS.get(),
+                this.createGrassDrops(
+                        ModBlocks.CAROTENE_SHORT_GRASS.get()
+                )
+        );
+
+        this.add(
+                ModBlocks.CAROTENE_TALL_GRASS.get(),
+                this.createDoublePlantWithSeedDrops(
+                        ModBlocks.CAROTENE_TALL_GRASS.get(),
+                        ModBlocks.CAROTENE_SHORT_GRASS.get()
                 )
         );
 

@@ -4,6 +4,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.ExudatedStrippedMusavaccaStemBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.data.models.block.*;
@@ -23,6 +24,15 @@ public final class ModelSets {
                 ModBlocks.BANANA_PEARL_BRICKS.get(),
                 ModBlocks.MUSAVACCA_PLANKS.get()
         };
+    }
+
+
+    public static CaroteneGrassModels.Entry caroteneGrassModels() {
+        return new CaroteneGrassModels.Entry(
+                ModBlocks.CAROTENE_GRASS.get(),
+                ModBlocks.CAROTENE_SHORT_GRASS.get(),
+                ModBlocks.CAROTENE_TALL_GRASS.get()
+        );
     }
 
     public static Map<Block, BreakBlockOwn.AgeModels> breakBlockOwnModels() {
@@ -230,7 +240,12 @@ public final class ModelSets {
         return new Block[] {
                 ModBlocks.BANANA_PEARL_PILLAR.get(),
                 ModBlocks.MUSAVACCA_STEM.get(),
-                ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
+                ModBlocks.STRIPPED_MUSAVACCA_STEM.get()
+        };
+    }
+
+    public static ExudatedStrippedMusavaccaStemBlock[] exudatedLogBlocks() {
+        return new ExudatedStrippedMusavaccaStemBlock[] {
                 ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()
         };
     }

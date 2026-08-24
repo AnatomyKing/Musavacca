@@ -255,7 +255,7 @@ public final class ModItems {
                                     .rarity(Rarity.UNCOMMON)
                     )
             );
-
+    
     public static final DeferredItem<Item> BANANA_PHONE =
             ITEMS.registerItem(
                     "banana_phone",

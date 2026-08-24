@@ -3,6 +3,7 @@ package space.anatomyuniverse.musavacca.data.tags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlockTags;
@@ -158,6 +159,19 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
 
         tag(BlockTags.WOODEN_BUTTONS).add(
                 ModBlocks.MUSAVACCA_BUTTON.get()
+        );
+
+
+        tag(BlockTags.DIRT).add(
+                ModBlocks.CAROTENE_GRASS.get()
+        );
+
+        tag(BlockTags.MINEABLE_WITH_SHOVEL).add(
+                ModBlocks.CAROTENE_GRASS.get()
+        );
+
+        tag(Tags.Blocks.VILLAGER_FARMLANDS).add(
+                ModBlocks.CAROTENE_GRASS.get()
         );
 
         tag(BlockTags.FIRE).add(

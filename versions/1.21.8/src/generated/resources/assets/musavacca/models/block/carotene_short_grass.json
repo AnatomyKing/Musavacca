@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "musavacca:block/carotene_short_grass"
+  }
+}

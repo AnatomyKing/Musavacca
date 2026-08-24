@@ -51,8 +51,10 @@ public final class ModModelProvider
             //?}
     ) {
         CubeAll.generate(blocks, ModelSets.cubeAllBlocks());
+        CaroteneGrassModels.generate(blocks, ModelSets.caroteneGrassModels());
         Chapiter.generate(blocks, ModelSets.chapiterBlocks());
         Log.generate(blocks, ModelSets.logBlocks());
+        ExudatedLog.generate(blocks, ModelSets.exudatedLogBlocks());
         Stairs.generate(blocks, ModelSets.stairsBlocks());
         Slabs.generate(blocks, ModelSets.slabBlocks());
         Fences.generate(blocks, ModelSets.fenceBlocks());
