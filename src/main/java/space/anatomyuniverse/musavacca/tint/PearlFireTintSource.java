@@ -11,6 +11,11 @@ public final class PearlFireTintSource {
     private static final float PALETTE_ADAPTIVE_TAKEOVER = 0.78F;
     private static final float PALETTE_ACTIVATION_RANGE = 0.20F;
     private static final float PALETTE_SHADOW_EXPONENT = 0.75F;
+    private static final float HIGHLIGHT_CHROMA_RETENTION_SOFT = 0.24F;
+    private static final float HIGHLIGHT_CHROMA_RETENTION_VIVID = 0.70F;
+    private static final float HIGHLIGHT_WHITE_INTENT_RELIEF = 0.72F;
+    private static final int HIGHLIGHT_LIGHTNESS_SEARCH_STEPS = 14;
+
     private static final float PALETTE_ANCHOR_LIGHTNESS =
             perceptualGrayLightness(PALETTE_ANCHOR_GRAY);
 
@@ -36,7 +41,7 @@ public final class PearlFireTintSource {
         float proceduralT = layerCount <= 1
                 ? 0.0F
                 : tintIndex
-                / (float) (layerCount - 1);
+                  / (float) (layerCount - 1);
 
         float paletteT =
                 grayTonePosition(gray);
@@ -61,7 +66,9 @@ public final class PearlFireTintSource {
         );
 
         if (gray > 0.0F && gray < 1.0F) {
-            desired = unMultiplyGray(desired, gray);
+            desired = paletteActivation > EPS
+                    ? compensateGrayCarrier(desired, gray)
+                    : unMultiplyGray(desired, gray);
         }
 
         return TintColorUtil.opaqueRgb(desired);
@@ -457,6 +464,47 @@ public final class PearlFireTintSource {
                 ? 0.0F
                 : clamp01(baseC / baseChromaLimit);
 
+        if (hasColor > 0.0F
+                && paletteActivation > 0.0F
+                && structuredL > baseL) {
+            float whiteIntent = clamp01(colorWhiteCore);
+
+            float chromaRetention = mix(
+                    HIGHLIGHT_CHROMA_RETENTION_SOFT,
+                    HIGHLIGHT_CHROMA_RETENTION_VIVID,
+                    vividness
+            );
+
+            chromaRetention *= mix(
+                    1.0F,
+                    HIGHLIGHT_WHITE_INTENT_RELIEF,
+                    whiteIntent
+            );
+
+            chromaRetention *= mix(
+                    0.72F,
+                    1.0F,
+                    colorAmountTakeOver
+            );
+
+            float minimumHighlightChroma =
+                    baseC
+                            * chromaRetention
+                            * paletteActivation;
+
+            float chromaticLightnessCeiling =
+                    highestLightnessHoldingChroma(
+                            baseL,
+                            baseH,
+                            minimumHighlightChroma
+                    );
+
+            structuredL = Math.min(
+                    structuredL,
+                    chromaticLightnessCeiling
+            );
+        }
+
         float structuredChroma =
                 gamutChromaLimit(structuredL, baseH)
                         * relativeSaturation;
@@ -539,10 +587,69 @@ public final class PearlFireTintSource {
         );
     }
 
+    private static float highestLightnessHoldingChroma(
+            float baseL,
+            float hue,
+            float minimumChroma
+    ) {
+        if (minimumChroma <= EPS) {
+            return 1.0F;
+        }
+
+        float low = clamp01(baseL);
+        float high = 1.0F - EPS;
+
+        if (!isOklchInGamut(low, minimumChroma, hue)) {
+            return low;
+        }
+
+        if (isOklchInGamut(high, minimumChroma, hue)) {
+            return high;
+        }
+
+        for (int i = 0; i < HIGHLIGHT_LIGHTNESS_SEARCH_STEPS; i++) {
+            float mid = (low + high) * 0.5F;
+
+            if (isOklchInGamut(mid, minimumChroma, hue)) {
+                low = mid;
+            } else {
+                high = mid;
+            }
+        }
+
+        return low;
+    }
+
     private static int unMultiplyGray(int rgb, float gray) {
         return (clamp255(Math.round(((rgb >> 16) & 0xFF) / gray)) << 16)
                 | (clamp255(Math.round(((rgb >> 8) & 0xFF) / gray)) << 8)
                 | clamp255(Math.round((rgb & 0xFF) / gray));
+    }
+
+    private static int compensateGrayCarrier(int rgb, float gray) {
+        gray = clamp01(gray);
+
+        if (gray <= EPS || gray >= 1.0F - EPS) {
+            return rgb;
+        }
+
+        float r = (rgb >> 16) & 0xFF;
+        float g = (rgb >> 8) & 0xFF;
+        float b = rgb & 0xFF;
+
+        float maxChannel = Math.max(r, Math.max(g, b));
+        float carrierCeiling = gray * 255.0F;
+
+        if (maxChannel > carrierCeiling && maxChannel > 0.0F) {
+            float fit = carrierCeiling / maxChannel;
+            r *= fit;
+            g *= fit;
+            b *= fit;
+        }
+
+        return (clamp255(Math.round(r / gray)) << 16)
+                | (clamp255(Math.round(g / gray)) << 8)
+                | clamp255(Math.round(b / gray));
     }
 
     private static Oklch rgbToOklch(int rgb) {
@@ -613,7 +720,7 @@ public final class PearlFireTintSource {
             return 0.0F;
         }
 
-        if (inGamut(oklchToLinearRgb(l, wantedC, h))) {
+        if (isOklchInGamut(l, wantedC, h)) {
             return wantedC;
         }
 
@@ -623,7 +730,7 @@ public final class PearlFireTintSource {
         for (int i = 0; i < 18; i++) {
             float mid = (low + high) * 0.5F;
 
-            if (inGamut(oklchToLinearRgb(l, mid, h))) {
+            if (isOklchInGamut(l, mid, h)) {
                 low = mid;
             } else {
                 high = mid;
@@ -631,6 +738,34 @@ public final class PearlFireTintSource {
         }
 
         return low;
+    }
+
+    private static boolean isOklchInGamut(float l, float c, float hDegrees) {
+        float h = rad(hDegrees);
+        float a = c * (float) Math.cos(h);
+        float b = c * (float) Math.sin(h);
+
+        float l3 = l + 0.3963377774F * a + 0.2158037573F * b;
+        float m3 = l - 0.1055613458F * a - 0.0638541728F * b;
+        float s3 = l - 0.0894841775F * a - 1.2914855480F * b;
+
+        float ll = l3 * l3 * l3;
+        float mm = m3 * m3 * m3;
+        float ss = s3 * s3 * s3;
+
+        float r = 4.0767416621F * ll - 3.3077115913F * mm + 0.2309699292F * ss;
+        float g = -1.2684380046F * ll + 2.6097574011F * mm - 0.3413193965F * ss;
+        float blue = -0.0041960863F * ll - 0.7034186147F * mm + 1.7076147010F * ss;
+
+        return Float.isFinite(r)
+                && Float.isFinite(g)
+                && Float.isFinite(blue)
+                && r >= -GAMUT_EPS
+                && r <= 1.0F + GAMUT_EPS
+                && g >= -GAMUT_EPS
+                && g <= 1.0F + GAMUT_EPS
+                && blue >= -GAMUT_EPS
+                && blue <= 1.0F + GAMUT_EPS;
     }
 
     private static float[] oklchToLinearRgb(float l, float c, float hDegrees) {
