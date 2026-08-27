@@ -9,20 +9,20 @@ public record VocoTableCraftingRecipe(
         @NotNull ItemLike edible,
         @NotNull ItemLike result,
         int eatingTimeTicks,
-        int litReceptorCost,
         boolean hexColorInject
 ) {
     public VocoTableCraftingRecipe {
         if (eatingTimeTicks <= 0) {
-            throw new IllegalArgumentException("Voco table crafting eating time must be above 0.");
-        }
-
-        if (litReceptorCost < 0) {
-            throw new IllegalArgumentException("Voco table crafting cost cannot be negative.");
+            throw new IllegalArgumentException(
+                    "Voco table crafting eating time must be above 0."
+            );
         }
     }
 
-    public boolean matches(@NotNull ItemStack displayedStack, @NotNull ItemStack edibleStack) {
+    public boolean matches(
+            @NotNull ItemStack displayedStack,
+            @NotNull ItemStack edibleStack
+    ) {
         return displayedStack.is(this.display.asItem())
                 && edibleStack.is(this.edible.asItem());
     }

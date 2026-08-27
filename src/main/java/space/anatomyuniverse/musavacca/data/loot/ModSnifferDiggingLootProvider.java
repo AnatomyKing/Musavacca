@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/loot/ModSnifferDiggingLootProvider.java
 package space.anatomyuniverse.musavacca.data.loot;
 
 import net.minecraft.core.HolderLookup;

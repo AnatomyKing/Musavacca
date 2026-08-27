@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/teleport/HexTeleportAddressNetwork.java
 package space.anatomyuniverse.musavacca.teleport;
 
 import net.minecraft.core.registries.Registries;

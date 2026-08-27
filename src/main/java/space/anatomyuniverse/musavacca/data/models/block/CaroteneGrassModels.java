@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/data/models/block/CaroteneGrassModels.java
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.world.level.block.Block;

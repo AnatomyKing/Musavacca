@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/mixin/client/ClientBundleTooltipAccessor.java
 package space.anatomyuniverse.musavacca.mixin.client;
 
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;

@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/component/ModDataComponents.java
 package space.anatomyuniverse.musavacca.component;
 
 import com.mojang.serialization.Codec;

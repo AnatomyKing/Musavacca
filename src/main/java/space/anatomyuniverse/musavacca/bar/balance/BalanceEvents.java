@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/bar/balance/BalanceEvents.java
 package space.anatomyuniverse.musavacca.bar.balance;
 
 import net.minecraft.server.level.ServerPlayer;

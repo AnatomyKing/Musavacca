@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/models/item/CustomItemModel.java
 
 package space.anatomyuniverse.musavacca.data.models.item;
 

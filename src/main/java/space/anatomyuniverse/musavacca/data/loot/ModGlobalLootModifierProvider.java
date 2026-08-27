@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/data/loot/ModGlobalLootModifierProvider.java
 package space.anatomyuniverse.musavacca.data.loot;
 
 import net.minecraft.core.HolderLookup;

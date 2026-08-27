@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/data/models/item/SpawnEggItems.java
 package space.anatomyuniverse.musavacca.data.models.item;
 
 import net.minecraft.resources.ResourceLocation;

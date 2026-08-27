@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/data/language/ModLanguageProvider.java
 package space.anatomyuniverse.musavacca.data.language;
 
 import net.minecraft.core.registries.BuiltInRegistries;

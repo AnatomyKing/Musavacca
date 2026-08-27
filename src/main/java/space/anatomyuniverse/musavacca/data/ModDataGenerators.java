@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/data/ModDataGenerators.java
 package space.anatomyuniverse.musavacca.data;
 
 import net.minecraft.data.loot.LootTableProvider;

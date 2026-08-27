@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/basuke/craft/VocoTableCrafting.java
 package space.anatomyuniverse.musavacca.basuke.craft;
 
 import net.minecraft.core.BlockPos;
@@ -69,10 +68,8 @@ public final class VocoTableCrafting {
         }
 
         /*
-         * Determine candle availability before selecting the recipe.
-         *
-         * When matching candles exist, a HEX_COLOR recipe receives
-         * priority over an otherwise identical normal recipe.
+         * Matching candles only determine whether a HEX_COLOR recipe
+         * can be selected. They are not consumed by normal crafting.
          */
         Integer matchingCandleColor =
                 matchingFourCandleColor(tableBe);
@@ -85,14 +82,6 @@ public final class VocoTableCrafting {
                 );
 
         if (recipe == null) {
-            return null;
-        }
-
-        if (
-                !tableBe.hasLitReceptorCost(
-                        recipe.litReceptorCost()
-                )
-        ) {
             return null;
         }
 
@@ -175,17 +164,8 @@ public final class VocoTableCrafting {
                         ? VocoTableParticles.DEFAULT_GLITHER_COLOR
                         : matchingCandleColor;
 
-        BlockState stateBeforeConsumption =
+        BlockState stateBeforeCrafting =
                 level.getBlockState(tablePos);
-
-        if (
-                !tableBe.consumeLitReceptorsForCrafting(
-                        level,
-                        recipe.litReceptorCost()
-                )
-        ) {
-            return false;
-        }
 
         injectHexColorIfAllowed(
                 resultStack,
@@ -212,7 +192,7 @@ public final class VocoTableCrafting {
                 tablePos,
                 resultStack,
                 glitherColor,
-                stateBeforeConsumption,
+                stateBeforeCrafting,
                 level.getBlockState(tablePos)
         );
 

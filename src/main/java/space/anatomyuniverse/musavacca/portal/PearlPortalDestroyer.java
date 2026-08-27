@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/portal/PearlPortalDestroyer.java
 package space.anatomyuniverse.musavacca.portal;
 
 import net.minecraft.core.BlockPos;

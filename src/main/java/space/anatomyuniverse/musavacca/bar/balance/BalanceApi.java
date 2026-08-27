@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/bar/balance/BalanceApi.java
 package space.anatomyuniverse.musavacca.bar.balance;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;

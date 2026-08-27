@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/item/ModItems.java
 package space.anatomyuniverse.musavacca.item;
 
 import net.minecraft.Util;

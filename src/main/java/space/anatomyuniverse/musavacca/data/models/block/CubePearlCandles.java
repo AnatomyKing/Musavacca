@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/data/models/block/CubePearlCandles.java
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.core.registries.BuiltInRegistries;

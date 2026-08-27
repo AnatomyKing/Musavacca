@@ -86,7 +86,7 @@ public final class BasukeSummon {
                 ModItems.BIG_BANANA_PEARL.get()
         )
                 && allReceptorsCharged(state)
-                && allCandleCornersLit(tableBe);
+                && allNormalCandleCornersLit(tableBe);
     }
 
     private static boolean allReceptorsCharged(
@@ -104,14 +104,18 @@ public final class BasukeSummon {
         return true;
     }
 
-    private static boolean allCandleCornersLit(
+    private static boolean allNormalCandleCornersLit(
             @NotNull VocoTableBlockEntity tableBe
     ) {
         for (
                 ReceptorPosition receptor
                 : ReceptorPosition.values()
         ) {
-            if (!tableBe.isCandleLit(receptor)) {
+            if (
+                    !tableBe.isCandleLit(receptor)
+                            || tableBe.getCornerHexColor(receptor)
+                            != VocoTableBlockEntity.UNSET_HEX_COLOR
+            ) {
                 return false;
             }
         }

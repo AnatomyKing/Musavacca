@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/worldgen/ModFeatures.java
 package space.anatomyuniverse.musavacca.worldgen;
 
 import net.minecraft.core.registries.BuiltInRegistries;

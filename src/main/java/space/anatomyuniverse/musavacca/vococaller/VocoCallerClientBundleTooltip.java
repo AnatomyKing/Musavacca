@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/vococaller/client/VocoCallerClientBundleTooltip.java
 package space.anatomyuniverse.musavacca.vococaller;
 
 import net.minecraft.client.gui.Font;

@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/worldgen/feature/MusavaccaTemplateTreeFeature.java
 package space.anatomyuniverse.musavacca.worldgen.feature;
 
 import com.mojang.serialization.Codec;

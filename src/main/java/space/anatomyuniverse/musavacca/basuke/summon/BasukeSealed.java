@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/basuke/summon/BasukeSealed.java
 package space.anatomyuniverse.musavacca.basuke.summon;
 
 import net.minecraft.core.BlockPos;
@@ -92,7 +91,7 @@ public final class BasukeSealed {
                 ModItems.INACTIVE_VOCO_CALLER.get()
         )
                 && allReceptorsCharged(state)
-                && allCandleCornersLit(tableBe);
+                && allNormalCandleCornersLit(tableBe);
     }
 
     private static boolean allReceptorsCharged(
@@ -110,14 +109,18 @@ public final class BasukeSealed {
         return true;
     }
 
-    private static boolean allCandleCornersLit(
+    private static boolean allNormalCandleCornersLit(
             @NotNull VocoTableBlockEntity tableBe
     ) {
         for (
                 ReceptorPosition receptor
                 : ReceptorPosition.values()
         ) {
-            if (!tableBe.isCandleLit(receptor)) {
+            if (
+                    !tableBe.isCandleLit(receptor)
+                            || tableBe.getCornerHexColor(receptor)
+                            != VocoTableBlockEntity.UNSET_HEX_COLOR
+            ) {
                 return false;
             }
         }

@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/block/custom/CaroteneGrassBlock.java
 package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;

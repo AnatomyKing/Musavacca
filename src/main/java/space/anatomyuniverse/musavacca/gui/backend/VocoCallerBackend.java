@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/gui/backend/VocoCallerBackend.java
 package space.anatomyuniverse.musavacca.gui.backend;
 
 import net.minecraft.world.entity.player.Player;

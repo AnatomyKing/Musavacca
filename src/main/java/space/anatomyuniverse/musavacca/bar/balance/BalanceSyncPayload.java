@@ -1,4 +1,3 @@
-// file: C:/mods/Musavacca/src/main/java/space/anatomyuniverse/musavacca/bar/balance/BalanceSyncPayload.java
 package space.anatomyuniverse.musavacca.bar.balance;
 
 import io.netty.buffer.ByteBuf;

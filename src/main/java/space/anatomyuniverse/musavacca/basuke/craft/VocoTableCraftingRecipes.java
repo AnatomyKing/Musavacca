@@ -19,52 +19,44 @@ public final class VocoTableCraftingRecipes {
             recipe(
                     ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
-                    ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                    2
+                    ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()
             ),
             recipe(
                     ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                    1,
                     true
             ),
             recipe(
                     ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                    1,
                     true
             ),
-
 
             recipe(
                     ModItems.MUSAVACCA_DOOR,
                     ModItems.BANANA_PEARL.get(),
                     ModItems.MUSAVACCA_IMBUED_DOOR.get(),
-                    1,
                     true
             ),
             recipe(
                     ModBlocks.MUSAVACCA_TRAPDOOR.get(),
                     ModItems.BANANA_PEARL.get(),
                     ModBlocks.MUSAVACCA_TRAPDOOR.get(),
-                    1,
                     true
             ),
             recipe(
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
                     ModItems.POTASSIUM_INGOT.get(),
                     ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                    1,
                     true
             ),
 
             recipe(
                     Items.NAME_TAG,
                     ModItems.SMALL_BANANA_PEARL.get(),
-                    ModItems.SIM_CARD.get(),
-                    1
+                    ModItems.SIM_CARD.get()
             )
     );
 
@@ -109,6 +101,7 @@ public final class VocoTableCraftingRecipes {
             if (!recipe.matches(displayedStack, edibleStack)) {
                 continue;
             }
+
             if (recipe.hexColorInject()) {
                 if (matchingCandleColorAvailable) {
                     return recipe;
@@ -128,14 +121,12 @@ public final class VocoTableCraftingRecipes {
     private static VocoTableCraftingRecipe recipe(
             ItemLike display,
             ItemLike edible,
-            ItemLike result,
-            int litReceptorCost
+            ItemLike result
     ) {
         return recipe(
                 display,
                 edible,
                 result,
-                litReceptorCost,
                 false
         );
     }
@@ -144,7 +135,6 @@ public final class VocoTableCraftingRecipes {
             ItemLike display,
             ItemLike edible,
             ItemLike result,
-            int litReceptorCost,
             boolean hexColorInject
     ) {
         return new VocoTableCraftingRecipe(
@@ -152,7 +142,6 @@ public final class VocoTableCraftingRecipes {
                 edible,
                 result,
                 DEFAULT_EATING_TIME_TICKS,
-                litReceptorCost,
                 hexColorInject
         );
     }

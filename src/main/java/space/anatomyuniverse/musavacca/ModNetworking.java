@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/ModNetworking.java
 package space.anatomyuniverse.musavacca;
 
 import net.neoforged.bus.api.IEventBus;

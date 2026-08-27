@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/basuke/eating/VocoTableEatingLogic.java
 package space.anatomyuniverse.musavacca.basuke.eating;
 
 import net.minecraft.server.level.ServerLevel;

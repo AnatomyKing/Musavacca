@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/vococaller/VocoCallerPhonebook.java
 package space.anatomyuniverse.musavacca.vococaller;
 
 import com.mojang.serialization.Codec;

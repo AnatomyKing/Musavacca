@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/block/ModWoodTypes.java
 package space.anatomyuniverse.musavacca.block;
 
 import net.minecraft.world.level.block.state.properties.BlockSetType;

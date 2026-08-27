@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/item/custom/OpenVocoCallerItem.java
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.core.component.DataComponents;

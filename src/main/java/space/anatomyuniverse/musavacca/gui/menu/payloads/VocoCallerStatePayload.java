@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/gui/menu/payloads/VocoCallerStatePayload.java
 package space.anatomyuniverse.musavacca.gui.menu.payloads;
 
 import io.netty.buffer.ByteBuf;
