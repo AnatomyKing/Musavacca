@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/handheld",
-  "textures": {
-    "layer0": "musavacca:item/imbued_potassium_axe/imbued_potassium_axe_5"
-  }
-}

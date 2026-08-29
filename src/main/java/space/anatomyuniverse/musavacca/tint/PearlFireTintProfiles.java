@@ -71,41 +71,6 @@ public final class PearlFireTintProfiles {
             172, 162, 151, 142, 0
     );
 
-    public static final Profile IMBUED_POTASSIUM_ITEMS = of(
-            settings(
-                    1.67F,
-                    0.16F,
-                    0.90F,
-                    0.05F,
-                    1.03F
-            ),
-            255, 250, 236, 206, 180, 138, 97, 72,
-            50
-    );
-
-    public static final Profile IMBUED_POTASSIUM_ARMOR = of(
-            settings(
-                    1.0F,
-                    0.20F,
-                    0.76F,
-                    0.36F,
-                    1.22F
-            ),
-            245, 234, 218, 204, 186, 163, 124
-    );
-
-    public static final Profile IMBUED_POTASSIUM_HELMET = of(
-            settings(
-                    1.0F,   // coreToTailLightness
-                    0.20F,  // colorJumpiness
-                    0.76F,  // colorAmountTakeOver
-                    0.36F,  // vibrancyDarkening
-                    1.22F   // layerContrast
-            ),
-            245, 234, 218, 204, 186, 163, 124,
-            77, 64, 57, 43
-    );
-
     public static final Profile SIM_CARD_TINT = of(
             settings(
                     1.25F,  // coreToTailLightness
@@ -137,16 +102,6 @@ public final class PearlFireTintProfiles {
                     0.36F   // layerContrast
             ),
             244, 228, 202, 186
-    );
-
-    public static final Profile IMBUED_POTASSIUM = of(
-            settings(
-                    0.60F,  // coreToTailLightness
-                    0.5F,   // colorJumpiness
-                    0.21F,  // colorAmountTakeOver
-                    0.36F   // layerContrast
-            ),
-            244, 228, 202
     );
 
     public static final Profile GLITHER_PARTICLE = of(

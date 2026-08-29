@@ -337,23 +337,6 @@ public final class ModelSets {
         };
     }
 
-    public static CustomArmorSetTintedLayers.Entry[]
-    customArmorSetTintedLayers() {
-        return new CustomArmorSetTintedLayers.Entry[] {
-                CustomArmorSetTintedLayers.fullyTintedFolder(
-                        ModItems.IMBUED_POTASSIUM_HELMET.get(),
-                        ModItems.IMBUED_POTASSIUM_CHESTPLATE.get(),
-                        ModItems.IMBUED_POTASSIUM_LEGGINGS.get(),
-                        ModItems.IMBUED_POTASSIUM_BOOTS.get(),
-                        "musavacca:imbued_potassium",
-                        "musavacca:imbued_potassium/imbued_potassium",
-                        "musavacca:item/imbued_potassium_helmet_model",
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS,
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_HELMET,
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_ARMOR
-                )
-        };
-    }
 
     public static Map<Block, PanePortalBlockTinted15.Entry> panePortalBlockTinted15Models() {
         return Map.of(
@@ -398,30 +381,6 @@ public final class ModelSets {
         };
     }
 
-    public static HandheldItemsTintedLayers.Entry[] handheldItemsTintedLayers() {
-        return new HandheldItemsTintedLayers.Entry[] {
-                HandheldItemsTintedLayers.fullyTintedFolder(
-                        ModItems.IMBUED_POTASSIUM_AXE.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
-                ),
-                HandheldItemsTintedLayers.fullyTintedFolder(
-                        ModItems.IMBUED_POTASSIUM_PICKAXE.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
-                ),
-                HandheldItemsTintedLayers.fullyTintedFolder(
-                        ModItems.IMBUED_POTASSIUM_SHOVEL.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
-                ),
-                HandheldItemsTintedLayers.fullyTintedFolder(
-                        ModItems.IMBUED_POTASSIUM_SWORD.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
-                ),
-                HandheldItemsTintedLayers.fullyTintedFolder(
-                        ModItems.IMBUED_POTASSIUM_HOE.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM_ITEMS
-                )
-        };
-    }
 
     public static CustomItemModel.Entry[] customItemModels() {
         return new CustomItemModel.Entry[] {
@@ -438,11 +397,6 @@ public final class ModelSets {
 
     public static ItemTintedLayers.Entry[] itemTintedLayers() {
         return new ItemTintedLayers.Entry[] {
-                ItemTintedLayers.folder(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        PearlFireTintProfiles.IMBUED_POTASSIUM
-                ),
-
                 ItemTintedLayers.folder(
                         ModItems.SIM_CARD.get(),
                         PearlFireTintProfiles.SIM_CARD_TINT

@@ -10,8 +10,6 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.entity.EntityType;
 import space.anatomyuniverse.musavacca.client.renderer.layer.CustomHelmetTrimLayer;
-import space.anatomyuniverse.musavacca.data.models.ModelSets;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSetTintedLayers;
 //?}
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
@@ -21,10 +19,6 @@ public final class ModClientRenderLayers {
             EntityRenderersEvent.AddLayers event
     ) {
         //? if >=1.21.2 {
-        CustomArmorSetTintedLayers.registerEquipmentTints(
-                ModelSets.customArmorSetTintedLayers()
-        );
-
         for (PlayerSkin.Model skin : event.getSkins()) {
             PlayerRenderer renderer = event.getSkin(skin);
 

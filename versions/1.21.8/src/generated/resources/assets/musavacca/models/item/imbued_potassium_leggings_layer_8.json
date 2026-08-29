@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "musavacca:item/imbued_potassium_leggings/imbued_potassium_leggings_8"
-  }
-}

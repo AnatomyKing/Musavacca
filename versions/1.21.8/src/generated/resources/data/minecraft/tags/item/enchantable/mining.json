@@ -3,10 +3,6 @@
     "musavacca:potassium_pickaxe",
     "musavacca:potassium_axe",
     "musavacca:potassium_shovel",
-    "musavacca:potassium_hoe",
-    "musavacca:imbued_potassium_pickaxe",
-    "musavacca:imbued_potassium_axe",
-    "musavacca:imbued_potassium_shovel",
-    "musavacca:imbued_potassium_hoe"
+    "musavacca:potassium_hoe"
   ]
 }

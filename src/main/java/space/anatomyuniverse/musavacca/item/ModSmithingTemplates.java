@@ -11,30 +11,6 @@ import java.util.List;
 
 public final class ModSmithingTemplates {
 
-    public static final Entry IMBUED_POTASSIUM_UPGRADE = Entry.of(
-            "imbued_potassium_upgrade_smithing_template",
-            Rarity.RARE,
-            "Potassium Upgrade",
-            "Diamond Equipment",
-            "Potassium Ingot",
-            "Add diamond armor, weapon, or tool",
-            "Add Potassium Ingot",
-            List.of(
-                    emptyHelmetSlot(),
-                    emptyChestplateSlot(),
-                    emptyLeggingsSlot(),
-                    emptyBootsSlot(),
-                    emptySwordSlot(),
-                    emptyPickaxeSlot(),
-                    emptyAxeSlot(),
-                    emptyShovelSlot(),
-                    emptyHoeSlot()
-            ),
-            List.of(
-                    emptyIngotSlot()
-            )
-    );
-
     public static final Entry POTASSIUM_UPGRADE = Entry.of(
             "potassium_upgrade_smithing_template",
             Rarity.RARE,
@@ -60,7 +36,6 @@ public final class ModSmithingTemplates {
     );
 
     public static final List<Entry> ALL = List.of(
-            IMBUED_POTASSIUM_UPGRADE,
             POTASSIUM_UPGRADE
     );
 

@@ -25,8 +25,6 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 //? if <1.21.4 {
 /*import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.data.models.ModelSets;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSetTintedLayers;
  *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
@@ -484,41 +482,6 @@ public final class ModTints {
                 ModBlocks.MUSAVACCA_DOOR.get()
         );
 
-        for (CustomArmorSetTintedLayers.Entry entry
-                : ModelSets.customArmorSetTintedLayers()) {
-            event.register(
-                    (stack, tintIndex) -> getLegacyArmorItemTint(entry, stack, tintIndex),
-                    entry.helmet(),
-                    entry.chestplate(),
-                    entry.leggings(),
-                    entry.boots()
-            );
-        }
-    }
-
-    private static int getLegacyArmorItemTint(
-            CustomArmorSetTintedLayers.Entry entry,
-            net.minecraft.world.item.ItemStack stack,
-            int tintIndex
-    ) {
-        if (tintIndex < 0 || tintIndex >= entry.itemLayerCount()) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (entry.isUntintedItemLayer(tintIndex)) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-        if (savedHex == null) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        return PearlFireTintSource.blockTint(
-                savedHex,
-                entry.itemProfileLayer(tintIndex),
-                entry.itemProfile()
-        );
     }
     *///?} else {
     public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {

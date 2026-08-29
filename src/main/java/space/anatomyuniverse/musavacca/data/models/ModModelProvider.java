@@ -98,15 +98,10 @@ public final class ModModelProvider
         CubeVocoPost.generate(blocks, ModelSets.cubeVocoPostModels());
 
         ItemTintedLayers.generate(items, ModelSets.itemTintedLayers());
-        HandheldItemsTintedLayers.generate(items, ModelSets.handheldItemsTintedLayers());
         CustomItemModel.generate(items, ModelSets.customItemModels());
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());
         CustomArmorSet.generate(items, ModelSets.customArmorSets());
-        CustomArmorSetTintedLayers.generate(
-                items,
-                ModelSets.customArmorSetTintedLayers()
-        );
         SpawnEggItems.generate(items, ModelSets.spawnEggItems());
     }
 }

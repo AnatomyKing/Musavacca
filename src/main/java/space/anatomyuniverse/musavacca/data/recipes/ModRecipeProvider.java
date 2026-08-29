@@ -12,7 +12,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import org.jetbrains.annotations.NotNull;
 
@@ -278,159 +277,7 @@ public final class ModRecipeProvider extends RecipeProvider {
 
 
         /*
-         * IMBUED POTASSIUM TOOLS
-         *
-         * Imbued template containing HEX_COLOR + diamond tool + potassium ingot
-         * -> imbued potassium tool containing the transferred HEX_COLOR
-         */
-
-        dsl.transform().of(
-                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR),
-                        Ingredient.of(Items.DIAMOND_HELMET),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.IMBUED_POTASSIUM_HELMET.get()
-                )
-                .unlocksHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
-                .save("smithing/imbued_potassium_helmet_upgrade");
-
-
-        dsl.transform().of(
-                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR),
-                        Ingredient.of(Items.DIAMOND_CHESTPLATE),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.IMBUED_POTASSIUM_CHESTPLATE.get()
-                )
-                .unlocksHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
-                .save("smithing/imbued_potassium_chestplate_upgrade");
-
-
-        dsl.transform().of(
-                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR),
-                        Ingredient.of(Items.DIAMOND_LEGGINGS),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.IMBUED_POTASSIUM_LEGGINGS.get()
-                )
-                .unlocksHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
-                .save("smithing/imbued_potassium_leggings_upgrade");
-
-
-        dsl.transform().of(
-                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR),
-                        Ingredient.of(Items.DIAMOND_BOOTS),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.IMBUED_POTASSIUM_BOOTS.get()
-                )
-                .unlocksHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
-                .save("smithing/imbued_potassium_boots_upgrade");
-
-        dsl.transform().of(
-                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR),
-                        Ingredient.of(Items.DIAMOND_SWORD),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.IMBUED_POTASSIUM_SWORD.get()
-                )
-                .unlocksHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
-                .save("smithing/imbued_potassium_sword_upgrade");
-
-
-        dsl.transform().of(
-                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR),
-                        Ingredient.of(Items.DIAMOND_PICKAXE),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.TOOLS,
-                        ModItems.IMBUED_POTASSIUM_PICKAXE.get()
-                )
-                .unlocksHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
-                .save("smithing/imbued_potassium_pickaxe_upgrade");
-
-
-        dsl.transform().of(
-                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR),
-                        Ingredient.of(Items.DIAMOND_AXE),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.TOOLS,
-                        ModItems.IMBUED_POTASSIUM_AXE.get()
-                )
-                .unlocksHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
-                .save("smithing/imbued_potassium_axe_upgrade");
-
-
-        dsl.transform().of(
-                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR),
-                        Ingredient.of(Items.DIAMOND_SHOVEL),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.TOOLS,
-                        ModItems.IMBUED_POTASSIUM_SHOVEL.get()
-                )
-                .unlocksHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
-                .save("smithing/imbued_potassium_shovel_upgrade");
-
-
-        dsl.transform().of(
-                        ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR),
-                        Ingredient.of(Items.DIAMOND_HOE),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.TOOLS,
-                        ModItems.IMBUED_POTASSIUM_HOE.get()
-                )
-                .unlocksHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
-                .save("smithing/imbued_potassium_hoe_upgrade");
-
-
-        /*
          * NORMAL POTASSIUM ARMOR
-         *
-         * There are no imbued armor variants yet.
          */
 
         dsl.transform().of(
@@ -518,21 +365,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .save("smithing/fractured_potassium_upgrade_smithing_template_duplication");
 
 
-        dsl.shaped(RecipeCategory.MISC, ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), 2)
-                .pattern("xAx")
-                .pattern("xPx")
-                .pattern("xxx")
-                .define('x', Items.DIAMOND)
-                .define('A', ComponentRecipeDSL.source(ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                                .require(ModDataComponents.HEX_COLOR)
-                                .transfer(ModDataComponents.HEX_COLOR))
-                .define('P', ModBlocks.MUSAVACCA_PLANKS.get())
-                .unlockedByHas(
-                        ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        Items.DIAMOND,
-                        ModBlocks.MUSAVACCA_PLANKS.get()
-                )
-                .save("smithing/imbued_potassium_upgrade_smithing_template_duplication");
+
     }
 
 }

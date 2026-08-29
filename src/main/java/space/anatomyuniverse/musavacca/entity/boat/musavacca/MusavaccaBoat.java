@@ -103,7 +103,7 @@ public final class MusavaccaBoat extends
     @Override
     protected void positionRider(
             Entity passenger,
-            Entity.MoveFunction moveFunction
+            MoveFunction moveFunction
     ) {
         super.positionRider(
                 passenger,

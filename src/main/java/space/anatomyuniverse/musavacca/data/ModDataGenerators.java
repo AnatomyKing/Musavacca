@@ -12,7 +12,6 @@ import space.anatomyuniverse.musavacca.data.loot.ModSnifferDiggingLootProvider;
 import space.anatomyuniverse.musavacca.data.models.ModModelProvider;
 import space.anatomyuniverse.musavacca.data.models.ModelSets;
 import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSetTintedLayers;
 import space.anatomyuniverse.musavacca.data.recipes.ModRecipeProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModBlockTagsProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModItemTagsProvider;
@@ -95,13 +94,6 @@ public final class ModDataGenerators {
                             ModelSets.customArmorSets()
                     )
             );
-            event.getGenerator().addProvider(
-                    true,
-                    new CustomArmorSetTintedLayers.Provider(
-                            output,
-                            ModelSets.customArmorSetTintedLayers()
-                    )
-            );
             //?}
 
             event.getGenerator().addProvider(
@@ -171,13 +163,6 @@ public final class ModDataGenerators {
                 output -> new CustomArmorSet.Provider(
                         output,
                         ModelSets.customArmorSets()
-                )
-        );
-
-        event.createProvider(
-                output -> new CustomArmorSetTintedLayers.Provider(
-                        output,
-                        ModelSets.customArmorSetTintedLayers()
                 )
         );
 

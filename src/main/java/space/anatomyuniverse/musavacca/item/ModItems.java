@@ -144,12 +144,6 @@ public final class ModItems {
                     () -> legacyPotassiumArmorMaterial("potassium")
             );
 
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial>
-            IMBUED_POTASSIUM_ARMOR_MATERIAL =
-            ARMOR_MATERIALS.register(
-                    "imbued_potassium",
-                    () -> legacyPotassiumArmorMaterial("imbued_potassium")
-            );
     *///?} else {
     public static final
             //? if <1.21.4 {
@@ -160,25 +154,11 @@ public final class ModItems {
             POTASSIUM_EQUIPMENT_ASSET =
             equipmentAsset("potassium");
 
-    public static final
-            //? if <1.21.4 {
-            /*ResourceLocation
-            *///?} else {
-            ResourceKey<EquipmentAsset>
-            //?}
-            IMBUED_POTASSIUM_EQUIPMENT_ASSET =
-            equipmentAsset("imbued_potassium");
-
     public static final ArmorMaterial POTASSIUM_ARMOR_MATERIAL =
             potassiumArmorMaterial(
                     POTASSIUM_EQUIPMENT_ASSET
             );
 
-    public static final ArmorMaterial
-            IMBUED_POTASSIUM_ARMOR_MATERIAL =
-            potassiumArmorMaterial(
-                    IMBUED_POTASSIUM_EQUIPMENT_ASSET
-            );
     //?}
 
     private static DeferredItem<BlockItem> MusavaccaDoorItems(
@@ -305,16 +285,6 @@ public final class ModItems {
                             .create(props)
             );
 
-    public static final DeferredItem<SmithingTemplateItem>
-            IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
-            ITEMS.registerItem(
-                    ModSmithingTemplates.IMBUED_POTASSIUM_UPGRADE
-                            .registryPath(),
-                    props -> ModSmithingTemplates
-                            .IMBUED_POTASSIUM_UPGRADE
-                            .create(props)
-            );
-
     public static final DeferredItem<Item> MUSAVACCA_EXUDATE =
             ITEMS.registerItem(
                     "musavacca_exudate",
@@ -365,7 +335,6 @@ public final class ModItems {
                             props.rarity(Rarity.RARE)
                     )
             );
-
 
     public static final DeferredItem<SpawnEggItem>
             BANANA_COW_SPAWN_EGG =
@@ -462,81 +431,6 @@ public final class ModItems {
                                             )
                                             //?}
                             )
-            );
-
-    public static final DeferredItem<Item>
-            IMBUED_POTASSIUM_SWORD =
-            ITEMS.registerItem(
-                    "imbued_potassium_sword",
-                    ModItems::createPotassiumSword
-            );
-
-    public static final DeferredItem<Item>
-            IMBUED_POTASSIUM_SHOVEL =
-            ITEMS.registerItem(
-                    "imbued_potassium_shovel",
-                    ModItems::createPotassiumShovel
-            );
-
-    public static final DeferredItem<Item>
-            IMBUED_POTASSIUM_PICKAXE =
-            ITEMS.registerItem(
-                    "imbued_potassium_pickaxe",
-                    ModItems::createPotassiumPickaxe
-            );
-
-    public static final DeferredItem<Item>
-            IMBUED_POTASSIUM_AXE =
-            ITEMS.registerItem(
-                    "imbued_potassium_axe",
-                    ModItems::createPotassiumAxe
-            );
-
-    public static final DeferredItem<Item>
-            IMBUED_POTASSIUM_HOE =
-            ITEMS.registerItem(
-                    "imbued_potassium_hoe",
-                    ModItems::createPotassiumHoe
-            );
-
-    public static final DeferredItem<Item>
-            IMBUED_POTASSIUM_HELMET =
-            ITEMS.registerItem(
-                    "imbued_potassium_helmet",
-                    props -> createPotassiumHelmet(
-                            props,
-                            IMBUED_POTASSIUM_ARMOR_MATERIAL
-                    )
-            );
-
-    public static final DeferredItem<Item>
-            IMBUED_POTASSIUM_CHESTPLATE =
-            ITEMS.registerItem(
-                    "imbued_potassium_chestplate",
-                    props -> createPotassiumChestplate(
-                            props,
-                            IMBUED_POTASSIUM_ARMOR_MATERIAL
-                    )
-            );
-
-    public static final DeferredItem<Item>
-            IMBUED_POTASSIUM_LEGGINGS =
-            ITEMS.registerItem(
-                    "imbued_potassium_leggings",
-                    props -> createPotassiumLeggings(
-                            props,
-                            IMBUED_POTASSIUM_ARMOR_MATERIAL
-                    )
-            );
-
-    public static final DeferredItem<Item>
-            IMBUED_POTASSIUM_BOOTS =
-            ITEMS.registerItem(
-                    "imbued_potassium_boots",
-                    props -> createPotassiumBoots(
-                            props,
-                            IMBUED_POTASSIUM_ARMOR_MATERIAL
-                    )
             );
 
     public static final DeferredItem<Item> POTASSIUM_INGOT =

@@ -21,18 +21,6 @@ public final class VocoTableCraftingRecipes {
                     ModItems.POTASSIUM_INGOT.get(),
                     ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()
             ),
-            recipe(
-                    ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
-                    ModItems.POTASSIUM_INGOT.get(),
-                    ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                    true
-            ),
-            recipe(
-                    ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
-                    ModItems.POTASSIUM_INGOT.get(),
-                    ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                    true
-            ),
 
             recipe(
                     ModItems.MUSAVACCA_DOOR,
@@ -44,12 +32,6 @@ public final class VocoTableCraftingRecipes {
                     ModBlocks.MUSAVACCA_TRAPDOOR.get(),
                     ModItems.BANANA_PEARL.get(),
                     ModBlocks.MUSAVACCA_TRAPDOOR.get(),
-                    true
-            ),
-            recipe(
-                    ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
-                    ModItems.POTASSIUM_INGOT.get(),
-                    ModItems.IMBUED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
                     true
             ),
 
