@@ -47,7 +47,12 @@ public record MusavaccaTemplateTreeConfiguration(
                 ).apply(instance, TemplateBlockState::new));
 
         public BlockState resolve() {
-            Block block = BuiltInRegistries.BLOCK.getValue(this.Name);
+            Block block =
+                    //? if <1.21.2 {
+                    /*BuiltInRegistries.BLOCK.get(this.Name);
+                    *///?} else {
+                    BuiltInRegistries.BLOCK.getValue(this.Name);
+                    //?}
 
             if (block == null) {
                 throw new IllegalStateException("Unknown block in Musavacca tree template: " + this.Name);

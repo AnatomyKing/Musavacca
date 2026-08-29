@@ -41,5 +41,3 @@ public class BananaPearlChapiter extends Block {
         builder.add(FACING);
     }
 }
-
-

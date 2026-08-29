@@ -1,24 +1,36 @@
 package space.anatomyuniverse.musavacca.data.models.block;
 
+//? if <1.21.4 {
+/*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+*///?} else {
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+//? if <1.21.5 {
+/*import net.minecraft.client.data.models.blockstates.Variant;
+import net.minecraft.client.data.models.blockstates.VariantProperties;
+*///?}
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
+import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplate;
+import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
+//?}
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplate;
-import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
 
 import java.util.Map;
 
 public final class PanePortalTintedBlock {
     private PanePortalTintedBlock() {}
 
+    //? if >=1.21.4 {
     private static final TextureSlot PORTAL = TextureSlot.create("portal");
+    //?}
 
     /**
      * Generates vanilla-nether-portal-style pane models with tintindex support.
@@ -42,6 +54,107 @@ public final class PanePortalTintedBlock {
         }
     }
 
+    //? if <1.21.4 {
+    /*public static void generate(
+            BlockStateProvider gen,
+            Map<Block, Entry> entries
+    ) {
+        if (entries == null || entries.isEmpty()) {
+            return;
+        }
+
+        entries.forEach((block, entry) -> {
+            if (block == null
+                    || entry == null
+                    || isBlank(entry.modelStem())
+                    || isBlank(entry.textureStem())) {
+                return;
+            }
+
+            ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
+            ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(
+                    blockId.getNamespace(),
+                    "block/" + entry.textureStem()
+            );
+
+            ModelFile nsModel = createLegacyModel(
+                    gen,
+                    entry.modelStem() + "_ns",
+                    texture,
+                    entry.tintIndex(),
+                    Direction.NORTH,
+                    Direction.SOUTH,
+                    0, 0, 6,
+                    16, 16, 10
+            );
+
+            ModelFile ewModel = createLegacyModel(
+                    gen,
+                    entry.modelStem() + "_ew",
+                    texture,
+                    entry.tintIndex(),
+                    Direction.EAST,
+                    Direction.WEST,
+                    6, 0, 0,
+                    10, 16, 16
+            );
+
+            gen.getVariantBuilder(block).forAllStates(state ->
+                    ConfiguredModel.builder()
+                            .modelFile(
+                                    state.getValue(BlockStateProperties.HORIZONTAL_AXIS)
+                                            == Direction.Axis.X
+                                            ? nsModel
+                                            : ewModel
+                            )
+                            .build()
+            );
+        });
+    }
+
+    private static ModelFile createLegacyModel(
+            BlockStateProvider gen,
+            String name,
+            ResourceLocation texture,
+            int tintIndex,
+            Direction faceA,
+            Direction faceB,
+            int fromX,
+            int fromY,
+            int fromZ,
+            int toX,
+            int toY,
+            int toZ
+    ) {
+        var model = gen.models().getBuilder(name)
+                .parent(new ModelFile.UncheckedModelFile(
+                        ResourceLocation.withDefaultNamespace("block/block")
+                ))
+                .texture("particle", texture)
+                .texture("portal", texture);
+
+        model.element()
+                .from(fromX, fromY, fromZ)
+                .to(toX, toY, toZ)
+                .face(faceA)
+                .uvs(0, 0, 16, 16)
+                .texture("#portal")
+                .tintindex(tintIndex)
+                .end()
+                .face(faceB)
+                .uvs(0, 0, 16, 16)
+                .texture("#portal")
+                .tintindex(tintIndex)
+                .end()
+                .end();
+
+        return model;
+    }
+
+    private static boolean isBlank(String text) {
+        return text == null || text.isBlank();
+    }
+    *///?} else {
     public static void generate(BlockModelGenerators gen, Map<Block, Entry> entries) {
         if (entries == null || entries.isEmpty()) return;
 
@@ -85,6 +198,7 @@ public final class PanePortalTintedBlock {
          * axis=x -> *_ns
          * axis=z -> *_ew
          */
+        //? if >=1.21.5 {
         gen.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(block).with(
                         PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
@@ -92,6 +206,15 @@ public final class PanePortalTintedBlock {
                                 .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(ewModel))
                 )
         );
+        //?} else {
+        /*gen.blockStateOutput.accept(
+                MultiVariantGenerator.multiVariant(block).with(
+                        PropertyDispatch.property(BlockStateProperties.HORIZONTAL_AXIS)
+                                .select(Direction.Axis.X, Variant.variant().with(VariantProperties.MODEL, nsModel))
+                                .select(Direction.Axis.Z, Variant.variant().with(VariantProperties.MODEL, ewModel))
+                )
+        );
+        *///?}
 
         /*
          * No item model here.
@@ -140,4 +263,5 @@ public final class PanePortalTintedBlock {
                 )
                 .build();
     }
+    //?}
 }

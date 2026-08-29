@@ -12,8 +12,8 @@ public record BonusHungerSyncPayload(
         float saturation,
         boolean active
 ) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<BonusHungerSyncPayload> TYPE =
-            new CustomPacketPayload.Type<>(
+    public static final Type<BonusHungerSyncPayload> TYPE =
+            new Type<>(
                     ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "bonus_hunger_sync")
             );
 

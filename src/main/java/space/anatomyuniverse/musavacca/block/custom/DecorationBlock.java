@@ -40,11 +40,11 @@ public class DecorationBlock extends Block {
     private final Options options;
     private final VoxelShape[][] shapes;
 
-    public DecorationBlock(BlockBehaviour.Properties properties) {
+    public DecorationBlock(Properties properties) {
         this(properties, Options.allRotating());
     }
 
-    public DecorationBlock(BlockBehaviour.Properties properties, Options options) {
+    public DecorationBlock(Properties properties, Options options) {
         super(properties);
 
         this.options = options == null ? Options.allRotating() : options.sanitized();

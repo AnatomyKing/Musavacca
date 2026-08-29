@@ -349,7 +349,7 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
     }
 
     @Override
-    public BonemealableBlock.Type getType() {
-        return BonemealableBlock.Type.GROWER;
+    public Type getType() {
+        return Type.GROWER;
     }
 }

@@ -179,10 +179,17 @@ public final class ComponentSmithingTransforms {
             return this.base.templateIngredient();
         }
 
+        //? if >=1.21.5 {
         @Override
         public Ingredient baseIngredient() {
             return this.base.baseIngredient();
         }
+        //?} else {
+        /*@Override
+        public Optional<Ingredient> baseIngredient() {
+            return this.base.baseIngredient();
+        }
+        *///?}
 
         @Override
         public Optional<Ingredient> additionIngredient() {

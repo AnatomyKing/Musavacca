@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.client.renderer.layer;
 
+//? if >=1.21.2 {
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -7,7 +8,11 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+//? if <1.21.4 {
+/*import net.minecraft.world.item.equipment.EquipmentModel;
+*///?} else {
 import net.minecraft.client.resources.model.EquipmentClientInfo;
+//?}
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -43,7 +48,11 @@ public final class CustomHelmetTrimLayer<
             float yRot,
             float xRot
     ) {
+        //? if <1.21.4 {
+        /*ItemStack helmet = renderState.headItem;
+        *///?} else {
         ItemStack helmet = renderState.headEquipment;
+        //?}
 
         if (
                 helmet.isEmpty()
@@ -74,8 +83,13 @@ public final class CustomHelmetTrimLayer<
         );
 
         this.equipmentRenderer.renderLayers(
+                //? if <1.21.4 {
+                /*EquipmentModel.LayerType.HUMANOID,
+                CustomHelmetArmorTrims.TRIM_CARRIER_ID,
+                *///?} else {
                 EquipmentClientInfo.LayerType.HUMANOID,
                 CustomHelmetArmorTrims.TRIM_CARRIER_ASSET,
+                //?}
                 this.helmetModel,
                 this.trimCarrier,
                 poseStack,
@@ -84,3 +98,4 @@ public final class CustomHelmetTrimLayer<
         );
     }
 }
+//?}

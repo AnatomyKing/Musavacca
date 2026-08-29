@@ -2,6 +2,7 @@ package space.anatomyuniverse.musavacca.basuke.summon;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+//? if >=1.21.2
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
@@ -226,21 +227,32 @@ public final class BasukeSealed {
             ServerLevel level,
             BlockPos pos
     ) {
-        LightningBolt lightning =
-                EntityType.LIGHTNING_BOLT.create(
-                        level,
-                        EntitySpawnReason.TRIGGERED
-                );
+        //? if <1.21.2 {
+        /*LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
+        *///?} else {
+        LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(
+                level,
+                EntitySpawnReason.TRIGGERED
+        );
+        //?}
 
         if (lightning == null) {
             return;
         }
 
+        //? if >=1.21.5 {
         lightning.snapTo(
                 pos.getX() + 0.5D,
                 pos.getY() + 1.05D,
                 pos.getZ() + 0.5D
         );
+        //?} else {
+        /*lightning.moveTo(
+                pos.getX() + 0.5D,
+                pos.getY() + 1.05D,
+                pos.getZ() + 0.5D
+        );
+        *///?}
 
         lightning.setVisualOnly(true);
         level.addFreshEntity(lightning);

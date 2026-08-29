@@ -5,7 +5,9 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+//? if >=1.21.4 {
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+//?}
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -20,7 +22,9 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
     private static final float ITEM_SCALE = 0.82F;
     private static final float ITEM_ROTATION_SPEED = 2.7F;
 
+    //? if >=1.21.4 {
     private final ItemStackRenderState itemRenderState = new ItemStackRenderState();
+    //?}
 
     public VocoTableBlockEntityItemDisplayRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -50,6 +54,19 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
         poseStack.mulPose(Axis.YP.rotationDegrees(rotationDegrees(gameTime, partialTick)));
         poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
 
+        //? if <1.21.4 {
+        /*Minecraft.getInstance().getItemRenderer().renderStatic(
+                stack,
+                ItemDisplayContext.GROUND,
+                packedLight,
+                OverlayTexture.NO_OVERLAY,
+                poseStack,
+                bufferSource,
+                blockEntity.getLevel(),
+                0
+        );
+        *///?} else {
+        //? if >=1.21.5 {
         Minecraft.getInstance().getItemModelResolver().updateForTopItem(
                 this.itemRenderState,
                 stack,
@@ -58,6 +75,17 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
                 null,
                 0
         );
+        //?} else {
+        /*Minecraft.getInstance().getItemModelResolver().updateForTopItem(
+                this.itemRenderState,
+                stack,
+                ItemDisplayContext.GROUND,
+                false,
+                blockEntity.getLevel(),
+                null,
+                0
+        );
+        *///?}
 
         this.itemRenderState.render(
                 poseStack,
@@ -65,6 +93,7 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
                 packedLight,
                 OverlayTexture.NO_OVERLAY
         );
+        //?}
 
         poseStack.popPose();
     }

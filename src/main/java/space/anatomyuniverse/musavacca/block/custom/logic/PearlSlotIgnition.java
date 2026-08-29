@@ -121,7 +121,11 @@ public final class PearlSlotIgnition {
         }
 
         if (stack.isEmpty()) {
+            //? if <1.21.2 {
+            /*return InteractionResult.PASS;
+            *///?} else {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
+            //?}
         }
 
         if (stack.is(ModItems.BANANA_PEARL.get())) {

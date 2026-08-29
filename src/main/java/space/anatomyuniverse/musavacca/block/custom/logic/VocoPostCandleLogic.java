@@ -3,10 +3,8 @@ package space.anatomyuniverse.musavacca.block.custom.logic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -28,12 +26,8 @@ public final class VocoPostCandleLogic {
     public static BlockState updateShape(
             BlockState state,
             LevelReader levelReader,
-            ScheduledTickAccess scheduledTickAccess,
             BlockPos pos,
-            Direction direction,
-            BlockPos neighborPos,
-            BlockState neighborState,
-            RandomSource random
+            Direction direction
     ) {
         if (direction == Direction.UP && levelReader instanceof Level level && !level.isClientSide()) {
             return updatePortalStateFromTop(level, pos, state);

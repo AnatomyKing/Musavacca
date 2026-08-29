@@ -10,6 +10,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+//? if <1.21.5
+//import net.neoforged.neoforge.client.model.data.ModelData;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleVoxelShapes;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
@@ -82,6 +84,7 @@ public final class VocoTableBlockEntityCandleRenderer {
         poseStack.pushPose();
         poseStack.translate(translation.x, translation.y, translation.z);
 
+        //? if >=1.21.5 {
         this.blockRenderer.renderSingleBlock(
                 candleState,
                 poseStack,
@@ -91,6 +94,17 @@ public final class VocoTableBlockEntityCandleRenderer {
                 level,
                 blockPos
         );
+        //?} else {
+        /*this.blockRenderer.renderSingleBlock(
+                candleState,
+                poseStack,
+                bufferSource,
+                packedLight,
+                packedOverlay,
+                ModelData.EMPTY,
+                null
+        );
+        *///?}
 
         poseStack.popPose();
     }

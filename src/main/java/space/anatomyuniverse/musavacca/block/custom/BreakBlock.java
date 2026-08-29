@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -171,9 +170,15 @@ public class BreakBlock extends Block implements BonemealableBlock {
             return;
         }
 
+        //? if <1.21.2 {
+        /*Holder<Enchantment> silkTouch = level.registryAccess()
+                .registryOrThrow(Registries.ENCHANTMENT)
+                .getHolderOrThrow(Enchantments.SILK_TOUCH);
+        *///?} else {
         Holder<Enchantment> silkTouch = level.registryAccess()
                 .lookupOrThrow(Registries.ENCHANTMENT)
                 .getOrThrow(Enchantments.SILK_TOUCH);
+        //?}
 
         if (stack.getEnchantmentLevel(silkTouch) > 0) {
             return;
@@ -227,8 +232,8 @@ public class BreakBlock extends Block implements BonemealableBlock {
 
 
     @Override
-    public BonemealableBlock.Type getType() {
-        return BonemealableBlock.Type.GROWER;
+    public Type getType() {
+        return Type.GROWER;
     }
 
     private static <T extends Entity> void spawnEntitySafely(ServerLevel level, BlockPos pos, boolean attached, EntityType<T> type) {

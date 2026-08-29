@@ -3,17 +3,21 @@ package space.anatomyuniverse.musavacca.vococaller;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
+//? if >=1.21.2
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.component.BundleContents;
+//? if >=1.21.2
 import space.anatomyuniverse.musavacca.mixin.client.ClientBundleTooltipAccessor;
 
 public final class VocoCallerClientBundleTooltip
         extends ClientBundleTooltip {
 
+    //? if >=1.21.2 {
     private static final Component EMPTY_DESCRIPTION =
             Component.translatable(
                     "item.musavacca.banana_phone.empty.description"
             );
+    //?}
 
     public VocoCallerClientBundleTooltip(
             BundleContents contents
@@ -21,6 +25,7 @@ public final class VocoCallerClientBundleTooltip
         super(contents);
     }
 
+    //? if >=1.21.2 {
     @Override
     public int getHeight(Font font) {
         Component vanilla = useVocoDescription();
@@ -89,4 +94,5 @@ public final class VocoCallerClientBundleTooltip
                         vanilla
                 );
     }
+    //?}
 }

@@ -3,8 +3,10 @@ package space.anatomyuniverse.musavacca.entity.mob.basuke.clientmodel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+//? if >=1.21.4 {
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
+//?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -12,19 +14,35 @@ import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
-public final class BasukeRenderer extends MobRenderer<Basuke, BasukeModel.State, BasukeModel> {
+public final class BasukeRenderer extends
+        //? if <1.21.2 {
+        /*MobRenderer<Basuke, BasukeModel>
+        *///?} else {
+        MobRenderer<Basuke, BasukeModel.State, BasukeModel>
+        //?}
+{
 
     private static final ResourceLocation TEXTURE =
             ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/basuke/basuke.png");
 
     private static final float SHADOW = 0.35F;
 
+    //? if >=1.21.4 {
     private final ItemModelResolver itemModelResolver;
+    //?}
 
     public BasukeRenderer(EntityRendererProvider.Context ctx) {
         super(ctx, new BasukeModel(ctx.bakeLayer(BasukeModel.LAYER_LOCATION)), SHADOW);
+        //? if >=1.21.4 {
         this.itemModelResolver = ctx.getItemModelResolver();
+        //?}
+        //? if <1.21.2 {
+        /*this.addLayer(new ItemInHandLayer<>(this, ctx.getItemInHandRenderer()));
+        *///?} else if <1.21.4 {
+        /*this.addLayer(new ItemInHandLayer<>(this, ctx.getItemRenderer()));
+        *///?} else {
         this.addLayer(new ItemInHandLayer<>(this));
+        //?}
     }
 
     @Override
@@ -32,6 +50,7 @@ public final class BasukeRenderer extends MobRenderer<Basuke, BasukeModel.State,
         return 15;
     }
 
+    //? if >=1.21.2 {
     @Override
     public @NotNull BasukeModel.State createRenderState() {
         return new BasukeModel.State();
@@ -44,7 +63,9 @@ public final class BasukeRenderer extends MobRenderer<Basuke, BasukeModel.State,
             float partialTick
     ) {
         super.extractRenderState(entity, s, partialTick);
+        //? if >=1.21.4 {
         ArmedEntityRenderState.extractArmedEntityRenderState(entity, s, this.itemModelResolver);
+        //?}
 
         float bodyYaw = Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
         float headYaw = Mth.rotLerp(partialTick, entity.yHeadRotO, entity.yHeadRot);
@@ -68,4 +89,10 @@ public final class BasukeRenderer extends MobRenderer<Basuke, BasukeModel.State,
     public @NotNull ResourceLocation getTextureLocation(@NotNull BasukeModel.State s) {
         return TEXTURE;
     }
+    //?} else {
+    /*@Override
+    public @NotNull ResourceLocation getTextureLocation(@NotNull Basuke entity) {
+        return TEXTURE;
+    }
+    *///?}
 }

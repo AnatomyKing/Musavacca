@@ -4,6 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+//? if <1.21.2
+//import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -18,6 +20,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableLogic;
@@ -94,7 +97,11 @@ public final class VocoTableBlock extends Block implements EntityBlock {
     }
 
     @Override
+    //? if <1.21.2 {
+    /*protected ItemInteractionResult useItemOn(
+    *///?} else {
     protected InteractionResult useItemOn(
+    //?}
             ItemStack stack,
             BlockState state,
             Level level,
@@ -103,7 +110,12 @@ public final class VocoTableBlock extends Block implements EntityBlock {
             InteractionHand hand,
             BlockHitResult hit
     ) {
-        return VocoTableLogic.useItemOn(stack, state, level, pos, player, hand, hit);
+        InteractionResult result = VocoTableLogic.useItemOn(stack, state, level, pos, player, hand, hit);
+        //? if <1.21.2 {
+        /*return InteractionResultCompat.forItemUse(result);
+        *///?} else {
+        return result;
+        //?}
     }
 
     @Override

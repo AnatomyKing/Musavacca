@@ -64,16 +64,24 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
         if (above.is(Blocks.SNOW) && above.getValue(SnowLayerBlock.LAYERS) == 1) return true;
         if (above.getFluidState().getAmount() == 8) return false;
 
+        //? if <1.21.2 {
+        /*int lightBlock = LightEngine.getLightBlockInto(
+                level,
+                state,
+                pos,
+                above,
+                abovePos,
+                Direction.UP,
+                above.getLightBlock(level, abovePos)
+        );
+        *///?} else {
         int lightBlock = LightEngine.getLightBlockInto(
                 state,
                 above,
                 Direction.UP,
-                //? if <1.21.4 {
-                /*above.getLightBlock(level, abovePos)
-                 *///?} else {
                 above.getLightBlock()
-                //?}
         );
+        //?}
 
         return lightBlock < LightEngine.MAX_LEVEL;
     }

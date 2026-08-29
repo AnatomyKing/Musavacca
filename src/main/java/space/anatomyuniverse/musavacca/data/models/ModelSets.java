@@ -383,7 +383,7 @@ public final class ModelSets {
                 ModItems.MUSAVACCA_BOAT.get()
                 //? if <1.21.4 {
                 /*,
-                ModItems.MUSAVACCA_DOOR_ITEM.get()
+                ModItems.MUSAVACCA_DOOR.get()
                 *///?}
         };
     }

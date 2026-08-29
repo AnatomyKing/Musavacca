@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.world.phys.Vec3;

@@ -9,6 +9,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+//? if <1.21.5
+//import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.worldgen.ModConfiguredFeatures;
@@ -19,6 +21,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public final class MusavaccaTreeFeatureProvider implements DataProvider {
@@ -229,21 +232,21 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
         String blockName = getRequiredString(stateTag, "Name", "palette entry Name");
         json.addProperty("Name", blockName);
 
-        stateTag.getCompound("Properties").ifPresent(propertiesTag -> {
+        CompoundTag propertiesTag = getOptionalCompound(stateTag, "Properties");
+
+        if (propertiesTag != null) {
             JsonObject properties = new JsonObject();
 
-            propertiesTag.keySet().stream()
+            tagKeys(propertiesTag).stream()
                     .sorted()
                     .forEach(key -> {
-                        String value = propertiesTag.getString(key).orElseThrow(() ->
-                                new IllegalStateException("Expected string property value for property '" + key + "'.")
-                        );
+                        String value = getRequiredPropertyString(propertiesTag, key);
 
                         properties.addProperty(key, value);
                     });
 
             json.add("Properties", properties);
-        });
+        }
 
         return json;
     }
@@ -259,32 +262,102 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
     }
 
     private static ListTag getRequiredList(CompoundTag tag, String key) throws IOException {
+        //? if >=1.21.5 {
         return tag.getList(key).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing list tag '" + key + "'.")
         );
+        //?} else {
+        /*if (!tag.contains(key, Tag.TAG_LIST)) {
+            throw new IOException("Invalid structure NBT: missing list tag '" + key + "'.");
+        }
+
+        return (ListTag) tag.get(key);
+        *///?}
     }
 
     private static int getRequiredInt(ListTag list, int index, String path) throws IOException {
+        //? if >=1.21.5 {
         return list.getInt(index).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing int at " + path + ".")
         );
+        //?} else {
+        /*if (index < 0 || index >= list.size() || list.get(index).getId() != Tag.TAG_INT) {
+            throw new IOException("Invalid structure NBT: missing int at " + path + ".");
+        }
+
+        return list.getInt(index);
+        *///?}
     }
 
     private static int getRequiredInt(CompoundTag tag, String key, String path) throws IOException {
+        //? if >=1.21.5 {
         return tag.getInt(key).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing int tag at " + path + ".")
         );
+        //?} else {
+        /*if (!tag.contains(key, Tag.TAG_INT)) {
+            throw new IOException("Invalid structure NBT: missing int tag at " + path + ".");
+        }
+
+        return tag.getInt(key);
+        *///?}
     }
 
     private static CompoundTag getRequiredCompound(ListTag list, int index, String path) throws IOException {
+        //? if >=1.21.5 {
         return list.getCompound(index).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing compound tag at " + path + ".")
         );
+        //?} else {
+        /*if (index < 0 || index >= list.size() || list.get(index).getId() != Tag.TAG_COMPOUND) {
+            throw new IOException("Invalid structure NBT: missing compound tag at " + path + ".");
+        }
+
+        return list.getCompound(index);
+        *///?}
     }
 
     private static String getRequiredString(CompoundTag tag, String key, String path) throws IOException {
+        //? if >=1.21.5 {
         return tag.getString(key).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing string tag at " + path + ".")
         );
+        //?} else {
+        /*if (!tag.contains(key, Tag.TAG_STRING)) {
+            throw new IOException("Invalid structure NBT: missing string tag at " + path + ".");
+        }
+
+        return tag.getString(key);
+        *///?}
+    }
+
+    private static CompoundTag getOptionalCompound(CompoundTag tag, String key) {
+        //? if >=1.21.5 {
+        return tag.getCompound(key).orElse(null);
+         //?} else {
+        /*return tag.contains(key, Tag.TAG_COMPOUND) ? tag.getCompound(key) : null;
+        *///?}
+    }
+
+    private static String getRequiredPropertyString(CompoundTag tag, String key) {
+        //? if >=1.21.5 {
+        return tag.getString(key).orElseThrow(() ->
+                new IllegalStateException("Expected string property value for property '" + key + "'.")
+        );
+        //?} else {
+        /*if (!tag.contains(key, Tag.TAG_STRING)) {
+            throw new IllegalStateException("Expected string property value for property '" + key + "'.");
+        }
+
+        return tag.getString(key);
+        *///?}
+    }
+
+    private static Set<String> tagKeys(CompoundTag tag) {
+        //? if >=1.21.5 {
+        return tag.keySet();
+         //?} else {
+        /*return tag.getAllKeys();
+        *///?}
     }
 }

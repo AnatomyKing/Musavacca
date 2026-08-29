@@ -9,12 +9,17 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+//? if >=1.21.5
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+//? if <1.21.2 {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?} else {
 import net.minecraft.world.level.ScheduledTickAccess;
+//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Portal;
@@ -26,7 +31,11 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.portal.PortalShape;
+//? if <1.21.2 {
+/*import net.minecraft.world.level.portal.DimensionTransition;
+*///?} else {
 import net.minecraft.world.level.portal.TeleportTransition;
+//?}
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -41,6 +50,7 @@ import space.anatomyuniverse.musavacca.portal.PearlPortalTransform;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportPreloader;
 
 import java.util.Map;
+//? if >=1.21.2
 import java.util.Set;
 
 public class PearlPortalBlock extends Block implements Portal, EntityBlock {
@@ -61,7 +71,7 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             Direction.Axis.Y, Block.box(0.0D, 6.0D, 0.0D, 16.0D, 10.0D, 16.0D)
     );
 
-    public PearlPortalBlock(BlockBehaviour.Properties properties) {
+    public PearlPortalBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(AXIS, Direction.Axis.X));
     }
@@ -91,6 +101,24 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         return SHAPES.getOrDefault(state.getValue(AXIS), SHAPES.get(Direction.Axis.X));
     }
 
+    //? if <1.21.2 {
+    /*@Override
+    protected BlockState updateShape(
+            BlockState state,
+            Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+    ) {
+        if (this.shouldRemovePortal(state, level, pos, direction, neighborState)) {
+            this.removeInvalidPortal(level, pos);
+            return state;
+        }
+
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
@@ -102,29 +130,8 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             BlockState neighborState,
             RandomSource random
     ) {
-        Direction.Axis portalAxis = state.getValue(AXIS);
-        Direction.Axis changedAxis = direction.getAxis();
-
-        /*
-         * Ignore changes in front/back of the portal plane.
-         *
-         * Standing X portal: ignore Z updates.
-         * Standing Z portal: ignore X updates.
-         * Flat Y portal:     ignore Y updates.
-         *
-         * But validate when a same-plane neighbor/frame changes.
-         */
-        if (changedAxis != portalNormalAxis(portalAxis)
-                && !neighborState.is(this)
-                && PearlPortalFrame.findExistingShape(level, pos, portalAxis).isEmpty()) {
-            if (level instanceof ServerLevel serverLevel && serverLevel.getBlockState(pos).is(this)) {
-                /*
-                 * Break one portal tile and let neighbor updates domino the rest.
-                 * PearlPortalBlockEntity.preRemoveSideEffects handles logical unregistering.
-                 */
-                serverLevel.destroyBlock(pos, false);
-            }
-
+        if (this.shouldRemovePortal(state, level, pos, direction, neighborState)) {
+            this.removeInvalidPortal(level, pos);
             return state;
         }
 
@@ -139,7 +146,28 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                 random
         );
     }
+    //?}
 
+    private boolean shouldRemovePortal(
+            BlockState state,
+            LevelReader level,
+            BlockPos pos,
+            Direction direction,
+            BlockState neighborState
+    ) {
+        Direction.Axis portalAxis = state.getValue(AXIS);
+        return direction.getAxis() != portalNormalAxis(portalAxis)
+                && !neighborState.is(this)
+                && PearlPortalFrame.findExistingShape(level, pos, portalAxis).isEmpty();
+    }
+
+    private void removeInvalidPortal(LevelReader level, BlockPos pos) {
+        if (level instanceof ServerLevel serverLevel && serverLevel.getBlockState(pos).is(this)) {
+            serverLevel.destroyBlock(pos, false);
+        }
+    }
+
+    //? if >=1.21.5 {
     @Override
     protected void entityInside(
             BlockState state,
@@ -152,6 +180,32 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             entity.setAsInsidePortal(this, pos);
         }
     }
+    //?} else {
+    /*@Override
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+        if (entity.canUsePortal(false)) {
+            entity.setAsInsidePortal(this, pos);
+        }
+    }
+    *///?}
+
+    //? if <1.21.5 {
+    /*@Override
+    protected void onRemove(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            BlockState newState,
+            boolean movedByPiston
+    ) {
+        if (state.getBlock() != newState.getBlock()
+                && level.getBlockEntity(pos) instanceof PearlPortalBlockEntity blockEntity) {
+            blockEntity.cleanupBeforeRemoval();
+        }
+
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+    *///?}
 
     @Override
     public int getPortalTransitionTime(ServerLevel level, Entity entity) {
@@ -160,7 +214,13 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
 
     @Nullable
     @Override
-    public TeleportTransition getPortalDestination(
+    public
+    //? if <1.21.2 {
+    /*DimensionTransition
+    *///?} else {
+    TeleportTransition
+    //?}
+    getPortalDestination(
             ServerLevel currentLevel,
             Entity entity,
             BlockPos entryPos
@@ -221,8 +281,12 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                         safePos
                 );
 
-        TeleportTransition.PostTeleportTransition postTeleport =
+        var postTeleport =
+                //? if <1.21.2 {
+                /*DimensionTransition
+                *///?} else {
                 TeleportTransition
+                //?}
                         .PLAY_PORTAL_SOUND
                         .then(
                                 teleportedEntity -> {
@@ -242,12 +306,18 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                                 }
                         );
 
-        return new TeleportTransition(
+        return new
+                //? if <1.21.2 {
+                /*DimensionTransition(
+                *///?} else {
+                TeleportTransition(
+                //?}
                 targetLevel,
                 safePos,
                 transform.deltaMovement(),
                 transform.yRot(),
                 transform.xRot(),
+                //? if >=1.21.2
                 Set.of(),
                 postTeleport
         );
@@ -395,8 +465,8 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     }
 
     @Override
-    public Portal.Transition getLocalTransition() {
-        return Portal.Transition.CONFUSION;
+    public Transition getLocalTransition() {
+        return Transition.CONFUSION;
     }
 
     @Override
@@ -539,6 +609,16 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         );
     }
 
+    //? if <1.21.4 {
+    /*@Override
+    public ItemStack getCloneItemStack(
+            LevelReader level,
+            BlockPos pos,
+            BlockState state
+    ) {
+        return ItemStack.EMPTY;
+    }
+    *///?} else {
     @Override
     protected ItemStack getCloneItemStack(
             LevelReader level,
@@ -548,6 +628,7 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     ) {
         return ItemStack.EMPTY;
     }
+    //?}
 
     @Override
     protected BlockState rotate(

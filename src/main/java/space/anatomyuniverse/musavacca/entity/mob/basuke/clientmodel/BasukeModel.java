@@ -2,7 +2,12 @@ package space.anatomyuniverse.musavacca.entity.mob.basuke.clientmodel;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.ArmedModel;
+//? if <1.21.2 {
+/*import net.minecraft.client.model.HierarchicalModel;
+*///?} else {
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.entity.state.AllayRenderState;
+//?}
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,7 +16,6 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.entity.state.AllayRenderState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
@@ -19,8 +23,15 @@ import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
-public class BasukeModel extends EntityModel<BasukeModel.State> implements ArmedModel {
+public class BasukeModel extends
+        //? if <1.21.2 {
+        /*HierarchicalModel<Basuke>
+        *///?} else {
+        EntityModel<BasukeModel.State>
+        //?}
+        implements ArmedModel {
 
+    //? if >=1.21.2 {
     public static class State extends AllayRenderState {
         public float headYawRad;
         public float headPitchRad;
@@ -30,6 +41,7 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
         public int eatingTicks;
         public int eatingTotalTicks;
     }
+    //?}
 
     public static final ModelLayerLocation LAYER_LOCATION =
             new ModelLayerLocation(
@@ -45,6 +57,8 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
     private static final float EATING_ARM_BOB_STRENGTH = 0.145F;
 
     private final ModelPart basuke;
+    //? if <1.21.2
+    //private final ModelPart root;
     private final ModelPart hHead;
     private final ModelPart leftWing;
     private final ModelPart rightWing;
@@ -76,7 +90,10 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
     private final float rightArmBaseY;
 
     public BasukeModel(ModelPart bakedRoot) {
+        //? if >=1.21.2
         super(bakedRoot);
+        //? if <1.21.2
+        //this.root = bakedRoot;
 
         this.basuke = bakedRoot.getChild("basuke");
         this.hHead = this.basuke.getChild("h_head");
@@ -274,6 +291,34 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
         this.rightArm.y += armYOffset;
     }
 
+    //? if <1.21.2 {
+    /*@Override
+    public ModelPart root() {
+        return this.root;
+    }
+
+    @Override
+    public void setupAnim(
+            @NotNull Basuke entity,
+            float limbSwing,
+            float limbSwingAmount,
+            float ageInTicks,
+            float netHeadYaw,
+            float headPitch
+    ) {
+        float partialTick = Mth.clamp(ageInTicks - entity.tickCount, 0.0F, 1.0F);
+        this.applyAnimation(
+                limbSwing,
+                ageInTicks,
+                Mth.clamp(netHeadYaw, -35.0F, 35.0F) * Mth.DEG_TO_RAD,
+                Mth.clamp(headPitch, -25.0F, 25.0F) * Mth.DEG_TO_RAD,
+                Mth.clamp((float) (entity.getDeltaMovement().length() * 6.0D), 0.0F, 1.0F),
+                entity.getHoldingItemAnimationProgress(partialTick),
+                entity.getBasukeEatingTicks(),
+                entity.getBasukeEatingTotalTicks()
+        );
+    }
+    *///?} else {
     @Override
     public void setupAnim(@NotNull State s) {
         this.applyAnimation(
@@ -287,6 +332,7 @@ public class BasukeModel extends EntityModel<BasukeModel.State> implements Armed
                 s.eatingTotalTicks
         );
     }
+    //?}
 
     @Override
     public void translateToHand(HumanoidArm arm, PoseStack poseStack) {

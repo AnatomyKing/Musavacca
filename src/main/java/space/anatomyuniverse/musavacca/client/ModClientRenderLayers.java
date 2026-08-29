@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.client;
 
+//? if >=1.21.2 {
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -8,16 +9,18 @@ import net.minecraft.client.renderer.entity.ArmorStandRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import space.anatomyuniverse.musavacca.client.renderer.layer.CustomHelmetTrimLayer;
 import space.anatomyuniverse.musavacca.data.models.ModelSets;
 import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSetTintedLayers;
+//?}
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 public final class ModClientRenderLayers {
 
     public static void addLayers(
             EntityRenderersEvent.AddLayers event
     ) {
+        //? if >=1.21.2 {
         CustomArmorSetTintedLayers.registerEquipmentTints(
                 ModelSets.customArmorSetTintedLayers()
         );
@@ -63,6 +66,7 @@ public final class ModClientRenderLayers {
                     )
             );
         }
+        //?}
     }
 
     private ModClientRenderLayers() {

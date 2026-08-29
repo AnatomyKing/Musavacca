@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.data.models.item;
 
+//? if >=1.21.2 && <1.21.4
+//import net.minecraft.world.item.equipment.EquipmentModel;
+//? if <1.21.4 {
+/*import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+*///?} else {
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
@@ -15,18 +21,21 @@ import net.minecraft.client.renderer.item.SelectItemModel;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.client.renderer.item.properties.select.TrimMaterialProperty;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
+//?}
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+//? if >=1.21.4 {
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.EquipmentAssets;
-import net.minecraft.world.item.equipment.trim.MaterialAssetGroup;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
 import net.minecraft.world.item.equipment.trim.TrimMaterials;
+//?}
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 import space.anatomyuniverse.musavacca.tint.ProfileHexColorItemTintSource;
@@ -40,61 +49,80 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class CustomArmorSetTintedLayers {
+    private static final ResourceLocation TRIM_PREFIX_HELMET = minecraft("trims/items/helmet_trim");
+    private static final ResourceLocation TRIM_PREFIX_CHESTPLATE = minecraft("trims/items/chestplate_trim");
+    private static final ResourceLocation TRIM_PREFIX_LEGGINGS = minecraft("trims/items/leggings_trim");
+    private static final ResourceLocation TRIM_PREFIX_BOOTS = minecraft("trims/items/boots_trim");
+
+    //? if >=1.21.4 {
     private static final TextureSlot CUSTOM_HELMET_TEXTURE =
             TextureSlot.create("1");
+    //?}
+
+    private static final ResourceLocation TRIM_TYPE = minecraft("trim_type");
 
     private static final List<TrimMaterialModel>
             TRIM_MATERIAL_MODELS = List.of(
-            new TrimMaterialModel(
-                    MaterialAssetGroup.QUARTZ,
-                    TrimMaterials.QUARTZ
+            trim("quartz", 0.1F
+                    //? if >=1.21.4
+                    , TrimMaterials.QUARTZ
             ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.IRON,
-                    TrimMaterials.IRON
+            trim("iron", 0.2F
+                    //? if >=1.21.4
+                    , TrimMaterials.IRON
             ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.NETHERITE,
-                    TrimMaterials.NETHERITE
+            trim("netherite", 0.3F
+                    //? if >=1.21.4
+                    , TrimMaterials.NETHERITE
             ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.REDSTONE,
-                    TrimMaterials.REDSTONE
+            trim("redstone", 0.4F
+                    //? if >=1.21.4
+                    , TrimMaterials.REDSTONE
             ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.COPPER,
-                    TrimMaterials.COPPER
+            trim("copper", 0.5F
+                    //? if >=1.21.4
+                    , TrimMaterials.COPPER
             ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.GOLD,
-                    TrimMaterials.GOLD
+            trim("gold", 0.6F
+                    //? if >=1.21.4
+                    , TrimMaterials.GOLD
             ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.EMERALD,
-                    TrimMaterials.EMERALD
+            trim("emerald", 0.7F
+                    //? if >=1.21.4
+                    , TrimMaterials.EMERALD
             ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.DIAMOND,
-                    TrimMaterials.DIAMOND
+            trim("diamond", 0.8F
+                    //? if >=1.21.4
+                    , TrimMaterials.DIAMOND
             ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.LAPIS,
-                    TrimMaterials.LAPIS
+            trim("lapis", 0.9F
+                    //? if >=1.21.4
+                    , TrimMaterials.LAPIS
             ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.AMETHYST,
-                    TrimMaterials.AMETHYST
-            ),
-            new TrimMaterialModel(
-                    MaterialAssetGroup.RESIN,
-                    TrimMaterials.RESIN
+            trim("amethyst", 1.0F
+                    //? if >=1.21.4
+                    , TrimMaterials.AMETHYST
             )
+            //? if >=1.21.4
+            , trim("resin", 1.1F, TrimMaterials.RESIN)
     );
 
     private static final Map<ResourceLocation, Entry>
             EQUIPMENT_TINT_ENTRIES = new ConcurrentHashMap<>();
 
     private CustomArmorSetTintedLayers() {
+    }
+
+    private static ResourceLocation minecraft(String path) {
+        return ResourceLocation.fromNamespaceAndPath("minecraft", path);
+    }
+
+    private static ResourceLocation itemModelLocation(Item item) {
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+        return ResourceLocation.fromNamespaceAndPath(
+                id.getNamespace(),
+                "item/" + id.getPath()
+        );
     }
 
     public enum LayerLayout {
@@ -108,9 +136,25 @@ public final class CustomArmorSetTintedLayers {
     }
 
     private record TrimMaterialModel(
-            MaterialAssetGroup assets,
-            ResourceKey<TrimMaterial> materialKey
+            String assets,
+            float legacyIndex
+            //? if >=1.21.4
+            , ResourceKey<TrimMaterial> materialKey
     ) {
+    }
+
+    private static TrimMaterialModel trim(
+            String assets,
+            float legacyIndex
+            //? if >=1.21.4
+            , ResourceKey<TrimMaterial> materialKey
+    ) {
+        return new TrimMaterialModel(
+                assets,
+                legacyIndex
+                //? if >=1.21.4
+                , materialKey
+        );
     }
 
     public record Entry(
@@ -225,12 +269,14 @@ public final class CustomArmorSetTintedLayers {
             return ResourceLocation.parse(equipmentId);
         }
 
+        //? if >=1.21.4 {
         public ResourceKey<EquipmentAsset> equipmentAssetKey() {
             return ResourceKey.create(
                     EquipmentAssets.ROOT_ID,
                     equipmentLocation()
             );
         }
+        //?}
 
         public ResourceLocation customHelmetHeadModelLocation() {
             return ResourceLocation.parse(
@@ -362,10 +408,7 @@ public final class CustomArmorSetTintedLayers {
                     "item"
             );
 
-            ResourceLocation itemId =
-                    ModelLocationUtils.getModelLocation(
-                            itemLike.asItem()
-                    );
+            ResourceLocation itemId = itemModelLocation(itemLike.asItem());
 
             String basePath = itemId.getPath();
             String texturePath = textureStem(
@@ -392,9 +435,7 @@ public final class CustomArmorSetTintedLayers {
                     "item"
             );
 
-            return ModelLocationUtils.getModelLocation(
-                    itemLike.asItem()
-            ).withSuffix(
+            return itemModelLocation(itemLike.asItem()).withSuffix(
                     "_layer_" + modelLayer
             );
         }
@@ -652,18 +693,79 @@ public final class CustomArmorSetTintedLayers {
         }
     }
 
-    public static Entry equipmentTintEntry(
-            ResourceKey<EquipmentAsset> equipmentAsset
-    ) {
+    //? if <1.21.4 {
+    /*public static Entry equipmentTintEntry(ResourceLocation equipmentAsset) {
         if (equipmentAsset == null) {
             return null;
         }
 
-        return EQUIPMENT_TINT_ENTRIES.get(
-                equipmentAsset.location()
-        );
+        return EQUIPMENT_TINT_ENTRIES.get(equipmentAsset);
+    }
+    *///?} else {
+    public static Entry equipmentTintEntry(ResourceKey<EquipmentAsset> equipmentAsset) {
+        if (equipmentAsset == null) {
+            return null;
+        }
+
+        return EQUIPMENT_TINT_ENTRIES.get(equipmentAsset.location());
+    }
+    //?}
+
+    //? if <1.21.4 {
+    /*public static void generate(
+            ItemModelProvider items,
+            Entry... entries
+    ) {
+        if (entries == null) {
+            return;
+        }
+
+        for (Entry entry : entries) {
+            if (entry == null) {
+                continue;
+            }
+
+            generateLegacyArmorItem(items, entry, entry.helmet(), TRIM_PREFIX_HELMET);
+            generateLegacyArmorItem(items, entry, entry.chestplate(), TRIM_PREFIX_CHESTPLATE);
+            generateLegacyArmorItem(items, entry, entry.leggings(), TRIM_PREFIX_LEGGINGS);
+            generateLegacyArmorItem(items, entry, entry.boots(), TRIM_PREFIX_BOOTS);
+        }
     }
 
+    private static void generateLegacyArmorItem(
+            ItemModelProvider items,
+            Entry entry,
+            ItemLike itemLike,
+            ResourceLocation trimPrefix
+    ) {
+        Item item = itemLike.asItem();
+        String modelName = BuiltInRegistries.ITEM.getKey(item).getPath();
+        var base = items.withExistingParent(modelName, items.mcLoc("item/generated"));
+
+        for (int layer = 0; layer < entry.itemLayerCount(); ++layer) {
+            base.texture("layer" + layer, entry.itemTexture(itemLike, layer));
+        }
+
+        for (TrimMaterialModel trimMaterial : TRIM_MATERIAL_MODELS) {
+            String trimmedPath = modelName + "_" + trimMaterial.assets() + "_trim";
+            var trimmed = items.withExistingParent(trimmedPath, items.mcLoc("item/generated"));
+
+            for (int layer = 0; layer < entry.itemLayerCount(); ++layer) {
+                trimmed.texture("layer" + layer, entry.itemTexture(itemLike, layer));
+            }
+
+            trimmed.texture(
+                    "layer" + entry.itemLayerCount(),
+                    trimPrefix.withSuffix("_" + trimMaterial.assets())
+            );
+
+            base.override()
+                    .predicate(TRIM_TYPE, trimMaterial.legacyIndex())
+                    .model(trimmed)
+                    .end();
+        }
+    }
+    *///?} else {
     public static void generate(
             ItemModelGenerators items,
             Entry... entries
@@ -686,21 +788,21 @@ public final class CustomArmorSetTintedLayers {
                     items,
                     entry,
                     entry.chestplate(),
-                    ItemModelGenerators.TRIM_PREFIX_CHESTPLATE
+                    TRIM_PREFIX_CHESTPLATE
             );
 
             generateArmorItem(
                     items,
                     entry,
                     entry.leggings(),
-                    ItemModelGenerators.TRIM_PREFIX_LEGGINGS
+                    TRIM_PREFIX_LEGGINGS
             );
 
             generateArmorItem(
                     items,
                     entry,
                     entry.boots(),
-                    ItemModelGenerators.TRIM_PREFIX_BOOTS
+                    TRIM_PREFIX_BOOTS
             );
         }
     }
@@ -716,7 +818,7 @@ public final class CustomArmorSetTintedLayers {
                         items,
                         entry,
                         entry.helmet(),
-                        ItemModelGenerators.TRIM_PREFIX_HELMET
+                        TRIM_PREFIX_HELMET
                 );
 
         ItemModel.Unbaked head =
@@ -798,8 +900,6 @@ public final class CustomArmorSetTintedLayers {
                             "_"
                                     + trimMaterial
                                     .assets()
-                                    .base()
-                                    .suffix()
                                     + "_trim"
                     );
 
@@ -808,10 +908,6 @@ public final class CustomArmorSetTintedLayers {
                             "_"
                                     + trimMaterial
                                     .assets()
-                                    .assetId(
-                                            entry.equipmentAssetKey()
-                                    )
-                                    .suffix()
                     );
 
             ModelTemplates.FLAT_ITEM.create(
@@ -1018,6 +1114,7 @@ public final class CustomArmorSetTintedLayers {
                 foilCarrier
         );
     }
+    //?}
 
     private static int totalLayerCount(
             PearlFireTintProfiles.Profile profile,
@@ -1126,6 +1223,9 @@ public final class CustomArmorSetTintedLayers {
             this.equipmentPathProvider =
                     output.createPathProvider(
                             PackOutput.Target.RESOURCE_PACK,
+                            //? if <1.21.4
+                            //"models/equipment"
+                            //? if >=1.21.4
                             "equipment"
                     );
 
@@ -1136,6 +1236,31 @@ public final class CustomArmorSetTintedLayers {
         public CompletableFuture<?> run(
                 CachedOutput cache
         ) {
+            //? if <1.21.2 {
+            /*return CompletableFuture.completedFuture(null);
+            *///?} else if <1.21.4 {
+            /*Map<ResourceLocation, EquipmentModel>
+                    equipmentInfos = new HashMap<>();
+
+            if (entries != null) {
+                for (Entry entry : entries) {
+                    if (entry != null) {
+                        putLegacyUnique(
+                                equipmentInfos,
+                                entry.equipmentLocation(),
+                                createLegacyEquipmentModel(entry)
+                        );
+                    }
+                }
+            }
+
+            return DataProvider.saveAll(
+                    cache,
+                    EquipmentModel.CODEC,
+                    this.equipmentPathProvider,
+                    equipmentInfos
+            );
+            *///?} else {
             Map<ResourceLocation, EquipmentClientInfo>
                     equipmentInfos = new HashMap<>();
 
@@ -1157,8 +1282,46 @@ public final class CustomArmorSetTintedLayers {
                     this.equipmentPathProvider,
                     equipmentInfos
             );
+            //?}
         }
 
+        //? if >=1.21.2 && <1.21.4 {
+        /*private static EquipmentModel createLegacyEquipmentModel(Entry entry) {
+            EquipmentModel.Layer[] layers = new EquipmentModel.Layer[
+                    entry.equipmentLayerCount()
+                    ];
+
+            for (int modelLayer = 0; modelLayer < entry.equipmentLayerCount(); ++modelLayer) {
+                Optional<EquipmentModel.Dyeable> dyeable =
+                        entry.isUntintedEquipmentLayer(modelLayer)
+                                ? Optional.empty()
+                                : Optional.of(new EquipmentModel.Dyeable(Optional.of(0xFFFFFF)));
+
+                layers[modelLayer] = new EquipmentModel.Layer(
+                        entry.equipmentTexture(modelLayer),
+                        dyeable,
+                        false
+                );
+            }
+
+            return EquipmentModel.builder()
+                    .addLayers(EquipmentModel.LayerType.HUMANOID, layers)
+                    .addLayers(EquipmentModel.LayerType.HUMANOID_LEGGINGS, layers)
+                    .build();
+        }
+
+        private static void putLegacyUnique(
+                Map<ResourceLocation, EquipmentModel> map,
+                ResourceLocation id,
+                EquipmentModel info
+        ) {
+            if (map.putIfAbsent(id, info) != null) {
+                throw new IllegalStateException(
+                        "Tried to register equipment model twice for id: " + id
+                );
+            }
+        }
+        *///?} else if >=1.21.4 {
         private static EquipmentClientInfo
         createEquipmentInfo(
                 Entry entry
@@ -1222,6 +1385,7 @@ public final class CustomArmorSetTintedLayers {
                 );
             }
         }
+        //?}
 
         @Override
         public String getName() {

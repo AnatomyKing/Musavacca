@@ -8,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
+//? if >=1.21.2
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
@@ -40,6 +41,16 @@ public final class PotassiumItemBehavior {
 
     public static ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         FoodProperties food = stack.get(DataComponents.FOOD);
+        //? if <1.21.2 {
+        /*if (!level.isClientSide() && food != null) {
+            entity.eat(level, stack.copyWithCount(1), food);
+
+            if (!(entity instanceof Player player) || !player.getAbilities().instabuild) {
+                InteractionHand hand = entity.getUsedItemHand();
+                stack.hurtAndBreak(getEatDurabilityDamage(stack), entity, slotForHand(hand));
+            }
+        }
+        *///?} else {
         Consumable consumable = stack.get(DataComponents.CONSUMABLE);
 
         if (!level.isClientSide() && food != null && consumable != null) {
@@ -56,6 +67,7 @@ public final class PotassiumItemBehavior {
                  *///?}
             }
         }
+        //?}
 
         return stack;
     }

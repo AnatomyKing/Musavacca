@@ -15,7 +15,8 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 
 //? if <1.21.5 {
-/*import net.minecraft.client.data.models.blockstates.Variant;
+/*import net.minecraft.client.data.models.blockstates.Condition;
+import net.minecraft.client.data.models.blockstates.Variant;
 import net.minecraft.client.data.models.blockstates.VariantProperties;
 *///?} else {
 import com.mojang.math.Quadrant;
@@ -92,59 +93,59 @@ public final class CubeVocoTable {
 
                     .part()
                     .modelFile(litReceptor)
-                    .condition(VocoTableBlock.LIT_NORTH_EAST, true)
                     .addModel()
+                    .condition(VocoTableBlock.LIT_NORTH_EAST, true)
                     .end()
 
                     .part()
                     .modelFile(litReceptor)
                     .rotationY(90)
-                    .condition(VocoTableBlock.LIT_SOUTH_EAST, true)
                     .addModel()
+                    .condition(VocoTableBlock.LIT_SOUTH_EAST, true)
                     .end()
 
                     .part()
                     .modelFile(litReceptor)
                     .rotationY(180)
-                    .condition(VocoTableBlock.LIT_SOUTH_WEST, true)
                     .addModel()
+                    .condition(VocoTableBlock.LIT_SOUTH_WEST, true)
                     .end()
 
                     .part()
                     .modelFile(litReceptor)
                     .rotationY(270)
-                    .condition(VocoTableBlock.LIT_NORTH_WEST, true)
                     .addModel()
+                    .condition(VocoTableBlock.LIT_NORTH_WEST, true)
                     .end()
 
                     .part()
                     .modelFile(rotaryDialers)
-                    .condition(VocoTableBlock.ROTARY_DIALERS, true)
                     .addModel()
+                    .condition(VocoTableBlock.ROTARY_DIALERS, true)
                     .end()
 
                     .part()
                     .modelFile(portalNorthEast)
-                    .condition(VocoTableBlock.PORTAL_NORTH_EAST, true)
                     .addModel()
+                    .condition(VocoTableBlock.PORTAL_NORTH_EAST, true)
                     .end()
 
                     .part()
                     .modelFile(portalSouthEast)
-                    .condition(VocoTableBlock.PORTAL_SOUTH_EAST, true)
                     .addModel()
+                    .condition(VocoTableBlock.PORTAL_SOUTH_EAST, true)
                     .end()
 
                     .part()
                     .modelFile(portalSouthWest)
-                    .condition(VocoTableBlock.PORTAL_SOUTH_WEST, true)
                     .addModel()
+                    .condition(VocoTableBlock.PORTAL_SOUTH_WEST, true)
                     .end()
 
                     .part()
                     .modelFile(portalNorthWest)
-                    .condition(VocoTableBlock.PORTAL_NORTH_WEST, true)
                     .addModel()
+                    .condition(VocoTableBlock.PORTAL_NORTH_WEST, true)
                     .end();
 
             gen.simpleBlockItem(block, base);
@@ -226,7 +227,7 @@ public final class CubeVocoTable {
             int yRot
     ) {
         return multi.with(
-                BlockModelGenerators.condition().term(property, value),
+                Condition.condition().term(property, value),
                 variant(modelId, yRot)
         );
     }

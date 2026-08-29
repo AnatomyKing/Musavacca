@@ -8,7 +8,16 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
+
+//? if <1.21.5 {
+/*import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+*///?} else {
 import net.minecraft.world.level.saveddata.SavedDataType;
+//?}
+
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
@@ -322,8 +331,13 @@ public final class HexTeleportDirectory extends SavedData {
             PhoneRegistration.CODEC.listOf().optionalFieldOf("phone_registrations", List.of()).forGetter(data -> data.phoneRegistrations)
     ).apply(instance, HexTeleportDirectory::new));
 
+    //? if >=1.21.5 {
     public static final SavedDataType<HexTeleportDirectory> TYPE =
             new SavedDataType<>(STORAGE_ID, HexTeleportDirectory::new, CODEC);
+    //?} else {
+    /*private static final SavedData.Factory<HexTeleportDirectory> FACTORY =
+            new SavedData.Factory<>(HexTeleportDirectory::new, HexTeleportDirectory::load);
+    *///?}
 
     /*
      * Indexed stores keep normal operations off full-list scans.
@@ -375,8 +389,47 @@ public final class HexTeleportDirectory extends SavedData {
         this.normalizeLoadedPhoneRegistrations();
     }
 
+    //? if <1.21.5 {
+    /*private static HexTeleportDirectory load(
+            CompoundTag tag,
+            HolderLookup.Provider registries
+    ) {
+        return CODEC.parse(NbtOps.INSTANCE, tag)
+                .result()
+                .orElseThrow(() -> new IllegalStateException(
+                        "Failed to decode " + STORAGE_ID
+                ));
+    }
+
+    @Override
+    public CompoundTag save(
+            CompoundTag tag,
+            HolderLookup.Provider registries
+    ) {
+        Tag encoded = CODEC.encodeStart(NbtOps.INSTANCE, this)
+                .result()
+                .orElseThrow(() -> new IllegalStateException(
+                        "Failed to encode " + STORAGE_ID
+                ));
+
+        if (encoded instanceof CompoundTag compound) {
+            return compound;
+        }
+
+        throw new IllegalStateException(
+                "Codec for " + STORAGE_ID + " did not produce a CompoundTag"
+        );
+    }
+    *///?}
+
     public static HexTeleportDirectory get(MinecraftServer server) {
+        //? if >=1.21.5 {
         return server.overworld().getDataStorage().computeIfAbsent(TYPE);
+        //?} else {
+        /*return server.overworld()
+                .getDataStorage()
+                .computeIfAbsent(FACTORY, STORAGE_ID);
+        *///?}
     }
 
     /*

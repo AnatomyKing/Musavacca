@@ -2,9 +2,12 @@ package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+//? if <1.21.2
+//import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -14,9 +17,11 @@ import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BundleContents;
+//? if >=1.21.5
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerBundleTooltip;
@@ -25,10 +30,22 @@ import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 import java.util.Optional;
 
 public class OpenVocoCallerItem extends BundleItem {
+    private static final ResourceLocation LEGACY_BUNDLE_MODEL =
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "item/banana_phone");
 
-    public OpenVocoCallerItem(Item.Properties properties) {
+    //? if <1.21.2 {
+    /*public OpenVocoCallerItem(Properties properties) {
         super(properties);
     }
+    *///?} else if <1.21.4 {
+    /*public OpenVocoCallerItem(Properties properties) {
+        super(LEGACY_BUNDLE_MODEL, LEGACY_BUNDLE_MODEL, properties);
+    }
+    *///?} else {
+    public OpenVocoCallerItem(Properties properties) {
+        super(properties);
+    }
+    //?}
 
     public static ItemStack getSim(ItemStack phone) {
         if (!(phone.getItem() instanceof OpenVocoCallerItem)) {
@@ -63,6 +80,17 @@ public class OpenVocoCallerItem extends BundleItem {
     }
 
     @Override
+    //? if <1.21.2 {
+    /*public InteractionResultHolder<ItemStack> use(
+            Level level,
+            Player player,
+            InteractionHand hand
+    ) {
+        ItemStack stack = player.getItemInHand(hand);
+        openPhone(level, player, stack);
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+    }
+    *///?} else {
     public InteractionResult use(
             Level level,
             Player player,
@@ -76,6 +104,7 @@ public class OpenVocoCallerItem extends BundleItem {
 
         return InteractionResult.SUCCESS_SERVER;
     }
+    //?}
 
     @Override
     public InteractionResult useOn(
@@ -87,7 +116,11 @@ public class OpenVocoCallerItem extends BundleItem {
                 context.getItemInHand()
         );
 
+        //? if <1.21.2 {
+        /*return InteractionResult.sidedSuccess(context.getLevel().isClientSide());
+        *///?} else {
         return InteractionResult.SUCCESS_SERVER;
+        //?}
     }
 
     /*
@@ -333,6 +366,7 @@ public class OpenVocoCallerItem extends BundleItem {
     public Optional<TooltipComponent> getTooltipImage(
             ItemStack stack
     ) {
+        //? if >=1.21.5 {
         TooltipDisplay display =
                 stack.getOrDefault(
                         DataComponents.TOOLTIP_DISPLAY,
@@ -342,7 +376,7 @@ public class OpenVocoCallerItem extends BundleItem {
         if (!display.shows(DataComponents.BUNDLE_CONTENTS)) {
             return Optional.empty();
         }
-
+        //?}
         BundleContents contents =
                 stack.get(DataComponents.BUNDLE_CONTENTS);
 

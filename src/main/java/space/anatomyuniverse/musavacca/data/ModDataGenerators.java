@@ -83,11 +83,11 @@ public final class ModDataGenerators {
                     new ModItemTagsProvider(
                             output,
                             event.getLookupProvider(),
-                            blockTagsProvider.contentsGetter(),
-                            efh
+                            blockTagsProvider.contentsGetter()
                     )
             );
 
+            //? if >=1.21.2 {
             event.getGenerator().addProvider(
                     true,
                     new CustomArmorSet.Provider(
@@ -95,7 +95,6 @@ public final class ModDataGenerators {
                             ModelSets.customArmorSets()
                     )
             );
-
             event.getGenerator().addProvider(
                     true,
                     new CustomArmorSetTintedLayers.Provider(
@@ -103,6 +102,7 @@ public final class ModDataGenerators {
                             ModelSets.customArmorSetTintedLayers()
                     )
             );
+            //?}
 
             event.getGenerator().addProvider(
                     true,

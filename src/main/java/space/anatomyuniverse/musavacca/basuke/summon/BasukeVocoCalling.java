@@ -323,12 +323,11 @@ public final class BasukeVocoCalling {
             return null;
         }
 
-        String uuidString =
-                customData.copyTag()
-                        .getStringOr(
-                                TAG_CALLING_PLAYER_UUID,
-                                ""
-                        );
+        CompoundTag tag = customData.copyTag();
+        //? if >=1.21.5
+        String uuidString = tag.getStringOr(TAG_CALLING_PLAYER_UUID, "");
+        //? if <1.21.5
+        //String uuidString = tag.getString(TAG_CALLING_PLAYER_UUID);
 
         if (uuidString.isEmpty()) {
             return null;

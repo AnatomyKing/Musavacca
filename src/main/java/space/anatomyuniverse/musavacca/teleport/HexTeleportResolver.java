@@ -875,8 +875,9 @@ public final class HexTeleportResolver {
                     safePos.z,
                     Set.of(),
                     yaw,
-                    pitch,
-                    true
+                    pitch
+                    //? if >=1.21.2
+                    , true
             );
         }
 
@@ -905,12 +906,22 @@ public final class HexTeleportResolver {
                         pos
                 );
 
+        //? if >=1.21.5 {
         level.getChunkSource()
                 .addTicketWithRadius(
                         TicketType.PORTAL,
                         chunkPos,
                         3
                 );
+        //?} else {
+        /*level.getChunkSource()
+                .addRegionTicket(
+                        TicketType.PORTAL,
+                        chunkPos,
+                        3,
+                        pos
+                );
+        *///?}
 
         level.getChunk(
                 chunkPos.x,

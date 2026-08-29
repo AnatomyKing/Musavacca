@@ -100,7 +100,7 @@ public final class ModSmithingTemplates {
         }
 
         public SmithingTemplateItem create(Item.Properties props) {
-            //? if <1.21.4 {
+            //? if <1.21.2 {
             /*return new SmithingTemplateItem(
                     Component.translatable(appliesToKey()),
                     Component.translatable(ingredientsKey()),

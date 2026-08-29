@@ -9,6 +9,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+//? if <1.21.2
+//import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -120,7 +122,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         }
 
         if (level.isClientSide()) {
-            return InteractionResult.SUCCESS_SERVER;
+            return successResult(level);
         }
 
         BlockState pearlState = matchingPearlCandle.copyStateFromVanillaCandle(state, true);
@@ -144,7 +146,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         triggerPlacedBlockCriterion(player, pos, stack);
         damageStack(stack, player, context.getHand());
 
-        return InteractionResult.SUCCESS_SERVER;
+        return successResult(level);
     }
 
     private static InteractionResult useOnPearlCandle(
@@ -161,7 +163,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         Level level = context.getLevel();
 
         if (level.isClientSide()) {
-            return InteractionResult.SUCCESS_SERVER;
+            return successResult(level);
         }
 
         BlockState finalState = state;
@@ -188,7 +190,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         playUseEffects(level, player, pos, GameEvent.BLOCK_CHANGE);
         damageStack(stack, player, context.getHand());
 
-        return InteractionResult.SUCCESS_SERVER;
+        return successResult(level);
     }
 
     private static void setPearlCandleHex(Level level, BlockPos pos, int hexColor) {
@@ -229,6 +231,22 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     }
 
     @Override
+    //? if <1.21.2 {
+    /*public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        ensureDefaultColorComponent(stack);
+
+        if (shouldOpenGui(level, player)) {
+            if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+                openGui(serverPlayer, hand, stack);
+            }
+
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        }
+
+        return InteractionResultHolder.pass(stack);
+    }
+    *///?} else {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         ensureDefaultColorComponent(stack);
@@ -243,6 +261,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
 
         return InteractionResult.PASS;
     }
+    //?}
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
@@ -275,7 +294,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
             playUseEffects(level, player, placePos, GameEvent.BLOCK_PLACE);
             triggerPlacedBlockCriterion(player, placePos, stack);
             damageStack(stack, player, context.getHand());
-            return InteractionResult.SUCCESS_SERVER;
+            return successResult(level);
         }
 
         return placePearlFire(context, placePos, hexColor);
@@ -289,7 +308,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
                     PearlPlacementColorMemory.remember(level, pos, hexColor)
             );
 
-            return InteractionResult.SUCCESS_SERVER;
+            return successResult(level);
         }
 
         return previewPearlFirePlacement(level, placePos, hexColor);
@@ -306,7 +325,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         }
 
         PearlPlacementColorMemory.remember(level, placePos, hexColor);
-        return InteractionResult.SUCCESS_SERVER;
+        return successResult(level);
     }
 
     private InteractionResult placePearlFire(UseOnContext context, BlockPos placePos, int hexColor) {
@@ -341,7 +360,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         triggerPlacedBlockCriterion(player, placePos, stack);
         damageStack(stack, player, context.getHand());
 
-        return InteractionResult.SUCCESS_SERVER;
+        return successResult(level);
     }
 
     private static void setFreshlyPlacedPearlFireHex(Level level, BlockPos pos, int hexColor) {
@@ -371,7 +390,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
             damageStack(stack, player, context.getHand());
         }
 
-        return InteractionResult.SUCCESS_SERVER;
+        return successResult(level);
     }
 
     private static void playUseEffects(
@@ -396,6 +415,14 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         if (player instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, pos, stack);
         }
+    }
+
+    private static InteractionResult successResult(Level level) {
+        //? if <1.21.2 {
+        /*return InteractionResult.sidedSuccess(level.isClientSide());
+        *///?} else {
+        return InteractionResult.SUCCESS_SERVER;
+        //?}
     }
 
     private static void damageStack(ItemStack stack, @Nullable Player player, InteractionHand hand) {

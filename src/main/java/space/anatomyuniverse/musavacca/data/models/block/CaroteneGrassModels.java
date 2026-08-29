@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.data.models.block;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
@@ -25,7 +26,6 @@ import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.blockstates.VariantProperties;
 *///?} else {
 import net.minecraft.client.data.models.MultiVariant;
-import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.util.random.WeightedList;
 //?}
@@ -34,39 +34,23 @@ import net.minecraft.util.random.WeightedList;
 public final class CaroteneGrassModels {
     private CaroteneGrassModels() {}
 
-    public record Entry(
-            Block grass,
-            Block shortGrass,
-            Block tallGrass
-    ) {}
-
-    // =========================================================
-    // <= 1.21.3
-    // =========================================================
+    public record Entry(Block grass, Block shortGrass, Block tallGrass) {}
 
     //? if <1.21.4 {
-    /*public static void generate(
-            BlockStateProvider gen,
-            Entry entry
-    ) {
+    /*public static void generate(BlockStateProvider gen, Entry entry) {
         if (entry == null) return;
 
         String grassName = name(entry.grass());
         String shortName = name(entry.shortGrass());
         String tallName = name(entry.tallGrass());
 
-        var dirt = texture(Blocks.DIRT, "");
-        var grassTop = texture(entry.grass(), "_top");
-        var grassSide = texture(entry.grass(), "_side");
-        var grassSnowySide = texture(entry.grass(), "_side_snowy");
-        var shortTexture = texture(entry.shortGrass(), "");
-        var tallBottomTexture = texture(entry.tallGrass(), "_bottom");
-        var tallTopTexture = texture(entry.tallGrass(), "_top");
-
-
-        // =====================================================
-        // BLOCK MODELS
-        // =====================================================
+        ResourceLocation dirt = texture(Blocks.DIRT, "");
+        ResourceLocation grassTop = texture(entry.grass(), "_top");
+        ResourceLocation grassSide = texture(entry.grass(), "_side");
+        ResourceLocation snowySide = texture(entry.grass(), "_side_snowy");
+        ResourceLocation shortTexture = texture(entry.shortGrass(), "");
+        ResourceLocation tallBottomTexture = texture(entry.tallGrass(), "_bottom");
+        ResourceLocation tallTopTexture = texture(entry.tallGrass(), "_top");
 
         ModelFile normal = gen.models().cubeBottomTop(
                 grassName,
@@ -77,7 +61,7 @@ public final class CaroteneGrassModels {
 
         ModelFile snowy = gen.models().cubeBottomTop(
                 grassName + "_snowy",
-                grassSnowySide,
+                snowySide,
                 dirt,
                 grassTop
         );
@@ -97,62 +81,32 @@ public final class CaroteneGrassModels {
                 tallTopTexture
         );
 
-
-        // =====================================================
-        // BLOCKSTATES
-        // =====================================================
-
-        // Vanilla grass behavior:
-        // snowy=false -> random 0 / 90 / 180 / 270 rotation
-        // snowy=true  -> single snowy model
-
-        gen.getVariantBuilder(entry.grass())
-                .forAllStates(state -> {
-                    if (state.getValue(SnowyDirtBlock.SNOWY)) {
-                        return ConfiguredModel.builder()
+        gen.getVariantBuilder(entry.grass()).forAllStates(state ->
+                state.getValue(SnowyDirtBlock.SNOWY)
+                        ? ConfiguredModel.builder()
                                 .modelFile(snowy)
-                                .build();
-                    }
-
-                    return ConfiguredModel.allYRotations(
-                            normal,
-                            0,
-                            false
-                    );
-                });
-
-
-        gen.simpleBlock(
-                entry.shortGrass(),
-                shortGrass
-        );
-
-
-        gen.getVariantBuilder(entry.tallGrass())
-                .forAllStates(state ->
-                        ConfiguredModel.builder()
-                                .modelFile(
-                                        state.getValue(DoublePlantBlock.HALF)
-                                                == DoubleBlockHalf.LOWER
-                                                ? tallBottom
-                                                : tallTop
-                                )
                                 .build()
-                );
-
-
-        // =====================================================
-        // ITEM MODELS
-        // =====================================================
-
-        gen.simpleBlockItem(
-                entry.grass(),
-                normal
+                        : ConfiguredModel.allYRotations(
+                                normal,
+                                0,
+                                false
+                        )
         );
 
+        gen.simpleBlock(entry.shortGrass(), shortGrass);
 
-        // Short grass:
-        // item/generated -> block/carotene_short_grass
+        gen.getVariantBuilder(entry.tallGrass()).forAllStates(state ->
+                ConfiguredModel.builder()
+                        .modelFile(
+                                state.getValue(DoublePlantBlock.HALF)
+                                        == DoubleBlockHalf.LOWER
+                                        ? tallBottom
+                                        : tallTop
+                        )
+                        .build()
+        );
+
+        gen.simpleBlockItem(entry.grass(), normal);
 
         gen.itemModels().singleTexture(
                 shortName,
@@ -160,10 +114,6 @@ public final class CaroteneGrassModels {
                 "layer0",
                 shortTexture
         );
-
-
-        // Tall grass:
-        // vanilla-style item/generated -> block/carotene_tall_grass_top
 
         gen.itemModels().singleTexture(
                 tallName,
@@ -173,308 +123,193 @@ public final class CaroteneGrassModels {
         );
     }
 
-
     private static String name(Block block) {
         return net.minecraft.core.registries.BuiltInRegistries.BLOCK
                 .getKey(block)
                 .getPath();
     }
 
+    private static ResourceLocation texture(Block block, String suffix) {
+        ResourceLocation id =
+                net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                        .getKey(block);
 
-    private static net.minecraft.resources.ResourceLocation texture(
-            Block block,
-            String suffix
-    ) {
-        var id = net.minecraft.core.registries.BuiltInRegistries.BLOCK
-                .getKey(block);
-
-        return net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
+        return ResourceLocation.fromNamespaceAndPath(
                 id.getNamespace(),
                 "block/" + id.getPath() + suffix
         );
     }
-    *///?}
-
-
-    // =========================================================
-    // >= 1.21.4
-    // =========================================================
-
-    //? if >=1.21.4 {
-    public static void generate(
-            BlockModelGenerators gen,
-            Entry entry
-    ) {
+    *///?} else {
+    public static void generate(BlockModelGenerators gen, Entry entry) {
         if (entry == null) return;
 
-
-        // =====================================================
-        // MODEL LOCATIONS
-        // =====================================================
-
-        var normal =
+        ResourceLocation normal =
                 ModelLocationUtils.getModelLocation(entry.grass());
 
-        var snowy =
+        ResourceLocation snowy =
                 ModelLocationUtils.getModelLocation(
                         entry.grass(),
                         "_snowy"
                 );
 
-        var shortGrass =
-                ModelLocationUtils.getModelLocation(
-                        entry.shortGrass()
-                );
+        ResourceLocation shortGrass =
+                ModelLocationUtils.getModelLocation(entry.shortGrass());
 
-        var tallBottom =
+        ResourceLocation tallBottom =
                 ModelLocationUtils.getModelLocation(
                         entry.tallGrass(),
                         "_bottom"
                 );
 
-        var tallTop =
+        ResourceLocation tallTop =
                 ModelLocationUtils.getModelLocation(
                         entry.tallGrass(),
                         "_top"
                 );
 
-
-        var shortGrassItem =
-                ModelLocationUtils.getModelLocation(
-                        entry.shortGrass().asItem()
-                );
-
-        var tallGrassItem =
-                ModelLocationUtils.getModelLocation(
-                        entry.tallGrass().asItem()
-                );
-
-
-        // =====================================================
-        // TEXTURES
-        // =====================================================
-
-        var dirt =
+        ResourceLocation dirt =
                 TextureMapping.getBlockTexture(Blocks.DIRT);
 
-        var grassTop =
+        ResourceLocation grassTop =
                 TextureMapping.getBlockTexture(
                         entry.grass(),
                         "_top"
                 );
 
-        var grassSide =
+        ResourceLocation grassSide =
                 TextureMapping.getBlockTexture(
                         entry.grass(),
                         "_side"
                 );
 
-        var grassSnowySide =
+        ResourceLocation snowySide =
                 TextureMapping.getBlockTexture(
                         entry.grass(),
                         "_side_snowy"
                 );
 
-        var shortTexture =
-                TextureMapping.getBlockTexture(
-                        entry.shortGrass()
-                );
+        ResourceLocation shortTexture =
+                TextureMapping.getBlockTexture(entry.shortGrass());
 
-        var tallBottomTexture =
+        ResourceLocation tallBottomTexture =
                 TextureMapping.getBlockTexture(
                         entry.tallGrass(),
                         "_bottom"
                 );
 
-        var tallTopTexture =
+        ResourceLocation tallTopTexture =
                 TextureMapping.getBlockTexture(
                         entry.tallGrass(),
                         "_top"
                 );
 
-
-        // =====================================================
-        // BLOCK MODELS
-        // =====================================================
-
-
-        // -----------------------------------------------------
-        // Carotene Grass
-        //
-        // top    -> carotene_grass_top
-        // side   -> carotene_grass_side
-        // bottom -> minecraft:block/dirt
-        // -----------------------------------------------------
-
-        ModelTemplates.CUBE_BOTTOM_TOP.create(
+        cubeBottomTop(
+                gen,
                 normal,
-                new TextureMapping()
-                        .put(
-                                TextureSlot.BOTTOM,
-                                dirt
-                        )
-                        .put(
-                                TextureSlot.TOP,
-                                grassTop
-                        )
-                        .put(
-                                TextureSlot.SIDE,
-                                grassSide
-                        ),
-                gen.modelOutput
+                dirt,
+                grassTop,
+                grassSide
         );
 
-
-        // -----------------------------------------------------
-        // Snowy Carotene Grass
-        //
-        // top    -> carotene_grass_top
-        // side   -> carotene_grass_side_snowy
-        // bottom -> minecraft:block/dirt
-        // -----------------------------------------------------
-
-        ModelTemplates.CUBE_BOTTOM_TOP.create(
+        cubeBottomTop(
+                gen,
                 snowy,
-                new TextureMapping()
-                        .put(
-                                TextureSlot.BOTTOM,
-                                dirt
-                        )
-                        .put(
-                                TextureSlot.TOP,
-                                grassTop
-                        )
-                        .put(
-                                TextureSlot.SIDE,
-                                grassSnowySide
-                        ),
-                gen.modelOutput
+                dirt,
+                grassTop,
+                snowySide
         );
 
+        cross(gen, shortGrass, shortTexture);
+        cross(gen, tallBottom, tallBottomTexture);
+        cross(gen, tallTop, tallTopTexture);
 
-        // Short grass block model
-
-        ModelTemplates.CROSS.create(
+        registerBlockStates(
+                gen,
+                entry,
+                normal,
+                snowy,
                 shortGrass,
-                TextureMapping.cross(
-                        shortTexture
-                ),
-                gen.modelOutput
-        );
-
-
-        // Tall grass bottom block model
-
-        ModelTemplates.CROSS.create(
                 tallBottom,
-                TextureMapping.cross(
-                        tallBottomTexture
-                ),
-                gen.modelOutput
+                tallTop
         );
 
+        gen.registerSimpleItemModel(entry.grass(), normal);
 
-        // Tall grass top block model
-
-        ModelTemplates.CROSS.create(
-                tallTop,
-                TextureMapping.cross(
-                        tallTopTexture
-                ),
-                gen.modelOutput
+        flatItem(
+                gen,
+                entry.shortGrass(),
+                shortTexture
         );
 
+        flatItem(
+                gen,
+                entry.tallGrass(),
+                tallTopTexture
+        );
+    }
 
-        // =====================================================
-        // BLOCKSTATES
-        // =====================================================
-
-
-        // -----------------------------------------------------
-        // 1.21.4
-        // -----------------------------------------------------
-
+    private static void registerBlockStates(
+            BlockModelGenerators gen,
+            Entry entry,
+            ResourceLocation normal,
+            ResourceLocation snowy,
+            ResourceLocation shortGrass,
+            ResourceLocation tallBottom,
+            ResourceLocation tallTop
+    ) {
         //? if <1.21.5 {
-        
-         /** Vanilla-style grass rotation:
-         *
-         * snowy=false:
-         *   0 / 90 / 180 / 270
-         *
-         * snowy=true:
-         *   snowy model only
-         
+        /*java.util.List<Variant> normalVariants = java.util.List.of(
+                Variant.variant()
+                        .with(VariantProperties.MODEL, normal),
+
+                Variant.variant()
+                        .with(VariantProperties.MODEL, normal)
+                        .with(
+                                VariantProperties.Y_ROT,
+                                VariantProperties.Rotation.R90
+                        ),
+
+                Variant.variant()
+                        .with(VariantProperties.MODEL, normal)
+                        .with(
+                                VariantProperties.Y_ROT,
+                                VariantProperties.Rotation.R180
+                        ),
+
+                Variant.variant()
+                        .with(VariantProperties.MODEL, normal)
+                        .with(
+                                VariantProperties.Y_ROT,
+                                VariantProperties.Rotation.R270
+                        )
+        );
+
         gen.blockStateOutput.accept(
                 MultiVariantGenerator
                         .multiVariant(entry.grass())
                         .with(
                                 PropertyDispatch
                                         .property(SnowyDirtBlock.SNOWY)
-
-                                        .select(
-                                                false,
-                                                java.util.List.of(
-                                                        Variant.variant()
-                                                                .with(
-                                                                        VariantProperties.MODEL,
-                                                                        normal
-                                                                ),
-
-                                                        Variant.variant()
-                                                                .with(
-                                                                        VariantProperties.MODEL,
-                                                                        normal
-                                                                )
-                                                                .with(
-                                                                        VariantProperties.Y_ROT,
-                                                                        VariantProperties.Rotation.R90
-                                                                ),
-
-                                                        Variant.variant()
-                                                                .with(
-                                                                        VariantProperties.MODEL,
-                                                                        normal
-                                                                )
-                                                                .with(
-                                                                        VariantProperties.Y_ROT,
-                                                                        VariantProperties.Rotation.R180
-                                                                ),
-
-                                                        Variant.variant()
-                                                                .with(
-                                                                        VariantProperties.MODEL,
-                                                                        normal
-                                                                )
-                                                                .with(
-                                                                        VariantProperties.Y_ROT,
-                                                                        VariantProperties.Rotation.R270
-                                                                )
-                                                )
-                                        )
-
+                                        .select(false, normalVariants)
                                         .select(
                                                 true,
-                                                Variant.variant()
-                                                        .with(
-                                                                VariantProperties.MODEL,
-                                                                snowy
-                                                        )
+                                                Variant.variant().with(
+                                                        VariantProperties.MODEL,
+                                                        snowy
+                                                )
                                         )
                         )
         );
 
-
         gen.blockStateOutput.accept(
                 MultiVariantGenerator.multiVariant(
                         entry.shortGrass(),
-                        Variant.variant()
-                                .with(
-                                        VariantProperties.MODEL,
-                                        shortGrass
-                                )
+                        Variant.variant().with(
+                                VariantProperties.MODEL,
+                                shortGrass
+                        )
                 )
         );
-
 
         gen.blockStateOutput.accept(
                 MultiVariantGenerator
@@ -482,208 +317,133 @@ public final class CaroteneGrassModels {
                         .with(
                                 PropertyDispatch
                                         .property(DoublePlantBlock.HALF)
-
                                         .select(
                                                 DoubleBlockHalf.LOWER,
-                                                Variant.variant()
-                                                        .with(
-                                                                VariantProperties.MODEL,
-                                                                tallBottom
-                                                        )
+                                                Variant.variant().with(
+                                                        VariantProperties.MODEL,
+                                                        tallBottom
+                                                )
                                         )
-
                                         .select(
                                                 DoubleBlockHalf.UPPER,
-                                                Variant.variant()
-                                                        .with(
-                                                                VariantProperties.MODEL,
-                                                                tallTop
-                                                        )
+                                                Variant.variant().with(
+                                                        VariantProperties.MODEL,
+                                                        tallTop
+                                                )
                                         )
                         )
         );
-        *///?}
-
-
-        // -----------------------------------------------------
-        // 1.21.5+
-        // -----------------------------------------------------
-
-        //? if >=1.21.5 {
-
-        /*
-         * Public modern model API.
-         *
-         * Four equally weighted normal variants:
-         *
-         * 0°
-         * 90°
-         * 180°
-         * 270°
-         */
-
-        MultiVariant normalGrassVariants = new MultiVariant(
+        *///?} else {
+        MultiVariant normalVariants = new MultiVariant(
                 WeightedList.<Variant>builder()
+                        .add(new Variant(normal))
                         .add(
-                                new Variant(normal)
+                                new Variant(normal).with(
+                                        BlockModelGenerators.Y_ROT_90
+                                )
                         )
                         .add(
-                                new Variant(normal)
-                                        .with(
-                                                BlockModelGenerators.Y_ROT_90
-                                        )
+                                new Variant(normal).with(
+                                        BlockModelGenerators.Y_ROT_180
+                                )
                         )
                         .add(
-                                new Variant(normal)
-                                        .with(
-                                                BlockModelGenerators.Y_ROT_180
-                                        )
-                        )
-                        .add(
-                                new Variant(normal)
-                                        .with(
-                                                BlockModelGenerators.Y_ROT_270
-                                        )
+                                new Variant(normal).with(
+                                        BlockModelGenerators.Y_ROT_270
+                                )
                         )
                         .build()
         );
-
-
-        /*
-         * Carotene Grass:
-         *
-         * snowy=false -> four random rotations
-         * snowy=true  -> snowy model
-         */
 
         gen.blockStateOutput.accept(
                 MultiVariantGenerator
                         .dispatch(entry.grass())
                         .with(
                                 PropertyDispatch
-                                        .initial(
-                                                SnowyDirtBlock.SNOWY
-                                        )
-                                        .select(
-                                                false,
-                                                normalGrassVariants
-                                        )
+                                        .initial(SnowyDirtBlock.SNOWY)
+                                        .select(false, normalVariants)
                                         .select(
                                                 true,
                                                 BlockModelGenerators
-                                                        .plainVariant(
-                                                                snowy
-                                                        )
+                                                        .plainVariant(snowy)
                                         )
                         )
         );
-
-
-        // Short grass
 
         gen.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(
                         entry.shortGrass(),
-                        BlockModelGenerators.plainVariant(
-                                shortGrass
-                        )
+                        BlockModelGenerators.plainVariant(shortGrass)
                 )
         );
 
-
-        // Tall grass
-
         gen.blockStateOutput.accept(
-                MultiPartGenerator
-                        .multiPart(entry.tallGrass())
-
+                MultiVariantGenerator
+                        .dispatch(entry.tallGrass())
                         .with(
-                                BlockModelGenerators
-                                        .condition()
-                                        .term(
-                                                DoublePlantBlock.HALF,
-                                                DoubleBlockHalf.LOWER
-                                        ),
-
-                                BlockModelGenerators.variant(
-                                        new Variant(tallBottom)
-                                )
-                        )
-
-                        .with(
-                                BlockModelGenerators
-                                        .condition()
-                                        .term(
-                                                DoublePlantBlock.HALF,
-                                                DoubleBlockHalf.UPPER
-                                        ),
-
-                                BlockModelGenerators.variant(
-                                        new Variant(tallTop)
-                                )
+                                PropertyDispatch
+                                        .initial(DoublePlantBlock.HALF)
+                                        .select(
+                                                DoubleBlockHalf.LOWER,
+                                                BlockModelGenerators
+                                                        .plainVariant(tallBottom)
+                                        )
+                                        .select(
+                                                DoubleBlockHalf.UPPER,
+                                                BlockModelGenerators
+                                                        .plainVariant(tallTop)
+                                        )
                         )
         );
         //?}
+    }
 
-
-        // =====================================================
-        // ITEM MODELS
-        // =====================================================
-
-
-        // Carotene Grass item uses normal cube model
-
-        gen.registerSimpleItemModel(
-                entry.grass(),
-                normal
+    private static void cubeBottomTop(
+            BlockModelGenerators gen,
+            ResourceLocation model,
+            ResourceLocation bottom,
+            ResourceLocation top,
+            ResourceLocation side
+    ) {
+        ModelTemplates.CUBE_BOTTOM_TOP.create(
+                model,
+                new TextureMapping()
+                        .put(TextureSlot.BOTTOM, bottom)
+                        .put(TextureSlot.TOP, top)
+                        .put(TextureSlot.SIDE, side),
+                gen.modelOutput
         );
+    }
 
+    private static void cross(
+            BlockModelGenerators gen,
+            ResourceLocation model,
+            ResourceLocation texture
+    ) {
+        ModelTemplates.CROSS.create(
+                model,
+                TextureMapping.cross(texture),
+                gen.modelOutput
+        );
+    }
 
-        // -----------------------------------------------------
-        // Short grass inventory
-        //
-        // item/generated
-        // layer0 -> block/carotene_short_grass
-        // -----------------------------------------------------
+    private static void flatItem(
+            BlockModelGenerators gen,
+            Block block,
+            ResourceLocation texture
+    ) {
+        ResourceLocation model =
+                ModelLocationUtils.getModelLocation(block.asItem());
 
         ModelTemplates.FLAT_ITEM.create(
-                shortGrassItem,
-                TextureMapping.layer0(
-                        shortTexture
-                ),
+                model,
+                TextureMapping.layer0(texture),
                 gen.modelOutput
         );
 
         gen.itemModelOutput.accept(
-                entry.shortGrass().asItem(),
-                ItemModelUtils.plainModel(
-                        shortGrassItem
-                )
-        );
-
-
-        // -----------------------------------------------------
-        // Tall grass inventory
-        //
-        // Vanilla-style:
-        //
-        // item/generated
-        // layer0 -> block/carotene_tall_grass_top
-        // -----------------------------------------------------
-
-        ModelTemplates.FLAT_ITEM.create(
-                tallGrassItem,
-                TextureMapping.layer0(
-                        tallTopTexture
-                ),
-                gen.modelOutput
-        );
-
-        gen.itemModelOutput.accept(
-                entry.tallGrass().asItem(),
-                ItemModelUtils.plainModel(
-                        tallGrassItem
-                )
+                block.asItem(),
+                ItemModelUtils.plainModel(model)
         );
     }
     //?}

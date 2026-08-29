@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;

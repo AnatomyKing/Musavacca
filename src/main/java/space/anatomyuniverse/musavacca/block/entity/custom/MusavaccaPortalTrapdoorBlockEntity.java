@@ -97,11 +97,7 @@ public final class MusavaccaPortalTrapdoorBlockEntity
         this.syncTrapdoor(false);
     }
 
-    @Override
-    public void preRemoveSideEffects(
-            BlockPos pos,
-            BlockState state
-    ) {
+    public void cleanupBeforeRemoval() {
         if (
                 this.level
                         instanceof ServerLevel serverLevel
@@ -112,12 +108,18 @@ public final class MusavaccaPortalTrapdoorBlockEntity
                             this.getBlockPos()
                     );
         }
+    }
 
+    //? if >=1.21.5 {
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        this.cleanupBeforeRemoval();
         super.preRemoveSideEffects(
                 pos,
                 state
         );
     }
+    //?}
 
     private void syncTrapdoor(
             boolean playPortalSound
@@ -277,7 +279,7 @@ public final class MusavaccaPortalTrapdoorBlockEntity
     //? if <1.21.5 {
     /*@Override
     protected void applyImplicitComponents(
-            BlockEntity.DataComponentInput input
+            DataComponentInput input
     ) {
         super.applyImplicitComponents(input);
 

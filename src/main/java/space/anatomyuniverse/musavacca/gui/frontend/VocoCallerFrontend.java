@@ -1,7 +1,8 @@
 package space.anatomyuniverse.musavacca.gui.frontend;
 
 //? if <1.21.6
-//import net.minecraft.client.renderer.RenderType;
+////? if >=1.21.2
+import net.minecraft.client.renderer.RenderType;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -1212,7 +1213,7 @@ public final class VocoCallerFrontend
                 width,
                 height
         );
-        //?} else {
+        //?} else if >=1.21.2 {
         /*graphics.blit(
                 RenderType::guiTextured,
                 texture,
@@ -1225,6 +1226,8 @@ public final class VocoCallerFrontend
                 width,
                 height
         );
+        *///?} else {
+        /*graphics.blit(texture, x, y, 0.0F, 0.0F, width, height, width, height);
         *///?}
     }
 

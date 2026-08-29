@@ -2,12 +2,22 @@ package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+//? if >=1.21.2 {
 import net.minecraft.world.item.Item;
+//?} else {
+/*import net.minecraft.world.item.MilkBucketItem;
+*///?}
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
 
-public final class BananaMilkBucketItem extends Item {
+public final class BananaMilkBucketItem extends
+        //? if <1.21.2 {
+        /*MilkBucketItem
+        *///?} else {
+        Item
+        //?}
+{
 
     private static final int BLESSING_DURATION =
             20 * 90;

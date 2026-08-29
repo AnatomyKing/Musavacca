@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.data.models;
 
 import net.minecraft.core.registries.BuiltInRegistries;

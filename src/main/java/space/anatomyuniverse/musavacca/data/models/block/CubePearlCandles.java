@@ -18,7 +18,8 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 
 //? if <1.21.5 {
-/*import net.minecraft.client.data.models.blockstates.Variant;
+/*import net.minecraft.client.data.models.blockstates.Condition;
+import net.minecraft.client.data.models.blockstates.Variant;
 import net.minecraft.client.data.models.blockstates.VariantProperties;
 *///?} else {
 import net.minecraft.client.renderer.block.model.Variant;
@@ -144,7 +145,7 @@ public final class CubePearlCandles {
             ResourceLocation model
     ) {
         return multipart.with(
-                BlockModelGenerators.condition()
+                Condition.condition()
                         .term(CandleBlock.CANDLES, candles)
                         .term(CandleBlock.LIT, lit)
                         .term(CandleBlock.WATERLOGGED, waterlogged),

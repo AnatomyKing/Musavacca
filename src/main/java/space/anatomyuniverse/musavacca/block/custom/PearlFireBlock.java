@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+//? if >=1.21.5
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -14,7 +15,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+//? if <1.21.2 {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?} else {
 import net.minecraft.world.level.ScheduledTickAccess;
+//?}
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FireBlock;
@@ -27,7 +32,7 @@ import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
 
 public class PearlFireBlock extends FireBlock implements EntityBlock {
-    public PearlFireBlock(BlockBehaviour.Properties properties) {
+    public PearlFireBlock(Properties properties) {
         super(properties);
     }
 
@@ -45,6 +50,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         return true;
     }
 
+    //? if >=1.21.5 {
     @Override
     protected void entityInside(
             BlockState state,
@@ -59,6 +65,21 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
 
         super.entityInside(state, level, pos, entity, effectApplier);
     }
+    //?} else {
+    /*@Override
+    protected void entityInside(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Entity entity
+    ) {
+        if (!level.isClientSide() && entity instanceof ItemEntity itemEntity) {
+            tryStampCleanSimCard(level, pos, itemEntity);
+        }
+
+        super.entityInside(state, level, pos, entity);
+    }
+    *///?}
 
     private static void tryStampCleanSimCard(Level level, BlockPos firePos, ItemEntity itemEntity) {
         ItemStack oldStack = itemEntity.getItem();
@@ -98,6 +119,21 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         setPlacedPearlFireHex(level, pos, savedHex);
     }
 
+    //? if <1.21.2 {
+    /*@Override
+    protected BlockState updateShape(
+            BlockState state,
+            Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+    ) {
+        return this.canSurvive(state, level, pos)
+                ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
+                : Blocks.AIR.defaultBlockState();
+    }
+    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
@@ -113,6 +149,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                 ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
                 : Blocks.AIR.defaultBlockState();
     }
+    //?}
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
@@ -215,9 +252,13 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     }
 
     private static boolean shouldRunPearlFireTick(ServerLevel level, BlockPos pos) {
+        //? if >=1.21.5 {
         return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)
                 && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS)
                 || level.anyPlayerCloseEnoughForSpawning(pos));
+        //?}
+        //? if <1.21.5
+        //return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK);
     }
 
     private static int getPearlFireHex(Level level, BlockPos pos) {

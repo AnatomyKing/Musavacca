@@ -5,12 +5,24 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
+//? if <1.21.2 {
+/*import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+*///?} else {
 import net.minecraft.world.entity.vehicle.Raft;
+//?}
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
-public final class MusavaccaBoat extends Raft {
+public final class MusavaccaBoat extends
+        //? if <1.21.2 {
+        /*Boat
+        *///?} else {
+        Raft
+        //?}
+{
 
     public static final float HITBOX_WIDTH =
             22.0F / 16.0F;
@@ -33,19 +45,26 @@ public final class MusavaccaBoat extends Raft {
             EntityType<? extends MusavaccaBoat> entityType,
             Level level
     ) {
+        //? if <1.21.2 {
+        /*super(entityType, level);
+        this.setVariant(Boat.Type.BAMBOO);
+        *///?} else {
         super(
                 entityType,
                 level,
                 () -> ModItems.MUSAVACCA_BOAT.get()
         );
+        //?}
     }
 
+    //? if >=1.21.2 {
     @Override
     protected double rideHeight(
             EntityDimensions dimensions
     ) {
         return dimensions.height();
     }
+    //?}
 
     @Override
     protected int getMaxPassengers() {
@@ -70,7 +89,11 @@ public final class MusavaccaBoat extends Raft {
 
         return new Vec3(
                 0.0D,
+                //? if <1.21.2 {
+                /*dimensions.height(),
+                *///?} else {
                 this.rideHeight(dimensions),
+                //?}
                 seatZ * scaleFactor
         ).yRot(
                 -this.getYRot() * Mth.DEG_TO_RAD
@@ -108,4 +131,16 @@ public final class MusavaccaBoat extends Raft {
             );
         }
     }
+
+    //? if <1.21.2 {
+    /*@Override
+    public Item getDropItem() {
+        return ModItems.MUSAVACCA_BOAT.get();
+    }
+
+    @Override
+    public ItemStack getPickResult() {
+        return new ItemStack(ModItems.MUSAVACCA_BOAT.get());
+    }
+    *///?}
 }

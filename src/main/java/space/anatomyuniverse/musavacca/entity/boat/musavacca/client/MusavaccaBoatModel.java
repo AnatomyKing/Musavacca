@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.entity.boat.musavacca.client;
 
+//? if >=1.21.2 {
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -415,3 +416,4 @@ public final class MusavaccaBoatModel
                         * side;
     }
 }
+//?}

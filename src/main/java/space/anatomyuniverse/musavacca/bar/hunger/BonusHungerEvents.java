@@ -194,9 +194,15 @@ public final class BonusHungerEvents {
     }
 
     private static FoodProperties getFoodProperties(ItemStack stack) {
+        //? if >=1.21.2 {
         if (!stack.has(DataComponents.CONSUMABLE)) {
             return null;
         }
+        //?} else {
+        /*if (!stack.has(DataComponents.FOOD)) {
+            return null;
+        }
+        *///?}
 
         return stack.get(DataComponents.FOOD);
     }

@@ -7,9 +7,20 @@ import space.anatomyuniverse.musavacca.block.custom.MusavaccaCropBlock;
 
 import java.util.Map;
 
+//? if <1.21.4 {
+/*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+*///?} else {
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
+//? if <1.21.5 {
+/*import net.minecraft.client.data.models.blockstates.Condition;
+import net.minecraft.client.data.models.blockstates.Variant;
+import net.minecraft.client.data.models.blockstates.VariantProperties;
+*///?}
+//? if >=1.21.5
 import net.minecraft.client.renderer.block.model.Variant;
+//?}
 
 public final class CubeMusavaccaCropOwnTintedFoliage {
     private CubeMusavaccaCropOwnTintedFoliage() {}
@@ -37,6 +48,32 @@ public final class CubeMusavaccaCropOwnTintedFoliage {
         return new Models(modelId);
     }
 
+    //? if <1.21.4 {
+    /*public static void generate(
+            BlockStateProvider blocks,
+            Map<Block, Models> models
+    ) {
+        if (models == null || models.isEmpty()) {
+            return;
+        }
+
+        models.forEach((block, modelEntry) -> {
+            if (block == null
+                    || modelEntry == null
+                    || modelEntry.modelId() == null
+                    || modelEntry.modelId().isBlank()) {
+                return;
+            }
+
+            ModelFile model = blocks.models().getExistingFile(
+                    modelEntry.model()
+            );
+
+            // A property-free variant applies to every AGE/STAGE value.
+            blocks.simpleBlock(block, model);
+        });
+    }
+    *///?} else {
     public static void generate(BlockModelGenerators blocks, Map<Block, Models> models) {
         if (models == null || models.isEmpty()) return;
 
@@ -108,10 +145,16 @@ public final class CubeMusavaccaCropOwnTintedFoliage {
             Block block,
             ResourceLocation model
     ) {
+        //? if <1.21.5 {
+        /*blocks.blockStateOutput.accept(
+                MultiPartGenerator.multiPart(block).with(variant(model))
+        );
+        *///?} else {
         blocks.blockStateOutput.accept(
                 MultiPartGenerator.multiPart(block)
                         .with(BlockModelGenerators.variant(new Variant(model)))
         );
+        //?}
     }
 
     private static MultiPartGenerator addAge(
@@ -119,11 +162,18 @@ public final class CubeMusavaccaCropOwnTintedFoliage {
             int age,
             ResourceLocation model
     ) {
-        return multi.with(
-                BlockModelGenerators.condition()
+        //? if <1.21.5 {
+        /*return multi.with(
+                Condition.condition()
                         .term(MusavaccaCropBlock.AGE, age),
+                variant(model)
+        );
+        *///?} else {
+        return multi.with(
+                BlockModelGenerators.condition().term(MusavaccaCropBlock.AGE, age),
                 BlockModelGenerators.variant(new Variant(model))
         );
+        //?}
     }
 
     private static MultiPartGenerator addSaplingStage(
@@ -131,10 +181,24 @@ public final class CubeMusavaccaCropOwnTintedFoliage {
             int stage,
             ResourceLocation model
     ) {
-        return multi.with(
-                BlockModelGenerators.condition()
+        //? if <1.21.5 {
+        /*return multi.with(
+                Condition.condition()
                         .term(SaplingBlock.STAGE, stage),
+                variant(model)
+        );
+        *///?} else {
+        return multi.with(
+                BlockModelGenerators.condition().term(SaplingBlock.STAGE, stage),
                 BlockModelGenerators.variant(new Variant(model))
         );
+        //?}
     }
+
+    //? if <1.21.5 {
+    /*private static Variant variant(ResourceLocation model) {
+        return Variant.variant().with(VariantProperties.MODEL, model);
+    }
+    *///?}
+    //?}
 }

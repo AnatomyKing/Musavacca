@@ -6,7 +6,8 @@ import net.minecraft.client.gui.GuiGraphics;
 //? if >=1.21.6
 import net.minecraft.client.renderer.RenderPipelines;
 //? if <1.21.6
-//import net.minecraft.client.renderer.RenderType;
+////? if >=1.21.2
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.gui.backend.VocoDialerBackend;
@@ -111,7 +112,7 @@ public final class VocoDialerControl {
     private void blitTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height) {
         //? if >=1.21.6 {
         graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0F, 0.0F, width, height, width, height);
-        //?} else {
+        //?} else if >=1.21.2 {
         /*graphics.blit(
                 RenderType::guiTextured,
                 texture,
@@ -124,6 +125,8 @@ public final class VocoDialerControl {
                 width,
                 height
         );
+        *///?} else {
+        /*graphics.blit(texture, x, y, 0.0F, 0.0F, width, height, width, height);
         *///?}
     }
 

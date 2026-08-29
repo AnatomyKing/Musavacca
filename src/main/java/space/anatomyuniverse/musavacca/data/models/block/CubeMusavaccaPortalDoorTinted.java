@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.data.models.block;
 
+//? if <1.21.4 {
+/*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+*///?} else {
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -7,6 +13,15 @@ import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
+//? if <1.21.5 {
+/*import net.minecraft.client.data.models.blockstates.Condition;
+import net.minecraft.client.data.models.blockstates.Variant;
+import net.minecraft.client.data.models.blockstates.VariantProperties;
+*///?} else {
+import com.mojang.math.Quadrant;
+import net.minecraft.client.renderer.block.model.Variant;
+//?}
+//?}
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -17,19 +32,15 @@ import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
-import space.anatomyuniverse.musavacca.tint.HexColorItemTintSource;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
+//? if >=1.21.4 {
+import space.anatomyuniverse.musavacca.tint.HexColorItemTintSource;
 import space.anatomyuniverse.musavacca.tint.ProfileHexColorItemTintSource;
+//?}
 
-import java.util.List;
 import java.util.Map;
-
-//? if <1.21.5 {
-/*import net.minecraft.client.data.models.blockstates.Variant;
-import net.minecraft.client.data.models.blockstates.VariantProperties;
-*///?} else {
-import com.mojang.math.Quadrant;
-import net.minecraft.client.renderer.block.model.Variant;
+//? if >=1.21.4 {
+import java.util.List;
 //?}
 
 public final class CubeMusavaccaPortalDoorTinted {
@@ -404,6 +415,289 @@ public final class CubeMusavaccaPortalDoorTinted {
         }
     }
 
+    //? if <1.21.4 {
+    /*public static void generate(
+            BlockStateProvider blocks,
+            ItemModelProvider items,
+            Map<Block, Models> models
+    ) {
+        if (models == null || models.isEmpty()) {
+            return;
+        }
+
+        models.forEach((block, modelsForBlock) -> {
+            if (!(block instanceof MusavaccaPortalDoorBlock)
+                    || modelsForBlock == null) {
+                return;
+            }
+
+            DoorModels baseModels = generateLegacyBaseDoorModels(
+                    blocks,
+                    block
+            );
+
+            generateLegacyBlockState(
+                    blocks,
+                    block,
+                    baseModels,
+                    modelsForBlock
+            );
+
+            generateLegacyItemModels(
+                    items,
+                    block,
+                    modelsForBlock
+            );
+        });
+    }
+
+    private static DoorModels generateLegacyBaseDoorModels(
+            BlockStateProvider blocks,
+            Block block
+    ) {
+        ResourceLocation id = blockId(block);
+        ResourceLocation bottom = ResourceLocation.fromNamespaceAndPath(
+                id.getNamespace(),
+                "block/" + id.getPath() + "_bottom"
+        );
+        ResourceLocation top = ResourceLocation.fromNamespaceAndPath(
+                id.getNamespace(),
+                "block/" + id.getPath() + "_top"
+        );
+
+        ResourceLocation bottomLeft = legacyDoorModel(
+                blocks, id, "_bottom_left", "door_bottom_left", bottom, top
+        );
+        ResourceLocation bottomLeftOpen = legacyDoorModel(
+                blocks, id, "_bottom_left_open", "door_bottom_left_open", bottom, top
+        );
+        ResourceLocation bottomRight = legacyDoorModel(
+                blocks, id, "_bottom_right", "door_bottom_right", bottom, top
+        );
+        ResourceLocation bottomRightOpen = legacyDoorModel(
+                blocks, id, "_bottom_right_open", "door_bottom_right_open", bottom, top
+        );
+        ResourceLocation topLeft = legacyDoorModel(
+                blocks, id, "_top_left", "door_top_left", bottom, top
+        );
+        ResourceLocation topLeftOpen = legacyDoorModel(
+                blocks, id, "_top_left_open", "door_top_left_open", bottom, top
+        );
+        ResourceLocation topRight = legacyDoorModel(
+                blocks, id, "_top_right", "door_top_right", bottom, top
+        );
+        ResourceLocation topRightOpen = legacyDoorModel(
+                blocks, id, "_top_right_open", "door_top_right_open", bottom, top
+        );
+
+        return new DoorModels(
+                bottomLeft,
+                bottomLeftOpen,
+                bottomRight,
+                bottomRightOpen,
+                topLeft,
+                topLeftOpen,
+                topRight,
+                topRightOpen
+        );
+    }
+
+    private static ResourceLocation legacyDoorModel(
+            BlockStateProvider blocks,
+            ResourceLocation blockId,
+            String suffix,
+            String parent,
+            ResourceLocation bottom,
+            ResourceLocation top
+    ) {
+        blocks.models()
+                .withExistingParent(
+                        blockId.getPath() + suffix,
+                        ResourceLocation.withDefaultNamespace("block/" + parent)
+                )
+                .texture("bottom", bottom)
+                .texture("top", top);
+
+        return ResourceLocation.fromNamespaceAndPath(
+                blockId.getNamespace(),
+                "block/" + blockId.getPath() + suffix
+        );
+    }
+
+    private static void generateLegacyBlockState(
+            BlockStateProvider blocks,
+            Block block,
+            DoorModels baseModels,
+            Models models
+    ) {
+        MultiPartBlockStateBuilder multi = blocks.getMultipartBuilder(block);
+
+        for (Direction facing : horizontalDirections()) {
+            for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
+                for (DoorHingeSide hinge : DoorHingeSide.values()) {
+                    for (boolean open : new boolean[]{false, true}) {
+                        int rotation = legacyDoorYRotation(facing, hinge, open);
+
+                        addLegacyPart(
+                                multi,
+                                baseModels.model(half, hinge, open),
+                                facing,
+                                half,
+                                hinge,
+                                open,
+                                null,
+                                null,
+                                rotation
+                        );
+
+                        ResourceLocation lit = models.litModels().model(
+                                half,
+                                hinge,
+                                open
+                        );
+
+                        if (lit != null) {
+                            addLegacyPart(
+                                    multi, lit, facing, half, hinge, open,
+                                    MusavaccaPortalDoorBlock.LIT,
+                                    MusavaccaPortalDoorBlock.LIT_PORTAL,
+                                    rotation
+                            );
+                            addLegacyPart(
+                                    multi, lit, facing, half, hinge, open,
+                                    MusavaccaPortalDoorBlock.PORTAL,
+                                    null,
+                                    rotation
+                            );
+                        }
+
+                        ResourceLocation litPortal = models.litPortalModels().model(
+                                half,
+                                hinge,
+                                open
+                        );
+
+                        if (litPortal != null) {
+                            addLegacyPart(
+                                    multi, litPortal, facing, half, hinge, open,
+                                    MusavaccaPortalDoorBlock.LIT_PORTAL,
+                                    MusavaccaPortalDoorBlock.PORTAL,
+                                    rotation
+                            );
+                        }
+
+                        ResourceLocation portal = models.portalModels().model(
+                                half,
+                                hinge,
+                                open
+                        );
+
+                        if (portal != null) {
+                            addLegacyPart(
+                                    multi, portal, facing, half, hinge, open,
+                                    MusavaccaPortalDoorBlock.PORTAL,
+                                    null,
+                                    rotation
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void addLegacyPart(
+            MultiPartBlockStateBuilder multi,
+            ResourceLocation model,
+            Direction facing,
+            DoubleBlockHalf half,
+            DoorHingeSide hinge,
+            boolean open,
+            @Nullable BooleanProperty requiredTrue,
+            @Nullable BooleanProperty requiredFalse,
+            int yRotation
+    ) {
+        var part = multi.part()
+                .modelFile(new ModelFile.UncheckedModelFile(model))
+                .rotationY(yRotation)
+                .addModel()
+                .condition(MusavaccaPortalDoorBlock.FACING, facing)
+                .condition(MusavaccaPortalDoorBlock.HALF, half)
+                .condition(MusavaccaPortalDoorBlock.HINGE, hinge)
+                .condition(MusavaccaPortalDoorBlock.OPEN, open);
+
+        if (requiredTrue != null) {
+            part.condition(requiredTrue, true);
+        }
+        if (requiredFalse != null) {
+            part.condition(requiredFalse, false);
+        }
+
+        part.end();
+    }
+
+    private static int legacyDoorYRotation(
+            Direction facing,
+            DoorHingeSide hinge,
+            boolean open
+    ) {
+        int closed = switch (facing) {
+            case EAST -> 0;
+            case SOUTH -> 90;
+            case WEST -> 180;
+            case NORTH -> 270;
+            default -> 0;
+        };
+
+        return open
+                ? Math.floorMod(
+                        closed + (hinge == DoorHingeSide.LEFT ? 90 : -90),
+                        360
+                )
+                : closed;
+    }
+
+    private static void generateLegacyItemModels(
+            ItemModelProvider items,
+            Block block,
+            Models models
+    ) {
+        ResourceLocation blockId = blockId(block);
+        ResourceLocation base = legacyItemTexture(blockId, "");
+        ResourceLocation knob = legacyItemTexture(blockId, "_knob");
+        ResourceLocation portal = legacyItemTexture(blockId, "_portal");
+
+        legacyLayeredItem(items, models.doorItem(), base);
+        legacyLayeredItem(items, models.chargedDoorItem(), base, knob);
+        legacyLayeredItem(items, models.imbuedDoorItem(), base, portal);
+    }
+
+    private static void legacyLayeredItem(
+            ItemModelProvider items,
+            ItemLike item,
+            ResourceLocation... textures
+    ) {
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item.asItem());
+        var model = items.getBuilder(itemId.getPath())
+                .parent(new ModelFile.UncheckedModelFile(
+                        ResourceLocation.withDefaultNamespace("item/generated")
+                ));
+
+        for (int layer = 0; layer < textures.length; ++layer) {
+            model.texture("layer" + layer, textures[layer]);
+        }
+    }
+
+    private static ResourceLocation legacyItemTexture(
+            ResourceLocation blockId,
+            String suffix
+    ) {
+        return ResourceLocation.fromNamespaceAndPath(
+                blockId.getNamespace(),
+                "item/" + blockId.getPath() + suffix
+        );
+    }
+    *///?} else {
     public static void generate(
             BlockModelGenerators blocks,
             ItemModelGenerators items,
@@ -949,8 +1243,10 @@ public final class CubeMusavaccaPortalDoorTinted {
             int yRotation
     ) {
         var condition =
-                BlockModelGenerators
-                        .condition()
+                //? if <1.21.5
+                //Condition.condition()
+                //? if >=1.21.5
+                BlockModelGenerators.condition()
                         .term(
                                 MusavaccaPortalDoorBlock.FACING,
                                 facing
@@ -1140,6 +1436,8 @@ public final class CubeMusavaccaPortalDoorTinted {
                     Quadrant.R0;
         };
     }
+    //?}
+
     //?}
 
     private static ResourceLocation blockId(

@@ -515,7 +515,7 @@ public final class ComponentRecipeDSL {
                 return output.advancement();
             }
 
-            //? if >=1.21.4 {
+            //? if >=1.21.3 {
             @Override
             public void includeRootAdvancement() {
                 output.includeRootAdvancement();

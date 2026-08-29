@@ -37,11 +37,14 @@ public final class HexTeleportPreloader {
             return;
         }
 
+        BlockPos targetBlockPos =
+                BlockPos.containing(
+                        targetPosition
+                );
+
         ChunkPos targetChunk =
                 new ChunkPos(
-                        BlockPos.containing(
-                                targetPosition
-                        )
+                        targetBlockPos
                 );
 
         boolean sameDimension =
@@ -58,12 +61,22 @@ public final class HexTeleportPreloader {
             return;
         }
 
+        //? if >=1.21.5 {
         targetLevel.getChunkSource()
                 .addTicketWithRadius(
                         TicketType.PORTAL,
                         targetChunk,
                         PORTAL_TICKET_RADIUS
                 );
+        //?} else {
+        /*targetLevel.getChunkSource()
+                .addRegionTicket(
+                        TicketType.PORTAL,
+                        targetChunk,
+                        PORTAL_TICKET_RADIUS,
+                        targetBlockPos
+                );
+        *///?}
 
         ServerPlayer clientPlayer =
                 sameDimension

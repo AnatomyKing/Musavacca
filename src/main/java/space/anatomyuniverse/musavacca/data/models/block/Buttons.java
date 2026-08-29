@@ -40,6 +40,11 @@ public final class Buttons {
             ResourceLocation texture =
                     ModelUtil.blockTex(fullBlock);
 
+            String buttonName =
+                    BuiltInRegistries.BLOCK
+                            .getKey(typedBlock)
+                            .getPath();
+
             gen.buttonBlock(
                     typedBlock,
                     texture
@@ -47,15 +52,9 @@ public final class Buttons {
 
             gen.simpleBlockItem(
                     typedBlock,
-                    gen.models().getExistingFile(
-                            ResourceLocation.fromNamespaceAndPath(
-                                    texture.getNamespace(),
-                                    "block/"
-                                            + BuiltInRegistries.BLOCK
-                                            .getKey(typedBlock)
-                                            .getPath()
-                                            + "_inventory"
-                            )
+                    gen.models().buttonInventory(
+                            buttonName + "_inventory",
+                            texture
                     )
             );
         }

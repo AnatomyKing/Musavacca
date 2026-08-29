@@ -17,8 +17,34 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
         this.itemRenderer = new VocoTableBlockEntityItemDisplayRenderer(context);
     }
 
+    //? if >=1.21.5 {
     @Override
     public void render(
+            VocoTableBlockEntity blockEntity,
+            float partialTick,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay,
+            Vec3 cameraPos
+    ) {
+        this.renderContents(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay, cameraPos);
+    }
+    //?} else {
+    /*@Override
+    public void render(
+            VocoTableBlockEntity blockEntity,
+            float partialTick,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay
+    ) {
+        this.renderContents(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay, Vec3.ZERO);
+    }
+    *///?}
+
+    private void renderContents(
             VocoTableBlockEntity blockEntity,
             float partialTick,
             PoseStack poseStack,

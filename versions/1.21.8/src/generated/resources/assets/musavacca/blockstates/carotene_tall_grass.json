@@ -1,20 +1,10 @@
 {
-  "multipart": [
-    {
-      "apply": {
-        "model": "musavacca:block/carotene_tall_grass_bottom"
-      },
-      "when": {
-        "half": "lower"
-      }
+  "variants": {
+    "half=lower": {
+      "model": "musavacca:block/carotene_tall_grass_bottom"
     },
-    {
-      "apply": {
-        "model": "musavacca:block/carotene_tall_grass_top"
-      },
-      "when": {
-        "half": "upper"
-      }
+    "half=upper": {
+      "model": "musavacca:block/carotene_tall_grass_top"
     }
-  ]
+  }
 }

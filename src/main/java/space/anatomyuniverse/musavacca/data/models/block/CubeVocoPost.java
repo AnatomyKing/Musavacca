@@ -15,7 +15,8 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 
 //? if <1.21.5 {
-/*import net.minecraft.client.data.models.blockstates.Variant;
+/*import net.minecraft.client.data.models.blockstates.Condition;
+import net.minecraft.client.data.models.blockstates.Variant;
 import net.minecraft.client.data.models.blockstates.VariantProperties;
 *///?} else {
 import com.mojang.math.Quadrant;
@@ -64,84 +65,84 @@ public final class CubeVocoPost {
                     .part()
                     .modelFile(base)
                     .rotationY(0)
-                    .condition(VocoPostBlock.FACING, Direction.NORTH)
                     .addModel()
+                    .condition(VocoPostBlock.FACING, Direction.NORTH)
                     .end()
                     .part()
                     .modelFile(base)
                     .rotationY(90)
-                    .condition(VocoPostBlock.FACING, Direction.EAST)
                     .addModel()
+                    .condition(VocoPostBlock.FACING, Direction.EAST)
                     .end()
                     .part()
                     .modelFile(base)
                     .rotationY(180)
-                    .condition(VocoPostBlock.FACING, Direction.SOUTH)
                     .addModel()
+                    .condition(VocoPostBlock.FACING, Direction.SOUTH)
                     .end()
                     .part()
                     .modelFile(base)
                     .rotationY(270)
-                    .condition(VocoPostBlock.FACING, Direction.WEST)
                     .addModel()
+                    .condition(VocoPostBlock.FACING, Direction.WEST)
                     .end()
 
                     .part()
                     .modelFile(litOverlay)
                     .rotationY(0)
+                    .addModel()
                     .condition(VocoPostBlock.FACING, Direction.NORTH)
                     .condition(VocoPostBlock.LIT, true)
-                    .addModel()
                     .end()
                     .part()
                     .modelFile(litOverlay)
                     .rotationY(90)
+                    .addModel()
                     .condition(VocoPostBlock.FACING, Direction.EAST)
                     .condition(VocoPostBlock.LIT, true)
-                    .addModel()
                     .end()
                     .part()
                     .modelFile(litOverlay)
                     .rotationY(180)
+                    .addModel()
                     .condition(VocoPostBlock.FACING, Direction.SOUTH)
                     .condition(VocoPostBlock.LIT, true)
-                    .addModel()
                     .end()
                     .part()
                     .modelFile(litOverlay)
                     .rotationY(270)
+                    .addModel()
                     .condition(VocoPostBlock.FACING, Direction.WEST)
                     .condition(VocoPostBlock.LIT, true)
-                    .addModel()
                     .end()
 
                     .part()
                     .modelFile(portalOverlay)
                     .rotationY(0)
+                    .addModel()
                     .condition(VocoPostBlock.FACING, Direction.NORTH)
                     .condition(VocoPostBlock.PORTAL, true)
-                    .addModel()
                     .end()
                     .part()
                     .modelFile(portalOverlay)
                     .rotationY(90)
+                    .addModel()
                     .condition(VocoPostBlock.FACING, Direction.EAST)
                     .condition(VocoPostBlock.PORTAL, true)
-                    .addModel()
                     .end()
                     .part()
                     .modelFile(portalOverlay)
                     .rotationY(180)
+                    .addModel()
                     .condition(VocoPostBlock.FACING, Direction.SOUTH)
                     .condition(VocoPostBlock.PORTAL, true)
-                    .addModel()
                     .end()
                     .part()
                     .modelFile(portalOverlay)
                     .rotationY(270)
+                    .addModel()
                     .condition(VocoPostBlock.FACING, Direction.WEST)
                     .condition(VocoPostBlock.PORTAL, true)
-                    .addModel()
                     .end();
 
             gen.simpleBlockItem(block, base);
@@ -183,7 +184,7 @@ public final class CubeVocoPost {
             Direction facing
     ) {
         return multi.with(
-                BlockModelGenerators.condition().term(VocoPostBlock.FACING, facing),
+                Condition.condition().term(VocoPostBlock.FACING, facing),
                 variant(modelId, facing)
         );
     }
@@ -194,7 +195,7 @@ public final class CubeVocoPost {
             Direction facing
     ) {
         return multi.with(
-                BlockModelGenerators.condition()
+                Condition.condition()
                         .term(VocoPostBlock.FACING, facing)
                         .term(VocoPostBlock.LIT, true),
                 variant(modelId, facing)
@@ -207,7 +208,7 @@ public final class CubeVocoPost {
             Direction facing
     ) {
         return multi.with(
-                BlockModelGenerators.condition()
+                Condition.condition()
                         .term(VocoPostBlock.FACING, facing)
                         .term(VocoPostBlock.PORTAL, true),
                 variant(modelId, facing)

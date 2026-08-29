@@ -36,15 +36,13 @@ public final class Fences {
 
             Block full = inferFullBlockFromFence(b);
             ResourceLocation tex = ModelUtil.blockTex(full);
+            String fenceName = BuiltInRegistries.BLOCK.getKey(fence).getPath();
 
             gen.fenceBlock(fence, tex);
-
-            gen.simpleBlockItem(fence, gen.models().getExistingFile(
-                    ResourceLocation.fromNamespaceAndPath(
-                            tex.getNamespace(),
-                            "block/" + BuiltInRegistries.BLOCK.getKey(fence).getPath() + "_inventory"
-                    )
-            ));
+            gen.simpleBlockItem(
+                    fence,
+                    gen.models().fenceInventory(fenceName + "_inventory", tex)
+            );
         }
     }
     *///?} else {

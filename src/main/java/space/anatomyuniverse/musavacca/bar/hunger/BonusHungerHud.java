@@ -6,7 +6,8 @@ import net.minecraft.client.gui.GuiGraphics;
 //? if >=1.21.6
 import net.minecraft.client.renderer.RenderPipelines;
 //? if <1.21.6
-//import net.minecraft.client.renderer.RenderType;
+////? if >=1.21.2
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
@@ -148,7 +149,9 @@ public final class BonusHungerHud {
     private static void drawSprite(GuiGraphics graphics, ResourceLocation sprite, int x, int y) {
         //? if >=1.21.6
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, ICON_SIZE, ICON_SIZE);
-        //? if <1.21.6
+        //? if >=1.21.2 && <1.21.6
         //graphics.blitSprite(RenderType::guiTextured, sprite, x, y, ICON_SIZE, ICON_SIZE);
+        //? if <1.21.2
+        //graphics.blitSprite(sprite, x, y, ICON_SIZE, ICON_SIZE);
     }
 }

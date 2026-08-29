@@ -6,13 +6,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+//? if <1.21.2
+//import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+//? if <1.21.2 {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?} else {
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
+//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -24,6 +30,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostVoxelShapes;
@@ -57,6 +64,24 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new VocoPostBlockEntity(pos, state);
     }
+
+    //? if <1.21.5 {
+    /*@Override
+    protected void onRemove(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            BlockState newState,
+            boolean movedByPiston
+    ) {
+        if (state.getBlock() != newState.getBlock()
+                && level.getBlockEntity(pos) instanceof VocoPostBlockEntity blockEntity) {
+            blockEntity.cleanupBeforeRemoval();
+        }
+
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+    *///?}
 
     @Nullable
     @Override
@@ -92,7 +117,11 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     }
 
     @Override
+    //? if <1.21.2 {
+    /*protected ItemInteractionResult useItemOn(
+    *///?} else {
     protected InteractionResult useItemOn(
+    //?}
             ItemStack stack,
             BlockState state,
             Level level,
@@ -101,7 +130,12 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
             InteractionHand hand,
             BlockHitResult hit
     ) {
-        return VocoPostLogic.useItemOn(stack, state, level, pos, player, hand, hit);
+        InteractionResult result = VocoPostLogic.useItemOn(stack, state, level, pos, player, hand, hit);
+        //? if <1.21.2 {
+        /*return InteractionResultCompat.forItemUse(result);
+        *///?} else {
+        return result;
+        //?}
     }
 
     @Override
@@ -119,6 +153,19 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
         }
     }
 
+    //? if <1.21.2 {
+    /*@Override
+    protected BlockState updateShape(
+            BlockState state,
+            Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+    ) {
+        return VocoPostCandleLogic.updateShape(state, level, pos, direction);
+    }
+    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
@@ -130,17 +177,9 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
             BlockState neighborState,
             RandomSource random
     ) {
-        return VocoPostCandleLogic.updateShape(
-                state,
-                levelReader,
-                scheduledTickAccess,
-                pos,
-                direction,
-                neighborPos,
-                neighborState,
-                random
-        );
+        return VocoPostCandleLogic.updateShape(state, levelReader, pos, direction);
     }
+    //?}
 
     public static ReceptorPosition receptorPosition(BlockState state) {
         Direction facing = state.hasProperty(FACING)

@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -53,7 +52,7 @@ public class MusavaccaLeaves
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 2);
     public static final int MAX_AGE = 2;
 
-    public MusavaccaLeaves(float leafParticleChance, BlockBehaviour.Properties properties) {
+    public MusavaccaLeaves(float leafParticleChance, Properties properties) {
         //? if <1.21.5 {
         /*super(properties);
          *///?} else {
@@ -193,7 +192,7 @@ public class MusavaccaLeaves
     }
 
     @Override
-    public BonemealableBlock.Type getType() {
-        return BonemealableBlock.Type.GROWER;
+    public Type getType() {
+        return Type.GROWER;
     }
 }

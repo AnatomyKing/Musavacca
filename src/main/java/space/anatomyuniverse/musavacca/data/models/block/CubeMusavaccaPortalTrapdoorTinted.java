@@ -1,7 +1,21 @@
 package space.anatomyuniverse.musavacca.data.models.block;
 
+//? if <1.21.4 {
+/*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+*///?} else {
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
+//? if <1.21.5 {
+/*import net.minecraft.client.data.models.blockstates.Condition;
+import net.minecraft.client.data.models.blockstates.Variant;
+import net.minecraft.client.data.models.blockstates.VariantProperties;
+*///?} else {
+import com.mojang.math.Quadrant;
+import net.minecraft.client.renderer.block.model.Variant;
+//?}
+//?}
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -12,14 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock;
 
 import java.util.Map;
-
-//? if <1.21.5 {
-/*import net.minecraft.client.data.models.blockstates.Variant;
-import net.minecraft.client.data.models.blockstates.VariantProperties;
-*///?} else {
-import com.mojang.math.Quadrant;
-import net.minecraft.client.renderer.block.model.Variant;
-//?}
 
 public final class CubeMusavaccaPortalTrapdoorTinted {
 
@@ -161,6 +167,170 @@ public final class CubeMusavaccaPortalTrapdoorTinted {
         }
     }
 
+    //? if <1.21.4 {
+    /*public static void generate(
+            BlockStateProvider blocks,
+            Map<Block, Models> models
+    ) {
+        if (models == null || models.isEmpty()) {
+            return;
+        }
+
+        models.forEach((block, modelsForBlock) -> {
+            if (!(block instanceof MusavaccaPortalTrapdoorBlock)
+                    || modelsForBlock == null) {
+                return;
+            }
+
+            BaseModels baseModels = legacyBaseModels(block);
+            generateLegacyBlockState(
+                    blocks,
+                    block,
+                    baseModels,
+                    modelsForBlock
+            );
+
+            blocks.simpleBlockItem(
+                    block,
+                    new ModelFile.UncheckedModelFile(baseModels.bottom())
+            );
+        });
+    }
+
+    private static BaseModels legacyBaseModels(Block block) {
+        ResourceLocation id = blockId(block);
+        String basePath = "block/" + id.getPath() + "/" + id.getPath();
+
+        return new BaseModels(
+                ResourceLocation.fromNamespaceAndPath(
+                        id.getNamespace(),
+                        basePath + "_bottom"
+                ),
+                ResourceLocation.fromNamespaceAndPath(
+                        id.getNamespace(),
+                        basePath + "_top"
+                ),
+                ResourceLocation.fromNamespaceAndPath(
+                        id.getNamespace(),
+                        basePath + "_open"
+                )
+        );
+    }
+
+    private static void generateLegacyBlockState(
+            BlockStateProvider blocks,
+            Block block,
+            BaseModels baseModels,
+            Models models
+    ) {
+        MultiPartBlockStateBuilder multi = blocks.getMultipartBuilder(block);
+
+        for (Direction facing : horizontalDirections()) {
+            for (Half half : Half.values()) {
+                for (boolean open : new boolean[]{false, true}) {
+                    int rotation = legacyTrapdoorYRotation(facing);
+
+                    addLegacyPart(
+                            multi,
+                            baseModels.model(half, open),
+                            facing,
+                            half,
+                            open,
+                            null,
+                            null,
+                            rotation
+                    );
+
+                    addLegacyPart(
+                            multi,
+                            models.litModels().model(half, open),
+                            facing,
+                            half,
+                            open,
+                            MusavaccaPortalTrapdoorBlock.LIT,
+                            MusavaccaPortalTrapdoorBlock.LIT_PORTAL,
+                            rotation
+                    );
+
+                    addLegacyPart(
+                            multi,
+                            models.litModels().model(half, open),
+                            facing,
+                            half,
+                            open,
+                            MusavaccaPortalTrapdoorBlock.PORTAL,
+                            null,
+                            rotation
+                    );
+
+                    addLegacyPart(
+                            multi,
+                            models.litPortalModels().model(half, open),
+                            facing,
+                            half,
+                            open,
+                            MusavaccaPortalTrapdoorBlock.LIT_PORTAL,
+                            MusavaccaPortalTrapdoorBlock.PORTAL,
+                            rotation
+                    );
+
+                    addLegacyPart(
+                            multi,
+                            models.portalModels().model(half, open),
+                            facing,
+                            half,
+                            open,
+                            MusavaccaPortalTrapdoorBlock.PORTAL,
+                            null,
+                            rotation
+                    );
+                }
+            }
+        }
+    }
+
+    private static void addLegacyPart(
+            MultiPartBlockStateBuilder multi,
+            ResourceLocation model,
+            Direction facing,
+            Half half,
+            boolean open,
+            @Nullable BooleanProperty requiredTrue,
+            @Nullable BooleanProperty requiredFalse,
+            int yRotation
+    ) {
+        boolean flipTopOpen = open && half == Half.TOP;
+        int resolvedY = flipTopOpen ? yRotation + 180 : yRotation;
+
+        var part = multi.part()
+                .modelFile(new ModelFile.UncheckedModelFile(model))
+                .rotationX(flipTopOpen ? 180 : 0)
+                .rotationY(Math.floorMod(resolvedY, 360))
+                .addModel()
+                .condition(MusavaccaPortalTrapdoorBlock.FACING, facing)
+                .condition(MusavaccaPortalTrapdoorBlock.HALF, half)
+                .condition(MusavaccaPortalTrapdoorBlock.OPEN, open);
+
+        if (requiredTrue != null) {
+            part.condition(requiredTrue, true);
+        }
+        if (requiredFalse != null) {
+            part.condition(requiredFalse, false);
+        }
+
+        part.end();
+    }
+
+    private static int legacyTrapdoorYRotation(Direction facing) {
+        return switch (facing) {
+            case NORTH -> 0;
+            case EAST -> 90;
+            case SOUTH -> 180;
+            case WEST -> 270;
+            default -> 0;
+        };
+    }
+    *///?} else {
     public static void generate(
             BlockModelGenerators blocks,
             Map<Block, Models> models
@@ -410,8 +580,10 @@ public final class CubeMusavaccaPortalTrapdoorTinted {
             int yRotation
     ) {
         var condition =
-                BlockModelGenerators
-                        .condition()
+                //? if <1.21.5
+                //Condition.condition()
+                //? if >=1.21.5
+                BlockModelGenerators.condition()
                         .term(
                                 MusavaccaPortalTrapdoorBlock.FACING,
                                 facing
@@ -617,6 +789,8 @@ public final class CubeMusavaccaPortalTrapdoorTinted {
             default -> 0;
         };
     }
+
+    //?}
 
     private static ResourceLocation blockId(
             Block block

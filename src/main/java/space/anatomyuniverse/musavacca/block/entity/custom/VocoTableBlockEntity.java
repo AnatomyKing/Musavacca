@@ -3,11 +3,14 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+//? if >=1.21.5
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+//? if <1.21.5
+//import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -16,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
+//? if >=1.21.2
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -972,21 +976,36 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     private boolean spawnBasuke(ServerLevel level) {
+        //? if <1.21.2 {
+        /*Basuke basuke = ModEntities.BASUKE.get().create(level);
+        *///?} else {
         Basuke basuke = ModEntities.BASUKE.get().create(level, EntitySpawnReason.TRIGGERED);
+        //?}
         if (basuke == null) {
             this.basukeUuid = null;
             return false;
         }
 
         BlockPos pos = this.getBlockPos();
+        float yaw = level.random.nextFloat() * 360.0F;
 
+        //? if >=1.21.5 {
         basuke.snapTo(
                 pos.getX() + 0.5D,
                 pos.getY() + 1.42D,
                 pos.getZ() + 0.5D,
-                level.random.nextFloat() * 360.0F,
+                yaw,
                 0.0F
         );
+        //?} else {
+        /*basuke.moveTo(
+                pos.getX() + 0.5D,
+                pos.getY() + 1.42D,
+                pos.getZ() + 0.5D,
+                yaw,
+                0.0F
+        );
+        *///?}
 
         basuke.bindToVocoTable(pos);
         level.addFreshEntity(basuke);
@@ -1043,11 +1062,12 @@ public class VocoTableBlockEntity extends BlockEntity {
         );
     }
 
-    @Override
-    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+    public void cleanupBeforeRemoval() {
         Level level = this.getLevel();
 
         if (level instanceof ServerLevel serverLevel) {
+            BlockPos pos = this.getBlockPos();
+
             for (ReceptorPosition receptor : ReceptorPosition.values()) {
                 VocoTeleportLogic.removeOwnerAndPromote(
                         serverLevel,
@@ -1058,9 +1078,15 @@ public class VocoTableBlockEntity extends BlockEntity {
 
             this.removeBasuke(serverLevel);
         }
+    }
 
+    //? if >=1.21.5 {
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        this.cleanupBeforeRemoval();
         super.preRemoveSideEffects(pos, state);
     }
+    //?}
 
     //? if >=1.21.6 {
     @Override
@@ -1142,7 +1168,8 @@ public class VocoTableBlockEntity extends BlockEntity {
         ContainerHelper.loadAllItems(tag, this.items, provider);
 
         int loadedDisplayedItemCount =
-                tag.getIntOr(
+                readInt(
+                        tag,
                         TAG_DISPLAYED_ITEM_COUNT,
                         this.items.get(0).getCount()
                 );
@@ -1151,8 +1178,8 @@ public class VocoTableBlockEntity extends BlockEntity {
                 loadedDisplayedItemCount
         );
 
-        this.basukeVisible = tag.getBooleanOr(TAG_BASUKE_VISIBLE, false);
-        this.basukeUuid = readUuid(tag.getStringOr(TAG_BASUKE_UUID, ""));
+        this.basukeVisible = readBoolean(tag, TAG_BASUKE_VISIBLE, false);
+        this.basukeUuid = readUuid(readString(tag, TAG_BASUKE_UUID, ""));
 
         this.resetFacingDefaults();
         this.resetTargetDefaults();
@@ -1162,39 +1189,39 @@ public class VocoTableBlockEntity extends BlockEntity {
             int index = receptor.id();
 
             this.yawDegrees[index] = VocoReceptorLogic.clampYaw(
-                    tag.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees())
+                    readInt(tag, TAG_YAW_DEGREES[index], receptor.defaultYawDegrees())
             );
 
             this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(
-                    tag.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees())
+                    readInt(tag, TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees())
             );
 
             Vec3 fallbackTarget = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
 
-            this.customTargetEnabled[index] = tag.getBooleanOr(TAG_CUSTOM_TARGET[index], false);
-            this.targetX[index] = tag.getDoubleOr(TAG_TARGET_X[index], fallbackTarget.x);
-            this.targetY[index] = tag.getDoubleOr(TAG_TARGET_Y[index], fallbackTarget.y);
-            this.targetZ[index] = tag.getDoubleOr(TAG_TARGET_Z[index], fallbackTarget.z);
+            this.customTargetEnabled[index] = readBoolean(tag, TAG_CUSTOM_TARGET[index], false);
+            this.targetX[index] = readDouble(tag, TAG_TARGET_X[index], fallbackTarget.x);
+            this.targetY[index] = readDouble(tag, TAG_TARGET_Y[index], fallbackTarget.y);
+            this.targetZ[index] = readDouble(tag, TAG_TARGET_Z[index], fallbackTarget.z);
 
             CandleSlot slot = this.slot(receptor);
 
-            Block candleBlock = readCandleBlock(tag.getStringOr(TAG_CANDLE_BLOCK_IDS[index], ""));
-            int candleCount = tag.getIntOr(TAG_CANDLE_COUNTS[index], 0);
+            Block candleBlock = readCandleBlock(readString(tag, TAG_CANDLE_BLOCK_IDS[index], ""));
+            int candleCount = readInt(tag, TAG_CANDLE_COUNTS[index], 0);
 
             if (candleBlock != null && candleCount > 0) {
                 slot.block = candleBlock;
                 slot.count = Math.max(1, Math.min(CandleBlock.MAX_CANDLES, candleCount));
-                slot.lit = tag.getBooleanOr(TAG_CANDLE_LIT[index], false);
+                slot.lit = readBoolean(tag, TAG_CANDLE_LIT[index], false);
 
-                slot.hasHexColor = tag.getBooleanOr(TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
+                slot.hasHexColor = readBoolean(tag, TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
                 slot.hexColor = slot.hasHexColor
-                        ? normalizeHex(tag.getIntOr(TAG_CANDLE_HEX_COLORS[index], DEFAULT_HEX_COLOR))
+                        ? normalizeHex(readInt(tag, TAG_CANDLE_HEX_COLORS[index], DEFAULT_HEX_COLOR))
                         : UNSET_HEX_COLOR;
             }
         }
 
         this.latestHexReceptorId = VocoReceptorLogic.clampReceptorId(
-                tag.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id())
+                readInt(tag, TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id())
         );
 
         this.latestHexColor = readHexOrUnset(tag, TAG_LATEST_HEX_COLOR);
@@ -1314,6 +1341,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     *///?}
 
+    //? if >=1.21.5 {
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
@@ -1330,6 +1358,24 @@ public class VocoTableBlockEntity extends BlockEntity {
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         this.latestHexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
     }
+    //?} else {
+    /*@Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+
+        input.getOrDefault(
+                DataComponents.CONTAINER,
+                ItemContainerContents.EMPTY
+        ).copyInto(this.items);
+
+        this.normalizeDisplayedItem(
+                this.items.get(0).getCount()
+        );
+
+        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
+        this.latestHexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+    }
+    *///?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
@@ -1417,12 +1463,42 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     //?} else {
     /*private static int readHexOrUnset(CompoundTag input, String tag) {
-        int loaded = input.getIntOr(tag, UNSET_HEX_COLOR);
+        int loaded = readInt(input, tag, UNSET_HEX_COLOR);
         return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
     }
-
-
     *///?}
+
+    private static int readInt(CompoundTag tag, String key, int fallback) {
+        //? if >=1.21.5 {
+        return tag.getIntOr(key, fallback);
+        //?} else {
+        /*return tag.contains(key, Tag.TAG_ANY_NUMERIC) ? tag.getInt(key) : fallback;
+        *///?}
+    }
+
+    private static double readDouble(CompoundTag tag, String key, double fallback) {
+        //? if >=1.21.5 {
+        return tag.getDoubleOr(key, fallback);
+        //?} else {
+        /*return tag.contains(key, Tag.TAG_ANY_NUMERIC) ? tag.getDouble(key) : fallback;
+        *///?}
+    }
+
+    private static boolean readBoolean(CompoundTag tag, String key, boolean fallback) {
+        //? if >=1.21.5 {
+        return tag.getBooleanOr(key, fallback);
+        //?} else {
+        /*return tag.contains(key, Tag.TAG_ANY_NUMERIC) ? tag.getBoolean(key) : fallback;
+        *///?}
+    }
+
+    private static String readString(CompoundTag tag, String key, String fallback) {
+        //? if >=1.21.5 {
+        return tag.getStringOr(key, fallback);
+        //?} else {
+        /*return tag.contains(key, Tag.TAG_STRING) ? tag.getString(key) : fallback;
+        *///?}
+    }
 
     private static boolean isValidCandleBlock(@Nullable Block block) {
         return block instanceof CandleBlock;
@@ -1449,7 +1525,11 @@ public class VocoTableBlockEntity extends BlockEntity {
             return null;
         }
 
+        //? if <1.21.2 {
+        /*Block block = BuiltInRegistries.BLOCK.get(id);
+        *///?} else {
         Block block = BuiltInRegistries.BLOCK.getValue(id);
+        //?}
         if (block == null || block == Blocks.AIR) {
             return null;
         }

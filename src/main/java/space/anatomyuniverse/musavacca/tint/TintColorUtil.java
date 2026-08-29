@@ -10,8 +10,13 @@ public final class TintColorUtil {
     private TintColorUtil() {}
 
     public static int defaultFoliageItemTint() {
+        //? if >1.21.3 {
         return FoliageColor.FOLIAGE_DEFAULT;
+        //?} else {
+        /*return FoliageColor.getDefaultColor();
+         *///?}
     }
+
 
     public static int rgb(int rgb) {
         return rgb & RGB_MASK;

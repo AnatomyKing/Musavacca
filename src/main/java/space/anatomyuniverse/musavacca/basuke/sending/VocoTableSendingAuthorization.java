@@ -58,12 +58,11 @@ public final class VocoTableSendingAuthorization {
             return null;
         }
 
-        String uuidString =
-                customData.copyTag()
-                        .getStringOr(
-                                TAG_SENDING_PLAYER_UUID,
-                                ""
-                        );
+        CompoundTag tag = customData.copyTag();
+        //? if >=1.21.5
+        String uuidString = tag.getStringOr(TAG_SENDING_PLAYER_UUID, "");
+        //? if <1.21.5
+        //String uuidString = tag.getString(TAG_SENDING_PLAYER_UUID);
 
         if (uuidString.isEmpty()) {
             return null;

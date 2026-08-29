@@ -2,6 +2,7 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+//? if >=1.21.5
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
@@ -271,11 +272,17 @@ public class VocoPostBlockEntity extends BlockEntity {
         );
     }
 
+    public void cleanupBeforeRemoval() {
+        this.releaseHexClaim();
+    }
+
+    //? if >=1.21.5 {
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        this.releaseHexClaim();
+        this.cleanupBeforeRemoval();
         super.preRemoveSideEffects(pos, state);
     }
+    //?}
 
     //? if >=1.21.6 {
     @Override
@@ -347,6 +354,7 @@ public class VocoPostBlockEntity extends BlockEntity {
     }
     *///?}
 
+    //? if >=1.21.5 {
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
@@ -354,6 +362,15 @@ public class VocoPostBlockEntity extends BlockEntity {
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         this.hexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
     }
+    //?} else {
+    /*@Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+
+        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
+        this.hexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+    }
+    *///?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {

@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.entity.boat.musavacca.client;
 
+//? if >=1.21.2 {
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.AbstractBoatRenderer;
@@ -43,3 +44,4 @@ public final class MusavaccaBoatRenderer
         return RenderType.entityCutoutNoCull(TEXTURE);
     }
 }
+//?}

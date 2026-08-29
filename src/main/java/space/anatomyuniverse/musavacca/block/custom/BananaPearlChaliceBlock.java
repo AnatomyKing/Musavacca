@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;
@@ -38,7 +37,7 @@ public class BananaPearlChaliceBlock extends Block {
     private static final VoxelShape SHAPE_TILT_WEST  = Block.box(2.25, 0.5, 4.5, 9.25, 12.5, 11.5);
     private static final VoxelShape SHAPE_TILT_EAST  = Block.box(6.75, 0.5, 4.5, 13.75, 12.5, 11.5);
 
-    public BananaPearlChaliceBlock(BlockBehaviour.Properties properties) {
+    public BananaPearlChaliceBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
                 this.stateDefinition.any()

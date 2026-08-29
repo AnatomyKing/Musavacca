@@ -3,6 +3,7 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+//? if >=1.21.5
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
@@ -125,6 +126,7 @@ public class PearlFireBlockEntity extends BlockEntity {
     }
     *///?}
 
+    //? if >=1.21.5 {
     @Override
     protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
@@ -134,6 +136,17 @@ public class PearlFireBlockEntity extends BlockEntity {
             this.hexColor = normalizeHex(savedHex);
         }
     }
+    //?} else {
+    /*@Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+
+        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
+        if (savedHex != null) {
+            this.hexColor = normalizeHex(savedHex);
+        }
+    }
+    *///?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
