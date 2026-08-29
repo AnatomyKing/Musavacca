@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.core.BlockPos;
@@ -106,3 +107,4 @@ public class SmallBananaPearlItem extends Item {
         );
     }
 }
+

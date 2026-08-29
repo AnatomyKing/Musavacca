@@ -55,3 +55,4 @@ public final class ModParticleTypes {
         PARTICLE_TYPES.register(modBus);
     }
 }
+

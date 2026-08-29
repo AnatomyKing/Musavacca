@@ -243,3 +243,4 @@ public final class VocoReceptorLogic {
         return Math.max(min, Math.min(max, value));
     }
 }
+

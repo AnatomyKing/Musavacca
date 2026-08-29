@@ -5,13 +5,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
+
 //? if <1.21.2 {
 /*import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 *///?} else {
 import net.minecraft.world.entity.vehicle.Raft;
-//?}
+ //?}
+
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.item.ModItems;
@@ -21,7 +23,7 @@ public final class MusavaccaBoat extends
         /*Boat
         *///?} else {
         Raft
-        //?}
+         //?}
 {
 
     public static final float HITBOX_WIDTH =
@@ -32,14 +34,24 @@ public final class MusavaccaBoat extends
 
     public static final int MAX_PASSENGERS = 3;
 
-    private static final double DRIVER_SEAT_Z =
-            0.0D;
-
-    private static final double BACK_SEAT_Z =
+    private static final double SEAT_SPACING_Z =
             11.0D / 16.0D;
 
-    private static final double FRONT_SEAT_Z =
-            -11.0D / 16.0D;
+    /*
+     * Passenger order:
+     *
+     * 0 = driver       -> front
+     * 1 = passenger 1  -> middle
+     * 2 = passenger 2  -> back
+     */
+    private static final double DRIVER_SEAT_Z =
+            SEAT_SPACING_Z;
+
+    private static final double PASSENGER_ONE_SEAT_Z =
+            0.0D;
+
+    private static final double PASSENGER_TWO_SEAT_Z =
+            -SEAT_SPACING_Z;
 
     public MusavaccaBoat(
             EntityType<? extends MusavaccaBoat> entityType,
@@ -47,7 +59,6 @@ public final class MusavaccaBoat extends
     ) {
         //? if <1.21.2 {
         /*super(entityType, level);
-        this.setVariant(Boat.Type.BAMBOO);
         *///?} else {
         super(
                 entityType,
@@ -82,8 +93,8 @@ public final class MusavaccaBoat extends
 
         double seatZ = switch (passengerIndex) {
             case 0 -> DRIVER_SEAT_Z;
-            case 1 -> BACK_SEAT_Z;
-            case 2 -> FRONT_SEAT_Z;
+            case 1 -> PASSENGER_ONE_SEAT_Z;
+            case 2 -> PASSENGER_TWO_SEAT_Z;
             default -> DRIVER_SEAT_Z;
         };
 
@@ -93,7 +104,7 @@ public final class MusavaccaBoat extends
                 /*dimensions.height(),
                 *///?} else {
                 this.rideHeight(dimensions),
-                //?}
+                 //?}
                 seatZ * scaleFactor
         ).yRot(
                 -this.getYRot() * Mth.DEG_TO_RAD
@@ -103,7 +114,7 @@ public final class MusavaccaBoat extends
     @Override
     protected void positionRider(
             Entity passenger,
-            MoveFunction moveFunction
+            Entity.MoveFunction moveFunction
     ) {
         super.positionRider(
                 passenger,
@@ -140,7 +151,9 @@ public final class MusavaccaBoat extends
 
     @Override
     public ItemStack getPickResult() {
-        return new ItemStack(ModItems.MUSAVACCA_BOAT.get());
+        return new ItemStack(
+                ModItems.MUSAVACCA_BOAT.get()
+        );
     }
     *///?}
 }

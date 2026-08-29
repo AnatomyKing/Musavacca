@@ -31,3 +31,4 @@ public record VocoTableCraftingRecipe(
         return new ItemStack(this.result.asItem());
     }
 }
+

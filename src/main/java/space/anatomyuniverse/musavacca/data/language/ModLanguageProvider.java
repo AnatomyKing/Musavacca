@@ -114,3 +114,4 @@ public final class ModLanguageProvider extends LanguageProvider {
                 .replace("Gps", "GPS");
     }
 }
+

@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -128,3 +129,4 @@ public final class PearlCandleLogic {
                 && state.getValue(CandleBlock.CANDLES) < CandleBlock.MAX_CANDLES;
     }
 }
+

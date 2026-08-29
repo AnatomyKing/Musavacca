@@ -25,3 +25,4 @@ public record HexColorParticleOptions(ParticleType<HexColorParticleOptions> type
         return (this.color & 0xFF) / 255.0F;
     }
 }
+

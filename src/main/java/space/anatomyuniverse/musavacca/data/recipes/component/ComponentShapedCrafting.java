@@ -190,3 +190,7 @@ public final class ComponentShapedCrafting {
 
     private ComponentShapedCrafting() {}
 }
+
+
+
+

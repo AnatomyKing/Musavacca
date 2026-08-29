@@ -431,3 +431,4 @@ public final class VocoTableCandleLogic {
         private static final Sync INACTIVE = new Sync(false);
     }
 }
+

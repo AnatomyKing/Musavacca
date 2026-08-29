@@ -31,3 +31,4 @@ public final class HexColorParticleType extends ParticleType<HexColorParticleOpt
         );
     }
 }
+

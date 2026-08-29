@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;
@@ -158,3 +159,6 @@ protected VoxelShape getOcclusionShape(BlockState state) {
         }
     }
 }
+
+
+

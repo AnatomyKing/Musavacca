@@ -84,3 +84,4 @@ public class FlintAndPearlMenu extends AbstractContainerMenu {
         return true;
     }
 }
+

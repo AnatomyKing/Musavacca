@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -439,3 +440,4 @@ public final class CubeFireBlockTinted {
     //?}
     //?}
 }
+

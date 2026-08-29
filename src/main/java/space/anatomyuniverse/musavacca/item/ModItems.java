@@ -10,8 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-//? if >=1.21.2
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
@@ -24,7 +22,6 @@ import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
-import net.minecraft.world.item.equipment.Equippable;
 //?}
 //? if >=1.21.4 {
 import net.minecraft.resources.ResourceKey;
@@ -44,15 +41,12 @@ import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.*;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumArmorItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumAxeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumHoeItem;
-import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumItem;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumPickaxeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumShovelItem;
-//? if <1.21.2 {
-/*import space.anatomyuniverse.musavacca.item.custom.potassium.LegacyPotassiumArmorItem;
-import space.anatomyuniverse.musavacca.item.custom.potassium.LegacyPotassiumPickaxeItem;
-import space.anatomyuniverse.musavacca.item.custom.potassium.LegacyPotassiumSwordItem;
-*///?}
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumSwordItem;
 
 //? if <1.21.2 {
 /*import java.util.EnumMap;
@@ -141,9 +135,8 @@ public final class ModItems {
             POTASSIUM_ARMOR_MATERIAL =
             ARMOR_MATERIALS.register(
                     "potassium",
-                    () -> legacyPotassiumArmorMaterial("potassium")
+                    () -> potassiumArmorMaterial1211("potassium")
             );
-
     *///?} else {
     public static final
             //? if <1.21.4 {
@@ -158,7 +151,6 @@ public final class ModItems {
             potassiumArmorMaterial(
                     POTASSIUM_EQUIPMENT_ASSET
             );
-
     //?}
 
     private static DeferredItem<BlockItem> MusavaccaDoorItems(
@@ -544,29 +536,21 @@ public final class ModItems {
     }
 
     private static Item createPotassiumSword(Item.Properties props) {
-        //? if <1.21.2 {
-        /*return new LegacyPotassiumSwordItem(
+        return new PotassiumSwordItem(
                 POTASSIUM_TOOL_MATERIAL,
+                3.0F,
+                -2.4F,
                 potassiumFoodProperties(props)
         );
-        *///?} else {
-        return new PotassiumItem(
-                potassiumFoodProperties(potassiumSwordProperties(props))
-        );
-        //?}
     }
 
     private static Item createPotassiumPickaxe(Item.Properties props) {
-        //? if <1.21.2 {
-        /*return new LegacyPotassiumPickaxeItem(
+        return new PotassiumPickaxeItem(
                 POTASSIUM_TOOL_MATERIAL,
+                1.0F,
+                -2.8F,
                 potassiumFoodProperties(props)
         );
-        *///?} else {
-        return new PotassiumItem(
-                potassiumFoodProperties(potassiumPickaxeProperties(props))
-        );
-        //?}
     }
 
     private static Item createPotassiumShovel(Item.Properties props) {
@@ -605,14 +589,14 @@ public final class ModItems {
             //?}
     ) {
         //? if <1.21.2 {
-        /*return new LegacyPotassiumArmorItem(
+        /*return new PotassiumArmorItem(
                 armorMaterial,
                 ArmorItem.Type.HELMET,
                 potassiumFoodProperties(props)
         );
         *///?} else {
-        return new PotassiumItem(
-                potassiumCustomHeadHelmetProperties(props, armorMaterial)
+        return new PotassiumArmorItem(
+                customHeadHelmetProperties(props, armorMaterial)
         );
         //?}
     }
@@ -626,13 +610,13 @@ public final class ModItems {
             //?}
     ) {
         //? if <1.21.2 {
-        /*return new LegacyPotassiumArmorItem(
+        /*return new PotassiumArmorItem(
                 armorMaterial,
                 ArmorItem.Type.CHESTPLATE,
                 potassiumFoodProperties(props)
         );
         *///?} else {
-        return new PotassiumItem(
+        return new PotassiumArmorItem(
                 potassiumFoodProperties(
                         humanoidArmorProperties(props, armorMaterial, ArmorType.CHESTPLATE)
                 )
@@ -649,13 +633,13 @@ public final class ModItems {
             //?}
     ) {
         //? if <1.21.2 {
-        /*return new LegacyPotassiumArmorItem(
+        /*return new PotassiumArmorItem(
                 armorMaterial,
                 ArmorItem.Type.LEGGINGS,
                 potassiumFoodProperties(props)
         );
         *///?} else {
-        return new PotassiumItem(
+        return new PotassiumArmorItem(
                 potassiumFoodProperties(
                         humanoidArmorProperties(props, armorMaterial, ArmorType.LEGGINGS)
                 )
@@ -672,13 +656,13 @@ public final class ModItems {
             //?}
     ) {
         //? if <1.21.2 {
-        /*return new LegacyPotassiumArmorItem(
+        /*return new PotassiumArmorItem(
                 armorMaterial,
                 ArmorItem.Type.BOOTS,
                 potassiumFoodProperties(props)
         );
         *///?} else {
-        return new PotassiumItem(
+        return new PotassiumArmorItem(
                 potassiumFoodProperties(
                         humanoidArmorProperties(props, armorMaterial, ArmorType.BOOTS)
                 )
@@ -688,49 +672,22 @@ public final class ModItems {
 
     //? if >=1.21.2 {
     private static Item.Properties
-    potassiumCustomHeadHelmetProperties(
+    customHeadHelmetProperties(
             Item.Properties props,
             ArmorMaterial armorMaterial
     ) {
-        return humanoidArmorProperties(
-                props,
-                armorMaterial,
-                ArmorType.HELMET
-        )
-                .component(
-                        DataComponents.EQUIPPABLE,
-                        Equippable.builder(EquipmentSlot.HEAD)
-                                .setEquipSound(
-                                        SoundEvents.ARMOR_EQUIP_DIAMOND
-                                )
-                                .setDamageOnHurt(true)
-                                .build()
+        /*
+         * Keep the normal humanoid equipment asset/model. HumanoidArmorLayer
+         * must see the helmet so the shared custom-head mixin can replace
+         * only its base HEAD pass while preserving armor semantics/trims.
+         */
+        return potassiumFoodProperties(
+                humanoidArmorProperties(
+                        props,
+                        armorMaterial,
+                        ArmorType.HELMET
                 )
-                .food(
-                        POTASSIUM_FOOD,
-                        POTASSIUM_CONSUMABLE
-                );
-    }
-
-    private static Item.Properties potassiumSwordProperties(Item.Properties props) {
-        //? if >=1.21.5 {
-        return props.sword(POTASSIUM_TOOL_MATERIAL, 3.0F, -2.4F);
-        //?} else {
-        /*return POTASSIUM_TOOL_MATERIAL.applySwordProperties(props, 3.0F, -2.4F);
-        *///?}
-    }
-
-    private static Item.Properties potassiumPickaxeProperties(Item.Properties props) {
-        //? if >=1.21.5 {
-        return props.pickaxe(POTASSIUM_TOOL_MATERIAL, 1.0F, -2.8F);
-        //?} else {
-        /*return POTASSIUM_TOOL_MATERIAL.applyToolProperties(
-                props,
-                BlockTags.MINEABLE_WITH_PICKAXE,
-                1.0F,
-                -2.8F
         );
-        *///?}
     }
 
     private static Item.Properties humanoidArmorProperties(
@@ -802,7 +759,7 @@ public final class ModItems {
     //?}
 
     //? if <1.21.2 {
-    /*private static ArmorMaterial legacyPotassiumArmorMaterial(String texturePath) {
+    /*private static ArmorMaterial potassiumArmorMaterial1211(String texturePath) {
         return new ArmorMaterial(
                 Util.make(
                         new EnumMap<>(ArmorItem.Type.class),
@@ -840,3 +797,4 @@ public final class ModItems {
     private ModItems() {
     }
 }
+

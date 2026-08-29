@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.world.level.block.Block;
@@ -119,3 +120,5 @@ public final class CubeOwn {
     }
     //?}
 }
+
+

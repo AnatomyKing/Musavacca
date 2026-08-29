@@ -47,3 +47,4 @@ public class StrippableMusavaccaStemBlock extends RotatedPillarBlock {
         return ctx.getLevel().getRandom().nextFloat() < EXUDATED_CHANCE;
     }
 }
+

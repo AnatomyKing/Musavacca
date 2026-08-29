@@ -33,3 +33,4 @@ public final class ModSnifferDiggingLootProvider implements LootTableSubProvider
         );
     }
 }
+

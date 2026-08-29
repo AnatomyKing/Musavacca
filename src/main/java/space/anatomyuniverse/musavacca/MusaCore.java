@@ -18,7 +18,7 @@ import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableItemDisplayLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
-import space.anatomyuniverse.musavacca.client.ModClientRenderLayers;
+import space.anatomyuniverse.musavacca.client.helmet.CustomHelmetModels;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
@@ -106,6 +106,7 @@ public final class MusaCore {
         ) {
             ModTints.register(modBus);
 
+
             modBus.addListener(
                     VocoCallerTooltipClient::register
             );
@@ -114,9 +115,11 @@ public final class MusaCore {
                     MusaRenderLayers::onModifyBakingResult
             );
 
-            modBus.addListener(
-                    ModClientRenderLayers::addLayers
+            //? if <1.21.4 {
+            /*modBus.addListener(
+                    CustomHelmetModels::registerAdditionalModels
             );
+            *///?}
 
             modBus.addListener(
                     ModMenuEvents::register
@@ -152,3 +155,9 @@ public final class MusaCore {
         );
     }
 }
+
+
+
+
+
+

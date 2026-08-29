@@ -334,3 +334,4 @@ public final class BalanceStore extends SavedData {
         );
     }
 }
+

@@ -9,3 +9,4 @@ public final class PearlPortalServerEvents {
         PearlPortalNetwork.clear();
     }
 }
+

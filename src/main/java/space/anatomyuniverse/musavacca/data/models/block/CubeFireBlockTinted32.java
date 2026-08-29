@@ -476,3 +476,4 @@ public final class CubeFireBlockTinted32 {
     //?}
     //?}
 }
+

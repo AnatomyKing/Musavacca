@@ -6,6 +6,7 @@ import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 *///?} else {
+import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -1036,9 +1037,7 @@ public final class CubeMusavaccaPortalDoorTinted {
             Models models
     ) {
         ResourceLocation blockId =
-                blockId(
-                        block
-                );
+                blockId(block);
 
         ResourceLocation baseTexture =
                 itemTexture(
@@ -1058,12 +1057,6 @@ public final class CubeMusavaccaPortalDoorTinted {
                         "_portal"
                 );
 
-        /*
-         * MUSAVACCA_DOOR
-         *
-         * layer0:
-         * musavacca_door
-         */
         ResourceLocation doorModel =
                 ModelTemplates.FLAT_ITEM
                         .create(
@@ -1076,15 +1069,6 @@ public final class CubeMusavaccaPortalDoorTinted {
                                 blocks.modelOutput
                         );
 
-        /*
-         * MUSAVACCA_CHARGED_DOOR
-         *
-         * layer0:
-         * musavacca_door
-         *
-         * layer1:
-         * musavacca_door_knob
-         */
         ResourceLocation chargedDoorModel =
                 ModelTemplates.TWO_LAYERED_ITEM
                         .create(
@@ -1098,19 +1082,6 @@ public final class CubeMusavaccaPortalDoorTinted {
                                 blocks.modelOutput
                         );
 
-        /*
-         * MUSAVACCA_IMBUED_DOOR
-         *
-         * layer0:
-         * musavacca_door
-         *
-         * layer1:
-         * musavacca_door_portal
-         *
-         * The second layer receives HEX_COLOR tinting.
-         *
-         * There is deliberately NO knob layer.
-         */
         ResourceLocation imbuedDoorModel =
                 ModelTemplates.TWO_LAYERED_ITEM
                         .create(
@@ -1125,16 +1096,10 @@ public final class CubeMusavaccaPortalDoorTinted {
                         );
 
         ItemTintSource noTint =
-                ProfileHexColorItemTintSource
-                        .noTint(
-                                models.tintProfile(),
-                                false
-                        );
+                new Constant(0xFFFFFFFF);
 
         items.itemModelOutput.accept(
-                models
-                        .doorItem()
-                        .asItem(),
+                models.doorItem().asItem(),
                 new BlockModelWrapper.Unbaked(
                         doorModel,
                         List.of(
@@ -1144,9 +1109,7 @@ public final class CubeMusavaccaPortalDoorTinted {
         );
 
         items.itemModelOutput.accept(
-                models
-                        .chargedDoorItem()
-                        .asItem(),
+                models.chargedDoorItem().asItem(),
                 new BlockModelWrapper.Unbaked(
                         chargedDoorModel,
                         List.of(
@@ -1157,9 +1120,7 @@ public final class CubeMusavaccaPortalDoorTinted {
         );
 
         items.itemModelOutput.accept(
-                models
-                        .imbuedDoorItem()
-                        .asItem(),
+                models.imbuedDoorItem().asItem(),
                 new BlockModelWrapper.Unbaked(
                         imbuedDoorModel,
                         List.of(
@@ -1487,3 +1448,5 @@ public final class CubeMusavaccaPortalDoorTinted {
         };
     }
 }
+
+

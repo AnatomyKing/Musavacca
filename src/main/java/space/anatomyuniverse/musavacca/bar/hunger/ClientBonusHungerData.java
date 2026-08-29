@@ -46,3 +46,4 @@ public final class ClientBonusHungerData {
         return interval > 0 && player.tickCount % interval == 0;
     }
 }
+

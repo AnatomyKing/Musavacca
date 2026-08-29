@@ -143,3 +143,6 @@ public final class VocoTableBlock extends Block implements EntityBlock {
         return VocoTableVoxelShapes.collisionShape(state, level, pos);
     }
 }
+
+
+

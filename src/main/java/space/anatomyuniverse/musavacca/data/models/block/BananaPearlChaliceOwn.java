@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.data.models.block;
 
 import net.minecraft.core.Direction;
@@ -207,3 +208,4 @@ public final class BananaPearlChaliceOwn {
         );
     }
 }
+

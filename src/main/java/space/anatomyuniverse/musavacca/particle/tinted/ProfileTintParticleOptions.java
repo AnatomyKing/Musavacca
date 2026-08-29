@@ -39,3 +39,4 @@ public record ProfileTintParticleOptions(
         return this.type;
     }
 }
+

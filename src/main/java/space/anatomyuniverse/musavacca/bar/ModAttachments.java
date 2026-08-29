@@ -35,3 +35,4 @@ public final class ModAttachments {
         ATTACHMENT_TYPES.register(modBus);
     }
 }
+

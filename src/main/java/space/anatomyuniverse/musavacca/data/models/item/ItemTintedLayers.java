@@ -1,14 +1,18 @@
 package space.anatomyuniverse.musavacca.data.models.item;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.models.ModelUtil;
+import space.anatomyuniverse.musavacca.tint.LayeredItemTint;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 
 //? if <1.21.4 {
-/*import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+/*import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.loaders.ItemLayerModelBuilder;
 *///?} else {
+import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ModelTemplate;
@@ -25,10 +29,15 @@ import java.util.List;
 import java.util.Optional;
 //?}
 
+/**
+ * Adaptive layered-item datagen/runtime definition.
+ *
+ * Every gray factor in the profile is one real tinted layer. Up to five total
+ * visible layers use vanilla generated-item layers. Larger models use the
+ * version-native unlimited path: NeoForge item_layers before 1.21.4 and
+ * Minecraft composite client item models on 1.21.4+.
+ */
 public final class ItemTintedLayers {
-
-    public static final int VANILLA_MAX_LAYERS = 5;
-
     private ItemTintedLayers() {}
 
     public enum LayerLayout {
@@ -44,35 +53,11 @@ public final class ItemTintedLayers {
             LayerLayout layout
     ) {
         public Entry {
-            if (item == null) {
-                throw new IllegalArgumentException(
-                        "item must not be null"
-                );
-            }
-
-            if (modelStem == null || modelStem.isBlank()) {
-                throw new IllegalArgumentException(
-                        "modelStem must not be blank"
-                );
-            }
-
-            if (textureStem == null || textureStem.isBlank()) {
-                throw new IllegalArgumentException(
-                        "textureStem must not be blank"
-                );
-            }
-
-            if (profile == null) {
-                throw new IllegalArgumentException(
-                        "profile must not be null"
-                );
-            }
-
-            if (layout == null) {
-                throw new IllegalArgumentException(
-                        "layout must not be null"
-                );
-            }
+            if (item == null) throw new IllegalArgumentException("item must not be null");
+            if (modelStem == null || modelStem.isBlank()) throw new IllegalArgumentException("modelStem must not be blank");
+            if (textureStem == null || textureStem.isBlank()) throw new IllegalArgumentException("textureStem must not be blank");
+            if (profile == null) throw new IllegalArgumentException("profile must not be null");
+            if (layout == null) throw new IllegalArgumentException("layout must not be null");
         }
 
         public ResourceLocation itemId() {
@@ -81,20 +66,15 @@ public final class ItemTintedLayers {
 
         public ResourceLocation modelId() {
             ResourceLocation id = itemId();
-
             return ResourceLocation.fromNamespaceAndPath(
                     id.getNamespace(),
                     "item/" + modelStem
             );
         }
 
-        public ResourceLocation layerModelId(
-                int modelLayer
-        ) {
+        public ResourceLocation layerModelId(int modelLayer) {
             validateModelLayer(modelLayer);
-
             ResourceLocation id = itemId();
-
             return ResourceLocation.fromNamespaceAndPath(
                     id.getNamespace(),
                     "item/" + modelStem + "_layer_" + modelLayer
@@ -110,108 +90,70 @@ public final class ItemTintedLayers {
         }
 
         public int totalLayerCount() {
-            return tintedLayerCount()
-                    + (hasUntintedBase() ? 1 : 0);
+            return LayeredItemTint.totalModelLayers(
+                    profile,
+                    hasUntintedBase()
+            );
         }
 
         public boolean usesVanillaLayers() {
-            return totalLayerCount() <= VANILLA_MAX_LAYERS;
+            return LayeredItemTint.usesVanillaModelLayers(
+                    profile,
+                    hasUntintedBase()
+            );
         }
 
-        public boolean usesLayerBypass() {
+        public boolean usesUnlimitedLayers() {
             return !usesVanillaLayers();
         }
 
-        public int firstTintedModelLayer() {
-            return hasUntintedBase() ? 1 : 0;
+        public boolean isUntintedBaseLayer(int modelLayer) {
+            validateModelLayer(modelLayer);
+            return LayeredItemTint.isUntintedBase(
+                    modelLayer,
+                    hasUntintedBase()
+            );
         }
 
-        public boolean isUntintedBaseLayer(
-                int modelLayer
-        ) {
+        public int profileLayerForModelLayer(int modelLayer) {
             validateModelLayer(modelLayer);
-
-            return hasUntintedBase()
-                    && modelLayer == 0;
-        }
-
-        public int profileLayerForModelLayer(
-                int modelLayer
-        ) {
-            validateModelLayer(modelLayer);
-
-            if (isUntintedBaseLayer(modelLayer)) {
+            int profileLayer = LayeredItemTint.profileLayerForTintIndex(
+                    profile,
+                    hasUntintedBase(),
+                    modelLayer
+            );
+            if (profileLayer < 0) {
                 throw new IllegalArgumentException(
-                        "Model layer 0 is the untinted base "
-                                + "and has no profile layer"
+                        "Model layer " + modelLayer
+                                + " is untinted and has no profile layer"
                 );
             }
-
-            return modelLayer - firstTintedModelLayer();
+            return profileLayer;
         }
 
-        public int profileLayerForTintIndex(
-                int tintIndex
-        ) {
-            return profileLayerForModelLayer(tintIndex);
-        }
-
-        public ResourceLocation texture(
-                int modelLayer
-        ) {
+        public ResourceLocation texture(int modelLayer) {
             validateModelLayer(modelLayer);
-
-            String texturePath =
-                    isUntintedBaseLayer(modelLayer)
-                            ? textureStem
-                            : textureStem
-                            + "_"
-                            + profileLayerForModelLayer(
-                            modelLayer
-                    );
-
+            String path = isUntintedBaseLayer(modelLayer)
+                    ? textureStem
+                    : textureStem + "_" + profileLayerForModelLayer(modelLayer);
             ResourceLocation id = itemId();
-
             return ResourceLocation.fromNamespaceAndPath(
                     id.getNamespace(),
-                    "item/" + texturePath
+                    "item/" + path
             );
         }
 
-        public ResourceLocation untintedBaseTexture() {
-            if (!hasUntintedBase()) {
-                throw new IllegalStateException(
-                        "This entry is FULLY_TINTED and has "
-                                + "no untinted base texture"
-                );
-            }
-
-            return texture(0);
-        }
-
-        public ResourceLocation tintedTexture(
-                int profileLayer
-        ) {
-            validateProfileLayer(profileLayer);
-
-            ResourceLocation id = itemId();
-
-            return ResourceLocation.fromNamespaceAndPath(
-                    id.getNamespace(),
-                    "item/"
-                            + textureStem
-                            + "_"
-                            + profileLayer
+        public int tint(ItemStack stack, int tintIndex) {
+            return LayeredItemTint.tint(
+                    stack,
+                    tintIndex,
+                    profile,
+                    hasUntintedBase()
             );
         }
 
-        private void validateModelLayer(
-                int modelLayer
-        ) {
-            if (
-                    modelLayer < 0
-                            || modelLayer >= totalLayerCount()
-            ) {
+        private void validateModelLayer(int modelLayer) {
+            if (modelLayer < 0 || modelLayer >= totalLayerCount()) {
                 throw new IllegalArgumentException(
                         "modelLayer must be between 0 and "
                                 + (totalLayerCount() - 1)
@@ -220,82 +162,26 @@ public final class ItemTintedLayers {
                 );
             }
         }
-
-        private void validateProfileLayer(
-                int profileLayer
-        ) {
-            if (
-                    profileLayer < 0
-                            || profileLayer >= tintedLayerCount()
-            ) {
-                throw new IllegalArgumentException(
-                        "profileLayer must be between 0 and "
-                                + (tintedLayerCount() - 1)
-                                + ", got "
-                                + profileLayer
-                );
-            }
-        }
     }
 
-    public static Entry root(
-            ItemLike item,
-            PearlFireTintProfiles.Profile profile
-    ) {
+    public static Entry root(ItemLike item, PearlFireTintProfiles.Profile profile) {
         String stem = ModelUtil.pathOf(item);
-
-        return new Entry(
-                item,
-                stem,
-                stem,
-                profile,
-                LayerLayout.WITH_UNTINTED_BASE
-        );
+        return new Entry(item, stem, stem, profile, LayerLayout.WITH_UNTINTED_BASE);
     }
 
-    public static Entry fullyTintedRoot(
-            ItemLike item,
-            PearlFireTintProfiles.Profile profile
-    ) {
+    public static Entry fullyTintedRoot(ItemLike item, PearlFireTintProfiles.Profile profile) {
         String stem = ModelUtil.pathOf(item);
-
-        return new Entry(
-                item,
-                stem,
-                stem,
-                profile,
-                LayerLayout.FULLY_TINTED
-        );
+        return new Entry(item, stem, stem, profile, LayerLayout.FULLY_TINTED);
     }
 
-    public static Entry folder(
-            ItemLike item,
-            PearlFireTintProfiles.Profile profile
-    ) {
-        String modelStem = ModelUtil.pathOf(item);
-
-        return new Entry(
-                item,
-                modelStem,
-                folderTextureStem(modelStem),
-                profile,
-                LayerLayout.WITH_UNTINTED_BASE
-        );
+    public static Entry folder(ItemLike item, PearlFireTintProfiles.Profile profile) {
+        String stem = ModelUtil.pathOf(item);
+        return new Entry(item, stem, folderTextureStem(stem), profile, LayerLayout.WITH_UNTINTED_BASE);
     }
 
-    public static Entry fullyTintedFolder(
-            ItemLike item,
-            PearlFireTintProfiles.Profile profile
-    ) {
-        String modelStem = ModelUtil.pathOf(item);
-
-        return new Entry(
-                item,
-                modelStem,
-                folderTextureStem(modelStem),
-                profile,
-                LayerLayout.FULLY_TINTED
-        );
+    public static Entry fullyTintedFolder(ItemLike item, PearlFireTintProfiles.Profile profile) {
+        String stem = ModelUtil.pathOf(item);
+        return new Entry(item, stem, folderTextureStem(stem), profile, LayerLayout.FULLY_TINTED);
     }
 
     public static Entry of(
@@ -304,13 +190,7 @@ public final class ItemTintedLayers {
             String textureStem,
             PearlFireTintProfiles.Profile profile
     ) {
-        return new Entry(
-                item,
-                modelStem,
-                textureStem,
-                profile,
-                LayerLayout.WITH_UNTINTED_BASE
-        );
+        return new Entry(item, modelStem, textureStem, profile, LayerLayout.WITH_UNTINTED_BASE);
     }
 
     public static Entry fullyTintedOf(
@@ -319,81 +199,54 @@ public final class ItemTintedLayers {
             String textureStem,
             PearlFireTintProfiles.Profile profile
     ) {
-        return new Entry(
-                item,
-                modelStem,
-                textureStem,
-                profile,
-                LayerLayout.FULLY_TINTED
-        );
+        return new Entry(item, modelStem, textureStem, profile, LayerLayout.FULLY_TINTED);
     }
 
-    private static String folderTextureStem(
-            String modelStem
-    ) {
-        int lastSlash = modelStem.lastIndexOf('/');
-
-        String fileName = lastSlash >= 0
-                ? modelStem.substring(lastSlash + 1)
-                : modelStem;
-
-        return modelStem + "/" + fileName;
+    private static String folderTextureStem(String modelStem) {
+        int slash = modelStem.lastIndexOf('/');
+        String file = slash >= 0 ? modelStem.substring(slash + 1) : modelStem;
+        return modelStem + "/" + file;
     }
 
     //? if <1.21.4 {
-    /*public static void generate(
-            ItemModelProvider itemModels,
+    /*public static void registerItemColors(
+            RegisterColorHandlersEvent.Item event,
             Entry... entries
     ) {
-        if (entries == null) {
-            return;
-        }
+        if (event == null || entries == null) return;
 
         for (Entry entry : entries) {
             if (entry != null) {
-                generateOne(itemModels, entry);
+                event.register(entry::tint, entry.item());
             }
         }
     }
 
-    private static void generateOne(
-            ItemModelProvider itemModels,
-            Entry entry
-    ) {
-        var builder = itemModels.withExistingParent(
-                entry.modelStem(),
-                itemModels.mcLoc("item/generated")
-        );
+    public static void generate(ItemModelProvider items, Entry... entries) {
+        if (entries == null) return;
 
-        if (entry.usesLayerBypass()) {
-            builder.customLoader(
-                    ItemLayerModelBuilder::begin
-            );
-        }
+        for (Entry entry : entries) {
+            if (entry == null) continue;
 
-        for (
-                int modelLayer = 0;
-                modelLayer < entry.totalLayerCount();
-                ++modelLayer
-        ) {
-            builder.texture(
-                    "layer" + modelLayer,
-                    entry.texture(modelLayer)
+            var model = items.withExistingParent(
+                    entry.modelStem(),
+                    items.mcLoc("item/generated")
             );
+
+            if (entry.usesUnlimitedLayers()) {
+                model.customLoader(ItemLayerModelBuilder::begin).end();
+            }
+
+            for (int layer = 0; layer < entry.totalLayerCount(); ++layer) {
+                model.texture("layer" + layer, entry.texture(layer));
+            }
         }
     }
     *///?} else {
-    private static final TextureSlot LAYER1 =
-            TextureSlot.create("layer1");
-
-    private static final TextureSlot LAYER2 =
-            TextureSlot.create("layer2");
-
-    private static final TextureSlot LAYER3 =
-            TextureSlot.create("layer3");
-
-    private static final TextureSlot LAYER4 =
-            TextureSlot.create("layer4");
+    private static final TextureSlot LAYER1 = TextureSlot.create("layer1");
+    private static final TextureSlot LAYER2 = TextureSlot.create("layer2");
+    private static final TextureSlot LAYER3 = TextureSlot.create("layer3");
+    private static final TextureSlot LAYER4 = TextureSlot.create("layer4");
 
     private static final TextureSlot[] VANILLA_LAYER_SLOTS = {
             TextureSlot.LAYER0,
@@ -403,35 +256,17 @@ public final class ItemTintedLayers {
             LAYER4
     };
 
-    public static void generate(
-            ItemModelGenerators items,
-            Entry... entries
-    ) {
-        if (entries == null) {
-            return;
-        }
+    public static void generate(ItemModelGenerators items, Entry... entries) {
+        if (entries == null) return;
 
         for (Entry entry : entries) {
-            if (entry != null) {
-                generateOne(items, entry);
-            }
-        }
-    }
+            if (entry == null) continue;
 
-    private static void generateOne(
-            ItemModelGenerators items,
-            Entry entry
-    ) {
-        if (entry.usesVanillaLayers()) {
-            generateVanillaLayeredItem(
-                    items,
-                    entry
-            );
-        } else {
-            generateCompositeLayeredItem(
-                    items,
-                    entry
-            );
+            if (entry.usesVanillaLayers()) {
+                generateVanillaLayeredItem(items, entry);
+            } else {
+                generateCompositeLayeredItem(items, entry);
+            }
         }
     }
 
@@ -440,37 +275,17 @@ public final class ItemTintedLayers {
             Entry entry
     ) {
         ModelTemplate template = new ModelTemplate(
-                Optional.of(
-                        ResourceLocation.fromNamespaceAndPath(
-                                "minecraft",
-                                "item/generated"
-                        )
-                ),
+                Optional.of(ResourceLocation.withDefaultNamespace("item/generated")),
                 Optional.empty(),
-                requiredVanillaSlots(
-                        entry.totalLayerCount()
-                )
+                requiredVanillaSlots(entry.totalLayerCount())
         );
 
-        TextureMapping mapping = new TextureMapping();
-
-        for (
-                int modelLayer = 0;
-                modelLayer < entry.totalLayerCount();
-                ++modelLayer
-        ) {
-            mapping.put(
-                    VANILLA_LAYER_SLOTS[modelLayer],
-                    entry.texture(modelLayer)
-            );
+        TextureMapping textures = new TextureMapping();
+        for (int layer = 0; layer < entry.totalLayerCount(); ++layer) {
+            textures.put(VANILLA_LAYER_SLOTS[layer], entry.texture(layer));
         }
 
-        template.create(
-                entry.modelId(),
-                mapping,
-                items.modelOutput
-        );
-
+        template.create(entry.modelId(), textures, items.modelOutput);
         items.itemModelOutput.accept(
                 entry.item().asItem(),
                 new BlockModelWrapper.Unbaked(
@@ -480,55 +295,23 @@ public final class ItemTintedLayers {
         );
     }
 
-    private static TextureSlot[] requiredVanillaSlots(
-            int totalLayerCount
-    ) {
-        if (
-                totalLayerCount <= 0
-                        || totalLayerCount > VANILLA_MAX_LAYERS
-        ) {
+    private static TextureSlot[] requiredVanillaSlots(int count) {
+        if (count < 1 || count > LayeredItemTint.VANILLA_MAX_MODEL_LAYERS) {
             throw new IllegalArgumentException(
-                    "Vanilla layered items require between 1 and "
-                            + VANILLA_MAX_LAYERS
-                            + " total layers, got "
-                            + totalLayerCount
+                    "Vanilla generated items support 1-5 layers, got " + count
             );
         }
 
-        TextureSlot[] slots =
-                new TextureSlot[totalLayerCount];
-
-        System.arraycopy(
-                VANILLA_LAYER_SLOTS,
-                0,
-                slots,
-                0,
-                totalLayerCount
-        );
-
+        TextureSlot[] slots = new TextureSlot[count];
+        System.arraycopy(VANILLA_LAYER_SLOTS, 0, slots, 0, count);
         return slots;
     }
 
-    private static List<ItemTintSource> tintSources(
-            Entry entry
-    ) {
-        List<ItemTintSource> sources =
-                new ArrayList<>(
-                        entry.totalLayerCount()
-                );
+    private static List<ItemTintSource> tintSources(Entry entry) {
+        List<ItemTintSource> sources = new ArrayList<>(entry.totalLayerCount());
 
-        for (
-                int modelLayer = 0;
-                modelLayer < entry.totalLayerCount();
-                ++modelLayer
-        ) {
-            sources.add(
-                    tintSource(
-                            entry,
-                            modelLayer,
-                            true
-                    )
-            );
+        for (int layer = 0; layer < entry.totalLayerCount(); ++layer) {
+            sources.add(tintSource(entry, layer, true));
         }
 
         return List.copyOf(sources);
@@ -538,57 +321,29 @@ public final class ItemTintedLayers {
             ItemModelGenerators items,
             Entry entry
     ) {
-        for (
-                int modelLayer = 0;
-                modelLayer < entry.totalLayerCount();
-                ++modelLayer
-        ) {
+        for (int layer = 0; layer < entry.totalLayerCount(); ++layer) {
             ModelTemplates.FLAT_ITEM.create(
-                    entry.layerModelId(modelLayer),
+                    entry.layerModelId(layer),
                     new TextureMapping().put(
                             TextureSlot.LAYER0,
-                            entry.texture(modelLayer)
+                            entry.texture(layer)
                     ),
                     items.modelOutput
             );
         }
 
-        items.itemModelOutput.accept(
-                entry.item().asItem(),
-                new CompositeModel.Unbaked(
-                        compositeChildren(entry)
-                )
-        );
-    }
-
-    private static List<ItemModel.Unbaked> compositeChildren(
-            Entry entry
-    ) {
-        List<ItemModel.Unbaked> children =
-                new ArrayList<>(
-                        entry.totalLayerCount()
-                );
-
-        for (
-                int modelLayer = 0;
-                modelLayer < entry.totalLayerCount();
-                ++modelLayer
-        ) {
-            children.add(
-                    new BlockModelWrapper.Unbaked(
-                            entry.layerModelId(modelLayer),
-                            List.of(
-                                    tintSource(
-                                            entry,
-                                            modelLayer,
-                                            modelLayer == 0
-                                    )
-                            )
-                    )
-            );
+        List<ItemModel.Unbaked> children = new ArrayList<>(entry.totalLayerCount());
+        for (int layer = 0; layer < entry.totalLayerCount(); ++layer) {
+            children.add(new BlockModelWrapper.Unbaked(
+                    entry.layerModelId(layer),
+                    List.of(tintSource(entry, layer, layer == 0))
+            ));
         }
 
-        return List.copyOf(children);
+        items.itemModelOutput.accept(
+                entry.item().asItem(),
+                new CompositeModel.Unbaked(List.copyOf(children))
+        );
     }
 
     private static ItemTintSource tintSource(
@@ -597,17 +352,12 @@ public final class ItemTintedLayers {
             boolean foilCarrier
     ) {
         if (entry.isUntintedBaseLayer(modelLayer)) {
-            return ProfileHexColorItemTintSource.noTint(
-                    entry.profile(),
-                    foilCarrier
-            );
+            return new Constant(0xFFFFFFFF);
         }
 
         return ProfileHexColorItemTintSource.of(
-                entry.profileLayerForModelLayer(
-                        modelLayer
-                ),
                 entry.profile(),
+                entry.profileLayerForModelLayer(modelLayer),
                 foilCarrier
         );
     }

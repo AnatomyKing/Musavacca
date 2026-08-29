@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.data.models.item;
 
 import net.minecraft.resources.ResourceLocation;
@@ -71,3 +72,4 @@ public final class CustomItemModel {
     }
     //?}
 }
+

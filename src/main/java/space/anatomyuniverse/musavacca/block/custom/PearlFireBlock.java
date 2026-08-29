@@ -358,3 +358,5 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         fire.setFlammable(ModBlocks.MUSAVACCA_LEAVES.get(), 30, 60);
     }
 }
+
+

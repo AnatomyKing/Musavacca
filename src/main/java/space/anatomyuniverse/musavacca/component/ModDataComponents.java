@@ -52,3 +52,5 @@ public final class ModDataComponents {
         DATA_COMPONENT_TYPES.register(modBus);
     }
 }
+
+

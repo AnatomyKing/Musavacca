@@ -224,3 +224,6 @@ public class PearlCandleBlockEntity extends BlockEntity {
         return VocoReceptorLogic.normalizeHex(hexColor);
     }
 }
+
+
+

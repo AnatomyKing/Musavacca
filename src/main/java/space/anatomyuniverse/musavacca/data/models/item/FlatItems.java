@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.data.models.item;
 
 import net.minecraft.world.level.ItemLike;
@@ -28,3 +29,5 @@ public final class FlatItems {
     }
     //?}
 }
+
+

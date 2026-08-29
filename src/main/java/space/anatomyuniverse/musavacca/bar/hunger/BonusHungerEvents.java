@@ -350,3 +350,5 @@ public final class BonusHungerEvents {
         data.markSynced(active);
     }
 }
+
+

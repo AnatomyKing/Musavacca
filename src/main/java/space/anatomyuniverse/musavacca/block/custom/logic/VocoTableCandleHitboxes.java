@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.world.phys.Vec3;
@@ -57,3 +58,4 @@ public final class VocoTableCandleHitboxes {
         return Math.max(1, Math.min(4, candleCount));
     }
 }
+

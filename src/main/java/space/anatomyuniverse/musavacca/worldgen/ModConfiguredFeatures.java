@@ -16,3 +16,4 @@ public final class ModConfiguredFeatures {
 
     private ModConfiguredFeatures() {}
 }
+

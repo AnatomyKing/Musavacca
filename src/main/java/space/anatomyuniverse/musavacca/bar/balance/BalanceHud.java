@@ -116,3 +116,5 @@ public final class BalanceHud {
         return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, path);
     }
 }
+
+

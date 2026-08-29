@@ -1,7 +1,15 @@
 package space.anatomyuniverse.musavacca.entity.boat.musavacca.client;
 
-//? if >=1.21.2 {
+//? if <1.21.2 {
+/*import net.minecraft.client.model.ListModel;
+import net.minecraft.world.entity.vehicle.Boat;
+
+import java.util.List;
+*///?} else {
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.entity.state.BoatRenderState;
+//?}
+
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -9,14 +17,18 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.entity.state.BoatRenderState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
 
-public final class MusavaccaBoatModel
-        extends EntityModel<BoatRenderState> {
+public final class MusavaccaBoatModel extends
+        //? if <1.21.2 {
+        /*ListModel<Boat>
+        *///?} else {
+        EntityModel<BoatRenderState>
+         //?}
+{
 
     public static final ModelLayerLocation LAYER =
             new ModelLayerLocation(
@@ -27,10 +39,37 @@ public final class MusavaccaBoatModel
                     "main"
             );
 
-    private static final float ROOT_Y = 6.0F;
+    private static final float ROOT_Y =
+            6.0F;
 
     private static final float MODEL_YAW =
             -Mth.HALF_PI;
+
+    private static final float SEAT_SPACING_Z =
+            11.0F;
+
+    private static final float DRIVER_SEAT_Z =
+            -SEAT_SPACING_Z;
+
+    private static final float PASSENGER_ONE_SEAT_Z =
+            0.0F;
+
+    private static final float PASSENGER_TWO_SEAT_Z =
+            SEAT_SPACING_Z;
+
+    /*
+     * The paddles originally pivoted at Z -8 while the driver
+     * sat at Z 0.
+     *
+     * The driver has moved forward by 11 model units, so move
+     * the paddle pivots forward by exactly the same amount.
+     */
+    private static final float ORIGINAL_PADDLE_Z =
+            -8.0F;
+
+    private static final float PADDLE_Z =
+            ORIGINAL_PADDLE_Z
+                    + DRIVER_SEAT_Z;
 
     private static final float PADDLE_BASE_X =
             2.1368F;
@@ -53,20 +92,24 @@ public final class MusavaccaBoatModel
     private static final float ACTIVE_EPSILON =
             1.0E-6F;
 
+    private final ModelPart root;
     private final ModelPart paddleLeft;
     private final ModelPart paddleRight;
 
-    public MusavaccaBoatModel(ModelPart bakedRoot) {
+    public MusavaccaBoatModel(
+            ModelPart bakedRoot
+    ) {
+        //? if >=1.21.2
         super(bakedRoot);
 
-        ModelPart root =
+        this.root =
                 bakedRoot.getChild("root");
 
         this.paddleLeft =
-                root.getChild("paddle_left");
+                this.root.getChild("paddle_left");
 
         this.paddleRight =
-                root.getChild("paddle_right");
+                this.root.getChild("paddle_right");
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -283,7 +326,7 @@ public final class MusavaccaBoatModel
                 PartPose.offsetAndRotation(
                         12.25F,
                         -13.0F,
-                        -8.0F,
+                        PADDLE_Z,
                         PADDLE_BASE_X,
                         PADDLE_BASE_Y,
                         PADDLE_BASE_Z
@@ -318,7 +361,7 @@ public final class MusavaccaBoatModel
                 PartPose.offsetAndRotation(
                         -12.25F,
                         -13.0F,
-                        -8.0F,
+                        PADDLE_Z,
                         PADDLE_BASE_X,
                         -PADDLE_BASE_Y,
                         -PADDLE_BASE_Z
@@ -331,7 +374,7 @@ public final class MusavaccaBoatModel
                 PartPose.offset(
                         0.0F,
                         -14.0F,
-                        0.0F
+                        DRIVER_SEAT_Z
                 )
         );
 
@@ -341,7 +384,7 @@ public final class MusavaccaBoatModel
                 PartPose.offset(
                         0.0F,
                         -14.0F,
-                        11.0F
+                        PASSENGER_ONE_SEAT_Z
                 )
         );
 
@@ -351,7 +394,7 @@ public final class MusavaccaBoatModel
                 PartPose.offset(
                         0.0F,
                         -14.0F,
-                        -11.0F
+                        PASSENGER_TWO_SEAT_Z
                 )
         );
 
@@ -362,6 +405,40 @@ public final class MusavaccaBoatModel
         );
     }
 
+    //? if <1.21.2 {
+    /*@Override
+    public Iterable<ModelPart> parts() {
+        return List.of(this.root);
+    }
+
+    @Override
+    public void setupAnim(
+            @NotNull Boat boat,
+            float partialTick,
+            float limbSwingAmount,
+            float ageInTicks,
+            float netHeadYaw,
+            float headPitch
+    ) {
+        animatePaddle(
+                this.paddleLeft,
+                true,
+                boat.getRowingTime(
+                        0,
+                        partialTick
+                )
+        );
+
+        animatePaddle(
+                this.paddleRight,
+                false,
+                boat.getRowingTime(
+                        1,
+                        partialTick
+                )
+        );
+    }
+    *///?} else {
     @Override
     public void setupAnim(
             @NotNull BoatRenderState state
@@ -380,6 +457,7 @@ public final class MusavaccaBoatModel
                 state.rowingTimeRight
         );
     }
+    //?}
 
     private static void animatePaddle(
             ModelPart paddle,
@@ -416,4 +494,3 @@ public final class MusavaccaBoatModel
                         * side;
     }
 }
-//?}

@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -10,3 +11,4 @@ public final class VocoPostVoxelShapes {
 
     private VocoPostVoxelShapes() {}
 }
+

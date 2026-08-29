@@ -160,3 +160,5 @@ public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
         return PearlCandleLogic.candleLightLevel(state);
     }
 }
+
+

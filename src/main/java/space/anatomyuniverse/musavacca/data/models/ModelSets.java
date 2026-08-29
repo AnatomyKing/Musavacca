@@ -397,6 +397,7 @@ public final class ModelSets {
 
     public static ItemTintedLayers.Entry[] itemTintedLayers() {
         return new ItemTintedLayers.Entry[] {
+
                 ItemTintedLayers.folder(
                         ModItems.SIM_CARD.get(),
                         PearlFireTintProfiles.SIM_CARD_TINT
@@ -404,3 +405,6 @@ public final class ModelSets {
         };
     }
 }
+
+
+

@@ -211,3 +211,4 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
         return state.setValue(SMALL_PEARL_AMOUNT, amount + 1);
     }
 }
+

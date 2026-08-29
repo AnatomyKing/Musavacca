@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.client;
 
 import net.minecraft.client.Minecraft;
@@ -75,3 +76,4 @@ public final class HexDebugOverlay {
     }
     *///?}
 }
+

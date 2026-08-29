@@ -100,3 +100,5 @@ public final class VocoTableVoxelShapes {
         return candleKey + (rotaryDialers ? 625 : 0);
     }
 }
+
+

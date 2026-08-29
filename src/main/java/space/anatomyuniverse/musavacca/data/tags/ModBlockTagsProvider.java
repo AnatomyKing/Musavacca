@@ -179,3 +179,5 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         );
     }
 }
+
+

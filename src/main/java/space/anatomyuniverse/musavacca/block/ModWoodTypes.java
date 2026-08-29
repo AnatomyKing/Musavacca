@@ -37,3 +37,4 @@ public final class ModWoodTypes {
 
     private ModWoodTypes() {}
 }
+

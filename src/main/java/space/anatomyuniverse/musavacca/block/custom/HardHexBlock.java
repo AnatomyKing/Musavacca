@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -60,3 +61,4 @@ public class HardHexBlock extends Block implements EntityBlock {
         }
     }
 }
+

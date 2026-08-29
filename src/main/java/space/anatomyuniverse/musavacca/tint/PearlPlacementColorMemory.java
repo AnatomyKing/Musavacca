@@ -94,3 +94,4 @@ public final class PearlPlacementColorMemory {
 
     private record Entry(int rgb, long expiresAtMs) {}
 }
+

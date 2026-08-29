@@ -365,7 +365,10 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .save("smithing/fractured_potassium_upgrade_smithing_template_duplication");
 
 
-
     }
 
 }
+
+
+
+

@@ -1,3 +1,4 @@
+
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -40,3 +41,4 @@ public final class VocoTableDialerHitboxes {
         }
     }
 }
+

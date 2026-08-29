@@ -27,3 +27,4 @@ public final class ModFeatures {
 
     private ModFeatures() {}
 }
+

@@ -62,3 +62,4 @@ public record FlintAndPearlColorPayload(
         player.inventoryMenu.broadcastChanges();
     }
 }
+

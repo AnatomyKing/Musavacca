@@ -11,6 +11,7 @@ import java.util.List;
 
 public final class ModSmithingTemplates {
 
+
     public static final Entry POTASSIUM_UPGRADE = Entry.of(
             "potassium_upgrade_smithing_template",
             Rarity.RARE,
@@ -210,3 +211,5 @@ public final class ModSmithingTemplates {
     private ModSmithingTemplates() {
     }
 }
+
+

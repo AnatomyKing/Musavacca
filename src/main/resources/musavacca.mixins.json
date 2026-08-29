@@ -8,8 +8,7 @@
   ],
   "client": [
     "client.BlockModelWrapperMixin",
-    "client.HumanoidMobRendererMixin",
-    "client.EquipmentLayerRendererMixin",
+    "client.HumanoidArmorLayerMixin",
     "client.ClientBundleTooltipAccessor"
   ],
   "injectors": {

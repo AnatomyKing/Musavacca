@@ -239,3 +239,4 @@ public final class PearlPortalCreator {
         return String.format("%06X", normalizeHex(color));
     }
 }
+

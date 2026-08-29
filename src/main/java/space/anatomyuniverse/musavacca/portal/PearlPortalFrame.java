@@ -628,3 +628,4 @@ public final class PearlPortalFrame {
         return Math.max(min, Math.min(max, value));
     }
 }
+

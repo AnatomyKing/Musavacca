@@ -18,7 +18,6 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.item.CustomHelmetArmorTrims;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 import java.util.concurrent.CompletableFuture;
@@ -216,9 +215,6 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.POTASSIUM_LEGGINGS))
                 .add(key(ModItems.POTASSIUM_BOOTS));
 
-        tag(CustomHelmetArmorTrims.CUSTOM_HEAD_HELMETS)
-                .add(key(ModItems.POTASSIUM_HELMET));
-
         /*
          * Armor enchantment categories.
          */
@@ -280,3 +276,5 @@ public final class ModItemTagsProvider
     }
     *///?}
 }
+
+

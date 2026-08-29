@@ -27,3 +27,4 @@ public class StrippableLogBlock extends RotatedPillarBlock {
         return super.getToolModifiedState(state, ctx, ability, simulate);
     }
 }
+

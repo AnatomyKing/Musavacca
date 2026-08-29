@@ -71,6 +71,9 @@ public final class PearlFireTintProfiles {
             172, 162, 151, 142, 0
     );
 
+
+
+
     public static final Profile SIM_CARD_TINT = of(
             settings(
                     1.25F,  // coreToTailLightness
@@ -104,6 +107,7 @@ public final class PearlFireTintProfiles {
             244, 228, 202, 186
     );
 
+
     public static final Profile GLITHER_PARTICLE = of(
             settings(
                     0.80F,
@@ -125,6 +129,32 @@ public final class PearlFireTintProfiles {
     );
 
     private PearlFireTintProfiles() {}
+
+    public static String idOf(Profile profile) {
+        if (profile == FIRE_BLOCK) return "fire_block";
+        if (profile == FLINT_AND_PEARL) return "flint_and_pearl";
+        if (profile == SIM_CARD_TINT) return "sim_card";
+        if (profile == PORTAL_BLOCK) return "portal_block";
+        if (profile == PORTAL_GLYPH_PARTICLE) return "portal_glyph_particle";
+        if (profile == GLITHER_PARTICLE) return "glither_particle";
+        if (profile == PEARL_FLAME) return "pearl_flame";
+        throw new IllegalArgumentException("Unknown PearlFire tint profile instance");
+    }
+
+    public static Profile byId(String id) {
+        if (id == null) throw new IllegalArgumentException("profile id must not be null");
+
+        return switch (id) {
+            case "fire_block" -> FIRE_BLOCK;
+            case "flint_and_pearl" -> FLINT_AND_PEARL;
+            case "sim_card" -> SIM_CARD_TINT;
+            case "portal_block" -> PORTAL_BLOCK;
+            case "portal_glyph_particle" -> PORTAL_GLYPH_PARTICLE;
+            case "glither_particle" -> GLITHER_PARTICLE;
+            case "pearl_flame" -> PEARL_FLAME;
+            default -> throw new IllegalArgumentException("Unknown PearlFire tint profile: " + id);
+        };
+    }
 
     public static Settings settings(
             float coreToTailLightness,
@@ -305,3 +335,4 @@ public final class PearlFireTintProfiles {
         );
     }
 }
+

@@ -90,3 +90,4 @@ public record VocoCameraStartPayload(
         return TYPE;
     }
 }
+

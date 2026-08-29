@@ -54,3 +54,4 @@ public final class MusavaccaTemplateTreeFeature extends Feature<MusavaccaTemplat
 
     private record ResolvedBlock(BlockPos pos, BlockState state) {}
 }
+

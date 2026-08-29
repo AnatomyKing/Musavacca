@@ -6,3 +6,4 @@ import net.minecraft.world.item.component.BundleContents;
 public record VocoCallerBundleTooltip(
         BundleContents contents
 ) implements TooltipComponent {}
+

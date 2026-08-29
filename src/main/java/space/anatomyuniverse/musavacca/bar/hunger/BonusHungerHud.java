@@ -155,3 +155,5 @@ public final class BonusHungerHud {
         //graphics.blitSprite(sprite, x, y, ICON_SIZE, ICON_SIZE);
     }
 }
+
+

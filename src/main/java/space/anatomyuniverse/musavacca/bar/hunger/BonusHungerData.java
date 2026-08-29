@@ -306,3 +306,5 @@ public final class BonusHungerData implements ValueIOSerializable {
         this.tickTimer = Math.max(0, this.tickTimer);
     }
 }
+
+

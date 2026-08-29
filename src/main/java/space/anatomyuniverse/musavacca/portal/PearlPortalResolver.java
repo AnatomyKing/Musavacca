@@ -47,3 +47,4 @@ public final class PearlPortalResolver {
         teleportedEntity.placePortalTicket(destinationPos);
     }
 }
+

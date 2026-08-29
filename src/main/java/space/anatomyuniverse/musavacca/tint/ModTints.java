@@ -24,7 +24,11 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 //? if <1.21.4 {
-/*import space.anatomyuniverse.musavacca.component.ModDataComponents;
+/*import net.minecraft.world.level.ItemLike;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.data.models.ModelSets;
+import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
+import space.anatomyuniverse.musavacca.data.models.item.ItemTintedLayers;
  *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
@@ -51,7 +55,8 @@ public final class ModTints {
 
         //? if <1.21.4 {
         /*modBus.addListener(ModTints::registerItemColorHandlers);
-         *///?} else {
+        modBus.addListener(ArmorTrimItemTintSource::registerLegacyItemProperties);
+        *///?} else {
         modBus.addListener(ModTints::registerItemTintSources);
         //?}
     }
@@ -482,6 +487,40 @@ public final class ModTints {
                 ModBlocks.MUSAVACCA_DOOR.get()
         );
 
+        ItemTintedLayers.registerItemColors(
+                event,
+                ModelSets.itemTintedLayers()
+        );
+
+        // One generic tint handler for every CustomArmorSet item. The second
+        // generated-item layer is the fixed trim mask; its color comes from
+        // the actual registry-backed ArmorTrim on the stack.
+        for (CustomArmorSet.Entry entry : ModelSets.customArmorSets()) {
+            if (entry == null) {
+                continue;
+            }
+
+            registerLegacyArmorTrimTint(event, entry.helmet());
+            registerLegacyArmorTrimTint(event, entry.chestplate());
+            registerLegacyArmorTrimTint(event, entry.leggings());
+            registerLegacyArmorTrimTint(event, entry.boots());
+        }
+    }
+
+    private static void registerLegacyArmorTrimTint(
+            RegisterColorHandlersEvent.Item event,
+            ItemLike item
+    ) {
+        if (item == null) {
+            return;
+        }
+
+        event.register(
+                (stack, tintIndex) -> tintIndex == 1
+                        ? ArmorTrimItemTintSource.color(stack)
+                        : TintColorUtil.NO_TINT,
+                item.asItem()
+        );
     }
     *///?} else {
     public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
@@ -494,6 +533,16 @@ public final class ModTints {
                 ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "profile_hex_color"),
                 ProfileHexColorItemTintSource.MAP_CODEC
         );
+
+        event.register(
+                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color"),
+                ArmorTrimItemTintSource.MAP_CODEC
+        );
     }
     //?}
 }
+
+
+
+
+

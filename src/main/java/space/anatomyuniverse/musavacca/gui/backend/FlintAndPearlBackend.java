@@ -52,3 +52,4 @@ public final class FlintAndPearlBackend {
         return TintColorUtil.rgb(hexColor);
     }
 }
+

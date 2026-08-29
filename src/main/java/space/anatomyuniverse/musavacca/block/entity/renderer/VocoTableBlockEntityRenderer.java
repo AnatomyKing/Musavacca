@@ -74,3 +74,6 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
         );
     }
 }
+
+
+

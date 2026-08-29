@@ -53,3 +53,5 @@ public class PotassiumItem extends Item {
         return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
     }
 }
+
+

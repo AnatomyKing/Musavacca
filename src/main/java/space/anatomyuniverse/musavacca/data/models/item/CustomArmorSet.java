@@ -6,16 +6,19 @@ package space.anatomyuniverse.musavacca.data.models.item;
 /*import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 *///?} else {
+import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.SelectItemModel;
+import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
-import net.minecraft.client.renderer.item.properties.select.TrimMaterialProperty;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
+import net.minecraft.core.component.DataComponents;
 //?}
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
@@ -28,93 +31,44 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.EquipmentAssets;
-import net.minecraft.world.item.equipment.trim.TrimMaterial;
-import net.minecraft.world.item.equipment.trim.TrimMaterials;
 //?}
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.item.CustomHelmetArmorTrims;
+import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Shared model/equipment definition for custom armor sets.
+ *
+ * <p>Trim compatibility is intentionally material-agnostic. Item icons use
+ * one slot-specific trim mask and tint it from the actual ArmorTrim stored on
+ * the stack. Worn armor delegates the complete ArmorTrim back to Minecraft,
+ * so patterns/material assets supplied by other mods remain Minecraft's job.</p>
+ */
 public final class CustomArmorSet {
-    private static final ResourceLocation TRIM_PREFIX_HELMET = minecraft("trims/items/helmet_trim");
-    private static final ResourceLocation TRIM_PREFIX_CHESTPLATE = minecraft("trims/items/chestplate_trim");
-    private static final ResourceLocation TRIM_PREFIX_LEGGINGS = minecraft("trims/items/leggings_trim");
-    private static final ResourceLocation TRIM_PREFIX_BOOTS = minecraft("trims/items/boots_trim");
-    private static final ResourceLocation TRIM_TYPE = minecraft("trim_type");
 
-    private static final List<TrimMaterialModel> TRIM_MATERIAL_MODELS = List.of(
-            trim("quartz", 0.1F
-                    //? if >=1.21.4
-                    , TrimMaterials.QUARTZ
-            ),
-            trim("iron", 0.2F
-                    //? if >=1.21.4
-                    , TrimMaterials.IRON
-            ),
-            trim("netherite", 0.3F
-                    //? if >=1.21.4
-                    , TrimMaterials.NETHERITE
-            ),
-            trim("redstone", 0.4F
-                    //? if >=1.21.4
-                    , TrimMaterials.REDSTONE
-            ),
-            trim("copper", 0.5F
-                    //? if >=1.21.4
-                    , TrimMaterials.COPPER
-            ),
-            trim("gold", 0.6F
-                    //? if >=1.21.4
-                    , TrimMaterials.GOLD
-            ),
-            trim("emerald", 0.7F
-                    //? if >=1.21.4
-                    , TrimMaterials.EMERALD
-            ),
-            trim("diamond", 0.8F
-                    //? if >=1.21.4
-                    , TrimMaterials.DIAMOND
-            ),
-            trim("lapis", 0.9F
-                    //? if >=1.21.4
-                    , TrimMaterials.LAPIS
-            ),
-            trim("amethyst", 1.0F
-                    //? if >=1.21.4
-                    , TrimMaterials.AMETHYST
-            )
-            //? if >=1.21.4
-            , trim("resin", 1.1F, TrimMaterials.RESIN)
-    );
+    /*
+     * Inventory trim geometry is fixed per armor slot. We reuse one bright
+     * vanilla permutation as the mask and tint only layer1 from the stack's
+     * trim material. This keeps GUI/smithing rendering to one normal generated
+     * item model instead of stacking a second runtime model on top.
+     */
+    private static final ResourceLocation TRIM_ICON_HELMET =
+            minecraft("trims/items/helmet_trim_quartz");
+    private static final ResourceLocation TRIM_ICON_CHESTPLATE =
+            minecraft("trims/items/chestplate_trim_quartz");
+    private static final ResourceLocation TRIM_ICON_LEGGINGS =
+            minecraft("trims/items/leggings_trim_quartz");
+    private static final ResourceLocation TRIM_ICON_BOOTS =
+            minecraft("trims/items/boots_trim_quartz");
+
 
     private CustomArmorSet() {}
-
-    private record TrimMaterialModel(
-            String assets,
-            float legacyIndex
-            //? if >=1.21.4
-            , ResourceKey<TrimMaterial> materialKey
-    ) {}
-
-    private static TrimMaterialModel trim(
-            String assets,
-            float legacyIndex
-            //? if >=1.21.4
-            , ResourceKey<TrimMaterial> materialKey
-    ) {
-        return new TrimMaterialModel(
-                assets,
-                legacyIndex
-                //? if >=1.21.4
-                , materialKey
-        );
-    }
 
     public record Entry(
             ItemLike helmet,
@@ -156,7 +110,15 @@ public final class CustomArmorSet {
             String equipmentId,
             String equipmentTexture
     ) {
-        return new Entry(helmet, chestplate, leggings, boots, equipmentId, equipmentTexture, null);
+        return new Entry(
+                helmet,
+                chestplate,
+                leggings,
+                boots,
+                equipmentId,
+                equipmentTexture,
+                null
+        );
     }
 
     public static Entry of(
@@ -190,40 +152,44 @@ public final class CustomArmorSet {
                 continue;
             }
 
-            generateLegacyTrimmableItem(gen, entry.helmet(), TRIM_PREFIX_HELMET);
-            generateLegacyTrimmableItem(gen, entry.chestplate(), TRIM_PREFIX_CHESTPLATE);
-            generateLegacyTrimmableItem(gen, entry.leggings(), TRIM_PREFIX_LEGGINGS);
-            generateLegacyTrimmableItem(gen, entry.boots(), TRIM_PREFIX_BOOTS);
+            generateLegacyDynamicTrimItem(gen, entry.helmet(), TRIM_ICON_HELMET);
+            generateLegacyDynamicTrimItem(gen, entry.chestplate(), TRIM_ICON_CHESTPLATE);
+            generateLegacyDynamicTrimItem(gen, entry.leggings(), TRIM_ICON_LEGGINGS);
+            generateLegacyDynamicTrimItem(gen, entry.boots(), TRIM_ICON_BOOTS);
         }
     }
 
-    private static void generateLegacyTrimmableItem(
+    private static void generateLegacyDynamicTrimItem(
             ItemModelProvider gen,
             ItemLike itemLike,
-            ResourceLocation trimPrefix
+            ResourceLocation trimTexture
     ) {
         if (itemLike == null) {
             return;
         }
 
         Item item = itemLike.asItem();
-        String modelName = BuiltInRegistries.ITEM.getKey(item).getPath();
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+        String modelName = itemId.getPath();
         ResourceLocation textureId = itemTexture(item);
 
-        var base = gen.withExistingParent(modelName, gen.mcLoc("item/generated"))
+        var base = gen.withExistingParent(
+                        modelName,
+                        gen.mcLoc("item/generated")
+                )
                 .texture("layer0", textureId);
 
-        for (TrimMaterialModel trimMaterial : TRIM_MATERIAL_MODELS) {
-            String trimmedPath = modelName + "_" + trimMaterial.assets() + "_trim";
-            ModelFile trimmed = gen.withExistingParent(trimmedPath, gen.mcLoc("item/generated"))
-                    .texture("layer0", textureId)
-                    .texture("layer1", trimPrefix.withSuffix("_" + trimMaterial.assets()));
+        ModelFile trimmed = gen.withExistingParent(
+                        modelName + "_trimmed",
+                        gen.mcLoc("item/generated")
+                )
+                .texture("layer0", textureId)
+                .texture("layer1", trimTexture);
 
-            base.override()
-                    .predicate(TRIM_TYPE, trimMaterial.legacyIndex())
-                    .model(trimmed)
-                    .end();
-        }
+        base.override()
+                .predicate(ArmorTrimItemTintSource.HAS_TRIM_PROPERTY, 1.0F)
+                .model(trimmed)
+                .end();
     }
     *///?} else {
     public static void generate(ItemModelGenerators gen, Entry... entries) {
@@ -237,49 +203,54 @@ public final class CustomArmorSet {
             }
 
             if (entry.helmet() != null) {
+                ItemModel.Unbaked flat = createDynamicTrimItemModel(
+                        gen,
+                        entry.helmet().asItem(),
+                        TRIM_ICON_HELMET
+                );
+
                 if (entry.hasCustomHelmetHeadModel()) {
-                    generateCustomHeadHelmet(gen, entry);
+                    generateCustomHeadHelmet(gen, entry, flat);
                 } else {
-                    generateTrimmableFlatItem(
-                            gen,
-                            entry.helmet(),
-                            entry.equipmentAssetKey(),
-                            TRIM_PREFIX_HELMET
-                    );
+                    gen.itemModelOutput.accept(entry.helmet().asItem(), flat);
                 }
             }
 
-            generateTrimmableFlatItem(gen, entry.chestplate(), entry.equipmentAssetKey(), TRIM_PREFIX_CHESTPLATE);
-            generateTrimmableFlatItem(gen, entry.leggings(), entry.equipmentAssetKey(), TRIM_PREFIX_LEGGINGS);
-            generateTrimmableFlatItem(gen, entry.boots(), entry.equipmentAssetKey(), TRIM_PREFIX_BOOTS);
+            generateDynamicTrimItem(gen, entry.chestplate(), TRIM_ICON_CHESTPLATE);
+            generateDynamicTrimItem(gen, entry.leggings(), TRIM_ICON_LEGGINGS);
+            generateDynamicTrimItem(gen, entry.boots(), TRIM_ICON_BOOTS);
         }
     }
 
-    private static void generateCustomHeadHelmet(ItemModelGenerators gen, Entry entry) {
+    private static void generateCustomHeadHelmet(
+            ItemModelGenerators gen,
+            Entry entry,
+            ItemModel.Unbaked flat
+    ) {
         Item helmet = entry.helmet().asItem();
-        ItemModel.Unbaked flat = createTrimmableFlatItemModel(
-                gen,
-                helmet,
-                entry.equipmentAssetKey(),
-                TRIM_PREFIX_HELMET
+        ItemModel.Unbaked head = ItemModelUtils.plainModel(
+                entry.customHelmetHeadModelLocation()
         );
-        ItemModel.Unbaked head = ItemModelUtils.plainModel(entry.customHelmetHeadModelLocation());
 
         gen.itemModelOutput.accept(
                 helmet,
                 ItemModelUtils.select(
                         new DisplayContext(),
                         flat,
-                        List.of(new SelectItemModel.SwitchCase<>(List.of(ItemDisplayContext.HEAD), head))
+                        List.of(
+                                new SelectItemModel.SwitchCase<>(
+                                        List.of(ItemDisplayContext.HEAD),
+                                        head
+                                )
+                        )
                 )
         );
     }
 
-    private static void generateTrimmableFlatItem(
+    private static void generateDynamicTrimItem(
             ItemModelGenerators gen,
             ItemLike itemLike,
-            ResourceKey<EquipmentAsset> equipmentAsset,
-            ResourceLocation trimPrefix
+            ResourceLocation trimTexture
     ) {
         if (itemLike == null) {
             return;
@@ -288,47 +259,55 @@ public final class CustomArmorSet {
         Item item = itemLike.asItem();
         gen.itemModelOutput.accept(
                 item,
-                createTrimmableFlatItemModel(gen, item, equipmentAsset, trimPrefix)
+                createDynamicTrimItemModel(gen, item, trimTexture)
         );
     }
 
-    private static ItemModel.Unbaked createTrimmableFlatItemModel(
+    private static ItemModel.Unbaked createDynamicTrimItemModel(
             ItemModelGenerators gen,
             Item item,
-            ResourceKey<EquipmentAsset> equipmentAsset,
-            ResourceLocation trimPrefix
+            ResourceLocation trimTexture
     ) {
         ResourceLocation modelId = ModelLocationUtils.getModelLocation(item);
         ResourceLocation textureId = TextureMapping.getItemTexture(item);
-        ModelTemplates.FLAT_ITEM.create(modelId, TextureMapping.layer0(textureId), gen.modelOutput);
+
+        ModelTemplates.FLAT_ITEM.create(
+                modelId,
+                TextureMapping.layer0(textureId),
+                gen.modelOutput
+        );
+
+        ResourceLocation trimmedModelId = modelId.withSuffix("_trimmed");
+
+        ModelTemplates.TWO_LAYERED_ITEM.create(
+                trimmedModelId,
+                TextureMapping.layered(textureId, trimTexture),
+                gen.modelOutput
+        );
 
         ItemModel.Unbaked base = ItemModelUtils.plainModel(modelId);
-        List<SelectItemModel.SwitchCase<ResourceKey<TrimMaterial>>> cases =
-                new ArrayList<>(TRIM_MATERIAL_MODELS.size());
+        ItemModel.Unbaked trimmed = new BlockModelWrapper.Unbaked(
+                trimmedModelId,
+                List.of(
+                        new Constant(0xFFFFFFFF),
+                        ArmorTrimItemTintSource.INSTANCE
+                )
+        );
 
-        for (TrimMaterialModel trimMaterial : TRIM_MATERIAL_MODELS) {
-            ResourceLocation trimmedModelId = modelId.withSuffix(
-                    "_" + trimMaterial.assets() + "_trim"
-            );
-            ResourceLocation trimTexture = trimPrefix.withSuffix("_" + trimMaterial.assets());
-            ModelTemplates.TWO_LAYERED_ITEM.create(
-                    trimmedModelId,
-                    TextureMapping.layered(textureId, trimTexture),
-                    gen.modelOutput
-            );
-            cases.add(ItemModelUtils.when(
-                    trimMaterial.materialKey(),
-                    ItemModelUtils.plainModel(trimmedModelId)
-            ));
-        }
-
-        return ItemModelUtils.select(new TrimMaterialProperty(), base, cases);
+        return ItemModelUtils.conditional(
+                new HasComponent(DataComponents.TRIM, false),
+                trimmed,
+                base
+        );
     }
     //?}
 
     private static ResourceLocation itemModelLocation(Item item) {
         ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
-        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
+        return ResourceLocation.fromNamespaceAndPath(
+                id.getNamespace(),
+                "item/" + id.getPath()
+        );
     }
 
     private static ResourceLocation itemTexture(Item item) {

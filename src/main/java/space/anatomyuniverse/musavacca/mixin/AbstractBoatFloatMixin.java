@@ -34,3 +34,5 @@ public abstract class AbstractBoatFloatMixin {
                 : original;
     }
 }
+
+

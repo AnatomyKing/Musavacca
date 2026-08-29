@@ -166,3 +166,5 @@ public final class VocoPostCandleLogic {
                 new PortalInfo(false, VocoReceptorLogic.UNSET_HEX_COLOR);
     }
 }
+
+
