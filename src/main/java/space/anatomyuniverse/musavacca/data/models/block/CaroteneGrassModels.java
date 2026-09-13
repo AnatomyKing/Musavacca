@@ -34,21 +34,19 @@ import net.minecraft.util.random.WeightedList;
 public final class CaroteneGrassModels {
     private CaroteneGrassModels() {}
 
-    public record Entry(Block grass, Block shortGrass, Block tallGrass) {}
+    public record Entry(Block grass, Block tallGrass) {}
 
     //? if <1.21.4 {
     /*public static void generate(BlockStateProvider gen, Entry entry) {
         if (entry == null) return;
 
         String grassName = name(entry.grass());
-        String shortName = name(entry.shortGrass());
         String tallName = name(entry.tallGrass());
 
         ResourceLocation dirt = texture(Blocks.DIRT, "");
         ResourceLocation grassTop = texture(entry.grass(), "_top");
         ResourceLocation grassSide = texture(entry.grass(), "_side");
         ResourceLocation snowySide = texture(entry.grass(), "_side_snowy");
-        ResourceLocation shortTexture = texture(entry.shortGrass(), "");
         ResourceLocation tallBottomTexture = texture(entry.tallGrass(), "_bottom");
         ResourceLocation tallTopTexture = texture(entry.tallGrass(), "_top");
 
@@ -64,11 +62,6 @@ public final class CaroteneGrassModels {
                 snowySide,
                 dirt,
                 grassTop
-        );
-
-        ModelFile shortGrass = gen.models().cross(
-                shortName,
-                shortTexture
         );
 
         ModelFile tallBottom = gen.models().cross(
@@ -93,8 +86,6 @@ public final class CaroteneGrassModels {
                         )
         );
 
-        gen.simpleBlock(entry.shortGrass(), shortGrass);
-
         gen.getVariantBuilder(entry.tallGrass()).forAllStates(state ->
                 ConfiguredModel.builder()
                         .modelFile(
@@ -107,13 +98,6 @@ public final class CaroteneGrassModels {
         );
 
         gen.simpleBlockItem(entry.grass(), normal);
-
-        gen.itemModels().singleTexture(
-                shortName,
-                gen.mcLoc("item/generated"),
-                "layer0",
-                shortTexture
-        );
 
         gen.itemModels().singleTexture(
                 tallName,
@@ -152,9 +136,6 @@ public final class CaroteneGrassModels {
                         "_snowy"
                 );
 
-        ResourceLocation shortGrass =
-                ModelLocationUtils.getModelLocation(entry.shortGrass());
-
         ResourceLocation tallBottom =
                 ModelLocationUtils.getModelLocation(
                         entry.tallGrass(),
@@ -188,9 +169,6 @@ public final class CaroteneGrassModels {
                         "_side_snowy"
                 );
 
-        ResourceLocation shortTexture =
-                TextureMapping.getBlockTexture(entry.shortGrass());
-
         ResourceLocation tallBottomTexture =
                 TextureMapping.getBlockTexture(
                         entry.tallGrass(),
@@ -219,7 +197,6 @@ public final class CaroteneGrassModels {
                 snowySide
         );
 
-        cross(gen, shortGrass, shortTexture);
         cross(gen, tallBottom, tallBottomTexture);
         cross(gen, tallTop, tallTopTexture);
 
@@ -228,18 +205,11 @@ public final class CaroteneGrassModels {
                 entry,
                 normal,
                 snowy,
-                shortGrass,
                 tallBottom,
                 tallTop
         );
 
         gen.registerSimpleItemModel(entry.grass(), normal);
-
-        flatItem(
-                gen,
-                entry.shortGrass(),
-                shortTexture
-        );
 
         flatItem(
                 gen,
@@ -253,7 +223,6 @@ public final class CaroteneGrassModels {
             Entry entry,
             ResourceLocation normal,
             ResourceLocation snowy,
-            ResourceLocation shortGrass,
             ResourceLocation tallBottom,
             ResourceLocation tallTop
     ) {
@@ -299,16 +268,6 @@ public final class CaroteneGrassModels {
                                                 )
                                         )
                         )
-        );
-
-        gen.blockStateOutput.accept(
-                MultiVariantGenerator.multiVariant(
-                        entry.shortGrass(),
-                        Variant.variant().with(
-                                VariantProperties.MODEL,
-                                shortGrass
-                        )
-                )
         );
 
         gen.blockStateOutput.accept(
@@ -368,13 +327,6 @@ public final class CaroteneGrassModels {
                                                         .plainVariant(snowy)
                                         )
                         )
-        );
-
-        gen.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(
-                        entry.shortGrass(),
-                        BlockModelGenerators.plainVariant(shortGrass)
-                )
         );
 
         gen.blockStateOutput.accept(
@@ -448,4 +400,3 @@ public final class CaroteneGrassModels {
     }
     //?}
 }
-

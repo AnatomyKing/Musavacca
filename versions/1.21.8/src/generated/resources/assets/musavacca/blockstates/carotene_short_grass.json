@@ -1,7 +1,9 @@
 {
-  "variants": {
-    "": {
-      "model": "musavacca:block/carotene_short_grass"
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/carotene_short_grass"
+      }
     }
-  }
+  ]
 }

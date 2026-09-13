@@ -7,7 +7,6 @@
     "AbstractBoatFloatMixin"
   ],
   "client": [
-    "client.BlockModelWrapperMixin",
     "client.HumanoidArmorLayerMixin",
     "client.ClientBundleTooltipAccessor"
   ],

@@ -1,100 +1,10 @@
 {
   "model": {
-    "type": "minecraft:composite",
-    "models": [
+    "type": "minecraft:model",
+    "model": "musavacca:item/sim_card",
+    "tints": [
       {
-        "type": "minecraft:model",
-        "model": "musavacca:item/sim_card_layer_0",
-        "tints": [
-          {
-            "type": "minecraft:constant",
-            "value": -1
-          }
-        ]
-      },
-      {
-        "type": "minecraft:model",
-        "model": "musavacca:item/sim_card_layer_1",
-        "tints": [
-          {
-            "type": "musavacca:profile_hex_color",
-            "foil_carrier": false,
-            "layer": 0,
-            "profile": "sim_card"
-          }
-        ]
-      },
-      {
-        "type": "minecraft:model",
-        "model": "musavacca:item/sim_card_layer_2",
-        "tints": [
-          {
-            "type": "musavacca:profile_hex_color",
-            "foil_carrier": false,
-            "layer": 1,
-            "profile": "sim_card"
-          }
-        ]
-      },
-      {
-        "type": "minecraft:model",
-        "model": "musavacca:item/sim_card_layer_3",
-        "tints": [
-          {
-            "type": "musavacca:profile_hex_color",
-            "foil_carrier": false,
-            "layer": 2,
-            "profile": "sim_card"
-          }
-        ]
-      },
-      {
-        "type": "minecraft:model",
-        "model": "musavacca:item/sim_card_layer_4",
-        "tints": [
-          {
-            "type": "musavacca:profile_hex_color",
-            "foil_carrier": false,
-            "layer": 3,
-            "profile": "sim_card"
-          }
-        ]
-      },
-      {
-        "type": "minecraft:model",
-        "model": "musavacca:item/sim_card_layer_5",
-        "tints": [
-          {
-            "type": "musavacca:profile_hex_color",
-            "foil_carrier": false,
-            "layer": 4,
-            "profile": "sim_card"
-          }
-        ]
-      },
-      {
-        "type": "minecraft:model",
-        "model": "musavacca:item/sim_card_layer_6",
-        "tints": [
-          {
-            "type": "musavacca:profile_hex_color",
-            "foil_carrier": false,
-            "layer": 5,
-            "profile": "sim_card"
-          }
-        ]
-      },
-      {
-        "type": "minecraft:model",
-        "model": "musavacca:item/sim_card_layer_7",
-        "tints": [
-          {
-            "type": "musavacca:profile_hex_color",
-            "foil_carrier": false,
-            "layer": 6,
-            "profile": "sim_card"
-          }
-        ]
+        "type": "musavacca:hex_color"
       }
     ]
   }

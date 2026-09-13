@@ -87,18 +87,16 @@ public final class VocoReceptorLogic {
             return true;
         }
 
-        //? if >=1.21.6 {
-        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
-            VocoCameraStartPayload.open(serverPlayer, pos, receptor);
-        }
-        //?} else {
-        /*if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.displayClientMessage(
-                    Component.literal("Voco camera editing requires Minecraft 1.21.6 or newer."),
-                    true
+        if (
+                !level.isClientSide()
+                        && player instanceof ServerPlayer serverPlayer
+        ) {
+            VocoCameraStartPayload.open(
+                    serverPlayer,
+                    pos,
+                    receptor
             );
         }
-        *///?}
 
         return true;
     }

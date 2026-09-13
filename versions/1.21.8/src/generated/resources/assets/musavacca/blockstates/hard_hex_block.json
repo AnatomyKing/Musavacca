@@ -1,7 +1,9 @@
 {
-  "variants": {
-    "": {
-      "model": "musavacca:block/hex_block"
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/hex_block"
+      }
     }
-  }
+  ]
 }

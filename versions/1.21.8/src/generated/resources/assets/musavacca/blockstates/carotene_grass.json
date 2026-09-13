@@ -1,24 +1,34 @@
 {
-  "variants": {
-    "snowy=false": [
-      {
-        "model": "musavacca:block/carotene_grass"
-      },
-      {
-        "model": "musavacca:block/carotene_grass",
-        "y": 90
-      },
-      {
-        "model": "musavacca:block/carotene_grass",
-        "y": 180
-      },
-      {
-        "model": "musavacca:block/carotene_grass",
-        "y": 270
+  "multipart": [
+    {
+      "apply": [
+        {
+          "model": "musavacca:block/carotene_grass"
+        },
+        {
+          "model": "musavacca:block/carotene_grass",
+          "y": 90
+        },
+        {
+          "model": "musavacca:block/carotene_grass",
+          "y": 180
+        },
+        {
+          "model": "musavacca:block/carotene_grass",
+          "y": 270
+        }
+      ],
+      "when": {
+        "snowy": "false"
       }
-    ],
-    "snowy=true": {
-      "model": "musavacca:block/carotene_grass_snowy"
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/carotene_grass_snowy"
+      },
+      "when": {
+        "snowy": "true"
+      }
     }
-  }
+  ]
 }

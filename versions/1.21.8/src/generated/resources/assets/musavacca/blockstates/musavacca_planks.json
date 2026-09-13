@@ -1,7 +1,9 @@
 {
-  "variants": {
-    "": {
-      "model": "musavacca:block/musavacca_planks"
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_planks"
+      }
     }
-  }
+  ]
 }

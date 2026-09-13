@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/tint/ModTints.java
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.client.renderer.BiomeColors;
@@ -25,10 +26,9 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 //? if <1.21.4 {
 /*import net.minecraft.world.level.ItemLike;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.models.ModelSets;
 import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
-import space.anatomyuniverse.musavacca.data.models.item.ItemTintedLayers;
+import space.anatomyuniverse.musavacca.item.ModItems;
  *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
@@ -395,101 +395,43 @@ public final class ModTints {
 
     //? if <1.21.4 {
     /*public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        event.register((stack, tintIndex) -> {
-                    if (tintIndex != 0) {
-                        return TintColorUtil.NO_TINT;
-                    }
-
-                    return TintColorUtil.defaultFoliageItemTint();
-                },
+        event.register(
+                (stack, tintIndex) -> tintIndex == 0
+                        ? TintColorUtil.defaultFoliageItemTint()
+                        : TintColorUtil.NO_TINT,
                 ModBlocks.MUSAVACCA_LEAVES.get()
         );
 
-        event.register((stack, tintIndex) -> {
-                    if (tintIndex != 0) {
-                        return TintColorUtil.NO_TINT;
-                    }
-
-                    Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-                    if (savedHex != null) {
-                        return TintColorUtil.opaqueRgb(savedHex);
-                    }
-
-                    return TintColorUtil.opaqueRgb(TintColorUtil.defaultHexBlockItemTint());
-                },
+        event.register(
+                (stack, tintIndex) -> tintIndex == 0
+                        ? HexColorItemTintSource.color(stack)
+                        : TintColorUtil.NO_TINT,
                 ModBlocks.HEX_BLOCK.get()
         );
 
-        event.register((stack, tintIndex) -> {
-                    if (tintIndex != 0) {
-                        return TintColorUtil.NO_TINT;
-                    }
-
-                    return TintColorUtil.opaqueRgb(HardHexBlockEntity.HARD_HEX_COLOR);
-                },
+        event.register(
+                (stack, tintIndex) -> tintIndex == 0
+                        ? TintColorUtil.opaqueRgb(HardHexBlockEntity.HARD_HEX_COLOR)
+                        : TintColorUtil.NO_TINT,
                 ModBlocks.HARD_HEX_BLOCK.get()
         );
 
-        event.register((stack, tintIndex) -> {
-                    if (!PearlFireTintSource.supportsLayer(PEARL_FIRE_PROFILE, tintIndex)) {
-                        return TintColorUtil.NO_TINT;
-                    }
-
-                    Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-                    if (savedHex == null) {
-                        return TintColorUtil.NO_TINT;
-                    }
-
-                    return PearlFireTintSource.blockTint(
-                            savedHex,
-                            tintIndex,
-                            PEARL_FIRE_PROFILE
-                    );
-                },
-                ModBlocks.PEARL_FIRE.get()
+        // SIM card: one generated texture, one tint index, one raw HEX_COLOR tint.
+        event.register(
+                (stack, tintIndex) -> tintIndex == 0
+                        ? HexColorItemTintSource.color(stack)
+                        : TintColorUtil.NO_TINT,
+                ModItems.SIM_CARD.get()
         );
 
-        event.register((stack, tintIndex) -> {
-                    if (!PearlFireTintSource.supportsLayer(PEARL_PORTAL_PROFILE, tintIndex)) {
-                        return TintColorUtil.NO_TINT;
-                    }
-
-                    Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-                    if (savedHex == null) {
-                        return TintColorUtil.NO_TINT;
-                    }
-
-                    return PearlFireTintSource.blockTint(
-                            savedHex,
-                            tintIndex,
-                            PEARL_PORTAL_PROFILE
-                    );
-                },
-                ModBlocks.PEARL_PORTAL.get()
-        );
-
-        event.register((stack, tintIndex) -> {
-                    if (!PearlFireTintSource.supportsLayer(MUSAVACCA_DOOR_PROFILE, tintIndex)) {
-                        return TintColorUtil.NO_TINT;
-                    }
-
-                    Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-                    if (savedHex == null) {
-                        return TintColorUtil.NO_TINT;
-                    }
-
-                    return PearlFireTintSource.blockTint(
-                            savedHex,
-                            tintIndex,
-                            MUSAVACCA_DOOR_PROFILE
-                    );
-                },
-                ModBlocks.MUSAVACCA_DOOR.get()
-        );
-
-        ItemTintedLayers.registerItemColors(
-                event,
-                ModelSets.itemTintedLayers()
+        // The imbued door still has an untinted base layer plus one tinted portal
+        // overlay. This is not the removed profile/layer system: only tint index 1
+        // reads HEX_COLOR directly.
+        event.register(
+                (stack, tintIndex) -> tintIndex == 1
+                        ? HexColorItemTintSource.color(stack)
+                        : TintColorUtil.NO_TINT,
+                ModItems.MUSAVACCA_IMBUED_DOOR.get()
         );
 
         // One generic tint handler for every CustomArmorSet item. The second
@@ -530,19 +472,9 @@ public final class ModTints {
         );
 
         event.register(
-                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "profile_hex_color"),
-                ProfileHexColorItemTintSource.MAP_CODEC
-        );
-
-        event.register(
                 ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color"),
                 ArmorTrimItemTintSource.MAP_CODEC
         );
     }
     //?}
 }
-
-
-
-
-

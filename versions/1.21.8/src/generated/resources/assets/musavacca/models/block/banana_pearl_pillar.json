@@ -1,7 +1,52 @@
 {
-  "parent": "minecraft:block/cube_column",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#bottom"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#east"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#north"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#south"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#west"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    }
+  ],
   "textures": {
-    "end": "musavacca:block/banana_pearl_pillar_top",
-    "side": "musavacca:block/banana_pearl_pillar"
+    "bottom": "musavacca:block/banana_pearl_pillar_top",
+    "east": "musavacca:block/banana_pearl_pillar",
+    "north": "musavacca:block/banana_pearl_pillar",
+    "particle": "musavacca:block/banana_pearl_pillar",
+    "south": "musavacca:block/banana_pearl_pillar",
+    "top": "musavacca:block/banana_pearl_pillar_top",
+    "west": "musavacca:block/banana_pearl_pillar"
   }
 }

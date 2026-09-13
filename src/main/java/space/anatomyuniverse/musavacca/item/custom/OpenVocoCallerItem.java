@@ -6,8 +6,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2
-//import net.minecraft.world.InteractionResultHolder;
+
+//? if <1.21.2 {
+/*import net.minecraft.ChatFormatting;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.item.TooltipFlag;
+*///?}
+
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -17,38 +22,63 @@ import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BundleContents;
+
 //? if >=1.21.5
 import net.minecraft.world.item.component.TooltipDisplay;
+
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerBundleTooltip;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 
+import java.util.List;
 import java.util.Optional;
 
-public class OpenVocoCallerItem extends BundleItem {
+public class OpenVocoCallerItem
+        extends BundleItem {
+
     private static final ResourceLocation LEGACY_BUNDLE_MODEL =
-            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "item/banana_phone");
+            ResourceLocation.fromNamespaceAndPath(
+                    MusaCore.MOD_ID,
+                    "item/banana_phone"
+            );
 
     //? if <1.21.2 {
-    /*public OpenVocoCallerItem(Properties properties) {
+    /*public OpenVocoCallerItem(
+            Properties properties
+    ) {
         super(properties);
     }
     *///?} else if <1.21.4 {
-    /*public OpenVocoCallerItem(Properties properties) {
-        super(LEGACY_BUNDLE_MODEL, LEGACY_BUNDLE_MODEL, properties);
+    /*public OpenVocoCallerItem(
+            Properties properties
+    ) {
+        super(
+                LEGACY_BUNDLE_MODEL,
+                LEGACY_BUNDLE_MODEL,
+                properties
+        );
     }
     *///?} else {
-    public OpenVocoCallerItem(Properties properties) {
+    public OpenVocoCallerItem(
+            Properties properties
+    ) {
         super(properties);
     }
     //?}
 
-    public static ItemStack getSim(ItemStack phone) {
-        if (!(phone.getItem() instanceof OpenVocoCallerItem)) {
+    public static ItemStack getSim(
+            ItemStack phone
+    ) {
+        if (
+                phone.isEmpty()
+                        || !(phone.getItem()
+                        instanceof OpenVocoCallerItem)
+        ) {
             return ItemStack.EMPTY;
         }
 
@@ -58,20 +88,83 @@ public class OpenVocoCallerItem extends BundleItem {
                         BundleContents.EMPTY
                 )
                 .itemCopyStream()
-                .filter(stack ->
-                        stack.getItem() instanceof SimCardItem
+                .filter(
+                        stack ->
+                                stack.getItem()
+                                        instanceof SimCardItem
                 )
                 .findFirst()
                 .orElse(ItemStack.EMPTY);
     }
 
-    public static int getSimHex(ItemStack phone) {
-        ItemStack sim = getSim(phone);
+    /*
+     * Canonical SIM writer for the Voco Caller.
+     *
+     * The phone physically supports exactly one SIM.
+     *
+     * BundleContents remains the real vanilla backing storage,
+     * but every direct write goes through here so the stored
+     * SIM is always normalized to count 1.
+     */
+    public static void setSim(
+            ItemStack phone,
+            ItemStack sim
+    ) {
+        if (
+                phone.isEmpty()
+                        || !(phone.getItem()
+                        instanceof OpenVocoCallerItem)
+        ) {
+            return;
+        }
 
-        return sim.isEmpty()
-                || !SimCardItem.hasStoredHex(sim)
-                ? -1
-                : HexTeleportDirectory.normalizeHex(
+        if (
+                sim == null
+                        || sim.isEmpty()
+        ) {
+            phone.set(
+                    DataComponents.BUNDLE_CONTENTS,
+                    BundleContents.EMPTY
+            );
+
+            return;
+        }
+
+        /*
+         * Never allow arbitrary items to be written into the
+         * Voco Caller through this helper.
+         */
+        if (!(sim.getItem() instanceof SimCardItem)) {
+            return;
+        }
+
+        ItemStack storedSim =
+                sim.copy();
+
+        storedSim.setCount(1);
+
+        phone.set(
+                DataComponents.BUNDLE_CONTENTS,
+                new BundleContents(
+                        List.of(storedSim)
+                )
+        );
+    }
+
+    public static int getSimHex(
+            ItemStack phone
+    ) {
+        ItemStack sim =
+                getSim(phone);
+
+        if (
+                sim.isEmpty()
+                        || !SimCardItem.hasStoredHex(sim)
+        ) {
+            return -1;
+        }
+
+        return HexTeleportDirectory.normalizeHex(
                 SimCardItem.getStoredHexOrFallback(
                         sim,
                         0
@@ -79,16 +172,64 @@ public class OpenVocoCallerItem extends BundleItem {
         );
     }
 
-    @Override
+    /*
+     * 1.21.1 uses the old Bundle capacity presentation where
+     * the bundle internally exposes 64 weighted capacity units.
+     *
+     * Our SIM is stacksTo(1), so it already consumes the entire
+     * old Bundle capacity naturally.
+     *
+     * We only change the visible text:
+     *
+     *     0/64 -> 0/1
+     *     64/64 -> 1/1
+     *
+     * Actual BundleItem capacity mechanics remain vanilla.
+     */
     //? if <1.21.2 {
+    /*@Override
+    public void appendHoverText(
+            ItemStack stack,
+            Item.TooltipContext context,
+            List<Component> tooltipComponents,
+            TooltipFlag tooltipFlag
+    ) {
+        int used =
+                getSim(stack).isEmpty()
+                        ? 0
+                        : 1;
+
+        tooltipComponents.add(
+                Component.literal(
+                                used + "/1"
+                        )
+                        .withStyle(
+                                ChatFormatting.GRAY
+                        )
+        );
+    }
+    *///?}
+
+    @Override
+            //? if <1.21.2 {
     /*public InteractionResultHolder<ItemStack> use(
             Level level,
             Player player,
             InteractionHand hand
     ) {
-        ItemStack stack = player.getItemInHand(hand);
-        openPhone(level, player, stack);
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        ItemStack stack =
+                player.getItemInHand(hand);
+
+        openPhone(
+                level,
+                player,
+                stack
+        );
+
+        return InteractionResultHolder.sidedSuccess(
+                stack,
+                level.isClientSide()
+        );
     }
     *///?} else {
     public InteractionResult use(
@@ -117,10 +258,31 @@ public class OpenVocoCallerItem extends BundleItem {
         );
 
         //? if <1.21.2 {
-        /*return InteractionResult.sidedSuccess(context.getLevel().isClientSide());
+        /*return InteractionResult.sidedSuccess(
+                context.getLevel().isClientSide()
+        );
         *///?} else {
         return InteractionResult.SUCCESS_SERVER;
-        //?}
+         //?}
+    }
+
+    /*
+     * Bundle controls changed in Minecraft 1.21.2.
+     *
+     * 1.21.1:
+     *     SECONDARY / right-click inserts into the old Bundle.
+     *
+     * 1.21.2+:
+     *     PRIMARY / left-click inserts into the redesigned Bundle.
+     */
+    private static boolean isInsertAction(
+            ClickAction action
+    ) {
+        //? if <1.21.2 {
+        /*return action == ClickAction.SECONDARY;
+        *///?} else {
+        return action == ClickAction.PRIMARY;
+         //?}
     }
 
     /*
@@ -136,23 +298,36 @@ public class OpenVocoCallerItem extends BundleItem {
             Player player,
             SlotAccess carriedAccess
     ) {
-        ItemStack currentSim = getSim(phone);
+        ItemStack currentSim =
+                getSim(phone);
 
         /*
-         * Insert.
+         * INSERT
          */
         if (!carried.isEmpty()) {
             if (
-                    action != ClickAction.PRIMARY
-                            || !(carried.getItem() instanceof SimCardItem)
-                            || !SimCardItem.hasStoredHex(carried)
+                    !isInsertAction(action)
+                            || !(carried.getItem()
+                            instanceof SimCardItem)
+                            || !SimCardItem.hasStoredHex(
+                            carried
+                    )
                             || !currentSim.isEmpty()
             ) {
                 return false;
             }
 
             /*
-             * Client lets normal BundleItem perform its visual prediction.
+             * Preserve a stable copy before vanilla BundleItem
+             * potentially shrinks/mutates the cursor stack.
+             */
+            ItemStack insertingSim =
+                    carried.copy();
+
+            insertingSim.setCount(1);
+
+            /*
+             * Client-side prediction remains vanilla.
              */
             if (player.level().isClientSide()) {
                 return super.overrideOtherStackedOnMe(
@@ -166,10 +341,11 @@ public class OpenVocoCallerItem extends BundleItem {
             }
 
             if (
-                    !(player instanceof ServerPlayer serverPlayer)
+                    !(player
+                            instanceof ServerPlayer serverPlayer)
                             || !activateForInsert(
                             serverPlayer,
-                            carried
+                            insertingSim
                     )
             ) {
                 return true;
@@ -186,13 +362,13 @@ public class OpenVocoCallerItem extends BundleItem {
                     );
 
             /*
-             * Registration succeeded but Bundle insertion somehow failed.
-             * Undo the reservation.
+             * Registration succeeded but vanilla insertion
+             * somehow failed. Undo the network reservation.
              */
             if (getSim(phone).isEmpty()) {
                 VocoCallerNetwork.release(
                         serverPlayer,
-                        carried
+                        insertingSim
                 );
             }
 
@@ -200,7 +376,10 @@ public class OpenVocoCallerItem extends BundleItem {
         }
 
         /*
-         * Eject.
+         * EJECT
+         *
+         * Both old and redesigned Bundle interaction use
+         * SECONDARY for taking contents back out.
          */
         if (
                 action != ClickAction.SECONDARY
@@ -211,7 +390,8 @@ public class OpenVocoCallerItem extends BundleItem {
 
         if (
                 !player.level().isClientSide()
-                        && player instanceof ServerPlayer serverPlayer
+                        && player
+                        instanceof ServerPlayer serverPlayer
                         && !VocoCallerNetwork.canEject(
                         serverPlayer,
                         currentSim
@@ -233,7 +413,8 @@ public class OpenVocoCallerItem extends BundleItem {
 
         if (
                 !player.level().isClientSide()
-                        && player instanceof ServerPlayer serverPlayer
+                        && player
+                        instanceof ServerPlayer serverPlayer
                         && handled
                         && getSim(phone).isEmpty()
         ) {
@@ -257,22 +438,40 @@ public class OpenVocoCallerItem extends BundleItem {
             ClickAction action,
             Player player
     ) {
-        ItemStack currentSim = getSim(phone);
-        ItemStack slotStack = slot.getItem();
+        ItemStack currentSim =
+                getSim(phone);
+
+        ItemStack slotStack =
+                slot.getItem();
 
         /*
-         * Insert.
+         * INSERT
          */
         if (!slotStack.isEmpty()) {
             if (
-                    action != ClickAction.PRIMARY
-                            || !(slotStack.getItem() instanceof SimCardItem)
-                            || !SimCardItem.hasStoredHex(slotStack)
+                    !isInsertAction(action)
+                            || !(slotStack.getItem()
+                            instanceof SimCardItem)
+                            || !SimCardItem.hasStoredHex(
+                            slotStack
+                    )
                             || !currentSim.isEmpty()
             ) {
                 return false;
             }
 
+            /*
+             * Preserve the SIM before vanilla mutates the slot.
+             */
+            ItemStack insertingSim =
+                    slotStack.copy();
+
+            insertingSim.setCount(1);
+
+            /*
+             * Client-side prediction stays with the current
+             * Minecraft version's vanilla BundleItem.
+             */
             if (player.level().isClientSide()) {
                 return super.overrideStackedOnOther(
                         phone,
@@ -283,10 +482,11 @@ public class OpenVocoCallerItem extends BundleItem {
             }
 
             if (
-                    !(player instanceof ServerPlayer serverPlayer)
+                    !(player
+                            instanceof ServerPlayer serverPlayer)
                             || !activateForInsert(
                             serverPlayer,
-                            slotStack
+                            insertingSim
                     )
             ) {
                 return true;
@@ -300,10 +500,14 @@ public class OpenVocoCallerItem extends BundleItem {
                             player
                     );
 
+            /*
+             * Registration succeeded but vanilla insertion
+             * failed: release the claimed Voco address again.
+             */
             if (getSim(phone).isEmpty()) {
                 VocoCallerNetwork.release(
                         serverPlayer,
-                        slotStack
+                        insertingSim
                 );
             }
 
@@ -311,7 +515,7 @@ public class OpenVocoCallerItem extends BundleItem {
         }
 
         /*
-         * Eject into empty inventory slot.
+         * EJECT INTO EMPTY INVENTORY SLOT
          */
         if (
                 action != ClickAction.SECONDARY
@@ -322,7 +526,8 @@ public class OpenVocoCallerItem extends BundleItem {
 
         if (
                 !player.level().isClientSide()
-                        && player instanceof ServerPlayer serverPlayer
+                        && player
+                        instanceof ServerPlayer serverPlayer
                         && !VocoCallerNetwork.canEject(
                         serverPlayer,
                         currentSim
@@ -342,7 +547,8 @@ public class OpenVocoCallerItem extends BundleItem {
 
         if (
                 !player.level().isClientSide()
-                        && player instanceof ServerPlayer serverPlayer
+                        && player
+                        instanceof ServerPlayer serverPlayer
                         && handled
                         && getSim(phone).isEmpty()
         ) {
@@ -356,11 +562,9 @@ public class OpenVocoCallerItem extends BundleItem {
     }
 
     /*
-     * Use our tiny marker instead of BundleTooltip.
+     * Use our Voco-specific tooltip marker.
      *
-     * Client-side we map this straight back into a subclass of
-     * Minecraft's ClientBundleTooltip, so all actual tooltip
-     * layout/rendering stays vanilla.
+     * The real stored data is still vanilla BundleContents.
      */
     @Override
     public Optional<TooltipComponent> getTooltipImage(
@@ -373,12 +577,19 @@ public class OpenVocoCallerItem extends BundleItem {
                         TooltipDisplay.DEFAULT
                 );
 
-        if (!display.shows(DataComponents.BUNDLE_CONTENTS)) {
+        if (
+                !display.shows(
+                        DataComponents.BUNDLE_CONTENTS
+                )
+        ) {
             return Optional.empty();
         }
         //?}
+
         BundleContents contents =
-                stack.get(DataComponents.BUNDLE_CONTENTS);
+                stack.get(
+                        DataComponents.BUNDLE_CONTENTS
+                );
 
         return contents == null
                 ? Optional.empty()
@@ -390,11 +601,13 @@ public class OpenVocoCallerItem extends BundleItem {
     }
 
     /*
-     * The Banana Phone only contains one SIM,
-     * so the normal Bundle capacity bar is unnecessary.
+     * One physical SIM bay means Minecraft's normal Bundle
+     * fullness durability-style bar is unnecessary.
      */
     @Override
-    public boolean isBarVisible(ItemStack stack) {
+    public boolean isBarVisible(
+            ItemStack stack
+    ) {
         return false;
     }
 
@@ -405,12 +618,14 @@ public class OpenVocoCallerItem extends BundleItem {
     ) {
         if (
                 level.isClientSide()
-                        || !(player instanceof ServerPlayer serverPlayer)
+                        || !(player
+                        instanceof ServerPlayer serverPlayer)
         ) {
             return;
         }
 
-        ItemStack sim = getSim(phone);
+        ItemStack sim =
+                getSim(phone);
 
         if (sim.isEmpty()) {
             serverPlayer.displayClientMessage(
@@ -423,13 +638,9 @@ public class OpenVocoCallerItem extends BundleItem {
             return;
         }
 
-        int hex = getSimHex(phone);
+        int hex =
+                getSimHex(phone);
 
-        /*
-         * Defensive check for old/corrupted stacks.
-         *
-         * Normal unconfigured SIMs cannot enter the phone anymore.
-         */
         if (hex < 0) {
             serverPlayer.displayClientMessage(
                     Component.literal(
@@ -491,7 +702,9 @@ public class OpenVocoCallerItem extends BundleItem {
                         result
                                 == HexTeleportDirectory.Result.HEX_OCCUPIED
                                 ? "Voco address #"
-                                  + HexTeleportDirectory.toHex(hex)
+                                  + HexTeleportDirectory.toHex(
+                                hex
+                        )
                                   + " is already reserved."
                                 : "This SIM card cannot be activated."
                 ),
@@ -512,5 +725,3 @@ public class OpenVocoCallerItem extends BundleItem {
         );
     }
 }
-
-

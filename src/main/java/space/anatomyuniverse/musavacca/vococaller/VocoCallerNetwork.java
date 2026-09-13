@@ -1,13 +1,12 @@
 package space.anatomyuniverse.musavacca.vococaller;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.BundleContents;
+
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.custom.OpenVocoCallerItem;
 import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
@@ -15,9 +14,8 @@ import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
 
-import java.util.List;
-
 public final class VocoCallerNetwork {
+
     private VocoCallerNetwork() {}
 
     public static HexTeleportDirectory.Result activate(
@@ -26,6 +24,7 @@ public final class VocoCallerNetwork {
     ) {
         if (
                 player == null
+                        || sim.isEmpty()
                         || !(sim.getItem()
                         instanceof SimCardItem)
                         || !SimCardItem.hasStoredHex(sim)
@@ -56,6 +55,7 @@ public final class VocoCallerNetwork {
     ) {
         if (
                 player == null
+                        || sim.isEmpty()
                         || !(sim.getItem()
                         instanceof SimCardItem)
                         || !SimCardItem.hasStoredHex(sim)
@@ -77,7 +77,9 @@ public final class VocoCallerNetwork {
                 );
 
         return HexTeleportDirectory.get(server)
-                .getPhoneRegistrationByHex(hex)
+                .getPhoneRegistrationByHex(
+                        hex
+                )
                 .map(
                         registration ->
                                 registration.ownerUuid()
@@ -94,6 +96,7 @@ public final class VocoCallerNetwork {
     ) {
         if (
                 player == null
+                        || sim.isEmpty()
                         || !(sim.getItem()
                         instanceof SimCardItem)
                         || !SimCardItem.hasStoredHex(sim)
@@ -206,11 +209,15 @@ public final class VocoCallerNetwork {
         }
 
         ItemStack sim =
-                OpenVocoCallerItem.getSim(phone);
+                OpenVocoCallerItem.getSim(
+                        phone
+                );
 
         if (
                 sim.isEmpty()
-                        || !SimCardItem.hasStoredHex(sim)
+                        || !SimCardItem.hasStoredHex(
+                        sim
+                )
         ) {
             return false;
         }
@@ -223,22 +230,38 @@ public final class VocoCallerNetwork {
 
         if (
                 actualPhoneHex
-                        != (expectedPhoneHex & 0xFFFFFF)
+                        != (expectedPhoneHex
+                        & 0xFFFFFF)
         ) {
             return false;
         }
 
+        /*
+         * The phonebook belongs to the SIM itself.
+         */
         sim.set(
-                ModDataComponents.VOCO_CALLER_PHONEBOOK.get(),
+                ModDataComponents
+                        .VOCO_CALLER_PHONEBOOK
+                        .get(),
                 phonebook == null
-                        ? VocoCallerPhonebook.EMPTY_PHONEBOOK
+                        ? VocoCallerPhonebook
+                          .EMPTY_PHONEBOOK
                         : phonebook
         );
-        phone.set(
-                DataComponents.BUNDLE_CONTENTS,
-                new BundleContents(
-                        List.of(sim)
-                )
+
+        /*
+         * getSim() returns a copy from BundleContents, so write
+         * the updated SIM back into the phone explicitly.
+         *
+         * setSim() also guarantees:
+         *
+         * - exactly one physical SIM stack
+         * - SIM count == 1
+         * - vanilla BundleContents backing storage
+         */
+        OpenVocoCallerItem.setSim(
+                phone,
+                sim
         );
 
         player.getInventory()
@@ -267,7 +290,8 @@ public final class VocoCallerNetwork {
 
         for (
                 ServerPlayer candidate
-                : server.getPlayerList().getPlayers()
+                : server.getPlayerList()
+                .getPlayers()
         ) {
             if (
                     !carriesPhone(
@@ -313,4 +337,3 @@ public final class VocoCallerNetwork {
         return false;
     }
 }
-

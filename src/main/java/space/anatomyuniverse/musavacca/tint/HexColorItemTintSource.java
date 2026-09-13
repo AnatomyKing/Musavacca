@@ -1,14 +1,15 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/tint/HexColorItemTintSource.java
 package space.anatomyuniverse.musavacca.tint;
+
+import net.minecraft.world.item.ItemStack;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
 //? if >=1.21.4 {
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 //?}
 
 public final class HexColorItemTintSource
@@ -28,6 +29,20 @@ public final class HexColorItemTintSource
 
     private HexColorItemTintSource() {}
 
+    /**
+     * One plain item tint: use the stack's HEX_COLOR, otherwise white.
+     * No PearlFire profile, no per-layer color math.
+     */
+    public static int color(ItemStack stack) {
+        Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
+
+        return TintColorUtil.opaqueRgb(
+                savedHex != null
+                        ? savedHex
+                        : TintColorUtil.defaultHexBlockItemTint()
+        );
+    }
+
     //? if >=1.21.4 {
     @Override
     public int calculate(
@@ -35,24 +50,7 @@ public final class HexColorItemTintSource
             @Nullable ClientLevel level,
             @Nullable LivingEntity entity
     ) {
-        Integer savedHex =
-                stack.get(
-                        ModDataComponents.HEX_COLOR.get()
-                );
-
-        if (savedHex != null) {
-            return TintColorUtil.opaqueRgb(savedHex);
-        }
-
-        if (stack.getItem() instanceof FlintAndPearlItem) {
-            return TintColorUtil.opaqueRgb(
-                    FlintAndPearlItem.DEFAULT_HEX_COLOR
-            );
-        }
-
-        return TintColorUtil.opaqueRgb(
-                TintColorUtil.defaultHexBlockItemTint()
-        );
+        return color(stack);
     }
 
     @Override
@@ -61,4 +59,3 @@ public final class HexColorItemTintSource
     }
     //?}
 }
-

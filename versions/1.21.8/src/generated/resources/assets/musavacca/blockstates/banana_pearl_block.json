@@ -1,7 +1,9 @@
 {
-  "variants": {
-    "": {
-      "model": "musavacca:block/banana_pearl_block"
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_block"
+      }
     }
-  }
+  ]
 }

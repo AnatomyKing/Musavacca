@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/tint/PearlFireTintProfiles.java
 package space.anatomyuniverse.musavacca.tint;
 
 // wicked fire with E74E8C
@@ -74,17 +75,6 @@ public final class PearlFireTintProfiles {
 
 
 
-    public static final Profile SIM_CARD_TINT = of(
-            settings(
-                    1.25F,  // coreToTailLightness
-                    0.64F,  // colorJumpiness
-                    0.36F,  // colorAmountTakeOver
-                    0.34F,  // vibrancyDarkening
-                    0.47F   // layerContrast
-            ),
-            255, 234, 210, 184, 174, 138, 112
-    );
-
     public static final Profile PORTAL_BLOCK = of(
             settings(
                     2F,   // coreToTailLightness
@@ -129,32 +119,6 @@ public final class PearlFireTintProfiles {
     );
 
     private PearlFireTintProfiles() {}
-
-    public static String idOf(Profile profile) {
-        if (profile == FIRE_BLOCK) return "fire_block";
-        if (profile == FLINT_AND_PEARL) return "flint_and_pearl";
-        if (profile == SIM_CARD_TINT) return "sim_card";
-        if (profile == PORTAL_BLOCK) return "portal_block";
-        if (profile == PORTAL_GLYPH_PARTICLE) return "portal_glyph_particle";
-        if (profile == GLITHER_PARTICLE) return "glither_particle";
-        if (profile == PEARL_FLAME) return "pearl_flame";
-        throw new IllegalArgumentException("Unknown PearlFire tint profile instance");
-    }
-
-    public static Profile byId(String id) {
-        if (id == null) throw new IllegalArgumentException("profile id must not be null");
-
-        return switch (id) {
-            case "fire_block" -> FIRE_BLOCK;
-            case "flint_and_pearl" -> FLINT_AND_PEARL;
-            case "sim_card" -> SIM_CARD_TINT;
-            case "portal_block" -> PORTAL_BLOCK;
-            case "portal_glyph_particle" -> PORTAL_GLYPH_PARTICLE;
-            case "glither_particle" -> GLITHER_PARTICLE;
-            case "pearl_flame" -> PEARL_FLAME;
-            default -> throw new IllegalArgumentException("Unknown PearlFire tint profile: " + id);
-        };
-    }
 
     public static Settings settings(
             float coreToTailLightness,
@@ -335,4 +299,3 @@ public final class PearlFireTintProfiles {
         );
     }
 }
-

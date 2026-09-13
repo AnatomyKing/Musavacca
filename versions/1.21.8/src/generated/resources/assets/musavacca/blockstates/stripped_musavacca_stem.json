@@ -1,16 +1,31 @@
 {
-  "variants": {
-    "axis=x": {
-      "model": "musavacca:block/stripped_musavacca_stem",
-      "x": 90,
-      "y": 90
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/stripped_musavacca_stem"
+      },
+      "when": {
+        "axis": "y"
+      }
     },
-    "axis=y": {
-      "model": "musavacca:block/stripped_musavacca_stem"
+    {
+      "apply": {
+        "model": "musavacca:block/stripped_musavacca_stem",
+        "x": 90
+      },
+      "when": {
+        "axis": "z"
+      }
     },
-    "axis=z": {
-      "model": "musavacca:block/stripped_musavacca_stem",
-      "x": 90
+    {
+      "apply": {
+        "model": "musavacca:block/stripped_musavacca_stem",
+        "x": 90,
+        "y": 90
+      },
+      "when": {
+        "axis": "x"
+      }
     }
-  }
+  ]
 }

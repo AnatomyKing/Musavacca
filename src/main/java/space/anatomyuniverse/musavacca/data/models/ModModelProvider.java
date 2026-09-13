@@ -4,6 +4,13 @@ import net.minecraft.data.PackOutput;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.data.models.block.*;
 import space.anatomyuniverse.musavacca.data.models.item.*;
+import space.anatomyuniverse.musavacca.data.models.newgen.CrossBlockGenerator;
+import space.anatomyuniverse.musavacca.data.models.newgen.DoorBlockGenerator;
+import space.anatomyuniverse.musavacca.data.models.newgen.FireBlockGenerator;
+import space.anatomyuniverse.musavacca.data.models.newgen.SimpleBlockGenerator;
+import space.anatomyuniverse.musavacca.data.models.newgen.TallCrossBlockGenerator;
+import space.anatomyuniverse.musavacca.data.models.newgen.TrapdoorBlockGenerator;
+import space.anatomyuniverse.musavacca.data.models.newgen.NewModelSets;
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
@@ -50,54 +57,32 @@ public final class ModModelProvider
             BlockModelGenerators blocks, ItemModelGenerators items
             //?}
     ) {
-        CubeAll.generate(blocks, ModelSets.cubeAllBlocks());
-        CaroteneGrassModels.generate(blocks, ModelSets.caroteneGrassModels());
-        Chapiter.generate(blocks, ModelSets.chapiterBlocks());
-        Log.generate(blocks, ModelSets.logBlocks());
-        ExudatedLog.generate(blocks, ModelSets.exudatedLogBlocks());
+        SimpleBlockGenerator.generate(blocks, items, NewModelSets.simpleBlocks());
+        CrossBlockGenerator.generate(blocks, items, NewModelSets.crossBlocks());
+        TallCrossBlockGenerator.generate(blocks, items, NewModelSets.tallCrossBlocks());
+        FireBlockGenerator.generate(blocks, items, NewModelSets.fireBlocks());
+        DoorBlockGenerator.generate(blocks, items, NewModelSets.doorBlocks());
+        TrapdoorBlockGenerator.generate(blocks, items, NewModelSets.trapdoorBlocks());
+
         Stairs.generate(blocks, ModelSets.stairsBlocks());
         Slabs.generate(blocks, ModelSets.slabBlocks());
         Fences.generate(blocks, ModelSets.fenceBlocks());
         FenceGates.generate(blocks, ModelSets.fenceGateBlocks());
-        Doors.generate(
-                blocks,
-                ModelSets.doorBlocks()
-        );
+        Doors.generate(blocks, ModelSets.doorBlocks());
 
-        CubeMusavaccaPortalDoorTinted.generate(
-                blocks,
-                items,
-                ModelSets
-                        .cubeMusavaccaPortalDoorTintedModels()
-        );
-
-        CubeMusavaccaPortalTrapdoorTinted.generate(
-                blocks,
-                ModelSets
-                        .cubeMusavaccaPortalTrapdoorTintedModels()
-        );
 
         Trapdoors.generate(blocks, ModelSets.trapdoorBlocks());
         PressurePlates.generate(blocks, ModelSets.pressurePlateBlocks());
         Buttons.generate(blocks, ModelSets.buttonBlocks());
         CubeCrafterLike.generate(blocks, ModelSets.cubeCrafterLikeBlocks());
 
-        SmallBananaPearlOwn.generate(blocks, ModelSets.smallBananaPearlBlocks());
         CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
-        CubeFireBlockTinted32.generate(blocks, ModelSets.cubeFireBlockTinted32Models());
         PanePortalBlockTinted15.generate(blocks, ModelSets.panePortalBlockTinted15Models());
         DecorationModelBlocks.generate(blocks, ModelSets.decorationBlockModels());
-        BreakBlockOwn.generate(blocks, ModelSets.breakBlockOwnModels());
         CubePearlCandles.generate(blocks, ModelSets.pearlCandleBlocks());
 
-        BarrelCropOwnTintedFoliage.generate(blocks, items, ModelSets.barrelCropOwnTintedFoliageModels());
-        CubeOwnTintedHexColor.generate(blocks, items, ModelSets.cubeOwnTintedHexColorModels());
-        CubeOwnTintedHexColorClipped.generate(blocks, items, ModelSets.cubeOwnTintedHexColorClippedModels());
-        CubeMusavaccaCropOwnTintedFoliage.generate(blocks,ModelSets.cubeMusavaccaCropOwnTintedFoliageModels());
-        CubeVocoTable.generate(blocks, ModelSets.cubeVocoTableModels());
-        CubeVocoPost.generate(blocks, ModelSets.cubeVocoPostModels());
 
-        ItemTintedLayers.generate(items, ModelSets.itemTintedLayers());
+        FlatItems.generateHexTinted(items, ModelSets.hexTintedFlatItems());
         CustomItemModel.generate(items, ModelSets.customItemModels());
         FlatItems.generate(items, ModelSets.flatItems());
         HandheldItems.generate(items, ModelSets.handheldItems());
@@ -105,5 +90,3 @@ public final class ModModelProvider
         SpawnEggItems.generate(items, ModelSets.spawnEggItems());
     }
 }
-
-

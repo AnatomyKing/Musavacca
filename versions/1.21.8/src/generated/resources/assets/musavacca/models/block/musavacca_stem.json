@@ -1,7 +1,52 @@
 {
-  "parent": "minecraft:block/cube_column",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#bottom"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#east"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#north"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#south"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#west"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    }
+  ],
   "textures": {
-    "end": "musavacca:block/musavacca_stem_top",
-    "side": "musavacca:block/musavacca_stem"
+    "bottom": "musavacca:block/musavacca_stem_top",
+    "east": "musavacca:block/musavacca_stem",
+    "north": "musavacca:block/musavacca_stem",
+    "particle": "musavacca:block/musavacca_stem",
+    "south": "musavacca:block/musavacca_stem",
+    "top": "musavacca:block/musavacca_stem_top",
+    "west": "musavacca:block/musavacca_stem"
   }
 }

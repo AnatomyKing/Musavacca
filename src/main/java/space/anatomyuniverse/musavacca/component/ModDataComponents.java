@@ -28,15 +28,6 @@ public final class ModDataComponents {
                             .networkSynchronized(ByteBufCodecs.INT)
             );
 
-    /*
-     * Recent + Saved belong to the physical SIM.
-     *
-     * CODEC        -> persistent ItemStack/world saving
-     * STREAM_CODEC -> compact, real ItemStack synchronization
-     *
-     * Do NOT use StreamCodec.unit(...) here: a unit codec only accepts the
-     * exact unit value and will reject a non-empty phonebook during slot sync.
-     */
     public static final Supplier<DataComponentType<VocoCallerPhonebook>>
             VOCO_CALLER_PHONEBOOK =
             DATA_COMPONENT_TYPES.registerComponentType(

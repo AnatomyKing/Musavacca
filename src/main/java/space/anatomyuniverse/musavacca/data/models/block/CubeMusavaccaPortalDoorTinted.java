@@ -1,3 +1,4 @@
+// file: src/main/java/space/anatomyuniverse/musavacca/data/models/block/CubeMusavaccaPortalDoorTinted.java
 package space.anatomyuniverse.musavacca.data.models.block;
 
 //? if <1.21.4 {
@@ -36,7 +37,6 @@ import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 //? if >=1.21.4 {
 import space.anatomyuniverse.musavacca.tint.HexColorItemTintSource;
-import space.anatomyuniverse.musavacca.tint.ProfileHexColorItemTintSource;
 //?}
 
 import java.util.Map;
@@ -1448,5 +1448,3 @@ public final class CubeMusavaccaPortalDoorTinted {
         };
     }
 }
-
-

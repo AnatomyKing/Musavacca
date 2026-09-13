@@ -1,8 +1,52 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#bottom"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#east"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#north"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#south"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#west"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    }
+  ],
   "textures": {
     "bottom": "minecraft:block/dirt",
-    "side": "musavacca:block/carotene_grass_side_snowy",
-    "top": "musavacca:block/carotene_grass_top"
+    "east": "musavacca:block/carotene_grass_side_snowy",
+    "north": "musavacca:block/carotene_grass_side_snowy",
+    "particle": "musavacca:block/carotene_grass_side_snowy",
+    "south": "musavacca:block/carotene_grass_side_snowy",
+    "top": "musavacca:block/carotene_grass_top",
+    "west": "musavacca:block/carotene_grass_side_snowy"
   }
 }
