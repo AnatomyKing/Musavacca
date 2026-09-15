@@ -1,17 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.SnowyDirtBlock;
 
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
-import space.anatomyuniverse.musavacca.block.custom.ExudatedStrippedMusavaccaStemBlock;
-import space.anatomyuniverse.musavacca.block.custom.HexBlock;
-import space.anatomyuniverse.musavacca.block.custom.MusavaccaLeaves;
-import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
-import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock;
-import space.anatomyuniverse.musavacca.block.custom.SmallBananaPearlBlock;
-import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
-import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
+import space.anatomyuniverse.musavacca.block.custom.*;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
@@ -582,6 +575,245 @@ public final class NewModelSets {
                         .rotations(Rotations.furnace())
                         .build(),
 
+                // Pearl candles
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_WHITE_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/white_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/white_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/white_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/white_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/white_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/white_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/white_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/white_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_ORANGE_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/orange_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/orange_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/orange_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/orange_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/orange_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/orange_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/orange_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/orange_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_MAGENTA_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/magenta_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/magenta_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/magenta_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/magenta_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/magenta_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/magenta_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/magenta_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/magenta_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_LIGHT_BLUE_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/light_blue_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/light_blue_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/light_blue_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/light_blue_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/light_blue_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/light_blue_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/light_blue_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/light_blue_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_YELLOW_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/yellow_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/yellow_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/yellow_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/yellow_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/yellow_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/yellow_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/yellow_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/yellow_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_LIME_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/lime_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/lime_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/lime_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/lime_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/lime_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/lime_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/lime_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/lime_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_PINK_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/pink_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/pink_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/pink_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/pink_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/pink_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/pink_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/pink_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/pink_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_GRAY_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/gray_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/gray_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/gray_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/gray_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/gray_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/gray_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/gray_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/gray_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_LIGHT_GRAY_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/light_gray_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/light_gray_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/light_gray_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/light_gray_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/light_gray_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/light_gray_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/light_gray_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/light_gray_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_CYAN_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/cyan_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/cyan_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/cyan_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/cyan_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/cyan_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/cyan_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/cyan_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/cyan_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_PURPLE_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/purple_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/purple_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/purple_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/purple_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/purple_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/purple_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/purple_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/purple_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_BLUE_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/blue_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/blue_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/blue_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/blue_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/blue_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/blue_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/blue_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/blue_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_BROWN_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/brown_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/brown_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/brown_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/brown_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/brown_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/brown_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/brown_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/brown_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_GREEN_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/green_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/green_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/green_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/green_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/green_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/green_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/green_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/green_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_RED_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/red_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/red_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/red_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/red_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/red_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/red_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/red_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/red_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
+                SimpleBlocks.Entry.builder(ModBlocks.PEARL_BLACK_CANDLE.get())
+                        .models(
+                                SimpleBlocks.Model.when("minecraft:block/black_candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/black_candle_one_candle_lit", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/black_candle_two_candles", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/black_candle_two_candles_lit", Conditions.when(CandleBlock.CANDLES, 2).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/black_candle_three_candles", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/black_candle_three_candles_lit", Conditions.when(CandleBlock.CANDLES, 3).and(CandleBlock.LIT, true)),
+                                SimpleBlocks.Model.when("minecraft:block/black_candle_four_candles", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, false)),
+                                SimpleBlocks.Model.when("minecraft:block/black_candle_four_candles_lit", Conditions.when(CandleBlock.CANDLES, 4).and(CandleBlock.LIT, true))
+                        )
+                        .noItem()
+                        .build(),
+
                 SimpleBlocks.Entry.builder(ModBlocks.VOCO_TABLE.get())
                         .multipart(
                                 SimpleBlocks.Part.always("musavacca:block/voco_table"),
@@ -793,6 +1025,83 @@ public final class NewModelSets {
         );
     }
 
+    public static List<StairBlocks.Entry> stairBlocks() {
+        return List.of(
+                StairBlocks.Entry.builder(ModBlocks.MUSAVACCA_STAIRS.get())
+                        .generated()
+                        .texture()
+                        .item()
+                        .build()
+        );
+    }
+
+
+
+    public static List<SlabBlocks.Entry> slabBlocks() {
+        return List.of(
+                SlabBlocks.Entry.builder(ModBlocks.MUSAVACCA_SLAB.get())
+                        .generated()
+                        .texture()
+                        .item()
+                        .build()
+        );
+    }
+
+    public static List<FenceBlocks.Entry> fenceBlocks() {
+        return List.of(
+                FenceBlocks.Entry.builder(ModBlocks.MUSAVACCA_FENCE.get())
+                        .generated()
+                        .texture()
+                        .item()
+                        .build()
+        );
+    }
+
+    public static List<FenceGateBlocks.Entry> fenceGateBlocks() {
+        return List.of(
+                FenceGateBlocks.Entry.builder(ModBlocks.MUSAVACCA_FENCE_GATE.get())
+                        .generated()
+                        .texture()
+                        .item()
+                        .build()
+        );
+    }
+
+    public static List<PressurePlateBlocks.Entry> pressurePlateBlocks() {
+        return List.of(
+                PressurePlateBlocks.Entry.builder(ModBlocks.MUSAVACCA_PRESSURE_PLATE.get())
+                        .generated()
+                        .texture()
+                        .item()
+                        .build()
+        );
+    }
+
+    public static List<ButtonBlocks.Entry> buttonBlocks() {
+        return List.of(
+                ButtonBlocks.Entry.builder(ModBlocks.MUSAVACCA_BUTTON.get())
+                        .generated()
+                        .texture()
+                        .item()
+                        .build()
+        );
+    }
+
+    public static List<WallBlocks.Entry> wallBlocks() {
+        return List.of();
+    }
+
+    public static List<PortalBlocks.Entry> portalBlocks() {
+        return List.of(
+                PortalBlocks.Entry.builder(ModBlocks.PEARL_PORTAL.get())
+                        .generated()
+                        .texture()
+                        .tint(Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK))
+                        .noItem()
+                        .build()
+        );
+    }
+
     public static List<FireBlocks.Entry> fireBlocks() {
         return List.of(
                 FireBlocks.Entry.builder(ModBlocks.PEARL_FIRE.get())
@@ -803,5 +1112,27 @@ public final class NewModelSets {
                         .build()
         );
     }
+
+        public static List<DecorationBlocks.Entry> decorationBlocks() {
+                return List.of(
+                        DecorationBlocks.Entry.builder(ModBlocks.BANANA_PEARL_CHALICE.get())
+                                .models(
+                                        DecorationBlocks.Model.rotating(
+                                                DecorationBlock.Placement.FLOOR,
+                                                "musavacca:block/banana_pearl_chalice_floor"
+                                        ),
+                                        DecorationBlocks.Model.rotating(
+                                                DecorationBlock.Placement.SNEAK,
+                                                "musavacca:block/banana_pearl_chalice_sneak"
+                                        ),
+                                        DecorationBlocks.Model.facing(
+                                                DecorationBlock.Placement.SIDE,
+                                                "musavacca:block/banana_pearl_chalice_side"
+                                        )
+                                )
+                                .item(DecorationBlock.Placement.FLOOR)
+                                .build()
+                );
+        }
 
 }

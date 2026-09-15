@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 
@@ -34,22 +33,22 @@ public final class DoorTextures {
         }
 
         public Builder bottom() {
-            this.bottom = inferred("_bottom");
+            this.bottom = TextureTokens.block(block, "_bottom");
             return this;
         }
 
         public Builder top() {
-            this.top = inferred("_top");
+            this.top = TextureTokens.block(block, "_top");
             return this;
         }
 
         public Builder bottom(String texture) {
-            this.bottom = resolve(texture);
+            this.bottom = TextureTokens.resolveBlock(block, texture);
             return this;
         }
 
         public Builder top(String texture) {
-            this.top = resolve(texture);
+            this.top = TextureTokens.resolveBlock(block, texture);
             return this;
         }
 
@@ -65,39 +64,5 @@ public final class DoorTextures {
             return new Set(bottom, top);
         }
 
-        private ResourceLocation inferred(String suffix) {
-            ResourceLocation id = ModelUtil.idOf(block);
-
-            return ResourceLocation.fromNamespaceAndPath(
-                    id.getNamespace(),
-                    "block/" + id.getPath() + suffix
-            );
-        }
-
-        private ResourceLocation resolve(String token) {
-            if (token == null || token.isBlank()) {
-                throw new IllegalArgumentException("texture token must not be blank");
-            }
-
-            if (token.indexOf(':') >= 0) {
-                return ResourceLocation.parse(token);
-            }
-
-            ResourceLocation id = ModelUtil.idOf(block);
-
-            if (token.startsWith("_")) {
-                return ResourceLocation.fromNamespaceAndPath(
-                        id.getNamespace(),
-                        "block/" + id.getPath() + token
-                );
-            }
-
-            return ResourceLocation.fromNamespaceAndPath(
-                    id.getNamespace(),
-                    token.startsWith("block/")
-                            ? token
-                            : "block/" + token
-            );
-        }
     }
 }

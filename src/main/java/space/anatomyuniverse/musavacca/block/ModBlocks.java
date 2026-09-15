@@ -229,7 +229,7 @@ public final class ModBlocks {
                             ModWoodTypes.MUSAVACCA,
                             props
                                     .mapColor(MapColor.COLOR_ORANGE)
-                                    .strength(2.0F, 3.0F)
+                                    .strength(2.0F,  3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA.soundType())
                                     .forceSolidOn()
                                     .pushReaction(PushReaction.NORMAL)

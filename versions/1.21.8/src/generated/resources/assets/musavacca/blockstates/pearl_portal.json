@@ -10,18 +10,18 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/pearl_portal_ew"
-      },
-      "when": {
-        "axis": "z"
-      }
-    },
-    {
-      "apply": {
         "model": "musavacca:block/pearl_portal_ud"
       },
       "when": {
         "axis": "y"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/pearl_portal_ew"
+      },
+      "when": {
+        "axis": "z"
       }
     }
   ]

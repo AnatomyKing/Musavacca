@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_top"
+        "model": "musavacca:block/musavacca_trapdoor_top"
       },
       "when": {
         "facing": "north",
@@ -15,22 +15,21 @@
         "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_top"
       },
       "when": {
-        "facing": "north",
-        "half": "top",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_top"
-      },
-      "when": {
-        "facing": "north",
-        "half": "top",
-        "open": "false",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "north",
+            "half": "top",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "false"
+          },
+          {
+            "facing": "north",
+            "half": "top",
+            "open": "false",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -58,7 +57,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_open",
+        "model": "musavacca:block/musavacca_trapdoor_open",
         "x": 180,
         "y": 180
       },
@@ -75,24 +74,21 @@
         "y": 180
       },
       "when": {
-        "facing": "north",
-        "half": "top",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open",
-        "x": 180,
-        "y": 180
-      },
-      "when": {
-        "facing": "north",
-        "half": "top",
-        "open": "true",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "north",
+            "half": "top",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "true"
+          },
+          {
+            "facing": "north",
+            "half": "top",
+            "open": "true",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -124,7 +120,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_bottom"
+        "model": "musavacca:block/musavacca_trapdoor_bottom"
       },
       "when": {
         "facing": "north",
@@ -137,22 +133,21 @@
         "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_bottom"
       },
       "when": {
-        "facing": "north",
-        "half": "bottom",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_bottom"
-      },
-      "when": {
-        "facing": "north",
-        "half": "bottom",
-        "open": "false",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "north",
+            "half": "bottom",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "false"
+          },
+          {
+            "facing": "north",
+            "half": "bottom",
+            "open": "false",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -180,7 +175,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_open"
+        "model": "musavacca:block/musavacca_trapdoor_open"
       },
       "when": {
         "facing": "north",
@@ -193,22 +188,21 @@
         "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open"
       },
       "when": {
-        "facing": "north",
-        "half": "bottom",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open"
-      },
-      "when": {
-        "facing": "north",
-        "half": "bottom",
-        "open": "true",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "north",
+            "half": "bottom",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "true"
+          },
+          {
+            "facing": "north",
+            "half": "bottom",
+            "open": "true",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -236,7 +230,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_top",
+        "model": "musavacca:block/musavacca_trapdoor_top",
         "y": 90
       },
       "when": {
@@ -251,23 +245,21 @@
         "y": 90
       },
       "when": {
-        "facing": "east",
-        "half": "top",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_top",
-        "y": 90
-      },
-      "when": {
-        "facing": "east",
-        "half": "top",
-        "open": "false",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "east",
+            "half": "top",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "false"
+          },
+          {
+            "facing": "east",
+            "half": "top",
+            "open": "false",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -297,7 +289,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_open",
+        "model": "musavacca:block/musavacca_trapdoor_open",
         "x": 180,
         "y": 270
       },
@@ -314,24 +306,21 @@
         "y": 270
       },
       "when": {
-        "facing": "east",
-        "half": "top",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open",
-        "x": 180,
-        "y": 270
-      },
-      "when": {
-        "facing": "east",
-        "half": "top",
-        "open": "true",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "east",
+            "half": "top",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "true"
+          },
+          {
+            "facing": "east",
+            "half": "top",
+            "open": "true",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -363,7 +352,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_bottom",
+        "model": "musavacca:block/musavacca_trapdoor_bottom",
         "y": 90
       },
       "when": {
@@ -378,23 +367,21 @@
         "y": 90
       },
       "when": {
-        "facing": "east",
-        "half": "bottom",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_bottom",
-        "y": 90
-      },
-      "when": {
-        "facing": "east",
-        "half": "bottom",
-        "open": "false",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "east",
+            "half": "bottom",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "false"
+          },
+          {
+            "facing": "east",
+            "half": "bottom",
+            "open": "false",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -424,7 +411,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_open",
+        "model": "musavacca:block/musavacca_trapdoor_open",
         "y": 90
       },
       "when": {
@@ -439,23 +426,21 @@
         "y": 90
       },
       "when": {
-        "facing": "east",
-        "half": "bottom",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open",
-        "y": 90
-      },
-      "when": {
-        "facing": "east",
-        "half": "bottom",
-        "open": "true",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "east",
+            "half": "bottom",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "true"
+          },
+          {
+            "facing": "east",
+            "half": "bottom",
+            "open": "true",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -485,7 +470,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_top",
+        "model": "musavacca:block/musavacca_trapdoor_top",
         "y": 180
       },
       "when": {
@@ -500,23 +485,21 @@
         "y": 180
       },
       "when": {
-        "facing": "south",
-        "half": "top",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_top",
-        "y": 180
-      },
-      "when": {
-        "facing": "south",
-        "half": "top",
-        "open": "false",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "south",
+            "half": "top",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "false"
+          },
+          {
+            "facing": "south",
+            "half": "top",
+            "open": "false",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -546,7 +529,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_open",
+        "model": "musavacca:block/musavacca_trapdoor_open",
         "x": 180
       },
       "when": {
@@ -561,23 +544,21 @@
         "x": 180
       },
       "when": {
-        "facing": "south",
-        "half": "top",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open",
-        "x": 180
-      },
-      "when": {
-        "facing": "south",
-        "half": "top",
-        "open": "true",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "south",
+            "half": "top",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "true"
+          },
+          {
+            "facing": "south",
+            "half": "top",
+            "open": "true",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -607,7 +588,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_bottom",
+        "model": "musavacca:block/musavacca_trapdoor_bottom",
         "y": 180
       },
       "when": {
@@ -622,23 +603,21 @@
         "y": 180
       },
       "when": {
-        "facing": "south",
-        "half": "bottom",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_bottom",
-        "y": 180
-      },
-      "when": {
-        "facing": "south",
-        "half": "bottom",
-        "open": "false",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "south",
+            "half": "bottom",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "false"
+          },
+          {
+            "facing": "south",
+            "half": "bottom",
+            "open": "false",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -668,7 +647,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_open",
+        "model": "musavacca:block/musavacca_trapdoor_open",
         "y": 180
       },
       "when": {
@@ -683,23 +662,21 @@
         "y": 180
       },
       "when": {
-        "facing": "south",
-        "half": "bottom",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open",
-        "y": 180
-      },
-      "when": {
-        "facing": "south",
-        "half": "bottom",
-        "open": "true",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "south",
+            "half": "bottom",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "true"
+          },
+          {
+            "facing": "south",
+            "half": "bottom",
+            "open": "true",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -729,7 +706,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_top",
+        "model": "musavacca:block/musavacca_trapdoor_top",
         "y": 270
       },
       "when": {
@@ -744,23 +721,21 @@
         "y": 270
       },
       "when": {
-        "facing": "west",
-        "half": "top",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_top",
-        "y": 270
-      },
-      "when": {
-        "facing": "west",
-        "half": "top",
-        "open": "false",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "west",
+            "half": "top",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "false"
+          },
+          {
+            "facing": "west",
+            "half": "top",
+            "open": "false",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -790,7 +765,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_open",
+        "model": "musavacca:block/musavacca_trapdoor_open",
         "x": 180,
         "y": 90
       },
@@ -807,24 +782,21 @@
         "y": 90
       },
       "when": {
-        "facing": "west",
-        "half": "top",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open",
-        "x": 180,
-        "y": 90
-      },
-      "when": {
-        "facing": "west",
-        "half": "top",
-        "open": "true",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "west",
+            "half": "top",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "true"
+          },
+          {
+            "facing": "west",
+            "half": "top",
+            "open": "true",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -856,7 +828,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_bottom",
+        "model": "musavacca:block/musavacca_trapdoor_bottom",
         "y": 270
       },
       "when": {
@@ -871,23 +843,21 @@
         "y": 270
       },
       "when": {
-        "facing": "west",
-        "half": "bottom",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_bottom",
-        "y": 270
-      },
-      "when": {
-        "facing": "west",
-        "half": "bottom",
-        "open": "false",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "west",
+            "half": "bottom",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "false"
+          },
+          {
+            "facing": "west",
+            "half": "bottom",
+            "open": "false",
+            "portal": "true"
+          }
+        ]
       }
     },
     {
@@ -917,7 +887,7 @@
     },
     {
       "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/musavacca_trapdoor_open",
+        "model": "musavacca:block/musavacca_trapdoor_open",
         "y": 270
       },
       "when": {
@@ -932,23 +902,21 @@
         "y": 270
       },
       "when": {
-        "facing": "west",
-        "half": "bottom",
-        "lit": "true",
-        "lit_portal": "false",
-        "open": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open",
-        "y": 270
-      },
-      "when": {
-        "facing": "west",
-        "half": "bottom",
-        "open": "true",
-        "portal": "true"
+        "OR": [
+          {
+            "facing": "west",
+            "half": "bottom",
+            "lit": "true",
+            "lit_portal": "false",
+            "open": "true"
+          },
+          {
+            "facing": "west",
+            "half": "bottom",
+            "open": "true",
+            "portal": "true"
+          }
+        ]
       }
     },
     {

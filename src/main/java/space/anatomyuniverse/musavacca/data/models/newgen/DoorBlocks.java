@@ -1,15 +1,11 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.state.properties.Property;
 import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,75 +16,21 @@ import java.util.function.Consumer;
 public final class DoorBlocks {
     private DoorBlocks() {}
 
-    public enum BaseMode {
-        GENERATED,
-        EXISTING
-    }
-
-    public static final class Part {
-        private final DoorModels models;
-        private final Conditions.Match conditions;
-
-        private int rotationX;
-        private int rotationY;
-        private Tints.Tint tint = Tints.none();
-        private Variants.Set variants = Variants.single();
-
-        private Part(DoorModels models, Conditions.Match conditions) {
-            this.models = Objects.requireNonNull(models, "models");
-            this.conditions = Objects.requireNonNull(conditions, "conditions");
+    public static final class Part extends BlockFamily.ModelRule<DoorModels, Part> {
+        private Part(DoorModels source, Conditions.Match conditions) {
+            super(source, conditions);
         }
 
-        public static Part always(DoorModels models) {
-            return new Part(models, Conditions.always());
+        public static Part always(DoorModels source) {
+            return new Part(source, Conditions.always());
         }
 
-        public static Part when(DoorModels models, Conditions.Match conditions) {
-            return new Part(models, conditions);
-        }
-
-        public Part rotateX(int degrees) {
-            this.rotationX = normalize(degrees);
-            return this;
-        }
-
-        public Part rotateY(int degrees) {
-            this.rotationY = normalize(degrees);
-            return this;
-        }
-
-        public Part tint(Tints.Tint tint) {
-            this.tint = Objects.requireNonNull(tint, "tint");
-            return this;
-        }
-
-        public Part variants(Variants.Set variants) {
-            this.variants = Objects.requireNonNull(variants, "variants");
-            return this;
+        public static Part when(DoorModels source, Conditions.Match conditions) {
+            return new Part(source, conditions);
         }
 
         public DoorModels models() {
-            return models;
-        }
-
-        public Conditions.Match conditions() {
-            return conditions;
-        }
-
-        public int rotationX() {
-            return rotationX;
-        }
-
-        public int rotationY() {
-            return rotationY;
-        }
-
-        public Tints.Tint tint() {
-            return tint;
-        }
-
-        public Variants.Set variants() {
-            return variants;
+            return source();
         }
     }
 
@@ -107,8 +49,8 @@ public final class DoorBlocks {
         }
 
         public Item texture() {
-            this.inferSingleTexture = true;
-            this.textureTokens = List.of();
+            inferSingleTexture = true;
+            textureTokens = List.of();
             return this;
         }
 
@@ -123,11 +65,12 @@ public final class DoorBlocks {
                 if (texture == null || texture.isBlank()) {
                     throw new IllegalArgumentException("Door item texture must not be blank");
                 }
+
                 copy.add(texture);
             }
 
-            this.inferSingleTexture = false;
-            this.textureTokens = List.copyOf(copy);
+            inferSingleTexture = false;
+            textureTokens = List.copyOf(copy);
             return this;
         }
 
@@ -145,9 +88,7 @@ public final class DoorBlocks {
         }
 
         public List<String> textureTokens() {
-            return textureTokens == null
-                    ? List.of()
-                    : textureTokens;
+            return textureTokens == null ? List.of() : textureTokens;
         }
 
         public boolean inferSingleTexture() {
@@ -165,69 +106,38 @@ public final class DoorBlocks {
         public void validate() {
             if (textureTokens == null) {
                 throw new IllegalStateException(
-                        "No textures selected for door item " + itemId()
+                        "No textures selected for door item " + ModelLocations.itemId(item)
                                 + ". Call .texture() or .textures(...)."
                 );
             }
 
-            int layerCount = inferSingleTexture
-                    ? 1
-                    : textureTokens.size();
+            int layerCount = inferSingleTexture ? 1 : textureTokens.size();
 
             for (Integer layer : layerTints.keySet()) {
                 if (layer >= layerCount) {
                     throw new IllegalStateException(
                             "Tint layer " + layer + " is outside the " + layerCount
-                                    + " generated layers for door item " + itemId()
+                                    + " generated layers for door item " + ModelLocations.itemId(item)
                     );
                 }
             }
         }
-
-        private ResourceLocation itemId() {
-            ResourceLocation id = BuiltInRegistries.ITEM.getKey(item.asItem());
-
-            if (id == null) {
-                throw new IllegalStateException("Cannot use an unregistered door item");
-            }
-
-            return id;
-        }
     }
 
-    public static final class Entry {
-        private final Block block;
-        private final BaseMode baseMode;
+    public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
         private final DoorTextures.Set textures;
         private final DoorModels baseModels;
-        private final List<Part> parts;
         private final List<Item> items;
-        private final int rotationX;
-        private final int rotationY;
-        private final Variants.Set variants;
 
         private Entry(Builder builder) {
-            this.block = builder.block;
-            this.baseMode = builder.baseMode;
-            this.textures = builder.textures;
-            this.baseModels = builder.baseModels;
-            this.parts = List.copyOf(builder.parts);
-            this.items = List.copyOf(builder.items);
-            this.rotationX = builder.rotationX;
-            this.rotationY = builder.rotationY;
-            this.variants = builder.variants;
+            super(builder);
+            textures = builder.textures;
+            baseModels = builder.baseModels;
+            items = List.copyOf(builder.items);
         }
 
         public static Builder builder(Block block) {
             return new Builder(block);
-        }
-
-        public Block block() {
-            return block;
-        }
-
-        public BaseMode baseMode() {
-            return baseMode;
         }
 
         public DoorTextures.Set textures() {
@@ -238,136 +148,82 @@ public final class DoorBlocks {
             return baseModels;
         }
 
-        public List<Part> parts() {
-            return Collections.unmodifiableList(parts);
-        }
-
         public List<Item> items() {
-            return Collections.unmodifiableList(items);
-        }
-
-        public int rotationX() {
-            return rotationX;
-        }
-
-        public int rotationY() {
-            return rotationY;
-        }
-
-        public Variants.Set variants() {
-            return variants;
+            return items;
         }
 
         public void validate() {
-            if (!(block instanceof DoorBlock)) {
+            if (!(block() instanceof DoorBlock)) {
                 throw new IllegalStateException(
-                        "DoorBlocks requires a DoorBlock: " + ModelUtil.idOf(block)
+                        "DoorBlocks requires a DoorBlock: " + ModelUtil.idOf(block())
                 );
             }
 
-            requireDoorProperty(DoorBlock.FACING);
-            requireDoorProperty(DoorBlock.HALF);
-            requireDoorProperty(DoorBlock.HINGE);
-            requireDoorProperty(DoorBlock.OPEN);
+            BlockFamilyValidation.requireProperty(block(), DoorBlock.FACING, "DoorBlocks");
+            BlockFamilyValidation.requireProperty(block(), DoorBlock.HALF, "DoorBlocks");
+            BlockFamilyValidation.requireProperty(block(), DoorBlock.HINGE, "DoorBlocks");
+            BlockFamilyValidation.requireProperty(block(), DoorBlock.OPEN, "DoorBlocks");
 
-            if (baseMode == null) {
-                throw new IllegalStateException("No base door model selected for " + ModelUtil.idOf(block));
+            if (baseMode() == null) {
+                throw new IllegalStateException(
+                        "No base door model selected for " + ModelUtil.idOf(block())
+                );
             }
 
-            if (baseMode == BaseMode.GENERATED && textures == null) {
-                throw new IllegalStateException("No generated door textures configured for " + ModelUtil.idOf(block));
+            if (baseMode() == BaseModelMode.GENERATED && textures == null) {
+                throw new IllegalStateException(
+                        "No generated door textures configured for " + ModelUtil.idOf(block())
+                );
             }
 
-            if (baseMode == BaseMode.EXISTING && baseModels == null) {
-                throw new IllegalStateException("No existing DoorModels configured for " + ModelUtil.idOf(block));
+            if (baseMode() == BaseModelMode.EXISTING && baseModels == null) {
+                throw new IllegalStateException(
+                        "No existing DoorModels configured for " + ModelUtil.idOf(block())
+                );
             }
 
-            for (Part part : parts) {
-                validateConditions(part.conditions());
-            }
+            validatePartConditions();
 
             for (Item item : items) {
                 item.validate();
             }
         }
 
-        private void validateConditions(Conditions.Match conditions) {
-            for (Conditions.Term<?> term : conditions.terms()) {
-                if (!block.defaultBlockState().hasProperty(term.property())) {
-                    throw new IllegalStateException(
-                            "Condition property " + term.property()
-                                    + " is not present on " + ModelUtil.idOf(block)
-                    );
-                }
-            }
-        }
-
-        private <T extends Comparable<T>> void requireDoorProperty(Property<T> property) {
-            if (!block.defaultBlockState().hasProperty(property)) {
-                throw new IllegalStateException(
-                        "DoorBlocks requires property " + property.getName()
-                                + " on " + ModelUtil.idOf(block)
-                );
-            }
-        }
-
-        public static final class Builder {
-            private final Block block;
-            private BaseMode baseMode;
+        public static final class Builder extends BlockFamily.StateFamilyBuilder<Builder, Part> {
             private DoorTextures.Set textures;
             private DoorModels baseModels;
-            private final List<Part> parts = new ArrayList<>();
             private final List<Item> items = new ArrayList<>();
-            private int rotationX;
-            private int rotationY;
-            private Variants.Set variants = Variants.single();
 
             private Builder(Block block) {
-                this.block = Objects.requireNonNull(block, "block");
+                super(block);
             }
 
             public Builder generated() {
-                if (baseMode == BaseMode.EXISTING) {
-                    throw new IllegalStateException("Cannot use .generated() after .models(...)");
-                }
-
-                this.baseMode = BaseMode.GENERATED;
+                selectGenerated();
 
                 if (textures == null) {
-                    this.textures = DoorTextures.builder(block).build();
+                    textures = DoorTextures.builder(block).build();
                 }
 
                 return this;
             }
 
             public Builder models(DoorModels models) {
-                if (baseMode == BaseMode.GENERATED) {
-                    throw new IllegalStateException("Cannot use .models(...) after .generated()");
-                }
-
-                this.baseMode = BaseMode.EXISTING;
-                this.baseModels = Objects.requireNonNull(models, "models");
+                selectExisting();
+                baseModels = Objects.requireNonNull(models, "models");
                 return this;
             }
 
             public Builder textures(Consumer<DoorTextures.Builder> textures) {
+                if (baseMode != BaseModelMode.GENERATED) {
+                    throw new IllegalStateException("textures(...) requires .generated() first");
+                }
+
                 Objects.requireNonNull(textures, "textures");
 
                 DoorTextures.Builder builder = DoorTextures.builder(block);
                 textures.accept(builder);
                 this.textures = builder.build();
-                return this;
-            }
-
-            public Builder multipart(Part... parts) {
-                if (parts == null) {
-                    throw new IllegalArgumentException("parts must not be null");
-                }
-
-                for (Part part : parts) {
-                    this.parts.add(Objects.requireNonNull(part, "part"));
-                }
-
                 return this;
             }
 
@@ -383,38 +239,11 @@ public final class DoorBlocks {
                 return this;
             }
 
-            public Builder rotateX(int degrees) {
-                this.rotationX = normalize(degrees);
-                return this;
-            }
-
-            public Builder rotateY(int degrees) {
-                this.rotationY = normalize(degrees);
-                return this;
-            }
-
-            public Builder variants(Variants.Set variants) {
-                this.variants = Objects.requireNonNull(variants, "variants");
-                return this;
-            }
-
             public Entry build() {
                 Entry entry = new Entry(this);
                 entry.validate();
                 return entry;
             }
         }
-    }
-
-    static int normalize(int degrees) {
-        int value = Math.floorMod(degrees, 360);
-
-        if (!Arrays.asList(0, 90, 180, 270).contains(value)) {
-            throw new IllegalArgumentException(
-                    "Only 0/90/180/270 door rotations are supported: " + degrees
-            );
-        }
-
-        return value;
     }
 }

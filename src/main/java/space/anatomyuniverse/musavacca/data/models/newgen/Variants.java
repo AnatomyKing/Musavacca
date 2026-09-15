@@ -9,8 +9,8 @@ public final class Variants {
 
     public record Option(int rotationX, int rotationY, int weight) {
         public Option {
-            rotationX = normalize(rotationX);
-            rotationY = normalize(rotationY);
+            rotationX = ModelTransforms.quarterTurn(rotationX);
+            rotationY = ModelTransforms.quarterTurn(rotationY);
 
             if (weight <= 0) {
                 throw new IllegalArgumentException("Variant weight must be greater than zero");
@@ -50,9 +50,9 @@ public final class Variants {
         return new Option(0, 0, 1);
     }
 
-    public static Set single() {
-        return of(option());
-    }
+    private static final Set SINGLE = of(option());
+
+    public static Set single() { return SINGLE; }
 
     public static Set randomY() {
         return of(
@@ -71,15 +71,4 @@ public final class Variants {
         return new Set(Arrays.asList(options));
     }
 
-    private static int normalize(int degrees) {
-        int value = Math.floorMod(degrees, 360);
-
-        if (value != 0 && value != 90 && value != 180 && value != 270) {
-            throw new IllegalArgumentException(
-                    "Only 0/90/180/270 variant rotations are supported: " + degrees
-            );
-        }
-
-        return value;
-    }
 }

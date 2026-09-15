@@ -66,15 +66,11 @@ public final class FireBlocks {
                 throw new IllegalStateException("No texture configured for " + ModelUtil.idOf(block));
             }
 
-            if (!block.defaultBlockState().hasProperty(FireBlock.NORTH)
-                    || !block.defaultBlockState().hasProperty(FireBlock.EAST)
-                    || !block.defaultBlockState().hasProperty(FireBlock.SOUTH)
-                    || !block.defaultBlockState().hasProperty(FireBlock.WEST)
-                    || !block.defaultBlockState().hasProperty(FireBlock.UP)) {
-                throw new IllegalStateException(
-                        "FireBlocks requires the vanilla fire attachment properties on " + ModelUtil.idOf(block)
-                );
-            }
+            BlockFamilyValidation.requireProperty(block, FireBlock.NORTH, "FireBlocks");
+            BlockFamilyValidation.requireProperty(block, FireBlock.EAST, "FireBlocks");
+            BlockFamilyValidation.requireProperty(block, FireBlock.SOUTH, "FireBlocks");
+            BlockFamilyValidation.requireProperty(block, FireBlock.WEST, "FireBlocks");
+            BlockFamilyValidation.requireProperty(block, FireBlock.UP, "FireBlocks");
         }
 
         public static final class Builder {
@@ -97,6 +93,7 @@ public final class FireBlocks {
             }
 
             public Builder texture() {
+                requireGeneratedTextures();
                 this.textures = FireTextures.builder(block)
                         .texture()
                         .build();
@@ -104,6 +101,7 @@ public final class FireBlocks {
             }
 
             public Builder texture(String texture) {
+                requireGeneratedTextures();
                 this.textures = FireTextures.builder(block)
                         .texture(texture)
                         .build();
@@ -111,6 +109,9 @@ public final class FireBlocks {
             }
 
             public Builder textures(Consumer<FireTextures.Builder> textures) {
+                requireGeneratedTextures();
+                Objects.requireNonNull(textures, "textures");
+
                 FireTextures.Builder builder = FireTextures.builder(block);
                 textures.accept(builder);
                 this.textures = builder.build();
@@ -123,6 +124,10 @@ public final class FireBlocks {
             }
 
             public Builder itemTint(Tints.Tint tint) {
+                if (noItem) {
+                    throw new IllegalStateException("itemTint(...) cannot be used after .noItem()");
+                }
+
                 this.itemTint = Objects.requireNonNull(tint, "tint");
                 return this;
             }
@@ -136,7 +141,11 @@ public final class FireBlocks {
                 if (noItem) {
                     throw new IllegalStateException("Cannot use .item(...) after .noItem()");
                 }
-                this.itemModel = Objects.requireNonNull(model, "model");
+                if (model == null || model.isBlank()) {
+                    throw new IllegalArgumentException("item model must not be blank");
+                }
+
+                this.itemModel = model;
                 return this;
             }
 
@@ -144,8 +153,20 @@ public final class FireBlocks {
                 if (itemModel != null) {
                     throw new IllegalStateException("Cannot use .noItem() after .item(...)");
                 }
+
+                if (itemTint != null) {
+                    throw new IllegalStateException("Cannot use .noItem() after .itemTint(...)");
+                }
+
                 this.noItem = true;
                 return this;
+            }
+
+
+            private void requireGeneratedTextures() {
+                if (!generated) {
+                    throw new IllegalStateException("texture(s) requires .generated() first");
+                }
             }
 
             public Entry build() {

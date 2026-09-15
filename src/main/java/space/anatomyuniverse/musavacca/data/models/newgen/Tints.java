@@ -129,7 +129,39 @@ public final class Tints {
         }
     }
 
-    public static List<GeneratedLayer> generatedLayers(Tint tint) {
+    public record GeneratedPlan(List<GeneratedLayer> layers) {
+        public GeneratedPlan {
+            Objects.requireNonNull(layers, "layers");
+
+            if (layers.isEmpty()) {
+                throw new IllegalArgumentException("layers must not be empty");
+            }
+
+            layers = List.copyOf(layers);
+        }
+
+        public int layerCount() {
+            return layers.size();
+        }
+
+        public boolean layered() {
+            return layerCount() > 1;
+        }
+
+        public GeneratedLayer singleLayer(String family) {
+            if (layers.size() != 1) {
+                throw new IllegalStateException(
+                        family + " generates one texture carrier per model, but tint "
+                                + "requires " + layers.size() + " generated layers. "
+                                + "Use a layered-capable model family or an existing authored model."
+                );
+            }
+
+            return layers.get(0);
+        }
+    }
+
+    public static GeneratedPlan generatedPlan(Tint tint) {
         Objects.requireNonNull(tint, "tint");
 
         if (tint instanceof PearlFire pearlFire) {
@@ -140,14 +172,39 @@ public final class Tints {
                 layers.add(new GeneratedLayer(layer, pearlFire.offset() + layer));
             }
 
-            return List.copyOf(layers);
+            return new GeneratedPlan(layers);
         }
 
-        return List.of(new GeneratedLayer(0, tint.tintIndex()));
+        return new GeneratedPlan(
+                List.of(new GeneratedLayer(0, tint.tintIndex()))
+        );
+    }
+
+    public static List<GeneratedLayer> generatedLayers(Tint tint) {
+        return generatedPlan(tint).layers();
     }
 
     public static int generatedLayerCount(Tint tint) {
-        return generatedLayers(tint).size();
+        return generatedPlan(tint).layerCount();
+    }
+
+    public static GeneratedLayer singleGeneratedLayer(Tint tint, String family) {
+        return generatedPlan(tint).singleLayer(family);
+    }
+
+    public record ModelKey(List<GeneratedLayer> layers) {
+        public ModelKey {
+            layers = List.copyOf(layers);
+        }
+    }
+
+    public static Tint effective(Tint inherited, Tint local) {
+        Objects.requireNonNull(inherited, "inherited");
+        return local != null ? local : inherited;
+    }
+
+    public static ModelKey modelKey(Tint tint) {
+        return new ModelKey(generatedPlan(tint).layers());
     }
 
     private static final None NONE = new None();

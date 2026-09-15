@@ -1,13 +1,28 @@
 {
-  "variants": {
-    "type=bottom": {
-      "model": "musavacca:block/musavacca_slab"
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_slab_top"
+      },
+      "when": {
+        "type": "top"
+      }
     },
-    "type=double": {
-      "model": "musavacca:block/musavacca_planks"
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_slab"
+      },
+      "when": {
+        "type": "bottom"
+      }
     },
-    "type=top": {
-      "model": "musavacca:block/musavacca_slab_top"
+    {
+      "apply": {
+        "model": "musavacca:block/musavacca_slab_double"
+      },
+      "when": {
+        "type": "double"
+      }
     }
-  }
+  ]
 }

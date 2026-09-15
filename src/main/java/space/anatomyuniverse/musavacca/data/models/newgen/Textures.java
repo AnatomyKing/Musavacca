@@ -2,104 +2,37 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
-
 import java.util.Objects;
 
 public final class Textures {
     private Textures() {}
 
-    public static final class Set {
-        private final ResourceLocation all;
-        private final ResourceLocation sides;
-        private final ResourceLocation ends;
-
-        private final ResourceLocation top;
-        private final ResourceLocation bottom;
-
-        private final ResourceLocation north;
-        private final ResourceLocation south;
-        private final ResourceLocation west;
-        private final ResourceLocation east;
-
-        private final ResourceLocation particle;
-
-        private Set(Builder builder) {
-            this.all = builder.all;
-
-            this.sides = builder.sides;
-
-            this.ends = builder.ends;
-
-            this.top = builder.top;
-
-            this.bottom = builder.bottom;
-
-            this.north = builder.north;
-
-            this.south = builder.south;
-
-            this.west = builder.west;
-
-            this.east = builder.east;
-
-            this.particle = builder.particle;
-
-            require("top", top());
-
-            require("bottom", bottom());
-
-            require("north", north());
-
-            require("south", south());
-
-            require("west", west());
-
-            require("east", east());
+    public record Set(ResourceLocation top, ResourceLocation bottom,
+                      ResourceLocation north, ResourceLocation south,
+                      ResourceLocation west, ResourceLocation east,
+                      ResourceLocation particle) {
+        public Set {
+            Objects.requireNonNull(top, "top");
+            Objects.requireNonNull(bottom, "bottom");
+            Objects.requireNonNull(north, "north");
+            Objects.requireNonNull(south, "south");
+            Objects.requireNonNull(west, "west");
+            Objects.requireNonNull(east, "east");
+            Objects.requireNonNull(particle, "particle");
         }
 
-        public ResourceLocation top() {
-            return first(top, ends, all);
-        }
-
-        public ResourceLocation bottom() {
-            return first(bottom, ends, all);
-        }
-
-        public ResourceLocation north() {
-            return first(north, sides, all);
-        }
-
-        public ResourceLocation south() {
-            return first(south, sides, all);
-        }
-
-        public ResourceLocation west() {
-            return first(west, sides, all);
-        }
-
-        public ResourceLocation east() {
-            return first(east, sides, all);
-        }
-
-        public ResourceLocation particle() {
-            return first(particle, north(), all);
+        private Set(Builder b) {
+            this(first(b.top, b.ends, b.all), first(b.bottom, b.ends, b.all),
+                    first(b.north, b.sides, b.all), first(b.south, b.sides, b.all),
+                    first(b.west, b.sides, b.all), first(b.east, b.sides, b.all),
+                    first(b.particle, b.north, b.sides, b.all));
         }
 
         private static ResourceLocation first(ResourceLocation... values) {
             for (ResourceLocation value : values) {
-                if (value != null) {
-                    return value;
-                }
+                if (value != null) return value;
             }
-
-            return null;
-        }
-
-        private static void require(String face, ResourceLocation texture) {
-            if (texture == null) {
-                throw new IllegalStateException("No texture resolves for generated face '" + face + "'");
-            }
+            throw new IllegalStateException("No texture resolves for generated face");
         }
     }
 
@@ -128,7 +61,7 @@ public final class Textures {
              *
              * <namespace>:block/<block-id>
              */
-            this.all = ModelUtil.blockTex(block);
+            this.all = TextureTokens.block(block);
         }
 
         /*
@@ -140,7 +73,7 @@ public final class Textures {
          * NewModelSets can state the intent visibly.
          */
         public Builder all() {
-            this.all = ModelUtil.blockTex(block);
+            this.all = TextureTokens.block(block);
 
             return this;
         }
@@ -210,40 +143,7 @@ public final class Textures {
         }
 
         private ResourceLocation resolve(String token) {
-            if (token == null || token.isBlank()) {
-                throw new IllegalArgumentException("texture token must not be blank");
-            }
-
-            /*
-             * Exact reference:
-             *
-             * minecraft:block/stone
-             * musavacca:block/foo
-             */
-            if (token.indexOf(':') >= 0) {
-                return ResourceLocation.parse(token);
-            }
-
-            ResourceLocation id = ModelUtil.idOf(block);
-
-            ResourceLocation base = ModelUtil.blockTex(block);
-
-            /*
-             * Suffix shorthand:
-             *
-             * "_top"
-             *
-             * becomes:
-             *
-             * musavacca:block/<id>_top
-             */
-            if (token.startsWith("_")) {
-                return ResourceLocation
-                        .fromNamespaceAndPath(id.getNamespace(), base.getPath() + token);
-            }
-
-            return ResourceLocation
-                    .fromNamespaceAndPath(id.getNamespace(), token.startsWith("block/") ? token : "block/" + token);
+            return TextureTokens.resolveBlock(block, token);
         }
     }
 

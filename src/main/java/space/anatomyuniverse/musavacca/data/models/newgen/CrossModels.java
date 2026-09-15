@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -36,16 +35,9 @@ public final class CrossModels {
         CrossTextures.Builder builder = CrossTextures.of(block);
         textures.accept(builder);
 
-        ResourceLocation blockId = ModelUtil.idOf(block);
-        String cleanSuffix = suffix == null || suffix.isBlank()
-                ? ""
-                : "_" + suffix;
-
-        ResourceLocation model = ResourceLocation.fromNamespaceAndPath(
-                blockId.getNamespace(),
-                "block/" + blockId.getPath() + cleanSuffix
+        return new Generated(
+                ModelLocations.blockModel(block, suffix),
+                builder.build()
         );
-
-        return new Generated(model, builder.build());
     }
 }

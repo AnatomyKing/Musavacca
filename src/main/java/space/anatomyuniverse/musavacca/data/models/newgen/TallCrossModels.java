@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -61,19 +60,18 @@ public final class TallCrossModels {
         textures.accept(builder);
         TallCrossTextures.Set set = builder.build();
 
-        ResourceLocation blockId = ModelUtil.idOf(block);
         String cleanSuffix = suffix == null || suffix.isBlank()
                 ? ""
-                : "_" + suffix;
+                : suffix;
 
-        ResourceLocation lowerModel = ResourceLocation.fromNamespaceAndPath(
-                blockId.getNamespace(),
-                "block/" + blockId.getPath() + cleanSuffix + "_bottom"
+        ResourceLocation lowerModel = ModelLocations.blockModel(
+                block,
+                cleanSuffix + "_bottom"
         );
 
-        ResourceLocation upperModel = ResourceLocation.fromNamespaceAndPath(
-                blockId.getNamespace(),
-                "block/" + blockId.getPath() + cleanSuffix + "_top"
+        ResourceLocation upperModel = ModelLocations.blockModel(
+                block,
+                cleanSuffix + "_top"
         );
 
         return new Generated(

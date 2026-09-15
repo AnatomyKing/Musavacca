@@ -20,44 +20,9 @@ public final class ModelSets {
         return Map.of();
     }
 
-    public static Map<Block, DecorationModelBlocks.Models> decorationBlockModels() {
-        return Map.of(
-                ModBlocks.BANANA_PEARL_CHALICE.get(),
-                DecorationModelBlocks.Models.auto()
-        );
-    }
 
 
-
-
-
-    public static List<DeferredBlock<PearlCandleBlock>> pearlCandleBlocks() {
-        return ModBlocks.PEARL_CANDLES;
-    }
-
-    public static Block[] stairsBlocks() {
-        return new Block[] {
-                ModBlocks.MUSAVACCA_STAIRS.get()
-        };
-    }
-
-    public static Block[] slabBlocks() {
-        return new Block[] {
-                ModBlocks.MUSAVACCA_SLAB.get()
-        };
-    }
-
-    public static Block[] fenceBlocks() {
-        return new Block[] {
-                ModBlocks.MUSAVACCA_FENCE.get()
-        };
-    }
-
-    public static Block[] fenceGateBlocks() {
-        return new Block[] {
-                ModBlocks.MUSAVACCA_FENCE_GATE.get()
-        };
-    }
+    
 
     public static Block[] doorBlocks() {
         return new Block[] {
@@ -66,18 +31,6 @@ public final class ModelSets {
 
     public static Block[] trapdoorBlocks() {
         return new Block[] {
-        };
-    }
-
-    public static Block[] pressurePlateBlocks() {
-        return new Block[] {
-                ModBlocks.MUSAVACCA_PRESSURE_PLATE.get()
-        };
-    }
-
-    public static Block[] buttonBlocks() {
-        return new Block[] {
-                ModBlocks.MUSAVACCA_BUTTON.get()
         };
     }
 
@@ -118,13 +71,6 @@ public final class ModelSets {
         };
     }
 
-
-    public static Map<Block, PanePortalBlockTinted15.Entry> panePortalBlockTinted15Models() {
-        return Map.of(
-                ModBlocks.PEARL_PORTAL.get(),
-                PanePortalBlockTinted15.Entry.auto("pearl_portal")
-        );
-    }
 
     public static ItemLike[] flatItems() {
         return new ItemLike[] {

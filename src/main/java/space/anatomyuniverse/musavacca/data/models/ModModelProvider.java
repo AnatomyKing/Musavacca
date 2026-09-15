@@ -2,15 +2,9 @@ package space.anatomyuniverse.musavacca.data.models;
 
 import net.minecraft.data.PackOutput;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.data.models.newgen.Newgen;
 import space.anatomyuniverse.musavacca.data.models.block.*;
 import space.anatomyuniverse.musavacca.data.models.item.*;
-import space.anatomyuniverse.musavacca.data.models.newgen.CrossBlockGenerator;
-import space.anatomyuniverse.musavacca.data.models.newgen.DoorBlockGenerator;
-import space.anatomyuniverse.musavacca.data.models.newgen.FireBlockGenerator;
-import space.anatomyuniverse.musavacca.data.models.newgen.SimpleBlockGenerator;
-import space.anatomyuniverse.musavacca.data.models.newgen.TallCrossBlockGenerator;
-import space.anatomyuniverse.musavacca.data.models.newgen.TrapdoorBlockGenerator;
-import space.anatomyuniverse.musavacca.data.models.newgen.NewModelSets;
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
@@ -57,29 +51,13 @@ public final class ModModelProvider
             BlockModelGenerators blocks, ItemModelGenerators items
             //?}
     ) {
-        SimpleBlockGenerator.generate(blocks, items, NewModelSets.simpleBlocks());
-        CrossBlockGenerator.generate(blocks, items, NewModelSets.crossBlocks());
-        TallCrossBlockGenerator.generate(blocks, items, NewModelSets.tallCrossBlocks());
-        FireBlockGenerator.generate(blocks, items, NewModelSets.fireBlocks());
-        DoorBlockGenerator.generate(blocks, items, NewModelSets.doorBlocks());
-        TrapdoorBlockGenerator.generate(blocks, items, NewModelSets.trapdoorBlocks());
+        Newgen.generate(blocks, items);
 
-        Stairs.generate(blocks, ModelSets.stairsBlocks());
-        Slabs.generate(blocks, ModelSets.slabBlocks());
-        Fences.generate(blocks, ModelSets.fenceBlocks());
-        FenceGates.generate(blocks, ModelSets.fenceGateBlocks());
         Doors.generate(blocks, ModelSets.doorBlocks());
-
-
         Trapdoors.generate(blocks, ModelSets.trapdoorBlocks());
-        PressurePlates.generate(blocks, ModelSets.pressurePlateBlocks());
-        Buttons.generate(blocks, ModelSets.buttonBlocks());
         CubeCrafterLike.generate(blocks, ModelSets.cubeCrafterLikeBlocks());
 
         CubeOwn.generate(blocks, ModelSets.cubeOwnModels());
-        PanePortalBlockTinted15.generate(blocks, ModelSets.panePortalBlockTinted15Models());
-        DecorationModelBlocks.generate(blocks, ModelSets.decorationBlockModels());
-        CubePearlCandles.generate(blocks, ModelSets.pearlCandleBlocks());
 
 
         FlatItems.generateHexTinted(items, ModelSets.hexTintedFlatItems());
