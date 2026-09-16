@@ -2,16 +2,18 @@ package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
+import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
+
+import java.util.List;
 
 //? if <1.21.4 {
 /*import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.data.models.NewModelSets;
-import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
 *///?}
 
 //? if <1.21.2 {
@@ -28,54 +30,57 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 //?}
 
-/**
- * Minimal dynamic color source for the inventory/smithing trim overlay.
- *
- * <p>There is no material list here. The actual ArmorTrim component supplies
- * the material. Its normal display color tints the fixed slot mask. If a
- * third-party material has no display color, white is a safe fallback.</p>
- *
- * <p>This class affects item icons only. Worn trims are rendered separately by
- * Minecraft/NeoForge from the real registry-backed ArmorTrim.</p>
- */
 public final class ArmorTrimItemTintSource
         //? if <1.21.4 {
         /*{
-         *///?} else {
+        *///?} else {
         implements ItemTintSource {
-    //?}
+        //?}
+
+    private static final ResourceLocation TINT_ID =
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color");
 
     //? if <1.21.4 {
-    /*public static final ResourceLocation HAS_TRIM_PROPERTY =
-            ResourceLocation.fromNamespaceAndPath(
-                    MusaCore.MOD_ID,
-                    "has_armor_trim"
-            );
+    /*private static final ResourceLocation HAS_TRIM_PROPERTY =
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "has_armor_trim");
     *///?}
 
     public static final ArmorTrimItemTintSource INSTANCE =
             new ArmorTrimItemTintSource();
 
-    private static final int DEFAULT_COLOR = 0xFFFFFFFF;
-
     //? if >=1.21.4 {
     public static final MapCodec<ArmorTrimItemTintSource> MAP_CODEC =
             MapCodec.unit(INSTANCE);
+
+    private static final Tints.ItemTintType TINT_TYPE =
+            new Tints.ItemTintType(TINT_ID, MAP_CODEC);
     //?}
 
     private ArmorTrimItemTintSource() {}
 
+    public static int color(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return Tints.NO_TINT;
+        }
+
+        ArmorTrim trim = stack.get(DataComponents.TRIM);
+        if (trim == null) {
+            return Tints.NO_TINT;
+        }
+
+        TextColor color = trim.material().value().description().getStyle().getColor();
+        return color == null
+                ? Tints.NO_TINT
+                : 0xFF000000 | (color.getValue() & 0xFFFFFF);
+    }
+
     //? if <1.21.4 {
-     
     /*public static void registerLegacyItemProperties(
-            FMLClientSetupEvent event
+            FMLClientSetupEvent event,
+            List<ArmorItems.Entry> entries
     ) {
         event.enqueueWork(() -> {
-            for (ArmorItems.Entry entry : NewModelSets.armorItems()) {
-                if (entry == null) {
-                    continue;
-                }
-
+            for (ArmorItems.Entry entry : entries) {
                 registerLegacyTrimProperty(entry.helmet());
                 registerLegacyTrimProperty(entry.chestplate());
                 registerLegacyTrimProperty(entry.leggings());
@@ -84,42 +89,30 @@ public final class ArmorTrimItemTintSource
         });
     }
 
-    private static void registerLegacyTrimProperty(ItemLike itemLike) {
-        if (itemLike == null) {
+    private static void registerLegacyTrimProperty(ItemLike item) {
+        if (item == null) {
             return;
         }
 
         ItemProperties.register(
-                itemLike.asItem(),
+                item.asItem(),
                 HAS_TRIM_PROPERTY,
-                (stack, level, entity, seed) ->
-                        stack.has(DataComponents.TRIM) ? 1.0F : 0.0F
+                (stack, level, entity, seed) -> stack.has(DataComponents.TRIM) ? 1.0F : 0.0F
         );
     }
-    *///?}
 
-    public static int color(ItemStack stack) {
-        if (stack == null || stack.isEmpty()) {
-            return DEFAULT_COLOR;
-        }
-
-        ArmorTrim trim = stack.get(DataComponents.TRIM);
-        if (trim == null) {
-            return DEFAULT_COLOR;
-        }
-
-        TextColor color = trim.material()
-                .value()
-                .description()
-                .getStyle()
-                .getColor();
-
-        return color == null
-                ? DEFAULT_COLOR
-                : TintColorUtil.opaqueRgb(color.getValue());
+    public static ResourceLocation legacyTrimPropertyId() {
+        return HAS_TRIM_PROPERTY;
+    }
+    *///?} else {
+    public static ItemTintSource itemTintSource() {
+        return INSTANCE;
     }
 
-    //? if >=1.21.4 {
+    public static Tints.ItemTintType itemTintType() {
+        return TINT_TYPE;
+    }
+
     @Override
     public int calculate(
             ItemStack stack,
@@ -135,5 +128,3 @@ public final class ArmorTrimItemTintSource
     }
     //?}
 }
-
-

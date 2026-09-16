@@ -133,7 +133,7 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
                 try {
                     return normalizedBase.relativize(normalizedPath).toString();
                 } catch (IllegalArgumentException ignored) {
-                    // Different roots/drives. Fall through to absolute path fallback.
+                    
                 }
             }
         }
@@ -361,5 +361,4 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
         *///?}
     }
 }
-
 

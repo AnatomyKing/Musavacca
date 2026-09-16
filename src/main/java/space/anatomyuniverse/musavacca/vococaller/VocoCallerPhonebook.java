@@ -25,16 +25,6 @@ public record VocoCallerPhonebook(List<Integer> recent, List<Integer> saved) {
                             .forGetter(VocoCallerPhonebook::saved)
             ).apply(instance, VocoCallerPhonebook::new));
 
-    /*
-     * Compact ItemStack network codec.
-     *
-     * 0            = empty row
-     * 1..0x1000000 = hex address + 1
-     *
-     * Empty rows therefore cost one byte and normal addresses use only the
-     * VarInt bytes they actually need. This is used when Minecraft syncs a
-     * SIM ItemStack (including a SIM nested inside the Banana Phone bundle).
-     */
     public static final StreamCodec<ByteBuf, VocoCallerPhonebook> STREAM_CODEC =
             new StreamCodec<>() {
                 @Override
@@ -153,5 +143,4 @@ public record VocoCallerPhonebook(List<Integer> recent, List<Integer> saved) {
                 : value & 0xFFFFFF;
     }
 }
-
 

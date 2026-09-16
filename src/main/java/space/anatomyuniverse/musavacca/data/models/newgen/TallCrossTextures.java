@@ -61,3 +61,4 @@ public final class TallCrossTextures {
         return new Builder(block);
     }
 }
+

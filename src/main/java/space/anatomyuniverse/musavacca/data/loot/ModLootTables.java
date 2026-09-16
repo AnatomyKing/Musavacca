@@ -13,10 +13,6 @@ public final class ModLootTables {
             "entities/banana_cow"
     );
 
-    /*
-     * Vanilla loot tables targeted by Global Loot Modifiers.
-     */
-
     public static final ResourceKey<LootTable> VANILLA_SNIFFER_DIGGING = create(
             "minecraft",
             "gameplay/sniffer_digging"
@@ -26,10 +22,6 @@ public final class ModLootTables {
             "minecraft",
             "chests/jungle_temple"
     );
-
-    /*
-     * Musavacca injection loot tables.
-     */
 
     public static final ResourceKey<LootTable> SNIFFER_DIGGING_MUSAVACCA_PUP = create(
             MusaCore.MOD_ID,

@@ -61,12 +61,6 @@ public final class VocoTeleportLogic {
             return;
         }
 
-        /*
-         * Directory lookup normally performs the teleport. If the owner lookup
-         * is unavailable for any reason, the local fallback must still honor
-         * the exact same endpoint target instead of silently falling back to a
-         * default position with a possibly custom angle.
-         */
         EndpointTarget endpointTarget =
                 getEndpointTarget(
                         level,
@@ -144,13 +138,7 @@ public final class VocoTeleportLogic {
                 );
 
         if (!active) {
-            /*
-             * Voco no longer owns promotion logic.
-             *
-             * It releases its claim into the shared address network,
-             * which decides whether the hex is actually free and which
-             * queued claim, if any, should wake next.
-             */
+
             HexTeleportAddressNetwork
                     .releaseOwner(
                             server,
@@ -198,11 +186,6 @@ public final class VocoTeleportLogic {
                         actualReceptor.id()
                 );
 
-        /*
-         * registerOrQueueVocoEndpoint can move an already-active Voco
-         * owner from one hex to another. If that happened, the old
-         * address may now be available to another waiting claim.
-         */
         HexTeleportDirectory.Endpoint removed =
                 registration.removedActiveEndpoint();
 
@@ -229,13 +212,6 @@ public final class VocoTeleportLogic {
                 : SyncResult.INACTIVE;
     }
 
-    /*
-     * Kept as a Voco-facing convenience method because existing Voco
-     * callers may naturally think in Endpoint objects.
-     *
-     * The actual removal/promotion policy now lives entirely in the
-     * shared HexTeleportAddressNetwork.
-     */
     public static void removeEndpointAndPromote(
             MinecraftServer server,
             HexTeleportDirectory.Endpoint endpoint
@@ -254,11 +230,6 @@ public final class VocoTeleportLogic {
                 );
     }
 
-    /*
-     * Same idea for Voco owner-based block entities.
-     *
-     * Door and Pearl Portal code never call this method.
-     */
     public static void removeOwnerAndPromote(
             ServerLevel level,
             BlockPos pos,
@@ -384,11 +355,7 @@ public final class VocoTeleportLogic {
             BlockPos pos,
             ReceptorPosition receptor
     ) {
-        /*
-         * The detached camera uses a fake player entity. Returning the same
-         * feet position as the normal safe receptor arrival means the camera
-         * automatically sits at normal player eye height while previewing.
-         */
+
         return getDefaultTeleportPosition(pos, receptor);
     }
 
@@ -487,5 +454,4 @@ public final class VocoTeleportLogic {
             boolean custom
     ) {}
 }
-
 

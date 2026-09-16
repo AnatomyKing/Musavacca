@@ -16,6 +16,7 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.basuke.particle.VocoTableParticles;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoTableCrafting {
     private VocoTableCrafting() {}
@@ -67,10 +68,6 @@ public final class VocoTableCrafting {
             return null;
         }
 
-        /*
-         * Matching candles only determine whether a HEX_COLOR recipe
-         * can be selected. They are not consumed by normal crafting.
-         */
         Integer matchingCandleColor =
                 matchingFourCandleColor(tableBe);
 
@@ -85,10 +82,6 @@ public final class VocoTableCrafting {
             return null;
         }
 
-        /*
-         * Additional safety check in case the selected recipe requires
-         * HEX_COLOR but the candle arrangement is no longer valid.
-         */
         if (
                 recipe.hexColorInject()
                         && matchingCandleColor == null
@@ -274,7 +267,7 @@ public final class VocoTableCrafting {
 
             if (
                     cornerColor
-                            == VocoTableBlockEntity.UNSET_HEX_COLOR
+                            == MusavaccaTints.NO_TINT
             ) {
                 return null;
             }

@@ -100,3 +100,4 @@ public final class FenceGateModels {
         return ResourceLocation.parse(model);
     }
 }
+

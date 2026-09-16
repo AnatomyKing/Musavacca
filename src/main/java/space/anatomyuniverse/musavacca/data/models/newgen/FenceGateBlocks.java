@@ -80,7 +80,6 @@ public final class FenceGateBlocks {
                 }
             }
 
-
             validatePartConditions();
 
         }
@@ -103,7 +102,6 @@ public final class FenceGateBlocks {
                 baseModels = Objects.requireNonNull(models, "models");
                 return this;
             }
-
 
             public Builder texture() {
                 requireGeneratedTextures();
@@ -131,3 +129,4 @@ public final class FenceGateBlocks {
         }
     }
 }
+

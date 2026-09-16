@@ -17,6 +17,7 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.item.ModItems;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class BasukeSummon {
 
@@ -115,7 +116,7 @@ public final class BasukeSummon {
             if (
                     !tableBe.isCandleLit(receptor)
                             || tableBe.getCornerHexColor(receptor)
-                            != VocoTableBlockEntity.UNSET_HEX_COLOR
+                            != MusavaccaTints.NO_TINT
             ) {
                 return false;
             }
@@ -159,7 +160,7 @@ public final class BasukeSummon {
                     pos,
                     receptor,
                     false,
-                    VocoReceptorLogic.UNSET_HEX_COLOR
+                    MusavaccaTints.NO_TINT
             );
         }
 
@@ -214,6 +215,4 @@ public final class BasukeSummon {
         level.addFreshEntity(lightning);
     }
 }
-
-
 

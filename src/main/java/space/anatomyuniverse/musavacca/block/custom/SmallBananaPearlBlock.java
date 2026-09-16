@@ -182,7 +182,6 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
         return true;
     }
 
-
     private static VoxelShape shapeForAmount(int amount) {
         if (amount >= MAX_SMALL_PEARL_AMOUNT) return SHAPE_FULL;
 

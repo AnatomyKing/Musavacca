@@ -40,7 +40,6 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-
 public class MusavaccaLeaves
         //? if <1.21.5 {
         /*extends LeavesBlock
@@ -111,7 +110,6 @@ public class MusavaccaLeaves
     }
     //?}
 
-
     @Override
             //? if <1.21.2 {
     /*protected ItemInteractionResult useItemOn(
@@ -146,7 +144,6 @@ public class MusavaccaLeaves
 
             SoundType soundType = state.getSoundType(level, pos, player);
 
-            // Shearing sound
             level.playSound(
                     null,
                     pos,
@@ -156,7 +153,6 @@ public class MusavaccaLeaves
                     1.0F
             );
 
-            // Natural leaf/block break sound
             level.playSound(
                     null,
                     pos,
@@ -169,10 +165,6 @@ public class MusavaccaLeaves
 
         return successResult();
     }
-
-    // -----------------------------
-    // BonemealableBlock
-    // -----------------------------
 
     @Override
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
@@ -197,6 +189,4 @@ public class MusavaccaLeaves
         return Type.GROWER;
     }
 }
-
-
 

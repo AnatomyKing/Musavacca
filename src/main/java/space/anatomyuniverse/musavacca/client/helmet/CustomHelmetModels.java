@@ -24,14 +24,6 @@ import java.util.HashSet;
 import java.util.Set;
 *///?}
 
-/**
- * Single client-side index for every NewGen armor set that declares
- * a custom worn helmet model in {@link NewModelSets#armorItems()}.
- *
- * <p>The item -> model-id mapping is built once and reused on the render hot
- * path. Pre-1.21.4 deliberately does not cache BakedModel instances so model
- * resource reloads remain owned by Minecraft's ModelManager.</p>
- */
 public final class CustomHelmetModels {
     private CustomHelmetModels() {
     }
@@ -48,13 +40,6 @@ public final class CustomHelmetModels {
         return Index.HEAD_MODELS.get(stack.getItem());
     }
 
-    /**
-     * Render through Minecraft's own item renderer in HEAD context.
-     *
-     * <p>Before 1.21.4 we explicitly provide the standalone baked model.
-     * 1.21.4+ resolves the existing client-item display-context definition,
-     * which already selects the custom helmet model for HEAD.</p>
-     */
     public static void render(
             ItemStack stack,
             PoseStack poseStack,
@@ -149,3 +134,4 @@ public final class CustomHelmetModels {
         }
     }
 }
+

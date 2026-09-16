@@ -43,3 +43,4 @@ public final class CrossTextures {
         return new Builder(block);
     }
 }
+

@@ -109,10 +109,6 @@ public final class PearlPortalNetwork {
                 )
         );
 
-        /*
-         * Only the logical origin writes the persistent directory entry.
-         * Other portal tiles only participate in the loaded cache.
-         */
         if (
                 portalBlockEntity.isOriginBlock()
         ) {
@@ -220,16 +216,6 @@ public final class PearlPortalNetwork {
                 portalId
         );
 
-        /*
-         * Pearl Portal code no longer knows anything about Voco
-         * promotion. It simply releases its persistent address claim.
-         *
-         * The shared address network then decides whether:
-         *
-         * - another Pearl Portal still reserves the hex,
-         * - a door still reserves it,
-         * - or the address became free and a queued claim can wake.
-         */
         HexTeleportAddressNetwork
                 .releaseEndpoint(
                         level.getServer(),
@@ -321,5 +307,4 @@ public final class PearlPortalNetwork {
         );
     }
 }
-
 

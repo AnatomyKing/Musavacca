@@ -65,4 +65,3 @@ public final class BalanceData implements ValueIOSerializable {
     }
 }
 
-

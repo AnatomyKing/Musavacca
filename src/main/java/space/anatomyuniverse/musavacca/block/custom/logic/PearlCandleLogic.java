@@ -19,7 +19,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class PearlCandleLogic {
     private PearlCandleLogic() {}
@@ -99,7 +99,7 @@ public final class PearlCandleLogic {
 
         int hexColor = level.getBlockEntity(pos) instanceof PearlCandleBlockEntity pearlCandleBe
                 ? pearlCandleBe.getHexColorOrFallback()
-                : FlintAndPearlItem.DEFAULT_HEX_COLOR;
+                : MusavaccaTints.DEFAULT_TINT;
 
         for (Vec3 offset : block.pearlParticleOffsets(state)) {
             CandleParticleEffects.spawnPearlVanillaStyle(

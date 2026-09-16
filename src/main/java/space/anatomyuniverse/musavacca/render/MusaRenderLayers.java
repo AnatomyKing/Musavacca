@@ -8,12 +8,6 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 
 import java.util.*;
 
-// ============================================================================
-// Version-specific imports
-// ============================================================================
-
-// 1.21.1 - 1.21.5 still use RenderType for chunk/model render layers.
-// 1.21.6+ replaced this with ChunkSectionLayer.
 //? if <1.21.6
 //import net.minecraft.client.renderer.RenderType;
 
@@ -46,7 +40,6 @@ import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 //? if >=1.21.6
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 //?}
-// ============================================================================
 
 public final class MusaRenderLayers {
 
@@ -68,7 +61,7 @@ public final class MusaRenderLayers {
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(
             ModBlocks.PEARL_PORTAL.get()
-            // ModBlocks.VOCO_RECEPTOR.get()
+            
     );
 
     private static final Set<Block> NO_AO_BLOCKS = Sets.newHashSet(
@@ -89,10 +82,6 @@ public final class MusaRenderLayers {
         onModifyBakingResultNewPipeline(event);
         //?}
     }
-
-    // =========================================================================
-    // 1.21.1 - 1.21.4: old BakedModel pipeline
-    // =========================================================================
 
     //? if <1.21.5 {
     /*private static void onModifyBakingResultOldPipeline(ModelEvent.ModifyBakingResult event) {
@@ -294,10 +283,6 @@ public final class MusaRenderLayers {
     }
     //?}
     *///?}
-
-    // =========================================================================
-    // 1.21.5+: new BlockStateModel pipeline
-    // =========================================================================
 
     //? if >=1.21.5 {
     private static void onModifyBakingResultNewPipeline(ModelEvent.ModifyBakingResult event) {

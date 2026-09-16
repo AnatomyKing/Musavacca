@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
@@ -23,51 +22,40 @@ import net.minecraft.world.level.storage.ValueOutput;
 //?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
-import java.util.concurrent.ThreadLocalRandom;
-
-public class HexBlockEntity extends BlockEntity {
-
-    public static final String TAG_HEX_COLOR = "hex_color";
-    public static final int UNSET_HEX_COLOR = -1;
-
-    private int hexColor = UNSET_HEX_COLOR;
+public class HexBlockEntity extends BlockEntity implements HexSource {
+    private int hexColor = MusavaccaTints.NO_TINT;
 
     public HexBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.HEX_BLOCK_ENTITY.get(), pos, state);
     }
 
+    @Override
     public int getHexColor() {
         return this.hexColor;
     }
 
-    public boolean hasHexColor() {
-        return this.hexColor != UNSET_HEX_COLOR;
-    }
-
     public void setHexColor(int hexColor) {
-        int normalized = normalizeHex(hexColor);
-        if (this.hexColor == normalized) {
+        int resolved = MusavaccaTints.resolve(hexColor);
+        if (this.hexColor == resolved) {
             return;
         }
 
-        this.hexColor = normalized;
+        this.hexColor = resolved;
         this.setChanged();
         this.syncToClientAndRerender();
     }
 
+    public void clearHexColor() {
+        this.setHexColor(MusavaccaTints.NO_TINT);
+    }
+
     public void ensureRandomHexColor() {
         if (!this.hasHexColor()) {
-            this.setHexColor(createRandomHexColor());
+            this.setHexColor(MusavaccaTints.RANDOM_TINT);
         }
-    }
-
-    public static int createRandomHexColor() {
-        return ThreadLocalRandom.current().nextInt(0x1000000);
-    }
-
-    private static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
     }
 
     private static int readIntOr(CompoundTag tag, String key, int fallback) {
@@ -116,9 +104,9 @@ public class HexBlockEntity extends BlockEntity {
     /*@Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-
-        int loaded = readIntOr(tag, TAG_HEX_COLOR, UNSET_HEX_COLOR);
-        this.hexColor = loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        this.hexColor = MusavaccaTints.stored(
+                readIntOr(tag, MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT)
+        );
     }
 
     @Override
@@ -126,16 +114,16 @@ public class HexBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
 
         if (this.hasHexColor()) {
-            tag.putInt(TAG_HEX_COLOR, this.hexColor);
+            tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
         }
     }
     *///?} else {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-
-        int loaded = input.getIntOr(TAG_HEX_COLOR, UNSET_HEX_COLOR);
-        this.hexColor = loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        this.hexColor = MusavaccaTints.stored(
+                input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT)
+        );
     }
 
     @Override
@@ -143,7 +131,7 @@ public class HexBlockEntity extends BlockEntity {
         super.saveAdditional(output);
 
         if (this.hasHexColor()) {
-            output.putInt(TAG_HEX_COLOR, this.hexColor);
+            output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
         }
     }
     //?}
@@ -155,7 +143,7 @@ public class HexBlockEntity extends BlockEntity {
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex != null) {
-            this.hexColor = normalizeHex(savedHex);
+            this.hexColor = MusavaccaTints.stored(savedHex);
         }
     }
     *///?} else {
@@ -165,7 +153,7 @@ public class HexBlockEntity extends BlockEntity {
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex != null) {
-            this.hexColor = normalizeHex(savedHex);
+            this.hexColor = MusavaccaTints.stored(savedHex);
         }
     }
     //?}
@@ -215,4 +203,3 @@ public class HexBlockEntity extends BlockEntity {
     }
     //?}
 }
-

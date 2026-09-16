@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 import java.util.UUID;
 
@@ -45,7 +46,7 @@ public final class PearlPortalCreator {
             return false;
         }
 
-        int normalizedHex = normalizeHex(hexColor);
+        int normalizedHex = MusavaccaTints.rgb(hexColor);
         PearlPortalFrame.Shape detectedShape = optionalShape.get();
 
         Direction frontDirection = determineFrontDirection(detectedShape, ignitionFace, player);
@@ -231,12 +232,8 @@ public final class PearlPortalCreator {
         }
     }
 
-    private static int normalizeHex(int color) {
-        return color & 0xFFFFFF;
-    }
-
     private static String toHex(int color) {
-        return String.format("%06X", normalizeHex(color));
+        return String.format("%06X", MusavaccaTints.rgb(color));
     }
 }
 

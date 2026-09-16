@@ -407,5 +407,3 @@ public final class VocoDialerControl {
     }
 }
 
-
-

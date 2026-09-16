@@ -158,7 +158,6 @@ public final class MusavaccaTrapdoorTeleportResolver {
             return Optional.empty();
         }
 
-
         if (
                 !isOpenPortalTrapdoor(
                         targetState
@@ -268,5 +267,4 @@ public final class MusavaccaTrapdoorTeleportResolver {
         );
     }
 }
-
 

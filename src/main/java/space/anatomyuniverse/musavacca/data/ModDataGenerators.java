@@ -196,3 +196,4 @@ public final class ModDataGenerators {
 
     private ModDataGenerators() {}
 }
+

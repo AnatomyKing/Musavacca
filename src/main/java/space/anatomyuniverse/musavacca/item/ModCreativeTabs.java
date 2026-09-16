@@ -21,7 +21,6 @@ public final class ModCreativeTabs {
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MusaCore.MOD_ID);
 
-    // Optional: skip specific registry paths from showing up in the tab
     private static final Set<String> BLACKLIST = Set.of(
             "open_invo_test_item",
             "open_teleport_test_item",
@@ -54,5 +53,4 @@ public final class ModCreativeTabs {
 
     private ModCreativeTabs() {}
 }
-
 

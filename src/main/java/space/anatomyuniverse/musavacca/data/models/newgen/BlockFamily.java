@@ -135,7 +135,6 @@ final class BlockFamily {
         public final SELF rotations(Rotations.Spec rotations) { this.rotations = Objects.requireNonNull(rotations, "rotations"); return self(); }
         public final SELF tint(Tints.Tint tint) { this.tint = Objects.requireNonNull(tint, "tint"); return self(); }
 
-        /** Default block-family item model resolved by Newgen. */
         public final SELF item() {
             requireItem();
             itemMode = FamilyItemMode.DEFAULT;
@@ -143,12 +142,10 @@ final class BlockFamily {
             return self();
         }
 
-        /** Existing authored item model shorthand. */
         public final SELF item(String modelId) {
             return item(SimpleItems.Model.existing(modelId));
         }
 
-        /** Full cross-compatible SimpleItems model declaration. */
         public final SELF item(SimpleItems.Model model) {
             requireItem();
             itemMode = FamilyItemMode.CUSTOM;
@@ -287,3 +284,4 @@ final class BlockFamily {
         }
     }
 }
+

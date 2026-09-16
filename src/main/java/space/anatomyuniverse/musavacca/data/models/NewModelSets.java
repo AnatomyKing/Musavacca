@@ -5,10 +5,10 @@ import net.minecraft.world.level.block.SnowyDirtBlock;
 
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.*;
-import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.data.models.newgen.*;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 import java.util.List;
 
@@ -17,7 +17,6 @@ public final class NewModelSets {
 
     public static List<SimpleBlocks.Entry> simpleBlocks() {
         return List.of(
-                // Simple cubes
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_BLOCK.get())
                         .generated()
                         .textures(textures -> textures.all())
@@ -33,7 +32,6 @@ public final class NewModelSets {
                         .textures(textures -> textures.all())
                         .build(),
 
-                // Carotene grass: normal has four random Y variants, snowy is fixed
                 SimpleBlocks.Entry.builder(ModBlocks.CAROTENE_GRASS.get())
                         .models(
                                 SimpleBlocks.Model.when(
@@ -62,7 +60,6 @@ public final class NewModelSets {
                         .item("musavacca:block/carotene_grass")
                         .build(),
 
-                // Six-way facing
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_CHAPITER.get())
                         .generated()
                         .textures(textures -> textures
@@ -72,7 +69,6 @@ public final class NewModelSets {
                         .rotations(Rotations.shulkerBox())
                         .build(),
 
-                // Axis / log blocks
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_PILLAR.get())
                         .generated()
                         .textures(textures -> textures
@@ -129,7 +125,6 @@ public final class NewModelSets {
                         .rotations(Rotations.log())
                         .build(),
 
-                // Existing crop models
                 SimpleBlocks.Entry.builder(ModBlocks.MUSAVACCA_SPROUT.get())
                         .model("musavacca:block/musavacca_sprout")
                         .tint(Tints.foliage())
@@ -154,7 +149,6 @@ public final class NewModelSets {
                         .noItem()
                         .build(),
 
-                // Leaves
                 SimpleBlocks.Entry.builder(ModBlocks.MUSAVACCA_LEAVES.get())
                         .models(
                                 SimpleBlocks.Model.when(
@@ -174,8 +168,6 @@ public final class NewModelSets {
                         .tint(Tints.foliage())
                         .build(),
 
-
-                // Small Banana Pearl amount models
                 SimpleBlocks.Entry.builder(ModBlocks.SMALL_BANANA_PEARL_BLOCK.get())
                         .models(
                                 SimpleBlocks.Model.when(
@@ -503,7 +495,6 @@ public final class NewModelSets {
                         .item("musavacca:block/small_banana_pearl_block")
                         .build(),
 
-                // Existing state-selected models
                 SimpleBlocks.Entry.builder(ModBlocks.HEX_BLOCK.get())
                         .models(
                                 SimpleBlocks.Model.when(
@@ -515,15 +506,14 @@ public final class NewModelSets {
                                         Conditions.when(HexBlock.CLIPPED, true)
                                 )
                         )
-                        .tint(Tints.hexColor())
+                        .tint(MusavaccaTints.hexColor())
                         .build(),
 
                 SimpleBlocks.Entry.builder(ModBlocks.HARD_HEX_BLOCK.get())
                         .model("musavacca:block/hex_block")
-                        .tint(Tints.constant(HardHexBlockEntity.HARD_HEX_COLOR))
+                        .tint(Tints.constant(MusavaccaTints.DEFAULT_TINT))
                         .build(),
 
-                // Musavacca egg states
                 SimpleBlocks.Entry.builder(ModBlocks.MUSAVACCA_EGG.get())
                         .models(
                                 SimpleBlocks.Model.when(
@@ -560,7 +550,6 @@ public final class NewModelSets {
                         .noItem()
                         .build(),
 
-                // Multipart blocks
                 SimpleBlocks.Entry.builder(ModBlocks.VOCO_POST.get())
                         .multipart(
                                 SimpleBlocks.Part.always("musavacca:block/voco_post"),
@@ -571,12 +560,11 @@ public final class NewModelSets {
                                 SimpleBlocks.Part.when(
                                         "musavacca:block/voco_post_portal",
                                         Conditions.when(VocoPostBlock.PORTAL, true)
-                                ).tint(Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK))
+                                ).tint(MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK))
                         )
                         .rotations(Rotations.furnace())
                         .build(),
 
-                // Pearl candles
                 SimpleBlocks.Entry.builder(ModBlocks.PEARL_CANDLE.get())
                         .models(
                                 SimpleBlocks.Model.when("minecraft:block/candle_one_candle", Conditions.when(CandleBlock.CANDLES, 1).and(CandleBlock.LIT, false)),
@@ -844,22 +832,22 @@ public final class NewModelSets {
                                 SimpleBlocks.Part.when(
                                         "musavacca:block/voco_table_portal_north_east",
                                         Conditions.when(VocoTableBlock.PORTAL_NORTH_EAST, true)
-                                ).tint(Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK)),
+                                ).tint(MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(0)),
 
                                 SimpleBlocks.Part.when(
                                         "musavacca:block/voco_table_portal_south_east",
                                         Conditions.when(VocoTableBlock.PORTAL_SOUTH_EAST, true)
-                                ).tint(Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).offset(100)),
+                                ).tint(MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(1)),
 
                                 SimpleBlocks.Part.when(
                                         "musavacca:block/voco_table_portal_south_west",
                                         Conditions.when(VocoTableBlock.PORTAL_SOUTH_WEST, true)
-                                ).tint(Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).offset(200)),
+                                ).tint(MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(2)),
 
                                 SimpleBlocks.Part.when(
                                         "musavacca:block/voco_table_portal_north_west",
                                         Conditions.when(VocoTableBlock.PORTAL_NORTH_WEST, true)
-                                ).tint(Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).offset(300))
+                                ).tint(MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(3))
                         )
                         .build()
         );
@@ -924,7 +912,7 @@ public final class NewModelSets {
                                         Conditions.when(MusavaccaPortalDoorBlock.LIT_PORTAL, true)
                                                 .and(MusavaccaPortalDoorBlock.PORTAL, false)
                                 ).tint(
-                                        Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK)
+                                        MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK)
                                 ),
 
                                 DoorBlocks.Part.when(
@@ -950,7 +938,7 @@ public final class NewModelSets {
                                                 .build(),
                                         Conditions.when(MusavaccaPortalDoorBlock.PORTAL, true)
                                 ).tint(
-                                        Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK)
+                                        MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK)
                                 )
                         )
                         .items(
@@ -976,13 +964,12 @@ public final class NewModelSets {
                                                 "musavacca:item/musavacca_door",
                                                 "musavacca:item/musavacca_door_portal"
                                         )
-                                        .layerTint(1, Tints.hexColor())
+                                        .layerTint(1, MusavaccaTints.hexColor())
                                         .build()
                         )
                         .build()
         );
     }
-
 
     public static List<TrapdoorBlocks.Entry> trapdoorBlocks() {
         TrapdoorModels litKnob = TrapdoorModels.full(
@@ -1016,7 +1003,7 @@ public final class NewModelSets {
                                         Conditions.when(MusavaccaPortalTrapdoorBlock.LIT_PORTAL, true)
                                                 .and(MusavaccaPortalTrapdoorBlock.PORTAL, false)
                                 ).tint(
-                                        Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK)
+                                        MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK)
                                 ),
 
                                 TrapdoorBlocks.Part.when(
@@ -1027,7 +1014,7 @@ public final class NewModelSets {
                                         ),
                                         Conditions.when(MusavaccaPortalTrapdoorBlock.PORTAL, true)
                                 ).tint(
-                                        Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK)
+                                        MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK)
                                 )
                         )
                         .item()
@@ -1044,8 +1031,6 @@ public final class NewModelSets {
                         .build()
         );
     }
-
-
 
     public static List<SlabBlocks.Entry> slabBlocks() {
         return List.of(
@@ -1106,7 +1091,7 @@ public final class NewModelSets {
                 PortalBlocks.Entry.builder(ModBlocks.PEARL_PORTAL.get())
                         .generated()
                         .texture()
-                        .tint(Tints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK))
+                        .tint(MusavaccaTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK))
                         .noItem()
                         .build()
         );
@@ -1117,7 +1102,7 @@ public final class NewModelSets {
                 FireBlocks.Entry.builder(ModBlocks.PEARL_FIRE.get())
                         .generated()
                         .texture()
-                        .tint(Tints.pearlFire(PearlFireTintProfiles.FIRE_BLOCK))
+                        .tint(MusavaccaTints.pearlFire(PearlFireTintProfiles.FIRE_BLOCK))
                         .noItem()
                         .build()
         );
@@ -1147,7 +1132,6 @@ public final class NewModelSets {
 
     public static List<SimpleItems.Entry> simpleItems() {
         return List.of(
-                // Flat generated items
                 SimpleItems.Entry.builder(ModItems.BANANA_PEARL.get())
                         .generated()
                         .flat()
@@ -1250,7 +1234,6 @@ public final class NewModelSets {
                         .texture()
                         .build(),
 
-                // Handheld generated items
                 SimpleItems.Entry.builder(ModItems.POTASSIUM_AXE.get())
                         .generated()
                         .handheld()
@@ -1281,7 +1264,6 @@ public final class NewModelSets {
                         .texture()
                         .build(),
 
-                // Existing authored item models
                 SimpleItems.Entry.builder(ModItems.BANANA_PHONE.get())
                         .model("musavacca:item/banana_phone")
                         .build(),
@@ -1290,7 +1272,6 @@ public final class NewModelSets {
                         .model("musavacca:item/banana_phone_off")
                         .build(),
 
-                // Folder-based generated item + dynamic HEX_COLOR pearlprofile tint
                 SimpleItems.Entry.builder(ModItems.SIM_CARD.get())
                         .generated()
                         .flat()
@@ -1301,7 +1282,7 @@ public final class NewModelSets {
                         )
                         .layerTint(
                                 1,
-                                Tints.pearlFire(
+                                MusavaccaTints.pearlFire(
                                         PearlFireTintProfiles.SIM_CARD_TINT
                                 )
                         )
@@ -1345,3 +1326,4 @@ public final class NewModelSets {
     }
 
 }
+

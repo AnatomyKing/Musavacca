@@ -26,6 +26,8 @@ import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import net.minecraft.world.item.component.CustomData;
 
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -45,9 +47,7 @@ public final class BasukeVocoCalling {
             @NotNull ServerLevel level,
             @NotNull ItemStack simCardStack
     ) {
-        /*
-         * The offered SIM is the physical cost and must still be blank.
-         */
+
         if (
                 !isBlankSimCard(simCardStack)
                         || !basuke.isBoundToVocoTable()
@@ -55,10 +55,6 @@ public final class BasukeVocoCalling {
             return null;
         }
 
-        /*
-         * This UUID was stamped when the player personally handed the
-         * SIM to Basuke. It cannot be inferred from nearby players.
-         */
         UUID givingPlayerUuid =
                 readGivingPlayer(simCardStack);
 
@@ -118,10 +114,6 @@ public final class BasukeVocoCalling {
                         )
                         .orElse(null);
 
-        /*
-         * The selected address must already be an active phone address,
-         * and the player who handed Basuke the SIM must be its owner.
-         */
         if (
                 registration == null
                         || !registration.ownerUuid()
@@ -142,12 +134,7 @@ public final class BasukeVocoCalling {
             @NotNull ItemStack simCardStack,
             @NotNull ActiveCalling expectedCalling
     ) {
-        /*
-         * Revalidate everything after the eating animation.
-         *
-         * This prevents the phone, candles or network ownership from
-         * being changed during those ticks to bypass the ritual rules.
-         */
+
         ActiveCalling activeCalling =
                 findActiveCalling(
                         basuke,
@@ -182,10 +169,6 @@ public final class BasukeVocoCalling {
             return false;
         }
 
-        /*
-         * Copy one offered blank SIM and transform it into a recovered
-         * SIM carrying the already-owned phone address.
-         */
         ItemStack recoveredSim =
                 simCardStack.copyWithCount(1);
 
@@ -196,10 +179,6 @@ public final class BasukeVocoCalling {
                 activeCalling.hexColor()
         );
 
-        /*
-         * Preserve the displayed phone's own components while replacing
-         * its immutable bundle contents with the recovered SIM.
-         */
         ItemStack recoveredPhone =
                 displayedPhone.copyWithCount(1);
 
@@ -218,9 +197,6 @@ public final class BasukeVocoCalling {
                 1
         );
 
-        /*
-         * No receptor-light cost and no candle consumption.
-         */
         simCardStack.shrink(1);
 
         basuke.setItemInHand(
@@ -391,7 +367,7 @@ public final class BasukeVocoCalling {
 
             if (
                     cornerColor
-                            == VocoTableBlockEntity.UNSET_HEX_COLOR
+                            == MusavaccaTints.NO_TINT
             ) {
                 return null;
             }
@@ -452,5 +428,4 @@ public final class BasukeVocoCalling {
         }
     }
 }
-
 

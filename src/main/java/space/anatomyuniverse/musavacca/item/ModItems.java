@@ -47,6 +47,7 @@ import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumHoeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumPickaxeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumShovelItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumSwordItem;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 //? if <1.21.2 {
 /*import java.util.EnumMap;
@@ -397,8 +398,7 @@ public final class ModItems {
                                             ModDataComponents
                                                     .HEX_COLOR
                                                     .get(),
-                                            FlintAndPearlItem
-                                                    .DEFAULT_HEX_COLOR
+                                            MusavaccaTints.DEFAULT_TINT
                                     )
                     )
             );

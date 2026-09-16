@@ -26,11 +26,6 @@ public final class ModParticleTypes {
     public static final DeferredHolder<ParticleType<?>, HexColorParticleType> HEX_SPORE_BLOSSOM_AIR =
             PARTICLE_TYPES.register("hex_spore_blossom_air", () -> new HexColorParticleType(false));
 
-    /*
-     * Real render particles.
-     * These are registered with registerSpriteSet and require JSON files.
-     */
-
     public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_FLAME =
             PARTICLE_TYPES.register("pearl_flame",
                     () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PEARL_FLAME));

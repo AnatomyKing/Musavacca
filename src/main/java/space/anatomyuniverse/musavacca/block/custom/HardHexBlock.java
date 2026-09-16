@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class HardHexBlock extends Block implements EntityBlock {
 
@@ -37,7 +38,7 @@ public class HardHexBlock extends Block implements EntityBlock {
 
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HardHexBlockEntity hardHexBe) {
-            hardHexBe.setHexColor(HardHexBlockEntity.HARD_HEX_COLOR);
+            hardHexBe.setHexColor(MusavaccaTints.DEFAULT_TINT);
         }
     }
 
@@ -56,7 +57,7 @@ public class HardHexBlock extends Block implements EntityBlock {
             if (savedHex != null) {
                 hardHexBe.setHexColor(savedHex);
             } else {
-                hardHexBe.setHexColor(HardHexBlockEntity.HARD_HEX_COLOR);
+                hardHexBe.setHexColor(MusavaccaTints.DEFAULT_TINT);
             }
         }
     }

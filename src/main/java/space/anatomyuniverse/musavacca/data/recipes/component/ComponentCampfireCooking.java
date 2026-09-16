@@ -82,6 +82,3 @@ public final class ComponentCampfireCooking {
     private ComponentCampfireCooking() {}
 }
 
-
-
-

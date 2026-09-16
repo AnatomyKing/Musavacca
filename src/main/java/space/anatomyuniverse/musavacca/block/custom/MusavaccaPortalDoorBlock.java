@@ -347,16 +347,6 @@ public final class MusavaccaPortalDoorBlock
         Vec3 movement =
                 entity.getDeltaMovement();
 
-        /*
-         * Preserve the swept movement test.
-         *
-         * The server-side entrance ticker provides the early
-         * PORTAL_ENTRANCE_NUDGE from both sides of the portal.
-         *
-         * This swept test remains important for fast entities
-         * that can move across the entrance corridor between
-         * two entity-inside checks.
-         */
         AABB sweptEntityBox =
                 entity.getBoundingBox()
                         .expandTowards(
@@ -468,17 +458,6 @@ public final class MusavaccaPortalDoorBlock
             return;
         }
 
-        /*
-         * entityInside() can only participate once Minecraft
-         * is already evaluating the door's block coordinate.
-         *
-         * This small server-side check supplies the missing
-         * part of PORTAL_ENTRANCE_NUDGE that extends into the
-         * neighboring block.
-         *
-         * The exact same entranceTriggerShape() is used here,
-         * so NORTH/SOUTH and EAST/WEST receive the same nudge.
-         */
         for (
                 Entity entity
                 : level.getEntities(
@@ -604,17 +583,6 @@ public final class MusavaccaPortalDoorBlock
                 )
                         * 0.5D;
 
-        /*
-         * PORTAL_ENTRANCE_NUDGE is measured from the CENTER
-         * of the 2px portal panel.
-         *
-         * The shape extends by exactly the same distance
-         * to BOTH sides of that center.
-         *
-         * This is deliberately independent of entity movement
-         * direction. Movement is only used by entityInside()
-         * for the swept fast-crossing test.
-         */
         if (
                 facing.getAxis()
                         == Direction.Axis.X
@@ -1136,5 +1104,4 @@ public final class MusavaccaPortalDoorBlock
                 );
     }
 }
-
 

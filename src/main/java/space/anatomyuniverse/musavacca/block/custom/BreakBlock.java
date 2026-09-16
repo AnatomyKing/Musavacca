@@ -231,7 +231,6 @@ public class BreakBlock extends Block implements BonemealableBlock {
         }
     }
 
-
     @Override
     public Type getType() {
         return Type.GROWER;
@@ -280,5 +279,4 @@ public class BreakBlock extends Block implements BonemealableBlock {
         return true;
     }
 }
-
 

@@ -607,5 +607,3 @@ public class DecorationBlock extends Block {
     }
 }
 
-
-

@@ -7,7 +7,6 @@ import net.minecraft.world.level.block.Block;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-/** Sources by face pair. Missing orientations are permitted for partial overlays. */
 public record PortalModels(Models.Source northSouth, Models.Source eastWest, Models.Source upDown) {
     public PortalModels {
         if (northSouth == null && eastWest == null && upDown == null) {
@@ -47,7 +46,6 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
         return generated(block, ModelLocations.blockModel(block, suffix), textures);
     }
 
-    /** Explicit model stem, including block/; texture inference still uses the supplied block. */
     public static PortalModels generated(Block block, ResourceLocation modelStem, Consumer<PortalTextures.Builder> textures) {
         Objects.requireNonNull(modelStem, "modelStem");
         Objects.requireNonNull(textures, "textures");
@@ -88,3 +86,4 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
         public PortalModels build() { return new PortalModels(northSouth, eastWest, upDown); }
     }
 }
+

@@ -25,6 +25,7 @@ import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoTableCandleLogic {
     private static final int MAX_PEARL_FLAME_PARTICLES_PER_ANIMATE_TICK = 6;
@@ -154,8 +155,8 @@ public final class VocoTableCandleLogic {
             return Sync.INACTIVE;
         }
 
-        int hexColor = tableBe.getPortalHexColorOrUnset(receptor);
-        if (hexColor == VocoReceptorLogic.UNSET_HEX_COLOR) {
+        int hexColor = tableBe.getPortalHexColorOrNoTint(receptor);
+        if (hexColor == MusavaccaTints.NO_TINT) {
             removeEndpoint(level, pos, receptor);
             return Sync.INACTIVE;
         }
@@ -189,7 +190,7 @@ public final class VocoTableCandleLogic {
                     pos,
                     receptor,
                     false,
-                    VocoReceptorLogic.UNSET_HEX_COLOR
+                    MusavaccaTints.NO_TINT
             );
         }
     }

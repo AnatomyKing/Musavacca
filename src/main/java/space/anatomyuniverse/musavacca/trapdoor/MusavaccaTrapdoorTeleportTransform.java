@@ -59,7 +59,6 @@ public final class MusavaccaTrapdoorTeleportTransform {
                                 source.portalCenter()
                         );
 
-
         double maximumOffset =
                 Math.max(
                         0.0D,
@@ -249,7 +248,6 @@ public final class MusavaccaTrapdoorTeleportTransform {
         double sourceHorizontalSpeed =
                 sourceHorizontalMovement.length();
 
-
         double horizontalSpeed =
                 clamp(
                         Math.max(
@@ -411,5 +409,4 @@ public final class MusavaccaTrapdoorTeleportTransform {
         );
     }
 }
-
 

@@ -30,10 +30,11 @@ public final class PearlFireTintSource {
     }
 
     public static int blockTint(int baseRgb, int tintIndex, PearlFireTintProfiles.Profile profile) {
-        if (!supportsLayer(profile, tintIndex)) {
-            return TintColorUtil.NO_TINT;
+        if (!supportsLayer(profile, tintIndex) || !MusavaccaTints.hasTint(baseRgb)) {
+            return MusavaccaTints.NO_TINT;
         }
 
+        baseRgb = MusavaccaTints.resolve(baseRgb);
         float gray = profile.grayFactor(tintIndex);
 
         int layerCount = profile.layerCount();
@@ -58,7 +59,7 @@ public final class PearlFireTintSource {
         );
 
         int desired = desiredLayerRgb(
-                TintColorUtil.rgb(baseRgb),
+                MusavaccaTints.rgb(baseRgb),
                 t,
                 gray,
                 paletteActivation,
@@ -71,7 +72,7 @@ public final class PearlFireTintSource {
                     : unMultiplyGray(desired, gray);
         }
 
-        return TintColorUtil.opaqueRgb(desired);
+        return MusavaccaTints.opaqueRgb(desired);
     }
 
     private static int desiredLayerRgb(
@@ -884,6 +885,4 @@ public final class PearlFireTintSource {
 
     private record Oklch(float l, float c, float h) {}
 }
-
-
 

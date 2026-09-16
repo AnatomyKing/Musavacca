@@ -41,7 +41,7 @@ import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     public static final MapCodec<HexBlock> CODEC = simpleCodec(HexBlock::new);
@@ -302,7 +302,7 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
             return hexBe.getHexColor();
         }
 
-        return TintColorUtil.defaultHexBlockItemTint();
+        return MusavaccaTints.DEFAULT_TINT;
     }
 
     @Override
@@ -353,6 +353,4 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
         return Type.GROWER;
     }
 }
-
-
 

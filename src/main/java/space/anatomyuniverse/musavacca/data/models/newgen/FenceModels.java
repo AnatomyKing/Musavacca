@@ -87,3 +87,4 @@ public final class FenceModels {
         return ResourceLocation.parse(model);
     }
 }
+

@@ -106,7 +106,6 @@ public final class MusaCore {
         ) {
             ModTints.register(modBus);
 
-
             modBus.addListener(
                     VocoCallerTooltipClient::register
             );
@@ -155,9 +154,4 @@ public final class MusaCore {
         );
     }
 }
-
-
-
-
-
 

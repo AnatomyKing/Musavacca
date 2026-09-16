@@ -88,12 +88,6 @@ public final class Rotations {
                             new Case(Direction.WEST, 0, 270)
                     );
 
-            /*
-             * Canonical model points UP.
-             *
-             * This is the same six-direction mapping used by
-             * BananaPearlChapiter.
-             */
             case SHULKER_BOX ->
                     List.of(
                             new Case(Direction.UP, 0, 0), 
@@ -104,9 +98,6 @@ public final class Rotations {
                             new Case(Direction.EAST, 90, 90)
                     );
 
-            /*
-             * Canonical model is NORTH_UP.
-             */
             case CRAFTER ->
                     List.of(
                             new Case(FrontAndTop.DOWN_EAST, 90, 90), 
@@ -126,7 +117,6 @@ public final class Rotations {
                     );
         };
     }
-
 
     public static Spec bricks() {
         return new Spec(Type.BRICKS, null);
@@ -164,3 +154,4 @@ public final class Rotations {
         return new Spec(Type.CRAFTER, property);
     }
 }
+

@@ -4,7 +4,6 @@ import net.minecraft.world.level.ItemLike;
 
 import java.util.Objects;
 
-/** Specialized NewGen sibling for spawn-egg version semantics. */
 public final class SpawnEggItems {
     private SpawnEggItems() {}
 
@@ -101,3 +100,4 @@ public final class SpawnEggItems {
         }
     }
 }
+

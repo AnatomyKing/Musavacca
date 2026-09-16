@@ -37,13 +37,6 @@ public final class MusavaccaBoat extends
     private static final double SEAT_SPACING_Z =
             11.0D / 16.0D;
 
-    /*
-     * Passenger order:
-     *
-     * 0 = driver       -> front
-     * 1 = passenger 1  -> middle
-     * 2 = passenger 2  -> back
-     */
     private static final double DRIVER_SEAT_Z =
             SEAT_SPACING_Z;
 
@@ -114,7 +107,7 @@ public final class MusavaccaBoat extends
     @Override
     protected void positionRider(
             Entity passenger,
-            Entity.MoveFunction moveFunction
+            MoveFunction moveFunction
     ) {
         super.positionRider(
                 passenger,
@@ -157,3 +150,4 @@ public final class MusavaccaBoat extends
     }
     *///?}
 }
+

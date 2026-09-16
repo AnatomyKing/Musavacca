@@ -81,7 +81,6 @@ public final class HexTeleportAddressNetwork {
                         )
                         .orElse(null);
 
-
         directory.removeOwner(
                 ownerKey
         );
@@ -154,7 +153,6 @@ public final class HexTeleportAddressNetwork {
                         .normalizeHex(
                                 hexColor
                         );
-
 
         if (directory.isHexReserved(hex)) {
             return;
@@ -250,5 +248,4 @@ public final class HexTeleportAddressNetwork {
         }
     }
 }
-
 

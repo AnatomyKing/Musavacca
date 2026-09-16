@@ -236,9 +236,6 @@ public final class VocoCallerNetwork {
             return false;
         }
 
-        /*
-         * The phonebook belongs to the SIM itself.
-         */
         sim.set(
                 ModDataComponents
                         .VOCO_CALLER_PHONEBOOK
@@ -249,16 +246,6 @@ public final class VocoCallerNetwork {
                         : phonebook
         );
 
-        /*
-         * getSim() returns a copy from BundleContents, so write
-         * the updated SIM back into the phone explicitly.
-         *
-         * setSim() also guarantees:
-         *
-         * - exactly one physical SIM stack
-         * - SIM count == 1
-         * - vanilla BundleContents backing storage
-         */
         OpenVocoCallerItem.setSim(
                 phone,
                 sim
@@ -337,3 +324,4 @@ public final class VocoCallerNetwork {
         return false;
     }
 }
+

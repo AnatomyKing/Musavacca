@@ -125,6 +125,3 @@ public final class ShapelessCrafting {
     }
 }
 
-
-
-

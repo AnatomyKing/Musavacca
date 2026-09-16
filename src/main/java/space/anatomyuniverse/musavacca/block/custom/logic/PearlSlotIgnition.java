@@ -297,10 +297,6 @@ public final class PearlSlotIgnition {
         return true;
     }
 
-    /**
-     * Extinguishes a lit pearl slot, clears its optional linked property,
-     * drops one Banana Pearl, and damages the shears.
-     */
     public static boolean shearPearl(
             ItemStack shears,
             BlockState state,
@@ -528,5 +524,4 @@ public final class PearlSlotIgnition {
         }
     }
 }
-
 

@@ -97,15 +97,6 @@ public class OpenVocoCallerItem
                 .orElse(ItemStack.EMPTY);
     }
 
-    /*
-     * Canonical SIM writer for the Voco Caller.
-     *
-     * The phone physically supports exactly one SIM.
-     *
-     * BundleContents remains the real vanilla backing storage,
-     * but every direct write goes through here so the stored
-     * SIM is always normalized to count 1.
-     */
     public static void setSim(
             ItemStack phone,
             ItemStack sim
@@ -130,10 +121,6 @@ public class OpenVocoCallerItem
             return;
         }
 
-        /*
-         * Never allow arbitrary items to be written into the
-         * Voco Caller through this helper.
-         */
         if (!(sim.getItem() instanceof SimCardItem)) {
             return;
         }
@@ -172,25 +159,11 @@ public class OpenVocoCallerItem
         );
     }
 
-    /*
-     * 1.21.1 uses the old Bundle capacity presentation where
-     * the bundle internally exposes 64 weighted capacity units.
-     *
-     * Our SIM is stacksTo(1), so it already consumes the entire
-     * old Bundle capacity naturally.
-     *
-     * We only change the visible text:
-     *
-     *     0/64 -> 0/1
-     *     64/64 -> 1/1
-     *
-     * Actual BundleItem capacity mechanics remain vanilla.
-     */
     //? if <1.21.2 {
     /*@Override
     public void appendHoverText(
             ItemStack stack,
-            Item.TooltipContext context,
+            TooltipContext context,
             List<Component> tooltipComponents,
             TooltipFlag tooltipFlag
     ) {
@@ -266,15 +239,6 @@ public class OpenVocoCallerItem
          //?}
     }
 
-    /*
-     * Bundle controls changed in Minecraft 1.21.2.
-     *
-     * 1.21.1:
-     *     SECONDARY / right-click inserts into the old Bundle.
-     *
-     * 1.21.2+:
-     *     PRIMARY / left-click inserts into the redesigned Bundle.
-     */
     private static boolean isInsertAction(
             ClickAction action
     ) {
@@ -285,10 +249,6 @@ public class OpenVocoCallerItem
          //?}
     }
 
-    /*
-     * Phone is in an inventory slot.
-     * SIM is on the cursor.
-     */
     @Override
     public boolean overrideOtherStackedOnMe(
             ItemStack phone,
@@ -301,9 +261,6 @@ public class OpenVocoCallerItem
         ItemStack currentSim =
                 getSim(phone);
 
-        /*
-         * INSERT
-         */
         if (!carried.isEmpty()) {
             if (
                     !isInsertAction(action)
@@ -317,18 +274,11 @@ public class OpenVocoCallerItem
                 return false;
             }
 
-            /*
-             * Preserve a stable copy before vanilla BundleItem
-             * potentially shrinks/mutates the cursor stack.
-             */
             ItemStack insertingSim =
                     carried.copy();
 
             insertingSim.setCount(1);
 
-            /*
-             * Client-side prediction remains vanilla.
-             */
             if (player.level().isClientSide()) {
                 return super.overrideOtherStackedOnMe(
                         phone,
@@ -361,10 +311,6 @@ public class OpenVocoCallerItem
                             carriedAccess
                     );
 
-            /*
-             * Registration succeeded but vanilla insertion
-             * somehow failed. Undo the network reservation.
-             */
             if (getSim(phone).isEmpty()) {
                 VocoCallerNetwork.release(
                         serverPlayer,
@@ -375,12 +321,6 @@ public class OpenVocoCallerItem
             return handled;
         }
 
-        /*
-         * EJECT
-         *
-         * Both old and redesigned Bundle interaction use
-         * SECONDARY for taking contents back out.
-         */
         if (
                 action != ClickAction.SECONDARY
                         || currentSim.isEmpty()
@@ -427,10 +367,6 @@ public class OpenVocoCallerItem
         return handled;
     }
 
-    /*
-     * Phone is on the cursor.
-     * SIM/inventory slot is underneath it.
-     */
     @Override
     public boolean overrideStackedOnOther(
             ItemStack phone,
@@ -444,9 +380,6 @@ public class OpenVocoCallerItem
         ItemStack slotStack =
                 slot.getItem();
 
-        /*
-         * INSERT
-         */
         if (!slotStack.isEmpty()) {
             if (
                     !isInsertAction(action)
@@ -460,18 +393,11 @@ public class OpenVocoCallerItem
                 return false;
             }
 
-            /*
-             * Preserve the SIM before vanilla mutates the slot.
-             */
             ItemStack insertingSim =
                     slotStack.copy();
 
             insertingSim.setCount(1);
 
-            /*
-             * Client-side prediction stays with the current
-             * Minecraft version's vanilla BundleItem.
-             */
             if (player.level().isClientSide()) {
                 return super.overrideStackedOnOther(
                         phone,
@@ -500,10 +426,6 @@ public class OpenVocoCallerItem
                             player
                     );
 
-            /*
-             * Registration succeeded but vanilla insertion
-             * failed: release the claimed Voco address again.
-             */
             if (getSim(phone).isEmpty()) {
                 VocoCallerNetwork.release(
                         serverPlayer,
@@ -514,9 +436,6 @@ public class OpenVocoCallerItem
             return handled;
         }
 
-        /*
-         * EJECT INTO EMPTY INVENTORY SLOT
-         */
         if (
                 action != ClickAction.SECONDARY
                         || currentSim.isEmpty()
@@ -561,11 +480,6 @@ public class OpenVocoCallerItem
         return handled;
     }
 
-    /*
-     * Use our Voco-specific tooltip marker.
-     *
-     * The real stored data is still vanilla BundleContents.
-     */
     @Override
     public Optional<TooltipComponent> getTooltipImage(
             ItemStack stack
@@ -600,10 +514,6 @@ public class OpenVocoCallerItem
         );
     }
 
-    /*
-     * One physical SIM bay means Minecraft's normal Bundle
-     * fullness durability-style bar is unnecessary.
-     */
     @Override
     public boolean isBarVisible(
             ItemStack stack
@@ -725,3 +635,4 @@ public class OpenVocoCallerItem
         );
     }
 }
+

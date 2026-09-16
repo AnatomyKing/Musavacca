@@ -38,14 +38,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 //?}
 
-/**
- * One narrow compatibility seam for every custom JSON helmet.
- *
- * <p>Injection happens after vanilla has copied the living-model pose into the
- * armor model and applied HEAD visibility. We therefore do not subclass
- * RenderLayer, recreate its constructor, or call getParentModel(). That keeps
- * the mixin small and avoids the 1.21.1 inheritance/target issues.</p>
- */
 @Mixin(HumanoidArmorLayer.class)
 public abstract class HumanoidArmorLayerMixin {
 
@@ -172,7 +164,6 @@ public abstract class HumanoidArmorLayerMixin {
                 packedLight
         );
 
-        // Custom item renderer already handled the base helmet/glint.
         callbackInfo.cancel();
     }
 
@@ -192,8 +183,6 @@ public abstract class HumanoidArmorLayerMixin {
             return;
         }
 
-        // The real ArmorTrim contains registry holders for both material and
-        // pattern. Vanilla therefore resolves modded trims normally.
         float oldXScale = armorModel.head.xScale;
         float oldYScale = armorModel.head.yScale;
         float oldZScale = armorModel.head.zScale;
@@ -223,7 +212,6 @@ public abstract class HumanoidArmorLayerMixin {
             return;
         }
 
-        // Reuse one carrier stack: no per-frame ItemStack allocation.
         this.musavacca$trimCarrier.set(DataComponents.TRIM, trim);
 
         this.equipmentRenderer.renderLayers(
@@ -256,3 +244,4 @@ public abstract class HumanoidArmorLayerMixin {
     );
     *///?}
 }
+

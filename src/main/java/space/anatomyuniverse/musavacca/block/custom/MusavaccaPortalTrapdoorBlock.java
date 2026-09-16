@@ -398,18 +398,6 @@ public final class MusavaccaPortalTrapdoorBlock
             return;
         }
 
-        /*
-         * entityInside() only participates once Minecraft is already
-         * evaluating the trapdoor block coordinate.
-         *
-         * This ticker extends the same PORTAL_ENTRANCE_NUDGE beyond the
-         * block boundary, both ABOVE and BELOW the horizontal aperture.
-         *
-         * Unlike a standing door, a horizontal pane must also check that
-         * an entity is actually moving toward the plane. That prevents an
-         * entity merely standing inside the early-nudge corridor from being
-         * teleported without crossing toward the portal.
-         */
         for (
                 Entity entity
                 : level.getEntities(
@@ -566,10 +554,6 @@ public final class MusavaccaPortalTrapdoorBlock
                     < -PORTAL_TRIGGER_EPSILON;
         }
 
-        /*
-         * The bounding box is already touching/straddling the real 2px
-         * portal plane, so this is a genuine crossing even at tiny speed.
-         */
         return true;
     }
 
@@ -886,6 +870,4 @@ public final class MusavaccaPortalTrapdoorBlock
                 && trapdoorBe.hasHexColor();
     }
 }
-
-
 

@@ -47,9 +47,6 @@ public class BananaCow extends Cow {
     public static final int MAX_VISIBLE_EATEN_BITES = 2;
     public static final int MAX_EATEN_BITES_BEFORE_DEATH = 3;
 
-    /*
-     * Public because ModMobLootProvider uses this exact NBT key.
-     */
     public static final String TAG_PEEL_STAGE =
             "BananaCowPeelStage";
 
@@ -159,9 +156,6 @@ public class BananaCow extends Cow {
         );
     }
 
-    /*
-     * Both stage 1 and stage 2 count as sheared.
-     */
     public boolean isBananaSheared() {
         return this.getPeelStage() >= PEEL_STAGE_SHEARED;
     }
@@ -309,9 +303,6 @@ public class BananaCow extends Cow {
     ) {
         ItemStack stack = player.getItemInHand(hand);
 
-        /*
-         * Milk using an empty bucket.
-         */
         if (stack.is(Items.BUCKET) && !this.isBaby()) {
             player.playSound(
                     SoundEvents.COW_MILK,
@@ -336,9 +327,6 @@ public class BananaCow extends Cow {
             return InteractionResult.SUCCESS;
         }
 
-        /*
-         * Shift-right-click to eat the exposed banana cow.
-         */
         if (player.isShiftKeyDown()
                 && this.canBananaCowBeEaten()) {
             if (!this.level().isClientSide
@@ -353,9 +341,6 @@ public class BananaCow extends Cow {
             return InteractionResult.SUCCESS;
         }
 
-        /*
-         * Shear the banana cow.
-         */
         if (stack.is(Items.SHEARS)
                 && this.canBananaCowBeShearedAgain()) {
             if (!this.level().isClientSide
@@ -657,9 +642,7 @@ public class BananaCow extends Cow {
 
     @Override
     public void setBaby(boolean isBaby) {
-        // Banana cows are always adults.
+        
     }
 }
-
-
 

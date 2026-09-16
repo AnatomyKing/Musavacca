@@ -25,7 +25,6 @@ public class BananaPearlChapiter extends Block {
         return this.defaultBlockState().setValue(FACING, context.getClickedFace());
     }
 
-
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
@@ -41,7 +40,4 @@ public class BananaPearlChapiter extends Block {
         builder.add(FACING);
     }
 }
-
-
-
 

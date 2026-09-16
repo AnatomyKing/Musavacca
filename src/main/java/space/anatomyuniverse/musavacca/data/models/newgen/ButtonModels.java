@@ -82,3 +82,4 @@ public final class ButtonModels {
         return ResourceLocation.parse(model);
     }
 }
+

@@ -79,7 +79,6 @@ public final class SlabBlocks {
                 }
             }
 
-
             validatePartConditions();
 
         }
@@ -102,7 +101,6 @@ public final class SlabBlocks {
                 baseModels = Objects.requireNonNull(models, "models");
                 return this;
             }
-
 
             public Builder texture() {
                 requireGeneratedTextures();
@@ -139,3 +137,4 @@ public final class SlabBlocks {
         }
     }
 }
+

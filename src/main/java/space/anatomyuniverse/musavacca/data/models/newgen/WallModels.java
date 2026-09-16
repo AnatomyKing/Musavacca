@@ -110,3 +110,4 @@ public final class WallModels {
         return ResourceLocation.parse(model);
     }
 }
+

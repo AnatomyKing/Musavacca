@@ -9,16 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * NewGen family for {@link DecorationBlock}.
- *
- * DecorationBlock remains the runtime source of truth for which placements are enabled
- * and whether each placement is FIXED, FACING, or ROTATION.
- *
- * This declaration only describes which authored/generated model source visually belongs
- * to each enabled placement. The declared orientation is validated against the runtime block
- * so ModBlocks and NewModelSets cannot silently drift apart.
- */
 public final class DecorationBlocks {
     private DecorationBlocks() {}
 
@@ -367,7 +357,6 @@ public final class DecorationBlocks {
             return this;
         }
 
-
         public Builder item(DecorationBlock.Placement placement) {
             requireItemUnset();
             itemMode = ItemMode.PLACEMENT;
@@ -405,3 +394,4 @@ public final class DecorationBlocks {
         }
     }
 }
+

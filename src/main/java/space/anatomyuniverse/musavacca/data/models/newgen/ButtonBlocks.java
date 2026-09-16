@@ -80,7 +80,6 @@ public final class ButtonBlocks {
                 }
             }
 
-
             if (familyItemMode() == FamilyItemMode.DEFAULT
                     && baseMode() == BaseModelMode.EXISTING
                     && baseModels.inventory() == null) {
@@ -113,7 +112,6 @@ public final class ButtonBlocks {
                 return this;
             }
 
-
             public Builder texture() {
                 requireGeneratedTextures();
                 textures = FamilyTextures.builder(block, "_button").source().build();
@@ -140,3 +138,4 @@ public final class ButtonBlocks {
         }
     }
 }
+

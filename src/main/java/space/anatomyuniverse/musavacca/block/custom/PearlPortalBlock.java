@@ -56,13 +56,6 @@ import java.util.Set;
 public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     public static final MapCodec<PearlPortalBlock> CODEC = simpleCodec(PearlPortalBlock::new);
 
-    /*
-     * Full AXIS, not HORIZONTAL_AXIS.
-     *
-     * axis=x -> standing portal, flat plane across X/Y, normal Z
-     * axis=z -> standing portal, flat plane across Z/Y, normal X
-     * axis=y -> flat portal,     flat plane across X/Z, normal Y
-     */
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
 
     private static final Map<Direction.Axis, VoxelShape> SHAPES = Map.of(
@@ -691,5 +684,4 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         };
     }
 }
-
 

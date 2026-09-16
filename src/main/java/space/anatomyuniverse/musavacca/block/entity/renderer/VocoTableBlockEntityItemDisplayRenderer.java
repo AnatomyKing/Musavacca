@@ -99,6 +99,3 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
     }
 }
 
-
-
-

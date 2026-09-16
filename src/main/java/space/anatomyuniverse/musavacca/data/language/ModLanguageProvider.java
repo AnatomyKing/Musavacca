@@ -21,12 +21,9 @@ public final class ModLanguageProvider extends LanguageProvider {
     private static final Map<String, String> OVERRIDES = new LinkedHashMap<>();
 
     static {
-        // Creative tab display name
+        
         OVERRIDES.put("itemGroup." + MusaCore.MOD_ID + ".musavacca_tab", "Musavacca");
 
-        // Examples (uncomment if needed):
-        // OVERRIDES.put("item.anynology.purpish_anytomithium_ingot", "Purplish Anytomithium Ingot");
-        // OVERRIDES.put("block.anynology.some_block", "Some Block");
         OVERRIDES.put(
                 "block.musavacca.hex_block",
                 "Lopha Flower"
@@ -94,7 +91,6 @@ public final class ModLanguageProvider extends LanguageProvider {
         add(key, value);
     }
 
-    /** "lobby_wallpaper_plinth" -> "Lobby Wallpaper Plinth" (with acronym touch-ups). */
     private static String humanize(String registryPath) {
         String[] parts = registryPath.toLowerCase(Locale.ROOT).split("[_\\-]+");
         StringBuilder out = new StringBuilder(parts.length * 6);

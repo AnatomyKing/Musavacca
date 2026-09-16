@@ -7,7 +7,7 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.util.RandomSource;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class ProfileTintSprite {
     private ProfileTintSprite() {}
@@ -89,7 +89,7 @@ public final class ProfileTintSprite {
         }
 
         public void applyColor(Particle particle) {
-            int rgb = TintColorUtil.rgb(this.tint);
+            int rgb = MusavaccaTints.rgb(this.tint);
 
             particle.setColor(
                     ((rgb >> 16) & 0xFF) / 255.0F,

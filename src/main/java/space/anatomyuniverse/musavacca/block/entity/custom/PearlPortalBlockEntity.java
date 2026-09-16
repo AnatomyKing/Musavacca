@@ -23,15 +23,16 @@ import net.minecraft.world.level.storage.ValueOutput;
 import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.portal.PearlPortalDestroyer;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
 
 import java.util.UUID;
 
-public class PearlPortalBlockEntity extends BlockEntity {
+public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
     private static final String TAG_PORTAL_ID = "portal_id";
-    private static final String TAG_HEX_COLOR = "hex_color";
     private static final String TAG_ORIGIN_X = "origin_x";
     private static final String TAG_ORIGIN_Y = "origin_y";
     private static final String TAG_ORIGIN_Z = "origin_z";
@@ -44,10 +45,8 @@ public class PearlPortalBlockEntity extends BlockEntity {
     private static final String TAG_EXIT_ANCHOR_Y = "exit_anchor_y";
     private static final String TAG_EXIT_ANCHOR_Z = "exit_anchor_z";
 
-    private static final int DEFAULT_HEX_COLOR = 0xD5CD49;
-
     private UUID portalId = UUID.randomUUID();
-    private int hexColor = DEFAULT_HEX_COLOR;
+    private int hexColor = MusavaccaTints.DEFAULT_TINT;
 
     private BlockPos originPos = null;
     private Direction.Axis axis = Direction.Axis.X;
@@ -63,7 +62,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
 
     public void initializePortal(UUID portalId, int hexColor, PearlPortalFrame.Shape shape) {
         this.portalId = portalId;
-        this.hexColor = normalizeHex(hexColor);
+        this.hexColor = MusavaccaTints.resolve(hexColor);
         this.originPos = shape.minCorner().immutable();
         this.axis = PearlPortalFrame.normalizeAxis(shape.axis());
         this.frontDirection = PearlPortalFrame.normalizeFrontDirection(this.axis, shape.frontDirection());
@@ -105,8 +104,14 @@ public class PearlPortalBlockEntity extends BlockEntity {
         return this.portalId;
     }
 
+    @Override
     public int getHexColor() {
         return this.hexColor;
+    }
+
+    @Override
+    public boolean hasHexColor() {
+        return this.isValidPortalTile();
     }
 
     public BlockPos getOriginPos() {
@@ -242,7 +247,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         super.loadAdditional(input);
 
         this.portalId = readUuid(input, TAG_PORTAL_ID, UUID.randomUUID());
-        this.hexColor = normalizeHex(input.getIntOr(TAG_HEX_COLOR, DEFAULT_HEX_COLOR));
+        this.hexColor = MusavaccaTints.stored(input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.DEFAULT_TINT));
         this.originPos = readBlockPos(input, TAG_ORIGIN_X, TAG_ORIGIN_Y, TAG_ORIGIN_Z, this.getBlockPos());
         this.axis = axisFromString(input.getStringOr(TAG_AXIS, "x"));
         this.frontDirection = PearlPortalFrame.normalizeFrontDirection(
@@ -281,7 +286,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         super.saveAdditional(output);
 
         output.putString(TAG_PORTAL_ID, this.portalId.toString());
-        output.putInt(TAG_HEX_COLOR, this.hexColor);
+        output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
 
         BlockPos origin = this.getOriginPos();
         output.putInt(TAG_ORIGIN_X, origin.getX());
@@ -305,7 +310,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         super.loadAdditional(tag, provider);
 
         this.portalId = readUuid(tag, TAG_PORTAL_ID, UUID.randomUUID());
-        this.hexColor = normalizeHex(tagGetIntOr(tag, TAG_HEX_COLOR, DEFAULT_HEX_COLOR));
+        this.hexColor = MusavaccaTints.stored(tagGetIntOr(tag, MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.DEFAULT_TINT));
         this.originPos = readBlockPos(tag, TAG_ORIGIN_X, TAG_ORIGIN_Y, TAG_ORIGIN_Z, this.getBlockPos());
         this.axis = axisFromString(tagGetStringOr(tag, TAG_AXIS, "x"));
         this.frontDirection = PearlPortalFrame.normalizeFrontDirection(
@@ -344,7 +349,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
         super.saveAdditional(tag, provider);
 
         tag.putString(TAG_PORTAL_ID, this.portalId.toString());
-        tag.putInt(TAG_HEX_COLOR, this.hexColor);
+        tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
 
         BlockPos origin = this.getOriginPos();
         tag.putInt(TAG_ORIGIN_X, origin.getX());
@@ -371,7 +376,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex != null) {
-            this.hexColor = normalizeHex(savedHex);
+            this.hexColor = MusavaccaTints.stored(savedHex);
         }
     }
     //?} else {
@@ -381,7 +386,7 @@ public class PearlPortalBlockEntity extends BlockEntity {
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex != null) {
-            this.hexColor = normalizeHex(savedHex);
+            this.hexColor = MusavaccaTints.stored(savedHex);
         }
     }
     *///?}
@@ -537,10 +542,6 @@ public class PearlPortalBlockEntity extends BlockEntity {
         };
     }
 
-    private static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
-    }
-
     private static int clampWidth(int value) {
         return clamp(value, PearlPortalFrame.MIN_WIDTH, PearlPortalFrame.MAX_WIDTH);
     }
@@ -553,6 +554,4 @@ public class PearlPortalBlockEntity extends BlockEntity {
         return Math.max(min, Math.min(max, value));
     }
 }
-
-
 

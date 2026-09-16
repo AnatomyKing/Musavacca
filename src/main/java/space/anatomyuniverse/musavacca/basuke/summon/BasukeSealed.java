@@ -20,6 +20,8 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+
 import java.util.List;
 
 public final class BasukeSealed {
@@ -120,7 +122,7 @@ public final class BasukeSealed {
             if (
                     !tableBe.isCandleLit(receptor)
                             || tableBe.getCornerHexColor(receptor)
-                            != VocoTableBlockEntity.UNSET_HEX_COLOR
+                            != MusavaccaTints.NO_TINT
             ) {
                 return false;
             }
@@ -197,7 +199,7 @@ public final class BasukeSealed {
                     pos,
                     receptor,
                     false,
-                    VocoReceptorLogic.UNSET_HEX_COLOR
+                    MusavaccaTints.NO_TINT
             );
         }
 
@@ -258,6 +260,4 @@ public final class BasukeSealed {
         level.addFreshEntity(lightning);
     }
 }
-
-
 

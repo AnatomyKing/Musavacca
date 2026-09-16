@@ -22,7 +22,7 @@ import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlMenu;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearlMenu> {
     private static final int GUI_WIDTH = 275;
@@ -138,7 +138,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         this.imageHeight = GUI_HEIGHT;
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
-        int initialRgb = TintColorUtil.rgb(menu.getHexColor());
+        int initialRgb = MusavaccaTints.rgb(menu.getHexColor());
         this.applyColorFromRgb(initialRgb);
         this.lastSyncedRgb = initialRgb;
     }
@@ -407,9 +407,9 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
                 y,
                 width,
                 height,
-                tint == TintColorUtil.NO_TINT
+                tint == MusavaccaTints.NO_TINT
                         ? 0xFFFFFFFF
-                        : 0xFF000000 | TintColorUtil.rgb(tint)
+                        : 0xFF000000 | MusavaccaTints.rgb(tint)
         );
     }
 
@@ -1273,7 +1273,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private void queueColorSync() {
-        int rgb = TintColorUtil.rgb(this.getPreviewRgb());
+        int rgb = MusavaccaTints.rgb(this.getPreviewRgb());
         this.menu.setHexColor(rgb);
         this.updateLocalHeldStack(rgb);
         this.pendingSyncRgb = rgb;
@@ -1286,7 +1286,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
                 && stack.getItem() instanceof FlintAndPearlItem) {
             stack.set(
                     ModDataComponents.HEX_COLOR.get(),
-                    TintColorUtil.rgb(rgb)
+                    MusavaccaTints.rgb(rgb)
             );
         }
     }
@@ -1330,7 +1330,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private static HsvColor rgbToHsv(int rgb) {
-        rgb = TintColorUtil.rgb(rgb);
+        rgb = MusavaccaTints.rgb(rgb);
         float r = red(rgb) / 255.0F;
         float g = green(rgb) / 255.0F;
         float b = blue(rgb) / 255.0F;
@@ -1389,7 +1389,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private static String toSixDigitHex(int rgb) {
-        String hex = Integer.toHexString(TintColorUtil.rgb(rgb));
+        String hex = Integer.toHexString(MusavaccaTints.rgb(rgb));
         return "000000".substring(hex.length()) + hex;
     }
 
@@ -1445,7 +1445,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             int mouseX,
             int mouseY
     ) {
-        // Intentionally empty.
+        
     }
 
     @Override
@@ -1554,6 +1554,4 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     ) {
     }
 }
-
-
 

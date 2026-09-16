@@ -150,10 +150,10 @@ public final class Conditions {
                 .and(property, value);
     }
 
-
     @SuppressWarnings({"rawtypes", "unchecked"})
     private static Match andUnchecked(Match match, Term<?> term) {
         return match.and((Property) term.property(), (Comparable) term.value());
     }
 
 }
+

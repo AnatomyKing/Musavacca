@@ -27,18 +27,14 @@ import net.minecraft.world.level.storage.ValueOutput;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class MusavaccaPortalTrapdoorBlockEntity
-        extends BlockEntity {
-
-    private static final String TAG_HEX_COLOR =
-            "hex_color";
-
-    public static final int UNSET_HEX_COLOR =
-            -1;
+        extends BlockEntity implements HexSource {
 
     private int hexColor =
-            UNSET_HEX_COLOR;
+            MusavaccaTints.NO_TINT;
 
     public MusavaccaPortalTrapdoorBlockEntity(
             BlockPos pos,
@@ -53,20 +49,21 @@ public final class MusavaccaPortalTrapdoorBlockEntity
         );
     }
 
+    @Override
     public int getHexColor() {
         return this.hexColor;
     }
 
     public boolean hasHexColor() {
         return this.hexColor
-                != UNSET_HEX_COLOR;
+                != MusavaccaTints.NO_TINT;
     }
 
     public void setHexColor(int hexColor) {
         int resolved =
-                hexColor == UNSET_HEX_COLOR
-                        ? UNSET_HEX_COLOR
-                        : normalizeHex(hexColor);
+                hexColor == MusavaccaTints.NO_TINT
+                        ? MusavaccaTints.NO_TINT
+                        : MusavaccaTints.resolve(hexColor);
 
         if (this.hexColor == resolved) {
             return;
@@ -80,14 +77,8 @@ public final class MusavaccaPortalTrapdoorBlockEntity
 
     public void clearHexColor() {
         this.setHexColor(
-                UNSET_HEX_COLOR
+                MusavaccaTints.NO_TINT
         );
-    }
-
-    private static int normalizeHex(
-            int hexColor
-    ) {
-        return hexColor & 0xFFFFFF;
     }
 
     @Override
@@ -215,14 +206,14 @@ public final class MusavaccaPortalTrapdoorBlockEntity
         int loaded =
                 readIntOr(
                         tag,
-                        TAG_HEX_COLOR,
-                        UNSET_HEX_COLOR
+                        MusavaccaTints.HEX_COLOR_KEY,
+                        MusavaccaTints.NO_TINT
                 );
 
         this.hexColor =
-                loaded == UNSET_HEX_COLOR
-                        ? UNSET_HEX_COLOR
-                        : normalizeHex(loaded);
+                loaded == MusavaccaTints.NO_TINT
+                        ? MusavaccaTints.NO_TINT
+                        : MusavaccaTints.stored(loaded);
     }
 
     @Override
@@ -237,7 +228,7 @@ public final class MusavaccaPortalTrapdoorBlockEntity
 
         if (this.hasHexColor()) {
             tag.putInt(
-                    TAG_HEX_COLOR,
+                    MusavaccaTints.HEX_COLOR_KEY,
                     this.hexColor
             );
         }
@@ -251,14 +242,14 @@ public final class MusavaccaPortalTrapdoorBlockEntity
 
         int loaded =
                 input.getIntOr(
-                        TAG_HEX_COLOR,
-                        UNSET_HEX_COLOR
+                        MusavaccaTints.HEX_COLOR_KEY,
+                        MusavaccaTints.NO_TINT
                 );
 
         this.hexColor =
-                loaded == UNSET_HEX_COLOR
-                        ? UNSET_HEX_COLOR
-                        : normalizeHex(loaded);
+                loaded == MusavaccaTints.NO_TINT
+                        ? MusavaccaTints.NO_TINT
+                        : MusavaccaTints.stored(loaded);
     }
 
     @Override
@@ -269,7 +260,7 @@ public final class MusavaccaPortalTrapdoorBlockEntity
 
         if (this.hasHexColor()) {
             output.putInt(
-                    TAG_HEX_COLOR,
+                    MusavaccaTints.HEX_COLOR_KEY,
                     this.hexColor
             );
         }
@@ -292,8 +283,8 @@ public final class MusavaccaPortalTrapdoorBlockEntity
 
         this.hexColor =
                 savedHex == null
-                        ? UNSET_HEX_COLOR
-                        : normalizeHex(savedHex);
+                        ? MusavaccaTints.NO_TINT
+                        : MusavaccaTints.stored(savedHex);
     }
     *///?} else {
     @Override
@@ -311,8 +302,8 @@ public final class MusavaccaPortalTrapdoorBlockEntity
 
         this.hexColor =
                 savedHex == null
-                        ? UNSET_HEX_COLOR
-                        : normalizeHex(savedHex);
+                        ? MusavaccaTints.NO_TINT
+                        : MusavaccaTints.stored(savedHex);
     }
     //?}
 
@@ -397,6 +388,4 @@ public final class MusavaccaPortalTrapdoorBlockEntity
     }
     //?}
 }
-
-
 

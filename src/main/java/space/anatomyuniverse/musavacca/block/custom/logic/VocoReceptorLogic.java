@@ -18,11 +18,10 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraStartPayload;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoReceptorLogic {
     public static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
-    public static final int UNSET_HEX_COLOR = -1;
-
     public static final int MIN_YAW_DEGREES = -180;
     public static final int MAX_YAW_DEGREES = 180;
     public static final int MIN_PITCH_DEGREES = -90;
@@ -100,7 +99,6 @@ public final class VocoReceptorLogic {
 
         return true;
     }
-
 
     public static boolean isReceptorLit(
             Level level,
@@ -206,23 +204,19 @@ public final class VocoReceptorLogic {
     }
 
     public static void showLatestHexMessage(Player player, ReceptorPosition receptor, int hexColor) {
-        if (hexColor == UNSET_HEX_COLOR) {
+        if (hexColor == MusavaccaTints.NO_TINT) {
             player.displayClientMessage(Component.literal("No lit Voco candle is active."), true);
             return;
         }
 
         player.displayClientMessage(
                 Component.literal(String.format(
-                        "Latest Voco hex: %s #%06X",
+                        "Latest Voco hex: %s %s",
                         receptor.displayName(),
-                        hexColor & 0xFFFFFF
+                        MusavaccaTints.formatHex(hexColor)
                 )),
                 true
         );
-    }
-
-    public static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
     }
 
     public static int clampYaw(int yawDegrees) {

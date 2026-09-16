@@ -3,8 +3,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import space.anatomyuniverse.musavacca.tint.HexColorItemTintSource;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,13 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Universal NewGen item-model vocabulary.
- *
- * <p>{@link Entry} binds a model declaration to an actual item. {@link Model}
- * is intentionally item-agnostic so the exact same declaration can also be
- * embedded in block families.</p>
- */
 public final class SimpleItems {
     private SimpleItems() {}
 
@@ -33,7 +24,6 @@ public final class SimpleItems {
         EXISTING
     }
 
-    /** One fully-expanded generated item layer. */
     public record PhysicalLayer(ResourceLocation texture, Tints.Tint tint) {
         public PhysicalLayer {
             Objects.requireNonNull(texture, "texture");
@@ -98,17 +88,12 @@ public final class SimpleItems {
             return this;
         }
 
-        /**
-         * Resolve natural item textures inside item/&lt;id&gt;/ instead of item/.
-         * Example: sim_card -> item/sim_card/sim_card.
-         */
         public Model folder() {
             requireGenerated("folder()");
             folder = true;
             return this;
         }
 
-        /** Use this item's natural texture, or folder texture when .folder() is enabled. */
         public Model texture() {
             requireGenerated("texture()");
             inferSingleTexture = true;
@@ -142,13 +127,11 @@ public final class SimpleItems {
             return this;
         }
 
-        /** Applies to every logical layer unless a layerTint override exists. */
         public Model tint(Tints.Tint tint) {
             this.tint = Objects.requireNonNull(tint, "tint");
             return this;
         }
 
-        /** Applies to one logical texture layer before PearlFire/profile expansion. */
         public Model layerTint(int layer, Tints.Tint tint) {
             requireGenerated("layerTint(...)");
 
@@ -219,12 +202,6 @@ public final class SimpleItems {
                     .toList();
         }
 
-        /**
-         * Expands logical layers into physical generated-item layers.
-         *
-         * <p>PearlFire is special: one logical carrier expands into
-         * profile.layerCount() physical texture carriers.</p>
-         */
         public List<PhysicalLayer> physicalLayers(ItemLike item) {
             validate(item);
 
@@ -241,22 +218,23 @@ public final class SimpleItems {
                 ResourceLocation base = logical.get(logicalLayer);
                 Tints.Tint layerTint = tintForLogicalLayer(logicalLayer);
 
-                if (layerTint instanceof Tints.PearlFire pearlFire) {
-                    for (Tints.GeneratedLayer generated : Tints.generatedLayers(pearlFire)) {
-                        physical.add(new PhysicalLayer(
-                                TextureTokens.itemLayer(base, generated.sourceLayer()),
-                                new Tints.PearlFire(pearlFire.profile(), generated.sourceLayer())
-                        ));
-                    }
-                } else {
-                    physical.add(new PhysicalLayer(base, layerTint));
+                List<Tints.GeneratedLayer> generatedLayers = Tints.generatedLayers(layerTint);
+
+                for (Tints.GeneratedLayer generated : generatedLayers) {
+                    ResourceLocation texture = generatedLayers.size() == 1 && generated.sourceLayer() == 0
+                            ? base
+                            : TextureTokens.itemLayer(base, generated.sourceLayer());
+
+                    physical.add(new PhysicalLayer(
+                            texture,
+                            layerTint.physicalLayer(generated)
+                    ));
                 }
             }
 
             return List.copyOf(physical);
         }
 
-        /** Tint-source list for an existing authored model. */
         public List<Tints.Tint> existingTints() {
             if (!isExisting()) {
                 throw new IllegalStateException("existingTints() requires an existing item model");
@@ -341,17 +319,9 @@ public final class SimpleItems {
         }
 
         private static List<Tints.Tint> physicalTintList(Tints.Tint tint) {
-            if (tint instanceof Tints.PearlFire pearlFire) {
-                List<Tints.Tint> result = new ArrayList<>();
-
-                for (int layer = 0; layer < pearlFire.profile().layerCount(); layer++) {
-                    result.add(new Tints.PearlFire(pearlFire.profile(), layer));
-                }
-
-                return List.copyOf(result);
-            }
-
-            return List.of(tint);
+            return Tints.generatedLayers(tint).stream()
+                    .map(tint::physicalLayer)
+                    .toList();
         }
     }
 
@@ -473,37 +443,24 @@ public final class SimpleItems {
         }
     }
 
-    /** Used by the legacy ItemColor bridge (<1.21.4). */
     public static int legacyTintColor(Entry entry, ItemStack stack, int tintIndex) {
         Objects.requireNonNull(entry, "entry");
         return legacyTintColor(entry.item(), entry.model(), stack, tintIndex);
     }
 
-    /** Used by block-embedded item models on the legacy renderer. */
     public static int legacyTintColor(ItemLike item, Model model, ItemStack stack, int tintIndex) {
         if (tintIndex < 0) {
-            return TintColorUtil.NO_TINT;
+            return Tints.NO_TINT;
         }
 
         List<Tints.Tint> tints = model.isExisting()
                 ? model.existingTints()
                 : model.physicalLayers(item).stream().map(PhysicalLayer::tint).toList();
 
-        if (tintIndex >= tints.size()) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        Tints.Tint tint = tints.get(tintIndex);
-
-        return switch (tint.kind()) {
-            case NONE -> TintColorUtil.NO_TINT;
-            case CONSTANT -> TintColorUtil.opaqueRgb(((Tints.Constant) tint).rgb());
-            case BIOME_FOLIAGE -> TintColorUtil.defaultFoliageItemTint();
-            case HEX_COLOR -> HexColorItemTintSource.color(stack);
-            case PEARL_FIRE -> {
-                Tints.PearlFire pearl = (Tints.PearlFire) tint;
-                yield HexColorItemTintSource.color(stack, pearl.profile(), pearl.offset());
-            }
-        };
+        return tintIndex < tints.size()
+                ? tints.get(tintIndex).itemColor(stack)
+                : Tints.NO_TINT;
     }
+
 }
+

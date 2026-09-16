@@ -314,15 +314,6 @@ public final class HexTeleportDirectory extends SavedData {
 
     public record VocoRegistration(Result result, Endpoint removedActiveEndpoint) {}
 
-    /*
-     * Clean directory layout.
-     *
-     * pending_endpoints:
-     *     address-queued endpoint claims, currently used by Voco.
-     *
-     * pending_door_endpoints:
-     *     doors that ALREADY RESERVE their address and wait for door #2.
-     */
     public static final Codec<HexTeleportDirectory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Endpoint.CODEC.listOf().fieldOf("endpoints").forGetter(data -> data.active.entries),
             Endpoint.CODEC.listOf().fieldOf("pending_endpoints").forGetter(data -> data.pending.entries),
@@ -339,21 +330,6 @@ public final class HexTeleportDirectory extends SavedData {
             new SavedData.Factory<>(HexTeleportDirectory::new, HexTeleportDirectory::load);
     *///?}
 
-    /*
-     * Indexed stores keep normal operations off full-list scans.
-     *
-     * active:
-     *     Voco endpoints + Pearl portals.
-     *
-     * pending:
-     *     claims waiting for a currently reserved address.
-     *
-     * doors:
-     *     linked Musavacca door pairs.
-     *
-     * pendingDoors:
-     *     one Musavacca door waiting for its matching second door.
-     */
     private final EndpointStore active = new EndpointStore();
     private final EndpointStore pending = new EndpointStore();
     private final DoorEndpointStore doors = new DoorEndpointStore();
@@ -432,15 +408,6 @@ public final class HexTeleportDirectory extends SavedData {
         *///?}
     }
 
-    /*
-     * True when an address is currently owned/reserved by:
-     *
-     * - one Voco endpoint
-     * - one waiting Pearl portal
-     * - one linked Pearl portal pair
-     * - one waiting Musavacca door/trapdoor
-     * - one linked Musavacca door/trapdoor pair
-     */
     public boolean isHexReserved(int hexColor) {
         int hex = normalizeHex(hexColor);
 
@@ -677,19 +644,10 @@ public final class HexTeleportDirectory extends SavedData {
             return Result.WAITING_FOR_SECOND_DOOR;
         }
 
-        /*
-         * A changed door releases its previous claim first.
-         *
-         * If it was linked, removeDoorOwner() demotes its surviving
-         * partner to pending, so the old hex stays reserved.
-         */
         if (existingActive != null || existingPending != null) {
             this.removeDoorOwner(ownerKey);
         }
 
-        /*
-         * Voco/Pearl ownership blocks door ownership.
-         */
         if (this.active.hasHex(hex)
                 || this.hasPhoneHex(hex)
                 || this.doors.countByHex(hex) >= 2) {
@@ -720,22 +678,11 @@ public final class HexTeleportDirectory extends SavedData {
             return Result.LINKED_TO_EXISTING_DOOR;
         }
 
-        /*
-         * Door #1 is pending-for-pair but already reserves the address.
-         */
         this.pendingDoors.add(candidate);
         this.setDirty();
         return Result.WAITING_FOR_SECOND_DOOR;
     }
 
-    /*
-     * Trapdoors intentionally reuse the persisted DoorEndpoint store.
-     *
-     * The endpoint payload is identical (owner key, hex, dimension, position),
-     * so sharing the store avoids a saved-data schema migration. Door and
-     * trapdoor endpoints still NEVER pair with each other: the owner-key
-     * prefix below keeps each hinged portal family isolated.
-     */
     public Result registerTrapdoorEndpoint(
             String ownerKey,
             int hexColor,
@@ -1057,10 +1004,6 @@ public final class HexTeleportDirectory extends SavedData {
             this.setDirty();
         }
 
-        /*
-         * Only active endpoints reserve an address.
-         * The shared address network only needs the active return value.
-         */
         return Optional.ofNullable(removedActive);
     }
 
@@ -1085,15 +1028,6 @@ public final class HexTeleportDirectory extends SavedData {
                 ? removedActive
                 : removedPending;
 
-        /*
-         * Linked A <-> B:
-         *
-         * remove A
-         *     ↓
-         * B becomes pending-for-pair
-         *     ↓
-         * address stays reserved.
-         */
         if (removedActive != null) {
             this.demoteRemainingDoorAtHex(removedActive.hexColor);
         }
@@ -1672,6 +1606,4 @@ public final class HexTeleportDirectory extends SavedData {
         }
     }
 }
-
-
 

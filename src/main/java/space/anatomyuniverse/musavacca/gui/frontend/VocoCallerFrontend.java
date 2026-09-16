@@ -116,9 +116,6 @@ public final class VocoCallerFrontend
 
     private int selectedPosition = 0;
 
-    /**
-     * Also controls the direction used when reordering Saved numbers.
-     */
     private int lastNavigationDirection = 1;
 
     private long caretBlinkStartNanos =
@@ -154,13 +151,6 @@ public final class VocoCallerFrontend
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
 
-        /*
-         * Recent row zero remains the preferred starting position.
-         *
-         * If it is empty, immediately move the caret onto the first
-         * populated Recent or Saved entry. This lets a phone with no
-         * recent calls but at least one saved number be used instantly.
-         */
         this.ensureCaretOnFilledEntry();
     }
 
@@ -985,10 +975,6 @@ public final class VocoCallerFrontend
             return;
         }
 
-        /*
-         * Only flush list edits when a call is about to let the server close
-         * this menu. Normal list editing stays entirely local until onClose().
-         */
         if (completesCall) {
             this.syncCallStateToServer();
         }
@@ -1285,5 +1271,4 @@ public final class VocoCallerFrontend
         }
     }
 }
-
 

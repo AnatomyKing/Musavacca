@@ -56,22 +56,9 @@ public final class Textures {
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
 
-            /*
-             * Default:
-             *
-             * <namespace>:block/<block-id>
-             */
             this.all = TextureTokens.block(block);
         }
 
-        /*
-         * Explicitly use this block's normal texture on all faces:
-         *
-         * <namespace>:block/<block-id>
-         *
-         * The builder already knows this default, but all() exists so
-         * NewModelSets can state the intent visibly.
-         */
         public Builder all() {
             this.all = TextureTokens.block(block);
 
@@ -151,3 +138,4 @@ public final class Textures {
         return new Builder(block);
     }
 }
+

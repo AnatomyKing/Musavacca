@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -37,9 +38,6 @@ import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemDisplayContext;
-import space.anatomyuniverse.musavacca.tint.HexColorItemTintSource;
-import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 //? if <1.21.5 {
 /*import net.minecraft.client.data.models.blockstates.Condition;
 import net.minecraft.client.data.models.blockstates.Variant;
@@ -53,7 +51,6 @@ import net.minecraft.util.random.WeightedList;
 //?}
 //?}
 
-/** The only version-specific output adapter used by the newgen engine. */
 final class NewgenOutput {
     //? if <1.21.4 {
     /*private final BlockStateProvider blocks;
@@ -143,7 +140,6 @@ final class NewgenOutput {
             json.addProperty("parent", part.model().toString());
             model(id, json);
         }
-        // Legacy ItemColor registration is supplied by ModTints/NewgenItemCatalog.
         *///?} else {
         List<ItemModel.Unbaked> children = render.parts().stream()
                 .map(part -> (ItemModel.Unbaked) new BlockModelWrapper.Unbaked(
@@ -179,10 +175,7 @@ final class NewgenOutput {
         }
 
         //? if <1.21.4 {
-        /*// The legacy has_armor_trim override is authored directly into baseModel by NewgenModels.
-        // Existing authored armor inventory models may live at another id, so keep the
-        // natural item model path as a tiny parent wrapper just like SimpleItems does.
-        ResourceLocation natural = ModelLocations.itemModel(item);
+        /*ResourceLocation natural = ModelLocations.itemModel(item);
         if (!natural.equals(baseModel) && trimmedModel == null) {
             JsonObject json = new JsonObject();
             json.addProperty("parent", baseModel.toString());
@@ -197,7 +190,7 @@ final class NewgenOutput {
                     trimmedModel,
                     List.of(
                             new Constant(0xFFFFFFFF),
-                            ArmorTrimItemTintSource.INSTANCE
+                            ArmorTrimItemTintSource.itemTintSource()
                     )
             );
 
@@ -234,16 +227,7 @@ final class NewgenOutput {
 
     //? if >=1.21.4 {
     private static ItemTintSource itemTint(Tints.Tint tint) {
-        return switch (tint.kind()) {
-            case NONE -> new Constant(0xFFFFFFFF);
-            case CONSTANT -> new Constant(TintColorUtil.rgb(((Tints.Constant) tint).rgb()));
-            case BIOME_FOLIAGE -> new Constant(TintColorUtil.defaultFoliageItemTint());
-            case HEX_COLOR -> HexColorItemTintSource.INSTANCE;
-            case PEARL_FIRE -> {
-                Tints.PearlFire pearl = (Tints.PearlFire) tint;
-                yield HexColorItemTintSource.pearlFire(pearl.profile(), pearl.offset());
-            }
-        };
+        return tint.itemTintSource();
     }
     //?}
 
@@ -396,3 +380,4 @@ final class NewgenOutput {
     //?}
     //?}
 }
+

@@ -1,53 +1,23 @@
 package space.anatomyuniverse.musavacca.tint;
 
-import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
-import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock;
-import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableLogic;
-import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalTrapdoorBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
+import space.anatomyuniverse.musavacca.data.models.newgen.NewgenBlockTintCatalog;
+import space.anatomyuniverse.musavacca.data.models.newgen.NewgenItemCatalog;
+import space.anatomyuniverse.musavacca.data.models.newgen.SimpleItems;
+import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
 
 //? if <1.21.4 {
 /*import net.minecraft.world.level.ItemLike;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import space.anatomyuniverse.musavacca.data.models.NewModelSets;
 import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
-import space.anatomyuniverse.musavacca.data.models.newgen.NewgenItemCatalog;
-import space.anatomyuniverse.musavacca.data.models.newgen.SimpleItems;
- *///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
+*///?}
 
 public final class ModTints {
-    private static final PearlFireTintProfiles.Profile PEARL_FIRE_PROFILE = PearlFireTintProfiles.FIRE_BLOCK;
-    private static final PearlFireTintProfiles.Profile PEARL_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
-    private static final PearlFireTintProfiles.Profile VOCO_POST_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
-    private static final PearlFireTintProfiles.Profile VOCO_TABLE_PORTAL_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
-    private static final PearlFireTintProfiles.Profile MUSAVACCA_DOOR_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
-    private static final PearlFireTintProfiles.Profile MUSAVACCA_TRAPDOOR_PROFILE = PearlFireTintProfiles.PORTAL_BLOCK;
-
-    private static final VocoTableTintRange[] VOCO_TABLE_TINT_RANGES = {
-            new VocoTableTintRange(ReceptorPosition.NORTH_EAST, 0),
-            new VocoTableTintRange(ReceptorPosition.SOUTH_EAST, 100),
-            new VocoTableTintRange(ReceptorPosition.SOUTH_WEST, 200),
-            new VocoTableTintRange(ReceptorPosition.NORTH_WEST, 300)
-    };
-
     private ModTints() {}
 
     public static void register(IEventBus modBus) {
@@ -55,350 +25,61 @@ public final class ModTints {
 
         //? if <1.21.4 {
         /*modBus.addListener(ModTints::registerItemColorHandlers);
-        modBus.addListener(ArmorTrimItemTintSource::registerLegacyItemProperties);
+        modBus.addListener(ModTints::registerLegacyTrimProperties);
         *///?} else {
         modBus.addListener(ModTints::registerItemTintSources);
         //?}
     }
 
     public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
-        event.register(
-                ModTints::getMusavaccaFoliageTint,
-                ModBlocks.MUSAVACCA_LEAVES.get(),
-                ModBlocks.MUSAVACCA_SPROUT.get(),
-                ModBlocks.MUSAVACCA_SUCKER.get(),
-                ModBlocks.MUSAVACCA_PLANT.get(),
-                ModBlocks.MUSAVACCA_PSEUDOSTEM.get()
-        );
+        if (NewgenBlockTintCatalog.bindings().isEmpty()) {
+            return;
+        }
 
-        event.register(ModTints::getHexBlockTint, ModBlocks.HEX_BLOCK.get());
-        event.register(ModTints::getHardHexBlockTint, ModBlocks.HARD_HEX_BLOCK.get());
-
-        event.register(ModTints::getPearlFireTint, ModBlocks.PEARL_FIRE.get());
-        event.register(ModTints::getPearlPortalTint, ModBlocks.PEARL_PORTAL.get());
-
-        event.register(ModTints::getVocoPostPortalTint, ModBlocks.VOCO_POST.get());
-        event.register(ModTints::getVocoTablePortalTint, ModBlocks.VOCO_TABLE.get());
-        event.register(ModTints::getMusavaccaPortalDoorTint, ModBlocks.MUSAVACCA_DOOR.get());
-        event.register(ModTints::getMusavaccaPortalTrapdoorTint, ModBlocks.MUSAVACCA_TRAPDOOR.get());
+        event.register(ModTints::blockTint, NewgenBlockTintCatalog.blocks());
     }
 
-    private static int getMusavaccaFoliageTint(
+    private static int blockTint(
             BlockState state,
             BlockAndTintGetter level,
             BlockPos pos,
             int tintIndex
     ) {
-        if (tintIndex != 0) {
-            return TintColorUtil.NO_TINT;
+        NewgenBlockTintCatalog.Binding binding = NewgenBlockTintCatalog.binding(state.getBlock());
+        if (binding == null) {
+            return Tints.NO_TINT;
         }
 
-        if (level != null && pos != null) {
-            return BiomeColors.getAverageFoliageColor(level, pos);
+        Tints.Tint tint = binding.resolve(state, tintIndex);
+        if (tint == null) {
+            return Tints.NO_TINT;
         }
 
-        return TintColorUtil.defaultFoliageItemTint();
-    }
-
-    private static int getHexBlockTint(
-            BlockState state,
-            BlockAndTintGetter level,
-            BlockPos pos,
-            int tintIndex
-    ) {
-        if (tintIndex != 0) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (level != null && pos != null
-                && level.getBlockEntity(pos) instanceof HexBlockEntity hexBe
-                && hexBe.hasHexColor()) {
-            return TintColorUtil.opaqueRgb(hexBe.getHexColor());
-        }
-
-        return TintColorUtil.defaultHexBlockTint();
-    }
-
-    private static int getHardHexBlockTint(
-            BlockState state,
-            BlockAndTintGetter level,
-            BlockPos pos,
-            int tintIndex
-    ) {
-        if (tintIndex != 0) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        return TintColorUtil.opaqueRgb(HardHexBlockEntity.HARD_HEX_COLOR);
-    }
-
-    private static int getPearlFireTint(
-            BlockState state,
-            BlockAndTintGetter level,
-            BlockPos pos,
-            int tintIndex
-    ) {
-        if (!PearlFireTintSource.supportsLayer(PEARL_FIRE_PROFILE, tintIndex)) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (level != null && pos != null) {
-            if (level.getBlockEntity(pos) instanceof PearlFireBlockEntity pearlFireBe
-                    && pearlFireBe.hasHexColor()) {
-                return PearlFireTintSource.blockTint(
-                        pearlFireBe.getHexColor(),
-                        tintIndex,
-                        PEARL_FIRE_PROFILE
-                );
+        int color = tint.blockColor(state, level, pos, tintIndex);
+        if (color != Tints.NO_TINT) {
+            if (tint instanceof MusavaccaTints.PearlFire) {
+                PearlPlacementColorMemory.clear(pos);
             }
+            return color;
+        }
 
-            Integer predictedRgb = PearlPlacementColorMemory.get(level, pos);
-            if (predictedRgb != null) {
-                return PearlFireTintSource.blockTint(
-                        predictedRgb,
-                        tintIndex,
-                        PEARL_FIRE_PROFILE
-                );
+        if (tint instanceof MusavaccaTints.PearlFire pearlFire) {
+            Integer rememberedColor = PearlPlacementColorMemory.get(pos);
+            if (rememberedColor != null) {
+                return pearlFire.blockColor(rememberedColor, tintIndex);
             }
         }
 
-        return TintColorUtil.NO_TINT;
+        return Tints.NO_TINT;
     }
-
-    private static int getPearlPortalTint(
-            BlockState state,
-            BlockAndTintGetter level,
-            BlockPos pos,
-            int tintIndex
-    ) {
-        if (!PearlFireTintSource.supportsLayer(PEARL_PORTAL_PROFILE, tintIndex)) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (level != null && pos != null) {
-            if (level.getBlockEntity(pos) instanceof PearlPortalBlockEntity pearlPortalBe
-                    && pearlPortalBe.isValidPortalTile()) {
-                return PearlFireTintSource.blockTint(
-                        pearlPortalBe.getHexColor(),
-                        tintIndex,
-                        PEARL_PORTAL_PROFILE
-                );
-            }
-
-            Integer predictedRgb = PearlPlacementColorMemory.get(level, pos);
-            if (predictedRgb != null) {
-                return PearlFireTintSource.blockTint(
-                        predictedRgb,
-                        tintIndex,
-                        PEARL_PORTAL_PROFILE
-                );
-            }
-        }
-
-        return TintColorUtil.NO_TINT;
-    }
-
-    private static int getVocoPostPortalTint(
-            BlockState state,
-            BlockAndTintGetter level,
-            BlockPos pos,
-            int tintIndex
-    ) {
-        if (!state.hasProperty(VocoPostBlock.PORTAL) || !state.getValue(VocoPostBlock.PORTAL)) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (!PearlFireTintSource.supportsLayer(VOCO_POST_PORTAL_PROFILE, tintIndex)) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (level != null && pos != null
-                && level.getBlockEntity(pos) instanceof VocoPostBlockEntity postBe
-                && postBe.hasHexColor()) {
-            return PearlFireTintSource.blockTint(
-                    postBe.getHexColor(),
-                    tintIndex,
-                    VOCO_POST_PORTAL_PROFILE
-            );
-        }
-
-        return TintColorUtil.NO_TINT;
-    }
-
-    private static int getVocoTablePortalTint(
-            BlockState state,
-            BlockAndTintGetter level,
-            BlockPos pos,
-            int tintIndex
-    ) {
-        VocoTableTintLayer layer = tableTintLayer(tintIndex);
-        if (layer == null) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (!PearlFireTintSource.supportsLayer(VOCO_TABLE_PORTAL_PROFILE, layer.layerIndex())) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        BooleanProperty portalProperty = VocoTableLogic.portalProperty(layer.receptor());
-        if (!state.hasProperty(portalProperty) || !state.getValue(portalProperty)) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (level == null || pos == null
-                || !(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        int hexColor = tableBe.getPortalHexColorOrUnset(layer.receptor());
-        if (hexColor == VocoTableBlockEntity.UNSET_HEX_COLOR) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        return PearlFireTintSource.blockTint(
-                hexColor,
-                layer.layerIndex(),
-                VOCO_TABLE_PORTAL_PROFILE
-        );
-    }
-
-    private static int getMusavaccaPortalDoorTint(
-            BlockState state,
-            BlockAndTintGetter level,
-            BlockPos pos,
-            int tintIndex
-    ) {
-        boolean litPortal =
-                state.hasProperty(
-                        MusavaccaPortalDoorBlock.LIT_PORTAL
-                )
-                        && state.getValue(
-                        MusavaccaPortalDoorBlock.LIT_PORTAL
-                );
-
-        boolean portal =
-                state.hasProperty(
-                        MusavaccaPortalDoorBlock.PORTAL
-                )
-                        && state.getValue(
-                        MusavaccaPortalDoorBlock.PORTAL
-                );
-
-        /*
-         * Both door states may contain hex-tinted model faces:
-         *
-         * LIT_PORTAL:
-         *     imbued door before it has been charged.
-         *
-         * PORTAL:
-         *     fully charged active portal door.
-         *
-         * The model's tintindex still determines which individual
-         * model faces actually receive this tint.
-         */
-        if (
-                !litPortal
-                        && !portal
-        ) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (!PearlFireTintSource.supportsLayer(MUSAVACCA_DOOR_PROFILE, tintIndex)) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (level == null || pos == null) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        BlockPos lowerPos = MusavaccaPortalDoorBlock.lowerDoorPos(state, pos);
-
-        if (level.getBlockEntity(lowerPos) instanceof MusavaccaPortalDoorBlockEntity doorBe
-                && doorBe.hasHexColor()) {
-            return PearlFireTintSource.blockTint(
-                    doorBe.getHexColor(),
-                    tintIndex,
-                    MUSAVACCA_DOOR_PROFILE
-            );
-        }
-
-        return TintColorUtil.NO_TINT;
-    }
-
-    private static int getMusavaccaPortalTrapdoorTint(
-            BlockState state,
-            BlockAndTintGetter level,
-            BlockPos pos,
-            int tintIndex
-    ) {
-        boolean litPortal =
-                state.hasProperty(
-                        MusavaccaPortalTrapdoorBlock.LIT_PORTAL
-                )
-                        && state.getValue(
-                        MusavaccaPortalTrapdoorBlock.LIT_PORTAL
-                );
-
-        boolean portal =
-                state.hasProperty(
-                        MusavaccaPortalTrapdoorBlock.PORTAL
-                )
-                        && state.getValue(
-                        MusavaccaPortalTrapdoorBlock.PORTAL
-                );
-
-        if (
-                !litPortal
-                        && !portal
-        ) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (!PearlFireTintSource.supportsLayer(MUSAVACCA_TRAPDOOR_PROFILE, tintIndex)) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (level == null || pos == null) {
-            return TintColorUtil.NO_TINT;
-        }
-
-        if (level.getBlockEntity(pos) instanceof MusavaccaPortalTrapdoorBlockEntity trapdoorBe
-                && trapdoorBe.hasHexColor()) {
-            return PearlFireTintSource.blockTint(
-                    trapdoorBe.getHexColor(),
-                    tintIndex,
-                    MUSAVACCA_TRAPDOOR_PROFILE
-            );
-        }
-
-        return TintColorUtil.NO_TINT;
-    }
-
-    private static VocoTableTintLayer tableTintLayer(int tintIndex) {
-        int layerCount = VOCO_TABLE_PORTAL_PROFILE.layerCount();
-
-        for (VocoTableTintRange range : VOCO_TABLE_TINT_RANGES) {
-            if (tintIndex >= range.offset() && tintIndex < range.offset() + layerCount) {
-                return new VocoTableTintLayer(
-                        range.receptor(),
-                        tintIndex - range.offset()
-                );
-            }
-        }
-
-        return null;
-    }
-
-    private record VocoTableTintRange(ReceptorPosition receptor, int offset) {}
-
-    private record VocoTableTintLayer(ReceptorPosition receptor, int layerIndex) {}
 
     //? if <1.21.4 {
-    /*public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        // Every tinted NewGen item is derived from NewModelSets: standalone items,
-        // default block items, explicit block-embedded SimpleItems models, and door items.
-        // This keeps <1.21.4 runtime ItemColor registration on the same declarations as datagen.
-        for (NewgenItemCatalog.Binding binding : NewgenItemCatalog.legacyTintBindings()) {
+    /*private static void registerLegacyTrimProperties(FMLClientSetupEvent event) {
+        ArmorTrimItemTintSource.registerLegacyItemProperties(event, NewModelSets.armorItems());
+    }
+
+    public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
+        for (NewgenItemCatalog.Binding binding : NewgenItemCatalog.tintBindings()) {
             event.register(
                     (stack, tintIndex) -> SimpleItems.legacyTintColor(
                             binding.item(),
@@ -410,19 +91,15 @@ public final class ModTints {
             );
         }
 
-        // Armor trim is a specialized second-layer tint.
         for (ArmorItems.Entry entry : NewModelSets.armorItems()) {
-            registerLegacyArmorTrimTint(event, entry.helmet());
-            registerLegacyArmorTrimTint(event, entry.chestplate());
-            registerLegacyArmorTrimTint(event, entry.leggings());
-            registerLegacyArmorTrimTint(event, entry.boots());
+            registerLegacyArmorTint(event, entry.helmet());
+            registerLegacyArmorTint(event, entry.chestplate());
+            registerLegacyArmorTint(event, entry.leggings());
+            registerLegacyArmorTint(event, entry.boots());
         }
     }
 
-    private static void registerLegacyArmorTrimTint(
-            RegisterColorHandlersEvent.Item event,
-            ItemLike item
-    ) {
+    private static void registerLegacyArmorTint(RegisterColorHandlersEvent.Item event, ItemLike item) {
         if (item == null) {
             return;
         }
@@ -430,24 +107,15 @@ public final class ModTints {
         event.register(
                 (stack, tintIndex) -> tintIndex == 1
                         ? ArmorTrimItemTintSource.color(stack)
-                        : TintColorUtil.NO_TINT,
+                        : Tints.NO_TINT,
                 item.asItem()
         );
     }
     *///?} else {
     public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
-        event.register(
-                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "hex_color"),
-                HexColorItemTintSource.MAP_CODEC
-        );
-
-        event.register(
-                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color"),
-                ArmorTrimItemTintSource.MAP_CODEC
-        );
-
+        for (Tints.ItemTintType type : NewgenItemCatalog.itemTintTypes()) {
+            event.register(type.id(), type.codec());
+        }
     }
     //?}
 }
-
-

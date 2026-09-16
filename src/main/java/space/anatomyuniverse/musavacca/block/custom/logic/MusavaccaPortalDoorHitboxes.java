@@ -9,7 +9,6 @@ import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 
 public final class MusavaccaPortalDoorHitboxes {
 
-
     private static final VoxelShape NORTH =
             Block.box(
                     0.0D,

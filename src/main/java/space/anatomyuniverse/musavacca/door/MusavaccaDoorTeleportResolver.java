@@ -76,10 +76,6 @@ public final class MusavaccaDoorTeleportResolver {
             return Optional.empty();
         }
 
-        /*
-         * Refreshing the source is cheap and makes its persisted claim
-         * authoritative before we resolve the pair.
-         */
         MusavaccaDoorTeleportNetwork.refresh(
                 doorBe
         );
@@ -129,14 +125,7 @@ public final class MusavaccaDoorTeleportResolver {
     public static Optional<ResolvedDoor> resolveLinkedDoor(
             ResolvedDoor source
     ) {
-        /*
-         * The shared HexTeleportResolver now owns:
-         *
-         * - persistent linked-door lookup
-         * - remote dimension resolution
-         * - destination chunk ticket/load
-         * - stale endpoint cleanup through the shared address network
-         */
+
         HexTeleportResolver.ResolvedDoorEndpoint loaded =
                 HexTeleportResolver
                         .resolveLinkedDoor(
@@ -179,10 +168,7 @@ public final class MusavaccaDoorTeleportResolver {
                 )
                         != source.hexColor()
         ) {
-            /*
-             * The live block entity changed after persistent resolution.
-             * Refresh it so the directory immediately reflects reality.
-             */
+
             MusavaccaDoorTeleportNetwork
                     .refresh(
                             targetBe
@@ -191,11 +177,6 @@ public final class MusavaccaDoorTeleportResolver {
             return Optional.empty();
         }
 
-        /*
-         * A linked door may remain registered while physically closed.
-         * Registration represents its address relationship.
-         * Actual traversal still requires the target door portal to be open.
-         */
         if (
                 !isOpenPortalDoor(
                         targetState
@@ -301,5 +282,4 @@ public final class MusavaccaDoorTeleportResolver {
         );
     }
 }
-
 

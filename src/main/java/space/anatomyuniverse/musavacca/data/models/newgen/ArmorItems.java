@@ -18,11 +18,11 @@ import java.util.function.Consumer;
 
 //? if >=1.21.2 && <1.21.4
 //import net.minecraft.world.item.equipment.EquipmentModel;
+
 //? if >=1.21.4 {
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 //?}
 
-/** NewGen sibling for armor inventory models + worn equipment assets. */
 public final class ArmorItems {
     private ArmorItems() {}
 
@@ -429,3 +429,4 @@ public final class ArmorItems {
         }
     }
 }
+

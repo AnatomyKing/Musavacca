@@ -9,16 +9,6 @@ import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock
 
 public final class MusavaccaPortalTrapdoorHitboxes {
 
-    /*
-     * The portal aperture stays FLAT/HORIZONTAL even while the wooden
-     * trapdoor itself is physically OPEN and therefore upright.
-     *
-     * HALF=BOTTOM:
-     *     Y 0..2
-     *
-     * HALF=TOP:
-     *     Y 14..16
-     */
     private static final VoxelShape BOTTOM =
             Block.box(
                     0.0D,
@@ -73,5 +63,4 @@ public final class MusavaccaPortalTrapdoorHitboxes {
                 : BOTTOM;
     }
 }
-
 

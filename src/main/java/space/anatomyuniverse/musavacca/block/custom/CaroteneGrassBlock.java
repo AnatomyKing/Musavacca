@@ -180,4 +180,3 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
     }
 }
 
-

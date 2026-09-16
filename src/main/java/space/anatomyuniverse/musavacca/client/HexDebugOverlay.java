@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.client;
 
 import net.minecraft.client.Minecraft;
@@ -10,6 +9,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+
+import java.util.List;
 
 //? if <1.21.9 {
 import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
@@ -26,46 +28,77 @@ import net.neoforged.neoforge.client.event.RegisterDebugEntriesEvent;
 public final class HexDebugOverlay {
     private HexDebugOverlay() {}
 
-    private static Integer getLookedAtHexColor() {
+    private static DataComponentMap getLookedAtComponents() {
         Minecraft mc = Minecraft.getInstance();
+
         if (mc.level == null || !(mc.hitResult instanceof BlockHitResult hit)) {
             return null;
         }
 
-        BlockEntity be = mc.level.getBlockEntity(hit.getBlockPos());
-        if (be == null) {
-            return null;
+        BlockEntity blockEntity = mc.level.getBlockEntity(hit.getBlockPos());
+        return blockEntity == null ? null : blockEntity.collectComponents();
+    }
+
+    private static void addHexDebugLines(LineSink sink) {
+        DataComponentMap components = getLookedAtComponents();
+
+        if (components == null) {
+            return;
         }
 
-        DataComponentMap components = be.collectComponents();
-        return components.get(ModDataComponents.HEX_COLOR.get());
+        Integer hex = components.get(ModDataComponents.HEX_COLOR.get());
+
+        if (hex != null) {
+            sink.add("hex_color: " + MusavaccaTints.formatHex(hex));
+        }
+
+        List<Integer> multi = components.get(ModDataComponents.MULTI_HEX_COLOR.get());
+
+        if (multi == null) {
+            return;
+        }
+
+        sink.add("multi_hex_color:");
+
+        for (int index = 0; index < multi.size(); index++) {
+            int color = MusavaccaTints.multiColor(multi, index);
+
+            sink.add(
+                    "  [" + index + "]: "
+                            + (color == MusavaccaTints.NO_TINT
+                            ? "none"
+                            : MusavaccaTints.formatHex(color))
+            );
+        }
+    }
+
+    @FunctionalInterface
+    private interface LineSink {
+        void add(String line);
     }
 
     //? if <1.21.9 {
     @SubscribeEvent
     public static void onDebugText(CustomizeGuiOverlayEvent.DebugText event) {
-        Integer hex = getLookedAtHexColor();
-        if (hex == null) {
-            return;
-        }
-
-        event.getRight().add("hex_color: " + hex);
-        event.getRight().add(String.format("HexColorDisplay: #%06X", hex & 0xFFFFFF));
+        addHexDebugLines(event.getRight()::add);
     }
     //?} else {
-    /*public static void registerDebugEntries(RegisterDebugEntriesEvent event) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "hex_debug_overlay");
+    /*@SubscribeEvent
+    public static void registerDebugEntries(RegisterDebugEntriesEvent event) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(
+                MusaCore.MOD_ID,
+                "hex_debug_overlay"
+        );
 
         event.register(id, new DebugScreenEntry() {
             @Override
-            public void display(DebugScreenDisplayer displayer, Level level, LevelChunk clientChunk, LevelChunk serverChunk) {
-                Integer hex = getLookedAtHexColor();
-                if (hex == null) {
-                    return;
-                }
-
-                displayer.addLine("hex_color: " + hex);
-                displayer.addLine(String.format("HexColorDisplay: #%06X", hex & 0xFFFFFF));
+            public void display(
+                    DebugScreenDisplayer displayer,
+                    Level level,
+                    LevelChunk clientChunk,
+                    LevelChunk serverChunk
+            ) {
+                addHexDebugLines(displayer::addLine);
             }
 
             @Override
@@ -75,5 +108,5 @@ public final class HexDebugOverlay {
         });
     }
     *///?}
-}
 
+}

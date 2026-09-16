@@ -118,6 +118,3 @@ public final class ComponentStonecutting {
     private ComponentStonecutting() {}
 }
 
-
-
-

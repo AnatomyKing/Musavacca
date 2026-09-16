@@ -19,26 +19,24 @@ import net.minecraft.world.level.storage.ValueInput;
 //? if >=1.21.6
 import net.minecraft.world.level.storage.ValueOutput;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
-public class PearlCandleBlockEntity extends BlockEntity {
-    public static final String TAG_HEX_COLOR = "hex_color";
+public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
 
-    public static final int UNSET_HEX_COLOR = VocoReceptorLogic.UNSET_HEX_COLOR;
-
-    private int hexColor = UNSET_HEX_COLOR;
+    private int hexColor = MusavaccaTints.NO_TINT;
 
     public PearlCandleBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.PEARL_CANDLE_BLOCK_ENTITY.get(), pos, state);
     }
 
     public boolean hasHexColor() {
-        return this.hexColor != UNSET_HEX_COLOR;
+        return this.hexColor != MusavaccaTints.NO_TINT;
     }
 
+    @Override
     public int getHexColor() {
         return this.hexColor;
     }
@@ -46,11 +44,11 @@ public class PearlCandleBlockEntity extends BlockEntity {
     public int getHexColorOrFallback() {
         return this.hasHexColor()
                 ? this.hexColor
-                : FlintAndPearlItem.DEFAULT_HEX_COLOR;
+                : MusavaccaTints.DEFAULT_TINT;
     }
 
     public void setHexColor(int hexColor) {
-        int normalized = normalizeHex(hexColor);
+        int normalized = MusavaccaTints.resolve(hexColor);
 
         if (this.hexColor == normalized) {
             return;
@@ -118,7 +116,7 @@ public class PearlCandleBlockEntity extends BlockEntity {
         super.saveAdditional(output);
 
         if (this.hasHexColor()) {
-            output.putInt(TAG_HEX_COLOR, this.hexColor);
+            output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
         }
     }
     //?} else {
@@ -133,7 +131,7 @@ public class PearlCandleBlockEntity extends BlockEntity {
         super.saveAdditional(tag, provider);
 
         if (this.hasHexColor()) {
-            tag.putInt(TAG_HEX_COLOR, this.hexColor);
+            tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
         }
     }
     *///?}
@@ -144,7 +142,7 @@ public class PearlCandleBlockEntity extends BlockEntity {
         super.applyImplicitComponents(input);
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        this.hexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+        this.hexColor = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
     }
     //?} else {
     /*@Override
@@ -152,7 +150,7 @@ public class PearlCandleBlockEntity extends BlockEntity {
         super.applyImplicitComponents(input);
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        this.hexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+        this.hexColor = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
     }
     *///?}
 
@@ -203,13 +201,13 @@ public class PearlCandleBlockEntity extends BlockEntity {
 
     //? if >=1.21.6 {
     private static int readHexOrUnset(ValueInput input) {
-        int loaded = input.getIntOr(TAG_HEX_COLOR, UNSET_HEX_COLOR);
-        return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
+        return loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
     //?} else {
     /*private static int readHexOrUnset(CompoundTag tag) {
-        int loaded = getIntOr(tag, TAG_HEX_COLOR, UNSET_HEX_COLOR);
-        return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        int loaded = getIntOr(tag, MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
+        return loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
 
     private static int getIntOr(CompoundTag tag, String key, int fallback) {
@@ -219,11 +217,5 @@ public class PearlCandleBlockEntity extends BlockEntity {
         //return tag.contains(key) ? tag.getInt(key) : fallback;
     }
     *///?}
-
-    private static int normalizeHex(int hexColor) {
-        return VocoReceptorLogic.normalizeHex(hexColor);
-    }
 }
-
-
 

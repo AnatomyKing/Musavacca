@@ -29,8 +29,6 @@ public final class DoorBlocks {
         }
     }
 
-
-
     public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
         private final DoorTextures.Set textures;
         private final DoorModels baseModels;
@@ -151,3 +149,4 @@ public final class DoorBlocks {
         }
     }
 }
+

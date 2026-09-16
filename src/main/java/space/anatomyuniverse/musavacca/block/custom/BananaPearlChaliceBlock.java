@@ -160,5 +160,3 @@ protected VoxelShape getOcclusionShape(BlockState state) {
     }
 }
 
-
-

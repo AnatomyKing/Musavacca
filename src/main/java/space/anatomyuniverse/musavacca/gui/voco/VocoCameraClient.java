@@ -152,7 +152,6 @@ public final class VocoCameraClient {
         int width = graphics.guiWidth();
         int height = graphics.guiHeight();
 
-        // Subtle warm Voco/gold camera tint.
         graphics.fill(
                 0,
                 0,
@@ -161,8 +160,6 @@ public final class VocoCameraClient {
                 GOLD_FILTER
         );
 
-        // Very light pixel-grid treatment. Cheap: O(width + height), not a
-        // per-pixel or per-cell post-process.
         for (int x = 0; x < width; x += PIXEL_GRID_STEP) {
             graphics.fill(
                     x,
@@ -183,8 +180,6 @@ public final class VocoCameraClient {
             );
         }
 
-        // No backing rectangle: this replaces the translucent black bar that
-        // previously appeared above the hotbar.
         int centerX = width / 2;
 
         graphics.drawCenteredString(
@@ -270,5 +265,4 @@ public final class VocoCameraClient {
         RESET
     }
 }
-
 

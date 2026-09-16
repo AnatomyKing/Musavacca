@@ -83,7 +83,7 @@ public final class VocoCallerClientBundleTooltip
             int y,
             GuiGraphics graphics
     ) {
-        // Old 1.21.1 Bundle GUI, but collapsed to one physical SIM slot.
+        
         graphics.blitSprite(
                 LEGACY_BACKGROUND_SPRITE,
                 x,
@@ -219,3 +219,4 @@ public final class VocoCallerClientBundleTooltip
     }
     //?}
 }
+

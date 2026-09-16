@@ -30,6 +30,7 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class PearlFireBlock extends FireBlock implements EntityBlock {
     public PearlFireBlock(Properties properties) {
@@ -93,7 +94,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         }
 
         int fireHex = getPearlFireHex(level, firePos);
-        if (fireHex == PearlFireBlockEntity.UNSET_HEX_COLOR) {
+        if (fireHex == MusavaccaTints.NO_TINT) {
             return;
         }
 
@@ -243,7 +244,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                     int spreadAge = Math.min(15, age + random.nextInt(5) / 4);
                     level.setBlock(mutable, this.getPearlStateWithAge(level, mutable, spreadAge), 3);
 
-                    if (sourceHex != PearlFireBlockEntity.UNSET_HEX_COLOR) {
+                    if (sourceHex != MusavaccaTints.NO_TINT) {
                         setPlacedPearlFireHex(level, mutable, sourceHex);
                     }
                 }
@@ -267,7 +268,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             return pearlFireBe.getHexColor();
         }
 
-        return PearlFireBlockEntity.UNSET_HEX_COLOR;
+        return MusavaccaTints.NO_TINT;
     }
 
     private static void setPlacedPearlFireHex(Level level, BlockPos pos, int hexColor) {
@@ -337,7 +338,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             int newAge = Math.min(age + random.nextInt(5) / 4, 15);
             level.setBlock(pos, this.getPearlStateWithAge(level, pos, newAge), 3);
 
-            if (sourceHex != PearlFireBlockEntity.UNSET_HEX_COLOR) {
+            if (sourceHex != MusavaccaTints.NO_TINT) {
                 setPlacedPearlFireHex(level, pos, sourceHex);
             }
         } else {
@@ -358,5 +359,4 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         fire.setFlammable(ModBlocks.MUSAVACCA_LEAVES.get(), 30, 60);
     }
 }
-
 

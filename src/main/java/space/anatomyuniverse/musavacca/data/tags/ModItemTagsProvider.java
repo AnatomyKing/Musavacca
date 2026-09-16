@@ -58,9 +58,6 @@ public final class ModItemTagsProvider
     protected void addTags(
             HolderLookup.Provider provider
     ) {
-        /*
-         * Musavacca wood-family item tags.
-         */
 
         tag(ItemTags.PLANKS)
                 .add(key(ModBlocks.MUSAVACCA_PLANKS));
@@ -104,10 +101,6 @@ public final class ModItemTagsProvider
         tag(ItemTags.WOODEN_BUTTONS)
                 .add(key(ModBlocks.MUSAVACCA_BUTTON));
 
-        /*
-         * Potassium tools.
-         */
-
         tag(ItemTags.SWORDS)
                 .add(key(ModItems.POTASSIUM_SWORD));
 
@@ -122,10 +115,6 @@ public final class ModItemTagsProvider
 
         tag(ItemTags.HOES)
                 .add(key(ModItems.POTASSIUM_HOE));
-
-        /*
-         * General durability enchantments.
-         */
 
         tag(ItemTags.DURABILITY_ENCHANTABLE)
                 .add(key(ModItems.POTASSIUM_SWORD))
@@ -149,10 +138,6 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.POTASSIUM_LEGGINGS))
                 .add(key(ModItems.POTASSIUM_BOOTS));
 
-        /*
-         * Mining enchantment categories.
-         */
-
         tag(ItemTags.MINING_ENCHANTABLE)
                 .add(key(ModItems.POTASSIUM_PICKAXE))
                 .add(key(ModItems.POTASSIUM_AXE))
@@ -164,10 +149,6 @@ public final class ModItemTagsProvider
                 .add(key(ModItems.POTASSIUM_AXE))
                 .add(key(ModItems.POTASSIUM_SHOVEL))
                 .add(key(ModItems.POTASSIUM_HOE));
-
-        /*
-         * Weapon enchantment categories.
-         */
 
         tag(ItemTags.SWORD_ENCHANTABLE)
                 .add(key(ModItems.POTASSIUM_SWORD));
@@ -182,16 +163,8 @@ public final class ModItemTagsProvider
         tag(ItemTags.FIRE_ASPECT_ENCHANTABLE)
                 .add(key(ModItems.POTASSIUM_SWORD));
 
-        /*
-         * Potassium armor repair material.
-         */
-
         tag(ModItems.REPAIRS_POTASSIUM_ARMOR)
                 .add(key(ModItems.POTASSIUM_INGOT));
-
-        /*
-         * Armor slots.
-         */
 
         tag(ItemTags.HEAD_ARMOR)
                 .add(key(ModItems.POTASSIUM_HELMET));
@@ -205,19 +178,11 @@ public final class ModItemTagsProvider
         tag(ItemTags.FOOT_ARMOR)
                 .add(key(ModItems.POTASSIUM_BOOTS));
 
-        /*
-         * Armor trims.
-         */
-
         tag(ItemTags.TRIMMABLE_ARMOR)
                 .add(key(ModItems.POTASSIUM_HELMET))
                 .add(key(ModItems.POTASSIUM_CHESTPLATE))
                 .add(key(ModItems.POTASSIUM_LEGGINGS))
                 .add(key(ModItems.POTASSIUM_BOOTS));
-
-        /*
-         * Armor enchantment categories.
-         */
 
         tag(ItemTags.HEAD_ARMOR_ENCHANTABLE)
                 .add(key(ModItems.POTASSIUM_HELMET));
@@ -276,5 +241,4 @@ public final class ModItemTagsProvider
     }
     *///?}
 }
-
 

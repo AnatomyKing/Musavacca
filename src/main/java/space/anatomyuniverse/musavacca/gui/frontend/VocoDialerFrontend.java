@@ -56,7 +56,7 @@ public class VocoDialerFrontend extends AbstractContainerScreen<VocoDialerMenu> 
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        // Intentionally empty.
+        
     }
 
     @Override
@@ -66,5 +66,4 @@ public class VocoDialerFrontend extends AbstractContainerScreen<VocoDialerMenu> 
         this.renderTooltip(graphics, mouseX, mouseY);
     }
 }
-
 

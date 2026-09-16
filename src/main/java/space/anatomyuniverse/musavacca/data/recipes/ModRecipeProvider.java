@@ -127,13 +127,10 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModItems.VACACA.get(), Items.AMETHYST_SHARD)
                 .save("misc/banana_pearl_from_vacaca");
 
-
-
         dsl.shapeless(RecipeCategory.MISC, ModItems.FLINT_AND_PEARL.get(), 1)
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .save("misc/flint_and_pearl");
-
 
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.VOCO_POST.get(), 1)
                 .pattern("s")
@@ -144,7 +141,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModBlocks.MUSAVACCA_SLAB.get(), ModBlocks.MUSAVACCA_FENCE.get())
                 .save("blocks/voco_post");
 
-
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.VOCO_TABLE.get(), 1)
                 .pattern("p p")
                 .pattern(" m ")
@@ -153,7 +149,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('m', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.VOCO_POST.get(), ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/voco_table");
-
 
         dsl.shapelessCounts(
                         RecipeCategory.MISC,
@@ -164,7 +159,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModItems.MUSAVACCA_EXUDATE.get(), ModItems.BANANA_PELLIS.get())
                 .save("misc/banazo_gusma_lumpa_goop");
 
-
         dsl.shapelessCounts(
                         RecipeCategory.MISC,
                         ModItems.POTASSIUM_INGOT.get(), 1,
@@ -174,13 +168,11 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), ModItems.VACACA.get())
                 .save("misc/potassium_ingot");
 
-
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_SLAB.get(), 6)
                 .pattern("ppp")
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_slab");
-
 
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_TRAPDOOR.get(), 2)
                 .pattern("ppp")
@@ -189,7 +181,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_trapdoor");
 
-
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_FENCE.get(), 3)
                 .pattern("psp")
                 .pattern("psp")
@@ -197,14 +188,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('s', Items.STICK)
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get(), Items.STICK)
                 .save("blocks/musavacca_fence");
-
-
-        /*
-         * NORMAL POTASSIUM TOOLS
-         *
-         * Potassium template + diamond tool + potassium ingot
-         * -> normal potassium tool
-         */
 
         dsl.transform().of(
                         Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
@@ -219,7 +202,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 )
                 .save("smithing/potassium_sword_upgrade");
 
-
         dsl.transform().of(
                         Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
                         Ingredient.of(Items.DIAMOND_PICKAXE),
@@ -232,7 +214,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                         ModItems.POTASSIUM_INGOT.get()
                 )
                 .save("smithing/potassium_pickaxe_upgrade");
-
 
         dsl.transform().of(
                         Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
@@ -247,7 +228,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 )
                 .save("smithing/potassium_axe_upgrade");
 
-
         dsl.transform().of(
                         Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
                         Ingredient.of(Items.DIAMOND_SHOVEL),
@@ -260,7 +240,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                         ModItems.POTASSIUM_INGOT.get()
                 )
                 .save("smithing/potassium_shovel_upgrade");
-
 
         dsl.transform().of(
                         Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
@@ -275,11 +254,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 )
                 .save("smithing/potassium_hoe_upgrade");
 
-
-        /*
-         * NORMAL POTASSIUM ARMOR
-         */
-
         dsl.transform().of(
                         Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
                         Ingredient.of(Items.DIAMOND_HELMET),
@@ -292,7 +266,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                         ModItems.POTASSIUM_INGOT.get()
                 )
                 .save("smithing/potassium_helmet_upgrade");
-
 
         dsl.transform().of(
                         Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
@@ -307,7 +280,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 )
                 .save("smithing/potassium_chestplate_upgrade");
 
-
         dsl.transform().of(
                         Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
                         Ingredient.of(Items.DIAMOND_LEGGINGS),
@@ -321,7 +293,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 )
                 .save("smithing/potassium_leggings_upgrade");
 
-
         dsl.transform().of(
                         Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
                         Ingredient.of(Items.DIAMOND_BOOTS),
@@ -334,7 +305,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                         ModItems.POTASSIUM_INGOT.get()
                 )
                 .save("smithing/potassium_boots_upgrade");
-
 
         dsl.shaped(RecipeCategory.MISC, ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), 2)
                 .pattern("xAx")
@@ -364,11 +334,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                 )
                 .save("smithing/fractured_potassium_upgrade_smithing_template_duplication");
 
-
     }
 
 }
-
-
-
 

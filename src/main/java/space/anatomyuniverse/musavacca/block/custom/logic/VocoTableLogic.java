@@ -480,5 +480,3 @@ public final class VocoTableLogic {
 
 }
 
-
-

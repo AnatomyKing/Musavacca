@@ -18,3 +18,4 @@ public final class ModelDirections {
         return HORIZONTAL;
     }
 }
+

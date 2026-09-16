@@ -144,5 +144,3 @@ public final class VocoTableBlock extends Block implements EntityBlock {
     }
 }
 
-
-

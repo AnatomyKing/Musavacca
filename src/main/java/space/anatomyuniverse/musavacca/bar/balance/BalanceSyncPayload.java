@@ -11,8 +11,8 @@ public record BalanceSyncPayload(
         int balance,
         boolean active
 ) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<BalanceSyncPayload> TYPE =
-            new CustomPacketPayload.Type<>(
+    public static final Type<BalanceSyncPayload> TYPE =
+            new Type<>(
                     ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "balance_sync")
             );
 

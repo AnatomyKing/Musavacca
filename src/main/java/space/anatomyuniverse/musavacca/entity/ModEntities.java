@@ -84,5 +84,3 @@ public final class ModEntities {
     }
 }
 
-
-

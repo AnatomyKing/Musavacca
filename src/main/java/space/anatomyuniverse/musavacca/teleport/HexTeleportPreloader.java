@@ -13,10 +13,8 @@ import net.minecraft.world.phys.Vec3;
 
 public final class HexTeleportPreloader {
 
-
     public static final int PRELOAD_RADIUS =
             2;
-
 
     private static final int PORTAL_TICKET_RADIUS =
             PRELOAD_RADIUS
@@ -169,5 +167,4 @@ public final class HexTeleportPreloader {
                 <= PRELOAD_RADIUS;
     }
 }
-
 

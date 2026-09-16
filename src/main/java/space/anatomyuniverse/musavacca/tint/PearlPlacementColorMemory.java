@@ -1,7 +1,6 @@
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 
 import java.util.Map;
@@ -9,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class PearlPlacementColorMemory {
     private static final long ENTRY_LIFETIME_MS = 1500L;
-    private static final int MAX_ENTRIES_BEFORE_PURGE = 1024;
+    private static final int MAX_ENTRIES = 1024;
 
     private static final Map<Long, Entry> ENTRIES = new ConcurrentHashMap<>();
 
@@ -20,15 +19,20 @@ public final class PearlPlacementColorMemory {
             return;
         }
 
-        rememberClientPos(pos, rgb);
-    }
+        long now = System.currentTimeMillis();
+        purgeExpired(now);
 
-    public static Integer get(BlockAndTintGetter level, BlockPos pos) {
-        return get(pos);
-    }
+        if (ENTRIES.size() >= MAX_ENTRIES) {
+            ENTRIES.clear();
+        }
 
-    public static Integer get(Level level, BlockPos pos) {
-        return get(pos);
+        ENTRIES.put(
+                pos.asLong(),
+                new Entry(
+                        MusavaccaTints.rgb(rgb),
+                        now + ENTRY_LIFETIME_MS
+                )
+        );
     }
 
     public static Integer get(BlockPos pos) {
@@ -41,21 +45,12 @@ public final class PearlPlacementColorMemory {
             return null;
         }
 
-        long now = System.currentTimeMillis();
-        if (now > entry.expiresAtMs()) {
+        if (System.currentTimeMillis() > entry.expiresAtMs()) {
             ENTRIES.remove(pos.asLong());
             return null;
         }
 
         return entry.rgb();
-    }
-
-    public static void clear(BlockAndTintGetter level, BlockPos pos) {
-        clear(pos);
-    }
-
-    public static void clear(Level level, BlockPos pos) {
-        clear(pos);
     }
 
     public static void clear(BlockPos pos) {
@@ -64,36 +59,9 @@ public final class PearlPlacementColorMemory {
         }
     }
 
-    public static void clearAll() {
-        ENTRIES.clear();
-    }
-
-    private static void rememberClientPos(BlockPos pos, int rgb) {
-        long now = System.currentTimeMillis();
-
-        if (ENTRIES.size() >= MAX_ENTRIES_BEFORE_PURGE) {
-            purgeExpired(now);
-
-            if (ENTRIES.size() >= MAX_ENTRIES_BEFORE_PURGE) {
-                ENTRIES.clear();
-            }
-        }
-
-        ENTRIES.put(
-                pos.asLong(),
-                new Entry(
-                        TintColorUtil.rgb(rgb),
-                        now + ENTRY_LIFETIME_MS
-                )
-        );
-    }
-
     private static void purgeExpired(long now) {
         ENTRIES.entrySet().removeIf(entry -> now > entry.getValue().expiresAtMs());
     }
 
     private record Entry(int rgb, long expiresAtMs) {}
 }
-
-
-

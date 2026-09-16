@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-/** The vanilla poses of each family. Model creation and version handling live elsewhere. */
 final class NewgenStates {
     private NewgenStates() {}
 
@@ -26,7 +25,6 @@ final class NewgenStates {
     static final List<Pose<FenceGateModels>> FENCE_GATES = fenceGates();
     static final List<Pose<ButtonModels>> BUTTONS = buttons();
     static final List<Pose<WallModels>> WALLS = walls();
-
 
     private static List<Pose<SlabModels>> slabs() {
         List<Pose<SlabModels>> poses = new ArrayList<>();
@@ -178,3 +176,4 @@ final class NewgenStates {
         };
     }
 }
+

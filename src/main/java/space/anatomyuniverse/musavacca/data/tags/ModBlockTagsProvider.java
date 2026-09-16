@@ -70,9 +70,6 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.BANANA_PEARL_BRICKS.get()
         );
 
-        /*
-         * Entire Musavacca wood family is axe-mineable.
-         */
         tag(BlockTags.MINEABLE_WITH_AXE).add(
                 ModBlocks.MUSAVACCA_STEM.get(),
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
@@ -141,10 +138,6 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.MUSAVACCA_DOOR.get()
         );
 
-        /*
-         * Allows mobs with door-opening AI, such as villagers,
-         * to recognize this as an interactable door.
-         */
         tag(BlockTags.MOB_INTERACTABLE_DOORS).add(
                 ModBlocks.MUSAVACCA_DOOR.get()
         );
@@ -160,7 +153,6 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         tag(BlockTags.WOODEN_BUTTONS).add(
                 ModBlocks.MUSAVACCA_BUTTON.get()
         );
-
 
         tag(BlockTags.DIRT).add(
                 ModBlocks.CAROTENE_GRASS.get()
@@ -179,5 +171,4 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         );
     }
 }
-
 

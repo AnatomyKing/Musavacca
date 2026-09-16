@@ -721,5 +721,3 @@ public final class ComponentRecipeDSL {
     private ComponentRecipeDSL() {}
 }
 
-
-

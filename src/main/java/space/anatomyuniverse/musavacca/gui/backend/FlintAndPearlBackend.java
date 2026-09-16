@@ -5,7 +5,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class FlintAndPearlBackend {
     private final InteractionHand hand;
@@ -14,7 +14,7 @@ public final class FlintAndPearlBackend {
 
     public FlintAndPearlBackend(InteractionHand hand, int hexColor) {
         this.hand = hand;
-        this.hexColor = normalizeHexColor(hexColor);
+        this.hexColor = MusavaccaTints.resolve(hexColor);
     }
 
     public InteractionHand getHand() {
@@ -26,7 +26,7 @@ public final class FlintAndPearlBackend {
     }
 
     public void setHexColor(int hexColor) {
-        this.hexColor = normalizeHexColor(hexColor);
+        this.hexColor = MusavaccaTints.resolve(hexColor);
     }
 
     public boolean applyHexColor(Player player, int hexColor) {
@@ -36,7 +36,7 @@ public final class FlintAndPearlBackend {
             return false;
         }
 
-        int color = normalizeHexColor(hexColor);
+        int color = MusavaccaTints.resolve(hexColor);
 
         stack.set(ModDataComponents.HEX_COLOR.get(), color);
         this.hexColor = color;
@@ -45,11 +45,8 @@ public final class FlintAndPearlBackend {
     }
 
     public static int getDefaultHexColor() {
-        return normalizeHexColor(FlintAndPearlItem.DEFAULT_HEX_COLOR);
+        return MusavaccaTints.DEFAULT_TINT;
     }
 
-    private static int normalizeHexColor(int hexColor) {
-        return TintColorUtil.rgb(hexColor);
-    }
 }
 

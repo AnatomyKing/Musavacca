@@ -40,7 +40,6 @@ public class SmallBananaPearlItem extends Item {
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = level.getBlockState(clickedPos);
 
-        // 1) Clicking an existing pearl pile -> increment it
         if (SmallBananaPearlBlock.canAcceptPearl(clickedState)) {
             if (!level.isClientSide()) {
                 BlockState next = SmallBananaPearlBlock.increment(clickedState);
@@ -54,7 +53,6 @@ public class SmallBananaPearlItem extends Item {
             return successResult();
         }
 
-        // 2) Otherwise try to place the first pearl pile block
         BlockPlaceContext placeContext = new BlockPlaceContext(context);
 
         BlockPos placePos = clickedState.canBeReplaced(placeContext)

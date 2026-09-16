@@ -15,59 +15,14 @@ import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticleOption
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticleType;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class GlitherParticle extends SimpleAnimatedParticle {
-    /*
-     * Glither = animated pearl-fire/profile sandwich particle.
-     *
-     * One logical glither is spawned as multiple real particle layers through
-     * ProfileTintParticles.
-     *
-     * IMPORTANT:
-     * This particle is different from PearlGlyphPortalParticle.
-     *
-     * Glyph:
-     * - one static sprite per layer
-     *
-     * Glither:
-     * - 8 animation frames
-     * - 4 sandwich layers per animation frame
-     *
-     * JSON order must be frame-major:
-     *
-     * frame 7 layer 0
-     * frame 7 layer 1
-     * frame 7 layer 2
-     * frame 7 layer 3
-     *
-     * frame 6 layer 0
-     * frame 6 layer 1
-     * frame 6 layer 2
-     * frame 6 layer 3
-     *
-     * ...
-     *
-     * frame 0 layer 0
-     * frame 0 layer 1
-     * frame 0 layer 2
-     * frame 0 layer 3
-     */
 
     private static final int ANIMATION_FRAME_COUNT = 8;
 
     private static final float GRAVITY = 0.0125F;
 
-    /*
-     * Small deterministic size.
-     *
-     * Do NOT use:
-     * this.quadSize *= something;
-     *
-     * The SimpleAnimatedParticle constructor may give every layer a slightly
-     * different randomized base quadSize. For sandwich particles, that breaks
-     * the perfect overlap.
-     */
     private static final float BASE_QUAD_SIZE = 0.095F;
     private static final float SIZE_RANDOM_MIN = 0.92F;
     private static final float SIZE_RANDOM_RANGE = 0.16F;
@@ -100,43 +55,17 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
         this.spriteLayerCount = Math.max(1, options.layerCount());
         this.spriteLayer = clamp(options.layer(), 0, this.spriteLayerCount - 1);
 
-        /*
-         * PERFECT sandwich:
-         * All layers get the exact same position.
-         *
-         * No layerOffset.
-         * No tiny z/y split.
-         * No per-layer jitter.
-         */
         this.setPos(x, y, z);
         this.xo = x;
         this.yo = y;
         this.zo = z;
 
-        /*
-         * Same velocity for every layer.
-         */
         this.setParticleSpeed(xd, yd, zd);
 
-        /*
-         * Deterministic same size for every layer from the shared seed.
-         *
-         * Every layer receives the same seed from ProfileTintParticles, so every
-         * layer gets the same random size.
-         */
         this.quadSize = BASE_QUAD_SIZE * (SIZE_RANDOM_MIN + random.nextFloat() * SIZE_RANDOM_RANGE);
 
-        /*
-         * Deterministic same lifetime for every layer from the shared seed.
-         */
         this.lifetime = MIN_LIFETIME + random.nextInt(RANDOM_LIFETIME);
 
-        /*
-         * Apply pearl-fire tint manually.
-         *
-         * We do not use ProfileTintSprite.prepare(...) here because that helper
-         * assumes one sprite per layer. Glither has frame + layer indexing.
-         */
         int profileLayer = remapLayer(
                 this.spriteLayer,
                 this.spriteLayerCount,
@@ -154,9 +83,6 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
         this.setGlitherSpriteFromAge();
     }
 
-    /*
-     * Translucent is correct for stacked mask/sandwich particles.
-     */
     @Override
     public ParticleRenderType getRenderType() {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
@@ -168,9 +94,6 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
         this.setGlitherSpriteFromAge();
     }
 
-    /*
-     * Same movement style as your End Rod-like particle.
-     */
     @Override
     public void move(double x, double y, double z) {
         this.setBoundingBox(this.getBoundingBox().move(x, y, z));
@@ -180,27 +103,8 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
     private void setGlitherSpriteFromAge() {
         int frame = this.animationFrame();
 
-        /*
-         * Direct logical index:
-         *
-         * frame 0 = first frame in JSON, which is glither_7 in your reversed list.
-         * frame 1 = glither_6
-         * ...
-         * frame 7 = glither_0
-         *
-         * layer 0-3 chooses the matching layer inside that frame.
-         */
         int textureIndex = (frame * this.spriteLayerCount) + this.spriteLayer;
 
-        /*
-         * SpriteSet#get(age, lifetime) maps age across the loaded sprite list.
-         * Passing textureIndex against maxTextureIndex gives us a stable direct
-         * index as long as the JSON has exactly:
-         *
-         * ANIMATION_FRAME_COUNT * spriteLayerCount
-         *
-         * entries.
-         */
         int maxTextureIndex = Math.max(0, (ANIMATION_FRAME_COUNT * this.spriteLayerCount) - 1);
 
         this.setSprite(this.sprites.get(textureIndex, maxTextureIndex));
@@ -233,7 +137,7 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
     }
 
     private static void applyTint(Particle particle, int tint) {
-        int rgb = TintColorUtil.rgb(tint);
+        int rgb = MusavaccaTints.rgb(tint);
 
         particle.setColor(
                 ((rgb >> 16) & 0xFF) / 255.0F,

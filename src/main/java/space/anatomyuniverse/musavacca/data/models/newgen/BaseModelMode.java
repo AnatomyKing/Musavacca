@@ -4,3 +4,4 @@ public enum BaseModelMode {
     GENERATED,
     EXISTING
 }
+

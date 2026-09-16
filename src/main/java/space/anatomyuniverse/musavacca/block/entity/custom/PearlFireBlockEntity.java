@@ -21,27 +21,28 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
-public class PearlFireBlockEntity extends BlockEntity {
-    public static final String TAG_HEX_COLOR = "hex_color";
-    public static final int UNSET_HEX_COLOR = -1;
+public class PearlFireBlockEntity extends BlockEntity implements HexSource {
 
-    private int hexColor = UNSET_HEX_COLOR;
+    private int hexColor = MusavaccaTints.NO_TINT;
 
     public PearlFireBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.PEARL_FIRE_BLOCK_ENTITY.get(), pos, state);
     }
 
+    @Override
     public int getHexColor() {
         return this.hexColor;
     }
 
     public boolean hasHexColor() {
-        return this.hexColor != UNSET_HEX_COLOR;
+        return this.hexColor != MusavaccaTints.NO_TINT;
     }
 
     public void setHexColor(int hexColor) {
-        int normalized = normalizeHex(hexColor);
+        int normalized = MusavaccaTints.resolve(hexColor);
         if (this.hexColor == normalized) {
             return;
         }
@@ -95,8 +96,8 @@ public class PearlFireBlockEntity extends BlockEntity {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
-        int loaded = input.getIntOr(TAG_HEX_COLOR, UNSET_HEX_COLOR);
-        this.hexColor = loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
+        this.hexColor = loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
 
     @Override
@@ -104,7 +105,7 @@ public class PearlFireBlockEntity extends BlockEntity {
         super.saveAdditional(output);
 
         if (this.hasHexColor()) {
-            output.putInt(TAG_HEX_COLOR, this.hexColor);
+            output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
         }
     }
     //?} else {
@@ -112,8 +113,8 @@ public class PearlFireBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
 
-        int loaded = getIntOr(tag, TAG_HEX_COLOR, UNSET_HEX_COLOR);
-        this.hexColor = loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        int loaded = getIntOr(tag, MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
+        this.hexColor = loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
 
     @Override
@@ -121,7 +122,7 @@ public class PearlFireBlockEntity extends BlockEntity {
         super.saveAdditional(tag, provider);
 
         if (this.hasHexColor()) {
-            tag.putInt(TAG_HEX_COLOR, this.hexColor);
+            tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
         }
     }
     *///?}
@@ -133,7 +134,7 @@ public class PearlFireBlockEntity extends BlockEntity {
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex != null) {
-            this.hexColor = normalizeHex(savedHex);
+            this.hexColor = MusavaccaTints.stored(savedHex);
         }
     }
     //?} else {
@@ -143,7 +144,7 @@ public class PearlFireBlockEntity extends BlockEntity {
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex != null) {
-            this.hexColor = normalizeHex(savedHex);
+            this.hexColor = MusavaccaTints.stored(savedHex);
         }
     }
     *///?}
@@ -201,11 +202,5 @@ public class PearlFireBlockEntity extends BlockEntity {
         //return tag.contains(key) ? tag.getInt(key) : fallback;
     }
     *///?}
-
-    private static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
-    }
 }
-
-
 

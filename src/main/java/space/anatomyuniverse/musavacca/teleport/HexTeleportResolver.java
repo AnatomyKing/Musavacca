@@ -104,14 +104,6 @@ public final class HexTeleportResolver {
                     );
         }
 
-        /*
-         * Re-read the hex index after stale cleanup.
-         *
-         * That means if removing a stale active endpoint immediately
-         * promotes a queued claim for the same hex, this same teleport
-         * attempt can use the newly promoted endpoint instead of making
-         * the player try a second time.
-         */
         Set<UUID> attempted =
                 new HashSet<>();
 
@@ -392,12 +384,6 @@ public final class HexTeleportResolver {
             return Optional.empty();
         }
 
-        /*
-         * Owner chunk first:
-         *
-         * this makes a remote unloaded endpoint inspectable before
-         * we validate its block/block entity.
-         */
         keepChunkLoaded(
                 level,
                 endpoint.ownerPos()
@@ -412,10 +398,6 @@ public final class HexTeleportResolver {
             return Optional.empty();
         }
 
-        /*
-         * Voco custom targets can be in a different chunk than the
-         * endpoint owner, so keep the actual landing chunk alive too.
-         */
         keepChunkLoaded(
                 level,
                 BlockPos.containing(
@@ -459,11 +441,6 @@ public final class HexTeleportResolver {
             return Optional.empty();
         }
 
-        /*
-         * Doors can be arbitrarily far away and completely unloaded.
-         * Ticket/load the stored lower-door owner chunk before touching
-         * its block state or block entity.
-         */
         keepChunkLoaded(
                 level,
                 endpoint.ownerPos()
@@ -810,7 +787,7 @@ public final class HexTeleportResolver {
         }
 
         return HexTeleportDirectory.normalizeHex(
-                tableBe.getPortalHexColorOrUnset(
+                tableBe.getPortalHexColorOrNoTint(
                         receptor
                 )
         )
@@ -929,7 +906,4 @@ public final class HexTeleportResolver {
         );
     }
 }
-
-
-
 

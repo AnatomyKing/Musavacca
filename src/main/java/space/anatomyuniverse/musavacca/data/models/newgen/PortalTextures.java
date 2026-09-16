@@ -20,7 +20,7 @@ public final class PortalTextures {
         }
 
         ResourceLocation source(Tints.Tint tint, int layer) {
-            return tint instanceof Tints.PearlFire ? layer(layer) : texture;
+            return Tints.generatedLayerCount(tint) > 1 ? layer(layer) : texture;
         }
     }
 
@@ -57,7 +57,6 @@ public final class PortalTextures {
             return this;
         }
 
-        /** Exact indexed prefix, without the trailing _0. Keeps the ordinary texture unchanged. */
         public Builder layerPrefix(String prefix) {
             layerPrefix = TextureTokens.resolveBlock(block, prefix);
             return this;
@@ -71,3 +70,4 @@ public final class PortalTextures {
         public Set build() { return new Set(texture, layerPrefix, particle); }
     }
 }
+

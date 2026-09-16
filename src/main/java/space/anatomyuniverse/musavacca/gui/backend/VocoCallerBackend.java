@@ -30,10 +30,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
             return;
         }
 
-        /*
-         * Record first. A successful teleport closes the menu, and menu close
-         * is what writes this session back into the SIM component.
-         */
         this.pushRecentCallToTop(address);
         super.onAddressDialed(player, address);
     }
@@ -132,7 +128,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         this.pushRecentCallToTop(formatHex(hexColor));
     }
 
-    /** Appends to Recent after compacting it, or returns false when it is full. */
     public boolean appendRecentCallIfSpace(String hexCode) {
         String normalized = normalizeHex(hexCode);
         if (normalized == null) return false;
@@ -178,7 +173,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         removeAndCompact(this.state.savedNumbers, row);
     }
 
-    /** Deletes from Saved and returns whether the removed number fit in Recent. */
     public boolean deleteSavedNumberToRecent(int row) {
         checkRow(row);
         String removed = this.state.savedNumbers[row];
@@ -187,7 +181,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         return this.appendRecentCallIfSpace(removed);
     }
 
-    /** Moves a Recent number to Saved row 0 and recycles any displaced Saved number. */
     public boolean moveRecentCallToSavedTop(int row) {
         checkRow(row);
         String moving = this.state.recentCalls[row];
@@ -198,7 +191,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         return true;
     }
 
-    /** Pushes to Saved row 0 and discards anything displaced from a full list. */
     public void pushSavedNumberToTop(String hexCode) {
         this.insertSavedNumberAtTop(hexCode);
     }
@@ -207,7 +199,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         this.pushSavedNumberToTop(formatHex(hexColor));
     }
 
-    /** Inserts at Saved row 0 and returns an entry displaced from a full list. */
     private String insertSavedNumberAtTop(String hexCode) {
         String normalized = normalizeHex(hexCode);
         if (normalized == null) return null;
@@ -218,7 +209,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         return displaced;
     }
 
-    /** Moves a Saved number between filled rows, wrapping at either end. */
     public int moveSavedNumber(int row, int direction) {
         checkRow(row);
         if (this.state.savedNumbers[row] == null) return row;
@@ -370,5 +360,4 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         }
     }
 }
-
 

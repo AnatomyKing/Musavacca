@@ -87,7 +87,6 @@ public final class StairBlocks {
                 }
             }
 
-
             validatePartConditions();
         }
 
@@ -152,3 +151,4 @@ public final class StairBlocks {
         }
     }
 }
+

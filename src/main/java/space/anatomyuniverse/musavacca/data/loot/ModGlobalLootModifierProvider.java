@@ -26,9 +26,7 @@ public final class ModGlobalLootModifierProvider
 
     @Override
     protected void start() {
-        /*
-         * Append the Musavacca pup injection table to Sniffer digging.
-         */
+
         add(
                 "inject_musavacca_pup_into_sniffer_digging",
                 new AddTableLootModifier(
@@ -45,12 +43,6 @@ public final class ModGlobalLootModifierProvider
                 )
         );
 
-        /*
-         * Append the fractured Potassium template injection table
-         * to Jungle Temple chest loot.
-         *
-         * This does not replace the vanilla Jungle Temple table.
-         */
         add(
                 "inject_fractured_potassium_template_into_jungle_temple",
                 new AddTableLootModifier(

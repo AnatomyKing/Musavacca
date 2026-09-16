@@ -161,4 +161,3 @@ public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
     }
 }
 
-

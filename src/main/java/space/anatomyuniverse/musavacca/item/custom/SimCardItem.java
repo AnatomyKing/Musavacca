@@ -4,7 +4,7 @@ package space.anatomyuniverse.musavacca.item.custom;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
 
 public class SimCardItem extends Item {
@@ -22,11 +22,11 @@ public class SimCardItem extends Item {
 
     public static int getStoredHexOrFallback(ItemStack stack, int fallbackHexColor) {
         Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-        return TintColorUtil.rgb(savedHex != null ? savedHex : fallbackHexColor);
+        return MusavaccaTints.rgb(savedHex != null ? savedHex : fallbackHexColor);
     }
 
     public static void setStoredHex(ItemStack stack, int hexColor) {
-        stack.set(ModDataComponents.HEX_COLOR.get(), TintColorUtil.rgb(hexColor));
+        stack.set(ModDataComponents.HEX_COLOR.get(), MusavaccaTints.rgb(hexColor));
     }
 
     public static VocoCallerPhonebook getPhonebook(ItemStack stack) {
@@ -36,5 +36,4 @@ public class SimCardItem extends Item {
         );
     }
 }
-
 

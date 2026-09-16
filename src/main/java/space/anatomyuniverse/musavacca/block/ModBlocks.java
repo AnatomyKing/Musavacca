@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.block;
 
-
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DoubleHighBlockItem;
@@ -76,7 +75,6 @@ public final class ModBlocks {
     public static final DeferredItem<BlockItem> RIPE_MUSAVACCA_EGG =
             MusavaccaEggItems("ripe_musavacca_egg", 2);
 
-
     public static final DeferredBlock<Block> BANANA_PEARL_CHAPITER =
             BLOCKS.registerBlock("banana_pearl_chapiter",
                     props -> new BananaPearlChapiter(props
@@ -94,7 +92,6 @@ public final class ModBlocks {
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
                             .pushReaction(PushReaction.NORMAL)));
-
 
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_MUSAVACCA_STEM =
             BLOCKS.registerBlock("stripped_musavacca_stem",
@@ -187,7 +184,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.NORMAL)
                     ));
 
-
     public static final DeferredBlock<StairBlock> MUSAVACCA_STAIRS =
             BLOCKS.registerBlock("musavacca_stairs",
                     props -> new StairBlock(
@@ -199,7 +195,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.NORMAL)
                     ));
 
-
     public static final DeferredBlock<SlabBlock> MUSAVACCA_SLAB =
             BLOCKS.registerBlock("musavacca_slab",
                     props -> new SlabBlock(
@@ -209,7 +204,6 @@ public final class ModBlocks {
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     .pushReaction(PushReaction.NORMAL)
                     ));
-
 
     public static final DeferredBlock<FenceBlock> MUSAVACCA_FENCE =
             BLOCKS.registerBlock("musavacca_fence",
@@ -221,7 +215,6 @@ public final class ModBlocks {
                                     .forceSolidOn()
                                     .pushReaction(PushReaction.NORMAL)
                     ));
-
 
     public static final DeferredBlock<FenceGateBlock> MUSAVACCA_FENCE_GATE =
             BLOCKS.registerBlock("musavacca_fence_gate",
@@ -235,7 +228,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.NORMAL)
                     ));
 
-
     public static final DeferredBlock<MusavaccaPortalDoorBlock> MUSAVACCA_DOOR =
             BLOCKS.registerBlock("musavacca_door",
                     props -> new MusavaccaPortalDoorBlock(
@@ -248,7 +240,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                     ));
 
-
     public static final DeferredBlock<MusavaccaPortalTrapdoorBlock> MUSAVACCA_TRAPDOOR =
             BLOCKS.registerBlock("musavacca_trapdoor",
                     props -> new MusavaccaPortalTrapdoorBlock(
@@ -260,7 +251,6 @@ public final class ModBlocks {
                                     .noOcclusion()
                                     .pushReaction(PushReaction.DESTROY)
                     ));
-
 
     public static final DeferredBlock<PressurePlateBlock> MUSAVACCA_PRESSURE_PLATE =
             BLOCKS.registerBlock("musavacca_pressure_plate",
@@ -278,7 +268,6 @@ public final class ModBlocks {
                                      *///?}
                                     .pushReaction(PushReaction.DESTROY)
                     ));
-
 
     public static final DeferredBlock<ButtonBlock> MUSAVACCA_BUTTON =
             BLOCKS.registerBlock("musavacca_button",
@@ -358,23 +347,10 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY),
                             DecorationBlock.Options.builder()
 
-                                    // Pick ONE per placement:
-                                    // .floor() / .floorFacing() / .floorRotating()
-                                    // .sneak() / .sneakFacing() / .sneakRotating()
-                                    // .roof()  / .roofFacing()  / .roofRotating()
-                                    //
-                                    // .side() is always wall-facing only.
-                                    //
-                                    // fixed    = no rotation
-                                    // facing   = 4-way north/east/south/west
-                                    // rotating = 16-step skull-like rotation
-
                                     .floorRotating()
                                     .sneakRotating()
                                     .side()
 
-                                    // Shape order: floor, sneak, side, roof.
-                                    // Side shape is authored north-facing and auto-rotates hitbox.
                                     .shapes(DecorationBlock.ShapeSet.of(
                                             Block.box(4.0D, 0.0D, 4.0D, 12.0D, 12.0D, 12.0D),
                                             Block.box(1.75D, 0.0D, 2.0D, 14.25D, 7.0D, 14.0D),
@@ -413,15 +389,6 @@ public final class ModBlocks {
                             .sound(SoundType.GRASS)
                             .noOcclusion()
                             .pushReaction(PushReaction.NORMAL)));
-
-//    public static final DeferredItem<HexBlockItem> HEX_BLOCK_ITEM =
-//            ITEMS.registerItem(
-//                    "hex_block",
-//                    props -> new HexBlockItem(
-//                            HEX_BLOCK.get(),
-//                            props.useBlockDescriptionPrefix()
-//                    )
-//            );
 
     public static final DeferredBlock<HardHexBlock> HARD_HEX_BLOCK =
             BLOCKS.registerBlock("hard_hex_block",
@@ -518,10 +485,6 @@ public final class ModBlocks {
             PEARL_BLACK_CANDLE
     );
 
-
-
-
-
     public static final DeferredBlock<CaroteneGrassBlock> CAROTENE_GRASS =
             BLOCKS.registerBlock("carotene_grass",
                     props -> new CaroteneGrassBlock(
@@ -565,7 +528,7 @@ public final class ModBlocks {
                     ));
 
     private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
-//            HEX_BLOCK
+
             PEARL_FIRE,
             MUSAVACCA_EGG,
             MUSAVACCA_SPROUT,
@@ -591,5 +554,4 @@ public final class ModBlocks {
 
     private ModBlocks() {}
 }
-
 

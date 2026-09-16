@@ -33,12 +33,6 @@ public final class PearlGlyphPortalParticle extends PortalParticle {
         super(level, x, y, z, xd, yd, zd);
     }
 
-    /*
-     * Keep this.
-     *
-     * The glyph textures are layered/tinted. TRANSLUCENT makes the portal glyphs
-     * look cleaner and avoids harsh opaque layer blocking.
-     */
     @Override
     public ParticleRenderType getRenderType() {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;

@@ -98,4 +98,3 @@ public record MusavaccaTemplateTreeConfiguration(
     }
 }
 
-

@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
@@ -11,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Model geometry and texture bindings, shared by every supported Minecraft version. */
 final class NewgenModels {
     private final NewgenOutput output;
     private final Map<Key, ResourceLocation> resolved = new HashMap<>();
@@ -42,7 +42,6 @@ final class NewgenModels {
     }
 
     ResourceLocation resolve(Models.Source source, Tints.Tint tint) {
-        // Authored models already own their elements, textures and tint indices.
         if (source instanceof Models.Existing existing) return existing.model();
 
         Key key = new Key(source, Tints.modelKey(tint));
@@ -271,7 +270,6 @@ final class NewgenModels {
         //?}
     }
 
-    /** Generates a vanilla carrier, or a NeoForge carrier for more than five legacy layers. */
     private ResourceLocation generatedItemModel(ResourceLocation id, SimpleItems.Style style,
                                                 List<ResourceLocation> textures, boolean unlimitedLegacyLayers) {
         if (textures == null || textures.isEmpty()) {
@@ -290,9 +288,6 @@ final class NewgenModels {
 
         String parent;
         if (unlimitedLegacyLayers) {
-            // Keep this model out of vanilla's builtin/generated baking shortcut.
-            // The NeoForge parents supply display transforms without triggering
-            // the five-layer generator, so item_layers can bake every layer.
             parent = style == SimpleItems.Style.HANDHELD
                     ? "neoforge:item/default-tool"
                     : "neoforge:item/default";
@@ -311,10 +306,6 @@ final class NewgenModels {
         return output.model(id, root);
     }
 
-    /**
-     * Generates the base + fixed trim-mask model pair used by ArmorItems.
-     * The legacy base model also receives its old has_armor_trim override.
-     */
     ArmorItemModels armorItemModels(Item item, ResourceLocation baseTexture, ResourceLocation trimTexture) {
         ResourceLocation baseId = ModelLocations.itemModel(item);
         ResourceLocation trimmedId = ModelLocations.itemModel(item, "trimmed");
@@ -337,7 +328,7 @@ final class NewgenModels {
         JsonObject override = new JsonObject();
         JsonObject predicate = new JsonObject();
 
-        predicate.addProperty("musavacca:has_armor_trim", 1.0F);
+        predicate.addProperty(ArmorTrimItemTintSource.legacyTrimPropertyId().toString(), 1.0F);
         override.add("predicate", predicate);
         override.addProperty("model", trimmedId.toString());
 
@@ -702,14 +693,13 @@ final class NewgenModels {
 
     private static ResourceLocation textureForLayer(FireTextures.Set textures, Tints.Tint tint,
                                                     int frame, Tints.GeneratedLayer layer) {
-        if (tint.kind() == Tints.Kind.PEARL_FIRE) {
-            return FireTextures.layer(textures, frame, layer.sourceLayer());
-        }
-
-        return FireTextures.frame(textures, frame);
+        return Tints.generatedLayerCount(tint) > 1
+                ? FireTextures.layer(textures, frame, layer.sourceLayer())
+                : FireTextures.frame(textures, frame);
     }
 
     private static String textureKey(Tints.GeneratedLayer layer) {
         return "fire_" + layer.sourceLayer();
     }
 }
+

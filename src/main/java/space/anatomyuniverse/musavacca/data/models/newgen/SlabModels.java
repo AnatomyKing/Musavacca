@@ -83,3 +83,4 @@ public final class SlabModels {
         return ResourceLocation.parse(model);
     }
 }
+

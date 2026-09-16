@@ -7,8 +7,10 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public final class ModDataComponents {
@@ -22,26 +24,31 @@ public final class ModDataComponents {
 
     public static final Supplier<DataComponentType<Integer>> HEX_COLOR =
             DATA_COMPONENT_TYPES.registerComponentType(
-                    "hex_color",
+                    MusavaccaTints.HEX_COLOR_KEY,
                     builder -> builder
                             .persistent(Codec.INT)
                             .networkSynchronized(ByteBufCodecs.INT)
             );
 
-    public static final Supplier<DataComponentType<VocoCallerPhonebook>>
-            VOCO_CALLER_PHONEBOOK =
+    public static final Supplier<DataComponentType<List<Integer>>> MULTI_HEX_COLOR =
+            DATA_COMPONENT_TYPES.registerComponentType(
+                    MusavaccaTints.MULTI_HEX_COLOR_KEY,
+                    builder -> builder
+                            .persistent(Codec.INT.listOf())
+                            .networkSynchronized(
+                                    ByteBufCodecs.INT.apply(ByteBufCodecs.list())
+                            )
+            );
+
+    public static final Supplier<DataComponentType<VocoCallerPhonebook>> VOCO_CALLER_PHONEBOOK =
             DATA_COMPONENT_TYPES.registerComponentType(
                     "voco_caller_phonebook",
                     builder -> builder
                             .persistent(VocoCallerPhonebook.CODEC)
-                            .networkSynchronized(
-                                    VocoCallerPhonebook.STREAM_CODEC
-                            )
+                            .networkSynchronized(VocoCallerPhonebook.STREAM_CODEC)
             );
 
     public static void register(IEventBus modBus) {
         DATA_COMPONENT_TYPES.register(modBus);
     }
 }
-
-

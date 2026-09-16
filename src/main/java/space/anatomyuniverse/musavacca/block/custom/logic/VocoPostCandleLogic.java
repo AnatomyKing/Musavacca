@@ -13,6 +13,7 @@ import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoPostCandleLogic {
     private VocoPostCandleLogic() {}
@@ -103,7 +104,7 @@ public final class VocoPostCandleLogic {
                     postPos,
                     VocoPostBlock.receptorPosition(postState),
                     false,
-                    VocoReceptorLogic.UNSET_HEX_COLOR
+                    MusavaccaTints.NO_TINT
             );
         }
     }
@@ -163,8 +164,7 @@ public final class VocoPostCandleLogic {
 
     private record PortalInfo(boolean active, int hexColor) {
         private static final PortalInfo INACTIVE =
-                new PortalInfo(false, VocoReceptorLogic.UNSET_HEX_COLOR);
+                new PortalInfo(false, MusavaccaTints.NO_TINT);
     }
 }
-
 

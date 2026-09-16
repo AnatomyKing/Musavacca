@@ -66,9 +66,6 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.VOCO_POST.get()
         );
 
-        /*
-         * A double slab must drop two slab items.
-         */
         this.add(
                 ModBlocks.MUSAVACCA_SLAB.get(),
                 this.createSlabItemTable(
@@ -102,7 +99,6 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         ConstantValue.exactly(6.0F)
                 )
         );
-
 
         this.add(
                 ModBlocks.CAROTENE_GRASS.get(),
@@ -780,5 +776,4 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 .toList();
     }
 }
-
 

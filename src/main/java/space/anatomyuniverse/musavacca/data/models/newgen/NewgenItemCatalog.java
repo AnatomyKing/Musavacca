@@ -2,21 +2,19 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.models.NewModelSets;
+import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-/** Runtime-readable item bindings used only by the legacy (<1.21.4) ItemColor bridge. */
 public final class NewgenItemCatalog {
     private NewgenItemCatalog() {}
 
     public record Binding(ItemLike item, SimpleItems.Model model) {}
 
-    /**
-     * Derives legacy item tint registrations from the same NewModelSets declarations
-     * used by datagen. There is deliberately no second legacy tint list to maintain.
-     */
-    public static List<Binding> legacyTintBindings() {
+    public static List<Binding> tintBindings() {
         List<Binding> result = new ArrayList<>();
 
         for (SimpleItems.Entry entry : NewModelSets.simpleItems()) {
@@ -74,7 +72,42 @@ public final class NewgenItemCatalog {
         return List.copyOf(result);
     }
 
-    /** Mirrors Newgen.modelFamily's default-item tint choice without regenerating models. */
+    //? if >=1.21.4 {
+    public static List<Tints.ItemTintType> itemTintTypes() {
+        Map<net.minecraft.resources.ResourceLocation, Tints.ItemTintType> types = new LinkedHashMap<>();
+
+        for (Binding binding : tintBindings()) {
+            List<Tints.Tint> tints = binding.model().isExisting()
+                    ? binding.model().existingTints()
+                    : binding.model().physicalLayers(binding.item()).stream()
+                    .map(SimpleItems.PhysicalLayer::tint)
+                    .toList();
+
+            for (Tints.Tint tint : tints) {
+                Tints.ItemTintType type = tint.itemTintType();
+                if (type == null) {
+                    continue;
+                }
+
+                Tints.ItemTintType previous = types.putIfAbsent(type.id(), type);
+                if (previous != null && previous.codec() != type.codec()) {
+                    throw new IllegalStateException("Different item tint codecs use " + type.id());
+                }
+            }
+        }
+
+        boolean usesArmorTrimTint = NewModelSets.armorItems().stream()
+                .anyMatch(entry -> entry.inventory().trims());
+
+        if (usesArmorTrimTint) {
+            Tints.ItemTintType type = ArmorTrimItemTintSource.itemTintType();
+            types.putIfAbsent(type.id(), type);
+        }
+
+        return List.copyOf(types.values());
+    }
+    //?}
+
     private static void addModelFamilyItems(
             List<Binding> result,
             List<? extends BlockFamily.ModelFamilyEntry<?, ?>> entries
@@ -140,3 +173,4 @@ public final class NewgenItemCatalog {
         result.add(new Binding(item, model));
     }
 }
+

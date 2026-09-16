@@ -236,5 +236,3 @@ public final class BananaCowRenderer
     *///?}
 }
 
-
-

@@ -25,16 +25,6 @@ import java.util.function.Supplier;
 import net.minecraft.world.InteractionResult;
 //?}
 
-/**
- * Exudated stripped Musavacca stem.
- *
- * Stage 0 -> first bottle available
- * Stage 1 -> second bottle available
- * Stage 2 -> third bottle available
- *
- * After stage 2 is collected, the block becomes the normal
- * stripped Musavacca stem while preserving its axis.
- */
 public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
     public static final IntegerProperty STAGE =
             IntegerProperty.create("stage", 0, 2);
@@ -121,11 +111,7 @@ public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
         if (currentStage < 2) {
             nextState = state.setValue(STAGE, currentStage + 1);
         } else {
-            /*
-             * withPropertiesOf copies the AXIS property.
-             * STAGE is ignored because the normal stripped stem
-             * does not contain that property.
-             */
+
             nextState = strippedStem.get().withPropertiesOf(state);
         }
 
@@ -149,6 +135,4 @@ public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
         builder.add(STAGE);
     }
 }
-
-
 

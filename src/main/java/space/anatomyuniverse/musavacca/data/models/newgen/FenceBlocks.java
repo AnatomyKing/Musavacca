@@ -81,7 +81,6 @@ public final class FenceBlocks {
                 }
             }
 
-
             if (familyItemMode() == FamilyItemMode.DEFAULT
                     && baseMode() == BaseModelMode.EXISTING
                     && baseModels.inventory() == null) {
@@ -114,7 +113,6 @@ public final class FenceBlocks {
                 return this;
             }
 
-
             public Builder texture() {
                 requireGeneratedTextures();
                 textures = FamilyTextures.builder(block, "_fence").source().build();
@@ -141,3 +139,4 @@ public final class FenceBlocks {
         }
     }
 }
+

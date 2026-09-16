@@ -57,13 +57,6 @@ public final class MusavaccaBoatModel extends
     private static final float PASSENGER_TWO_SEAT_Z =
             SEAT_SPACING_Z;
 
-    /*
-     * The paddles originally pivoted at Z -8 while the driver
-     * sat at Z 0.
-     *
-     * The driver has moved forward by 11 model units, so move
-     * the paddle pivots forward by exactly the same amount.
-     */
     private static final float ORIGINAL_PADDLE_Z =
             -8.0F;
 
@@ -494,3 +487,4 @@ public final class MusavaccaBoatModel extends
                         * side;
     }
 }
+

@@ -32,15 +32,6 @@ public final class MusavaccaDoorTeleportNetwork {
                         lowerPos
                 );
 
-        /*
-         * A door with only a hex address is NOT pending.
-         *
-         * Registration starts only when the complete portal state is:
-         *
-         * LIT=true
-         * LIT_PORTAL=true
-         * PORTAL=true
-         */
         if (
                 !door.hasHexColor()
                         || !(state.getBlock()
@@ -194,5 +185,4 @@ public final class MusavaccaDoorTeleportNetwork {
                 );
     }
 }
-
 

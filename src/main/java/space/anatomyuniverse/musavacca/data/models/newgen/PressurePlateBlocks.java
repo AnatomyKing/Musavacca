@@ -82,7 +82,6 @@ public final class PressurePlateBlocks {
                 }
             }
 
-
             validatePartConditions();
 
         }
@@ -105,7 +104,6 @@ public final class PressurePlateBlocks {
                 baseModels = Objects.requireNonNull(models, "models");
                 return this;
             }
-
 
             public Builder texture() {
                 requireGeneratedTextures();
@@ -133,3 +131,4 @@ public final class PressurePlateBlocks {
         }
     }
 }
+

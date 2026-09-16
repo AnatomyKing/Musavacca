@@ -43,13 +43,16 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints.MultiHexSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 
+import java.util.List;
 import java.util.UUID;
 
-public class VocoTableBlockEntity extends BlockEntity {
+public class VocoTableBlockEntity extends BlockEntity implements HexSource, MultiHexSource {
     private static final String TAG_BASUKE_VISIBLE = "basuke_visible";
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
     private static final String TAG_DISPLAYED_ITEM_COUNT = "displayed_item_count";
@@ -134,8 +137,12 @@ public class VocoTableBlockEntity extends BlockEntity {
             "target_z_south_west"
     };
 
-    public static final int DEFAULT_HEX_COLOR = FlintAndPearlItem.DEFAULT_HEX_COLOR;
-    public static final int UNSET_HEX_COLOR = VocoReceptorLogic.UNSET_HEX_COLOR;
+    private static final ReceptorPosition[] MULTI_HEX_RECEPTORS = {
+            ReceptorPosition.NORTH_EAST,
+            ReceptorPosition.SOUTH_EAST,
+            ReceptorPosition.SOUTH_WEST,
+            ReceptorPosition.NORTH_WEST
+    };
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
     private int displayedItemCount = 0;
@@ -150,7 +157,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     private final CandleSlot[] candleSlots = new CandleSlot[ReceptorPosition.COUNT];
 
-    private int latestHexColor = UNSET_HEX_COLOR;
+    private int latestHexColor = MusavaccaTints.NO_TINT;
     private int latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
 
     private boolean basukeVisible = false;
@@ -468,10 +475,15 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     public boolean hasLatestHexColor() {
-        return this.latestHexColor != UNSET_HEX_COLOR;
+        return this.latestHexColor != MusavaccaTints.NO_TINT;
     }
 
     public int getLatestHexColor() {
+        return this.latestHexColor;
+    }
+
+    @Override
+    public int getHexColor() {
         return this.latestHexColor;
     }
 
@@ -481,14 +493,38 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     public int getCornerHexColor(ReceptorPosition receptor) {
         CandleSlot slot = this.slot(receptor);
-        return slot.hasHexColor ? slot.hexColor : UNSET_HEX_COLOR;
+        return slot.hasHexColor ? slot.hexColor : MusavaccaTints.NO_TINT;
     }
 
-    public int getPortalHexColorOrUnset(ReceptorPosition receptor) {
+    public int getPortalHexColorOrNoTint(ReceptorPosition receptor) {
         CandleSlot slot = this.slot(receptor);
         return slot.hasCandle() && slot.lit && slot.hasHexColor
                 ? slot.hexColor
-                : UNSET_HEX_COLOR;
+                : MusavaccaTints.NO_TINT;
+    }
+
+    @Nullable
+    public static ReceptorPosition multiHexReceptor(int index) {
+        return index >= 0 && index < MULTI_HEX_RECEPTORS.length
+                ? MULTI_HEX_RECEPTORS[index]
+                : null;
+    }
+
+    @Override
+    public int getHexColor(int index) {
+        ReceptorPosition receptor = multiHexReceptor(index);
+        return receptor == null
+                ? MusavaccaTints.NO_TINT
+                : this.getPortalHexColorOrNoTint(receptor);
+    }
+
+    public List<Integer> getMultiHexColors() {
+        return List.of(
+                this.getHexColor(0),
+                this.getHexColor(1),
+                this.getHexColor(2),
+                this.getHexColor(3)
+        );
     }
 
     public void activatePortal(ReceptorPosition receptor) {
@@ -521,7 +557,7 @@ public class VocoTableBlockEntity extends BlockEntity {
             }
         }
 
-        this.latestHexColor = UNSET_HEX_COLOR;
+        this.latestHexColor = MusavaccaTints.NO_TINT;
         this.latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
     }
 
@@ -550,7 +586,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     public int getCandleHexColorOrFallback(ReceptorPosition receptor) {
         CandleSlot slot = this.slot(receptor);
-        return slot.hasHexColor ? slot.hexColor : DEFAULT_HEX_COLOR;
+        return slot.hasHexColor ? slot.hexColor : MusavaccaTints.DEFAULT_TINT;
     }
 
     public boolean canAddCandle(ReceptorPosition receptor, Block candleBlock) {
@@ -578,7 +614,7 @@ public class VocoTableBlockEntity extends BlockEntity {
             slot.count = 1;
             slot.lit = false;
             slot.hasHexColor = false;
-            slot.hexColor = UNSET_HEX_COLOR;
+            slot.hexColor = MusavaccaTints.NO_TINT;
         } else {
             slot.count = Math.min(CandleBlock.MAX_CANDLES, slot.count + 1);
         }
@@ -595,7 +631,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         slot.lit = true;
         slot.hasHexColor = true;
-        slot.hexColor = normalizeHex(hexColor);
+        slot.hexColor = MusavaccaTints.resolve(hexColor);
 
         this.markChangedAndSync();
         return true;
@@ -609,7 +645,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         slot.lit = true;
         slot.hasHexColor = false;
-        slot.hexColor = UNSET_HEX_COLOR;
+        slot.hexColor = MusavaccaTints.NO_TINT;
 
         this.markChangedAndSync();
         return true;
@@ -628,7 +664,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
         slot.lit = false;
         slot.hasHexColor = false;
-        slot.hexColor = UNSET_HEX_COLOR;
+        slot.hexColor = MusavaccaTints.NO_TINT;
 
         this.refreshLatestHexFromLitCandles();
         this.markChangedAndSync();
@@ -649,7 +685,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
             slot.lit = false;
             slot.hasHexColor = false;
-            slot.hexColor = UNSET_HEX_COLOR;
+            slot.hexColor = MusavaccaTints.NO_TINT;
 
             this.removeEndpoint(receptor);
             changed = true;
@@ -762,7 +798,7 @@ public class VocoTableBlockEntity extends BlockEntity {
     }
 
     public boolean hasOtherLitCandleWithHex(ReceptorPosition ignoredReceptor, int hexColor) {
-        int normalized = normalizeHex(hexColor);
+        int normalized = MusavaccaTints.resolve(hexColor);
 
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             if (receptor == ignoredReceptor) {
@@ -773,7 +809,7 @@ public class VocoTableBlockEntity extends BlockEntity {
             if (slot.hasCandle()
                     && slot.lit
                     && slot.hasHexColor
-                    && normalizeHex(slot.hexColor) == normalized) {
+                    && MusavaccaTints.stored(slot.hexColor) == normalized) {
                 return true;
             }
         }
@@ -842,7 +878,7 @@ public class VocoTableBlockEntity extends BlockEntity {
 
     private void setLatest(ReceptorPosition receptor, int hexColor) {
         this.latestHexReceptorId = receptor.id();
-        this.latestHexColor = normalizeHex(hexColor);
+        this.latestHexColor = MusavaccaTints.resolve(hexColor);
     }
 
     private CandleSlot slot(ReceptorPosition receptor) {
@@ -885,9 +921,9 @@ public class VocoTableBlockEntity extends BlockEntity {
             return;
         }
 
-        int hexColor = this.getPortalHexColorOrUnset(receptor);
+        int hexColor = this.getPortalHexColorOrNoTint(receptor);
 
-        if (hexColor == UNSET_HEX_COLOR) {
+        if (hexColor == MusavaccaTints.NO_TINT) {
             this.removeEndpoint(receptor);
             return;
         }
@@ -910,7 +946,7 @@ public class VocoTableBlockEntity extends BlockEntity {
                     this.getBlockPos(),
                     receptor,
                     false,
-                    VocoReceptorLogic.UNSET_HEX_COLOR
+                    MusavaccaTints.NO_TINT
             );
         }
     }
@@ -1144,8 +1180,8 @@ public class VocoTableBlockEntity extends BlockEntity {
 
                 slot.hasHexColor = input.getBooleanOr(TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
                 slot.hexColor = slot.hasHexColor
-                        ? normalizeHex(input.getIntOr(TAG_CANDLE_HEX_COLORS[index], DEFAULT_HEX_COLOR))
-                        : UNSET_HEX_COLOR;
+                        ? MusavaccaTints.stored(input.getIntOr(TAG_CANDLE_HEX_COLORS[index], MusavaccaTints.DEFAULT_TINT))
+                        : MusavaccaTints.NO_TINT;
             }
         }
 
@@ -1216,8 +1252,8 @@ public class VocoTableBlockEntity extends BlockEntity {
 
                 slot.hasHexColor = readBoolean(tag, TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
                 slot.hexColor = slot.hasHexColor
-                        ? normalizeHex(readInt(tag, TAG_CANDLE_HEX_COLORS[index], DEFAULT_HEX_COLOR))
-                        : UNSET_HEX_COLOR;
+                        ? MusavaccaTints.stored(readInt(tag, TAG_CANDLE_HEX_COLORS[index], MusavaccaTints.DEFAULT_TINT))
+                        : MusavaccaTints.NO_TINT;
             }
         }
 
@@ -1231,7 +1267,6 @@ public class VocoTableBlockEntity extends BlockEntity {
             this.refreshLatestHexFromLitCandles();
         }
     }
-
 
     *///?}
 
@@ -1339,7 +1374,6 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 
-
     *///?}
 
     //? if >=1.21.5 {
@@ -1357,7 +1391,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         );
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        this.latestHexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+        this.latestHexColor = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
     }
     //?} else {
     /*@Override
@@ -1374,7 +1408,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         );
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        this.latestHexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+        this.latestHexColor = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
     }
     *///?}
 
@@ -1386,6 +1420,11 @@ public class VocoTableBlockEntity extends BlockEntity {
         if (this.hasLatestHexColor()) {
             components.set(ModDataComponents.HEX_COLOR.get(), this.latestHexColor);
         }
+
+        components.set(
+                ModDataComponents.MULTI_HEX_COLOR.get(),
+                this.getMultiHexColors()
+        );
     }
 
     @Override
@@ -1452,20 +1491,16 @@ public class VocoTableBlockEntity extends BlockEntity {
         }
     }
 
-    public static int normalizeHex(int hexColor) {
-        return VocoReceptorLogic.normalizeHex(hexColor);
-    }
-
     //? if >=1.21.6 {
     private static int readHexOrUnset(ValueInput input, String tag) {
-        int loaded = input.getIntOr(tag, UNSET_HEX_COLOR);
-        return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        int loaded = input.getIntOr(tag, MusavaccaTints.NO_TINT);
+        return loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
 
     //?} else {
     /*private static int readHexOrUnset(CompoundTag input, String tag) {
-        int loaded = readInt(input, tag, UNSET_HEX_COLOR);
-        return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        int loaded = readInt(input, tag, MusavaccaTints.NO_TINT);
+        return loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
     *///?}
 
@@ -1559,7 +1594,7 @@ public class VocoTableBlockEntity extends BlockEntity {
         private int count = 0;
         private boolean lit = false;
         private boolean hasHexColor = false;
-        private int hexColor = UNSET_HEX_COLOR;
+        private int hexColor = MusavaccaTints.NO_TINT;
 
         private boolean hasCandle() {
             return this.block != null && this.count > 0;
@@ -1570,10 +1605,8 @@ public class VocoTableBlockEntity extends BlockEntity {
             this.count = 0;
             this.lit = false;
             this.hasHexColor = false;
-            this.hexColor = UNSET_HEX_COLOR;
+            this.hexColor = MusavaccaTints.NO_TINT;
         }
     }
 }
-
-
 

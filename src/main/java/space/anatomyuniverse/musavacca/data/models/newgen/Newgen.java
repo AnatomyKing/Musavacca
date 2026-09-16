@@ -29,7 +29,6 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 //?}
 
-/** Single model entry point for all NewGen block and item declarations. */
 public final class Newgen {
     private static final float[] DECORATION_EXTRA_Y_ROT = {0.0F, -22.5F, -45.0F, 22.5F};
 
@@ -236,7 +235,6 @@ public final class Newgen {
 
         Tints.Tint effectiveTint = Tints.effective(entry.tint(), first.tint());
 
-        // Generated cross blocks use a flat inventory carrier from the same cross texture.
         if (source instanceof CrossModels.Generated cross) {
             emitItem(
                     entry.block().asItem(),
@@ -282,7 +280,7 @@ public final class Newgen {
             for (P part : entry.parts()) {
                 if (!compatible(pose.when(), part.conditions())) continue;
                 ResourceLocation partModel = pose.model().apply(part.source());
-                if (partModel == null) continue; // Partial overlay families intentionally omit some poses.
+                if (partModel == null) continue; 
                 partModel = models.resolve(new Models.Existing(partModel),
                         Tints.effective(Tints.none(), part.tint()));
                 state.add(partModel, pose.when().and(part.conditions()),
@@ -460,7 +458,6 @@ public final class Newgen {
         }
     }
 
-
     private static boolean compatible(Conditions.Match first, Conditions.Match second) {
         for (Conditions.Term<?> term : first.terms()) {
             if (!second.allows(term.property(), term.value())) return false;
@@ -473,7 +470,6 @@ public final class Newgen {
         return match.and(property, value);
     }
 
-    /** Tiny datagen hook replacing the old ModModelProvider. */
     public static final class Provider
             //? if <1.21.4 {
             /*extends BlockStateProvider
@@ -503,3 +499,4 @@ public final class Newgen {
     }
 
 }
+

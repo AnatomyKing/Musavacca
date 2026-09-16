@@ -35,12 +35,10 @@ import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlMenu;
 import space.anatomyuniverse.musavacca.portal.PearlPortalCreator;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.tint.PearlPlacementColorMemory;
-import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 
 public class FlintAndPearlItem extends FlintAndSteelItem {
-    public static final int DEFAULT_HEX_COLOR = 0xD5CD49;
-
     private static final Component TITLE = Component.literal("Pearl Fire Hex");
 
     public FlintAndPearlItem(Properties properties) {
@@ -79,12 +77,15 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
 
     public static int getStoredHexOrDefault(ItemStack stack) {
         Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-        return TintColorUtil.rgb(savedHex != null ? savedHex : DEFAULT_HEX_COLOR);
+        int stored = savedHex == null
+                ? MusavaccaTints.NO_TINT
+                : MusavaccaTints.stored(savedHex);
+        return MusavaccaTints.orDefault(stored);
     }
 
     public static void ensureDefaultColorComponent(ItemStack stack) {
         if (stack.get(ModDataComponents.HEX_COLOR.get()) == null) {
-            stack.set(ModDataComponents.HEX_COLOR.get(), DEFAULT_HEX_COLOR);
+            stack.set(ModDataComponents.HEX_COLOR.get(), MusavaccaTints.DEFAULT_TINT);
         }
     }
 
@@ -167,11 +168,6 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         }
 
         BlockState finalState = state;
-
-        /*
-         * Normally Pearl Candles should only exist while lit.
-         * But this keeps the item safe if an old/stale Pearl Candle somehow exists unlit.
-         */
         if (state.hasProperty(CandleBlock.LIT) && !state.getValue(CandleBlock.LIT)) {
             finalState = state.setValue(CandleBlock.LIT, true);
 
@@ -301,20 +297,15 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     }
 
     private InteractionResult previewClientPlacement(Level level, BlockPos placePos, int hexColor) {
-        var optionalShape = PearlPortalFrame.findIgnitableShape(level, placePos);
+        var portalShape = PearlPortalFrame.findIgnitableShape(level, placePos);
 
-        if (optionalShape.isPresent()) {
-            optionalShape.get().forEachInteriorBlock(pos ->
+        if (portalShape.isPresent()) {
+            portalShape.get().forEachInteriorBlock(pos ->
                     PearlPlacementColorMemory.remember(level, pos, hexColor)
             );
-
             return successResult(level);
         }
 
-        return previewPearlFirePlacement(level, placePos, hexColor);
-    }
-
-    private InteractionResult previewPearlFirePlacement(Level level, BlockPos placePos, int hexColor) {
         if (!level.getBlockState(placePos).canBeReplaced()) {
             return InteractionResult.FAIL;
         }
@@ -433,5 +424,4 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         }
     }
 }
-
 

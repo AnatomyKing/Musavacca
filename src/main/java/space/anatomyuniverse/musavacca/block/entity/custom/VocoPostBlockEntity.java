@@ -26,25 +26,24 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
-public class VocoPostBlockEntity extends BlockEntity {
+public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     private static final String TAG_YAW_DEGREES = "yaw_degrees";
     private static final String TAG_PITCH_DEGREES = "pitch_degrees";
-    private static final String TAG_HEX_COLOR = "hex_color";
 
     private static final String TAG_CUSTOM_TARGET = "custom_target";
     private static final String TAG_TARGET_X = "target_x";
     private static final String TAG_TARGET_Y = "target_y";
     private static final String TAG_TARGET_Z = "target_z";
 
-    public static final int UNSET_HEX_COLOR = VocoReceptorLogic.UNSET_HEX_COLOR;
-
     public static final int DEFAULT_YAW_DEGREES = ReceptorPosition.NORTH_EAST.defaultYawDegrees();
     public static final int DEFAULT_PITCH_DEGREES = ReceptorPosition.NORTH_EAST.defaultPitchDegrees();
 
     private int yawDegrees = DEFAULT_YAW_DEGREES;
     private int pitchDegrees = DEFAULT_PITCH_DEGREES;
-    private int hexColor = UNSET_HEX_COLOR;
+    private int hexColor = MusavaccaTints.NO_TINT;
 
     private boolean customTargetEnabled = false;
     private double targetX;
@@ -65,9 +64,10 @@ public class VocoPostBlockEntity extends BlockEntity {
     }
 
     public boolean hasHexColor() {
-        return this.hexColor != UNSET_HEX_COLOR;
+        return this.hexColor != MusavaccaTints.NO_TINT;
     }
 
+    @Override
     public int getHexColor() {
         return this.hexColor;
     }
@@ -147,7 +147,7 @@ public class VocoPostBlockEntity extends BlockEntity {
     }
 
     public boolean setHexColor(int hexColor) {
-        int normalized = normalizeHex(hexColor);
+        int normalized = MusavaccaTints.resolve(hexColor);
 
         if (this.hexColor == normalized) {
             return true;
@@ -160,11 +160,11 @@ public class VocoPostBlockEntity extends BlockEntity {
     }
 
     public void clearHexColor() {
-        if (this.hexColor == UNSET_HEX_COLOR) {
+        if (this.hexColor == MusavaccaTints.NO_TINT) {
             return;
         }
 
-        this.hexColor = UNSET_HEX_COLOR;
+        this.hexColor = MusavaccaTints.NO_TINT;
         this.markChangedAndSync();
         this.releaseHexClaim();
     }
@@ -310,7 +310,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         output.putInt(TAG_PITCH_DEGREES, this.pitchDegrees);
 
         if (this.hasHexColor()) {
-            output.putInt(TAG_HEX_COLOR, this.hexColor);
+            output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
         }
 
         output.putBoolean(TAG_CUSTOM_TARGET, this.customTargetEnabled);
@@ -344,7 +344,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         tag.putInt(TAG_PITCH_DEGREES, this.pitchDegrees);
 
         if (this.hasHexColor()) {
-            tag.putInt(TAG_HEX_COLOR, this.hexColor);
+            tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
         }
 
         tag.putBoolean(TAG_CUSTOM_TARGET, this.customTargetEnabled);
@@ -360,7 +360,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         super.applyImplicitComponents(input);
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        this.hexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+        this.hexColor = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
     }
     //?} else {
     /*@Override
@@ -368,7 +368,7 @@ public class VocoPostBlockEntity extends BlockEntity {
         super.applyImplicitComponents(input);
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        this.hexColor = savedHex == null ? UNSET_HEX_COLOR : normalizeHex(savedHex);
+        this.hexColor = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
     }
     *///?}
 
@@ -427,19 +427,15 @@ public class VocoPostBlockEntity extends BlockEntity {
 
     //? if >=1.21.6 {
     private static int readHexOrUnset(ValueInput input) {
-        int loaded = input.getIntOr(TAG_HEX_COLOR, UNSET_HEX_COLOR);
-        return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
+        return loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
     //?} else {
     /*private static int readHexOrUnset(CompoundTag tag) {
-        int loaded = readTagInt(tag, TAG_HEX_COLOR, UNSET_HEX_COLOR);
-        return loaded == UNSET_HEX_COLOR ? UNSET_HEX_COLOR : normalizeHex(loaded);
+        int loaded = readTagInt(tag, MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
+        return loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
     *///?}
-
-    private static int normalizeHex(int hexColor) {
-        return VocoReceptorLogic.normalizeHex(hexColor);
-    }
 
     private static int readTagInt(CompoundTag tag, String key, int defaultValue) {
         //? if >=1.21.5 {
@@ -465,6 +461,4 @@ public class VocoPostBlockEntity extends BlockEntity {
         *///?}
     }
 }
-
-
 

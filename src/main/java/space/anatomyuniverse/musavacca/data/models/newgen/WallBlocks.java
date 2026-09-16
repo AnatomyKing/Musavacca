@@ -83,7 +83,6 @@ public final class WallBlocks {
                 }
             }
 
-
             if (familyItemMode() == FamilyItemMode.DEFAULT
                     && baseMode() == BaseModelMode.EXISTING
                     && baseModels.inventory() == null) {
@@ -116,7 +115,6 @@ public final class WallBlocks {
                 return this;
             }
 
-
             public Builder texture() {
                 requireGeneratedTextures();
                 textures = FamilyTextures.builder(block, "_wall").source().build();
@@ -143,3 +141,4 @@ public final class WallBlocks {
         }
     }
 }
+

@@ -95,6 +95,3 @@ public final class ShapedCrafting {
     }
 }
 
-
-
-
