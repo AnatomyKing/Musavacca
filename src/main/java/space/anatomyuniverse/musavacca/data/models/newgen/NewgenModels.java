@@ -271,7 +271,7 @@ final class NewgenModels {
         //?}
     }
 
-    /** Generates a raw item/generated or item/handheld carrier. */
+    /** Generates a vanilla carrier, or a NeoForge carrier for more than five legacy layers. */
     private ResourceLocation generatedItemModel(ResourceLocation id, SimpleItems.Style style,
                                                 List<ResourceLocation> textures, boolean unlimitedLegacyLayers) {
         if (textures == null || textures.isEmpty()) {
@@ -288,9 +288,19 @@ final class NewgenModels {
             mapping.put("layer" + i, textures.get(i));
         }
 
-        String parent = style == SimpleItems.Style.HANDHELD
-                ? "minecraft:item/handheld"
-                : "minecraft:item/generated";
+        String parent;
+        if (unlimitedLegacyLayers) {
+            // Keep this model out of vanilla's builtin/generated baking shortcut.
+            // The NeoForge parents supply display transforms without triggering
+            // the five-layer generator, so item_layers can bake every layer.
+            parent = style == SimpleItems.Style.HANDHELD
+                    ? "neoforge:item/default-tool"
+                    : "neoforge:item/default";
+        } else {
+            parent = style == SimpleItems.Style.HANDHELD
+                    ? "minecraft:item/handheld"
+                    : "minecraft:item/generated";
+        }
 
         JsonObject root = parentJson(parent, mapping);
 
