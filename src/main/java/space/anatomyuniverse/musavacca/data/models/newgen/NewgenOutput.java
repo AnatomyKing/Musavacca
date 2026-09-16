@@ -29,7 +29,16 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
+import net.minecraft.client.renderer.item.CompositeModel;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.renderer.item.SelectItemModel;
+import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
+import net.minecraft.client.renderer.item.properties.select.DisplayContext;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemDisplayContext;
 import space.anatomyuniverse.musavacca.tint.HexColorItemTintSource;
+import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 import space.anatomyuniverse.musavacca.tint.TintColorUtil;
 //? if <1.21.5 {
 /*import net.minecraft.client.data.models.blockstates.Condition;
@@ -66,9 +75,13 @@ final class NewgenOutput {
 
     private final Map<ResourceLocation, JsonObject> models = new HashMap<>();
     private final Set<Block> generatedBlocks = new HashSet<>();
-    private final Map<Item, ItemModel> generatedItems = new HashMap<>();
+    private final Map<Item, ItemRequest> generatedItems = new HashMap<>();
 
-    private record ItemModel(ResourceLocation model, List<Tints.Tint> tints) {}
+    private record ItemRequest(List<NewgenModels.ItemPart> parts, String kind) {
+        ItemRequest {
+            parts = List.copyOf(parts);
+        }
+    }
 
     ResourceLocation model(ResourceLocation id, JsonObject json) {
         JsonObject previous = models.putIfAbsent(id, json);
@@ -101,30 +114,123 @@ final class NewgenOutput {
     }
 
     void item(Item item, ResourceLocation model, List<Tints.Tint> tints) {
+        item(item, new NewgenModels.ItemRender(
+                List.of(new NewgenModels.ItemPart(model, tints))
+        ));
+    }
+
+    void item(Item item, NewgenModels.ItemRender render) {
         if (item == Items.AIR) {
             throw new IllegalStateException("Cannot generate an item model for air. Use .noItem() for itemless blocks.");
         }
-        ItemModel request = new ItemModel(model, List.copyOf(tints));
-        ItemModel previous = generatedItems.putIfAbsent(item, request);
+
+        ItemRequest request = new ItemRequest(render.parts(), "simple");
+        ItemRequest previous = generatedItems.putIfAbsent(item, request);
         if (previous != null) {
             if (!previous.equals(request)) throw new IllegalStateException("Conflicting item models for " + item);
             return;
         }
 
         //? if <1.21.4 {
-        /*ResourceLocation id = ModelLocations.itemModel(item);
-        if (!id.equals(model)) {
+        /*if (render.parts().size() != 1) {
+            throw new IllegalStateException("Legacy item output must be represented by one model JSON");
+        }
+
+        NewgenModels.ItemPart part = render.parts().get(0);
+        ResourceLocation id = ModelLocations.itemModel(item);
+        if (!id.equals(part.model())) {
             JsonObject json = new JsonObject();
-            json.addProperty("parent", model.toString());
+            json.addProperty("parent", part.model().toString());
             model(id, json);
         }
-        // Legacy item colors are supplied by ModTints' ItemColor registration.
+        // Legacy ItemColor registration is supplied by ModTints/NewgenItemCatalog.
         *///?} else {
-        List<ItemTintSource> sources = tints.stream().allMatch(t -> !t.tinted())
-                ? List.of() : tints.stream().map(NewgenOutput::itemTint).toList();
-        items.itemModelOutput.accept(item, new BlockModelWrapper.Unbaked(model, sources));
+        List<ItemModel.Unbaked> children = render.parts().stream()
+                .map(part -> (ItemModel.Unbaked) new BlockModelWrapper.Unbaked(
+                        part.model(),
+                        itemTints(part.tints())
+                ))
+                .toList();
+
+        ItemModel.Unbaked model = children.size() == 1
+                ? children.get(0)
+                : new CompositeModel.Unbaked(children);
+
+        items.itemModelOutput.accept(item, model);
         //?}
     }
+
+    void armorItem(
+            Item item,
+            ResourceLocation baseModel,
+            ResourceLocation trimmedModel,
+            ResourceLocation headModel
+    ) {
+        if (item == Items.AIR) throw new IllegalStateException("Cannot generate armor model for air");
+
+        ItemRequest request = new ItemRequest(
+                List.of(new NewgenModels.ItemPart(baseModel, List.of())),
+                "armor:" + trimmedModel + ":" + headModel
+        );
+        ItemRequest previous = generatedItems.putIfAbsent(item, request);
+        if (previous != null) {
+            if (!previous.equals(request)) throw new IllegalStateException("Conflicting item models for " + item);
+            return;
+        }
+
+        //? if <1.21.4 {
+        /*// The legacy has_armor_trim override is authored directly into baseModel by NewgenModels.
+        // Existing authored armor inventory models may live at another id, so keep the
+        // natural item model path as a tiny parent wrapper just like SimpleItems does.
+        ResourceLocation natural = ModelLocations.itemModel(item);
+        if (!natural.equals(baseModel) && trimmedModel == null) {
+            JsonObject json = new JsonObject();
+            json.addProperty("parent", baseModel.toString());
+            model(natural, json);
+        }
+        *///?} else {
+        ItemModel.Unbaked base = ItemModelUtils.plainModel(baseModel);
+        ItemModel.Unbaked inventory = base;
+
+        if (trimmedModel != null) {
+            ItemModel.Unbaked trimmed = new BlockModelWrapper.Unbaked(
+                    trimmedModel,
+                    List.of(
+                            new Constant(0xFFFFFFFF),
+                            ArmorTrimItemTintSource.INSTANCE
+                    )
+            );
+
+            inventory = ItemModelUtils.conditional(
+                    new HasComponent(DataComponents.TRIM, false),
+                    trimmed,
+                    base
+            );
+        }
+
+        if (headModel != null) {
+            inventory = ItemModelUtils.select(
+                    new DisplayContext(),
+                    inventory,
+                    List.of(
+                            new SelectItemModel.SwitchCase<>(
+                                    List.of(ItemDisplayContext.HEAD),
+                                    ItemModelUtils.plainModel(headModel)
+                            )
+                    )
+            );
+        }
+
+        items.itemModelOutput.accept(item, inventory);
+        //?}
+    }
+
+    //? if >=1.21.4 {
+    private static List<ItemTintSource> itemTints(List<Tints.Tint> tints) {
+        if (tints.stream().allMatch(t -> !t.tinted())) return List.of();
+        return tints.stream().map(NewgenOutput::itemTint).toList();
+    }
+    //?}
 
     //? if >=1.21.4 {
     private static ItemTintSource itemTint(Tints.Tint tint) {
@@ -133,8 +239,10 @@ final class NewgenOutput {
             case CONSTANT -> new Constant(TintColorUtil.rgb(((Tints.Constant) tint).rgb()));
             case BIOME_FOLIAGE -> new Constant(TintColorUtil.defaultFoliageItemTint());
             case HEX_COLOR -> HexColorItemTintSource.INSTANCE;
-            case PEARL_FIRE -> throw new IllegalStateException(
-                    "PearlFire is a block tint. Select an explicit .itemTint(...) for this item.");
+            case PEARL_FIRE -> {
+                Tints.PearlFire pearl = (Tints.PearlFire) tint;
+                yield HexColorItemTintSource.pearlFire(pearl.profile(), pearl.offset());
+            }
         };
     }
     //?}

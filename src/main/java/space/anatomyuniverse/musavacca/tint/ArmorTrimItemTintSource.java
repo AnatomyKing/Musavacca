@@ -10,8 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.data.models.ModelSets;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
+import space.anatomyuniverse.musavacca.data.models.NewModelSets;
+import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
 *///?}
 
 //? if <1.21.2 {
@@ -71,7 +71,7 @@ public final class ArmorTrimItemTintSource
             FMLClientSetupEvent event
     ) {
         event.enqueueWork(() -> {
-            for (CustomArmorSet.Entry entry : ModelSets.customArmorSets()) {
+            for (ArmorItems.Entry entry : NewModelSets.armorItems()) {
                 if (entry == null) {
                     continue;
                 }
@@ -135,3 +135,5 @@ public final class ArmorTrimItemTintSource
     }
     //?}
 }
+
+

@@ -8,8 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import space.anatomyuniverse.musavacca.data.models.ModelSets;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
+import space.anatomyuniverse.musavacca.data.models.NewModelSets;
+import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
 
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -25,8 +25,8 @@ import java.util.Set;
 *///?}
 
 /**
- * Single client-side index for every armor set that declares a custom worn
- * helmet model in {@link ModelSets#customArmorSets()}.
+ * Single client-side index for every NewGen armor set that declares
+ * a custom worn helmet model in {@link NewModelSets#armorItems()}.
  *
  * <p>The item -> model-id mapping is built once and reused on the render hot
  * path. Pre-1.21.4 deliberately does not cache BakedModel instances so model
@@ -72,8 +72,6 @@ public final class CustomHelmetModels {
                 ModelResourceLocation.standalone(headModel(stack))
         );
 
-        // The model is registered through ModelEvent.RegisterAdditional.
-        // ItemRenderer then applies the model's own HEAD display transform.
         minecraft.getItemRenderer().render(
                 stack,
                 ItemDisplayContext.HEAD,
@@ -99,7 +97,6 @@ public final class CustomHelmetModels {
     }
 
     //? if <1.21.4 {
-     
     /*public static void registerAdditionalModels(
             ModelEvent.RegisterAdditional event
     ) {
@@ -120,17 +117,18 @@ public final class CustomHelmetModels {
         IdentityHashMap<Item, ResourceLocation> models =
                 new IdentityHashMap<>();
 
-        for (CustomArmorSet.Entry entry : ModelSets.customArmorSets()) {
+        for (ArmorItems.Entry entry : NewModelSets.armorItems()) {
             if (entry == null
                     || entry.helmet() == null
-                    || !entry.hasCustomHelmetHeadModel()) {
+                    || !entry.hasHelmetHeadModel()) {
                 continue;
             }
 
             Item helmet = entry.helmet().asItem();
+
             ResourceLocation previous = models.put(
                     helmet,
-                    entry.customHelmetHeadModelLocation()
+                    entry.helmetHeadModel()
             );
 
             if (previous != null) {

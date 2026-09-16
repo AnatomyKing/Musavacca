@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 
@@ -17,7 +16,7 @@ final class BlockFamilySources {
             throw new IllegalArgumentException("suffix must not be blank");
         }
 
-        ResourceLocation id = ModelUtil.idOf(child);
+        ResourceLocation id = ModelLocations.blockId(child);
         String path = id.getPath();
 
         if (!path.endsWith(suffix)) {

@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/tint/ModTints.java
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.client.renderer.BiomeColors;
@@ -26,9 +25,10 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 //? if <1.21.4 {
 /*import net.minecraft.world.level.ItemLike;
-import space.anatomyuniverse.musavacca.data.models.ModelSets;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
-import space.anatomyuniverse.musavacca.item.ModItems;
+import space.anatomyuniverse.musavacca.data.models.NewModelSets;
+import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
+import space.anatomyuniverse.musavacca.data.models.newgen.NewgenItemCatalog;
+import space.anatomyuniverse.musavacca.data.models.newgen.SimpleItems;
  *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
@@ -395,53 +395,23 @@ public final class ModTints {
 
     //? if <1.21.4 {
     /*public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        event.register(
-                (stack, tintIndex) -> tintIndex == 0
-                        ? TintColorUtil.defaultFoliageItemTint()
-                        : TintColorUtil.NO_TINT,
-                ModBlocks.MUSAVACCA_LEAVES.get()
-        );
+        // Every tinted NewGen item is derived from NewModelSets: standalone items,
+        // default block items, explicit block-embedded SimpleItems models, and door items.
+        // This keeps <1.21.4 runtime ItemColor registration on the same declarations as datagen.
+        for (NewgenItemCatalog.Binding binding : NewgenItemCatalog.legacyTintBindings()) {
+            event.register(
+                    (stack, tintIndex) -> SimpleItems.legacyTintColor(
+                            binding.item(),
+                            binding.model(),
+                            stack,
+                            tintIndex
+                    ),
+                    binding.item().asItem()
+            );
+        }
 
-        event.register(
-                (stack, tintIndex) -> tintIndex == 0
-                        ? HexColorItemTintSource.color(stack)
-                        : TintColorUtil.NO_TINT,
-                ModBlocks.HEX_BLOCK.get()
-        );
-
-        event.register(
-                (stack, tintIndex) -> tintIndex == 0
-                        ? TintColorUtil.opaqueRgb(HardHexBlockEntity.HARD_HEX_COLOR)
-                        : TintColorUtil.NO_TINT,
-                ModBlocks.HARD_HEX_BLOCK.get()
-        );
-
-        // SIM card: one generated texture, one tint index, one raw HEX_COLOR tint.
-        event.register(
-                (stack, tintIndex) -> tintIndex == 0
-                        ? HexColorItemTintSource.color(stack)
-                        : TintColorUtil.NO_TINT,
-                ModItems.SIM_CARD.get()
-        );
-
-        // The imbued door still has an untinted base layer plus one tinted portal
-        // overlay. This is not the removed profile/layer system: only tint index 1
-        // reads HEX_COLOR directly.
-        event.register(
-                (stack, tintIndex) -> tintIndex == 1
-                        ? HexColorItemTintSource.color(stack)
-                        : TintColorUtil.NO_TINT,
-                ModItems.MUSAVACCA_IMBUED_DOOR.get()
-        );
-
-        // One generic tint handler for every CustomArmorSet item. The second
-        // generated-item layer is the fixed trim mask; its color comes from
-        // the actual registry-backed ArmorTrim on the stack.
-        for (CustomArmorSet.Entry entry : ModelSets.customArmorSets()) {
-            if (entry == null) {
-                continue;
-            }
-
+        // Armor trim is a specialized second-layer tint.
+        for (ArmorItems.Entry entry : NewModelSets.armorItems()) {
             registerLegacyArmorTrimTint(event, entry.helmet());
             registerLegacyArmorTrimTint(event, entry.chestplate());
             registerLegacyArmorTrimTint(event, entry.leggings());
@@ -475,6 +445,9 @@ public final class ModTints {
                 ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color"),
                 ArmorTrimItemTintSource.MAP_CODEC
         );
+
     }
     //?}
 }
+
+

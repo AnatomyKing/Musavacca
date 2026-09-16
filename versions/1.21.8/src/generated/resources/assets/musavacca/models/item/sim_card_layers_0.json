@@ -1,0 +1,10 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "musavacca:item/sim_card/sim_card",
+    "layer1": "musavacca:item/sim_card/sim_card_0",
+    "layer2": "musavacca:item/sim_card/sim_card_1",
+    "layer3": "musavacca:item/sim_card/sim_card_2",
+    "layer4": "musavacca:item/sim_card/sim_card_3"
+  }
+}

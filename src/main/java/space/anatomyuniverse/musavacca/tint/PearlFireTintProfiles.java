@@ -1,4 +1,3 @@
-// file: src/main/java/space/anatomyuniverse/musavacca/tint/PearlFireTintProfiles.java
 package space.anatomyuniverse.musavacca.tint;
 
 // wicked fire with E74E8C
@@ -117,6 +116,18 @@ public final class PearlFireTintProfiles {
             ),
             255, 228, 196, 167
     );
+
+    public static final Profile SIM_CARD_TINT = of(
+            settings(
+                    1.25F,  // coreToTailLightness
+                    0.64F,  // colorJumpiness
+                    0.36F,  // colorAmountTakeOver
+                    0.34F,  // vibrancyDarkening
+                    0.47F   // layerContrast
+            ),
+            255, 234, 210, 184, 174, 138, 112
+    );
+
 
     private PearlFireTintProfiles() {}
 
@@ -299,3 +310,5 @@ public final class PearlFireTintProfiles {
         );
     }
 }
+
+

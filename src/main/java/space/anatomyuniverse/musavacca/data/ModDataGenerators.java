@@ -9,9 +9,9 @@ import space.anatomyuniverse.musavacca.data.loot.ModGlobalLootModifierProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModJungleTempleLootProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModMobLootProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModSnifferDiggingLootProvider;
-import space.anatomyuniverse.musavacca.data.models.ModModelProvider;
-import space.anatomyuniverse.musavacca.data.models.ModelSets;
-import space.anatomyuniverse.musavacca.data.models.item.CustomArmorSet;
+import space.anatomyuniverse.musavacca.data.models.NewModelSets;
+import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
+import space.anatomyuniverse.musavacca.data.models.newgen.Newgen;
 import space.anatomyuniverse.musavacca.data.recipes.ModRecipeProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModBlockTagsProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModItemTagsProvider;
@@ -40,7 +40,7 @@ public final class ModDataGenerators {
 
             event.getGenerator().addProvider(
                     true,
-                    new ModModelProvider(output, efh)
+                    new Newgen.Provider(output, efh)
             );
         }
 
@@ -72,10 +72,7 @@ public final class ModDataGenerators {
                             efh
                     );
 
-            event.getGenerator().addProvider(
-                    true,
-                    blockTagsProvider
-            );
+            event.getGenerator().addProvider(true, blockTagsProvider);
 
             event.getGenerator().addProvider(
                     true,
@@ -89,9 +86,9 @@ public final class ModDataGenerators {
             //? if >=1.21.2 {
             event.getGenerator().addProvider(
                     true,
-                    new CustomArmorSet.Provider(
+                    new ArmorItems.Provider(
                             output,
-                            ModelSets.customArmorSets()
+                            NewModelSets.armorItems()
                     )
             );
             //?}
@@ -145,7 +142,7 @@ public final class ModDataGenerators {
                 output -> new ModLanguageProvider(output, "en_us")
         );
 
-        event.createProvider(ModModelProvider::new);
+        event.createProvider(Newgen.Provider::new);
 
         event.createProvider(ModRecipeProvider.Runner::new);
 
@@ -160,9 +157,9 @@ public final class ModDataGenerators {
         *///?}
 
         event.createProvider(
-                output -> new CustomArmorSet.Provider(
+                output -> new ArmorItems.Provider(
                         output,
-                        ModelSets.customArmorSets()
+                        NewModelSets.armorItems()
                 )
         );
 
@@ -197,8 +194,5 @@ public final class ModDataGenerators {
     }
     //?}
 
-    private ModDataGenerators() {
-    }
+    private ModDataGenerators() {}
 }
-
-

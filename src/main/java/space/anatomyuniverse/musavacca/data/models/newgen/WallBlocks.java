@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 
@@ -53,7 +52,7 @@ public final class WallBlocks {
         public void validate() {
             if (!(block() instanceof WallBlock)) {
                 throw new IllegalStateException(
-                        "WallBlocks requires a WallBlock: " + ModelUtil.idOf(block())
+                        "WallBlocks requires a WallBlock: " + ModelLocations.blockId(block())
                 );
             }
 
@@ -65,13 +64,13 @@ public final class WallBlocks {
 
             if (baseMode() == null) {
                 throw new IllegalStateException(
-                        "No base model selected for " + ModelUtil.idOf(block())
+                        "No base model selected for " + ModelLocations.blockId(block())
                 );
             }
 
             if (baseMode() == BaseModelMode.GENERATED && textures == null) {
                 throw new IllegalStateException(
-                        "No generated textures configured for " + ModelUtil.idOf(block())
+                        "No generated textures configured for " + ModelLocations.blockId(block())
                 );
             }
 
@@ -79,7 +78,7 @@ public final class WallBlocks {
                 if (baseModels == null || !baseModels.worldComplete()) {
                     throw new IllegalStateException(
                             "Base WallModels must provide the complete in-world family for "
-                                    + ModelUtil.idOf(block())
+                                    + ModelLocations.blockId(block())
                     );
                 }
             }
@@ -89,7 +88,7 @@ public final class WallBlocks {
                     && baseMode() == BaseModelMode.EXISTING
                     && baseModels.inventory() == null) {
                 throw new IllegalStateException(
-                        ".item() requires an inventory model for " + ModelUtil.idOf(block())
+                        ".item() requires an inventory model for " + ModelLocations.blockId(block())
                                 + "; provide it in the model family, use .item(model), or .noItem()."
                 );
             }

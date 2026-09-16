@@ -4,7 +4,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.BasePressurePlateBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 
@@ -54,7 +53,7 @@ public final class PressurePlateBlocks {
         public void validate() {
             if (!(block() instanceof BasePressurePlateBlock)) {
                 throw new IllegalStateException(
-                        "PressurePlateBlocks requires a BasePressurePlateBlock: " + ModelUtil.idOf(block())
+                        "PressurePlateBlocks requires a BasePressurePlateBlock: " + ModelLocations.blockId(block())
                 );
             }
 
@@ -64,13 +63,13 @@ public final class PressurePlateBlocks {
 
             if (baseMode() == null) {
                 throw new IllegalStateException(
-                        "No base model selected for " + ModelUtil.idOf(block())
+                        "No base model selected for " + ModelLocations.blockId(block())
                 );
             }
 
             if (baseMode() == BaseModelMode.GENERATED && textures == null) {
                 throw new IllegalStateException(
-                        "No generated textures configured for " + ModelUtil.idOf(block())
+                        "No generated textures configured for " + ModelLocations.blockId(block())
                 );
             }
 
@@ -78,7 +77,7 @@ public final class PressurePlateBlocks {
                 if (baseModels == null || !baseModels.complete()) {
                     throw new IllegalStateException(
                             "Base PressurePlateModels must provide the complete family for "
-                                    + ModelUtil.idOf(block())
+                                    + ModelLocations.blockId(block())
                     );
                 }
             }

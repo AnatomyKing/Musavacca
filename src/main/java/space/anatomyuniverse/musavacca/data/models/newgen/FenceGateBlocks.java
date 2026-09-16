@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FenceGateBlock;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 
@@ -52,7 +51,7 @@ public final class FenceGateBlocks {
         public void validate() {
             if (!(block() instanceof FenceGateBlock)) {
                 throw new IllegalStateException(
-                        "FenceGateBlocks requires a FenceGateBlock: " + ModelUtil.idOf(block())
+                        "FenceGateBlocks requires a FenceGateBlock: " + ModelLocations.blockId(block())
                 );
             }
 
@@ -62,13 +61,13 @@ public final class FenceGateBlocks {
 
             if (baseMode() == null) {
                 throw new IllegalStateException(
-                        "No base model selected for " + ModelUtil.idOf(block())
+                        "No base model selected for " + ModelLocations.blockId(block())
                 );
             }
 
             if (baseMode() == BaseModelMode.GENERATED && textures == null) {
                 throw new IllegalStateException(
-                        "No generated textures configured for " + ModelUtil.idOf(block())
+                        "No generated textures configured for " + ModelLocations.blockId(block())
                 );
             }
 
@@ -76,7 +75,7 @@ public final class FenceGateBlocks {
                 if (baseModels == null || !baseModels.complete()) {
                     throw new IllegalStateException(
                             "Base FenceGateModels must provide the complete family for "
-                                    + ModelUtil.idOf(block())
+                                    + ModelLocations.blockId(block())
                     );
                 }
             }

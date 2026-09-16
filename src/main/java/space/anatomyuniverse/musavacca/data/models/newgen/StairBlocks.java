@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.StairBlock;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -53,7 +52,7 @@ public final class StairBlocks {
         public void validate() {
             if (!(block() instanceof StairBlock)) {
                 throw new IllegalStateException(
-                        "StairBlocks requires a StairBlock: " + ModelUtil.idOf(block())
+                        "StairBlocks requires a StairBlock: " + ModelLocations.blockId(block())
                 );
             }
 
@@ -63,27 +62,27 @@ public final class StairBlocks {
 
             if (baseMode() == null) {
                 throw new IllegalStateException(
-                        "No base stair model selected for " + ModelUtil.idOf(block())
+                        "No base stair model selected for " + ModelLocations.blockId(block())
                 );
             }
 
             if (baseMode() == BaseModelMode.GENERATED && textures == null) {
                 throw new IllegalStateException(
-                        "No generated stair textures configured for " + ModelUtil.idOf(block())
+                        "No generated stair textures configured for " + ModelLocations.blockId(block())
                 );
             }
 
             if (baseMode() == BaseModelMode.EXISTING) {
                 if (baseModels == null) {
                     throw new IllegalStateException(
-                            "No existing StairModels configured for " + ModelUtil.idOf(block())
+                            "No existing StairModels configured for " + ModelLocations.blockId(block())
                     );
                 }
 
                 if (!baseModels.complete()) {
                     throw new IllegalStateException(
                             "Base StairModels must provide straight, inner, and outer models for "
-                                    + ModelUtil.idOf(block())
+                                    + ModelLocations.blockId(block())
                     );
                 }
             }

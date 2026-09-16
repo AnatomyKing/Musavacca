@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.custom.DecorationBlock;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +25,7 @@ public final class DecorationBlocks {
     enum ItemMode {
         UNSET,
         PLACEMENT,
-        EXISTING,
+        CUSTOM,
         NONE
     }
 
@@ -145,19 +144,17 @@ public final class DecorationBlocks {
         private final DecorationBlock block;
         private final List<Model> models;
         private final Tints.Tint tint;
-        private final Tints.Tint itemTint;
         private final ItemMode itemMode;
         private final DecorationBlock.Placement itemPlacement;
-        private final String itemModel;
+        private final SimpleItems.Model itemModel;
 
         private Entry(Builder builder) {
             this.block = builder.block;
             this.models = List.copyOf(builder.models);
             this.tint = builder.tint;
-            this.itemTint = builder.itemTint;
             this.itemMode = builder.itemMode;
             this.itemPlacement = builder.itemPlacement;
-            this.itemModel = builder.itemModel;
+            this.itemModel = builder.itemModel == null ? null : builder.itemModel.copy();
         }
 
         public static Builder builder(DecorationBlock block) {
@@ -176,10 +173,6 @@ public final class DecorationBlocks {
             return tint;
         }
 
-        public Tints.Tint itemTint() {
-            return itemTint != null ? itemTint : tint;
-        }
-
         ItemMode itemMode() {
             return itemMode;
         }
@@ -188,7 +181,7 @@ public final class DecorationBlocks {
             return itemPlacement;
         }
 
-        String itemModel() {
+        SimpleItems.Model itemModel() {
             return itemModel;
         }
 
@@ -205,7 +198,7 @@ public final class DecorationBlocks {
             if (candidates.size() != 1) {
                 throw new IllegalStateException(
                         "Decoration item placement " + itemPlacement.getSerializedName()
-                                + " on " + ModelUtil.idOf(block)
+                                + " on " + ModelLocations.blockId(block)
                                 + " must have exactly one unconditional model; use .item(model) instead"
                 );
             }
@@ -216,7 +209,7 @@ public final class DecorationBlocks {
         private void validate() {
             if (models.isEmpty()) {
                 throw new IllegalStateException(
-                        "DecorationBlocks requires at least one model for " + ModelUtil.idOf(block)
+                        "DecorationBlocks requires at least one model for " + ModelLocations.blockId(block)
                 );
             }
 
@@ -244,7 +237,7 @@ public final class DecorationBlocks {
                         || model.conditions().contains(DecorationBlock.FACING)) {
                     throw new IllegalStateException(
                             "DecorationBlocks manages placement, rotation and facing automatically for "
-                                    + ModelUtil.idOf(block)
+                                    + ModelLocations.blockId(block)
                     );
                 }
 
@@ -252,7 +245,7 @@ public final class DecorationBlocks {
                     throw new IllegalStateException(
                             "Decoration model declares disabled placement "
                                     + model.placement().getSerializedName()
-                                    + " on " + ModelUtil.idOf(block)
+                                    + " on " + ModelLocations.blockId(block)
                     );
                 }
 
@@ -261,7 +254,7 @@ public final class DecorationBlocks {
                     throw new IllegalStateException(
                             "Decoration model declares " + model.orientation()
                                     + " for placement " + model.placement().getSerializedName()
-                                    + " on " + ModelUtil.idOf(block)
+                                    + " on " + ModelLocations.blockId(block)
                                     + ", but DecorationBlock.Options uses " + actual
                     );
                 }
@@ -277,7 +270,7 @@ public final class DecorationBlocks {
                         throw new IllegalStateException(
                                 "DecorationBlocks has models for disabled placement "
                                         + placement.getSerializedName()
-                                        + " on " + ModelUtil.idOf(block)
+                                        + " on " + ModelLocations.blockId(block)
                         );
                     }
                     continue;
@@ -287,7 +280,7 @@ public final class DecorationBlocks {
                     throw new IllegalStateException(
                             "DecorationBlocks is missing a model for enabled placement "
                                     + placement.getSerializedName()
-                                    + " on " + ModelUtil.idOf(block)
+                                    + " on " + ModelLocations.blockId(block)
                     );
                 }
 
@@ -296,8 +289,8 @@ public final class DecorationBlocks {
 
             if (itemMode == ItemMode.UNSET) {
                 throw new IllegalStateException(
-                        "DecorationBlocks requires explicit item handling for " + ModelUtil.idOf(block)
-                                + ": use .item(placement), .item(model), or .noItem()"
+                        "DecorationBlocks requires explicit item handling for " + ModelLocations.blockId(block)
+                                + ": use .item(placement), .item(model), .item(SimpleItems.Model), or .noItem()"
                 );
             }
 
@@ -306,7 +299,7 @@ public final class DecorationBlocks {
                     throw new IllegalStateException(
                             "Decoration item uses disabled placement "
                                     + itemPlacement.getSerializedName()
-                                    + " on " + ModelUtil.idOf(block)
+                                    + " on " + ModelLocations.blockId(block)
                     );
                 }
 
@@ -344,10 +337,9 @@ public final class DecorationBlocks {
         private final DecorationBlock block;
         private final List<Model> models = new ArrayList<>();
         private Tints.Tint tint = Tints.none();
-        private Tints.Tint itemTint;
         private ItemMode itemMode = ItemMode.UNSET;
         private DecorationBlock.Placement itemPlacement;
-        private String itemModel;
+        private SimpleItems.Model itemModel;
 
         private Builder(DecorationBlock block) {
             this.block = Objects.requireNonNull(block, "block");
@@ -375,14 +367,6 @@ public final class DecorationBlocks {
             return this;
         }
 
-        public Builder itemTint(Tints.Tint tint) {
-            if (itemMode == ItemMode.NONE) {
-                throw new IllegalStateException("itemTint(...) cannot be used after .noItem()");
-            }
-
-            this.itemTint = Objects.requireNonNull(tint, "tint");
-            return this;
-        }
 
         public Builder item(DecorationBlock.Placement placement) {
             requireItemUnset();
@@ -392,18 +376,18 @@ public final class DecorationBlocks {
         }
 
         public Builder item(String modelId) {
+            return item(SimpleItems.Model.existing(modelId));
+        }
+
+        public Builder item(SimpleItems.Model model) {
             requireItemUnset();
-            itemMode = ItemMode.EXISTING;
-            itemModel = Models.existing(modelId).model().toString();
+            itemMode = ItemMode.CUSTOM;
+            itemModel = Objects.requireNonNull(model, "model").copy();
             return this;
         }
 
         public Builder noItem() {
             requireItemUnset();
-            if (itemTint != null) {
-                throw new IllegalStateException(".noItem() cannot be used after .itemTint(...)");
-            }
-
             itemMode = ItemMode.NONE;
             return this;
         }

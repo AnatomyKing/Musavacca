@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +19,7 @@ final class BlockFamilyValidation {
         if (!block.defaultBlockState().hasProperty(property)) {
             throw new IllegalStateException(
                     family + " requires property " + property.getName()
-                            + " on " + ModelUtil.idOf(block)
+                            + " on " + ModelLocations.blockId(block)
             );
         }
     }
@@ -29,7 +28,7 @@ final class BlockFamilyValidation {
         for (Conditions.Term<?> term : conditions.terms()) {
             requireProperty(block, term.property(), "Condition");
             if (!term.property().getPossibleValues().contains(term.value())) {
-                throw new IllegalStateException("Invalid condition " + term + " on " + ModelUtil.idOf(block));
+                throw new IllegalStateException("Invalid condition " + term + " on " + ModelLocations.blockId(block));
             }
         }
     }
@@ -45,7 +44,7 @@ final class BlockFamilyValidation {
             throw new IllegalStateException(
                     family + " rotation " + rotations.type()
                             + " expects property " + property
-                            + " on " + ModelUtil.idOf(block)
+                            + " on " + ModelLocations.blockId(block)
             );
         }
 
@@ -63,7 +62,7 @@ final class BlockFamilyValidation {
                         family + " rotation " + rotations.type()
                                 + " has no mapping for " + property.getName()
                                 + "=" + value
-                                + " on " + ModelUtil.idOf(block)
+                                + " on " + ModelLocations.blockId(block)
                 );
             }
         }

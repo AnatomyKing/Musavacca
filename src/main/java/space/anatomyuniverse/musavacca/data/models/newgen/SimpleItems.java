@@ -1,0 +1,509 @@
+package space.anatomyuniverse.musavacca.data.models.newgen;
+
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+import space.anatomyuniverse.musavacca.tint.HexColorItemTintSource;
+import space.anatomyuniverse.musavacca.tint.TintColorUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+/**
+ * Universal NewGen item-model vocabulary.
+ *
+ * <p>{@link Entry} binds a model declaration to an actual item. {@link Model}
+ * is intentionally item-agnostic so the exact same declaration can also be
+ * embedded in block families.</p>
+ */
+public final class SimpleItems {
+    private SimpleItems() {}
+
+    public enum Style {
+        FLAT,
+        HANDHELD
+    }
+
+    enum Mode {
+        GENERATED,
+        EXISTING
+    }
+
+    /** One fully-expanded generated item layer. */
+    public record PhysicalLayer(ResourceLocation texture, Tints.Tint tint) {
+        public PhysicalLayer {
+            Objects.requireNonNull(texture, "texture");
+            Objects.requireNonNull(tint, "tint");
+        }
+    }
+
+    public static final class Model {
+        private final Mode mode;
+        private ResourceLocation existingModel;
+        private Style style;
+        private boolean folder;
+        private boolean inferSingleTexture;
+        private List<String> textureTokens;
+        private Tints.Tint tint = Tints.none();
+        private final Map<Integer, Tints.Tint> layerTints = new LinkedHashMap<>();
+
+        private Model(Mode mode) {
+            this.mode = Objects.requireNonNull(mode, "mode");
+        }
+
+        private Model(Model other) {
+            mode = other.mode;
+            existingModel = other.existingModel;
+            style = other.style;
+            folder = other.folder;
+            inferSingleTexture = other.inferSingleTexture;
+            textureTokens = other.textureTokens == null ? null : List.copyOf(other.textureTokens);
+            tint = other.tint;
+            layerTints.putAll(other.layerTints);
+        }
+
+        public static Model generated() {
+            return new Model(Mode.GENERATED);
+        }
+
+        public static Model existing(String modelId) {
+            if (modelId == null || modelId.isBlank()) {
+                throw new IllegalArgumentException("item model id must not be blank");
+            }
+
+            Model model = new Model(Mode.EXISTING);
+            model.existingModel = ResourceLocation.parse(modelId);
+            return model;
+        }
+
+        public static Model existing(ResourceLocation modelId) {
+            Model model = new Model(Mode.EXISTING);
+            model.existingModel = Objects.requireNonNull(modelId, "modelId");
+            return model;
+        }
+
+        public Model flat() {
+            requireGenerated("flat()");
+            style = Style.FLAT;
+            return this;
+        }
+
+        public Model handheld() {
+            requireGenerated("handheld()");
+            style = Style.HANDHELD;
+            return this;
+        }
+
+        /**
+         * Resolve natural item textures inside item/&lt;id&gt;/ instead of item/.
+         * Example: sim_card -> item/sim_card/sim_card.
+         */
+        public Model folder() {
+            requireGenerated("folder()");
+            folder = true;
+            return this;
+        }
+
+        /** Use this item's natural texture, or folder texture when .folder() is enabled. */
+        public Model texture() {
+            requireGenerated("texture()");
+            inferSingleTexture = true;
+            textureTokens = List.of();
+            return this;
+        }
+
+        public Model texture(String texture) {
+            return textures(texture);
+        }
+
+        public Model textures(String... textures) {
+            requireGenerated("textures(...)");
+
+            if (textures == null || textures.length == 0) {
+                throw new IllegalArgumentException("item textures must not be empty");
+            }
+
+            List<String> copy = new ArrayList<>(textures.length);
+
+            for (String texture : textures) {
+                if (texture == null || texture.isBlank()) {
+                    throw new IllegalArgumentException("item texture must not be blank");
+                }
+
+                copy.add(texture);
+            }
+
+            inferSingleTexture = false;
+            textureTokens = List.copyOf(copy);
+            return this;
+        }
+
+        /** Applies to every logical layer unless a layerTint override exists. */
+        public Model tint(Tints.Tint tint) {
+            this.tint = Objects.requireNonNull(tint, "tint");
+            return this;
+        }
+
+        /** Applies to one logical texture layer before PearlFire/profile expansion. */
+        public Model layerTint(int layer, Tints.Tint tint) {
+            requireGenerated("layerTint(...)");
+
+            if (layer < 0) {
+                throw new IllegalArgumentException("layer must be >= 0");
+            }
+
+            layerTints.put(layer, Objects.requireNonNull(tint, "tint"));
+            return this;
+        }
+
+        Mode mode() {
+            return mode;
+        }
+
+        public boolean isGenerated() {
+            return mode == Mode.GENERATED;
+        }
+
+        public boolean isExisting() {
+            return mode == Mode.EXISTING;
+        }
+
+        public ResourceLocation existingModel() {
+            return existingModel;
+        }
+
+        public Style style() {
+            return style;
+        }
+
+        public boolean folderMode() {
+            return folder;
+        }
+
+        public Tints.Tint tint() {
+            return tint;
+        }
+
+        public Map<Integer, Tints.Tint> layerTints() {
+            return Collections.unmodifiableMap(layerTints);
+        }
+
+        public Tints.Tint tintForLogicalLayer(int layer) {
+            return layerTints.getOrDefault(layer, tint);
+        }
+
+        public List<ResourceLocation> logicalTextures(ItemLike item) {
+            Objects.requireNonNull(item, "item");
+
+            if (!isGenerated()) {
+                return List.of();
+            }
+
+            if (textureTokens == null) {
+                throw new IllegalStateException(
+                        "No texture configured for item " + ModelLocations.itemId(item)
+                                + ". Call .texture() or .textures(...)."
+                );
+            }
+
+            if (inferSingleTexture) {
+                return List.of(folder ? TextureTokens.itemFolder(item) : TextureTokens.item(item));
+            }
+
+            return textureTokens.stream()
+                    .map(token -> resolveTexture(item, token))
+                    .toList();
+        }
+
+        /**
+         * Expands logical layers into physical generated-item layers.
+         *
+         * <p>PearlFire is special: one logical carrier expands into
+         * profile.layerCount() physical texture carriers.</p>
+         */
+        public List<PhysicalLayer> physicalLayers(ItemLike item) {
+            validate(item);
+
+            if (isExisting()) {
+                return physicalTintList(tint).stream()
+                        .map(layerTint -> new PhysicalLayer(TextureTokens.item(item), layerTint))
+                        .toList();
+            }
+
+            List<ResourceLocation> logical = logicalTextures(item);
+            List<PhysicalLayer> physical = new ArrayList<>();
+
+            for (int logicalLayer = 0; logicalLayer < logical.size(); logicalLayer++) {
+                ResourceLocation base = logical.get(logicalLayer);
+                Tints.Tint layerTint = tintForLogicalLayer(logicalLayer);
+
+                if (layerTint instanceof Tints.PearlFire pearlFire) {
+                    for (Tints.GeneratedLayer generated : Tints.generatedLayers(pearlFire)) {
+                        physical.add(new PhysicalLayer(
+                                TextureTokens.itemLayer(base, generated.sourceLayer()),
+                                new Tints.PearlFire(pearlFire.profile(), generated.sourceLayer())
+                        ));
+                    }
+                } else {
+                    physical.add(new PhysicalLayer(base, layerTint));
+                }
+            }
+
+            return List.copyOf(physical);
+        }
+
+        /** Tint-source list for an existing authored model. */
+        public List<Tints.Tint> existingTints() {
+            if (!isExisting()) {
+                throw new IllegalStateException("existingTints() requires an existing item model");
+            }
+
+            return physicalTintList(tint);
+        }
+
+        public boolean hasAnyTint(ItemLike item) {
+            if (isExisting()) {
+                return existingTints().stream().anyMatch(Tints.Tint::tinted);
+            }
+
+            return physicalLayers(item).stream()
+                    .map(PhysicalLayer::tint)
+                    .anyMatch(Tints.Tint::tinted);
+        }
+
+        public Model copy() {
+            return new Model(this);
+        }
+
+        public void validate(ItemLike item) {
+            Objects.requireNonNull(item, "item");
+
+            if (isExisting()) {
+                if (existingModel == null) {
+                    throw new IllegalStateException("Existing item model is missing its model id");
+                }
+
+                if (style != null || folder || textureTokens != null || !layerTints.isEmpty()) {
+                    throw new IllegalStateException(
+                            "Existing item models cannot use generated style/folder/texture/layerTint options"
+                    );
+                }
+
+                return;
+            }
+
+            if (style == null) {
+                throw new IllegalStateException(
+                        "Generated item " + ModelLocations.itemId(item) + " requires .flat() or .handheld()"
+                );
+            }
+
+            if (textureTokens == null) {
+                throw new IllegalStateException(
+                        "Generated item " + ModelLocations.itemId(item) + " requires .texture() or .textures(...)"
+                );
+            }
+
+            int logicalCount = inferSingleTexture ? 1 : textureTokens.size();
+
+            for (Integer layer : layerTints.keySet()) {
+                if (layer >= logicalCount) {
+                    throw new IllegalStateException(
+                            "Logical tint layer " + layer + " is outside the " + logicalCount
+                                    + " texture layers for " + ModelLocations.itemId(item)
+                    );
+                }
+            }
+        }
+
+        private ResourceLocation resolveTexture(ItemLike item, String token) {
+            if (!folder || token.indexOf(':') >= 0 || token.startsWith("item/")) {
+                return TextureTokens.resolveItem(item, token);
+            }
+
+            ResourceLocation itemId = ModelLocations.itemId(item);
+            String path = token.startsWith("_") ? itemId.getPath() + token : token;
+
+            return ResourceLocation.fromNamespaceAndPath(
+                    itemId.getNamespace(),
+                    "item/" + itemId.getPath() + "/" + path
+            );
+        }
+
+        private void requireGenerated(String operation) {
+            if (!isGenerated()) {
+                throw new IllegalStateException(operation + " requires SimpleItems.Model.generated()");
+            }
+        }
+
+        private static List<Tints.Tint> physicalTintList(Tints.Tint tint) {
+            if (tint instanceof Tints.PearlFire pearlFire) {
+                List<Tints.Tint> result = new ArrayList<>();
+
+                for (int layer = 0; layer < pearlFire.profile().layerCount(); layer++) {
+                    result.add(new Tints.PearlFire(pearlFire.profile(), layer));
+                }
+
+                return List.copyOf(result);
+            }
+
+            return List.of(tint);
+        }
+    }
+
+    public static final class Entry {
+        private final ItemLike item;
+        private final Model model;
+
+        private Entry(Builder builder) {
+            item = builder.item;
+            model = Objects.requireNonNull(builder.model, "model").copy();
+            model.validate(item);
+        }
+
+        public static Builder builder(ItemLike item) {
+            return new Builder(item);
+        }
+
+        public ItemLike item() {
+            return item;
+        }
+
+        public Model model() {
+            return model;
+        }
+    }
+
+    public static final class Builder {
+        private final ItemLike item;
+        private Model model;
+
+        private Builder(ItemLike item) {
+            this.item = Objects.requireNonNull(item, "item");
+        }
+
+        public Builder generated() {
+            select(Model.generated());
+            return this;
+        }
+
+        public Builder model(String modelId) {
+            select(Model.existing(modelId));
+            return this;
+        }
+
+        public Builder model(ResourceLocation modelId) {
+            select(Model.existing(modelId));
+            return this;
+        }
+
+        public Builder model(Model model) {
+            select(Objects.requireNonNull(model, "model").copy());
+            return this;
+        }
+
+        public Builder flat() {
+            requireModel().flat();
+            return this;
+        }
+
+        public Builder handheld() {
+            requireModel().handheld();
+            return this;
+        }
+
+        public Builder folder() {
+            requireModel().folder();
+            return this;
+        }
+
+        public Builder texture() {
+            requireModel().texture();
+            return this;
+        }
+
+        public Builder texture(String texture) {
+            requireModel().texture(texture);
+            return this;
+        }
+
+        public Builder textures(String... textures) {
+            requireModel().textures(textures);
+            return this;
+        }
+
+        public Builder tint(Tints.Tint tint) {
+            requireModel().tint(tint);
+            return this;
+        }
+
+        public Builder layerTint(int layer, Tints.Tint tint) {
+            requireModel().layerTint(layer, tint);
+            return this;
+        }
+
+        public Entry build() {
+            if (model == null) {
+                throw new IllegalStateException(
+                        "Choose .generated() or .model(...) for " + ModelLocations.itemId(item)
+                );
+            }
+
+            return new Entry(this);
+        }
+
+        private void select(Model requested) {
+            if (model != null) {
+                throw new IllegalStateException("Item model source has already been selected");
+            }
+
+            model = requested;
+        }
+
+        private Model requireModel() {
+            if (model == null) {
+                throw new IllegalStateException("Call .generated() or .model(...) first");
+            }
+
+            return model;
+        }
+    }
+
+    /** Used by the legacy ItemColor bridge (<1.21.4). */
+    public static int legacyTintColor(Entry entry, ItemStack stack, int tintIndex) {
+        Objects.requireNonNull(entry, "entry");
+        return legacyTintColor(entry.item(), entry.model(), stack, tintIndex);
+    }
+
+    /** Used by block-embedded item models on the legacy renderer. */
+    public static int legacyTintColor(ItemLike item, Model model, ItemStack stack, int tintIndex) {
+        if (tintIndex < 0) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        List<Tints.Tint> tints = model.isExisting()
+                ? model.existingTints()
+                : model.physicalLayers(item).stream().map(PhysicalLayer::tint).toList();
+
+        if (tintIndex >= tints.size()) {
+            return TintColorUtil.NO_TINT;
+        }
+
+        Tints.Tint tint = tints.get(tintIndex);
+
+        return switch (tint.kind()) {
+            case NONE -> TintColorUtil.NO_TINT;
+            case CONSTANT -> TintColorUtil.opaqueRgb(((Tints.Constant) tint).rgb());
+            case BIOME_FOLIAGE -> TintColorUtil.defaultFoliageItemTint();
+            case HEX_COLOR -> HexColorItemTintSource.color(stack);
+            case PEARL_FIRE -> {
+                Tints.PearlFire pearl = (Tints.PearlFire) tint;
+                yield HexColorItemTintSource.color(stack, pearl.profile(), pearl.offset());
+            }
+        };
+    }
+}

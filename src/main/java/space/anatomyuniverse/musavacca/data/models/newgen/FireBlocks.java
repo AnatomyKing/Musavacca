@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FireBlock;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -14,58 +13,31 @@ public final class FireBlocks {
         private final Block block;
         private final FireTextures.Set textures;
         private final Tints.Tint tint;
-        private final Tints.Tint itemTint;
         private final Variants.Set variants;
-        private final String itemModel;
-        private final boolean noItem;
+        private final FamilyItemMode itemMode;
+        private final SimpleItems.Model item;
 
         private Entry(Builder builder) {
-            this.block = builder.block;
-            this.textures = builder.textures;
-            this.tint = builder.tint;
-            this.itemTint = builder.itemTint;
-            this.variants = builder.variants;
-            this.itemModel = builder.itemModel;
-            this.noItem = builder.noItem;
+            block = builder.block;
+            textures = builder.textures;
+            tint = builder.tint;
+            variants = builder.variants;
+            itemMode = builder.itemMode;
+            item = builder.item == null ? null : builder.item.copy();
         }
 
-        public static Builder builder(Block block) {
-            return new Builder(block);
-        }
-
-        public Block block() {
-            return block;
-        }
-
-        public FireTextures.Set textures() {
-            return textures;
-        }
-
-        public Tints.Tint tint() {
-            return tint;
-        }
-
-        public Tints.Tint itemTint() {
-            return itemTint != null ? itemTint : tint;
-        }
-
-        public Variants.Set variants() {
-            return variants;
-        }
-
-        public String itemModel() {
-            return itemModel;
-        }
-
-        public boolean noItem() {
-            return noItem;
-        }
+        public static Builder builder(Block block) { return new Builder(block); }
+        public Block block() { return block; }
+        public FireTextures.Set textures() { return textures; }
+        public Tints.Tint tint() { return tint; }
+        public Variants.Set variants() { return variants; }
+        FamilyItemMode itemMode() { return itemMode; }
+        SimpleItems.Model item() { return item; }
 
         public void validate() {
             if (textures == null) {
-                throw new IllegalStateException("No texture configured for " + ModelUtil.idOf(block));
+                throw new IllegalStateException("No texture configured for " + ModelLocations.blockId(block));
             }
-
             BlockFamilyValidation.requireProperty(block, FireBlock.NORTH, "FireBlocks");
             BlockFamilyValidation.requireProperty(block, FireBlock.EAST, "FireBlocks");
             BlockFamilyValidation.requireProperty(block, FireBlock.SOUTH, "FireBlocks");
@@ -78,105 +50,78 @@ public final class FireBlocks {
             private boolean generated;
             private FireTextures.Set textures;
             private Tints.Tint tint = Tints.none();
-            private Tints.Tint itemTint;
             private Variants.Set variants = Variants.single();
-            private String itemModel;
-            private boolean noItem;
+            private FamilyItemMode itemMode = FamilyItemMode.DEFAULT;
+            private SimpleItems.Model item;
+            private boolean explicitItem;
 
-            private Builder(Block block) {
-                this.block = Objects.requireNonNull(block, "block");
-            }
+            private Builder(Block block) { this.block = Objects.requireNonNull(block, "block"); }
 
-            public Builder generated() {
-                this.generated = true;
-                return this;
-            }
+            public Builder generated() { generated = true; return this; }
 
             public Builder texture() {
                 requireGeneratedTextures();
-                this.textures = FireTextures.builder(block)
-                        .texture()
-                        .build();
+                textures = FireTextures.builder(block).texture().build();
                 return this;
             }
 
             public Builder texture(String texture) {
                 requireGeneratedTextures();
-                this.textures = FireTextures.builder(block)
-                        .texture(texture)
-                        .build();
+                textures = FireTextures.builder(block).texture(texture).build();
                 return this;
             }
 
             public Builder textures(Consumer<FireTextures.Builder> textures) {
                 requireGeneratedTextures();
                 Objects.requireNonNull(textures, "textures");
-
                 FireTextures.Builder builder = FireTextures.builder(block);
                 textures.accept(builder);
                 this.textures = builder.build();
                 return this;
             }
 
-            public Builder tint(Tints.Tint tint) {
-                this.tint = Objects.requireNonNull(tint, "tint");
+            public Builder tint(Tints.Tint tint) { this.tint = Objects.requireNonNull(tint, "tint"); return this; }
+            public Builder variants(Variants.Set variants) { this.variants = Objects.requireNonNull(variants, "variants"); return this; }
+
+            public Builder item() {
+                requireItem();
+                itemMode = FamilyItemMode.DEFAULT;
+                item = null;
                 return this;
             }
 
-            public Builder itemTint(Tints.Tint tint) {
-                if (noItem) {
-                    throw new IllegalStateException("itemTint(...) cannot be used after .noItem()");
-                }
+            public Builder item(String model) { return item(SimpleItems.Model.existing(model)); }
 
-                this.itemTint = Objects.requireNonNull(tint, "tint");
-                return this;
-            }
-
-            public Builder variants(Variants.Set variants) {
-                this.variants = Objects.requireNonNull(variants, "variants");
-                return this;
-            }
-
-            public Builder item(String model) {
-                if (noItem) {
-                    throw new IllegalStateException("Cannot use .item(...) after .noItem()");
-                }
-                if (model == null || model.isBlank()) {
-                    throw new IllegalArgumentException("item model must not be blank");
-                }
-
-                this.itemModel = model;
+            public Builder item(SimpleItems.Model model) {
+                requireItem();
+                itemMode = FamilyItemMode.CUSTOM;
+                item = Objects.requireNonNull(model, "model").copy();
                 return this;
             }
 
             public Builder noItem() {
-                if (itemModel != null) {
-                    throw new IllegalStateException("Cannot use .noItem() after .item(...)");
-                }
-
-                if (itemTint != null) {
-                    throw new IllegalStateException("Cannot use .noItem() after .itemTint(...)");
-                }
-
-                this.noItem = true;
+                if (explicitItem) throw new IllegalStateException("Cannot use .noItem() after .item(...)");
+                itemMode = FamilyItemMode.NONE;
+                item = null;
                 return this;
             }
 
+            private void requireItem() {
+                if (itemMode == FamilyItemMode.NONE) throw new IllegalStateException("Cannot use .item(...) after .noItem()");
+                explicitItem = true;
+            }
 
             private void requireGeneratedTextures() {
-                if (!generated) {
-                    throw new IllegalStateException("texture(s) requires .generated() first");
-                }
+                if (!generated) throw new IllegalStateException("texture(s) requires .generated() first");
             }
 
             public Entry build() {
                 if (!generated) {
                     throw new IllegalStateException(
                             "FireBlocks currently represents generated Minecraft fire geometry; call .generated() for "
-                                    + ModelUtil.idOf(block)
+                                    + ModelLocations.blockId(block)
                     );
                 }
-
                 Entry entry = new Entry(this);
                 entry.validate();
                 return entry;

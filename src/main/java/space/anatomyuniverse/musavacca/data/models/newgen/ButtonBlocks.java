@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ButtonBlock;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 
@@ -52,7 +51,7 @@ public final class ButtonBlocks {
         public void validate() {
             if (!(block() instanceof ButtonBlock)) {
                 throw new IllegalStateException(
-                        "ButtonBlocks requires a ButtonBlock: " + ModelUtil.idOf(block())
+                        "ButtonBlocks requires a ButtonBlock: " + ModelLocations.blockId(block())
                 );
             }
 
@@ -62,13 +61,13 @@ public final class ButtonBlocks {
 
             if (baseMode() == null) {
                 throw new IllegalStateException(
-                        "No base model selected for " + ModelUtil.idOf(block())
+                        "No base model selected for " + ModelLocations.blockId(block())
                 );
             }
 
             if (baseMode() == BaseModelMode.GENERATED && textures == null) {
                 throw new IllegalStateException(
-                        "No generated textures configured for " + ModelUtil.idOf(block())
+                        "No generated textures configured for " + ModelLocations.blockId(block())
                 );
             }
 
@@ -76,7 +75,7 @@ public final class ButtonBlocks {
                 if (baseModels == null || !baseModels.worldComplete()) {
                     throw new IllegalStateException(
                             "Base ButtonModels must provide the complete in-world family for "
-                                    + ModelUtil.idOf(block())
+                                    + ModelLocations.blockId(block())
                     );
                 }
             }
@@ -86,7 +85,7 @@ public final class ButtonBlocks {
                     && baseMode() == BaseModelMode.EXISTING
                     && baseModels.inventory() == null) {
                 throw new IllegalStateException(
-                        ".item() requires an inventory model for " + ModelUtil.idOf(block())
+                        ".item() requires an inventory model for " + ModelLocations.blockId(block())
                                 + "; provide it in the model family, use .item(model), or .noItem()."
                 );
             }

@@ -1,4 +1,4 @@
-package space.anatomyuniverse.musavacca.data.models.newgen;
+package space.anatomyuniverse.musavacca.data.models;
 
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.SnowyDirtBlock;
@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.SnowyDirtBlock;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.*;
 import space.anatomyuniverse.musavacca.block.entity.custom.HardHexBlockEntity;
+import space.anatomyuniverse.musavacca.data.models.newgen.*;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 
@@ -953,21 +954,30 @@ public final class NewModelSets {
                                 )
                         )
                         .items(
-                                DoorBlocks.Item.generated(ModItems.MUSAVACCA_DOOR.get())
-                                        .texture(),
+                                SimpleItems.Entry.builder(ModItems.MUSAVACCA_DOOR.get())
+                                        .generated()
+                                        .flat()
+                                        .texture()
+                                        .build(),
 
-                                DoorBlocks.Item.generated(ModItems.MUSAVACCA_CHARGED_DOOR.get())
+                                SimpleItems.Entry.builder(ModItems.MUSAVACCA_CHARGED_DOOR.get())
+                                        .generated()
+                                        .flat()
                                         .textures(
                                                 "musavacca:item/musavacca_door",
                                                 "musavacca:item/musavacca_door_knob"
-                                        ),
+                                        )
+                                        .build(),
 
-                                DoorBlocks.Item.generated(ModItems.MUSAVACCA_IMBUED_DOOR.get())
+                                SimpleItems.Entry.builder(ModItems.MUSAVACCA_IMBUED_DOOR.get())
+                                        .generated()
+                                        .flat()
                                         .textures(
                                                 "musavacca:item/musavacca_door",
                                                 "musavacca:item/musavacca_door_portal"
                                         )
                                         .layerTint(1, Tints.hexColor())
+                                        .build()
                         )
                         .build()
         );
@@ -1113,26 +1123,225 @@ public final class NewModelSets {
         );
     }
 
-        public static List<DecorationBlocks.Entry> decorationBlocks() {
-                return List.of(
-                        DecorationBlocks.Entry.builder(ModBlocks.BANANA_PEARL_CHALICE.get())
-                                .models(
-                                        DecorationBlocks.Model.rotating(
-                                                DecorationBlock.Placement.FLOOR,
-                                                "musavacca:block/banana_pearl_chalice_floor"
-                                        ),
-                                        DecorationBlocks.Model.rotating(
-                                                DecorationBlock.Placement.SNEAK,
-                                                "musavacca:block/banana_pearl_chalice_sneak"
-                                        ),
-                                        DecorationBlocks.Model.facing(
-                                                DecorationBlock.Placement.SIDE,
-                                                "musavacca:block/banana_pearl_chalice_side"
-                                        )
+    public static List<DecorationBlocks.Entry> decorationBlocks() {
+        return List.of(
+                DecorationBlocks.Entry.builder(ModBlocks.BANANA_PEARL_CHALICE.get())
+                        .models(
+                                DecorationBlocks.Model.rotating(
+                                        DecorationBlock.Placement.FLOOR,
+                                        "musavacca:block/banana_pearl_chalice_floor"
+                                ),
+                                DecorationBlocks.Model.rotating(
+                                        DecorationBlock.Placement.SNEAK,
+                                        "musavacca:block/banana_pearl_chalice_sneak"
+                                ),
+                                DecorationBlocks.Model.facing(
+                                        DecorationBlock.Placement.SIDE,
+                                        "musavacca:block/banana_pearl_chalice_side"
                                 )
-                                .item(DecorationBlock.Placement.FLOOR)
-                                .build()
-                );
-        }
+                        )
+                        .item(DecorationBlock.Placement.FLOOR)
+                        .build()
+        );
+    }
+
+    public static List<SimpleItems.Entry> simpleItems() {
+        return List.of(
+                // Flat generated items
+                SimpleItems.Entry.builder(ModItems.BANANA_PEARL.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.BIG_BANANA_PEARL.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.SMALL_BANANA_PEARL.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.FLINT_AND_PEARL.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.VACACA.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.MUSAVACCA_EXUDATE.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.BANAZO_GUSMA_LUMPA_GOOP.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.BANANA_PELLIS.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.MUSAVACCA_PUP.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModBlocks.UNRIPE_MUSAVACCA_EGG.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModBlocks.RIPENING_MUSAVACCA_EGG.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModBlocks.RIPE_MUSAVACCA_EGG.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_INGOT.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.BANANA_MILK_BUCKET.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.MUSAVACCA_BOAT.get())
+                        .generated()
+                        .flat()
+                        .texture()
+                        .build(),
+
+                // Handheld generated items
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_AXE.get())
+                        .generated()
+                        .handheld()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_PICKAXE.get())
+                        .generated()
+                        .handheld()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_SHOVEL.get())
+                        .generated()
+                        .handheld()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_SWORD.get())
+                        .generated()
+                        .handheld()
+                        .texture()
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_HOE.get())
+                        .generated()
+                        .handheld()
+                        .texture()
+                        .build(),
+
+                // Existing authored item models
+                SimpleItems.Entry.builder(ModItems.BANANA_PHONE.get())
+                        .model("musavacca:item/banana_phone")
+                        .build(),
+
+                SimpleItems.Entry.builder(ModItems.INACTIVE_VOCO_CALLER.get())
+                        .model("musavacca:item/banana_phone_off")
+                        .build(),
+
+                // Folder-based generated item + dynamic HEX_COLOR pearlprofile tint
+                SimpleItems.Entry.builder(ModItems.SIM_CARD.get())
+                        .generated()
+                        .flat()
+                        .folder()
+                        .textures(
+                                "sim_card",
+                                "sim_card"
+                        )
+                        .layerTint(
+                                1,
+                                Tints.pearlFire(
+                                        PearlFireTintProfiles.SIM_CARD_TINT
+                                )
+                        )
+                        .build()
+        );
+    }
+
+    public static List<SpawnEggItems.Entry> spawnEggItems() {
+        return List.of(
+                SpawnEggItems.Entry.builder(ModItems.BANANA_COW_SPAWN_EGG.get())
+                        .colors(0xE4C64A, 0x7A4A1F)
+                        .texture()
+                        .build(),
+                SpawnEggItems.Entry.builder(ModItems.BASUKE_SPAWN_EGG.get())
+                        .colors(0xE6DCC8, 0x4F3F36)
+                        .texture()
+                        .build()
+        );
+    }
+
+    public static List<ArmorItems.Entry> armorItems() {
+        return List.of(
+                ArmorItems.Entry.builder()
+                        .items(items -> items
+                                .helmet(ModItems.POTASSIUM_HELMET.get())
+                                .chestplate(ModItems.POTASSIUM_CHESTPLATE.get())
+                                .leggings(ModItems.POTASSIUM_LEGGINGS.get())
+                                .boots(ModItems.POTASSIUM_BOOTS.get())
+                        )
+                        .inventory(inventory -> inventory
+                                .generated()
+                                .trims()
+                        )
+                        .equipment(equipment -> equipment
+                                .id("musavacca:potassium")
+                                .texture("musavacca:potassium")
+                        )
+                        .helmetHeadModel("musavacca:item/potassium_helmet_model")
+                        .build()
+        );
+    }
 
 }

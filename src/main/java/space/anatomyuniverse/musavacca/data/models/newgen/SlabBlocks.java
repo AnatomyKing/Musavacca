@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SlabBlock;
-import space.anatomyuniverse.musavacca.data.models.ModelUtil;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -53,7 +52,7 @@ public final class SlabBlocks {
         public void validate() {
             if (!(block() instanceof SlabBlock)) {
                 throw new IllegalStateException(
-                        "SlabBlocks requires a SlabBlock: " + ModelUtil.idOf(block())
+                        "SlabBlocks requires a SlabBlock: " + ModelLocations.blockId(block())
                 );
             }
 
@@ -61,13 +60,13 @@ public final class SlabBlocks {
 
             if (baseMode() == null) {
                 throw new IllegalStateException(
-                        "No base model selected for " + ModelUtil.idOf(block())
+                        "No base model selected for " + ModelLocations.blockId(block())
                 );
             }
 
             if (baseMode() == BaseModelMode.GENERATED && textures == null) {
                 throw new IllegalStateException(
-                        "No generated textures configured for " + ModelUtil.idOf(block())
+                        "No generated textures configured for " + ModelLocations.blockId(block())
                 );
             }
 
@@ -75,7 +74,7 @@ public final class SlabBlocks {
                 if (baseModels == null || !baseModels.complete()) {
                     throw new IllegalStateException(
                             "Base SlabModels must provide the complete family for "
-                                    + ModelUtil.idOf(block())
+                                    + ModelLocations.blockId(block())
                     );
                 }
             }

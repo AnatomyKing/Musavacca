@@ -2,6 +2,9 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.item.Item;
+import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -11,18 +14,22 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.block.state.properties.StairsShape;
 import space.anatomyuniverse.musavacca.block.custom.DecorationBlock;
+import space.anatomyuniverse.musavacca.data.models.NewModelSets;
+import space.anatomyuniverse.musavacca.MusaCore;
 
 import java.util.List;
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 *///?} else {
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.ModelProvider;
 //?}
 
-/** One entry point for the new declarations; legacy ModelSets can run alongside it. */
+/** Single model entry point for all NewGen block and item declarations. */
 public final class Newgen {
     private static final float[] DECORATION_EXTRA_Y_ROT = {0.0F, -22.5F, -45.0F, 22.5F};
 
@@ -57,12 +64,16 @@ public final class Newgen {
         NewModelSets.pressurePlateBlocks().forEach(gen::pressurePlate);
         NewModelSets.buttonBlocks().forEach(gen::button);
         NewModelSets.wallBlocks().forEach(gen::wall);
+
+        NewModelSets.simpleItems().forEach(gen::simpleItem);
+        NewModelSets.spawnEggItems().forEach(gen::spawnEgg);
+        NewModelSets.armorItems().forEach(gen::armor);
     }
 
-    void simple(SimpleBlocks.Entry entry) { modelFamily(entry, false); }
-    void cross(CrossBlocks.Entry entry) { modelFamily(entry, true); }
-    void tallCross(TallCrossBlocks.Entry entry) { modelFamily(entry, true); }
-    void portal(PortalBlocks.Entry entry) { modelFamily(entry, false); }
+    void simple(SimpleBlocks.Entry entry) { modelFamily(entry); }
+    void cross(CrossBlocks.Entry entry) { modelFamily(entry); }
+    void tallCross(TallCrossBlocks.Entry entry) { modelFamily(entry); }
+    void portal(PortalBlocks.Entry entry) { modelFamily(entry); }
 
     void decoration(DecorationBlocks.Entry entry) {
         NewgenOutput.State state = output.state(entry.block());
@@ -128,11 +139,7 @@ public final class Newgen {
             case NONE -> {
             }
 
-            case EXISTING -> blockItem(
-                    entry.block(),
-                    ResourceLocation.parse(entry.itemModel()),
-                    entry.itemTint()
-            );
+            case CUSTOM -> emitItem(entry.block().asItem(), entry.itemModel());
 
             case PLACEMENT -> {
                 DecorationBlocks.Model itemRule = entry.itemRule();
@@ -140,7 +147,11 @@ public final class Newgen {
                         itemRule.source(),
                         Tints.effective(entry.tint(), itemRule.tint())
                 );
-                blockItem(entry.block(), itemModel, entry.itemTint());
+                emitItem(
+                        entry.block().asItem(),
+                        SimpleItems.Model.existing(itemModel)
+                                .tint(Tints.effective(entry.tint(), itemRule.tint()))
+                );
             }
 
             case UNSET -> throw new IllegalStateException(
@@ -166,10 +177,11 @@ public final class Newgen {
         );
     }
 
-    private void modelFamily(BlockFamily.ModelFamilyEntry<?, ?> entry, boolean flatItem) {
+    private void modelFamily(BlockFamily.ModelFamilyEntry<?, ?> entry) {
         NewgenOutput.State state = output.state(entry.block());
         List<? extends BlockFamily.ModelRule<?, ?>> rules = entry.mode() == ModelMode.MODELS
                 ? entry.models() : entry.parts();
+
         for (var rule : rules) {
             if (rule.source() instanceof TallCrossModels.Source tall) {
                 modelRule(state, entry, rule, tall.lower(),
@@ -188,17 +200,25 @@ public final class Newgen {
                 modelRule(state, entry, rule, (Models.Source) rule.source(), rule.conditions());
             }
         }
-        state.finish();
-        if (entry.noItem()) return;
 
-        if (entry.itemModel() != null) {
-            blockItem(entry.block(), ResourceLocation.parse(entry.itemModel()), entry.itemTint());
+        state.finish();
+
+        if (entry.familyItemMode() == FamilyItemMode.NONE) return;
+        if (entry.familyItemMode() == FamilyItemMode.CUSTOM) {
+            emitItem(entry.block().asItem(), entry.item());
             return;
         }
-        var first = entry.mode() == ModelMode.MODELS ? rules.get(0) : rules.stream()
-                .filter(rule -> rule.conditions().isAlways()).findFirst()
-                .orElseThrow(() -> new IllegalStateException("Multipart block " + entry.block()
-                        + " needs Part.always(...) or an explicit .item(...)."));
+
+        var first = entry.mode() == ModelMode.MODELS
+                ? rules.get(0)
+                : rules.stream()
+                .filter(rule -> rule.conditions().isAlways())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "Multipart block " + entry.block()
+                                + " needs Part.always(...), an explicit .item(...), or .noItem()."
+                ));
+
         Models.Source source;
         if (first.source() instanceof TallCrossModels.Source tall) {
             source = tall.upper();
@@ -206,15 +226,33 @@ public final class Newgen {
             var axis = ((PortalBlocks.Entry) entry).axis();
             source = axis.getPossibleValues().stream()
                     .filter(value -> first.conditions().allows(axis, value))
-                    .map(portal::model).filter(java.util.Objects::nonNull).findFirst()
+                    .map(portal::model)
+                    .filter(java.util.Objects::nonNull)
+                    .findFirst()
                     .orElseThrow(() -> new IllegalStateException("No portal item source for " + entry.block()));
         } else {
             source = (Models.Source) first.source();
         }
-        ResourceLocation model = flatItem && source instanceof CrossModels.Generated cross
-                ? models.flatItem(entry.block().asItem(), List.of(cross.textures().texture()))
-                : models.resolve(source, Tints.effective(entry.tint(), first.tint()));
-        blockItem(entry.block(), model, entry.itemTint());
+
+        Tints.Tint effectiveTint = Tints.effective(entry.tint(), first.tint());
+
+        // Generated cross blocks use a flat inventory carrier from the same cross texture.
+        if (source instanceof CrossModels.Generated cross) {
+            emitItem(
+                    entry.block().asItem(),
+                    SimpleItems.Model.generated()
+                            .flat()
+                            .texture(cross.textures().texture().toString())
+                            .tint(effectiveTint)
+            );
+            return;
+        }
+
+        ResourceLocation model = models.resolve(source, effectiveTint);
+        emitItem(
+                entry.block().asItem(),
+                SimpleItems.Model.existing(model).tint(effectiveTint)
+        );
     }
 
     private void modelRule(NewgenOutput.State state, BlockFamily.ModelFamilyEntry<?, ?> entry,
@@ -300,22 +338,12 @@ public final class Newgen {
     void trapdoor(TrapdoorBlocks.Entry entry) {
         TrapdoorModels base = models.trapdoor(entry);
         family(entry, base, NewgenStates.TRAPDOORS);
-        if (entry.itemMode() != TrapdoorBlocks.ItemMode.NONE) {
-            ResourceLocation item = entry.itemMode() == TrapdoorBlocks.ItemMode.EXISTING
-                    ? ResourceLocation.parse(entry.itemModel()) : base.model(Half.BOTTOM, false);
-            blockItem(entry.block(), item, Tints.none());
-        }
+        familyItem(entry, base.model(Half.BOTTOM, false));
     }
 
     void door(DoorBlocks.Entry entry) {
         family(entry, models.door(entry), NewgenStates.DOORS);
-        for (DoorBlocks.Item item : entry.items()) {
-            List<ResourceLocation> textures = item.inferSingleTexture() ? List.of(TextureTokens.item(item.item()))
-                    : item.textureTokens().stream().map(t -> TextureTokens.resolveItem(item.item(), t)).toList();
-            ResourceLocation model = models.flatItem(item.item().asItem(), textures);
-            List<Tints.Tint> tints = java.util.stream.IntStream.range(0, textures.size()).mapToObj(item::tintForLayer).toList();
-            output.item(item.item().asItem(), model, tints);
-        }
+        for (SimpleItems.Entry item : entry.items()) simpleItem(item);
     }
 
     void fire(FireBlocks.Entry entry) {
@@ -336,9 +364,13 @@ public final class Newgen {
         }
         state.add(up, Conditions.when(FireBlock.UP, true), 0, 0, entry.variants(), false);
         state.finish();
-        if (!entry.noItem()) {
-            blockItem(entry.block(), entry.itemModel() == null ? floor.get(0)
-                    : ResourceLocation.parse(entry.itemModel()), entry.itemTint());
+        if (entry.itemMode() == FamilyItemMode.CUSTOM) {
+            emitItem(entry.block().asItem(), entry.item());
+        } else if (entry.itemMode() == FamilyItemMode.DEFAULT) {
+            emitItem(
+                    entry.block().asItem(),
+                    SimpleItems.Model.existing(floor.get(0)).tint(entry.tint())
+            );
         }
     }
 
@@ -350,15 +382,84 @@ public final class Newgen {
 
     private void familyItem(BlockFamily.StateFamilyEntry<?> entry, ResourceLocation defaultModel) {
         if (entry.familyItemMode() == FamilyItemMode.NONE) return;
-        ResourceLocation model = entry.familyItemMode() == FamilyItemMode.EXISTING
-                ? ResourceLocation.parse(entry.itemModel()) : defaultModel;
-        if (model == null) throw new IllegalStateException("Missing default item model for " + entry.block());
-        blockItem(entry.block(), model, Tints.none());
+        if (entry.familyItemMode() == FamilyItemMode.CUSTOM) {
+            emitItem(entry.block().asItem(), entry.item());
+            return;
+        }
+        if (defaultModel == null) throw new IllegalStateException("Missing default item model for " + entry.block());
+        emitItem(entry.block().asItem(), SimpleItems.Model.existing(defaultModel));
     }
 
-    private void blockItem(Block block, ResourceLocation model, Tints.Tint tint) {
-        output.item(block.asItem(), model, List.of(tint));
+    void simpleItem(SimpleItems.Entry entry) {
+        emitItem(entry.item(), entry.model());
     }
+
+    private void emitItem(ItemLike item, SimpleItems.Model spec) {
+        NewgenModels.ItemRender render = models.item(item.asItem(), spec);
+        output.item(item.asItem(), render);
+    }
+
+    void spawnEgg(SpawnEggItems.Entry entry) {
+        //? if <1.21.4 {
+        /*emitItem(
+                entry.item(),
+                SimpleItems.Model.existing("minecraft:item/template_spawn_egg")
+        );
+        *///?} else if =1.21.4 {
+        /*output.item(
+                entry.item().asItem(),
+                ResourceLocation.fromNamespaceAndPath("minecraft", "item/template_spawn_egg"),
+                List.of(
+                        Tints.constant(entry.primaryColor()),
+                        Tints.constant(entry.secondaryColor())
+                )
+        );
+        *///?} else {
+        emitItem(entry.item(), entry.modernModel());
+        //?}
+    }
+
+    void armor(ArmorItems.Entry entry) {
+        for (ArmorItems.Piece piece : ArmorItems.Piece.values()) {
+            Item item = entry.item(piece).asItem();
+            ResourceLocation head = piece == ArmorItems.Piece.HELMET ? entry.helmetHeadModel() : null;
+
+            if (entry.inventory().existing()) {
+                ResourceLocation model = entry.existingInventoryModel(piece);
+                if (head == null) {
+                    emitItem(item, SimpleItems.Model.existing(model));
+                } else {
+                    output.armorItem(item, model, null, head);
+                }
+                continue;
+            }
+
+            ResourceLocation texture = entry.inventoryTexture(piece);
+
+            if (entry.inventory().trims()) {
+                NewgenModels.ArmorItemModels armorModels = models.armorItemModels(
+                        item,
+                        texture,
+                        ArmorItems.trimTexture(piece)
+                );
+                output.armorItem(item, armorModels.base(), armorModels.trimmed(), head);
+            } else {
+                SimpleItems.Model model = SimpleItems.Model.generated()
+                        .flat()
+                        .texture(texture.toString());
+                NewgenModels.ItemRender render = models.item(item, model);
+
+                if (head == null) output.item(item, render);
+                else {
+                    if (render.parts().size() != 1) {
+                        throw new IllegalStateException("Armor HEAD override requires one base inventory model");
+                    }
+                    output.armorItem(item, render.parts().get(0).model(), null, head);
+                }
+            }
+        }
+    }
+
 
     private static boolean compatible(Conditions.Match first, Conditions.Match second) {
         for (Conditions.Term<?> term : first.terms()) {
@@ -371,6 +472,34 @@ public final class Newgen {
     private static Conditions.Match with(Conditions.Match match, Property property, Comparable value) {
         return match.and(property, value);
     }
+
+    /** Tiny datagen hook replacing the old ModModelProvider. */
+    public static final class Provider
+            //? if <1.21.4 {
+            /*extends BlockStateProvider
+             *///?} else {
+            extends ModelProvider
+            //?}
+    {
+        //? if <1.21.4 {
+        /*public Provider(PackOutput output, ExistingFileHelper existingFileHelper) {
+            super(output, MusaCore.MOD_ID, existingFileHelper);
+        }
+
+        @Override
+        protected void registerStatesAndModels() {
+            Newgen.generate(this, itemModels());
+        }
+        *///?} else {
+        public Provider(PackOutput output) {
+            super(output, MusaCore.MOD_ID);
+        }
+
+        @Override
+        protected void registerModels(BlockModelGenerators blocks, ItemModelGenerators items) {
+            Newgen.generate(blocks, items);
+        }
+        //?}
+    }
+
 }
-
-
