@@ -2,6 +2,8 @@ package space.anatomyuniverse.musavacca.gui.backend;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import space.anatomyuniverse.musavacca.economy.EconomyConfig;
+import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
 
@@ -66,8 +68,18 @@ public class VocoDialerBackend {
 
     protected void onAddressDialed(Player player, int address) {
         if (player.level().isClientSide() || !(player instanceof ServerPlayer serverPlayer)) return;
-        HexTeleportResolver.teleportToHex(serverPlayer, address);
+
+        TeleportEconomy.tryTeleport(
+                serverPlayer,
+                this.teleportCost(),
+                () -> HexTeleportResolver.teleportToHex(serverPlayer, address)
+        );
+
         serverPlayer.closeContainer();
+    }
+
+    protected int teleportCost() {
+        return EconomyConfig.vocoTableTeleportCost();
     }
 
     public void clear() {
@@ -85,4 +97,3 @@ public class VocoDialerBackend {
         return Math.max(0, Math.min(15, value));
     }
 }
-

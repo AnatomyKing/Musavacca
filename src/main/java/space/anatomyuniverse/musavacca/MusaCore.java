@@ -24,6 +24,7 @@ import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
 import space.anatomyuniverse.musavacca.effect.BananaCowBlessingEvents;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
+import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntityRenderers;
 import space.anatomyuniverse.musavacca.gui.ModMenuEvents;
@@ -72,6 +73,7 @@ public final class MusaCore {
         ModEntities.register(modBus);
         ModAttachments.register(modBus);
         ModNetworking.register(modBus);
+        EconomyConfig.register(container);
 
         modBus.addListener(this::commonSetup);
         modBus.addListener(
@@ -154,4 +156,3 @@ public final class MusaCore {
         );
     }
 }
-

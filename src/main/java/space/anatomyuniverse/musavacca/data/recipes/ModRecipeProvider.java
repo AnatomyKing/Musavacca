@@ -118,6 +118,16 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModItems.BANANA_PEARL.get())
                 .save("misc/big_banana_pearl_to_banana_pearl");
 
+        dsl.stonecut()
+                .of(
+                        ModItems.BIG_BANANA_PEARL.get(),
+                        RecipeCategory.BUILDING_BLOCKS,
+                        ModBlocks.BANANA_PEARL_BLOCK.get(),
+                        1
+                )
+                .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
+                .save("stonecutting/banana_pearl_block");
+
         dsl.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
                 .pattern("aaa")
                 .pattern("ava")
@@ -126,6 +136,15 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('v', ModItems.VACACA.get())
                 .unlockedByHas(ModItems.VACACA.get(), Items.AMETHYST_SHARD)
                 .save("misc/banana_pearl_from_vacaca");
+
+        dsl.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
+                .pattern("aaa")
+                .pattern("apa")
+                .pattern("aaa")
+                .define('a', Items.AMETHYST_SHARD)
+                .define('p', ModItems.BANANA_PELLIS.get(), 4)
+                .unlockedByHas(ModItems.BANANA_PELLIS.get(), Items.AMETHYST_SHARD)
+                .save("misc/banana_pearl_from_banana_pellis");
 
         dsl.shapeless(RecipeCategory.MISC, ModItems.FLINT_AND_PEARL.get(), 1)
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
@@ -337,4 +356,6 @@ public final class ModRecipeProvider extends RecipeProvider {
     }
 
 }
+
+
 

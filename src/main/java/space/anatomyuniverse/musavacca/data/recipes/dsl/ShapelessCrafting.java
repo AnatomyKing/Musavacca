@@ -46,6 +46,11 @@ public final class ShapelessCrafting {
         return this;
     }
 
+    public ShapelessCrafting requires(Object ingredient, int amount) {
+        addOnce(this.dsl.sized(ingredient, amount));
+        return this;
+    }
+
     public ShapelessCrafting requiresCount(Object ingredient, int count) {
         if (count <= 0) {
             throw new IllegalArgumentException("count must be >= 1");
@@ -124,4 +129,6 @@ public final class ShapelessCrafting {
         );
     }
 }
+
+
 

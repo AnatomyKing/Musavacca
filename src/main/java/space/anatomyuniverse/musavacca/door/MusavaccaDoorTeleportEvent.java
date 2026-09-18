@@ -9,6 +9,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.portal.TeleportTransition;
 //?}
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.economy.EconomyConfig;
+import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportPreloader;
 
 //? if >=1.21.2
@@ -60,6 +62,10 @@ public final class MusavaccaDoorTeleportEvent {
                                 source,
                                 target
                         );
+
+        if (!TeleportEconomy.tryCharge(entity, EconomyConfig.musavaccaDoorTeleportCost())) {
+            return null;
+        }
 
         HexTeleportPreloader.prepare(
                 entity,
@@ -115,4 +121,3 @@ public final class MusavaccaDoorTeleportEvent {
         );
     }
 }
-

@@ -24,13 +24,13 @@ public final class VocoTableCraftingRecipes {
 
             recipe(
                     ModItems.MUSAVACCA_DOOR,
-                    ModItems.BANANA_PEARL.get(),
+                    ModBlocks.MUSAVACCA_PLANKS.get(),
                     ModItems.MUSAVACCA_IMBUED_DOOR.get(),
                     true
             ),
             recipe(
                     ModBlocks.MUSAVACCA_TRAPDOOR.get(),
-                    ModItems.BANANA_PEARL.get(),
+                    ModBlocks.MUSAVACCA_PLANKS.get(),
                     ModBlocks.MUSAVACCA_TRAPDOOR.get(),
                     true
             ),
@@ -39,6 +39,18 @@ public final class VocoTableCraftingRecipes {
                     Items.NAME_TAG,
                     ModItems.SMALL_BANANA_PEARL.get(),
                     ModItems.SIM_CARD.get()
+            ),
+            recipe(
+                    ModItems.SIM_CARD.get(),
+                    Items.IRON_NUGGET,
+                    ModItems.SIM_CARD.get(),
+                    true
+            ),
+            recipe(
+                    ModItems.SIM_CARD.get(),
+                    Items.GOLD_NUGGET,
+                    ModItems.SIM_CARD.get(),
+                    true
             )
     );
 

@@ -256,6 +256,26 @@ public final class RecipeDSL {
         return value instanceof ExtendedIngredient source ? source : null;
     }
 
+    public ExtendedIngredient sized(Object value, int amount) {
+        if (amount < 1) {
+            throw new IllegalArgumentException("amount must be >= 1");
+        }
+
+        if (value instanceof ComponentRecipeDSL.Source source) {
+            return source.amount(amount);
+        }
+
+        if (value instanceof ExtendedIngredient source) {
+            if (amount == 1) {
+                return source;
+            }
+
+            throw new IllegalArgumentException("Unsupported sized extended ingredient: " + value);
+        }
+
+        return ComponentRecipeDSL.source(ingredient(value)).amount(amount);
+    }
+
     public RecipeOutput decorateOutput(
             RecipeKind kind,
             List<ExtendedIngredient> sources
@@ -323,4 +343,6 @@ public final class RecipeDSL {
         return folder.endsWith("/") ? folder + name : folder + "/" + name;
     }
 }
+
+
 

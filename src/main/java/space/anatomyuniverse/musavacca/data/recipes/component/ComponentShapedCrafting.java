@@ -98,6 +98,11 @@ public final class ComponentShapedCrafting {
         }
 
         @Override
+        public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+            return ComponentRecipeDSL.craftingRemainders(this.base, input, this.sources);
+        }
+
+        @Override
         public RecipeSerializer<? extends CraftingRecipe> getSerializer() {
             return serializer.get();
         }
@@ -190,4 +195,6 @@ public final class ComponentShapedCrafting {
 
     private ComponentShapedCrafting() {}
 }
+
+
 

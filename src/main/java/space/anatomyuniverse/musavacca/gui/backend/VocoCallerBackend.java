@@ -1,6 +1,7 @@
 package space.anatomyuniverse.musavacca.gui.backend;
 
 import net.minecraft.world.entity.player.Player;
+import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
 
 import java.util.Locale;
@@ -37,6 +38,11 @@ public final class VocoCallerBackend extends VocoDialerBackend {
     @Override
     protected boolean shouldClearDialedBeforeCall(Player player) {
         return !player.level().isClientSide();
+    }
+
+    @Override
+    protected int teleportCost() {
+        return EconomyConfig.vocoCallerTeleportCost();
     }
 
     public void commitPendingRecentCall() {
@@ -360,4 +366,3 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         }
     }
 }
-

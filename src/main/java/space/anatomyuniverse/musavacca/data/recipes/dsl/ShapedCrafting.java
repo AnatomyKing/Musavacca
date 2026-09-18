@@ -11,13 +11,16 @@ import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public final class ShapedCrafting {
     private final RecipeDSL dsl;
     private final ShapedRecipeBuilder builder;
-    private final List<RecipeDSL.ExtendedIngredient> extendedIngredients = new ArrayList<>();
+    private final List<String> pattern = new ArrayList<>();
+    private final Map<Character, RecipeDSL.ExtendedIngredient> extendedIngredients = new LinkedHashMap<>();
 
     public ShapedCrafting(
             RecipeDSL dsl,
@@ -40,6 +43,7 @@ public final class ShapedCrafting {
 
     public ShapedCrafting pattern(String line) {
         this.builder.pattern(line);
+        this.pattern.add(line);
         return this;
     }
 
@@ -48,7 +52,7 @@ public final class ShapedCrafting {
 
         if (ingredient instanceof RecipeDSL.ExtendedIngredient source) {
             this.builder.define(key, source.ingredient());
-            this.extendedIngredients.add(source);
+            this.extendedIngredients.put(key, source);
         } else if (ingredient instanceof ItemLike itemLike) {
             this.builder.define(key, itemLike);
         } else if (ingredient instanceof TagKey<?> tagKey
@@ -62,6 +66,10 @@ public final class ShapedCrafting {
         }
 
         return this;
+    }
+
+    public ShapedCrafting define(char key, Object ingredient, int amount) {
+        return define(key, this.dsl.sized(ingredient, amount));
     }
 
     public ShapedCrafting group(String group) {
@@ -90,8 +98,25 @@ public final class ShapedCrafting {
         this.dsl.save(
                 this.builder,
                 id,
-                this.dsl.decorateOutput(RecipeDSL.RecipeKind.SHAPED, this.extendedIngredients)
+                this.dsl.decorateOutput(RecipeDSL.RecipeKind.SHAPED, expandedExtendedIngredients())
         );
     }
+
+    private List<RecipeDSL.ExtendedIngredient> expandedExtendedIngredients() {
+        List<RecipeDSL.ExtendedIngredient> result = new ArrayList<>();
+
+        for (String row : this.pattern) {
+            for (int i = 0; i < row.length(); ++i) {
+                RecipeDSL.ExtendedIngredient source = this.extendedIngredients.get(row.charAt(i));
+                if (source != null) {
+                    result.add(source);
+                }
+            }
+        }
+
+        return List.copyOf(result);
+    }
 }
+
+
 

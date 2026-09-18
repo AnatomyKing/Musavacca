@@ -7,11 +7,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -21,7 +23,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -30,8 +34,11 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import space.anatomyuniverse.musavacca.data.recipes.component.ComponentBlasting;
 import space.anatomyuniverse.musavacca.data.recipes.component.ComponentCampfireCooking;
 import space.anatomyuniverse.musavacca.data.recipes.component.ComponentShapedCrafting;
@@ -70,6 +77,7 @@ public final class ComponentRecipeDSL {
 
     public static final Codec<Source> SOURCE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Ingredient.CODEC.fieldOf("ingredient").forGetter(Source::ingredient),
+            Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(Source::amount),
             RULE_CODEC.listOf().fieldOf("rules").forGetter(Source::rules)
     ).apply(instance, Source::decoded));
 
@@ -108,6 +116,12 @@ public final class ComponentRecipeDSL {
             }
         }
     }
+
+    public record SourceMatch(
+            Source source,
+            int slot,
+            ItemStack stack
+    ) {}
 
     public static final class ComponentPath {
         private final DataComponentType<?> component;
@@ -154,20 +168,29 @@ public final class ComponentRecipeDSL {
     }
 
     public static final class Source implements RecipeDSL.ExtendedIngredient {
-        private final Ingredient ingredient;
+        private SizedIngredient sizedIngredient;
         private final List<Rule> rules;
 
         private Source(Ingredient ingredient) {
-            this(ingredient, new ArrayList<>());
+            this(new SizedIngredient(ingredient, 1), new ArrayList<>());
         }
 
-        private Source(Ingredient ingredient, List<Rule> rules) {
-            this.ingredient = Objects.requireNonNull(ingredient, "ingredient");
+        private Source(SizedIngredient sizedIngredient, List<Rule> rules) {
+            this.sizedIngredient = Objects.requireNonNull(sizedIngredient, "sizedIngredient");
             this.rules = rules;
         }
 
-        private static Source decoded(Ingredient ingredient, List<Rule> rules) {
-            return new Source(ingredient, new ArrayList<>(rules));
+        private static Source decoded(Ingredient ingredient, int amount, List<Rule> rules) {
+            return new Source(new SizedIngredient(ingredient, amount), new ArrayList<>(rules));
+        }
+
+        public Source amount(int amount) {
+            if (amount < 1) {
+                throw new IllegalArgumentException("amount must be >= 1");
+            }
+
+            this.sizedIngredient = new SizedIngredient(this.sizedIngredient.ingredient(), amount);
+            return this;
         }
 
         public Source require(DataComponentType<?> component) {
@@ -206,15 +229,31 @@ public final class ComponentRecipeDSL {
 
         @Override
         public Ingredient ingredient() {
-            return this.ingredient;
+            return this.sizedIngredient.ingredient();
+        }
+
+        public SizedIngredient sizedIngredient() {
+            return this.sizedIngredient;
+        }
+
+        public int amount() {
+            return this.sizedIngredient.count();
         }
 
         public List<Rule> rules() {
             return List.copyOf(this.rules);
         }
 
+        public boolean hasAmount() {
+            return amount() != 1;
+        }
+
         public boolean hasRules() {
             return !this.rules.isEmpty();
+        }
+
+        public boolean hasFeatures() {
+            return hasAmount() || hasRules();
         }
 
         @Override
@@ -312,8 +351,16 @@ public final class ComponentRecipeDSL {
         return new Source(Ingredient.of(item));
     }
 
+    public static Source source(ItemLike item, int amount) {
+        return source(item).amount(amount);
+    }
+
     public static Source source(Ingredient ingredient) {
         return new Source(ingredient);
+    }
+
+    public static Source source(Ingredient ingredient, int amount) {
+        return source(ingredient).amount(amount);
     }
 
     public static ComponentPath component(DataComponentType<?> component) {
@@ -342,21 +389,41 @@ public final class ComponentRecipeDSL {
             List<RecipeDSL.ExtendedIngredient> sources,
             HolderLookup.Provider registries
     ) {
-        if (!hasComponentRules(sources)) {
+        if (!hasFeatures(sources)) {
             return output;
         }
 
+        if (hasAmounts(sources) && kind != RecipeDSL.RecipeKind.SHAPED && kind != RecipeDSL.RecipeKind.SHAPELESS) {
+            throw new IllegalArgumentException(
+                    "Ingredient amounts are only supported for shaped and shapeless crafting recipes"
+            );
+        }
+
         return switch (kind) {
-            case SHAPED -> ComponentShapedCrafting.output(output, componentSources(sources));
-            case SHAPELESS -> ComponentShapelessCrafting.output(output, componentSources(sources));
-            case SMELTING -> ComponentSmelting.output(output, singleSource(sources));
-            case BLASTING -> ComponentBlasting.output(output, singleSource(sources));
-            case SMOKING -> ComponentSmoking.output(output, singleSource(sources));
-            case CAMPFIRE -> ComponentCampfireCooking.output(output, singleSource(sources));
-            case STONECUTTING -> ComponentStonecutting.output(output, singleSource(sources));
+            case SHAPED -> ComponentShapedCrafting.output(output, craftingSources(sources));
+            case SHAPELESS -> ComponentShapelessCrafting.output(output, craftingSources(sources));
+            case SMELTING -> ComponentSmelting.output(output, singleComponentSource(sources));
+            case BLASTING -> ComponentBlasting.output(output, singleComponentSource(sources));
+            case SMOKING -> ComponentSmoking.output(output, singleComponentSource(sources));
+            case CAMPFIRE -> ComponentCampfireCooking.output(output, singleComponentSource(sources));
+            case STONECUTTING -> ComponentStonecutting.output(output, singleComponentSource(sources));
             case SMITHING_TRANSFORM -> ComponentSmithingTransforms.output(output, smithingSources(sources));
             default -> output;
         };
+    }
+
+    public static List<Source> craftingSources(
+            List<RecipeDSL.ExtendedIngredient> sources
+    ) {
+        List<Source> result = new ArrayList<>();
+
+        for (RecipeDSL.ExtendedIngredient source : sources) {
+            if (source instanceof Source componentSource && componentSource.hasFeatures()) {
+                result.add(componentSource);
+            }
+        }
+
+        return List.copyOf(result);
     }
 
     public static List<Source> componentSources(
@@ -373,7 +440,7 @@ public final class ComponentRecipeDSL {
         return List.copyOf(result);
     }
 
-    public static Source singleSource(
+    public static Source singleComponentSource(
             List<RecipeDSL.ExtendedIngredient> sources
     ) {
         List<Source> componentSources = componentSources(sources);
@@ -401,26 +468,39 @@ public final class ComponentRecipeDSL {
         return List.copyOf(result);
     }
 
+    public static List<SourceMatch> assignSourceMatches(
+            CraftingInput input,
+            List<Source> sources,
+            HolderLookup.Provider registries
+    ) {
+        List<SourceMatch> result = new ArrayList<>();
+        boolean[] usedSlots = new boolean[input.size()];
+
+        return assignSourceMatch(input, sources, registries, 0, usedSlots, result)
+                ? List.copyOf(result)
+                : null;
+    }
+
     public static List<ItemStack> assignSourceStacks(
             CraftingInput input,
             List<Source> sources,
             HolderLookup.Provider registries
     ) {
-        List<ItemStack> result = new ArrayList<>();
-        boolean[] usedSlots = new boolean[input.size()];
+        List<SourceMatch> matches = assignSourceMatches(input, sources, registries);
+        if (matches == null) {
+            return null;
+        }
 
-        return assignSourceStack(input, sources, registries, 0, usedSlots, result)
-                ? List.copyOf(result)
-                : null;
+        return matches.stream().map(SourceMatch::stack).toList();
     }
 
-    private static boolean assignSourceStack(
+    private static boolean assignSourceMatch(
             CraftingInput input,
             List<Source> sources,
             HolderLookup.Provider registries,
             int sourceIndex,
             boolean[] usedSlots,
-            List<ItemStack> result
+            List<SourceMatch> result
     ) {
         if (sourceIndex >= sources.size()) {
             return true;
@@ -439,9 +519,9 @@ public final class ComponentRecipeDSL {
             }
 
             usedSlots[slot] = true;
-            result.add(stack);
+            result.add(new SourceMatch(source, slot, stack));
 
-            if (assignSourceStack(input, sources, registries, sourceIndex + 1, usedSlots, result)) {
+            if (assignSourceMatch(input, sources, registries, sourceIndex + 1, usedSlots, result)) {
                 return true;
             }
 
@@ -457,7 +537,7 @@ public final class ComponentRecipeDSL {
             ItemStack stack,
             HolderLookup.Provider registries
     ) {
-        if (stack.isEmpty() || !source.ingredient().test(stack)) {
+        if (stack.isEmpty() || !source.sizedIngredient().test(stack)) {
             return false;
         }
 
@@ -468,6 +548,39 @@ public final class ComponentRecipeDSL {
         }
 
         return true;
+    }
+
+    public static NonNullList<ItemStack> craftingRemainders(
+            CraftingRecipe base,
+            CraftingInput input,
+            List<Source> sources
+    ) {
+        NonNullList<ItemStack> remainders = base.getRemainingItems(input);
+        if (!sources.stream().anyMatch(Source::hasAmount)) {
+            return remainders;
+        }
+
+        List<SourceMatch> matches = assignSourceMatches(input, sources, runtimeRegistries());
+        if (matches == null) {
+            return remainders;
+        }
+
+        for (SourceMatch match : matches) {
+            int amount = match.source().amount();
+            if (amount <= 1) {
+                continue;
+            }
+
+            ItemStack remainder = remainders.get(match.slot());
+            if (!remainder.isEmpty()) {
+                long scaled = (long) remainder.getCount() * amount;
+                remainder.setCount((int) Math.min(Integer.MAX_VALUE, scaled));
+            }
+
+            match.stack().shrink(amount - 1);
+        }
+
+        return remainders;
     }
 
     public static void transfer(
@@ -553,20 +666,46 @@ public final class ComponentRecipeDSL {
         };
     }
 
-    private static boolean hasComponentRules(List<RecipeDSL.ExtendedIngredient> sources) {
+    private static boolean hasFeatures(List<RecipeDSL.ExtendedIngredient> sources) {
         for (RecipeDSL.ExtendedIngredient source : sources) {
-            if (source instanceof Source componentSource && componentSource.hasRules()) {
+            if (source instanceof Source componentSource && componentSource.hasFeatures()) {
                 return true;
             }
 
             if (source instanceof RecipeDSL.SlottedExtendedIngredient slotted
                     && slotted.delegate() instanceof Source componentSource
-                    && componentSource.hasRules()) {
+                    && componentSource.hasFeatures()) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private static boolean hasAmounts(List<RecipeDSL.ExtendedIngredient> sources) {
+        for (RecipeDSL.ExtendedIngredient source : sources) {
+            if (source instanceof Source componentSource && componentSource.hasAmount()) {
+                return true;
+            }
+
+            if (source instanceof RecipeDSL.SlottedExtendedIngredient slotted
+                    && slotted.delegate() instanceof Source componentSource
+                    && componentSource.hasAmount()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static HolderLookup.Provider runtimeRegistries() {
+        Player player = CommonHooks.getCraftingPlayer();
+        if (player != null) {
+            return player.level().registryAccess();
+        }
+
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        return server != null ? server.registryAccess() : RegistryAccess.EMPTY;
     }
 
     private static boolean contains(
@@ -720,4 +859,6 @@ public final class ComponentRecipeDSL {
 
     private ComponentRecipeDSL() {}
 }
+
+
 

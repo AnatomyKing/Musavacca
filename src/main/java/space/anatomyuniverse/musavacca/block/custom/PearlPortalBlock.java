@@ -41,6 +41,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
+import space.anatomyuniverse.musavacca.economy.EconomyConfig;
+import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
@@ -262,6 +264,10 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                         entity,
                         dimensions
                 );
+
+        if (!TeleportEconomy.tryCharge(entity, EconomyConfig.pearlPortalTeleportCost())) {
+            return null;
+        }
 
         HexTeleportPreloader.prepare(
                 entity,
@@ -684,4 +690,3 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         };
     }
 }
-
