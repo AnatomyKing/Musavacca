@@ -2,13 +2,16 @@
   "required": true,
   "minVersion": "0.8",
   "package": "space.anatomyuniverse.musavacca.mixin",
+  "plugin": "space.anatomyuniverse.musavacca.mixin.OptionalCompatMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AbstractBoatFloatMixin"
   ],
   "client": [
     "client.HumanoidArmorLayerMixin",
-    "client.ClientBundleTooltipAccessor"
+    "client.ClientBundleTooltipAccessor",
+    "compat.gleam.GleamVanillaMixin",
+    "compat.gleam.GleamSodiumMixin"
   ],
   "injectors": {
     "defaultRequire": 1

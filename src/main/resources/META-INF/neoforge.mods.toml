@@ -11,7 +11,7 @@ modId = "${id}"
 displayName = "${name}"
 version = "${version}"
 authors = "AnatomyKing"
-description = "Cosmetic technology mod, that introduces an infinite parallel mirror variant of the trail chambers, completely made out of Anythomitium that is filled with acid."
+description = "Banana Cows."
 
 logoFile = "assets/${id}/icon.png"
 
@@ -24,3 +24,5 @@ type = "required"
 versionRange = "${minecraft}"
 ordering = "NONE"
 side = "BOTH"
+
+${compat_dependencies}

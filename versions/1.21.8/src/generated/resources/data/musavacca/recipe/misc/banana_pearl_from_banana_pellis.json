@@ -1,0 +1,26 @@
+{
+  "type": "musavacca:component_shaped",
+  "base": {
+    "category": "misc",
+    "key": {
+      "a": "minecraft:amethyst_shard",
+      "p": "musavacca:banana_pellis"
+    },
+    "pattern": [
+      "aaa",
+      "apa",
+      "aaa"
+    ],
+    "result": {
+      "count": 1,
+      "id": "musavacca:banana_pearl"
+    }
+  },
+  "sources": [
+    {
+      "amount": 4,
+      "ingredient": "musavacca:banana_pellis",
+      "rules": []
+    }
+  ]
+}

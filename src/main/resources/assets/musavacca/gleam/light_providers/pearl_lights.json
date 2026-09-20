@@ -1,0 +1,13 @@
+{
+  "emitters": [
+    "musavacca:pearl_fire",
+    "musavacca:pearl_portal"
+  ],
+  "light_properties": {
+    "encoding": "hex",
+    "hex": "#D5CD49",
+    "radius": 8.0,
+    "intensity": 1.0,
+    "occlude_to_blocklight": true
+  }
+}

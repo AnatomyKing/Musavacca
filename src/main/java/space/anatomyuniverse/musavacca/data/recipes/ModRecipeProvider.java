@@ -86,45 +86,32 @@ public final class ModRecipeProvider extends RecipeProvider {
          *///?} else
         dsl = new RecipeDSL(output, MOD_ID, unlocker, registries);
 
-         dsl.shapelessCountToCount(
-                 RecipeCategory.MISC,
-                         ModItems.BANANA_PEARL.get(), 1,
-                 ModItems.SMALL_BANANA_PEARL.get(), 4
-         )
-         .unlockedByHas(ModItems.BANANA_PEARL.get())
-         .save("misc/banana_pearl_to_small_banana_pearl");
-
-        dsl.shapelessCountToCount(
-                        RecipeCategory.MISC,
+        dsl.shapelessCountFamily(RecipeCategory.MISC)
+                .step(
                         ModItems.SMALL_BANANA_PEARL.get(), 4,
                         ModItems.BANANA_PEARL.get(), 1
                 )
-                .unlockedByHas(ModItems.BANANA_PEARL.get())
-                .save("misc/small_banana_pearl_to_banana_pearl");
-
-        dsl.shapelessCountToCount(
-                        RecipeCategory.MISC,
-                        ModItems.BIG_BANANA_PEARL.get(), 1,
-                        ModItems.BANANA_PEARL.get(), 4
-                )
-                .unlockedByHas(ModItems.BANANA_PEARL.get())
-                .save("misc/banana_pearl_to_big_banana_pearl");
-
-        dsl.shapelessCountToCount(
-                        RecipeCategory.MISC,
+                .step(
                         ModItems.BANANA_PEARL.get(), 4,
                         ModItems.BIG_BANANA_PEARL.get(), 1
                 )
+                .reversible()
                 .unlockedByHas(ModItems.BANANA_PEARL.get())
-                .save("misc/big_banana_pearl_to_banana_pearl");
+                .save("misc");
 
-        dsl.stonecut()
+        dsl.stonecutFamily()
                 .of(
                         ModItems.BIG_BANANA_PEARL.get(),
                         RecipeCategory.BUILDING_BLOCKS,
                         ModBlocks.BANANA_PEARL_BLOCK.get(),
                         1
                 )
+                .variants(
+                        ModBlocks.BANANA_PEARL_BRICKS.get(),
+                        ModBlocks.BANANA_PEARL_CHAPITER.get(),
+                        ModBlocks.BANANA_PEARL_PILLAR.get()
+                )
+                .interchangeable()
                 .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
                 .save("stonecutting/banana_pearl_block");
 
@@ -145,6 +132,32 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('p', ModItems.BANANA_PELLIS.get(), 4)
                 .unlockedByHas(ModItems.BANANA_PELLIS.get(), Items.AMETHYST_SHARD)
                 .save("misc/banana_pearl_from_banana_pellis");
+
+        //? if <1.21.2 {
+        /*dsl.compat("neapolitan", compat -> {
+            Item banana = compat.item("banana");
+
+            compat.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
+                    .pattern("bab")
+                    .pattern("ava")
+                    .pattern("bab")
+                    .define('a', Items.AMETHYST_SHARD)
+                    .define('b', banana)
+                    .define('v', ModItems.VACACA.get())
+                    .unlockedByHas(ModItems.VACACA.get(), Items.AMETHYST_SHARD, banana)
+                    .save("misc/banana_pearl_from_vacaca");
+
+            compat.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
+                    .pattern("bab")
+                    .pattern("apa")
+                    .pattern("bab")
+                    .define('a', Items.AMETHYST_SHARD)
+                    .define('b', banana)
+                    .define('p', ModItems.BANANA_PELLIS.get(), 4)
+                    .unlockedByHas(ModItems.BANANA_PELLIS.get(), Items.AMETHYST_SHARD, banana)
+                    .save("misc/banana_pearl_from_banana_pellis");
+        });
+        *///?}
 
         dsl.shapeless(RecipeCategory.MISC, ModItems.FLINT_AND_PEARL.get(), 1)
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
@@ -356,6 +369,3 @@ public final class ModRecipeProvider extends RecipeProvider {
     }
 
 }
-
-
-

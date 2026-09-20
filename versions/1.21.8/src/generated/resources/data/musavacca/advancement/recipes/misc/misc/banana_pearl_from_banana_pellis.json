@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_amethyst_shard": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:amethyst_shard"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_banana_pellis": {
+      "conditions": {
+        "items": [
+          {
+            "items": "musavacca:banana_pellis"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "musavacca:misc/banana_pearl_from_banana_pellis"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_banana_pellis",
+      "has_amethyst_shard"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "musavacca:misc/banana_pearl_from_banana_pellis"
+    ]
+  }
+}

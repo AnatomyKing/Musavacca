@@ -23,14 +23,18 @@ import space.anatomyuniverse.musavacca.data.recipes.dsl.Blasting;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.CampfireCooking;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapedCrafting;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapelessCrafting;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapelessCountFamily;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.Smelting;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.SmithingTransforms;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.Smoking;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.Stonecutting;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.StonecuttingFamily;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
-public final class RecipeDSL {
+public class RecipeDSL {
     public enum RecipeKind {
         SHAPED,
         SHAPELESS,
@@ -82,37 +86,45 @@ public final class RecipeDSL {
     private final String modId;
     private final Unlocker unlocker;
     private final HolderLookup.Provider registries;
+    private final String recipePathPrefix;
 
     //? if >=1.21.3 {
     private final HolderLookup.RegistryLookup<Item> items;
     //?}
 
-    //? if <1.21.3 {
-    /*public RecipeDSL(
-            RecipeOutput output,
-            String modId,
-            Unlocker unlocker,
-            HolderLookup.Provider registries
-    ) {
-        this.output = output;
-        this.modId = modId;
-        this.unlocker = unlocker;
-        this.registries = registries;
-    }
-    *///?} else {
     public RecipeDSL(
             RecipeOutput output,
             String modId,
             Unlocker unlocker,
             HolderLookup.Provider registries
     ) {
-        this.output = output;
-        this.modId = modId;
-        this.unlocker = unlocker;
-        this.registries = registries;
+        this(output, modId, unlocker, registries, "");
+    }
+
+    protected RecipeDSL(
+            RecipeOutput output,
+            String modId,
+            Unlocker unlocker,
+            HolderLookup.Provider registries,
+            String recipePathPrefix
+    ) {
+        this.output = Objects.requireNonNull(output, "output");
+        this.modId = Objects.requireNonNull(modId, "modId");
+        this.unlocker = Objects.requireNonNull(unlocker, "unlocker");
+        this.registries = Objects.requireNonNull(registries, "registries");
+        this.recipePathPrefix = recipePathPrefix == null ? "" : recipePathPrefix;
+
+        //? if >=1.21.3
         this.items = registries.lookupOrThrow(Registries.ITEM);
     }
-    //?}
+
+    public CompatRecipeDSL compat(String modId) {
+        return new CompatRecipeDSL(this, modId);
+    }
+
+    public void compat(String modId, Consumer<CompatRecipeDSL> recipes) {
+        Objects.requireNonNull(recipes, "recipes").accept(compat(modId));
+    }
 
     public ShapedCrafting shaped(RecipeCategory category, ItemLike result, int count) {
         return new ShapedCrafting(this, category, result, count);
@@ -128,6 +140,10 @@ public final class RecipeDSL {
 
     public ShapelessCrafting shapeless(RecipeCategory category, ItemLike result) {
         return shapeless(category, result, 1);
+    }
+
+    public ShapelessCountFamily shapelessCountFamily(RecipeCategory category) {
+        return new ShapelessCountFamily(this, category);
     }
 
     public Smelting smelt(Object input, RecipeCategory category, ItemLike result, float experience, int time) {
@@ -148,6 +164,10 @@ public final class RecipeDSL {
 
     public Stonecutting stonecut() {
         return new Stonecutting(this);
+    }
+
+    public StonecuttingFamily stonecutFamily() {
+        return new StonecuttingFamily(this);
     }
 
     public SmithingTransforms transform() {
@@ -210,6 +230,14 @@ public final class RecipeDSL {
         return this.registries;
     }
 
+    String modId() {
+        return this.modId;
+    }
+
+    String recipePathPrefix() {
+        return this.recipePathPrefix;
+    }
+
     //? if >=1.21.3 {
     public HolderLookup.RegistryLookup<Item> items() {
         return this.items;
@@ -217,7 +245,10 @@ public final class RecipeDSL {
     //?}
 
     public ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(this.modId, path);
+        return ResourceLocation.fromNamespaceAndPath(
+                this.modId,
+                joinFolder(this.recipePathPrefix, path)
+        );
     }
 
     public ResourceKey<Recipe<?>> recipeKey(ResourceLocation id) {
@@ -343,6 +374,3 @@ public final class RecipeDSL {
         return folder.endsWith("/") ? folder + name : folder + "/" + name;
     }
 }
-
-
-
