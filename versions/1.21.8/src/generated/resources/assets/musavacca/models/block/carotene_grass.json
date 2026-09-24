@@ -74,15 +74,73 @@
         16.0,
         16.0
       ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#east_1",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#north_1",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#south_1",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#west_1",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        16.0
+      ]
     }
   ],
   "textures": {
-    "bottom": "minecraft:block/dirt",
-    "east": "musavacca:block/carotene_grass_side",
-    "north": "musavacca:block/carotene_grass_side",
-    "particle": "musavacca:block/carotene_grass_side",
-    "south": "musavacca:block/carotene_grass_side",
+    "bottom": "minecraft:block/rooted_dirt",
+    "east": "minecraft:block/rooted_dirt",
+    "east_1": "musavacca:block/carotene_grass_side",
+    "north": "minecraft:block/rooted_dirt",
+    "north_1": "musavacca:block/carotene_grass_side",
+    "particle": "minecraft:block/rooted_dirt",
+    "south": "minecraft:block/rooted_dirt",
+    "south_1": "musavacca:block/carotene_grass_side",
     "top": "musavacca:block/carotene_grass_top",
-    "west": "musavacca:block/carotene_grass_side"
+    "west": "minecraft:block/rooted_dirt",
+    "west_1": "musavacca:block/carotene_grass_side"
   }
 }

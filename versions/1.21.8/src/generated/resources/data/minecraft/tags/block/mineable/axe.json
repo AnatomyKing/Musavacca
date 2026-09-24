@@ -12,6 +12,7 @@
     "musavacca:musavacca_trapdoor",
     "musavacca:musavacca_pressure_plate",
     "musavacca:musavacca_button",
-    "musavacca:musavacca_door"
+    "musavacca:voco_post",
+    "musavacca:voco_table"
   ]
 }

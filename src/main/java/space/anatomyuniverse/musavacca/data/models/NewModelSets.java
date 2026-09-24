@@ -38,9 +38,12 @@ public final class NewModelSets {
                                         Models.generated(
                                                 ModBlocks.CAROTENE_GRASS.get(),
                                                 textures -> textures
-                                                        .sides("_side")
+                                                        .sides(
+                                                                "minecraft:block/rooted_dirt",
+                                                                "_side"
+                                                        )
                                                         .top("_top")
-                                                        .bottom("minecraft:block/dirt")
+                                                        .bottom("minecraft:block/rooted_dirt")
                                         ),
                                         Conditions.when(SnowyDirtBlock.SNOWY, false)
                                 ).variants(Variants.randomY()),
@@ -50,9 +53,12 @@ public final class NewModelSets {
                                                 ModBlocks.CAROTENE_GRASS.get(),
                                                 "snowy",
                                                 textures -> textures
-                                                        .sides("_side_snowy")
+                                                        .sides(
+                                                                "minecraft:block/rooted_dirt",
+                                                                "_side_snowy"
+                                                        )
                                                         .top("_top")
-                                                        .bottom("minecraft:block/dirt")
+                                                        .bottom("minecraft:block/rooted_dirt")
                                         ),
                                         Conditions.when(SnowyDirtBlock.SNOWY, true)
                                 )
@@ -1326,4 +1332,6 @@ public final class NewModelSets {
     }
 
 }
+
+
 

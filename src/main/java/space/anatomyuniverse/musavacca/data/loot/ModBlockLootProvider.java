@@ -5,13 +5,14 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 //? if <1.21.9 {
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
@@ -37,7 +38,11 @@ import java.util.Set;
 public final class ModBlockLootProvider extends BlockLootSubProvider {
 
     public ModBlockLootProvider(HolderLookup.Provider registries) {
-        super(Set.of(), FeatureFlags.REGISTRY.allFlags(), registries);
+        super(
+                Set.of(),
+                FeatureFlags.REGISTRY.allFlags(),
+                registries
+        );
     }
 
     @Override
@@ -59,11 +64,17 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(),
                 ModBlocks.MUSAVACCA_BUTTON.get(),
 
-                ModBlocks.MUSAVACCA_LEAVES.get(),
-
                 ModBlocks.HARD_HEX_BLOCK.get(),
                 ModBlocks.VOCO_TABLE.get(),
                 ModBlocks.VOCO_POST.get()
+        );
+
+        this.add(
+                ModBlocks.MUSAVACCA_LEAVES.get(),
+                this.createSilkTouchOrShearsDispatchTable(
+                        ModBlocks.MUSAVACCA_LEAVES.get(),
+                        EmptyLootItem.emptyItem()
+                )
         );
 
         this.add(
@@ -104,7 +115,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.CAROTENE_GRASS.get(),
                 this.createSingleItemTableWithSilkTouch(
                         ModBlocks.CAROTENE_GRASS.get(),
-                        Items.DIRT
+                        Blocks.ROOTED_DIRT
                 )
         );
 
@@ -553,7 +564,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         .include(
                                 ModDataComponents.HEX_COLOR.get()
                         );
-                //?} else {
+        //?} else {
                 /*CopyComponentsFunction
                         .copyComponentsFromBlockEntity(
                                 LootContext.BlockEntityTarget.BLOCK_ENTITY
@@ -565,7 +576,9 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 *///?}
     }
 
-    private void silkTouchMusavaccaEggByAge(Block block) {
+    private void silkTouchMusavaccaEggByAge(
+            Block block
+    ) {
         this.add(
                 block,
                 LootTable.lootTable()
@@ -607,7 +620,9 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         return this.applyExplosionCondition(
                 block,
                 LootItem.lootTableItem(item)
-                        .when(this.hasSilkTouch())
+                        .when(
+                                this.hasSilkTouch()
+                        )
                         .when(
                                 LootItemBlockStatePropertyCondition
                                         .hasBlockStateProperties(block)
@@ -686,7 +701,8 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
 
     private void pearlCandleDrops() {
         for (var holder : ModBlocks.PEARL_CANDLES) {
-            PearlCandleBlock pearlCandle = holder.get();
+            PearlCandleBlock pearlCandle =
+                    holder.get();
 
             vanillaCandleDrops(
                     pearlCandle,
@@ -746,10 +762,14 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
     ) {
         return this.applyExplosionCondition(
                 pearlCandle,
-                LootItem.lootTableItem(vanillaCandle)
+                LootItem.lootTableItem(
+                                vanillaCandle
+                        )
                         .when(
                                 LootItemBlockStatePropertyCondition
-                                        .hasBlockStateProperties(pearlCandle)
+                                        .hasBlockStateProperties(
+                                                pearlCandle
+                                        )
                                         .setProperties(
                                                 StatePropertiesPredicate.Builder
                                                         .properties()
@@ -761,7 +781,9 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         )
                         .apply(
                                 SetItemCountFunction.setCount(
-                                        ConstantValue.exactly(candles)
+                                        ConstantValue.exactly(
+                                                candles
+                                        )
                                 )
                         )
         );
@@ -772,8 +794,10 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         return ModBlocks.BLOCKS
                 .getEntries()
                 .stream()
-                .map(holder -> (Block) holder.get())
+                .map(
+                        holder ->
+                                (Block) holder.get()
+                )
                 .toList();
     }
 }
-

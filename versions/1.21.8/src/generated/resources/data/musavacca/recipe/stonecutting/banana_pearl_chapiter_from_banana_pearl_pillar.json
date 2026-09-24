@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "musavacca:banana_pearl_pillar",
+  "result": {
+    "count": 1,
+    "id": "musavacca:banana_pearl_chapiter"
+  }
+}

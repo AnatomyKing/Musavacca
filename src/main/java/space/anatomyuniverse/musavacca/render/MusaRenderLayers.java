@@ -55,6 +55,7 @@ public final class MusaRenderLayers {
             ModBlocks.MUSAVACCA_PSEUDOSTEM.get(),
             ModBlocks.MUSAVACCA_DOOR.get(),
             ModBlocks.MUSAVACCA_TRAPDOOR.get(),
+            ModBlocks.CAROTENE_GRASS.get(),
             ModBlocks.CAROTENE_SHORT_GRASS.get(),
             ModBlocks.CAROTENE_TALL_GRASS.get()
     );
@@ -65,7 +66,8 @@ public final class MusaRenderLayers {
     );
 
     private static final Set<Block> NO_AO_BLOCKS = Sets.newHashSet(
-            ModBlocks.HEX_BLOCK.get()
+            ModBlocks.HEX_BLOCK.get(),
+            ModBlocks.MUSAVACCA_LEAVES.get()
     );
 
     private MusaRenderLayers() {
@@ -405,4 +407,6 @@ public final class MusaRenderLayers {
     }
     //?}
 }
+
+
 

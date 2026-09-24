@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.entity.mob.bananacow;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 
 //? if <1.21.6
@@ -13,21 +14,19 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.EatBlockGoal;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.IShearable;
 
 //? if >=1.21.6
 import net.minecraft.world.level.storage.ValueInput;
@@ -38,7 +37,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
-public class BananaCow extends Cow {
+import java.util.List;
+
+public class BananaCow extends Cow implements IShearable {
 
     public static final int PEEL_STAGE_DEFAULT = 0;
     public static final int PEEL_STAGE_SHEARED = 1;
@@ -85,7 +86,7 @@ public class BananaCow extends Cow {
                     EntityDataSerializers.INT
             );
 
-    private EatBlockGoal eatBlockGoal;
+    private BananaCowGrazeGoal eatBlockGoal;
     private int eatAnimationTick;
 
     public BananaCow(
@@ -104,7 +105,7 @@ public class BananaCow extends Cow {
 
         //? if >=1.21.2 {
         builder.add(Attributes.TEMPT_RANGE, 10.0D);
-        //?}
+         //?}
 
         return builder;
     }
@@ -173,16 +174,55 @@ public class BananaCow extends Cow {
     }
 
     @Override
+    public boolean isShearable(
+            Player player,
+            ItemStack item,
+            Level level,
+            BlockPos pos
+    ) {
+        return this.canBananaCowBeShearedAgain();
+    }
+
+    @Override
+    public List<ItemStack> onSheared(
+            Player player,
+            ItemStack item,
+            Level level,
+            BlockPos pos
+    ) {
+        if (!this.canBananaCowBeShearedAgain()) {
+            return List.of();
+        }
+
+        this.setPeelStage(
+                clampInt(
+                        this.getPeelStage() + 1,
+                        PEEL_STAGE_DEFAULT,
+                        PEEL_STAGE_PEELD
+                )
+        );
+
+        if (level instanceof ServerLevel serverLevel) {
+            this.playBananaCowSound(
+                    serverLevel,
+                    SoundEvents.SHEEP_SHEAR,
+                    1.0F,
+                    1.0F
+            );
+        }
+
+        return List.of(
+                new ItemStack(
+                        ModItems.BANANA_PELLIS.get()
+                )
+        );
+    }
+
+    @Override
     protected void registerGoals() {
         super.registerGoals();
 
-        this.eatBlockGoal = new EatBlockGoal(this) {
-            @Override
-            public boolean canUse() {
-                return BananaCow.this.isBananaSheared()
-                        && super.canUse();
-            }
-        };
+        this.eatBlockGoal = new BananaCowGrazeGoal(this);
 
         this.goalSelector.addGoal(
                 5,
@@ -296,6 +336,7 @@ public class BananaCow extends Cow {
             );
         }
     }
+
     @Override
     public @NotNull InteractionResult mobInteract(
             @NotNull Player player,
@@ -341,70 +382,7 @@ public class BananaCow extends Cow {
             return InteractionResult.SUCCESS;
         }
 
-        if (stack.is(Items.SHEARS)
-                && this.canBananaCowBeShearedAgain()) {
-            if (!this.level().isClientSide
-                    && this.level()
-                    instanceof ServerLevel serverLevel) {
-                this.shearBananaCow(
-                        serverLevel,
-                        player,
-                        hand,
-                        stack
-                );
-            }
-
-            return InteractionResult.SUCCESS;
-        }
-
         return super.mobInteract(player, hand);
-    }
-
-    private void shearBananaCow(
-            @NotNull ServerLevel level,
-            @NotNull Player player,
-            @NotNull InteractionHand hand,
-            @NotNull ItemStack shears
-    ) {
-        int nextStage = clampInt(
-                this.getPeelStage() + 1,
-                PEEL_STAGE_DEFAULT,
-                PEEL_STAGE_PEELD
-        );
-
-        this.setPeelStage(nextStage);
-        this.dropBananaPellis(level);
-
-        this.playBananaCowSound(
-                level,
-                SoundEvents.SHEEP_SHEAR,
-                1.0F,
-                1.0F
-        );
-
-        player.swing(hand, true);
-
-        if (!player.getAbilities().instabuild) {
-            shears.hurtAndBreak(
-                    1,
-                    player,
-                    slotForHand(hand)
-            );
-        }
-    }
-
-    private void dropBananaPellis(
-            @NotNull ServerLevel level
-    ) {
-        Containers.dropItemStack(
-                level,
-                this.getX(),
-                this.getY() + 0.5D,
-                this.getZ(),
-                new ItemStack(
-                        ModItems.BANANA_PELLIS.get()
-                )
-        );
     }
 
     private void eatBananaCow(
@@ -515,14 +493,6 @@ public class BananaCow extends Cow {
                 damage
         );
         *///?}
-    }
-
-    private static EquipmentSlot slotForHand(
-            @NotNull InteractionHand hand
-    ) {
-        return hand == InteractionHand.MAIN_HAND
-                ? EquipmentSlot.MAINHAND
-                : EquipmentSlot.OFFHAND;
     }
 
     private static int clampInt(
@@ -642,7 +612,6 @@ public class BananaCow extends Cow {
 
     @Override
     public void setBaby(boolean isBaby) {
-        
+
     }
 }
-

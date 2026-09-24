@@ -119,40 +119,60 @@ final class NewgenModels {
 
     private ResourceLocation cube(Models.Generated generated, Tints.Tint tint) {
         Textures.Set t = generated.textures();
+        Map<String, ResourceLocation> textures = new java.util.LinkedHashMap<>();
+        textures.put("particle", t.particle());
 
-        JsonObject root = parentJson("minecraft:block/block", Map.of(
-                "particle", t.particle(),
-                "bottom", t.bottom(),
-                "top", t.top(),
-                "north", t.north(),
-                "south", t.south(),
-                "west", t.west(),
-                "east", t.east()
-        ));
-
-        JsonObject element = element(0, 0, 0, 16, 16, 16);
-        JsonObject faces = new JsonObject();
-        int tintIndex = Tints.singleGeneratedLayer(tint, "SimpleBlocks").tintIndex();
-
-        for (String direction : List.of("down", "up", "north", "south", "west", "east")) {
-            JsonObject face = new JsonObject();
-            face.add("uv", vector(0, 0, 16, 16));
-            face.addProperty("texture", "#" + switch (direction) {
-                case "down" -> "bottom";
-                case "up" -> "top";
-                default -> direction;
-            });
-            face.addProperty("cullface", direction);
-            if (tintIndex >= 0) face.addProperty("tintindex", tintIndex);
-            faces.add(direction, face);
-        }
-
-        element.add("faces", faces);
+        Map<String, List<ResourceLocation>> faceLayers = new java.util.LinkedHashMap<>();
+        faceLayers.put("down", t.bottom());
+        faceLayers.put("up", t.top());
+        faceLayers.put("north", t.north());
+        faceLayers.put("south", t.south());
+        faceLayers.put("west", t.west());
+        faceLayers.put("east", t.east());
 
         JsonArray elements = new JsonArray();
-        elements.add(element);
-        root.add("elements", elements);
+        int tintIndex = Tints.singleGeneratedLayer(tint, "SimpleBlocks").tintIndex();
 
+        for (int layer = 0; layer < t.layerCount(); layer++) {
+            JsonObject element = element(0, 0, 0, 16, 16, 16);
+            JsonObject faces = new JsonObject();
+
+            for (Map.Entry<String, List<ResourceLocation>> entry : faceLayers.entrySet()) {
+                List<ResourceLocation> layers = entry.getValue();
+                if (layer >= layers.size()) {
+                    continue;
+                }
+
+                String direction = entry.getKey();
+                String baseKey = switch (direction) {
+                    case "down" -> "bottom";
+                    case "up" -> "top";
+                    default -> direction;
+                };
+                String textureKey = layer == 0
+                        ? baseKey
+                        : baseKey + "_" + layer;
+
+                textures.put(textureKey, layers.get(layer));
+
+                JsonObject face = new JsonObject();
+                face.add("uv", vector(0, 0, 16, 16));
+                face.addProperty("texture", "#" + textureKey);
+                face.addProperty("cullface", direction);
+                if (tintIndex >= 0) {
+                    face.addProperty("tintindex", tintIndex);
+                }
+                faces.add(direction, face);
+            }
+
+            if (faces.size() > 0) {
+                element.add("faces", faces);
+                elements.add(element);
+            }
+        }
+
+        JsonObject root = parentJson("minecraft:block/block", textures);
+        root.add("elements", elements);
         return output.model(generated.model(), root);
     }
 
@@ -702,4 +722,6 @@ final class NewgenModels {
         return "fire_" + layer.sourceLayer();
     }
 }
+
+
 

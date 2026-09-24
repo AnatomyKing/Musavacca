@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "musavacca:banana_pearl_block",
+  "result": {
+    "count": 1,
+    "id": "musavacca:banana_pearl_bricks"
+  }
+}

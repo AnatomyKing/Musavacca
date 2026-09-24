@@ -33,7 +33,7 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (!canStayCarotene(level, pos, state)) {
-            level.setBlockAndUpdate(pos, Blocks.DIRT.defaultBlockState());
+            level.setBlockAndUpdate(pos, Blocks.ROOTED_DIRT.defaultBlockState());
             return;
         }
 
@@ -47,7 +47,8 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
                     random.nextInt(3) - 1
             );
 
-            if (level.getBlockState(target).is(Blocks.ROOTED_DIRT)
+            BlockState targetState = level.getBlockState(target);
+            if ((targetState.is(Blocks.ROOTED_DIRT) || targetState.is(Blocks.DIRT))
                     && canSpreadCarotene(level, target, spread)) {
                 level.setBlockAndUpdate(
                         target,
@@ -179,4 +180,6 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
         }
     }
 }
+
+
 

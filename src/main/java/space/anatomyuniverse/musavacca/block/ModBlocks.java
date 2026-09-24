@@ -97,36 +97,32 @@ public final class ModBlocks {
             BLOCKS.registerBlock("stripped_musavacca_stem",
                     props -> new RotatedPillarBlock(props
                             .mapColor(MapColor.COLOR_ORANGE)
-                            .strength(3.0F, 6.0F)
-                            .sound(SoundType.WOOD)
-                            .requiresCorrectToolForDrops()
+                            .strength(2.0F, 2.0F)
+                            .sound(SoundType.STEM)
                             .pushReaction(PushReaction.NORMAL)));
 
-    public static final DeferredBlock<ExudatedStrippedMusavaccaStemBlock>
-            EXUDATED_STRIPPED_MUSAVACCA_STEM =
-            BLOCKS.registerBlock(
-                    "exudated_stripped_musavacca_stem",
+    public static final DeferredBlock<ExudatedStrippedMusavaccaStemBlock> EXUDATED_STRIPPED_MUSAVACCA_STEM =
+            BLOCKS.registerBlock("exudated_stripped_musavacca_stem",
                     props -> new ExudatedStrippedMusavaccaStemBlock(
                             props
                                     .mapColor(MapColor.COLOR_ORANGE)
-                                    .strength(3.0F, 6.0F)
-                                    .sound(SoundType.WOOD)
-                                    .requiresCorrectToolForDrops()
+                                    .strength(2.0F, 2.0F)
+                                    .sound(SoundType.STEM)
                                     .pushReaction(PushReaction.NORMAL),
                             STRIPPED_MUSAVACCA_STEM
-                    )
-            );
+                    ));
 
     public static final DeferredBlock<StrippableMusavaccaStemBlock> MUSAVACCA_STEM =
             BLOCKS.registerBlock("musavacca_stem",
-                    props -> new StrippableMusavaccaStemBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
-                            .strength(3.0F, 6.0F)
-                            .sound(SoundType.WOOD)
-                            .requiresCorrectToolForDrops()
-                            .pushReaction(PushReaction.NORMAL),
+                    props -> new StrippableMusavaccaStemBlock(
+                            props
+                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .strength(2.0F, 2.0F)
+                                    .sound(SoundType.STEM)
+                                    .pushReaction(PushReaction.NORMAL),
                             STRIPPED_MUSAVACCA_STEM,
-                            EXUDATED_STRIPPED_MUSAVACCA_STEM));
+                            EXUDATED_STRIPPED_MUSAVACCA_STEM
+                    ));
 
     public static final DeferredBlock<SmallBananaPearlBlock> SMALL_BANANA_PEARL_BLOCK =
             BLOCKS.registerBlock("small_banana_pearl_block",
@@ -176,13 +172,11 @@ public final class ModBlocks {
 
     public static final DeferredBlock<Block> MUSAVACCA_PLANKS =
             BLOCKS.registerBlock("musavacca_planks",
-                    props -> new Block(
-                            props
-                                    .mapColor(MapColor.COLOR_ORANGE)
-                                    .strength(2.0F, 3.0F)
-                                    .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
-                                    .pushReaction(PushReaction.NORMAL)
-                    ));
+                    props -> new Block(props
+                            .mapColor(MapColor.COLOR_ORANGE)
+                            .strength(2.0F, 3.0F)
+                            .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
+                            .pushReaction(PushReaction.NORMAL)));
 
     public static final DeferredBlock<StairBlock> MUSAVACCA_STAIRS =
             BLOCKS.registerBlock("musavacca_stairs",
@@ -197,24 +191,20 @@ public final class ModBlocks {
 
     public static final DeferredBlock<SlabBlock> MUSAVACCA_SLAB =
             BLOCKS.registerBlock("musavacca_slab",
-                    props -> new SlabBlock(
-                            props
-                                    .mapColor(MapColor.COLOR_ORANGE)
-                                    .strength(2.0F, 3.0F)
-                                    .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
-                                    .pushReaction(PushReaction.NORMAL)
-                    ));
+                    props -> new SlabBlock(props
+                            .mapColor(MapColor.COLOR_ORANGE)
+                            .strength(2.0F, 3.0F)
+                            .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
+                            .pushReaction(PushReaction.NORMAL)));
 
     public static final DeferredBlock<FenceBlock> MUSAVACCA_FENCE =
             BLOCKS.registerBlock("musavacca_fence",
-                    props -> new FenceBlock(
-                            props
-                                    .mapColor(MapColor.COLOR_ORANGE)
-                                    .strength(2.0F, 3.0F)
-                                    .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
-                                    .forceSolidOn()
-                                    .pushReaction(PushReaction.NORMAL)
-                    ));
+                    props -> new FenceBlock(props
+                            .mapColor(MapColor.COLOR_ORANGE)
+                            .strength(2.0F, 3.0F)
+                            .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
+                            .forceSolidOn()
+                            .pushReaction(PushReaction.NORMAL)));
 
     public static final DeferredBlock<FenceGateBlock> MUSAVACCA_FENCE_GATE =
             BLOCKS.registerBlock("musavacca_fence_gate",
@@ -222,7 +212,7 @@ public final class ModBlocks {
                             ModWoodTypes.MUSAVACCA,
                             props
                                     .mapColor(MapColor.COLOR_ORANGE)
-                                    .strength(2.0F,  3.0F)
+                                    .strength(2.0F, 3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA.soundType())
                                     .forceSolidOn()
                                     .pushReaction(PushReaction.NORMAL)
@@ -251,6 +241,14 @@ public final class ModBlocks {
                                     .noOcclusion()
                                     .pushReaction(PushReaction.DESTROY)
                     ));
+
+//    public static final DeferredBlock<CampfireBlock> PEARL_CAMPFIRE =
+//            BLOCKS.registerBlock("pearl_campfire",
+//                    props -> new CampfireBlock(
+//
+//
+//
+//                    )
 
     public static final DeferredBlock<PressurePlateBlock> MUSAVACCA_PRESSURE_PLATE =
             BLOCKS.registerBlock("musavacca_pressure_plate",
@@ -362,23 +360,21 @@ public final class ModBlocks {
 
     public static final DeferredBlock<VocoTableBlock> VOCO_TABLE =
             BLOCKS.registerBlock("voco_table",
-                    props -> new VocoTableBlock(
-                            props.mapColor(MapColor.COLOR_ORANGE)
-                                    .strength(0.2F, 3.0F)
-                                    .sound(SoundType.WOOD)
-                                    .noOcclusion()
-                                    .pushReaction(PushReaction.DESTROY)
-                    ));
+                    props -> new VocoTableBlock(props
+                            .mapColor(MapColor.COLOR_ORANGE)
+                            .strength(2.0F, 3.0F)
+                            .sound(SoundType.WOOD)
+                            .noOcclusion()
+                            .pushReaction(PushReaction.DESTROY)));
 
     public static final DeferredBlock<VocoPostBlock> VOCO_POST =
             BLOCKS.registerBlock("voco_post",
-                    props -> new VocoPostBlock(
-                            props.mapColor(MapColor.COLOR_ORANGE)
-                                    .strength(0.2F, 3.0F)
-                                    .sound(SoundType.WOOD)
-                                    .noOcclusion()
-                                    .pushReaction(PushReaction.DESTROY)
-                    ));
+                    props -> new VocoPostBlock(props
+                            .mapColor(MapColor.COLOR_ORANGE)
+                            .strength(2.0F, 3.0F)
+                            .sound(SoundType.WOOD)
+                            .noOcclusion()
+                            .pushReaction(PushReaction.DESTROY)));
 
     public static final DeferredBlock<HexBlock> HEX_BLOCK =
             BLOCKS.registerBlock("hex_block",

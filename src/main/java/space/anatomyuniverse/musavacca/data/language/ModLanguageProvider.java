@@ -21,13 +21,21 @@ public final class ModLanguageProvider extends LanguageProvider {
     private static final Map<String, String> OVERRIDES = new LinkedHashMap<>();
 
     static {
-        
-        OVERRIDES.put("itemGroup." + MusaCore.MOD_ID + ".musavacca_tab", "Musavacca");
+        OVERRIDES.put(
+                "itemGroup." + MusaCore.MOD_ID + ".musavacca_tab",
+                "Musavacca"
+        );
 
         OVERRIDES.put(
                 "block.musavacca.hex_block",
                 "Lopha Flower"
         );
+
+        OVERRIDES.put(
+                "item.musavacca.musavacca_pup",
+                "Musavacca Pup"
+        );
+
         OVERRIDES.put(
                 "item.musavacca.banana_phone.empty.description",
                 "Can hold one valid SIM card"

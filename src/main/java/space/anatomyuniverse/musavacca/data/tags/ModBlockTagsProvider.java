@@ -3,7 +3,7 @@ package space.anatomyuniverse.musavacca.data.tags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraft.world.level.block.Blocks;import net.neoforged.fml.common.Mod;import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlockTags;
@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.common.data.ExistingFileHelper;
- *///?}
+*///?}
 
 public final class ModBlockTagsProvider extends BlockTagsProvider {
 
@@ -23,12 +23,7 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
             CompletableFuture<HolderLookup.Provider> lookupProvider,
             ExistingFileHelper existingFileHelper
     ) {
-        super(
-                output,
-                lookupProvider,
-                MusaCore.MOD_ID,
-                existingFileHelper
-        );
+        super(output, lookupProvider, MusaCore.MOD_ID, existingFileHelper);
     }
     *///?}
 
@@ -37,11 +32,7 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
             PackOutput output,
             CompletableFuture<HolderLookup.Provider> lookupProvider
     ) {
-        super(
-                output,
-                lookupProvider,
-                MusaCore.MOD_ID
-        );
+        super(output, lookupProvider, MusaCore.MOD_ID);
     }
     //?}
 
@@ -60,6 +51,12 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()
         );
 
+        tag(ModBlockTags.EDIBLE_FOR_BANANA_COW).add(
+                ModBlocks.CAROTENE_SHORT_GRASS.get(),
+                ModBlocks.CAROTENE_TALL_GRASS.get(),
+                Blocks.PINK_PETALS
+        );
+
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(
                 ModBlocks.BANANA_PEARL_BLOCK.get(),
                 ModBlocks.BANANA_PEARL_BRICKS.get()
@@ -74,7 +71,6 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.MUSAVACCA_STEM.get(),
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get(),
-
                 ModBlocks.MUSAVACCA_PLANKS.get(),
                 ModBlocks.MUSAVACCA_STAIRS.get(),
                 ModBlocks.MUSAVACCA_SLAB.get(),
@@ -83,7 +79,9 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.MUSAVACCA_DOOR.get(),
                 ModBlocks.MUSAVACCA_TRAPDOOR.get(),
                 ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(),
-                ModBlocks.MUSAVACCA_BUTTON.get()
+                ModBlocks.MUSAVACCA_BUTTON.get(),
+                ModBlocks.VOCO_POST.get(),
+                ModBlocks.VOCO_TABLE.get()
         );
 
         tag(BlockTags.MINEABLE_WITH_HOE).add(
@@ -134,10 +132,6 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.MUSAVACCA_DOOR.get()
         );
 
-        tag(BlockTags.MINEABLE_WITH_AXE).add(
-                ModBlocks.MUSAVACCA_DOOR.get()
-        );
-
         tag(BlockTags.MOB_INTERACTABLE_DOORS).add(
                 ModBlocks.MUSAVACCA_DOOR.get()
         );
@@ -171,4 +165,3 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         );
     }
 }
-

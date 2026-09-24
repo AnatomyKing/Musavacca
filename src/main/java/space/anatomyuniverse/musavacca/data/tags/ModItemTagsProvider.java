@@ -23,10 +23,9 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import java.util.concurrent.CompletableFuture;
 
 //? if >=1.21.6 {
-public final class ModItemTagsProvider
-        extends KeyTagProvider<Item> {
-//?} else
-    //public final class ModItemTagsProvider extends ItemTagsProvider {
+public final class ModItemTagsProvider extends KeyTagProvider<Item> {
+ //?} else
+//public final class ModItemTagsProvider extends ItemTagsProvider {
 
     //? if >=1.21.6 {
     public ModItemTagsProvider(
@@ -55,10 +54,7 @@ public final class ModItemTagsProvider
     *///?}
 
     @Override
-    protected void addTags(
-            HolderLookup.Provider provider
-    ) {
-
+    protected void addTags(HolderLookup.Provider provider) {
         tag(ItemTags.PLANKS)
                 .add(key(ModBlocks.MUSAVACCA_PLANKS));
 
@@ -241,4 +237,3 @@ public final class ModItemTagsProvider
     }
     *///?}
 }
-

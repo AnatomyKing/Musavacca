@@ -159,6 +159,58 @@ public final class ModRecipeProvider extends RecipeProvider {
         });
         *///?}
 
+        dsl.shapeless(
+                        RecipeCategory.BUILDING_BLOCKS,
+                        ModBlocks.MUSAVACCA_PLANKS.get(),
+                        4
+                )
+                .requires(Ingredient.of(
+                        ModBlocks.MUSAVACCA_STEM.get(),
+                        ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
+                        ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()
+                ))
+                .unlockedByHas(
+                        ModBlocks.MUSAVACCA_STEM.get(),
+                        ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
+                        ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()
+                )
+                .save("blocks/musavacca_planks");
+
+        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_STAIRS.get(), 4)
+                .pattern("p  ")
+                .pattern("pp ")
+                .pattern("ppp")
+                .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
+                .save("blocks/musavacca_stairs");
+
+        dsl.shaped(RecipeCategory.REDSTONE, ModItems.MUSAVACCA_DOOR.get(), 3)
+                .pattern("pp")
+                .pattern("pp")
+                .pattern("pp")
+                .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
+                .save("blocks/musavacca_door");
+
+        dsl.shaped(RecipeCategory.REDSTONE, ModBlocks.MUSAVACCA_FENCE_GATE.get(), 1)
+                .pattern("sps")
+                .pattern("sps")
+                .define('s', Items.STICK)
+                .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get(), Items.STICK)
+                .save("blocks/musavacca_fence_gate");
+
+        dsl.shaped(RecipeCategory.REDSTONE, ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(), 1)
+                .pattern("pp")
+                .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
+                .save("blocks/musavacca_pressure_plate");
+
+        dsl.shapeless(RecipeCategory.REDSTONE, ModBlocks.MUSAVACCA_BUTTON.get(), 1)
+                .requires(ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
+                .save("blocks/musavacca_button");
+
         dsl.shapeless(RecipeCategory.MISC, ModItems.FLINT_AND_PEARL.get(), 1)
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())
@@ -199,6 +251,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                 )
                 .unlockedByHas(ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), ModItems.VACACA.get())
                 .save("misc/potassium_ingot");
+
 
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_SLAB.get(), 6)
                 .pattern("ppp")

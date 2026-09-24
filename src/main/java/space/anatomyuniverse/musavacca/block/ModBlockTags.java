@@ -9,6 +9,7 @@ import space.anatomyuniverse.musavacca.MusaCore;
 public final class ModBlockTags {
     public static final TagKey<Block> PEARL_PORTAL_FRAME = create("pearl_portal_frame");
     public static final TagKey<Block> MUSAVACCA_STEMS = create("musavacca_stems");
+    public static final TagKey<Block> EDIBLE_FOR_BANANA_COW = create("edible_for_banana_cow");
 
     private ModBlockTags() {}
 
@@ -19,4 +20,3 @@ public final class ModBlockTags {
         );
     }
 }
-

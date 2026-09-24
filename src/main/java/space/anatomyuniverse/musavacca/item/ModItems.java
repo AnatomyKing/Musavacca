@@ -225,7 +225,7 @@ public final class ModItems {
     public static final DeferredItem<Item> BANANA_PEARL =
             ITEMS.registerItem(
                     "banana_pearl",
-                    props -> new Item(
+                    props -> new BananaPearlItem(
                             bananaPearlProperties(
                                     props.rarity(Rarity.RARE)
                             )
@@ -797,4 +797,6 @@ public final class ModItems {
     private ModItems() {
     }
 }
+
+
 
