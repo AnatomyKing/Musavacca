@@ -32,6 +32,11 @@ public final class NewModelSets {
                         .textures(textures -> textures.all())
                         .build(),
 
+                SimpleBlocks.Entry.builder(ModBlocks.GILDED_MUSAVACCA_PLANKS.get())
+                        .generated()
+                        .textures(textures -> textures.all())
+                        .build(),
+
                 SimpleBlocks.Entry.builder(ModBlocks.CAROTENE_GRASS.get())
                         .models(
                                 SimpleBlocks.Model.when(
@@ -987,6 +992,7 @@ public final class NewModelSets {
         return List.of(
                 TrapdoorBlocks.Entry.builder(ModBlocks.MUSAVACCA_TRAPDOOR.get())
                         .generated()
+                        .orientable()
                         .texture()
                         .multipart(
                                 TrapdoorBlocks.Part.when(
@@ -1332,6 +1338,3 @@ public final class NewModelSets {
     }
 
 }
-
-
-

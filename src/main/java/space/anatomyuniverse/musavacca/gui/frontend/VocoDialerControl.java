@@ -1,8 +1,12 @@
 package space.anatomyuniverse.musavacca.gui.frontend;
 
+//? if <1.21.2
+//import com.mojang.blaze3d.systems.RenderSystem;
 //? if <1.21.6
 //import com.mojang.math.Axis;
 import net.minecraft.client.gui.GuiGraphics;
+//? if <1.21.2
+//import net.minecraft.client.renderer.GameRenderer;
 //? if >=1.21.6
 import net.minecraft.client.renderer.RenderPipelines;
 //? if <1.21.6
@@ -10,6 +14,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.bar.balance.ClientBalanceData;
 import space.anatomyuniverse.musavacca.gui.backend.VocoDialerBackend;
 
 import java.util.function.IntConsumer;
@@ -42,7 +47,8 @@ public final class VocoDialerControl {
     private static final int DIAL_HOLE_HALF_COVERED_COUNT = DIAL_HOLE_SIZE * DIAL_HOLE_SIZE / 2;
     private static final float MIN_RETURN_ANGLE_RADIANS = 0.0001F;
     private static final float MAX_DRAG_STEP_RADIANS = 0.01F;
-    private static final float RETURN_SPEED_RADIANS_PER_SECOND = 2.85F;
+    private static final float BASE_RETURN_SPEED_RADIANS_PER_SECOND = 2.85F;
+    private static final float RETURN_SPEED_GAIN_PER_DOUBLING = 0.10F;
     private static final float STOPPER_MAX_SWING_ANGLE_RADIANS = -(float) (Math.PI / 2.0D);
     private static final long STOPPER_SWING_DURATION_NANOS = 280_000_000L;
 
@@ -60,6 +66,7 @@ public final class VocoDialerControl {
     private float diskAngleRadians = 0.0F;
     private float previousDragMouseAngleRadians = 0.0F;
     private float stopperAngleRadians = 0.0F;
+    private float returnSpeedRadiansPerSecond = BASE_RETURN_SPEED_RADIANS_PER_SECOND;
     private boolean stopperSwinging = false;
     private long stopperSwingStartNanos = 0L;
     private boolean draggingDisk = false;
@@ -80,6 +87,19 @@ public final class VocoDialerControl {
 
     public void render(GuiGraphics graphics, int guiX, int guiY) {
         this.updateAnimations();
+
+        //? if <1.21.6
+        //graphics.pose().pushPose();
+
+        //? if <1.21.2
+        //RenderSystem.enableBlend();
+        //? if <1.21.2
+        //RenderSystem.defaultBlendFunc();
+        //? if <1.21.2
+        //RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        //? if <1.21.2
+        //RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
         this.blitStopper(graphics, STOPPER_BACK_TEXTURE, guiX, guiY);
         this.nextLayer(graphics);
         this.blitTexture(graphics, this.lettersBase ? BASE_LETTERS_TEXTURE : BASE_TEXTURE, guiX, guiY, BASE_WIDTH, BASE_HEIGHT);
@@ -87,6 +107,12 @@ public final class VocoDialerControl {
         this.blitDisk(graphics, guiX, guiY);
         this.nextLayer(graphics);
         this.blitStopper(graphics, STOPPER_FRONT_TEXTURE, guiX, guiY);
+
+        //? if <1.21.2
+        //RenderSystem.disableBlend();
+
+        //? if <1.21.6
+        //graphics.pose().popPose();
     }
 
     private void blitDisk(GuiGraphics graphics, int guiX, int guiY) {
@@ -112,7 +138,7 @@ public final class VocoDialerControl {
     private void blitTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height) {
         //? if >=1.21.6 {
         graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0F, 0.0F, width, height, width, height);
-        //?} else if >=1.21.2 {
+         //?} else if >=1.21.2 {
         /*graphics.blit(
                 RenderType::guiTextured,
                 texture,
@@ -133,15 +159,15 @@ public final class VocoDialerControl {
     private void nextLayer(GuiGraphics graphics) {
         //? if >=1.21.6 {
         graphics.nextStratum();
-        //?} else {
-        /*graphics.pose();
+         //?} else {
+        /*graphics.pose().translate(0.0F, 0.0F, 1.0F);
         *///?}
     }
 
     private void pushPose(GuiGraphics graphics) {
         //? if >=1.21.6 {
         graphics.pose().pushMatrix();
-        //?} else {
+         //?} else {
         /*graphics.pose().pushPose();
         *///?}
     }
@@ -149,7 +175,7 @@ public final class VocoDialerControl {
     private void popPose(GuiGraphics graphics) {
         //? if >=1.21.6 {
         graphics.pose().popMatrix();
-        //?} else {
+         //?} else {
         /*graphics.pose().popPose();
         *///?}
     }
@@ -157,7 +183,7 @@ public final class VocoDialerControl {
     private void translatePose(GuiGraphics graphics, float x, float y) {
         //? if >=1.21.6 {
         graphics.pose().translate(x, y);
-        //?} else {
+         //?} else {
         /*graphics.pose().translate(x, y, 0.0F);
         *///?}
     }
@@ -165,7 +191,7 @@ public final class VocoDialerControl {
     private void rotatePose(GuiGraphics graphics, float radians) {
         //? if >=1.21.6 {
         graphics.pose().rotate(radians);
-        //?} else {
+         //?} else {
         /*graphics.pose().mulPose(Axis.ZP.rotation(radians));
         *///?}
     }
@@ -243,7 +269,7 @@ public final class VocoDialerControl {
         }
         float deltaSeconds = (now - this.lastReturnUpdateNanos) / 1_000_000_000.0F;
         this.lastReturnUpdateNanos = now;
-        this.diskAngleRadians -= RETURN_SPEED_RADIANS_PER_SECOND * deltaSeconds;
+        this.diskAngleRadians -= this.returnSpeedRadiansPerSecond * deltaSeconds;
         if (this.diskAngleRadians > 0.0F) return;
         ReturnReason finishedReason = this.returnReason;
         DialEntry finishedEntry = this.returningDialEntry;
@@ -287,8 +313,14 @@ public final class VocoDialerControl {
         this.returnReason = reason;
         this.draggingDisk = false;
         this.activeDialEntry = null;
+        this.returnSpeedRadiansPerSecond = getReturnSpeedForBalance(ClientBalanceData.getBalance());
         this.returningToStart = true;
         this.lastReturnUpdateNanos = 0L;
+    }
+
+    private static float getReturnSpeedForBalance(int balance) {
+        double doublings = Math.log1p(Math.max(0, balance)) / Math.log(2.0D);
+        return BASE_RETURN_SPEED_RADIANS_PER_SECOND * (1.0F + RETURN_SPEED_GAIN_PER_DOUBLING * (float) doublings);
     }
 
     private void stopDraggingWithoutReturn() {
@@ -306,6 +338,7 @@ public final class VocoDialerControl {
         this.lastReturnUpdateNanos = 0L;
         this.previousDragMouseAngleRadians = 0.0F;
         this.diskAngleRadians = 0.0F;
+        this.returnSpeedRadiansPerSecond = BASE_RETURN_SPEED_RADIANS_PER_SECOND;
         this.stopperSwinging = false;
         this.stopperSwingStartNanos = 0L;
         this.stopperAngleRadians = 0.0F;
@@ -406,4 +439,3 @@ public final class VocoDialerControl {
         }
     }
 }
-

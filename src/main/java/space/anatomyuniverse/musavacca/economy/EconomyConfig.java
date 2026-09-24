@@ -24,21 +24,21 @@ public final class EconomyConfig {
         VOCO_TABLE_TELEPORT_COST = cost(
                 builder,
                 "voco_table",
-                0,
+                1,
                 "Balance cost for teleporting with a Voco Table. Set to 0 to make Voco Table teleportation free."
         );
 
         MUSAVACCA_DOOR_TELEPORT_COST = cost(
                 builder,
                 "musavacca_door",
-                1,
+                0,
                 "Balance cost for teleporting through a Musavacca Door. Set to 0 to make Musavacca Door teleportation free."
         );
 
         MUSAVACCA_TRAPDOOR_TELEPORT_COST = cost(
                 builder,
                 "musavacca_trapdoor",
-                1,
+                0,
                 "Balance cost for teleporting through a Musavacca Trapdoor. Set to 0 to make Musavacca Trapdoor teleportation free."
         );
 

@@ -211,6 +211,12 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_button");
 
+        dsl.shapeless(RecipeCategory.BUILDING_BLOCKS, ModBlocks.GILDED_MUSAVACCA_PLANKS.get(), 1)
+                .requires(ModItems.BIG_BANANA_PEARL, ModBlocks.MUSAVACCA_PLANKS)
+                .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
+                .save("blocks/gilded_musavacca_planks");
+
+
         dsl.shapeless(RecipeCategory.MISC, ModItems.FLINT_AND_PEARL.get(), 1)
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())

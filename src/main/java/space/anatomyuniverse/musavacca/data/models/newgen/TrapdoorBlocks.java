@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 public final class TrapdoorBlocks {
     private TrapdoorBlocks() {}
 
+    public enum Orientation { NORMAL, ORIENTABLE }
+
     public static final class Part extends BlockFamily.ModelRule<TrapdoorModels, Part> {
         private Part(TrapdoorModels source, Conditions.Match conditions) {
             super(source, conditions);
@@ -22,16 +24,19 @@ public final class TrapdoorBlocks {
     public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
         private final TrapdoorTextures.Set textures;
         private final TrapdoorModels baseModels;
+        private final Orientation orientation;
 
         private Entry(Builder builder) {
             super(builder);
             textures = builder.textures;
             baseModels = builder.baseModels;
+            orientation = builder.orientation;
         }
 
         public static Builder builder(Block block) { return new Builder(block); }
         public TrapdoorTextures.Set textures() { return textures; }
         public TrapdoorModels baseModels() { return baseModels; }
+        public Orientation orientation() { return orientation; }
 
         public void validate() {
             if (!(block() instanceof TrapDoorBlock)) {
@@ -60,6 +65,7 @@ public final class TrapdoorBlocks {
         public static final class Builder extends BlockFamily.ItemFamilyBuilder<Builder, Part> {
             private TrapdoorTextures.Set textures;
             private TrapdoorModels baseModels;
+            private Orientation orientation = Orientation.NORMAL;
 
             private Builder(Block block) { super(block); }
 
@@ -72,6 +78,16 @@ public final class TrapdoorBlocks {
             public Builder models(TrapdoorModels models) {
                 selectExisting();
                 baseModels = Objects.requireNonNull(models, "models");
+                return this;
+            }
+
+            public Builder normal() {
+                orientation = Orientation.NORMAL;
+                return this;
+            }
+
+            public Builder orientable() {
+                orientation = Orientation.ORIENTABLE;
                 return this;
             }
 
@@ -104,4 +120,3 @@ public final class TrapdoorBlocks {
         }
     }
 }
-

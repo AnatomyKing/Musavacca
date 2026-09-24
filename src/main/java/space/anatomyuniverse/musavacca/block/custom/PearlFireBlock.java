@@ -5,11 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
-//? if >=1.21.5
-import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
@@ -17,19 +13,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 //? if <1.21.2 {
 /*import net.minecraft.world.level.LevelAccessor;
-*///?} else {
+ *///?} else {
 import net.minecraft.world.level.ScheduledTickAccess;
 //?}
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class PearlFireBlock extends FireBlock implements EntityBlock {
@@ -49,59 +43,6 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     @Override
     public boolean isBurning(BlockState state, BlockGetter level, BlockPos pos) {
         return true;
-    }
-
-    //? if >=1.21.5 {
-    @Override
-    protected void entityInside(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Entity entity,
-            InsideBlockEffectApplier effectApplier
-    ) {
-        if (!level.isClientSide() && entity instanceof ItemEntity itemEntity) {
-            tryStampCleanSimCard(level, pos, itemEntity);
-        }
-
-        super.entityInside(state, level, pos, entity, effectApplier);
-    }
-    //?} else {
-    /*@Override
-    protected void entityInside(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Entity entity
-    ) {
-        if (!level.isClientSide() && entity instanceof ItemEntity itemEntity) {
-            tryStampCleanSimCard(level, pos, itemEntity);
-        }
-
-        super.entityInside(state, level, pos, entity);
-    }
-    *///?}
-
-    private static void tryStampCleanSimCard(Level level, BlockPos firePos, ItemEntity itemEntity) {
-        ItemStack oldStack = itemEntity.getItem();
-
-        if (!(oldStack.getItem() instanceof SimCardItem)) {
-            return;
-        }
-
-        if (oldStack.get(ModDataComponents.HEX_COLOR.get()) != null) {
-            return;
-        }
-
-        int fireHex = getPearlFireHex(level, firePos);
-        if (fireHex == MusavaccaTints.NO_TINT) {
-            return;
-        }
-
-        ItemStack stampedStack = oldStack.copy();
-        SimCardItem.setStoredHex(stampedStack, fireHex);
-
-        itemEntity.setItem(stampedStack);
     }
 
     @Override
@@ -187,9 +128,11 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         if (!eternalSource) {
             if (!this.isValidPearlFireLocation(level, pos)) {
                 BlockPos belowPos = pos.below();
+
                 if (!level.getBlockState(belowPos).isFaceSturdy(level, belowPos, Direction.UP) || age > 3) {
                     level.removeBlock(pos, false);
                 }
+
                 return;
             }
 
@@ -219,6 +162,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                     }
 
                     int chanceDivisor = 100;
+
                     if (dy > 1) {
                         chanceDivisor += (dy - 1) * 100;
                     }
@@ -231,6 +175,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                     }
 
                     int spreadChance = (igniteOdds + 40 + level.getDifficulty().getId() * 7) / (age + 30);
+
                     if (burnoutBiome) {
                         spreadChance /= 2;
                     }
@@ -264,6 +209,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
 
     private static int getPearlFireHex(Level level, BlockPos pos) {
         BlockEntity be = level.getBlockEntity(pos);
+
         if (be instanceof PearlFireBlockEntity pearlFireBe && pearlFireBe.hasHexColor()) {
             return pearlFireBe.getHexColor();
         }
@@ -277,6 +223,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         }
 
         BlockEntity be = level.getBlockEntity(pos);
+
         if (be instanceof PearlFireBlockEntity pearlFireBe) {
             pearlFireBe.setHexColor(hexColor);
         }
@@ -307,6 +254,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         for (Direction direction : Direction.values()) {
             BlockPos neighborPos = pos.relative(direction);
             BlockState neighborState = level.getBlockState(neighborPos);
+
             max = Math.max(
                     neighborState.getFireSpreadSpeed(level, neighborPos, direction.getOpposite()),
                     max
@@ -359,4 +307,3 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         fire.setFlammable(ModBlocks.MUSAVACCA_LEAVES.get(), 30, 60);
     }
 }
-

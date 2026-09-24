@@ -20,7 +20,6 @@ final class NewgenStates {
     static final List<Pose<SlabModels>> SLABS = slabs();
     static final List<Pose<StairModels>> STAIRS = stairs();
     static final List<Pose<DoorModels>> DOORS = doors();
-    static final List<Pose<TrapdoorModels>> TRAPDOORS = trapdoors();
     static final List<Pose<FenceModels>> FENCES = fences();
     static final List<Pose<FenceGateModels>> FENCE_GATES = fenceGates();
     static final List<Pose<ButtonModels>> BUTTONS = buttons();
@@ -71,16 +70,19 @@ final class NewgenStates {
         return List.copyOf(poses);
     }
 
-    private static List<Pose<TrapdoorModels>> trapdoors() {
+    static List<Pose<TrapdoorModels>> trapdoors(TrapdoorBlocks.Orientation orientation) {
         List<Pose<TrapdoorModels>> poses = new ArrayList<>();
+        boolean orientable = orientation == TrapdoorBlocks.Orientation.ORIENTABLE;
         for (Direction facing : ModelDirections.horizontal()) {
             for (Half half : Half.values()) {
                 for (boolean open : BOOLEANS) {
-                    boolean flip = open && half == Half.TOP;
+                    boolean flip = orientable && open && half == Half.TOP;
+                    int y = orientable || open ? northY(facing) : 0;
+                    if (flip) y += 180;
                     Conditions.Match when = Conditions.when(TrapDoorBlock.FACING, facing)
                             .and(TrapDoorBlock.HALF, half).and(TrapDoorBlock.OPEN, open);
                     poses.add(new Pose<>(when, m -> m.model(half, open), flip ? 180 : 0,
-                            ModelTransforms.quarterTurn(northY(facing) + (flip ? 180 : 0)), false));
+                            ModelTransforms.quarterTurn(y), false));
                 }
             }
         }
@@ -176,4 +178,3 @@ final class NewgenStates {
         };
     }
 }
-

@@ -29,7 +29,7 @@ public final class ModBlocks {
     public static final DeferredBlock<Block> BANANA_PEARL_BLOCK =
             BLOCKS.registerBlock("banana_pearl_block",
                     props -> new Block(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_YELLOW)
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
@@ -38,7 +38,7 @@ public final class ModBlocks {
     public static final DeferredBlock<Block> BANANA_PEARL_BRICKS =
             BLOCKS.registerBlock("banana_pearl_bricks",
                     props -> new Block(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_YELLOW)
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
@@ -47,7 +47,7 @@ public final class ModBlocks {
     public static final DeferredBlock<BreakBlock> MUSAVACCA_EGG =
             BLOCKS.registerBlock("musavacca_egg",
                     props -> new BreakBlock(props
-                            .mapColor(MapColor.PLANT)
+                            .mapColor(MapColor.COLOR_ORANGE)
                             .strength(0.4F)
                             .sound(SoundType.GRASS)
                             .randomTicks()
@@ -78,7 +78,7 @@ public final class ModBlocks {
     public static final DeferredBlock<Block> BANANA_PEARL_CHAPITER =
             BLOCKS.registerBlock("banana_pearl_chapiter",
                     props -> new BananaPearlChapiter(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_YELLOW)
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
@@ -87,7 +87,7 @@ public final class ModBlocks {
     public static final DeferredBlock<RotatedPillarBlock> BANANA_PEARL_PILLAR =
             BLOCKS.registerBlock("banana_pearl_pillar",
                     props -> new RotatedPillarBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_YELLOW)
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
@@ -96,7 +96,7 @@ public final class ModBlocks {
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_MUSAVACCA_STEM =
             BLOCKS.registerBlock("stripped_musavacca_stem",
                     props -> new RotatedPillarBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.0F, 2.0F)
                             .sound(SoundType.STEM)
                             .pushReaction(PushReaction.NORMAL)));
@@ -105,7 +105,7 @@ public final class ModBlocks {
             BLOCKS.registerBlock("exudated_stripped_musavacca_stem",
                     props -> new ExudatedStrippedMusavaccaStemBlock(
                             props
-                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .mapColor(MapColor.COLOR_BROWN)
                                     .strength(2.0F, 2.0F)
                                     .sound(SoundType.STEM)
                                     .pushReaction(PushReaction.NORMAL),
@@ -116,7 +116,7 @@ public final class ModBlocks {
             BLOCKS.registerBlock("musavacca_stem",
                     props -> new StrippableMusavaccaStemBlock(
                             props
-                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .mapColor(MapColor.COLOR_BROWN)
                                     .strength(2.0F, 2.0F)
                                     .sound(SoundType.STEM)
                                     .pushReaction(PushReaction.NORMAL),
@@ -127,7 +127,7 @@ public final class ModBlocks {
     public static final DeferredBlock<SmallBananaPearlBlock> SMALL_BANANA_PEARL_BLOCK =
             BLOCKS.registerBlock("small_banana_pearl_block",
                     props -> new SmallBananaPearlBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_YELLOW)
                             .strength(0.1F, 3.0F)
                             .sound(SoundType.CHAIN)
                             .noOcclusion()
@@ -173,8 +173,16 @@ public final class ModBlocks {
     public static final DeferredBlock<Block> MUSAVACCA_PLANKS =
             BLOCKS.registerBlock("musavacca_planks",
                     props -> new Block(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.0F, 3.0F)
+                            .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
+                            .pushReaction(PushReaction.NORMAL)));
+
+    public static final DeferredBlock<Block> GILDED_MUSAVACCA_PLANKS =
+            BLOCKS.registerBlock("gilded_musavacca_planks",
+                    props -> new Block(props
+                            .mapColor(MapColor.COLOR_BROWN)
+                            .strength(2.2F, 3.0F)
                             .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                             .pushReaction(PushReaction.NORMAL)));
 
@@ -183,7 +191,7 @@ public final class ModBlocks {
                     props -> new StairBlock(
                             MUSAVACCA_PLANKS.get().defaultBlockState(),
                             props
-                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .mapColor(MapColor.COLOR_BROWN)
                                     .strength(2.0F, 3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     .pushReaction(PushReaction.NORMAL)
@@ -192,7 +200,7 @@ public final class ModBlocks {
     public static final DeferredBlock<SlabBlock> MUSAVACCA_SLAB =
             BLOCKS.registerBlock("musavacca_slab",
                     props -> new SlabBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.0F, 3.0F)
                             .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                             .pushReaction(PushReaction.NORMAL)));
@@ -200,7 +208,7 @@ public final class ModBlocks {
     public static final DeferredBlock<FenceBlock> MUSAVACCA_FENCE =
             BLOCKS.registerBlock("musavacca_fence",
                     props -> new FenceBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.0F, 3.0F)
                             .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                             .forceSolidOn()
@@ -211,7 +219,7 @@ public final class ModBlocks {
                     props -> new FenceGateBlock(
                             ModWoodTypes.MUSAVACCA,
                             props
-                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .mapColor(MapColor.COLOR_BROWN)
                                     .strength(2.0F, 3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA.soundType())
                                     .forceSolidOn()
@@ -223,7 +231,7 @@ public final class ModBlocks {
                     props -> new MusavaccaPortalDoorBlock(
                             ModWoodTypes.MUSAVACCA_BLOCK_SET,
                             props
-                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .mapColor(MapColor.COLOR_BROWN)
                                     .strength(3.0F, 3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     .noOcclusion()
@@ -235,7 +243,7 @@ public final class ModBlocks {
                     props -> new MusavaccaPortalTrapdoorBlock(
                             ModWoodTypes.MUSAVACCA_BLOCK_SET,
                             props
-                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .mapColor(MapColor.COLOR_BROWN)
                                     .strength(3.0F, 3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     .noOcclusion()
@@ -255,7 +263,7 @@ public final class ModBlocks {
                     props -> new PressurePlateBlock(
                             ModWoodTypes.MUSAVACCA_BLOCK_SET,
                             props
-                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .mapColor(MapColor.COLOR_BROWN)
                                     .strength(0.5F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     .forceSolidOn()
@@ -273,7 +281,7 @@ public final class ModBlocks {
                             ModWoodTypes.MUSAVACCA_BLOCK_SET,
                             30,
                             props
-                                    .mapColor(MapColor.COLOR_ORANGE)
+                                    .mapColor(MapColor.COLOR_BROWN)
                                     .strength(0.5F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     //? if <1.21.10 {
@@ -338,7 +346,7 @@ public final class ModBlocks {
     public static final DeferredBlock<DecorationBlock> BANANA_PEARL_CHALICE =
             BLOCKS.registerBlock("banana_pearl_chalice",
                     props -> new DecorationBlock(
-                            props.mapColor(MapColor.COLOR_ORANGE)
+                            props.mapColor(MapColor.COLOR_YELLOW)
                                     .strength(0.2F, 3.0F)
                                     .sound(SoundType.CHAIN)
                                     .noOcclusion()
@@ -361,7 +369,7 @@ public final class ModBlocks {
     public static final DeferredBlock<VocoTableBlock> VOCO_TABLE =
             BLOCKS.registerBlock("voco_table",
                     props -> new VocoTableBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.0F, 3.0F)
                             .sound(SoundType.WOOD)
                             .noOcclusion()
@@ -370,7 +378,7 @@ public final class ModBlocks {
     public static final DeferredBlock<VocoPostBlock> VOCO_POST =
             BLOCKS.registerBlock("voco_post",
                     props -> new VocoPostBlock(props
-                            .mapColor(MapColor.COLOR_ORANGE)
+                            .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.0F, 3.0F)
                             .sound(SoundType.WOOD)
                             .noOcclusion()
@@ -494,7 +502,7 @@ public final class ModBlocks {
     public static final DeferredBlock<CaroteneShortGrassBlock> CAROTENE_SHORT_GRASS =
             BLOCKS.registerBlock("carotene_short_grass",
                     props -> new CaroteneShortGrassBlock(
-                            props.mapColor(MapColor.PLANT)
+                            props.mapColor(MapColor.COLOR_ORANGE)
                                     .replaceable()
                                     //? if <1.21.10 {
                                     .noCollission()
@@ -510,7 +518,7 @@ public final class ModBlocks {
     public static final DeferredBlock<DoublePlantBlock> CAROTENE_TALL_GRASS =
             BLOCKS.registerBlock("carotene_tall_grass",
                     props -> new DoublePlantBlock(
-                            props.mapColor(MapColor.PLANT)
+                            props.mapColor(MapColor.COLOR_ORANGE)
                                     .replaceable()
                                     //? if <1.21.10 {
                                     .noCollission()

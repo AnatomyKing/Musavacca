@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "musavacca:big_banana_pearl",
+    "musavacca:musavacca_planks"
+  ],
+  "result": {
+    "count": 1,
+    "id": "musavacca:gilded_musavacca_planks"
+  }
+}

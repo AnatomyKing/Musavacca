@@ -24,13 +24,13 @@ public final class VocoTableCraftingRecipes {
 
             recipe(
                     ModItems.MUSAVACCA_DOOR,
-                    ModBlocks.MUSAVACCA_PLANKS.get(),
+                    ModBlocks.GILDED_MUSAVACCA_PLANKS.get(),
                     ModItems.MUSAVACCA_IMBUED_DOOR.get(),
                     true
             ),
             recipe(
                     ModBlocks.MUSAVACCA_TRAPDOOR.get(),
-                    ModBlocks.MUSAVACCA_PLANKS.get(),
+                    ModBlocks.GILDED_MUSAVACCA_PLANKS.get(),
                     ModBlocks.MUSAVACCA_TRAPDOOR.get(),
                     true
             ),

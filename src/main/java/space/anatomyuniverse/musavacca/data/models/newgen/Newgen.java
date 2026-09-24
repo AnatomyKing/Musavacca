@@ -335,7 +335,7 @@ public final class Newgen {
 
     void trapdoor(TrapdoorBlocks.Entry entry) {
         TrapdoorModels base = models.trapdoor(entry);
-        family(entry, base, NewgenStates.TRAPDOORS);
+        family(entry, base, NewgenStates.trapdoors(entry.orientation()));
         familyItem(entry, base.model(Half.BOTTOM, false));
     }
 
@@ -499,4 +499,3 @@ public final class Newgen {
     }
 
 }
-

@@ -454,11 +454,14 @@ final class NewgenModels {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
 
         var textures = Map.of("texture", e.textures().texture());
+        String prefix = e.orientation() == TrapdoorBlocks.Orientation.ORIENTABLE
+                ? "template_orientable_trapdoor_"
+                : "template_trapdoor_";
 
         return TrapdoorModels.full(
-                template(e.block(), "_bottom", "template_trapdoor_bottom", textures),
-                template(e.block(), "_top", "template_trapdoor_top", textures),
-                template(e.block(), "_open", "template_trapdoor_open", textures)
+                template(e.block(), "_bottom", prefix + "bottom", textures),
+                template(e.block(), "_top", prefix + "top", textures),
+                template(e.block(), "_open", prefix + "open", textures)
         );
     }
 
@@ -722,6 +725,3 @@ final class NewgenModels {
         return "fire_" + layer.sourceLayer();
     }
 }
-
-
-

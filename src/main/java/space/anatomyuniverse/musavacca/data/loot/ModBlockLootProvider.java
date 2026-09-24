@@ -58,6 +58,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
 
                 ModBlocks.MUSAVACCA_PLANKS.get(),
+                ModBlocks.GILDED_MUSAVACCA_PLANKS.get(),
                 ModBlocks.MUSAVACCA_STAIRS.get(),
                 ModBlocks.MUSAVACCA_FENCE.get(),
                 ModBlocks.MUSAVACCA_FENCE_GATE.get(),
