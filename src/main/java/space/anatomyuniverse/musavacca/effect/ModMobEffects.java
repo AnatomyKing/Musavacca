@@ -29,7 +29,7 @@ public final class ModMobEffects {
             PlayerStatusEffect
             > PLAYER_STATUS =
             MOB_EFFECTS.register(
-                    "player_status",
+                    "incoming_call",
                     PlayerStatusEffect::new
             );
 

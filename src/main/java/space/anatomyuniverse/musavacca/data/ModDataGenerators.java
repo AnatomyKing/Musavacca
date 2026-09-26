@@ -15,6 +15,7 @@ import space.anatomyuniverse.musavacca.data.models.newgen.Newgen;
 import space.anatomyuniverse.musavacca.data.recipes.ModRecipeProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModBlockTagsProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModItemTagsProvider;
+import space.anatomyuniverse.musavacca.data.tags.ModMobEffectTagsProvider;
 import space.anatomyuniverse.musavacca.data.worldgen.MusavaccaTreeFeatureProvider;
 
 import java.util.List;
@@ -73,6 +74,8 @@ public final class ModDataGenerators {
                     );
 
             event.getGenerator().addProvider(true, blockTagsProvider);
+            event.getGenerator().addProvider(true,
+                    new ModMobEffectTagsProvider(output, event.getLookupProvider(), efh));
 
             event.getGenerator().addProvider(
                     true,
@@ -145,6 +148,7 @@ public final class ModDataGenerators {
         event.createProvider(Newgen.Provider::new);
 
         event.createProvider(ModRecipeProvider.Runner::new);
+        event.createProvider(ModMobEffectTagsProvider::new);
 
         //? if >=1.21.6 {
         event.createProvider(ModBlockTagsProvider::new);
@@ -196,4 +200,3 @@ public final class ModDataGenerators {
 
     private ModDataGenerators() {}
 }
-

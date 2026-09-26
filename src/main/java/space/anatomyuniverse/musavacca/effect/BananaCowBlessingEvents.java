@@ -5,77 +5,38 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 
-import java.util.List;
-
 public final class BananaCowBlessingEvents {
-
     private BananaCowBlessingEvents() {}
 
     @SubscribeEvent
-    public static void onEffectApplicable(
-            MobEffectEvent.Applicable event
-    ) {
-        LivingEntity entity = event.getEntity();
-        MobEffectInstance incoming = event.getEffectInstance();
-
-        if (!entity.hasEffect(
-                ModMobEffects.BANANA_COW_BLESSING
-        )) {
-            return;
+    public static void onEffectApplicable(MobEffectEvent.Applicable event) {
+        if (event.getEntity().hasEffect(ModMobEffects.BANANA_COW_BLESSING)
+                && !isExempt(event.getEffectInstance())) {
+            event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
         }
-        if (incoming.is(
-                ModMobEffects.BANANA_COW_BLESSING
-        )) {
-            return;
-        }
-
-        event.setResult(
-                MobEffectEvent.Applicable.Result.DO_NOT_APPLY
-        );
     }
 
     @SubscribeEvent
-    public static void onEffectAdded(
-            MobEffectEvent.Added event
-    ) {
+    public static void onEffectAdded(MobEffectEvent.Added event) {
         LivingEntity entity = event.getEntity();
         MobEffectInstance added = event.getEffectInstance();
 
-        if (added.is(
-                ModMobEffects.BANANA_COW_BLESSING
-        )) {
+        if (added.is(ModMobEffects.BANANA_COW_BLESSING)) {
             removeOtherEffects(entity);
-            return;
-        }
-
-        if (entity.hasEffect(
-                ModMobEffects.BANANA_COW_BLESSING
-        )) {
-            entity.removeEffect(
-                    added.getEffect()
-            );
+        } else if (entity.hasEffect(ModMobEffects.BANANA_COW_BLESSING) && !isExempt(added)) {
+            entity.removeEffect(added.getEffect());
         }
     }
 
-    private static void removeOtherEffects(
-            LivingEntity entity
-    ) {
-        List<MobEffectInstance> effects =
-                entity.getActiveEffects()
-                        .stream()
-                        .filter(effect ->
-                                !effect.is(
-                                        ModMobEffects
-                                                .BANANA_COW_BLESSING
-                                )
-                        )
-                        .toList();
+    private static boolean isExempt(MobEffectInstance effect) {
+        return effect.is(ModMobEffects.BANANA_COW_BLESSING)
+                || effect.getEffect().is(ModMobEffectTags.BYPASSES_COW_BLESSING);
+    }
 
-        for (MobEffectInstance effect : effects) {
-            entity.removeEffect(
-                    effect.getEffect()
-            );
+    private static void removeOtherEffects(LivingEntity entity) {
+        for (MobEffectInstance effect : entity.getActiveEffects().stream()
+                .filter(effect -> !isExempt(effect)).toList()) {
+            entity.removeEffect(effect.getEffect());
         }
     }
 }
-

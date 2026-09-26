@@ -69,10 +69,12 @@ public class VocoDialerBackend {
     protected void onAddressDialed(Player player, int address) {
         if (player.level().isClientSide() || !(player instanceof ServerPlayer serverPlayer)) return;
 
+        int cost = this.teleportCost();
+
         TeleportEconomy.tryTeleport(
                 serverPlayer,
-                this.teleportCost(),
-                () -> HexTeleportResolver.teleportToHex(serverPlayer, address)
+                cost,
+                () -> HexTeleportResolver.teleportToHex(serverPlayer, address, cost)
         );
 
         serverPlayer.closeContainer();

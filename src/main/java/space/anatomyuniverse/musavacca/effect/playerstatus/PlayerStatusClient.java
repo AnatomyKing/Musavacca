@@ -1,6 +1,7 @@
 package space.anatomyuniverse.musavacca.effect.playerstatus;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
@@ -22,8 +23,13 @@ import net.minecraft.resources.ResourceLocation;
 //?} else {
 /*import net.minecraft.resources.Identifier;
 *///?}
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+//? if >=1.21.6
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientMobEffectExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
@@ -37,6 +43,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.lwjgl.glfw.GLFW;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
+
+import java.util.UUID;
 
 public final class PlayerStatusClient {
 
@@ -55,8 +63,11 @@ public final class PlayerStatusClient {
     private static final int BUTTON_HEIGHT = 13;
     private static final int BUTTON_GAP = 3;
 
-    private static final int EXTEND_X_OFFSET = 56;
+    private static final int ACCEPT_X_OFFSET = 56;
     private static final int BUTTON_Y_OFFSET = 15;
+
+    private static final int RING_INTERVAL_TICKS = 24;
+    private static final int SECOND_RING_TICK = 6;
 
     private static Screen buttonScreen;
     private static int buttonTextX;
@@ -64,6 +75,9 @@ public final class PlayerStatusClient {
     private static double mouseX;
     private static double mouseY;
     private static StatusButton pressedButton;
+    private static int ringTick;
+    private static UUID callerId;
+    private static String callerName = "";
 
     private static final IClientMobEffectExtensions EXTENSIONS =
             new IClientMobEffectExtensions() {
@@ -161,6 +175,11 @@ public final class PlayerStatusClient {
     private PlayerStatusClient() {}
 
     public static void register(IEventBus modBus) {
+        //? if >=1.21.6
+        modBus.addListener(PlayerStatusClient::registerClientPayloads);
+
+        NeoForge.EVENT_BUS.addListener(PlayerStatusClient::onLoggingOut);
+
         modBus.addListener(
                 PlayerStatusClient::registerExtensions
         );
@@ -176,6 +195,10 @@ public final class PlayerStatusClient {
         NeoForge.EVENT_BUS.addListener(
                 PlayerStatusClient::onMouseButtonReleased
         );
+
+        NeoForge.EVENT_BUS.addListener(
+                PlayerStatusClient::onClientTick
+        );
     }
 
     private static void registerExtensions(
@@ -185,6 +208,55 @@ public final class PlayerStatusClient {
                 EXTENSIONS,
                 ModMobEffects.PLAYER_STATUS
         );
+    }
+
+    //? if >=1.21.6 {
+    private static void registerClientPayloads(RegisterClientPayloadHandlersEvent event) {
+        event.register(
+                PlayerStatusCallerPayload.TYPE,
+                (payload, context) -> setCaller(payload)
+        );
+    }
+    //?}
+
+    public static void setCaller(PlayerStatusCallerPayload payload) {
+        callerId = payload.callerName().isEmpty() ? null : payload.callerId();
+        callerName = payload.callerName();
+    }
+
+    private static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        setCaller(PlayerStatusCallerPayload.CLEAR);
+        ringTick = 0;
+        pressedButton = null;
+        buttonScreen = null;
+    }
+
+    private static void onClientTick(
+            ClientTickEvent.Post event
+    ) {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        if (minecraft.player == null
+                || !minecraft.player.hasEffect(
+                        ModMobEffects.PLAYER_STATUS
+                )) {
+            ringTick = 0;
+            return;
+        }
+
+        if (minecraft.isPaused()) {
+            return;
+        }
+
+        if (ringTick == 0 || ringTick == SECOND_RING_TICK) {
+            minecraft.player.playSound(
+                    SoundEvents.BELL_BLOCK,
+                    1.0F,
+                    ringTick == 0 ? 1.6F : 1.4F
+            );
+        }
+
+        ringTick = (ringTick + 1) % RING_INTERVAL_TICKS;
     }
 
     private static boolean renderPlayerFaces(
@@ -204,6 +276,16 @@ public final class PlayerStatusClient {
         int secondX = iconX + SECOND_FACE_X_OFFSET;
         int secondY = iconY + SECOND_FACE_Y_OFFSET;
 
+        var connection = minecraft.getConnection();
+        var caller = callerId != null && connection != null
+                ? connection.getPlayerInfo(callerId)
+                : null;
+        var callerSkin = caller != null
+                ? caller.getSkin()
+                : DefaultPlayerSkin.get(
+                        callerId != null ? callerId : PlayerStatusCallerPayload.CLEAR.callerId()
+                );
+
         //? if <1.21.2 {
         /*graphics.setColor(
                 1.0F,
@@ -214,7 +296,7 @@ public final class PlayerStatusClient {
 
         PlayerFaceRenderer.draw(
                 graphics,
-                minecraft.player.getSkin().texture(),
+                callerSkin.texture(),
                 firstX,
                 firstY,
                 FACE_SIZE,
@@ -253,7 +335,7 @@ public final class PlayerStatusClient {
 
         PlayerFaceRenderer.draw(
                 graphics,
-                minecraft.player.getSkin(),
+                callerSkin,
                 firstX,
                 firstY,
                 FACE_SIZE,
@@ -318,28 +400,27 @@ public final class PlayerStatusClient {
             StatusButton button
     ) {
         Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null) return;
 
-        if (minecraft.player == null) {
-            return;
-        }
-
-        Component tooltip = Component.literal(
-                minecraft.player.getGameProfile().getName()
-                        + " "
-                        + button.tooltip
+        String message = callerName.isEmpty()
+                ? "Incoming call"
+                : callerName + " is calling you";
+        var lines = java.util.List.of(
+                Component.literal(message).getVisualOrderText(),
+                Component.literal(button.tooltip).getVisualOrderText()
         );
 
         //? if >=1.21.6 {
         graphics.setTooltipForNextFrame(
                 minecraft.font,
-                tooltip,
+                lines,
                 (int) mouseX,
                 (int) mouseY
         );
         //?} else {
         /*graphics.renderTooltip(
                 minecraft.font,
-                tooltip,
+                lines,
                 (int) mouseX,
                 (int) mouseY
         );
@@ -533,14 +614,14 @@ public final class PlayerStatusClient {
     }
 
     private enum StatusButton {
-        EXTEND(
-                EXTEND_X_OFFSET,
+        ACCEPT(
+                ACCEPT_X_OFFSET,
                 "accept",
                 buttonTexture("accept"),
                 buttonTexture("accept_pressed")
         ),
-        CLEAR(
-                EXTEND_X_OFFSET
+        CANCEL(
+                ACCEPT_X_OFFSET
                         + BUTTON_WIDTH
                         + BUTTON_GAP,
                 "cancel",
@@ -579,9 +660,9 @@ public final class PlayerStatusClient {
         }
 
         private PlayerStatusActionPayload payload() {
-            return this == EXTEND
-                    ? PlayerStatusActionPayload.extend()
-                    : PlayerStatusActionPayload.clear();
+            return this == ACCEPT
+                    ? PlayerStatusActionPayload.accept()
+                    : PlayerStatusActionPayload.cancel();
         }
     }
 }

@@ -10,16 +10,13 @@ import net.minecraft.resources.ResourceLocation;
 /*import net.minecraft.resources.Identifier;
 *///?}
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.effect.ModMobEffects;
+import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 
 public record PlayerStatusActionPayload(
-        boolean clearEffect
+        boolean accepted
 ) implements CustomPacketPayload {
-
-    private static final int EXTEND_TICKS = 30 * 20;
 
     public static final Type<PlayerStatusActionPayload> TYPE =
             new Type<>(
@@ -37,16 +34,16 @@ public record PlayerStatusActionPayload(
             > STREAM_CODEC =
             StreamCodec.composite(
                     ByteBufCodecs.BOOL,
-                    PlayerStatusActionPayload::clearEffect,
+                    PlayerStatusActionPayload::accepted,
                     PlayerStatusActionPayload::new
             );
 
-    public static PlayerStatusActionPayload extend() {
-        return new PlayerStatusActionPayload(false);
+    public static PlayerStatusActionPayload accept() {
+        return new PlayerStatusActionPayload(true);
     }
 
-    public static PlayerStatusActionPayload clear() {
-        return new PlayerStatusActionPayload(true);
+    public static PlayerStatusActionPayload cancel() {
+        return new PlayerStatusActionPayload(false);
     }
 
     public static void handle(
@@ -57,42 +54,9 @@ public record PlayerStatusActionPayload(
             return;
         }
 
-        MobEffectInstance current =
-                player.getEffect(
-                        ModMobEffects.PLAYER_STATUS
-                );
-
-        if (current == null) {
-            return;
-        }
-
-        if (payload.clearEffect()) {
-            player.removeEffect(
-                    ModMobEffects.PLAYER_STATUS
-            );
-            return;
-        }
-
-        if (current.isInfiniteDuration()) {
-            return;
-        }
-
-        int duration =
-                current.getDuration()
-                        > Integer.MAX_VALUE - EXTEND_TICKS
-                        ? Integer.MAX_VALUE
-                        : current.getDuration()
-                        + EXTEND_TICKS;
-
-        player.addEffect(
-                new MobEffectInstance(
-                        current.getEffect(),
-                        duration,
-                        current.getAmplifier(),
-                        current.isAmbient(),
-                        current.isVisible(),
-                        current.showIcon()
-                )
+        VocoCallerNetwork.answerCall(
+                player,
+                payload.accepted()
         );
     }
 

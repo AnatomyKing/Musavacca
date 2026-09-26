@@ -24,6 +24,7 @@ import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
 import space.anatomyuniverse.musavacca.effect.BananaCowBlessingEvents;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
+import space.anatomyuniverse.musavacca.effect.PlayerStatusEvents;
 import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusClient;
 import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
@@ -95,6 +96,10 @@ public final class MusaCore {
 
         NeoForge.EVENT_BUS.register(
                 BananaCowBlessingEvents.class
+        );
+
+        NeoForge.EVENT_BUS.register(
+                PlayerStatusEvents.class
         );
 
         NeoForge.EVENT_BUS.addListener(

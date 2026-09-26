@@ -14,6 +14,11 @@ import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerSyncPayload;
 //import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
 
 import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusActionPayload;
+import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusCallerPayload;
+
+//? if <1.21.6
+//import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusClient;
+
 import space.anatomyuniverse.musavacca.gui.menu.payloads.FlintAndPearlColorPayload;
 import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraSelectionPayload;
@@ -38,6 +43,10 @@ public final class ModNetworking {
     ) {
         //? if >=1.21.6 {
         event.registrar("musavacca")
+                .playToClient(
+                        PlayerStatusCallerPayload.TYPE,
+                        PlayerStatusCallerPayload.STREAM_CODEC
+                )
                 .playToClient(
                         BonusHungerSyncPayload.TYPE,
                         BonusHungerSyncPayload.STREAM_CODEC
@@ -72,6 +81,11 @@ public final class ModNetworking {
                 );
         //?} else {
         /*event.registrar("musavacca")
+                .playToClient(
+                        PlayerStatusCallerPayload.TYPE,
+                        PlayerStatusCallerPayload.STREAM_CODEC,
+                        (payload, context) -> PlayerStatusClient.setCaller(payload)
+                )
                 .playToClient(
                         BonusHungerSyncPayload.TYPE,
                         BonusHungerSyncPayload.STREAM_CODEC,

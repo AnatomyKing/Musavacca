@@ -29,6 +29,7 @@ import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntit
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
+import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 
 import java.util.HashSet;
 import java.util.List;
@@ -72,6 +73,14 @@ public final class HexTeleportResolver {
             ServerPlayer player,
             int hexColor
     ) {
+        return teleportToHex(player, hexColor, EconomyConfig.vocoCallerTeleportCost());
+    }
+
+    public static boolean teleportToHex(
+            ServerPlayer player,
+            int hexColor,
+            int phoneCost
+    ) {
         MinecraftServer server =
                 player.level().getServer();
 
@@ -100,7 +109,8 @@ public final class HexTeleportResolver {
             return VocoCallerNetwork
                     .teleportToPhone(
                             player,
-                            phone
+                            phone,
+                            phoneCost
                     );
         }
 
@@ -906,4 +916,3 @@ public final class HexTeleportResolver {
         );
     }
 }
-

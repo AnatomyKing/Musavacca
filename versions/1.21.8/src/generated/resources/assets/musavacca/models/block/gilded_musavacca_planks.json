@@ -77,12 +77,12 @@
     }
   ],
   "textures": {
-    "bottom": "musavacca:block/gilded_musavacca_planks",
+    "bottom": "musavacca:block/gilded_musavacca_planks_bottom",
     "east": "musavacca:block/gilded_musavacca_planks",
     "north": "musavacca:block/gilded_musavacca_planks",
     "particle": "musavacca:block/gilded_musavacca_planks",
     "south": "musavacca:block/gilded_musavacca_planks",
-    "top": "musavacca:block/gilded_musavacca_planks",
+    "top": "musavacca:block/musavacca_planks",
     "west": "musavacca:block/gilded_musavacca_planks"
   }
 }

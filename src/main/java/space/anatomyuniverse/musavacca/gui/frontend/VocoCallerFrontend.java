@@ -82,8 +82,14 @@ public final class VocoCallerFrontend
     private static final long LONG_PRESS_NANOS =
             650_000_000L;
 
+    private static final long FLASH_PHASE_NANOS =
+            75_000_000L;
+
     private static final ResourceLocation PHONE_SCREEN_TEXTURE =
             texture("phone_screen");
+
+    private static final ResourceLocation PHONE_SCREEN_FLASH_TEXTURE =
+            texture("phone_screen_flash");
 
     private static final ResourceLocation BUTTON_BAR_TEXTURE =
             texture("button_bar");
@@ -115,6 +121,9 @@ public final class VocoCallerFrontend
             );
 
     private int selectedPosition = 0;
+
+    private boolean currentHexPressed = false;
+    private long phoneScreenFlashStartNanos = 0L;
 
     private int lastNavigationDirection = 1;
 
@@ -166,7 +175,9 @@ public final class VocoCallerFrontend
 
         blit(
                 graphics,
-                PHONE_SCREEN_TEXTURE,
+                this.isPhoneScreenFlashing()
+                        ? PHONE_SCREEN_FLASH_TEXTURE
+                        : PHONE_SCREEN_TEXTURE,
                 this.leftPos + PHONE_X,
                 this.topPos + PHONE_Y,
                 PHONE_WIDTH,
@@ -222,10 +233,31 @@ public final class VocoCallerFrontend
     ) {
         this.drawHexCode(
                 graphics,
-                this.backend().getCurrentDialed(),
+                this.currentHexCode(),
                 CURRENT_DIALED_X,
                 CURRENT_DIALED_Y
         );
+    }
+
+    private String currentHexCode() {
+        String hexCode =
+                this.backend().getCurrentDialed();
+
+        return hexCode == null
+                ? VocoCallerBackend.formatHex(this.menu.getPhoneHex())
+                : hexCode;
+    }
+
+    private boolean isPhoneScreenFlashing() {
+        if (this.phoneScreenFlashStartNanos == 0L) {
+            return false;
+        }
+
+        long phase =
+                (System.nanoTime() - this.phoneScreenFlashStartNanos)
+                        / FLASH_PHASE_NANOS;
+
+        return phase < 4 && phase % 2 == 0;
     }
 
     private void renderCallLists(
@@ -349,6 +381,19 @@ public final class VocoCallerFrontend
             );
         }
 
+        if (this.contains(
+                mouseX,
+                mouseY,
+                CURRENT_DIALED_X,
+                CURRENT_DIALED_Y,
+                (HEX_LENGTH - 1) * SYMBOL_STEP + SYMBOL_WIDTH,
+                SYMBOL_HEIGHT
+        )) {
+            this.clearPendingSpaceClick();
+            this.currentHexPressed = true;
+            return true;
+        }
+
         for (
                 CallerButton callerButton
                 : CallerButton.values()
@@ -425,6 +470,20 @@ public final class VocoCallerFrontend
                     mouseY,
                     button
             );
+        }
+
+        if (this.currentHexPressed) {
+            this.currentHexPressed = false;
+
+            if (this.minecraft != null) {
+                this.minecraft.keyboardHandler.setClipboard(
+                        "#" + this.currentHexCode()
+                );
+
+                this.phoneScreenFlashStartNanos = System.nanoTime();
+            }
+
+            return true;
         }
 
         if (this.pressedButton != null) {
@@ -1086,6 +1145,8 @@ public final class VocoCallerFrontend
 
     @Override
     public void removed() {
+        this.currentHexPressed = false;
+        this.phoneScreenFlashStartNanos = 0L;
         this.clearSpacePress();
         this.clearPendingSpaceClick();
         this.clearButtonPress();
@@ -1271,4 +1332,3 @@ public final class VocoCallerFrontend
         }
     }
 }
-

@@ -34,7 +34,10 @@ public final class NewModelSets {
 
                 SimpleBlocks.Entry.builder(ModBlocks.GILDED_MUSAVACCA_PLANKS.get())
                         .generated()
-                        .textures(textures -> textures.all())
+                        .textures(textures -> textures
+                                .all()
+                                .top("musavacca:block/musavacca_planks")
+                                .bottom("_bottom"))
                         .build(),
 
                 SimpleBlocks.Entry.builder(ModBlocks.CAROTENE_GRASS.get())
