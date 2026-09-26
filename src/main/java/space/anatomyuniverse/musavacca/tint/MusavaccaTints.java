@@ -241,6 +241,21 @@ public final class MusavaccaTints {
         return String.format("#%06X", rgb(color));
     }
 
+    public static int blockEntityHexColor(BlockEntity blockEntity) {
+        if (blockEntity == null) {
+            return NO_TINT;
+        }
+
+        if (blockEntity instanceof HexSource source) {
+            return source.hasHexColor()
+                    ? stored(source.getHexColor())
+                    : NO_TINT;
+        }
+
+        Integer color = blockEntity.collectComponents().get(ModDataComponents.HEX_COLOR.get());
+        return color == null ? NO_TINT : stored(color);
+    }
+
     private static int sourceColor(
             BlockState state,
             BlockAndTintGetter level,
@@ -269,12 +284,7 @@ public final class MusavaccaTints {
             return multiColor(components.get(ModDataComponents.MULTI_HEX_COLOR.get()), multiIndex);
         }
 
-        if (blockEntity instanceof HexSource source) {
-            return source.hasHexColor() ? stored(source.getHexColor()) : NO_TINT;
-        }
-
-        Integer color = blockEntity.collectComponents().get(ModDataComponents.HEX_COLOR.get());
-        return color == null ? NO_TINT : stored(color);
+        return blockEntityHexColor(blockEntity);
     }
 
     private static int itemSourceColor(ItemStack stack, int multiIndex) {

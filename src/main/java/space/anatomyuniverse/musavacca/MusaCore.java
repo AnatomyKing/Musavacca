@@ -24,6 +24,7 @@ import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
 import space.anatomyuniverse.musavacca.effect.BananaCowBlessingEvents;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
+import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusClient;
 import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntityRenderers;
@@ -145,6 +146,7 @@ public final class MusaCore {
             BonusHungerClientModEvents.register(modBus);
             BalanceClientModEvents.register(modBus);
             VocoCameraClientModEvents.register(modBus);
+            PlayerStatusClient.register(modBus);
         }
     }
 

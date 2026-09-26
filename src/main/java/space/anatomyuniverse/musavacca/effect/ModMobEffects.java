@@ -24,10 +24,18 @@ public final class ModMobEffects {
                     BananaCowBlessingEffect::new
             );
 
+    public static final DeferredHolder<
+            MobEffect,
+            PlayerStatusEffect
+            > PLAYER_STATUS =
+            MOB_EFFECTS.register(
+                    "player_status",
+                    PlayerStatusEffect::new
+            );
+
     public static void register(IEventBus modBus) {
         MOB_EFFECTS.register(modBus);
     }
 
     private ModMobEffects() {}
 }
-

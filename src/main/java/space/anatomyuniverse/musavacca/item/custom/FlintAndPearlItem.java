@@ -91,6 +91,11 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
 
     @Override
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+        InteractionResult pickResult = tryPickBlockColor(stack, context);
+        if (pickResult != InteractionResult.PASS) {
+            return pickResult;
+        }
+
         ensureDefaultColorComponent(stack);
 
         int hexColor = getStoredHexOrDefault(stack);
@@ -101,6 +106,28 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         }
 
         return InteractionResult.PASS;
+    }
+
+    private static InteractionResult tryPickBlockColor(ItemStack stack, UseOnContext context) {
+        Player player = context.getPlayer();
+        if (player == null || !player.isShiftKeyDown()) {
+            return InteractionResult.PASS;
+        }
+
+        Level level = context.getLevel();
+        int hexColor = MusavaccaTints.blockEntityHexColor(
+                level.getBlockEntity(context.getClickedPos())
+        );
+
+        if (!MusavaccaTints.hasTint(hexColor)) {
+            return InteractionResult.PASS;
+        }
+
+        if (!level.isClientSide()) {
+            stack.set(ModDataComponents.HEX_COLOR.get(), hexColor);
+        }
+
+        return successResult(level);
     }
 
     private static InteractionResult tryUseOnCandleBeforeVanilla(UseOnContext context, int hexColor) {
@@ -424,4 +451,3 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         }
     }
 }
-
