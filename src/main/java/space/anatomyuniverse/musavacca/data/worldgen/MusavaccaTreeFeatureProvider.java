@@ -9,9 +9,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
-//? if <1.21.5
-//import net.minecraft.nbt.Tag;
+
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else if >=1.21.5 <1.21.11 {
 import net.minecraft.resources.ResourceLocation;
+//?} else {
+/*import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+*///?}
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.worldgen.ModConfiguredFeatures;
 
@@ -58,7 +64,13 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
 
     public MusavaccaTreeFeatureProvider(PackOutput output) {
         this.configuredFeaturePathProvider =
+
+                //? if >=26.3 {
+                /*output.createPathProvider(PackOutput.Target.DATA_PACK, "worldgen/feature");
+                *///?} else {
                 output.createPathProvider(PackOutput.Target.DATA_PACK, "worldgen/configured_feature");
+                //?}
+
     }
 
     @Override
@@ -69,7 +81,11 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
 
             JsonObject configuredFeature = createConfiguredFeatureJson(inputPath);
 
+            //? if >=1.21.11 {
+            /*Path outputPath = this.configuredFeaturePathProvider.json(ModConfiguredFeatures.MUSAVACCA_TREE.identifier());
+            *///?} else {
             Path outputPath = this.configuredFeaturePathProvider.json(ModConfiguredFeatures.MUSAVACCA_TREE.location());
+            //?}
             return DataProvider.saveStable(output, configuredFeature, outputPath);
         } catch (Exception exception) {
             return CompletableFuture.failedFuture(exception);
@@ -133,7 +149,7 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
                 try {
                     return normalizedBase.relativize(normalizedPath).toString();
                 } catch (IllegalArgumentException ignored) {
-                    
+
                 }
             }
         }
@@ -162,7 +178,11 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
         JsonObject configuredFeature = new JsonObject();
         configuredFeature.addProperty(
                 "type",
+                //? if >=1.21.11 {
+                /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "musavacca_template_tree").toString()
+                *///?} else {
                 ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "musavacca_template_tree").toString()
+                //?}
         );
 
         List<JsonObject> outputBlockList = new ArrayList<>();
@@ -262,6 +282,7 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
     }
 
     private static ListTag getRequiredList(CompoundTag tag, String key) throws IOException {
+
         //? if >=1.21.5 {
         return tag.getList(key).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing list tag '" + key + "'.")
@@ -273,9 +294,11 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
 
         return (ListTag) tag.get(key);
         *///?}
+
     }
 
     private static int getRequiredInt(ListTag list, int index, String path) throws IOException {
+
         //? if >=1.21.5 {
         return list.getInt(index).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing int at " + path + ".")
@@ -287,9 +310,11 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
 
         return list.getInt(index);
         *///?}
+
     }
 
     private static int getRequiredInt(CompoundTag tag, String key, String path) throws IOException {
+
         //? if >=1.21.5 {
         return tag.getInt(key).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing int tag at " + path + ".")
@@ -301,9 +326,11 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
 
         return tag.getInt(key);
         *///?}
+
     }
 
     private static CompoundTag getRequiredCompound(ListTag list, int index, String path) throws IOException {
+
         //? if >=1.21.5 {
         return list.getCompound(index).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing compound tag at " + path + ".")
@@ -315,9 +342,11 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
 
         return list.getCompound(index);
         *///?}
+
     }
 
     private static String getRequiredString(CompoundTag tag, String key, String path) throws IOException {
+
         //? if >=1.21.5 {
         return tag.getString(key).orElseThrow(() ->
                 new IOException("Invalid structure NBT: missing string tag at " + path + ".")
@@ -329,17 +358,21 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
 
         return tag.getString(key);
         *///?}
+
     }
 
     private static CompoundTag getOptionalCompound(CompoundTag tag, String key) {
+
         //? if >=1.21.5 {
         return tag.getCompound(key).orElse(null);
-         //?} else {
+        //?} else {
         /*return tag.contains(key, Tag.TAG_COMPOUND) ? tag.getCompound(key) : null;
         *///?}
+
     }
 
     private static String getRequiredPropertyString(CompoundTag tag, String key) {
+
         //? if >=1.21.5 {
         return tag.getString(key).orElseThrow(() ->
                 new IllegalStateException("Expected string property value for property '" + key + "'.")
@@ -351,14 +384,16 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
 
         return tag.getString(key);
         *///?}
+
     }
 
     private static Set<String> tagKeys(CompoundTag tag) {
+
         //? if >=1.21.5 {
         return tag.keySet();
-         //?} else {
+        //?} else {
         /*return tag.getAllKeys();
         *///?}
+
     }
 }
-

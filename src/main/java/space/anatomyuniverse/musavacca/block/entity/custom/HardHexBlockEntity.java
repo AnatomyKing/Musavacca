@@ -3,8 +3,10 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
+
 import net.minecraft.core.component.DataComponentGetter;
- //?}
+//?}
+
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -12,11 +14,12 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if <1.21.6 {
-//?} else {
+//? if >=1.21.6 {
+
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
+
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
@@ -35,41 +38,36 @@ public class HardHexBlockEntity extends BlockEntity implements HexSource {
     public void setHexColor(int ignoredHexColor) {
     }
 
-    //? if <1.21.6 {
-    /*@Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-    }
-
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.DEFAULT_TINT);
-    }
-    *///?} else {
-    @Override
+    //? if >=1.21.6 {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+    *///?}
     }
 
     @Override
+    //? if >=1.21.6 {
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putInt(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.DEFAULT_TINT);
+    //?} else {
+    /*protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putInt(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.DEFAULT_TINT);
+    *///?}
     }
-    //?}
 
-    //? if <1.21.5 {
-    /*@Override
-    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-    }
-    *///?} else {
     @Override
+    //? if >=1.21.5 {
     protected void applyImplicitComponents(DataComponentGetter input) {
+    //?} else {
+    /*protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
+    *///?}
         super.applyImplicitComponents(input);
     }
-    //?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {

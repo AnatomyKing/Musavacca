@@ -1,14 +1,14 @@
 package space.anatomyuniverse.musavacca.entity.boat.musavacca.client;
 
-//? if <1.21.2 {
+//? if >=1.21.2 {
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.entity.state.BoatRenderState;
+//?} else {
 /*import net.minecraft.client.model.ListModel;
 import net.minecraft.world.entity.vehicle.Boat;
 
 import java.util.List;
-*///?} else {
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.renderer.entity.state.BoatRenderState;
-//?}
+*///?}
 
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -17,25 +17,32 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class MusavaccaBoatModel extends
-        //? if <1.21.2 {
-        /*ListModel<Boat>
-        *///?} else {
+
+        //? if >=1.21.2 {
         EntityModel<BoatRenderState>
-         //?}
+        //?} else {
+        /*ListModel<Boat>
+        *///?}
+
 {
 
     public static final ModelLayerLocation LAYER =
             new ModelLayerLocation(
-                    ResourceLocation.fromNamespaceAndPath(
-                            MusaCore.MOD_ID,
-                            "musavacca_boat"
-                    ),
+                    //? if >=1.21.11 {
+                    /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "musavacca_boat"),
+                    *///?} else {
+                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "musavacca_boat"),
+                    //?}
                     "main"
             );
 
@@ -92,8 +99,10 @@ public final class MusavaccaBoatModel extends
     public MusavaccaBoatModel(
             ModelPart bakedRoot
     ) {
-        //? if >=1.21.2
+        //? if >=1.21.2 {
+
         super(bakedRoot);
+        //?}
 
         this.root =
                 bakedRoot.getChild("root");
@@ -403,54 +412,49 @@ public final class MusavaccaBoatModel extends
     public Iterable<ModelPart> parts() {
         return List.of(this.root);
     }
-
+    *///?}
     @Override
     public void setupAnim(
-            @NotNull Boat boat,
+    //? if >=1.21.2 {
+            @NotNull BoatRenderState state
+    ) {
+        super.setupAnim(state);
+
+    //?} else {
+            /*@NotNull Boat boat,
             float partialTick,
             float limbSwingAmount,
             float ageInTicks,
             float netHeadYaw,
             float headPitch
     ) {
+    *///?}
         animatePaddle(
                 this.paddleLeft,
                 true,
-                boat.getRowingTime(
+                //? if >=1.21.2 {
+                state.rowingTimeLeft
+                //?} else {
+                /*boat.getRowingTime(
                         0,
                         partialTick
                 )
+                *///?}
         );
 
         animatePaddle(
                 this.paddleRight,
                 false,
-                boat.getRowingTime(
+                //? if >=1.21.2 {
+                state.rowingTimeRight
+                //?} else {
+                /*boat.getRowingTime(
                         1,
                         partialTick
                 )
+                *///?}
         );
     }
-    *///?} else {
-    @Override
-    public void setupAnim(
-            @NotNull BoatRenderState state
-    ) {
-        super.setupAnim(state);
-
-        animatePaddle(
-                this.paddleLeft,
-                true,
-                state.rowingTimeLeft
-        );
-
-        animatePaddle(
-                this.paddleRight,
-                false,
-                state.rowingTimeRight
-        );
-    }
-    //?}
 
     private static void animatePaddle(
             ModelPart paddle,
@@ -487,4 +491,3 @@ public final class MusavaccaBoatModel extends
                         * side;
     }
 }
-

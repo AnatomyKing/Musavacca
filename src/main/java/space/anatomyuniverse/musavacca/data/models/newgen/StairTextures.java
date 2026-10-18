@@ -1,6 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.Block;
 
 import java.util.Objects;
@@ -9,9 +13,15 @@ public final class StairTextures {
     private StairTextures() {}
 
     public record Set(
+            //? if >=1.21.11 {
+            /*Identifier side,
+            Identifier bottom,
+            Identifier top
+            *///?} else {
             ResourceLocation side,
             ResourceLocation bottom,
             ResourceLocation top
+            //?}
     ) {
         public Set {
             Objects.requireNonNull(side, "side");
@@ -27,9 +37,15 @@ public final class StairTextures {
     public static final class Builder {
         private final Block block;
 
+        //? if >=1.21.11 {
+        /*private Identifier side;
+        private Identifier bottom;
+        private Identifier top;
+        *///?} else {
         private ResourceLocation side;
         private ResourceLocation bottom;
         private ResourceLocation top;
+        //?}
 
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
@@ -40,7 +56,11 @@ public final class StairTextures {
         }
 
         public Builder all(Block source) {
+            //? if >=1.21.11 {
+            /*Identifier texture = TextureTokens.block(
+            *///?} else {
             ResourceLocation texture = TextureTokens.block(
+            //?}
                     Objects.requireNonNull(source, "source")
             );
 
@@ -51,7 +71,11 @@ public final class StairTextures {
         }
 
         public Builder all(String texture) {
+            //? if >=1.21.11 {
+            /*Identifier resolved = TextureTokens.resolveBlock(block, texture);
+            *///?} else {
             ResourceLocation resolved = TextureTokens.resolveBlock(block, texture);
+            //?}
             side = resolved;
             bottom = resolved;
             top = resolved;
@@ -77,7 +101,11 @@ public final class StairTextures {
             if (side == null && bottom == null && top == null) {
                 all();
             } else if (side == null || bottom == null || top == null) {
+                //? if >=1.21.11 {
+                /*Identifier fallback = TextureTokens.block(
+                *///?} else {
                 ResourceLocation fallback = TextureTokens.block(
+                //?}
                         BlockFamilySources.inferBaseBlock(block, "_stairs")
                 );
 
@@ -96,4 +124,3 @@ public final class StairTextures {
         }
     }
 }
-

@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.teleport;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -169,16 +175,21 @@ public final class HexTeleportResolver {
                     );
         }
 
-        player.displayClientMessage(
-                Component.literal(
+        //? if >=26.1 {
+        /*player.sendOverlayMessage(Component.literal(
+        *///?} else {
+        player.displayClientMessage(Component.literal(
+        //?}
                         "No active teleport address found for #"
                                 + HexTeleportDirectory.toHex(
                                 normalizedHex
                         )
                                 + "."
-                ),
-                true
-        );
+                //? if >=26.1 {
+                /*));
+                *///?} else {
+                ), true);
+                //?}
 
         return false;
     }
@@ -207,12 +218,15 @@ public final class HexTeleportResolver {
                         .orElse(null);
 
         if (endpoint == null) {
-            player.displayClientMessage(
-                    Component.literal(
+            //? if >=26.1 {
+            /*player.sendOverlayMessage(Component.literal(
                             "This endpoint is not registered."
-                    ),
-                    true
-            );
+                    ));
+            *///?} else {
+            player.displayClientMessage(Component.literal(
+                            "This endpoint is not registered."
+                    ), true);
+            //?}
 
             return false;
         }
@@ -230,12 +244,15 @@ public final class HexTeleportResolver {
                             endpoint.endpointId()
                     );
 
-            player.displayClientMessage(
-                    Component.literal(
+            //? if >=26.1 {
+            /*player.sendOverlayMessage(Component.literal(
                             "This endpoint was stale and has been cleaned up."
-                    ),
-                    true
-            );
+                    ));
+            *///?} else {
+            player.displayClientMessage(Component.literal(
+                            "This endpoint was stale and has been cleaned up."
+                    ), true);
+            //?}
 
             return false;
         }
@@ -595,8 +612,11 @@ public final class HexTeleportResolver {
         String expectedOwnerKey =
                 HexTeleportDirectory
                         .doorOwnerKey(
-                                level.dimension()
-                                        .location(),
+                                //? if >=1.21.11 {
+                                /*level.dimension().identifier(),
+                                *///?} else {
+                                level.dimension().location(),
+                                //?}
                                 pos
                         );
 
@@ -652,8 +672,11 @@ public final class HexTeleportResolver {
         String expectedOwnerKey =
                 HexTeleportDirectory
                         .trapdoorOwnerKey(
-                                level.dimension()
-                                        .location(),
+                                //? if >=1.21.11 {
+                                /*level.dimension().identifier(),
+                                *///?} else {
+                                level.dimension().location(),
+                                //?}
                                 pos
                         );
 
@@ -861,8 +884,10 @@ public final class HexTeleportResolver {
                 Set.of(),
                 yaw,
                 pitch
-                //? if >=1.21.2
+
+                //? if >=1.21.2 {
                 , true
+                //?}
         )) {
             return false;
         }
@@ -889,32 +914,36 @@ public final class HexTeleportResolver {
             BlockPos pos
     ) {
         ChunkPos chunkPos =
-                new ChunkPos(
-                        pos
-                );
+                //? if >=26.1 {
+                /*ChunkPos.containing(pos);
+                *///?} else {
+                new ChunkPos(pos);
+                //?}
 
-        //? if >=1.21.5 {
         level.getChunkSource()
+                //? if >=1.21.5 {
                 .addTicketWithRadius(
+                //?} else {
+                /*.addRegionTicket(
+                *///?}
                         TicketType.PORTAL,
                         chunkPos,
+                        //? if >=1.21.5 {
                         3
-                );
-        //?} else {
-        /*level.getChunkSource()
-                .addRegionTicket(
-                        TicketType.PORTAL,
-                        chunkPos,
-                        3,
+                        //?} else {
+                        /*3,
                         pos
+                        *///?}
                 );
-        *///?}
 
         level.getChunk(
+                //? if >=26.1 {
+                /*chunkPos.x(),
+                chunkPos.z()
+                *///?} else {
                 chunkPos.x,
                 chunkPos.z
+                //?}
         );
     }
 }
-
-

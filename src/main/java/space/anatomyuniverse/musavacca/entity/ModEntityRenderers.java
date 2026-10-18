@@ -1,9 +1,9 @@
 package space.anatomyuniverse.musavacca.entity;
 
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-
-//? if <1.21.2
-//import net.minecraft.world.entity.EntityType;
+//? if <1.21.2 {
+/*import net.minecraft.world.entity.EntityType;
+*///?}
 
 import space.anatomyuniverse.musavacca.entity.boat.musavacca.client.MusavaccaBoatModel;
 import space.anatomyuniverse.musavacca.entity.boat.musavacca.client.MusavaccaBoatRenderer;
@@ -27,19 +27,18 @@ public final class ModEntityRenderers {
                 BasukeRenderer::new
         );
 
-        //? if <1.21.2 {
-        /*event.registerEntityRenderer(
-                (EntityType) ModEntities.MUSAVACCA_BOAT.get(),
+        event.registerEntityRenderer(
+                //? if >=1.21.2 {
+                ModEntities.MUSAVACCA_BOAT.get(),
+                MusavaccaBoatRenderer::new
+                //?} else {
+                /*(EntityType) ModEntities.MUSAVACCA_BOAT.get(),
                 context -> new MusavaccaBoatRenderer(
                         context
                 )
+                *///?}
         );
-        *///?} else {
-        event.registerEntityRenderer(
-                ModEntities.MUSAVACCA_BOAT.get(),
-                MusavaccaBoatRenderer::new
-        );
-        //?}
+
     }
 
     public static void registerLayerDefinitions(
@@ -63,4 +62,3 @@ public final class ModEntityRenderers {
 
     private ModEntityRenderers() {}
 }
-

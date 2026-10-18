@@ -1,27 +1,40 @@
 package space.anatomyuniverse.musavacca.bar.balance;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-//? if >=1.21.6
+
+//? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+//?}
 import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class BalanceClientModEvents {
+    //? if >=1.21.11 {
+    /*private static final Identifier BALANCE_LAYER =
+            Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "balance_layer");
+    *///?} else {
     private static final ResourceLocation BALANCE_LAYER =
             ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "balance_layer");
+    //?}
 
     private BalanceClientModEvents() {
     }
 
     public static void register(IEventBus modBus) {
-        //? if >=1.21.6
+
+        //? if >=1.21.6 {
         modBus.addListener(BalanceClientModEvents::registerClientPayloads);
+        //?}
         modBus.addListener(BalanceClientModEvents::registerGuiLayers);
     }
-
     //? if >=1.21.6 {
+
     private static void registerClientPayloads(RegisterClientPayloadHandlersEvent event) {
         event.register(
                 BalanceSyncPayload.TYPE,
@@ -41,4 +54,3 @@ public final class BalanceClientModEvents {
         );
     }
 }
-

@@ -4,7 +4,11 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -26,7 +30,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class DecorationBlock extends Block {
+    //? if <26.3 {
+
     public static final MapCodec<DecorationBlock> CODEC = simpleCodec(DecorationBlock::new);
+    //?}
 
     public static final EnumProperty<Placement> PLACEMENT = EnumProperty.create("placement", Placement.class);
     public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
@@ -58,11 +65,13 @@ public class DecorationBlock extends Block {
         );
     }
 
+    //? if <26.3 {
     @Override
     protected MapCodec<? extends DecorationBlock> codec() {
         return CODEC;
     }
 
+    //?}
     public boolean isEnabled(Placement placement) {
         return this.options.isEnabled(placement);
     }
@@ -71,13 +80,19 @@ public class DecorationBlock extends Block {
         return this.options.orientation(placement);
     }
 
+    //? if >=1.21.11 {
+    /*public static Identifier defaultModelLocation(Block block, Placement placement) {
+        Identifier id = BuiltInRegistries.BLOCK.getKey(block);
+    *///?} else {
     public static ResourceLocation defaultModelLocation(Block block, Placement placement) {
         ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
+    //?}
 
-        return ResourceLocation.fromNamespaceAndPath(
-                id.getNamespace(),
-                "block/" + id.getPath() + placement.modelSuffix()
-        );
+        //? if >=1.21.11 {
+        /*return Identifier.fromNamespaceAndPath(id.getNamespace(), "block/" + id.getPath() + placement.modelSuffix());
+        *///?} else {
+        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "block/" + id.getPath() + placement.modelSuffix());
+        //?}
     }
 
     @Override
@@ -281,17 +296,14 @@ public class DecorationBlock extends Block {
         return this.getShape(state, level, pos, context);
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return Shapes.empty();
-    }
-    *///?} else {
     @Override
+    //? if >=1.21.2 {
     protected VoxelShape getOcclusionShape(BlockState state) {
+    //?} else {
+    /*protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+    *///?}
         return Shapes.empty();
     }
-    //?}
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -606,4 +618,3 @@ public class DecorationBlock extends Block {
         }
     }
 }
-

@@ -41,9 +41,11 @@ public final class HexTeleportPreloader {
                 );
 
         ChunkPos targetChunk =
-                new ChunkPos(
-                        targetBlockPos
-                );
+                //? if >=26.1 {
+                /*ChunkPos.containing(targetBlockPos);
+                *///?} else {
+                new ChunkPos(targetBlockPos);
+                //?}
 
         boolean sameDimension =
                 entity.level()
@@ -59,22 +61,21 @@ public final class HexTeleportPreloader {
             return;
         }
 
-        //? if >=1.21.5 {
         targetLevel.getChunkSource()
+                //? if >=1.21.5 {
                 .addTicketWithRadius(
+                //?} else {
+                /*.addRegionTicket(
+                *///?}
                         TicketType.PORTAL,
                         targetChunk,
+                        //? if >=1.21.5 {
                         PORTAL_TICKET_RADIUS
-                );
-        //?} else {
-        /*targetLevel.getChunkSource()
-                .addRegionTicket(
-                        TicketType.PORTAL,
-                        targetChunk,
-                        PORTAL_TICKET_RADIUS,
+                        //?} else {
+                        /*PORTAL_TICKET_RADIUS,
                         targetBlockPos
+                        *///?}
                 );
-        *///?}
 
         ServerPlayer clientPlayer =
                 sameDimension
@@ -86,8 +87,13 @@ public final class HexTeleportPreloader {
         if (clientPlayer != null) {
             clientPlayer.connection.send(
                     new ClientboundSetChunkCacheCenterPacket(
+                            //? if >=26.1 {
+                            /*targetChunk.x(),
+                            targetChunk.z()
+                            *///?} else {
                             targetChunk.x,
                             targetChunk.z
+                            //?}
                     )
             );
         }
@@ -123,9 +129,15 @@ public final class HexTeleportPreloader {
 
                     LevelChunk chunk =
                             targetLevel.getChunk(
+                                    //? if >=26.1 {
+                                    /*targetChunk.x()
+                                            + offsetX,
+                                    targetChunk.z()
+                                    *///?} else {
                                     targetChunk.x
                                             + offsetX,
                                     targetChunk.z
+                                    //?}
                                             + offsetZ
                             );
 
@@ -151,20 +163,31 @@ public final class HexTeleportPreloader {
             ChunkPos targetChunk
     ) {
         ChunkPos sourceChunk =
-                new ChunkPos(
-                        entity.blockPosition()
-                );
+                //? if >=26.1 {
+                /*ChunkPos.containing(entity.blockPosition());
+                *///?} else {
+                new ChunkPos(entity.blockPosition());
+                //?}
 
         return Math.abs(
+                //? if >=26.1 {
+                /*sourceChunk.x()
+                        - targetChunk.x()
+                *///?} else {
                 sourceChunk.x
                         - targetChunk.x
+                //?}
         )
                 <= PRELOAD_RADIUS
                 && Math.abs(
+                //? if >=26.1 {
+                /*sourceChunk.z()
+                        - targetChunk.z()
+                *///?} else {
                 sourceChunk.z
                         - targetChunk.z
+                //?}
         )
                 <= PRELOAD_RADIUS;
     }
 }
-

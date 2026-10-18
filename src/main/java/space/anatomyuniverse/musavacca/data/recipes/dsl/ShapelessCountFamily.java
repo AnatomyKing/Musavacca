@@ -1,7 +1,11 @@
 package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
 import net.minecraft.data.recipes.RecipeCategory;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -111,7 +115,11 @@ public final class ShapelessCountFamily {
         String normalizedFolder =
                 folder == null ? "" : folder.trim();
 
+        //? if >=1.21.11 {
+        /*Set<Identifier> generatedIds = new HashSet<>();
+        *///?} else {
         Set<ResourceLocation> generatedIds = new HashSet<>();
+        //?}
 
         for (Step step : this.steps) {
             saveStep(
@@ -143,9 +151,15 @@ public final class ShapelessCountFamily {
     private void saveStep(
             Step step,
             String folder,
+    //? if >=1.21.11 {
+            /*Set<Identifier> generatedIds
+    ) {
+        Identifier id = this.dsl.id(
+    *///?} else {
             Set<ResourceLocation> generatedIds
     ) {
         ResourceLocation id = this.dsl.id(
+    //?}
                 RecipeDSL.joinFolder(
                         folder,
                         RecipeDSL.keyOf(step.input())

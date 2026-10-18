@@ -1,12 +1,22 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import org.jetbrains.annotations.Nullable;
 
 public final class FenceModels {
+    //? if >=1.21.11 {
+    /*private final Identifier post;
+    private final Identifier side;
+    private final Identifier inventory;
+    *///?} else {
     private final ResourceLocation post;
     private final ResourceLocation side;
     private final ResourceLocation inventory;
+    //?}
 
     private FenceModels(Builder builder) {
         post = builder.post;
@@ -27,17 +37,29 @@ public final class FenceModels {
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier post() {
+    *///?} else {
     public ResourceLocation post() {
+    //?}
         return post;
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier side() {
+    *///?} else {
     public ResourceLocation side() {
+    //?}
         return side;
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier inventory() {
+    *///?} else {
     public ResourceLocation inventory() {
+    //?}
         return inventory;
     }
 
@@ -54,9 +76,15 @@ public final class FenceModels {
     }
 
     public static final class Builder {
+        //? if >=1.21.11 {
+        /*private Identifier post;
+        private Identifier side;
+        private Identifier inventory;
+        *///?} else {
         private ResourceLocation post;
         private ResourceLocation side;
         private ResourceLocation inventory;
+        //?}
 
         private Builder() {}
 
@@ -80,11 +108,18 @@ public final class FenceModels {
         }
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier parse(String model, String name) {
+    *///?} else {
     private static ResourceLocation parse(String model, String name) {
+    //?}
         if (model == null || model.isBlank()) {
             throw new IllegalArgumentException(name + " must not be blank");
         }
+        //? if >=1.21.11 {
+        /*return Identifier.parse(model);
+        *///?} else {
         return ResourceLocation.parse(model);
+        //?}
     }
 }
-

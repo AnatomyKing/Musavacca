@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.door;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -69,8 +75,11 @@ public final class MusavaccaDoorTeleportNetwork {
         String ownerKey =
                 HexTeleportDirectory
                         .doorOwnerKey(
-                                level.dimension()
-                                        .location(),
+                                //? if >=1.21.11 {
+                                /*level.dimension().identifier(),
+                                *///?} else {
+                                level.dimension().location(),
+                                //?}
                                 lowerPos
                         );
 
@@ -95,8 +104,11 @@ public final class MusavaccaDoorTeleportNetwork {
         directory.registerDoorEndpoint(
                 ownerKey,
                 resolvedHex,
-                level.dimension()
-                        .location(),
+                //? if >=1.21.11 {
+                /*level.dimension().identifier(),
+                *///?} else {
+                level.dimension().location(),
+                //?}
                 lowerPos
         );
 
@@ -127,8 +139,11 @@ public final class MusavaccaDoorTeleportNetwork {
         String ownerKey =
                 HexTeleportDirectory
                         .doorOwnerKey(
-                                level.dimension()
-                                        .location(),
+                                //? if >=1.21.11 {
+                                /*level.dimension().identifier(),
+                                *///?} else {
+                                level.dimension().location(),
+                                //?}
                                 lowerPos
                         );
 
@@ -185,4 +200,3 @@ public final class MusavaccaDoorTeleportNetwork {
                 );
     }
 }
-

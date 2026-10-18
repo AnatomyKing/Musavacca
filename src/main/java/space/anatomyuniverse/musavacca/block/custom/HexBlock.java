@@ -9,9 +9,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+
 //? if <1.21.2 {
 /*import net.minecraft.world.ItemInteractionResult;
- *///?}
+*///?}
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -20,11 +21,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-//? if <1.21.2 {
-/*import net.minecraft.world.level.LevelAccessor;
- *///?} else {
+
+//? if >=1.21.2 {
 import net.minecraft.world.level.ScheduledTickAccess;
-//?}
+//?} else {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?}
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -44,7 +47,11 @@ import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
+
+    //? if <26.3 {
     public static final MapCodec<HexBlock> CODEC = simpleCodec(HexBlock::new);
+
+    //?}
     public static final BooleanProperty CLIPPED = BooleanProperty.create("clipped");
 
     private static final VoxelShape SHAPE = Block.box(3.5, 8.0, 3.5, 12.5, 16.0, 12.5);
@@ -56,11 +63,13 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
     private static final int FALLING_PARTICLE_CHANCE = 4;
     private static final int FALLING_PARTICLE_COLOR = 0xFFFFFF;
+    //? if <26.3 {
 
     @Override
     public MapCodec<HexBlock> codec() {
         return CODEC;
     }
+    //?}
 
     public HexBlock(Properties properties) {
         super(properties);
@@ -80,47 +89,33 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         builder.add(CLIPPED);
     }
 
-    //? if <1.21.2 {
-    /*private static ItemInteractionResult passToDefault() {
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-    }
-
-    private static ItemInteractionResult successResult() {
-        return ItemInteractionResult.SUCCESS;
-    }
-    *///?} else {
+    //? if >=1.21.2 {
     private static InteractionResult passToDefault() {
         return InteractionResult.TRY_WITH_EMPTY_HAND;
+    //?} else {
+    /*private static ItemInteractionResult passToDefault() {
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    *///?}
     }
 
+    //? if >=1.21.2 {
     private static InteractionResult successResult() {
         return InteractionResult.SUCCESS;
+    //?} else {
+    /*private static ItemInteractionResult successResult() {
+        return ItemInteractionResult.SUCCESS;
+    *///?}
     }
-    //?}
 
     @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return BreakHexLogic.canHexBlockSurvive(level, pos);
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected BlockState updateShape(
-            BlockState state,
-            net.minecraft.core.Direction direction,
-            BlockState neighborState,
-            LevelAccessor level,
-            BlockPos pos,
-            BlockPos neighborPos
-    ) {
-        return net.minecraft.core.Direction.UP == direction && !this.canSurvive(state, level, pos)
-                ? Blocks.AIR.defaultBlockState()
-                : super.updateShape(state, direction, neighborState, level, pos, neighborPos);
-    }
-    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
+            //? if >=1.21.2 {
             LevelReader level,
             ScheduledTickAccess scheduledTickAccess,
             BlockPos pos,
@@ -128,12 +123,22 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
             BlockPos neighborPos,
             BlockState neighborState,
             RandomSource random
+            //?} else {
+            /*net.minecraft.core.Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+            *///?}
     ) {
         return net.minecraft.core.Direction.UP == direction && !this.canSurvive(state, level, pos)
                 ? Blocks.AIR.defaultBlockState()
+                //? if >=1.21.2 {
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+                //?} else {
+                /*: super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+                *///?}
     }
-    //?}
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -178,11 +183,13 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     }
 
     @Override
-            //? if <1.21.2 {
-    /*protected ItemInteractionResult useItemOn(
-     *///?} else {
+
+    //? if >=1.21.2 {
     protected InteractionResult useItemOn(
-            //?}
+    //?} else {
+    /*protected ItemInteractionResult useItemOn(
+    *///?}
+
             ItemStack stack,
             BlockState state,
             Level level,
@@ -230,7 +237,13 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         return successResult();
     }
 
-    //? if <1.21.5 {
+//? if >=1.21.5 {
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        BreakHexLogic.breakBreakBlockAboveIfPresent(level, pos);
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+    }
+//?} else {
 /*@Override
 protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
     if (!state.is(newState.getBlock()) && newState.isAir()) {
@@ -239,13 +252,7 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
 
     super.onRemove(state, level, pos, newState, movedByPiston);
 }
-*///?} else {
-    @Override
-    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
-        BreakHexLogic.breakBreakBlockAboveIfPresent(level, pos);
-        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-    }
-//?}
+*///?}
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
@@ -306,12 +313,22 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         return true;
     }
 
     @Override
-    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         return true;
     }
 
@@ -331,7 +348,12 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
     }
 
     @Override
-    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         if (state.getValue(CLIPPED)) {
             level.setBlock(pos, state.setValue(CLIPPED, false), Block.UPDATE_ALL);
             return;
@@ -353,4 +375,3 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
         return Type.GROWER;
     }
 }
-

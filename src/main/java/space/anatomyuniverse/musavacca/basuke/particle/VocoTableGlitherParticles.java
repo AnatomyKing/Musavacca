@@ -48,7 +48,7 @@ final class VocoTableGlitherParticles {
     ) {
         ProfileTintParticles.send(
                 level,
-                level.random,
+                level.getRandom(),
                 ModParticleTypes.GLITHER.get(),
                 glitherColor,
                 center.x,
@@ -109,36 +109,36 @@ final class VocoTableGlitherParticles {
                     Math.max(
                             MIN_FORWARD_SPEED,
                             FORWARD_SPEED
-                                    + level.random.nextGaussian()
+                                    + level.getRandom().nextGaussian()
                                     * FORWARD_SPEED_SPREAD
                     );
 
             double sidewaysSpeed =
-                    level.random.nextGaussian()
+                    level.getRandom().nextGaussian()
                             * SIDEWAYS_SPEED_SPREAD;
 
             double upwardSpeed =
                     Math.max(
                             MIN_UPWARD_SPEED,
                             UPWARD_SPEED
-                                    + level.random.nextGaussian()
+                                    + level.getRandom().nextGaussian()
                                     * UPWARD_SPEED_SPREAD
                     );
 
             double particleX =
                     source.x
-                            + level.random.nextGaussian()
+                            + level.getRandom().nextGaussian()
                             * SPAWN_SPREAD;
 
             double particleY =
                     source.y
                             + START_Y_OFFSET
-                            + level.random.nextGaussian()
+                            + level.getRandom().nextGaussian()
                             * SPAWN_SPREAD;
 
             double particleZ =
                     source.z
-                            + level.random.nextGaussian()
+                            + level.getRandom().nextGaussian()
                             * SPAWN_SPREAD;
 
             double particleXd =
@@ -155,7 +155,7 @@ final class VocoTableGlitherParticles {
 
             ProfileTintParticles.sendExact(
                     level,
-                    level.random,
+                    level.getRandom(),
                     ModParticleTypes.GLITHER.get(),
                     glitherColor,
                     particleX,
@@ -202,35 +202,35 @@ final class VocoTableGlitherParticles {
                     Math.max(
                             0.025D,
                             SENDING_OUTWARD_SPEED
-                                    + level.random.nextGaussian()
+                                    + level.getRandom().nextGaussian()
                                     * SENDING_OUTWARD_SPEED_SPREAD
                     );
 
             double sidewaysSpeed =
-                    level.random.nextGaussian()
+                    level.getRandom().nextGaussian()
                             * SIDEWAYS_SPEED_SPREAD;
 
             double upwardSpeed =
                     Math.max(
                             0.018D,
                             SENDING_UPWARD_SPEED
-                                    + level.random.nextGaussian()
+                                    + level.getRandom().nextGaussian()
                                     * SENDING_UPWARD_SPEED_SPREAD
                     );
 
             ProfileTintParticles.sendExact(
                     level,
-                    level.random,
+                    level.getRandom(),
                     ModParticleTypes.GLITHER.get(),
                     glitherColor,
                     center.x
-                            + level.random.nextGaussian()
+                            + level.getRandom().nextGaussian()
                             * SPAWN_SPREAD,
                     center.y
-                            + level.random.nextGaussian()
+                            + level.getRandom().nextGaussian()
                             * SPAWN_SPREAD,
                     center.z
-                            + level.random.nextGaussian()
+                            + level.getRandom().nextGaussian()
                             * SPAWN_SPREAD,
                     direction.x
                             * forwardSpeed
@@ -265,7 +265,7 @@ final class VocoTableGlitherParticles {
                     Math.max(
                             0.12D,
                             DEDUCTION_RING_RADIUS
-                                    + level.random.nextGaussian()
+                                    + level.getRandom().nextGaussian()
                                     * DEDUCTION_RING_RADIUS_SPREAD
                     );
 
@@ -276,7 +276,7 @@ final class VocoTableGlitherParticles {
                                     * radius,
                             center.y
                                     + DEDUCTION_RING_Y_OFFSET
-                                    + level.random.nextGaussian()
+                                    + level.getRandom().nextGaussian()
                                     * SPAWN_SPREAD,
                             center.z
                                     + Math.sin(angle)
@@ -301,13 +301,13 @@ final class VocoTableGlitherParticles {
                     Math.max(
                             0.030D,
                             DEDUCTION_INWARD_SPEED
-                                    + level.random.nextGaussian()
+                                    + level.getRandom().nextGaussian()
                                     * DEDUCTION_INWARD_SPEED_SPREAD
                     );
 
             ProfileTintParticles.sendExact(
                     level,
-                    level.random,
+                    level.getRandom(),
                     ModParticleTypes.GLITHER.get(),
                     glitherColor,
                     source.x,
@@ -333,7 +333,7 @@ final class VocoTableGlitherParticles {
                         * index
                         / SENDING_PARTICLE_COUNT
         )
-                + level.random.nextGaussian()
+                + level.getRandom().nextGaussian()
                 * 0.10D;
     }
 }

@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -174,8 +180,11 @@ public final class VocoTeleportLogic {
                         ownerKey,
                         kind,
                         normalizedHex,
-                        level.dimension()
-                                .location(),
+                        //? if >=1.21.11 {
+                        /*level.dimension().identifier(),
+                        *///?} else {
+                        level.dimension().location(),
+                        //?}
                         pos,
                         target.pos(),
                         target.facing()
@@ -267,8 +276,11 @@ public final class VocoTeleportLogic {
         ) {
             return HexTeleportDirectory
                     .vocoTableReceptorCornerOwnerKey(
-                            level.dimension()
-                                    .location(),
+                            //? if >=1.21.11 {
+                            /*level.dimension().identifier(),
+                            *///?} else {
+                            level.dimension().location(),
+                            //?}
                             pos,
                             receptor
                     );
@@ -276,8 +288,11 @@ public final class VocoTeleportLogic {
 
         return HexTeleportDirectory
                 .vocoPostReceptorCornerOwnerKey(
-                        level.dimension()
-                                .location(),
+                        //? if >=1.21.11 {
+                        /*level.dimension().identifier(),
+                        *///?} else {
+                        level.dimension().location(),
+                        //?}
                         pos
                 );
     }
@@ -454,4 +469,3 @@ public final class VocoTeleportLogic {
             boolean custom
     ) {}
 }
-

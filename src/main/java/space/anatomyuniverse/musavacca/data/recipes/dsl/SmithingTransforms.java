@@ -2,7 +2,11 @@ package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -68,7 +72,11 @@ public final class SmithingTransforms {
         save(this.dsl.id(path));
     }
 
+    //? if >=1.21.11 {
+    /*public void save(Identifier id) {
+    *///?} else {
     public void save(ResourceLocation id) {
+    //?}
         requireBuilder();
         this.dsl.save(
                 this.builder,
@@ -83,4 +91,3 @@ public final class SmithingTransforms {
         }
     }
 }
-

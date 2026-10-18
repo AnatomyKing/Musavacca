@@ -88,7 +88,7 @@ public final class ProfileTintSprite {
             return RandomSource.create(this.seed);
         }
 
-        public void applyColor(Particle particle) {
+        public void applyColor(net.minecraft.client.particle.SingleQuadParticle particle) {
             int rgb = MusavaccaTints.rgb(this.tint);
 
             particle.setColor(

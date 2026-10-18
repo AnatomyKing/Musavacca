@@ -1,4 +1,7 @@
 package space.anatomyuniverse.musavacca.basuke.summon;
+//? if >=26.1 {
+/*import net.minecraft.world.item.ItemStackTemplate;
+*///?}
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -184,9 +187,11 @@ public final class BasukeVocoCalling {
 
         recoveredPhone.set(
                 DataComponents.BUNDLE_CONTENTS,
-                new BundleContents(
-                        List.of(recoveredSim)
-                )
+                //? if >=26.1 {
+                /*new BundleContents(java.util.List.of(ItemStackTemplate.fromNonEmptyStack(recoveredSim)))
+                *///?} else {
+                new BundleContents(List.of(recoveredSim))
+                //?}
         );
 
         BlockState stateBeforeCalling =
@@ -300,10 +305,12 @@ public final class BasukeVocoCalling {
         }
 
         CompoundTag tag = customData.copyTag();
-        //? if >=1.21.5
+
+        //? if >=1.21.5 {
         String uuidString = tag.getStringOr(TAG_CALLING_PLAYER_UUID, "");
-        //? if <1.21.5
-        //String uuidString = tag.getString(TAG_CALLING_PLAYER_UUID);
+        //?} else {
+        /*String uuidString = tag.getString(TAG_CALLING_PLAYER_UUID);
+        *///?}
 
         if (uuidString.isEmpty()) {
             return null;
@@ -428,4 +435,3 @@ public final class BasukeVocoCalling {
         }
     }
 }
-

@@ -4,7 +4,11 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import space.anatomyuniverse.musavacca.MusaCore;
@@ -16,10 +20,11 @@ public record FlintAndPearlColorPayload(
 
     public static final Type<FlintAndPearlColorPayload> TYPE =
             new Type<>(
-                    ResourceLocation.fromNamespaceAndPath(
-                            MusaCore.MOD_ID,
-                            "flint_and_pearl_color"
-                    )
+                    //? if >=1.21.11 {
+                    /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl_color")
+                    *///?} else {
+                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl_color")
+                    //?}
             );
 
     public static final StreamCodec<
@@ -62,4 +67,3 @@ public record FlintAndPearlColorPayload(
         player.inventoryMenu.broadcastChanges();
     }
 }
-

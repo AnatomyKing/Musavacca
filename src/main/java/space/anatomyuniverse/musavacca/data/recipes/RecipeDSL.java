@@ -1,6 +1,10 @@
 package space.anatomyuniverse.musavacca.data.recipes;
 
+//? if >=26.2 {
+/*import net.minecraft.advancements.triggers.Criterion;
+*///?} else {
 import net.minecraft.advancements.Criterion;
+//?}
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -12,7 +16,11 @@ import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -88,10 +96,10 @@ public class RecipeDSL {
     private final HolderLookup.Provider registries;
     private final String recipePathPrefix;
 
-    //? if >=1.21.3 {
+    //? if >=1.21.2 {
     private final HolderLookup.RegistryLookup<Item> items;
-    //?}
 
+    //?}
     public RecipeDSL(
             RecipeOutput output,
             String modId,
@@ -114,8 +122,9 @@ public class RecipeDSL {
         this.registries = Objects.requireNonNull(registries, "registries");
         this.recipePathPrefix = recipePathPrefix == null ? "" : recipePathPrefix;
 
-        //? if >=1.21.3
+        //? if >=1.21.2 {
         this.items = registries.lookupOrThrow(Registries.ITEM);
+        //?}
     }
 
     public CompatRecipeDSL compat(String modId) {
@@ -238,28 +247,41 @@ public class RecipeDSL {
         return this.recipePathPrefix;
     }
 
-    //? if >=1.21.3 {
+    //? if >=1.21.11 {
+    /*public HolderLookup.RegistryLookup<Item> items() {
+        return this.items;
+    }
+
+    public Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(this.modId, joinFolder(this.recipePathPrefix, path));
+    *///?} else if >=1.21.2 <1.21.11 {
     public HolderLookup.RegistryLookup<Item> items() {
         return this.items;
     }
-    //?}
 
     public ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(
-                this.modId,
-                joinFolder(this.recipePathPrefix, path)
-        );
+        return ResourceLocation.fromNamespaceAndPath(this.modId, joinFolder(this.recipePathPrefix, path));
+    //?} else {
+    /*public ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(this.modId, joinFolder(this.recipePathPrefix, path));
+    *///?}
     }
 
+    //? if >=1.21.11 {
+    /*public ResourceKey<Recipe<?>> recipeKey(Identifier id) {
+    *///?} else {
     public ResourceKey<Recipe<?>> recipeKey(ResourceLocation id) {
+    //?}
         return ResourceKey.create(Registries.RECIPE, id);
     }
 
     public Ingredient ingredientFromTag(TagKey<Item> tag) {
-        //? if <1.21.3 {
-        /*return Ingredient.of(tag);
-        *///?} else
+
+        //? if >=1.21.2 {
         return Ingredient.of(this.items.getOrThrow(tag));
+        //?} else {
+        /*return Ingredient.of(tag);
+        *///?}
     }
 
     public Ingredient ingredient(Object value) {
@@ -323,39 +345,69 @@ public class RecipeDSL {
         );
     }
 
+    //? if >=1.21.11 {
+    /*public void save(ShapedRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    *///?} else {
     public void save(ShapedRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
-        //? if <1.21.3 {
-        /*builder.save(output, id);
-        *///?} else
+    //?}
+
+        //? if >=1.21.2 {
         builder.save(output, recipeKey(id));
+        //?} else {
+        /*builder.save(output, id);
+        *///?}
     }
 
+    //? if >=1.21.11 {
+    /*public void save(ShapelessRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    *///?} else {
     public void save(ShapelessRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
-        //? if <1.21.3 {
-        /*builder.save(output, id);
-        *///?} else
+    //?}
+
+        //? if >=1.21.2 {
         builder.save(output, recipeKey(id));
+        //?} else {
+        /*builder.save(output, id);
+        *///?}
     }
 
+    //? if >=1.21.11 {
+    /*public void save(SimpleCookingRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    *///?} else {
     public void save(SimpleCookingRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
-        //? if <1.21.3 {
-        /*builder.save(output, id);
-        *///?} else
+    //?}
+
+        //? if >=1.21.2 {
         builder.save(output, recipeKey(id));
+        //?} else {
+        /*builder.save(output, id);
+        *///?}
     }
 
+    //? if >=1.21.11 {
+    /*public void save(SingleItemRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    *///?} else {
     public void save(SingleItemRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
-        //? if <1.21.3 {
-        /*builder.save(output, id);
-        *///?} else
+    //?}
+
+        //? if >=1.21.2 {
         builder.save(output, recipeKey(id));
+        //?} else {
+        /*builder.save(output, id);
+        *///?}
     }
 
+    //? if >=1.21.11 {
+    /*public void save(SmithingTransformRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    *///?} else {
     public void save(SmithingTransformRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
-        //? if <1.21.3 {
-        /*builder.save(output, id);
-        *///?} else
+    //?}
+
+        //? if >=1.21.2 {
         builder.save(output, recipeKey(id));
+        //?} else {
+        /*builder.save(output, id);
+        *///?}
     }
 
     public static String keyOf(ItemLike itemLike) {

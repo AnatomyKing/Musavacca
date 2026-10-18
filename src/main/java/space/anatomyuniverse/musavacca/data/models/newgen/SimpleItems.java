@@ -1,6 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
@@ -24,7 +28,11 @@ public final class SimpleItems {
         EXISTING
     }
 
+    //? if >=1.21.11 {
+    /*public record PhysicalLayer(Identifier texture, Tints.Tint tint) {
+    *///?} else {
     public record PhysicalLayer(ResourceLocation texture, Tints.Tint tint) {
+    //?}
         public PhysicalLayer {
             Objects.requireNonNull(texture, "texture");
             Objects.requireNonNull(tint, "tint");
@@ -33,7 +41,11 @@ public final class SimpleItems {
 
     public static final class Model {
         private final Mode mode;
+        //? if >=1.21.11 {
+        /*private Identifier existingModel;
+        *///?} else {
         private ResourceLocation existingModel;
+        //?}
         private Style style;
         private boolean folder;
         private boolean inferSingleTexture;
@@ -66,11 +78,19 @@ public final class SimpleItems {
             }
 
             Model model = new Model(Mode.EXISTING);
+            //? if >=1.21.11 {
+            /*model.existingModel = Identifier.parse(modelId);
+            *///?} else {
             model.existingModel = ResourceLocation.parse(modelId);
+            //?}
             return model;
         }
 
+        //? if >=1.21.11 {
+        /*public static Model existing(Identifier modelId) {
+        *///?} else {
         public static Model existing(ResourceLocation modelId) {
+        //?}
             Model model = new Model(Mode.EXISTING);
             model.existingModel = Objects.requireNonNull(modelId, "modelId");
             return model;
@@ -155,7 +175,11 @@ public final class SimpleItems {
             return mode == Mode.EXISTING;
         }
 
+        //? if >=1.21.11 {
+        /*public Identifier existingModel() {
+        *///?} else {
         public ResourceLocation existingModel() {
+        //?}
             return existingModel;
         }
 
@@ -179,7 +203,11 @@ public final class SimpleItems {
             return layerTints.getOrDefault(layer, tint);
         }
 
+        //? if >=1.21.11 {
+        /*public List<Identifier> logicalTextures(ItemLike item) {
+        *///?} else {
         public List<ResourceLocation> logicalTextures(ItemLike item) {
+        //?}
             Objects.requireNonNull(item, "item");
 
             if (!isGenerated()) {
@@ -211,17 +239,29 @@ public final class SimpleItems {
                         .toList();
             }
 
+            //? if >=1.21.11 {
+            /*List<Identifier> logical = logicalTextures(item);
+            *///?} else {
             List<ResourceLocation> logical = logicalTextures(item);
+            //?}
             List<PhysicalLayer> physical = new ArrayList<>();
 
             for (int logicalLayer = 0; logicalLayer < logical.size(); logicalLayer++) {
+                //? if >=1.21.11 {
+                /*Identifier base = logical.get(logicalLayer);
+                *///?} else {
                 ResourceLocation base = logical.get(logicalLayer);
+                //?}
                 Tints.Tint layerTint = tintForLogicalLayer(logicalLayer);
 
                 List<Tints.GeneratedLayer> generatedLayers = Tints.generatedLayers(layerTint);
 
                 for (Tints.GeneratedLayer generated : generatedLayers) {
+                    //? if >=1.21.11 {
+                    /*Identifier texture = generatedLayers.size() == 1 && generated.sourceLayer() == 0
+                    *///?} else {
                     ResourceLocation texture = generatedLayers.size() == 1 && generated.sourceLayer() == 0
+                    //?}
                             ? base
                             : TextureTokens.itemLayer(base, generated.sourceLayer());
 
@@ -298,18 +338,27 @@ public final class SimpleItems {
             }
         }
 
+        //? if >=1.21.11 {
+        /*private Identifier resolveTexture(ItemLike item, String token) {
+        *///?} else {
         private ResourceLocation resolveTexture(ItemLike item, String token) {
+        //?}
             if (!folder || token.indexOf(':') >= 0 || token.startsWith("item/")) {
                 return TextureTokens.resolveItem(item, token);
             }
 
+            //? if >=1.21.11 {
+            /*Identifier itemId = ModelLocations.itemId(item);
+            *///?} else {
             ResourceLocation itemId = ModelLocations.itemId(item);
+            //?}
             String path = token.startsWith("_") ? itemId.getPath() + token : token;
 
-            return ResourceLocation.fromNamespaceAndPath(
-                    itemId.getNamespace(),
-                    "item/" + itemId.getPath() + "/" + path
-            );
+            //? if >=1.21.11 {
+            /*return Identifier.fromNamespaceAndPath(itemId.getNamespace(), "item/" + itemId.getPath() + "/" + path);
+            *///?} else {
+            return ResourceLocation.fromNamespaceAndPath(itemId.getNamespace(), "item/" + itemId.getPath() + "/" + path);
+            //?}
         }
 
         private void requireGenerated(String operation) {
@@ -366,7 +415,11 @@ public final class SimpleItems {
             return this;
         }
 
+        //? if >=1.21.11 {
+        /*public Builder model(Identifier modelId) {
+        *///?} else {
         public Builder model(ResourceLocation modelId) {
+        //?}
             select(Model.existing(modelId));
             return this;
         }
@@ -463,4 +516,3 @@ public final class SimpleItems {
     }
 
 }
-

@@ -4,11 +4,18 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+//? if <26.3 {
+
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+//?}
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +23,12 @@ import java.util.Optional;
 
 public record MusavaccaTemplateTreeConfiguration(
         List<TemplateBlock> blocks
-) implements FeatureConfiguration {
+)
+
+//? if <26.3 {
+implements FeatureConfiguration
+//?}
+{
 
     public static final Codec<MusavaccaTemplateTreeConfiguration> CODEC =
             RecordCodecBuilder.create(instance -> instance.group(
@@ -35,24 +47,31 @@ public record MusavaccaTemplateTreeConfiguration(
     }
 
     public record TemplateBlockState(
+            //? if >=1.21.11 {
+            /*Identifier Name,
+            *///?} else {
             ResourceLocation Name,
+            //?}
             Map<String, String> Properties
     ) {
         public static final Codec<TemplateBlockState> CODEC =
                 RecordCodecBuilder.create(instance -> instance.group(
+                        //? if >=1.21.11 {
+                        /*Identifier.CODEC.fieldOf("Name").forGetter(TemplateBlockState::Name),
+                        *///?} else {
                         ResourceLocation.CODEC.fieldOf("Name").forGetter(TemplateBlockState::Name),
+                        //?}
                         Codec.unboundedMap(Codec.STRING, Codec.STRING)
                                 .optionalFieldOf("Properties", Map.of())
                                 .forGetter(TemplateBlockState::Properties)
                 ).apply(instance, TemplateBlockState::new));
 
         public BlockState resolve() {
-            Block block =
-                    //? if <1.21.2 {
-                    /*BuiltInRegistries.BLOCK.get(this.Name);
-                    *///?} else {
-                    BuiltInRegistries.BLOCK.getValue(this.Name);
-                    //?}
+            //? if >=1.21.2 {
+            Block block = BuiltInRegistries.BLOCK.getValue(this.Name);
+            //?} else {
+            /*Block block = BuiltInRegistries.BLOCK.get(this.Name);
+            *///?}
 
             if (block == null) {
                 throw new IllegalStateException("Unknown block in Musavacca tree template: " + this.Name);
@@ -97,4 +116,3 @@ public record MusavaccaTemplateTreeConfiguration(
         }
     }
 }
-

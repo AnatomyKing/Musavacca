@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;
@@ -24,8 +23,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class BananaPearlChaliceBlock extends Block {
+
+    //? if <26.3 {
     public static final MapCodec<BananaPearlChaliceBlock> CODEC = simpleCodec(BananaPearlChaliceBlock::new);
 
+    //?}
     public static final EnumProperty<Mode> MODE = EnumProperty.create("mode", Mode.class);
     public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -47,11 +49,13 @@ public class BananaPearlChaliceBlock extends Block {
                         .setValue(FACING, Direction.NORTH)
         );
     }
+    //? if <26.3 {
 
     @Override
     public MapCodec<? extends BananaPearlChaliceBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Override
     @Nullable
@@ -125,17 +129,17 @@ public class BananaPearlChaliceBlock extends Block {
         };
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return Shapes.empty();
-    }
-*///?} else {
+//? if >=1.21.2 {
 @Override
 protected VoxelShape getOcclusionShape(BlockState state) {
     return Shapes.empty();
 }
-//?}
+//?} else {
+    /*@Override
+    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return Shapes.empty();
+    }
+*///?}
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -159,4 +163,3 @@ protected VoxelShape getOcclusionShape(BlockState state) {
         }
     }
 }
-

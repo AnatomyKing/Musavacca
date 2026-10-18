@@ -1,6 +1,7 @@
 package space.anatomyuniverse.musavacca.item.custom.potassium;
 
 import net.minecraft.world.item.Item;
+
 //? if <1.21.2 {
 /*import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -16,29 +17,30 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import space.anatomyuniverse.musavacca.MusaCore;
 *///?}
-
 public final class PotassiumArmorItem
-        //? if <1.21.2 {
-        /*extends ArmorItem
-        *///?} else {
+
+        //? if >=1.21.2 {
         extends PotassiumItem
-        //?}
+        //?} else {
+        /*extends ArmorItem
+        *///?}
+
 {
-    //? if <1.21.2 {
-    /*private static final ResourceLocation HUMANOID_TEXTURE = ResourceLocation.fromNamespaceAndPath(
-            MusaCore.MOD_ID,
-            "textures/entity/equipment/humanoid/potassium.png"
-    );
-    private static final ResourceLocation LEGGINGS_TEXTURE = ResourceLocation.fromNamespaceAndPath(
-            MusaCore.MOD_ID,
-            "textures/entity/equipment/humanoid_leggings/potassium.png"
-    );
+
+    //? if >=1.21.2 {
+    public PotassiumArmorItem(Properties properties) {
+        super(properties);
+    //?} else {
+    /*private static final ResourceLocation HUMANOID_TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/equipment/humanoid/potassium.png");
+    private static final ResourceLocation LEGGINGS_TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/equipment/humanoid_leggings/potassium.png");
 
     public PotassiumArmorItem(Holder<ArmorMaterial> material, Type type, Item.Properties properties) {
         super(material, type, properties.durability(type.getDurability(35)));
+    *///?}
     }
 
-    @Override
+    //? if <1.21.2 {
+    /*@Override
     public ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
         return innerModel ? LEGGINGS_TEXTURE : HUMANOID_TEXTURE;
     }
@@ -55,10 +57,5 @@ public final class PotassiumArmorItem
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
     }
-    *///?} else {
-    public PotassiumArmorItem(Item.Properties properties) {
-        super(properties);
-    }
-    //?}
+    *///?}
 }
-

@@ -1,7 +1,11 @@
 package space.anatomyuniverse.musavacca.data.models;
 
 import net.minecraft.world.level.block.CandleBlock;
+//? if >=26.1 {
+/*import net.minecraft.world.level.block.SnowyBlock;
+*///?} else {
 import net.minecraft.world.level.block.SnowyDirtBlock;
+//?}
 
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.*;
@@ -53,7 +57,11 @@ public final class NewModelSets {
                                                         .top("_top")
                                                         .bottom("minecraft:block/rooted_dirt")
                                         ),
+                                        //? if >=26.1 {
+                                        /*Conditions.when(SnowyBlock.SNOWY, false)
+                                        *///?} else {
                                         Conditions.when(SnowyDirtBlock.SNOWY, false)
+                                        //?}
                                 ).variants(Variants.randomY()),
 
                                 SimpleBlocks.Model.when(
@@ -68,7 +76,11 @@ public final class NewModelSets {
                                                         .top("_top")
                                                         .bottom("minecraft:block/rooted_dirt")
                                         ),
+                                        //? if >=26.1 {
+                                        /*Conditions.when(SnowyBlock.SNOWY, true)
+                                        *///?} else {
                                         Conditions.when(SnowyDirtBlock.SNOWY, true)
+                                        //?}
                                 )
                         )
                         .item("musavacca:block/carotene_grass")
@@ -87,7 +99,6 @@ public final class NewModelSets {
                         .model("musavacca:block/banana_pearl_mascaron")
                         .rotations(Rotations.crafter())
                         .build(),
-
 
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_PILLAR.get())
                         .generated()

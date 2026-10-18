@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.bar.hunger;
 
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.gamerules.GameRules;
+*///?} else {
+import net.minecraft.world.level.GameRules;
+//?}
+
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
@@ -9,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -194,15 +200,14 @@ public final class BonusHungerEvents {
     }
 
     private static FoodProperties getFoodProperties(ItemStack stack) {
+
         //? if >=1.21.2 {
         if (!stack.has(DataComponents.CONSUMABLE)) {
-            return null;
-        }
         //?} else {
         /*if (!stack.has(DataComponents.FOOD)) {
+        *///?}
             return null;
         }
-        *///?}
 
         return stack.get(DataComponents.FOOD);
     }
@@ -287,7 +292,11 @@ public final class BonusHungerEvents {
     }
 
     private static boolean tickBonusNaturalRegeneration(ServerPlayer player, BonusHungerData data) {
-        if (!player.getServer().getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)) {
+        //? if >=1.21.11 {
+        /*if (!((ServerLevel) player.level()).getGameRules().get(GameRules.NATURAL_HEALTH_REGENERATION)) {
+        *///?} else {
+        if (!((ServerLevel) player.level()).getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)) {
+        //?}
             data.resetTickTimer();
             return false;
         }
@@ -350,4 +359,3 @@ public final class BonusHungerEvents {
         data.markSynced(active);
     }
 }
-

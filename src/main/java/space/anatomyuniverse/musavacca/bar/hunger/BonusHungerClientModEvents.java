@@ -1,27 +1,40 @@
 package space.anatomyuniverse.musavacca.bar.hunger;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-//? if >=1.21.6
+
+//? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+//?}
 import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class BonusHungerClientModEvents {
+    //? if >=1.21.11 {
+    /*private static final Identifier BONUS_HUNGER_LAYER =
+            Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "bonus_hunger_layer");
+    *///?} else {
     private static final ResourceLocation BONUS_HUNGER_LAYER =
             ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "bonus_hunger_layer");
+    //?}
 
     private BonusHungerClientModEvents() {
     }
 
     public static void register(IEventBus modBus) {
-        //? if >=1.21.6
+
+        //? if >=1.21.6 {
         modBus.addListener(BonusHungerClientModEvents::registerClientPayloads);
+        //?}
         modBus.addListener(BonusHungerClientModEvents::registerGuiLayers);
     }
-
     //? if >=1.21.6 {
+
     private static void registerClientPayloads(RegisterClientPayloadHandlersEvent event) {
         event.register(
                 BonusHungerSyncPayload.TYPE,
@@ -42,4 +55,3 @@ public final class BonusHungerClientModEvents {
         );
     }
 }
-

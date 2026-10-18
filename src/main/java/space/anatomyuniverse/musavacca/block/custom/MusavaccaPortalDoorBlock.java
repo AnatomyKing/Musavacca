@@ -6,22 +6,30 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2
-//import net.minecraft.world.ItemInteractionResult;
+
+//? if <1.21.2 {
+/*import net.minecraft.world.ItemInteractionResult;
+*///?}
 import net.minecraft.world.entity.Entity;
-//? if >=1.21.5
+
+//? if >=1.21.5 {
 import net.minecraft.world.entity.InsideBlockEffectApplier;
+//?}
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-//? if <1.21.2
-//import net.minecraft.world.level.LevelAccessor;
+
+//? if <1.21.2 {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?}
 import net.minecraft.world.level.LevelReader;
-//? if >=1.21.2
+
+//? if >=1.21.2 {
 import net.minecraft.world.level.ScheduledTickAccess;
+//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.EntityBlock;
@@ -34,11 +42,13 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-//? if <1.21.2 {
-/*import net.minecraft.world.level.portal.DimensionTransition;
-*///?} else {
+
+//? if >=1.21.2 {
 import net.minecraft.world.level.portal.TeleportTransition;
-//?}
+//?} else {
+/*import net.minecraft.world.level.portal.DimensionTransition;
+*///?}
+
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -272,7 +282,8 @@ public final class MusavaccaPortalDoorBlock
                 state
         );
     }
-    //?} else if >=1.21.2 {
+
+    //?} else if >=1.21.2 <1.21.5 {
     /*@Override
     protected VoxelShape getEntityInsideCollisionShape(
             BlockState state,
@@ -284,29 +295,26 @@ public final class MusavaccaPortalDoorBlock
                 : super.getEntityInsideCollisionShape(state, level, pos);
     }
     *///?}
-
-    //? if >=1.21.5 {
     @Override
     protected void entityInside(
             BlockState state,
             Level level,
             BlockPos pos,
+            //? if >=1.21.9 {
+            /*Entity entity,
+            InsideBlockEffectApplier effectApplier
+
+            , boolean intersects
+            *///?} else if >=1.21.5 <1.21.9 {
             Entity entity,
             InsideBlockEffectApplier effectApplier
+
+            //?} else {
+            /*Entity entity
+            *///?}
     ) {
         this.handleEntityInside(state, level, pos, entity);
     }
-    //?} else {
-    /*@Override
-    protected void entityInside(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Entity entity
-    ) {
-        this.handleEntityInside(state, level, pos, entity);
-    }
-    *///?}
 
     private void handleEntityInside(
             BlockState state,
@@ -371,7 +379,6 @@ public final class MusavaccaPortalDoorBlock
                 )
         );
     }
-
     //? if <1.21.5 {
     /*@Override
     protected void onRemove(
@@ -638,11 +645,13 @@ public final class MusavaccaPortalDoorBlock
     @Nullable
     @Override
     public
-    //? if <1.21.2 {
-    /*DimensionTransition
-    *///?} else {
+
+    //? if >=1.21.2 {
     TeleportTransition
-    //?}
+    //?} else {
+    /*DimensionTransition
+    *///?}
+
     getPortalDestination(
             ServerLevel currentLevel,
             Entity entity,
@@ -715,9 +724,12 @@ public final class MusavaccaPortalDoorBlock
                 );
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected ItemInteractionResult useItemOn(
+    @Override
+    //? if >=1.21.2 {
+    protected InteractionResult useItemOn(
+    //?} else {
+    /*protected ItemInteractionResult useItemOn(
+    *///?}
             ItemStack stack,
             BlockState state,
             Level level,
@@ -730,28 +742,14 @@ public final class MusavaccaPortalDoorBlock
             return super.useItemOn(stack, state, level, pos, player, hand, hit);
         }
 
-        return InteractionResultCompat.forItemUse(
+        //? if >=1.21.2 {
+        return this.handlePearlSlotItem(stack, state, level, pos, player, hand);
+        //?} else {
+        /*return InteractionResultCompat.forItemUse(
                 this.handlePearlSlotItem(stack, state, level, pos, player, hand)
         );
+        *///?}
     }
-    *///?} else {
-    @Override
-    protected InteractionResult useItemOn(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit
-    ) {
-        if (!isPearlSlotItem(stack)) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hit);
-        }
-
-        return this.handlePearlSlotItem(stack, state, level, pos, player, hand);
-    }
-    //?}
 
     private static boolean isPearlSlotItem(ItemStack stack) {
         return stack.is(ModItems.BANANA_PEARL.get()) || stack.is(Items.SHEARS);
@@ -989,30 +987,10 @@ public final class MusavaccaPortalDoorBlock
                 : clickedPos;
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected BlockState updateShape(
-            BlockState state,
-            Direction direction,
-            BlockState neighborState,
-            LevelAccessor level,
-            BlockPos pos,
-            BlockPos neighborPos
-    ) {
-        BlockState updatedState = super.updateShape(
-                state,
-                direction,
-                neighborState,
-                level,
-                pos,
-                neighborPos
-        );
-        return this.synchronizeOtherHalf(updatedState, level, pos, direction, neighborState);
-    }
-    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
+    //? if >=1.21.2 {
             LevelReader levelReader,
             ScheduledTickAccess scheduledTickAccess,
             BlockPos pos,
@@ -1034,8 +1012,24 @@ public final class MusavaccaPortalDoorBlock
                 );
 
         return this.synchronizeOtherHalf(updatedState, levelReader, pos, direction, neighborState);
+    //?} else {
+            /*Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+    ) {
+        BlockState updatedState = super.updateShape(
+                state,
+                direction,
+                neighborState,
+                level,
+                pos,
+                neighborPos
+        );
+        return this.synchronizeOtherHalf(updatedState, level, pos, direction, neighborState);
+    *///?}
     }
-    //?}
 
     private BlockState synchronizeOtherHalf(
             BlockState updatedState,
@@ -1104,4 +1098,3 @@ public final class MusavaccaPortalDoorBlock
                 );
     }
 }
-

@@ -1,11 +1,11 @@
 package space.anatomyuniverse.musavacca.entity.mob.bananacow.clientmodel;
 
-//? if <1.21.2 {
-/*import net.minecraft.client.model.HierarchicalModel;
- *///?} else {
+//? if >=1.21.2 {
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
-//?}
+//?} else {
+/*import net.minecraft.client.model.HierarchicalModel;
+*///?}
 
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -15,23 +15,26 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 
-//? if <1.21.2 {
-/*public class BananaCowModel
-        extends HierarchicalModel<BananaCow> {
- *///?} else {
 public class BananaCowModel
+        //? if >=1.21.2 {
         extends EntityModel<BananaCowModel.State> {
-//?}
+        //?} else {
+        /*extends HierarchicalModel<BananaCow> {
+        *///?}
 
     private static final float EAT_HEAD_DROP = 4.0F;
-
     //? if >=1.21.2 {
+
     public static class State extends LivingEntityRenderState {
         public float headYawRad;
         public float headPitchRad;
@@ -50,16 +53,16 @@ public class BananaCowModel
 
     public static final ModelLayerLocation LAYER_LOCATION =
             new ModelLayerLocation(
-                    ResourceLocation.fromNamespaceAndPath(
-                            MusaCore.MOD_ID,
-                            "banana_cow"
-                    ),
+                    //? if >=1.21.11 {
+                    /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "banana_cow"),
+                    *///?} else {
+                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "banana_cow"),
+                    //?}
                     "main"
             );
-
     //? if <1.21.2 {
     /*private final ModelPart root;
-     *///?}
+    *///?}
 
     private final ModelPart hHead;
     private final ModelPart body;
@@ -88,12 +91,12 @@ public class BananaCowModel
     private final float flapBackBaseXRot;
 
     public BananaCowModel(ModelPart bakedRoot) {
-        //? if >=1.21.2
-        super(bakedRoot);
 
-        //? if <1.21.2 {
+        //? if >=1.21.2 {
+        super(bakedRoot);
+        //?} else {
         /*this.root = bakedRoot;
-         *///?}
+        *///?}
 
         ModelPart bananaCow =
                 bakedRoot.getChild("bananacow");
@@ -610,15 +613,17 @@ public class BananaCowModel
         );
     }
 
-    //? if <1.21.2 {
+    //? if >=1.21.2 {
+    @Override
+    public void setupAnim(@NotNull State state) {
+        this.hHead.yRot = state.headYawRad;
+    //?} else {
     /*@Override
     public ModelPart root() {
         return this.root;
     }
-    *///?}
 
-    //? if <1.21.2 {
-    /*@Override
+    @Override
     public void setupAnim(
             @NotNull BananaCow entity,
             float limbSwing,
@@ -641,10 +646,14 @@ public class BananaCowModel
 
         this.hHead.yRot =
                 clampedYaw * Mth.DEG_TO_RAD;
+    *///?}
 
         float normalHeadXRot =
                 this.headBaseXRot
-                        + clampedPitch
+        //? if >=1.21.2 {
+                        + state.headPitchRad;
+        //?} else {
+                        /*+ clampedPitch
                         * Mth.DEG_TO_RAD;
 
         float partialTick = Mth.clamp(
@@ -652,85 +661,28 @@ public class BananaCowModel
                 0.0F,
                 1.0F
         );
+        *///?}
 
         this.animateEatingHead(
                 normalHeadXRot,
-                entity.getHeadEatPositionScale(
+                //? if >=1.21.2 {
+                state.headEatPositionScale,
+                state.headEatAngleRad
+                //?} else {
+                /*entity.getHeadEatPositionScale(
                         partialTick
                 ),
                 entity.getHeadEatAngleScale(
                         partialTick
                 )
+                *///?}
         );
 
-        if (entity.isBaby()) {
-            this.hHead.xScale = 1.40F;
-            this.hHead.yScale = 1.40F;
-            this.hHead.zScale = 1.40F;
-        } else {
-            this.hHead.xScale = 1.0F;
-            this.hHead.yScale = 1.0F;
-            this.hHead.zScale = 1.0F;
-        }
-
-        float walk = limbSwing;
-        float amount = limbSwingAmount;
-
-        this.rightFrontLeg.xRot =
-                Mth.cos(walk * 0.6662F)
-                        * 1.4F
-                        * amount;
-
-        this.leftBackLeg.xRot =
-                Mth.cos(walk * 0.6662F)
-                        * 1.4F
-                        * amount;
-
-        this.leftFrontLeg.xRot =
-                Mth.cos(
-                        walk * 0.6662F
-                                + Mth.PI
-                )
-                        * 1.4F
-                        * amount;
-
-        this.rightBackLeg.xRot =
-                Mth.cos(
-                        walk * 0.6662F
-                                + Mth.PI
-                )
-                        * 1.4F
-                        * amount;
-
-        this.tail.xRot =
-                this.tailBaseXRot
-                        + Mth.cos(
-                                ageInTicks * 0.2F
-                        )
-                        * 0.05F;
-
-        this.animateFlaps(
-                walk,
-                amount,
-                ageInTicks
-        );
-    }
-    *///?} else {
-    @Override
-    public void setupAnim(@NotNull State state) {
-        this.hHead.yRot = state.headYawRad;
-
-        float normalHeadXRot =
-                this.headBaseXRot
-                        + state.headPitchRad;
-
-        this.animateEatingHead(
-                normalHeadXRot,
-                state.headEatPositionScale,
-                state.headEatAngleRad
-        );
-
+        //? if >=1.21.2 {
         if (state.isBaby) {
+        //?} else {
+        /*if (entity.isBaby()) {
+        *///?}
             this.hHead.xScale = 1.40F;
             this.hHead.yScale = 1.40F;
             this.hHead.zScale = 1.40F;
@@ -740,8 +692,13 @@ public class BananaCowModel
             this.hHead.zScale = 1.0F;
         }
 
+        //? if >=1.21.2 {
         float walk = state.limbSwing;
         float amount = state.limbSwingAmount;
+        //?} else {
+        /*float walk = limbSwing;
+        float amount = limbSwingAmount;
+        *///?}
 
         this.rightFrontLeg.xRot =
                 Mth.cos(walk * 0.6662F)
@@ -772,16 +729,24 @@ public class BananaCowModel
         this.tail.xRot =
                 this.tailBaseXRot
                         + Mth.cos(
+                //? if >=1.21.2 {
                         state.ageTicks * 0.2F
                 )
+                //?} else {
+                                /*ageInTicks * 0.2F
+                        )
+                *///?}
                         * 0.05F;
 
         this.animateFlaps(
                 walk,
                 amount,
+                //? if >=1.21.2 {
                 state.ageTicks
+                //?} else {
+                /*ageInTicks
+                *///?}
         );
     }
-    //?}
-}
 
+}

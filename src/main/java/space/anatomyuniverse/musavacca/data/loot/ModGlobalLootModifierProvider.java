@@ -1,5 +1,15 @@
 package space.anatomyuniverse.musavacca.data.loot;
 
+//? if >=26.3 {
+/*import net.minecraft.core.Holder;
+
+import net.minecraft.resources.Identifier;
+*///?} else if >=1.21.11 <26.3 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -30,15 +40,30 @@ public final class ModGlobalLootModifierProvider
         add(
                 "inject_musavacca_pup_into_sniffer_digging",
                 new AddTableLootModifier(
-                        new LootItemCondition[]{
-                                LootTableIdCondition
+
+                        //? if >=26.3 {
+                        /*java.util.Optional.of(Holder.direct(LootTableIdCondition
                                         .builder(
-                                                ModLootTables
-                                                        .VANILLA_SNIFFER_DIGGING
-                                                        .location()
+                                                ModLootTables.VANILLA_SNIFFER_DIGGING.identifier()
                                         )
-                                        .build()
-                        },
+                                        .build())),
+                        *///?} else if >=1.21.11 <26.3 {
+                        /*new LootItemCondition[]{LootTableIdCondition
+                                        .builder(
+                                                ModLootTables.VANILLA_SNIFFER_DIGGING.identifier()
+                                        )
+                                        .build()},
+                        *///?} else {
+                        new LootItemCondition[]{LootTableIdCondition
+                                        .builder(
+                                                ModLootTables.VANILLA_SNIFFER_DIGGING.location()
+                                        )
+                                        .build()},
+                        //?}
+
+                        //? if >=26.1 {
+                        /*0,
+                        *///?}
                         ModLootTables.SNIFFER_DIGGING_MUSAVACCA_PUP
                 )
         );
@@ -46,19 +71,33 @@ public final class ModGlobalLootModifierProvider
         add(
                 "inject_fractured_potassium_template_into_jungle_temple",
                 new AddTableLootModifier(
-                        new LootItemCondition[]{
-                                LootTableIdCondition
+
+                        //? if >=26.3 {
+                        /*java.util.Optional.of(Holder.direct(LootTableIdCondition
                                         .builder(
-                                                ModLootTables
-                                                        .VANILLA_JUNGLE_TEMPLE
-                                                        .location()
+                                                ModLootTables.VANILLA_JUNGLE_TEMPLE.identifier()
                                         )
-                                        .build()
-                        },
+                                        .build())),
+                        *///?} else if >=1.21.11 <26.3 {
+                        /*new LootItemCondition[]{LootTableIdCondition
+                                        .builder(
+                                                ModLootTables.VANILLA_JUNGLE_TEMPLE.identifier()
+                                        )
+                                        .build()},
+                        *///?} else {
+                        new LootItemCondition[]{LootTableIdCondition
+                                        .builder(
+                                                ModLootTables.VANILLA_JUNGLE_TEMPLE.location()
+                                        )
+                                        .build()},
+                        //?}
+
+                        //? if >=26.1 {
+                        /*0,
+                        *///?}
                         ModLootTables
                                 .JUNGLE_TEMPLE_FRACTURED_POTASSIUM_TEMPLATE
                 )
         );
     }
 }
-

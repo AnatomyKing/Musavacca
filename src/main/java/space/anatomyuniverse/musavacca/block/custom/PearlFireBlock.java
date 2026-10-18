@@ -1,4 +1,8 @@
 package space.anatomyuniverse.musavacca.block.custom;
+//? if <1.21.11 {
+
+import net.minecraft.world.level.GameRules;
+//?}
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,14 +12,15 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-//? if <1.21.2 {
-/*import net.minecraft.world.level.LevelAccessor;
- *///?} else {
+
+//? if >=1.21.2 {
 import net.minecraft.world.level.ScheduledTickAccess;
-//?}
+//?} else {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?}
+
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FireBlock;
@@ -61,24 +66,10 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         setPlacedPearlFireHex(level, pos, savedHex);
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected BlockState updateShape(
-            BlockState state,
-            Direction direction,
-            BlockState neighborState,
-            LevelAccessor level,
-            BlockPos pos,
-            BlockPos neighborPos
-    ) {
-        return this.canSurvive(state, level, pos)
-                ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
-                : Blocks.AIR.defaultBlockState();
-    }
-    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
+            //? if >=1.21.2 {
             LevelReader level,
             ScheduledTickAccess scheduledTickAccess,
             BlockPos pos,
@@ -86,18 +77,30 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             BlockPos neighborPos,
             BlockState neighborState,
             RandomSource random
+            //?} else {
+            /*Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+            *///?}
     ) {
         return this.canSurvive(state, level, pos)
                 ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
                 : Blocks.AIR.defaultBlockState();
     }
-    //?}
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        level.scheduleTick(pos, this, getPearlFireTickDelay(level.random));
+        level.scheduleTick(pos, this, getPearlFireTickDelay(level.getRandom()));
 
-        if (!shouldRunPearlFireTick(level, pos)) {
+        //? if >=1.21.11 {
+        /*if (!level.canSpreadFireAround(pos)) {
+        *///?} else if >=1.21.5 <1.21.11 {
+        if (!(level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK) && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS) || level.anyPlayerCloseEnoughForSpawning(pos)))) {
+        //?} else {
+        /*if (!level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
+        *///?}
             return;
         }
 
@@ -142,7 +145,12 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             }
         }
 
+        //? if >=1.21.11 {
+        /*boolean burnoutBiome = level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.INCREASED_FIRE_BURNOUT, pos);
+        *///?} else {
         boolean burnoutBiome = level.getBiome(pos).is(BiomeTags.INCREASED_FIRE_BURNOUT);
+        //?}
+
         int biomeModifier = burnoutBiome ? -50 : 0;
 
         this.checkPearlBurnOut(level, pos.east(), 300 + biomeModifier, random, age, Direction.WEST, sourceHex);
@@ -195,16 +203,6 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                 }
             }
         }
-    }
-
-    private static boolean shouldRunPearlFireTick(ServerLevel level, BlockPos pos) {
-        //? if >=1.21.5 {
-        return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)
-                && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS)
-                || level.anyPlayerCloseEnoughForSpawning(pos));
-        //?}
-        //? if <1.21.5
-        //return level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK);
     }
 
     private static int getPearlFireHex(Level level, BlockPos pos) {
@@ -280,7 +278,12 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         }
 
         BlockState targetState = level.getBlockState(pos);
-        targetState.onCaughtFire(level, pos, face, null);
+        targetState.onCaughtFire(level, pos, face, null
+
+                //? if >=26.3 {
+                /*, net.minecraft.world.item.ItemStack.EMPTY
+                *///?}
+        );
 
         if (random.nextInt(age + 10) < 5 && !level.isRainingAt(pos)) {
             int newAge = Math.min(age + random.nextInt(5) / 4, 15);
@@ -298,12 +301,17 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         return 30 + random.nextInt(10);
     }
 
-    public static void bootStrap() {
-        PearlFireBlock fire = ModBlocks.PEARL_FIRE.get();
-
-        fire.setFlammable(ModBlocks.MUSAVACCA_PLANKS.get(), 5, 20);
-        fire.setFlammable(ModBlocks.MUSAVACCA_STEM.get(), 5, 5);
-        fire.setFlammable(ModBlocks.STRIPPED_MUSAVACCA_STEM.get(), 5, 5);
-        fire.setFlammable(ModBlocks.MUSAVACCA_LEAVES.get(), 30, 60);
+    // BaseFireBlock uses this state-only check for smoke particle placement.
+    // Spreading and burning use NeoForge's position-aware block hooks above.
+    @Override
+    protected boolean canBurn(BlockState state) {
+        var waterlogged = net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
+        if (state.hasProperty(waterlogged) && state.getValue(waterlogged)) {
+            return false;
+        }
+        return state.is(ModBlocks.MUSAVACCA_PLANKS.get())
+                || state.is(ModBlocks.MUSAVACCA_STEM.get())
+                || state.is(ModBlocks.STRIPPED_MUSAVACCA_STEM.get())
+                || state.is(ModBlocks.MUSAVACCA_LEAVES.get());
     }
 }

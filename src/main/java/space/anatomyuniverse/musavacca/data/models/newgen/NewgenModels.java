@@ -3,7 +3,11 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -14,13 +18,26 @@ import java.util.Map;
 
 final class NewgenModels {
     private final NewgenOutput output;
+    //? if >=1.21.11 {
+    /*private final Map<Key, Identifier> resolved = new HashMap<>();
+    private final Map<RootYKey, Identifier> rootYModels = new HashMap<>();
+    *///?} else {
     private final Map<Key, ResourceLocation> resolved = new HashMap<>();
     private final Map<RootYKey, ResourceLocation> rootYModels = new HashMap<>();
+    //?}
 
     private record Key(Models.Source source, Tints.ModelKey tint) {}
+    //? if >=1.21.11 {
+    /*private record RootYKey(Block owner, Identifier parent, float yDegrees) {}
+    *///?} else {
     private record RootYKey(Block owner, ResourceLocation parent, float yDegrees) {}
+    //?}
 
+    //? if >=1.21.11 {
+    /*record ItemPart(Identifier model, List<Tints.Tint> tints) {
+    *///?} else {
     record ItemPart(ResourceLocation model, List<Tints.Tint> tints) {
+    //?}
         ItemPart {
             java.util.Objects.requireNonNull(model, "model");
             tints = List.copyOf(tints);
@@ -41,7 +58,11 @@ final class NewgenModels {
         this.output = output;
     }
 
+    //? if >=1.21.11 {
+    /*Identifier resolve(Models.Source source, Tints.Tint tint) {
+    *///?} else {
     ResourceLocation resolve(Models.Source source, Tints.Tint tint) {
+    //?}
         if (source instanceof Models.Existing existing) return existing.model();
 
         Key key = new Key(source, Tints.modelKey(tint));
@@ -70,7 +91,11 @@ final class NewgenModels {
         });
     }
 
+    //? if >=1.21.11 {
+    /*Identifier rootRotateY(Block owner, Identifier parent, float yDegrees) {
+    *///?} else {
     ResourceLocation rootRotateY(Block owner, ResourceLocation parent, float yDegrees) {
+    //?}
         if (!Float.isFinite(yDegrees)) {
             throw new IllegalArgumentException("Root Y rotation must be finite: " + yDegrees);
         }
@@ -84,7 +109,11 @@ final class NewgenModels {
         );
 
         return rootYModels.computeIfAbsent(key, ignored -> {
+            //? if >=1.21.11 {
+            /*Identifier id = rootTransformId(owner, parent, yDegrees);
+            *///?} else {
             ResourceLocation id = rootTransformId(owner, parent, yDegrees);
+            //?}
 
             JsonObject root = new JsonObject();
             root.addProperty("parent", parent.toString());
@@ -102,7 +131,11 @@ final class NewgenModels {
         });
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier rootTransformId(Block owner, Identifier parent, float yDegrees) {
+    *///?} else {
     private static ResourceLocation rootTransformId(Block owner, ResourceLocation parent, float yDegrees) {
+    //?}
         String parentKey = parent.getNamespace() + "_" + parent.getPath().replace('/', '_');
         return ModelLocations.blockModel(owner, "_decoration/" + parentKey + "_rot_" + degreeKey(yDegrees));
     }
@@ -117,12 +150,22 @@ final class NewgenModels {
         return "pos_" + value.replace('.', '_');
     }
 
+    //? if >=1.21.11 {
+    /*private Identifier cube(Models.Generated generated, Tints.Tint tint) {
+        Textures.Set t = generated.textures();
+        Map<String, Identifier> textures = new java.util.LinkedHashMap<>();
+    *///?} else {
     private ResourceLocation cube(Models.Generated generated, Tints.Tint tint) {
         Textures.Set t = generated.textures();
         Map<String, ResourceLocation> textures = new java.util.LinkedHashMap<>();
+    //?}
         textures.put("particle", t.particle());
 
+        //? if >=1.21.11 {
+        /*Map<String, List<Identifier>> faceLayers = new java.util.LinkedHashMap<>();
+        *///?} else {
         Map<String, List<ResourceLocation>> faceLayers = new java.util.LinkedHashMap<>();
+        //?}
         faceLayers.put("down", t.bottom());
         faceLayers.put("up", t.top());
         faceLayers.put("north", t.north());
@@ -137,8 +180,13 @@ final class NewgenModels {
             JsonObject element = element(0, 0, 0, 16, 16, 16);
             JsonObject faces = new JsonObject();
 
+            //? if >=1.21.11 {
+            /*for (Map.Entry<String, List<Identifier>> entry : faceLayers.entrySet()) {
+                List<Identifier> layers = entry.getValue();
+            *///?} else {
             for (Map.Entry<String, List<ResourceLocation>> entry : faceLayers.entrySet()) {
                 List<ResourceLocation> layers = entry.getValue();
+            //?}
                 if (layer >= layers.size()) {
                     continue;
                 }
@@ -176,10 +224,18 @@ final class NewgenModels {
         return output.model(generated.model(), root);
     }
 
+    //? if >=1.21.11 {
+    /*private Identifier portal(PortalModels.Pane pane, Tints.Tint tint) {
+    *///?} else {
     private ResourceLocation portal(PortalModels.Pane pane, Tints.Tint tint) {
+    //?}
         List<Tints.GeneratedLayer> layers = Tints.generatedLayers(tint);
         PortalTextures.Set t = pane.textures();
+        //? if >=1.21.11 {
+        /*Map<String, Identifier> textures = new java.util.LinkedHashMap<>();
+        *///?} else {
         Map<String, ResourceLocation> textures = new java.util.LinkedHashMap<>();
+        //?}
 
         textures.put("particle", t.particle() != null ? t.particle() : t.source(tint, 0));
 
@@ -234,35 +290,24 @@ final class NewgenModels {
 
         List<SimpleItems.PhysicalLayer> layers = spec.physicalLayers(item);
 
-        //? if <1.21.4 {
-        /*ResourceLocation id = ModelLocations.itemModel(item);
-
-        if (layers.size() <= 5) {
-            generatedItemModel(
-                    id,
-                    spec.style(),
-                    layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(),
-                    false
-            );
-        } else {
-            generatedItemModel(
-                    id,
-                    spec.style(),
-                    layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(),
-                    true
-            );
-        }
-
-        return new ItemRender(List.of(
-                new ItemPart(
-                        id,
-                        layers.stream().map(SimpleItems.PhysicalLayer::tint).toList()
-                )
-        ));
-        *///?} else {
+        //? if >=1.21.4 {
         List<ItemPart> parts = new java.util.ArrayList<>();
         int groupCount = (layers.size() + 4) / 5;
+        //?} else {
+        /*ResourceLocation id = ModelLocations.itemModel(item);
+        *///?}
 
+        //? if >=1.21.11 {
+        /*for (int group = 0; group < groupCount; group++) {
+            int from = group * 5;
+            int to = Math.min(layers.size(), from + 5);
+
+            List<SimpleItems.PhysicalLayer> chunk = layers.subList(from, to);
+
+            Identifier id = groupCount == 1
+                    ? ModelLocations.itemModel(item)
+                    : ModelLocations.itemModel(item, "layers_" + group);
+        *///?} else if >=1.21.4 <1.21.11 {
         for (int group = 0; group < groupCount; group++) {
             int from = group * 5;
             int to = Math.min(layers.size(), from + 5);
@@ -273,25 +318,56 @@ final class NewgenModels {
                     ? ModelLocations.itemModel(item)
                     : ModelLocations.itemModel(item, "layers_" + group);
 
+        //?} else {
+        /*if (layers.size() <= 5) {
+        *///?}
             generatedItemModel(
                     id,
                     spec.style(),
+                    //? if >=1.21.4 {
                     chunk.stream().map(SimpleItems.PhysicalLayer::texture).toList(),
+                    //?} else {
+                    /*layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(),
+                    *///?}
                     false
             );
+        //? if >=1.21.4 {
 
             parts.add(new ItemPart(
                     id,
                     chunk.stream().map(SimpleItems.PhysicalLayer::tint).toList()
             ));
+        //?} else {
+        /*} else {
+            generatedItemModel(
+                    id,
+                    spec.style(),
+                    layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(),
+                    true
+            );
+        *///?}
         }
 
+        //? if >=1.21.4 {
         return new ItemRender(parts);
-        //?}
+        //?} else {
+        /*return new ItemRender(List.of(
+                new ItemPart(
+                        id,
+                        layers.stream().map(SimpleItems.PhysicalLayer::tint).toList()
+                )
+        ));
+        *///?}
+
     }
 
+    //? if >=1.21.11 {
+    /*private Identifier generatedItemModel(Identifier id, SimpleItems.Style style,
+                                                List<Identifier> textures, boolean unlimitedLegacyLayers) {
+    *///?} else {
     private ResourceLocation generatedItemModel(ResourceLocation id, SimpleItems.Style style,
                                                 List<ResourceLocation> textures, boolean unlimitedLegacyLayers) {
+    //?}
         if (textures == null || textures.isEmpty()) {
             throw new IllegalArgumentException("generated item model requires at least one texture");
         }
@@ -300,7 +376,11 @@ final class NewgenModels {
             throw new IllegalArgumentException("Vanilla generated item models support at most five texture layers");
         }
 
+        //? if >=1.21.11 {
+        /*Map<String, Identifier> mapping = new java.util.LinkedHashMap<>();
+        *///?} else {
         Map<String, ResourceLocation> mapping = new java.util.LinkedHashMap<>();
+        //?}
 
         for (int i = 0; i < textures.size(); i++) {
             mapping.put("layer" + i, textures.get(i));
@@ -326,9 +406,15 @@ final class NewgenModels {
         return output.model(id, root);
     }
 
+    //? if >=1.21.11 {
+    /*ArmorItemModels armorItemModels(Item item, Identifier baseTexture, Identifier trimTexture) {
+        Identifier baseId = ModelLocations.itemModel(item);
+        Identifier trimmedId = ModelLocations.itemModel(item, "trimmed");
+    *///?} else {
     ArmorItemModels armorItemModels(Item item, ResourceLocation baseTexture, ResourceLocation trimTexture) {
         ResourceLocation baseId = ModelLocations.itemModel(item);
         ResourceLocation trimmedId = ModelLocations.itemModel(item, "trimmed");
+    //?}
 
         JsonObject trimmed = parentJson(
                 "minecraft:item/generated",
@@ -341,7 +427,6 @@ final class NewgenModels {
                 "minecraft:item/generated",
                 Map.of("layer0", baseTexture)
         );
-
         //? if <1.21.4 {
         /*JsonArray overrides = new JsonArray();
 
@@ -361,7 +446,11 @@ final class NewgenModels {
         return new ArmorItemModels(baseId, trimmedId);
     }
 
+    //? if >=1.21.11 {
+    /*record ArmorItemModels(Identifier base, Identifier trimmed) {}
+    *///?} else {
     record ArmorItemModels(ResourceLocation base, ResourceLocation trimmed) {}
+    //?}
 
     SlabModels slab(SlabBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
@@ -485,15 +574,27 @@ final class NewgenModels {
         );
     }
 
+    //? if >=1.21.11 {
+    /*private String template(Block block, String suffix, String parent, Map<String, Identifier> textures) {
+    *///?} else {
     private String template(Block block, String suffix, String parent, Map<String, ResourceLocation> textures) {
+    //?}
         return parent(ModelLocations.blockModel(block, suffix), parent, textures).toString();
     }
 
+    //? if >=1.21.11 {
+    /*private Identifier parent(Identifier id, String parent, Map<String, Identifier> textures) {
+    *///?} else {
     private ResourceLocation parent(ResourceLocation id, String parent, Map<String, ResourceLocation> textures) {
+    //?}
         return output.model(id, parentJson("minecraft:block/" + parent, textures));
     }
 
+    //? if >=1.21.11 {
+    /*private static JsonObject parentJson(String parent, Map<String, Identifier> textures) {
+    *///?} else {
     private static JsonObject parentJson(String parent, Map<String, ResourceLocation> textures) {
+    //?}
         JsonObject root = new JsonObject();
         root.addProperty("parent", parent);
 
@@ -504,7 +605,11 @@ final class NewgenModels {
         return root;
     }
 
+    //? if >=1.21.11 {
+    /*Identifier fire(FireBlocks.Entry entry, String suffix, Shape shape, int frame,
+    *///?} else {
     ResourceLocation fire(FireBlocks.Entry entry, String suffix, Shape shape, int frame,
+    //?}
                           List<Tints.GeneratedLayer> layers) {
         return output.model(
                 ModelLocations.blockModel(entry.block(), suffix),
@@ -714,7 +819,11 @@ final class NewgenModels {
         return array;
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier textureForLayer(FireTextures.Set textures, Tints.Tint tint,
+    *///?} else {
     private static ResourceLocation textureForLayer(FireTextures.Set textures, Tints.Tint tint,
+    //?}
                                                     int frame, Tints.GeneratedLayer layer) {
         return Tints.generatedLayerCount(tint) > 1
                 ? FireTextures.layer(textures, frame, layer.sourceLayer())

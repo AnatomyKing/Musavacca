@@ -2,7 +2,11 @@ package space.anatomyuniverse.musavacca.data.language;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -52,21 +56,33 @@ public final class ModLanguageProvider extends LanguageProvider {
         final Set<String> generatedKeys = new HashSet<>();
 
         for (Block b : BuiltInRegistries.BLOCK) {
+            //? if >=1.21.11 {
+            /*Identifier id = BuiltInRegistries.BLOCK.getKey(b);
+            *///?} else {
             ResourceLocation id = BuiltInRegistries.BLOCK.getKey(b);
+            //?}
             if (id == null || !modid.equals(id.getNamespace())) continue;
 
             addGenerated(generatedKeys, b.getDescriptionId(), humanize(id.getPath()));
         }
 
         for (Item it : BuiltInRegistries.ITEM) {
+            //? if >=1.21.11 {
+            /*Identifier id = BuiltInRegistries.ITEM.getKey(it);
+            *///?} else {
             ResourceLocation id = BuiltInRegistries.ITEM.getKey(it);
+            //?}
             if (id == null || !modid.equals(id.getNamespace())) continue;
 
             addGenerated(generatedKeys, it.getDescriptionId(), humanize(id.getPath()));
         }
 
         for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
+            //? if >=1.21.11 {
+            /*Identifier id = BuiltInRegistries.MOB_EFFECT.getKey(effect);
+            *///?} else {
             ResourceLocation id = BuiltInRegistries.MOB_EFFECT.getKey(effect);
+            //?}
             if (id == null || !modid.equals(id.getNamespace())) continue;
 
             addGenerated(generatedKeys, effect.getDescriptionId(), humanize(id.getPath()));
@@ -118,4 +134,3 @@ public final class ModLanguageProvider extends LanguageProvider {
                 .replace("Gps", "GPS");
     }
 }
-

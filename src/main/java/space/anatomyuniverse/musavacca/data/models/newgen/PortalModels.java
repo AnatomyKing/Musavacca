@@ -1,7 +1,11 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.core.Direction;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.Block;
 
 import java.util.Objects;
@@ -46,7 +50,11 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
         return generated(block, ModelLocations.blockModel(block, suffix), textures);
     }
 
+    //? if >=1.21.11 {
+    /*public static PortalModels generated(Block block, Identifier modelStem, Consumer<PortalTextures.Builder> textures) {
+    *///?} else {
     public static PortalModels generated(Block block, ResourceLocation modelStem, Consumer<PortalTextures.Builder> textures) {
+    //?}
         Objects.requireNonNull(modelStem, "modelStem");
         Objects.requireNonNull(textures, "textures");
         PortalTextures.Builder builder = PortalTextures.of(block);
@@ -56,11 +64,20 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
                 pane(modelStem, "_ew", Direction.Axis.Z, set), pane(modelStem, "_ud", Direction.Axis.Y, set));
     }
 
+    //? if >=1.21.11 {
+    /*private static Pane pane(Identifier stem, String suffix, Direction.Axis axis, PortalTextures.Set textures) {
+        return new Pane(Identifier.fromNamespaceAndPath(stem.getNamespace(), stem.getPath() + suffix), axis, textures);
+    *///?} else {
     private static Pane pane(ResourceLocation stem, String suffix, Direction.Axis axis, PortalTextures.Set textures) {
         return new Pane(ResourceLocation.fromNamespaceAndPath(stem.getNamespace(), stem.getPath() + suffix), axis, textures);
+    //?}
     }
 
+    //? if >=1.21.11 {
+    /*record Pane(Identifier model, Direction.Axis axis, PortalTextures.Set textures) implements Models.Source {
+    *///?} else {
     record Pane(ResourceLocation model, Direction.Axis axis, PortalTextures.Set textures) implements Models.Source {
+    //?}
         Pane {
             Objects.requireNonNull(model, "model");
             Objects.requireNonNull(axis, "axis");
@@ -86,4 +103,3 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
         public PortalModels build() { return new PortalModels(northSouth, eastWest, upDown); }
     }
 }
-

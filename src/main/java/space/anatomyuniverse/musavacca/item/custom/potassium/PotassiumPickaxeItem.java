@@ -30,7 +30,7 @@ public final class PotassiumPickaxeItem
             //?}
             float attackDamage,
             float attackSpeed,
-            Item.Properties properties
+            Properties properties
     ) {
         //? if <1.21.2 {
         /*super(material, properties.attributes(PickaxeItem.createAttributes(material, attackDamage, attackSpeed)));
@@ -53,7 +53,7 @@ public final class PotassiumPickaxeItem
         return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
     }
     *///?} else {
-    private static Item.Properties pickaxeProperties(Item.Properties properties, ToolMaterial material, float attackDamage, float attackSpeed) {
+    private static Properties pickaxeProperties(Properties properties, ToolMaterial material, float attackDamage, float attackSpeed) {
         //? if >=1.21.5 {
         return properties.pickaxe(material, attackDamage, attackSpeed);
         //?} else {

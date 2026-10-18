@@ -1,12 +1,18 @@
 package space.anatomyuniverse.musavacca.item.custom;
+//? if >=26.1 {
+/*import net.minecraft.world.item.ItemStackTemplate;
+*///?}
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-
 //? if <1.21.2 {
 /*import net.minecraft.ChatFormatting;
 import net.minecraft.world.InteractionResultHolder;
@@ -22,9 +28,10 @@ import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BundleContents;
+//? if >=1.21.5 {
 
-//? if >=1.21.5
 import net.minecraft.world.item.component.TooltipDisplay;
+//?}
 
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -41,35 +48,27 @@ import java.util.Optional;
 public class OpenVocoCallerItem
         extends BundleItem {
 
+    //? if >=1.21.11 {
+    /*private static final Identifier LEGACY_BUNDLE_MODEL =
+            Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "item/banana_phone");
+    *///?} else {
     private static final ResourceLocation LEGACY_BUNDLE_MODEL =
-            ResourceLocation.fromNamespaceAndPath(
-                    MusaCore.MOD_ID,
-                    "item/banana_phone"
-            );
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "item/banana_phone");
+    //?}
 
-    //? if <1.21.2 {
-    /*public OpenVocoCallerItem(
+    public OpenVocoCallerItem(
             Properties properties
     ) {
+        //? if <1.21.2 || >=1.21.4 {
         super(properties);
-    }
-    *///?} else if <1.21.4 {
-    /*public OpenVocoCallerItem(
-            Properties properties
-    ) {
-        super(
+        //?} else {
+        /*super(
                 LEGACY_BUNDLE_MODEL,
                 LEGACY_BUNDLE_MODEL,
                 properties
         );
+        *///?}
     }
-    *///?} else {
-    public OpenVocoCallerItem(
-            Properties properties
-    ) {
-        super(properties);
-    }
-    //?}
 
     public static ItemStack getSim(
             ItemStack phone
@@ -87,7 +86,11 @@ public class OpenVocoCallerItem
                         DataComponents.BUNDLE_CONTENTS,
                         BundleContents.EMPTY
                 )
+                //? if >=26.3 {
+                /*.itemCopies()
+                *///?} else {
                 .itemCopyStream()
+                //?}
                 .filter(
                         stack ->
                                 stack.getItem()
@@ -132,9 +135,11 @@ public class OpenVocoCallerItem
 
         phone.set(
                 DataComponents.BUNDLE_CONTENTS,
-                new BundleContents(
-                        List.of(storedSim)
-                )
+                //? if >=26.1 {
+                /*new BundleContents(java.util.List.of(ItemStackTemplate.fromNonEmptyStack(storedSim)))
+                *///?} else {
+                new BundleContents(List.of(storedSim))
+                //?}
         );
     }
 
@@ -182,43 +187,40 @@ public class OpenVocoCallerItem
         );
     }
     *///?}
-
     @Override
-            //? if <1.21.2 {
+
+    //? if >=1.21.2 {
+    public InteractionResult use(
+    //?} else {
     /*public InteractionResultHolder<ItemStack> use(
+    *///?}
             Level level,
             Player player,
             InteractionHand hand
     ) {
-        ItemStack stack =
+        //? if <1.21.2 {
+        /*ItemStack stack =
                 player.getItemInHand(hand);
-
+        *///?}
         openPhone(
                 level,
                 player,
-                stack
+                //? if >=1.21.2 {
+                player.getItemInHand(hand)
+                //?} else {
+                /*stack
+                *///?}
         );
 
-        return InteractionResultHolder.sidedSuccess(
+        //? if >=1.21.2 {
+        return InteractionResult.SUCCESS_SERVER;
+        //?} else {
+        /*return InteractionResultHolder.sidedSuccess(
                 stack,
                 level.isClientSide()
         );
+        *///?}
     }
-    *///?} else {
-    public InteractionResult use(
-            Level level,
-            Player player,
-            InteractionHand hand
-    ) {
-        openPhone(
-                level,
-                player,
-                player.getItemInHand(hand)
-        );
-
-        return InteractionResult.SUCCESS_SERVER;
-    }
-    //?}
 
     @Override
     public InteractionResult useOn(
@@ -230,23 +232,26 @@ public class OpenVocoCallerItem
                 context.getItemInHand()
         );
 
-        //? if <1.21.2 {
+        //? if >=1.21.2 {
+        return InteractionResult.SUCCESS_SERVER;
+        //?} else {
         /*return InteractionResult.sidedSuccess(
                 context.getLevel().isClientSide()
         );
-        *///?} else {
-        return InteractionResult.SUCCESS_SERVER;
-         //?}
+        *///?}
+
     }
 
     private static boolean isInsertAction(
             ClickAction action
     ) {
-        //? if <1.21.2 {
-        /*return action == ClickAction.SECONDARY;
-        *///?} else {
+
+        //? if >=1.21.2 {
         return action == ClickAction.PRIMARY;
-         //?}
+        //?} else {
+        /*return action == ClickAction.SECONDARY;
+        *///?}
+
     }
 
     @Override
@@ -484,6 +489,7 @@ public class OpenVocoCallerItem
     public Optional<TooltipComponent> getTooltipImage(
             ItemStack stack
     ) {
+
         //? if >=1.21.5 {
         TooltipDisplay display =
                 stack.getOrDefault(
@@ -498,8 +504,8 @@ public class OpenVocoCallerItem
         ) {
             return Optional.empty();
         }
-        //?}
 
+        //?}
         BundleContents contents =
                 stack.get(
                         DataComponents.BUNDLE_CONTENTS
@@ -538,12 +544,15 @@ public class OpenVocoCallerItem
                 getSim(phone);
 
         if (sim.isEmpty()) {
-            serverPlayer.displayClientMessage(
-                    Component.literal(
+            //? if >=26.1 {
+            /*serverPlayer.sendOverlayMessage(Component.literal(
                             "Insert a SIM card first."
-                    ),
-                    true
-            );
+                    ));
+            *///?} else {
+            serverPlayer.displayClientMessage(Component.literal(
+                            "Insert a SIM card first."
+                    ), true);
+            //?}
 
             return;
         }
@@ -552,12 +561,15 @@ public class OpenVocoCallerItem
                 getSimHex(phone);
 
         if (hex < 0) {
-            serverPlayer.displayClientMessage(
-                    Component.literal(
+            //? if >=26.1 {
+            /*serverPlayer.sendOverlayMessage(Component.literal(
                             "This SIM card does not have a Voco hex code."
-                    ),
-                    true
-            );
+                    ));
+            *///?} else {
+            serverPlayer.displayClientMessage(Component.literal(
+                            "This SIM card does not have a Voco hex code."
+                    ), true);
+            //?}
 
             return;
         }
@@ -568,12 +580,15 @@ public class OpenVocoCallerItem
                         hex
                 )
         ) {
-            serverPlayer.displayClientMessage(
-                    Component.literal(
+            //? if >=26.1 {
+            /*serverPlayer.sendOverlayMessage(Component.literal(
                             "This SIM card is not active on the Voco network."
-                    ),
-                    true
-            );
+                    ));
+            *///?} else {
+            serverPlayer.displayClientMessage(Component.literal(
+                            "This SIM card is not active on the Voco network."
+                    ), true);
+            //?}
 
             return;
         }
@@ -607,8 +622,11 @@ public class OpenVocoCallerItem
             return true;
         }
 
-        player.displayClientMessage(
-                Component.literal(
+        //? if >=26.1 {
+        /*player.sendOverlayMessage(Component.literal(
+        *///?} else {
+        player.displayClientMessage(Component.literal(
+        //?}
                         result
                                 == HexTeleportDirectory.Result.HEX_OCCUPIED
                                 ? "Voco address #"
@@ -617,9 +635,11 @@ public class OpenVocoCallerItem
                         )
                                   + " is already reserved."
                                 : "This SIM card cannot be activated."
-                ),
-                true
-        );
+                //? if >=26.1 {
+                /*));
+                *///?} else {
+                ), true);
+                //?}
 
         return false;
     }
@@ -627,12 +647,14 @@ public class OpenVocoCallerItem
     private static void denyEject(
             ServerPlayer player
     ) {
-        player.displayClientMessage(
-                Component.literal(
+        //? if >=26.1 {
+        /*player.sendOverlayMessage(Component.literal(
                         "Only this SIM's registered owner can remove it."
-                ),
-                true
-        );
+                ));
+        *///?} else {
+        player.displayClientMessage(Component.literal(
+                        "Only this SIM's registered owner can remove it."
+                ), true);
+        //?}
     }
 }
-

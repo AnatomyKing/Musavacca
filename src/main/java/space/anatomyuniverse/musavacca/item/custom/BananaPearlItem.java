@@ -11,7 +11,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+//? if >=26.1 {
+/*import net.minecraft.world.level.block.SnowyBlock;
+*///?} else {
 import net.minecraft.world.level.block.SnowyDirtBlock;
+//?}
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 
@@ -37,7 +41,11 @@ public final class BananaPearlItem extends Item {
                     ModBlocks.CAROTENE_GRASS.get()
                             .defaultBlockState()
                             .setValue(
+                                    //? if >=26.1 {
+                                    /*SnowyBlock.SNOWY,
+                                    *///?} else {
                                     SnowyDirtBlock.SNOWY,
+                                    //?}
                                     level.getBlockState(pos.above())
                                             .is(Blocks.SNOW)
                             );

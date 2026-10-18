@@ -2,7 +2,11 @@ package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -30,15 +34,26 @@ public final class ShapedCrafting {
     ) {
         this.dsl = dsl;
 
-        //? if <1.21.3 {
-        /*this.builder = ShapedRecipeBuilder.shaped(category, result, count);
-        *///?} else {
+        //? if >=26.1 {
+        /*this.builder = ShapedRecipeBuilder.shaped(
+                dsl.items(),
+                category,
+
+                new net.minecraft.world.item.ItemStackTemplate(result.asItem(), count)
+
+        );
+        *///?} else if >=1.21.2 <26.1 {
         this.builder = ShapedRecipeBuilder.shaped(
                 dsl.items(),
                 category,
+
                 new ItemStack(result.asItem(), count)
+
         );
-        //?}
+        //?} else {
+        /*this.builder = ShapedRecipeBuilder.shaped(category, result, count);
+        *///?}
+
     }
 
     public ShapedCrafting pattern(String line) {
@@ -94,7 +109,11 @@ public final class ShapedCrafting {
         save(this.dsl.id(path));
     }
 
+    //? if >=1.21.11 {
+    /*public void save(Identifier id) {
+    *///?} else {
     public void save(ResourceLocation id) {
+    //?}
         this.dsl.save(
                 this.builder,
                 id,
@@ -117,6 +136,3 @@ public final class ShapedCrafting {
         return List.copyOf(result);
     }
 }
-
-
-

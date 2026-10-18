@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.portal;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -83,7 +89,11 @@ public final class PearlPortalCreator {
         HexTeleportDirectory.Result result = directory.registerPortalEndpoint(
                 portalId,
                 normalizedHex,
+                //? if >=1.21.11 {
+                /*serverLevel.dimension().identifier(),
+                *///?} else {
                 serverLevel.dimension().location(),
+                //?}
                 shape
         );
 
@@ -228,7 +238,11 @@ public final class PearlPortalCreator {
 
     private static void sendActionBar(@Nullable Player player, String message) {
         if (player != null) {
+            //? if >=26.1 {
+            /*player.sendOverlayMessage(Component.literal(message));
+            *///?} else {
             player.displayClientMessage(Component.literal(message), true);
+            //?}
         }
     }
 
@@ -236,4 +250,3 @@ public final class PearlPortalCreator {
         return String.format("%06X", MusavaccaTints.rgb(color));
     }
 }
-

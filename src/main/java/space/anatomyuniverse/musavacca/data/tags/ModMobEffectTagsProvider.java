@@ -14,18 +14,17 @@ import java.util.concurrent.CompletableFuture;
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.common.data.ExistingFileHelper;
 *///?}
-
 public final class ModMobEffectTagsProvider extends TagsProvider<MobEffect> {
-    //? if <1.21.4 {
+
+    //? if >=1.21.4 {
+    public ModMobEffectTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookup) {
+        super(output, Registries.MOB_EFFECT, lookup, MusaCore.MOD_ID);
+    //?} else {
     /*public ModMobEffectTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookup,
                                     ExistingFileHelper existingFileHelper) {
         super(output, Registries.MOB_EFFECT, lookup, MusaCore.MOD_ID, existingFileHelper);
+    *///?}
     }
-    *///?} else {
-    public ModMobEffectTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookup) {
-        super(output, Registries.MOB_EFFECT, lookup, MusaCore.MOD_ID);
-    }
-    //?}
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {

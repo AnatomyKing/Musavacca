@@ -2,7 +2,11 @@ package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -28,6 +32,10 @@ public final class Smelting {
         this.builder = SimpleCookingRecipeBuilder.smelting(
                 ingredient(input),
                 category,
+
+                //? if >=26.1 {
+                /*category == RecipeCategory.FOOD ? net.minecraft.world.item.crafting.CookingBookCategory.FOOD : category == RecipeCategory.BUILDING_BLOCKS ? net.minecraft.world.item.crafting.CookingBookCategory.BLOCKS : net.minecraft.world.item.crafting.CookingBookCategory.MISC,
+                *///?}
                 result,
                 experience,
                 time
@@ -64,7 +72,11 @@ public final class Smelting {
         save(this.dsl.id(path));
     }
 
+    //? if >=1.21.11 {
+    /*public void save(Identifier id) {
+    *///?} else {
     public void save(ResourceLocation id) {
+    //?}
         this.dsl.save(
                 this.builder,
                 id,
@@ -72,4 +84,3 @@ public final class Smelting {
         );
     }
 }
-

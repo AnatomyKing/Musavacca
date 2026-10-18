@@ -1,11 +1,13 @@
 package space.anatomyuniverse.musavacca.item.custom.potassium;
 
 import net.minecraft.world.InteractionHand;
-//? if <1.21.2 {
-/*import net.minecraft.world.InteractionResultHolder;
-*///?} else {
+
+//? if >=1.21.2 {
 import net.minecraft.world.InteractionResult;
-//?}
+//?} else {
+/*import net.minecraft.world.InteractionResultHolder;
+*///?}
+
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -18,39 +20,36 @@ public class PotassiumItem extends Item {
     }
 
     @Override
-    //? if <1.21.2 {
+
+    //? if >=1.21.2 {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        if (PotassiumItemBehavior.isLookingAtBlock(player)) {
+            return InteractionResult.PASS;
+    //?} else {
     /*public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         if (PotassiumItemBehavior.isLookingAtBlock(player)) {
             return InteractionResultHolder.pass(stack);
+    *///?}
         }
 
-        if (!PotassiumItemBehavior.canStartEating(stack, player)) {
-            return InteractionResultHolder.fail(stack);
-        }
-
-        return super.use(level, player, hand);
-    }
-    *///?} else {
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        if (PotassiumItemBehavior.isLookingAtBlock(player)) {
-            return InteractionResult.PASS;
-        }
-
+        //? if >=1.21.2 {
         ItemStack stack = player.getItemInHand(hand);
 
         if (!PotassiumItemBehavior.canStartEating(stack, player)) {
             return InteractionResult.FAIL;
+        //?} else {
+        /*if (!PotassiumItemBehavior.canStartEating(stack, player)) {
+            return InteractionResultHolder.fail(stack);
+        *///?}
         }
 
         return super.use(level, player, hand);
     }
-    //?}
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
     }
 }
-

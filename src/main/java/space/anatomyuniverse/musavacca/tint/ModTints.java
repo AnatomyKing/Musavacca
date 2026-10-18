@@ -1,7 +1,11 @@
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.core.BlockPos;
+//? if >=26.1 {
+/*import net.minecraft.client.renderer.block.BlockAndTintGetter;
+*///?} else {
 import net.minecraft.world.level.BlockAndTintGetter;
+//?}
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -16,27 +20,51 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import space.anatomyuniverse.musavacca.data.models.NewModelSets;
 import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
 *///?}
-
 public final class ModTints {
     private ModTints() {}
 
     public static void register(IEventBus modBus) {
         modBus.addListener(ModTints::registerBlockColorHandlers);
 
-        //? if <1.21.4 {
+        //? if >=1.21.4 {
+        modBus.addListener(ModTints::registerItemTintSources);
+        //?} else {
         /*modBus.addListener(ModTints::registerItemColorHandlers);
         modBus.addListener(ModTints::registerLegacyTrimProperties);
-        *///?} else {
-        modBus.addListener(ModTints::registerItemTintSources);
-        //?}
+        *///?}
+
     }
 
+    //? if >=26.1 {
+    /*public static void registerBlockColorHandlers(RegisterColorHandlersEvent.BlockTintSources event) {
+        for (var binding : NewgenBlockTintCatalog.bindings()) {
+            int maximum = binding.rules().stream().flatMap(rule -> rule.generatedLayers().stream())
+                    .mapToInt(Tints.GeneratedLayer::tintIndex).max().orElse(-1);
+            var sources = new java.util.ArrayList<net.minecraft.client.color.block.BlockTintSource>();
+            for (int i = 0; i <= maximum; i++) {
+                final int index = i;
+                sources.add(new net.minecraft.client.color.block.BlockTintSource() {
+                    @Override public int color(BlockState state) {
+                        return blockTint(state, null, null, index);
+                    }
+                    @Override public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+                        return blockTint(state, level, pos, index);
+                    }
+                    @Override public java.util.Set<net.minecraft.world.level.block.state.properties.Property<?>> relevantProperties() {
+                        return java.util.Set.copyOf(binding.block().getStateDefinition().getProperties());
+                    }
+                });
+            }
+            event.register(sources, binding.block());
+        }
+    *///?} else {
     public static void registerBlockColorHandlers(RegisterColorHandlersEvent.Block event) {
         if (NewgenBlockTintCatalog.bindings().isEmpty()) {
             return;
         }
 
         event.register(ModTints::blockTint, NewgenBlockTintCatalog.blocks());
+    //?}
     }
 
     private static int blockTint(
@@ -73,7 +101,13 @@ public final class ModTints {
         return Tints.NO_TINT;
     }
 
-    //? if <1.21.4 {
+    //? if >=1.21.4 {
+    public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
+        for (Tints.ItemTintType type : NewgenItemCatalog.itemTintTypes()) {
+            event.register(type.id(), type.codec());
+        }
+    }
+    //?} else {
     /*private static void registerLegacyTrimProperties(FMLClientSetupEvent event) {
         ArmorTrimItemTintSource.registerLegacyItemProperties(event, NewModelSets.armorItems());
     }
@@ -111,11 +145,6 @@ public final class ModTints {
                 item.asItem()
         );
     }
-    *///?} else {
-    public static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
-        for (Tints.ItemTintType type : NewgenItemCatalog.itemTintTypes()) {
-            event.register(type.id(), type.codec());
-        }
-    }
-    //?}
+    *///?}
+
 }

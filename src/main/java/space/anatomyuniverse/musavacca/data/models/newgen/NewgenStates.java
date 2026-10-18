@@ -1,7 +1,11 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.core.Direction;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.*;
 
@@ -12,7 +16,11 @@ import java.util.function.Function;
 final class NewgenStates {
     private NewgenStates() {}
 
+    //? if >=1.21.11 {
+    /*record Pose<M>(Conditions.Match when, Function<M, Identifier> model,
+    *///?} else {
     record Pose<M>(Conditions.Match when, Function<M, ResourceLocation> model,
+    //?}
                    int x, int y, boolean uvLock) {}
 
     private static final boolean[] BOOLEANS = {false, true};

@@ -1,10 +1,15 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
+//? if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+*///?}
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
+
 import net.minecraft.core.component.DataComponentGetter;
- //?}
+//?}
+
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -15,11 +20,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if <1.21.6 {
-//?} else {
+//? if >=1.21.6 {
+
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
+
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
@@ -58,14 +64,6 @@ public class HexBlockEntity extends BlockEntity implements HexSource {
         }
     }
 
-    private static int readIntOr(CompoundTag tag, String key, int fallback) {
-        //? if <1.21.5 {
-        /*return tag.contains(key) ? tag.getInt(key) : fallback;
-        *///?} else {
-        return tag.getIntOr(key, fallback);
-        //?}
-    }
-
     private void syncToClientAndRerender() {
         Level level = this.getLevel();
         if (level == null) {
@@ -100,55 +98,50 @@ public class HexBlockEntity extends BlockEntity implements HexSource {
         );
     }
 
-    //? if <1.21.6 {
-    /*@Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.hexColor = MusavaccaTints.stored(
-                readIntOr(tag, MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT)
-        );
-    }
-
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-
-        if (this.hasHexColor()) {
-            tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
-        }
-    }
-    *///?} else {
-    @Override
+    //? if >=1.21.6 {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.hexColor = MusavaccaTints.stored(
                 input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT)
+    //?} else if >=1.21.5 <1.21.6 {
+    /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        this.hexColor = MusavaccaTints.stored(
+                tag.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT)
+    *///?} else {
+    /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        this.hexColor = MusavaccaTints.stored(
+                (tag.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? tag.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT)
+    *///?}
         );
     }
 
     @Override
+    //? if >=1.21.6 {
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+    *///?}
 
         if (this.hasHexColor()) {
+            //? if >=1.21.6 {
             output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
+            //?} else {
+            /*tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
+            *///?}
         }
     }
-    //?}
 
-    //? if <1.21.5 {
-    /*@Override
-    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-
-        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        if (savedHex != null) {
-            this.hexColor = MusavaccaTints.stored(savedHex);
-        }
-    }
-    *///?} else {
     @Override
+    //? if >=1.21.5 {
     protected void applyImplicitComponents(DataComponentGetter input) {
+    //?} else {
+    /*protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
+    *///?}
         super.applyImplicitComponents(input);
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
@@ -156,7 +149,6 @@ public class HexBlockEntity extends BlockEntity implements HexSource {
             this.hexColor = MusavaccaTints.stored(savedHex);
         }
     }
-    //?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
@@ -177,29 +169,26 @@ public class HexBlockEntity extends BlockEntity implements HexSource {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    //? if <1.21.6 {
-    /*@Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        super.handleUpdateTag(tag, registries);
-        this.rerenderClientNow();
-    }
-
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
-        super.onDataPacket(connection, packet, registries);
-        this.rerenderClientNow();
-    }
-    *///?} else {
-    @Override
+    //? if >=1.21.6 {
     public void handleUpdateTag(ValueInput input) {
         super.handleUpdateTag(input);
+    //?} else {
+    /*public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.handleUpdateTag(tag, registries);
+    *///?}
         this.rerenderClientNow();
     }
 
     @Override
+    //? if >=1.21.6 {
     public void onDataPacket(Connection connection, ValueInput input) {
         super.onDataPacket(connection, input);
+    //?} else {
+    /*public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+        super.onDataPacket(connection, packet, registries);
+    *///?}
         this.rerenderClientNow();
     }
-    //?}
+
 }

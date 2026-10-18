@@ -18,8 +18,8 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
+//? if >=1.21.2 {
 
-//? if >=1.21.3 {
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
@@ -33,7 +33,11 @@ public final class ComponentShapedCrafting {
     private static Supplier<RecipeSerializer<ComponentRecipe>> serializer;
 
     public static void register(DeferredRegister<RecipeSerializer<?>> serializers) {
+        //? if >=26.1 {
+        /*serializer = serializers.register("component_shaped", () -> new RecipeSerializer<>(ComponentSerializer.CODEC, ComponentSerializer.STREAM_CODEC));
+        *///?} else {
         serializer = serializers.register("component_shaped", ComponentSerializer::new);
+        //?}
     }
 
     public static RecipeOutput output(
@@ -84,8 +88,22 @@ public final class ComponentShapedCrafting {
         }
 
         @Override
-        public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
-            ItemStack result = this.base.assemble(input, registries);
+        public ItemStack assemble(CraftingInput input
+
+                //? if <26.1 {
+                , HolderLookup.Provider registries
+                //?}
+        ) {
+
+            //? if >=26.1 {
+            /*HolderLookup.Provider registries = ComponentRecipeDSL.runtimeRegistries();
+            *///?}
+            ItemStack result = this.base.assemble(input
+
+                    //? if <26.1 {
+                    , registries
+                    //?}
+            );
             List<ItemStack> stacks = ComponentRecipeDSL.assignSourceStacks(input, this.sources, registries);
 
             if (stacks != null) {
@@ -112,17 +130,17 @@ public final class ComponentShapedCrafting {
             return RecipeType.CRAFTING;
         }
 
-        //? if <1.21.3 {
-        /*@Override
-        public String getGroup() {
-            return this.base.getGroup();
-        }
-        *///?} else {
+        //? if >=1.21.2 {
         @Override
         public String group() {
             return this.base.group();
         }
-        //?}
+        //?} else {
+        /*@Override
+        public String getGroup() {
+            return this.base.getGroup();
+        }
+        *///?}
 
         @Override
         public boolean showNotification() {
@@ -134,54 +152,71 @@ public final class ComponentShapedCrafting {
             return this.base.category();
         }
 
-        //? if <1.21.3 {
-        /*@Override
-        public boolean canCraftInDimensions(int width, int height) {
-            return this.base.canCraftInDimensions(width, height);
-        }
-
-        @Override
-        public ItemStack getResultItem(HolderLookup.Provider registries) {
-            return this.base.getResultItem(registries);
-        }
-
-        @Override
-        public NonNullList<Ingredient> getIngredients() {
-            return this.base.getIngredients();
-        }
-        *///?} else {
+        //? if >=1.21.2 {
         @Override
         public PlacementInfo placementInfo() {
             return this.base.placementInfo();
         }
+        //?} else {
+        /*@Override
+        public boolean canCraftInDimensions(int width, int height) {
+            return this.base.canCraftInDimensions(width, height);
+        }
+        *///?}
 
+        //? if >=1.21.2 {
         @Override
         public RecipeBookCategory recipeBookCategory() {
             return this.base.recipeBookCategory();
         }
+        //?} else {
+        /*@Override
+        public ItemStack getResultItem(HolderLookup.Provider registries) {
+            return this.base.getResultItem(registries);
+        }
+        *///?}
 
+        //? if >=1.21.2 {
         @Override
         public List<RecipeDisplay> display() {
             return this.base.display();
         }
-        //?}
+        //?} else {
+        /*@Override
+        public NonNullList<Ingredient> getIngredients() {
+            return this.base.getIngredients();
+        }
+        *///?}
+
     }
 
+    //? if >=26.1 {
+    /*private static final class ComponentSerializer {
+        private static final MapCodec<ComponentRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                net.minecraft.world.item.crafting.ShapedRecipe.SERIALIZER.codec().codec().fieldOf("base").forGetter(ComponentRecipe::base),
+    *///?} else {
     private static final class ComponentSerializer implements RecipeSerializer<ComponentRecipe> {
         private static final MapCodec<ComponentRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 RecipeSerializer.SHAPED_RECIPE.codec().codec().fieldOf("base").forGetter(ComponentRecipe::base),
+    //?}
                 ComponentRecipeDSL.SOURCE_CODEC.listOf().fieldOf("sources").forGetter(ComponentRecipe::sources)
         ).apply(instance, ComponentRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, ComponentRecipe> STREAM_CODEC =
                 StreamCodec.composite(
+                        //? if >=26.1 {
+                        /*net.minecraft.world.item.crafting.ShapedRecipe.SERIALIZER.streamCodec(),
+                        *///?} else {
                         RecipeSerializer.SHAPED_RECIPE.streamCodec(),
+                        //?}
                         ComponentRecipe::base,
                         ByteBufCodecs.fromCodecWithRegistries(ComponentRecipeDSL.SOURCE_CODEC.listOf()),
                         ComponentRecipe::sources,
                         ComponentRecipe::new
                 );
 
+        //? if <26.1 {
+    
         @Override
         public MapCodec<ComponentRecipe> codec() {
             return CODEC;
@@ -191,10 +226,8 @@ public final class ComponentShapedCrafting {
         public StreamCodec<RegistryFriendlyByteBuf, ComponentRecipe> streamCodec() {
             return STREAM_CODEC;
         }
+        //?}
     }
 
     private ComponentShapedCrafting() {}
 }
-
-
-

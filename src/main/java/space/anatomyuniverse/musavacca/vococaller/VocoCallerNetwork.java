@@ -336,14 +336,19 @@ public final class VocoCallerNetwork {
             return true;
         }
 
-        caller.displayClientMessage(
-                Component.literal(
+        //? if >=26.1 {
+        /*caller.sendOverlayMessage(Component.literal(
+        *///?} else {
+        caller.displayClientMessage(Component.literal(
+        //?}
                         "Voco phone #"
                                 + HexTeleportDirectory.toHex(registration.hexColor())
                                 + " is unreachable."
-                ),
-                true
-        );
+                //? if >=26.1 {
+                /*));
+                *///?} else {
+                ), true);
+                //?}
         return false;
     }
 
@@ -444,5 +449,3 @@ public final class VocoCallerNetwork {
             MobEffectInstance effect
     ) {}
 }
-
-

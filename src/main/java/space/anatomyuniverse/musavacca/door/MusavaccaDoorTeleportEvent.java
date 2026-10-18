@@ -3,18 +3,21 @@ package space.anatomyuniverse.musavacca.door;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-//? if <1.21.2 {
-/*import net.minecraft.world.level.portal.DimensionTransition;
-*///?} else {
+
+//? if >=1.21.2 {
 import net.minecraft.world.level.portal.TeleportTransition;
-//?}
+//?} else {
+/*import net.minecraft.world.level.portal.DimensionTransition;
+*///?}
+
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportPreloader;
+//? if >=1.21.2 {
 
-//? if >=1.21.2
 import java.util.Set;
+//?}
 
 public final class MusavaccaDoorTeleportEvent {
 
@@ -22,11 +25,13 @@ public final class MusavaccaDoorTeleportEvent {
 
     @Nullable
     public static
-    //? if <1.21.2 {
-    /*DimensionTransition
-    *///?} else {
+
+    //? if >=1.21.2 {
     TeleportTransition
-    //?}
+    //?} else {
+    /*DimensionTransition
+    *///?}
+
     getPortalDestination(
             ServerLevel currentLevel,
             Entity entity,
@@ -79,11 +84,13 @@ public final class MusavaccaDoorTeleportEvent {
                 );
 
         var postTeleport =
-                //? if <1.21.2 {
-                /*DimensionTransition
-                *///?} else {
+
+                //? if >=1.21.2 {
                 TeleportTransition
-                //?}
+                //?} else {
+                /*DimensionTransition
+                *///?}
+
                         .PLAY_PORTAL_SOUND
                         .then(
                                 teleportedEntity -> {
@@ -105,18 +112,22 @@ public final class MusavaccaDoorTeleportEvent {
                         );
 
         return new
-                //? if <1.21.2 {
-                /*DimensionTransition(
-                *///?} else {
+
+                //? if >=1.21.2 {
                 TeleportTransition(
-                //?}
+                //?} else {
+                /*DimensionTransition(
+                *///?}
+
                 target.level(),
                 transform.position(),
                 transform.deltaMovement(),
                 transform.yRot(),
                 transform.xRot(),
-                //? if >=1.21.2
+
+                //? if >=1.21.2 {
                 Set.of(),
+                //?}
                 postTeleport
         );
     }

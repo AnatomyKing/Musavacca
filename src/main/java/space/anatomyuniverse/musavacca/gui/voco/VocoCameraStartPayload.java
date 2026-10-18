@@ -4,7 +4,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -23,7 +27,11 @@ public record VocoCameraStartPayload(
         float previewPitch
 ) implements CustomPacketPayload {
     public static final Type<VocoCameraStartPayload> TYPE =
+            //? if >=1.21.11 {
+            /*new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_start"));
+            *///?} else {
             new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_start"));
+            //?}
 
     public static final StreamCodec<FriendlyByteBuf, VocoCameraStartPayload> STREAM_CODEC =
             new StreamCodec<>() {
@@ -90,4 +98,3 @@ public record VocoCameraStartPayload(
         return TYPE;
     }
 }
-

@@ -6,24 +6,28 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
 
-//? if <1.21.2 {
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.vehicle.boat.Raft;
+*///?} else if >=1.21.2 <1.21.11 {
+import net.minecraft.world.entity.vehicle.Raft;
+//?} else {
 /*import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-*///?} else {
-import net.minecraft.world.entity.vehicle.Raft;
- //?}
+*///?}
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class MusavaccaBoat extends
-        //? if <1.21.2 {
-        /*Boat
-        *///?} else {
+
+        //? if >=1.21.2 {
         Raft
-         //?}
+        //?} else {
+        /*Boat
+        *///?}
+
 {
 
     public static final float HITBOX_WIDTH =
@@ -50,18 +54,20 @@ public final class MusavaccaBoat extends
             EntityType<? extends MusavaccaBoat> entityType,
             Level level
     ) {
-        //? if <1.21.2 {
-        /*super(entityType, level);
-        *///?} else {
+
+        //? if >=1.21.2 {
         super(
                 entityType,
                 level,
                 () -> ModItems.MUSAVACCA_BOAT.get()
         );
-        //?}
-    }
+        //?} else {
+        /*super(entityType, level);
+        *///?}
 
+    }
     //? if >=1.21.2 {
+
     @Override
     protected double rideHeight(
             EntityDimensions dimensions
@@ -93,11 +99,13 @@ public final class MusavaccaBoat extends
 
         return new Vec3(
                 0.0D,
-                //? if <1.21.2 {
-                /*dimensions.height(),
-                *///?} else {
+
+                //? if >=1.21.2 {
                 this.rideHeight(dimensions),
-                 //?}
+                //?} else {
+                /*dimensions.height(),
+                *///?}
+
                 seatZ * scaleFactor
         ).yRot(
                 -this.getYRot() * Mth.DEG_TO_RAD
@@ -150,4 +158,3 @@ public final class MusavaccaBoat extends
     }
     *///?}
 }
-

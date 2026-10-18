@@ -121,11 +121,13 @@ public final class PearlSlotIgnition {
         }
 
         if (stack.isEmpty()) {
-            //? if <1.21.2 {
-            /*return InteractionResult.PASS;
-            *///?} else {
+
+            //? if >=1.21.2 {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
-            //?}
+            //?} else {
+            /*return InteractionResult.PASS;
+            *///?}
+
         }
 
         if (stack.is(ModItems.BANANA_PEARL.get())) {
@@ -485,14 +487,19 @@ public final class PearlSlotIgnition {
             Player player,
             int balanceCost
     ) {
-        player.displayClientMessage(
-                Component.literal(
+        //? if >=26.1 {
+        /*player.sendOverlayMessage(Component.literal(
+        *///?} else {
+        player.displayClientMessage(Component.literal(
+        //?}
                         "You need "
                                 + balanceCost
                                 + " balance to charge this receptor."
-                ),
-                true
-        );
+                //? if >=26.1 {
+                /*));
+                *///?} else {
+                ), true);
+                //?}
     }
 
     private static void validateState(
@@ -524,4 +531,3 @@ public final class PearlSlotIgnition {
         }
     }
 }
-

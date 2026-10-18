@@ -5,7 +5,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import space.anatomyuniverse.musavacca.bar.ModAttachments;
@@ -14,7 +13,6 @@ import space.anatomyuniverse.musavacca.bar.balance.BalanceEvents;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerClientModEvents;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerEvents;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableItemDisplayLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
@@ -41,11 +39,14 @@ import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.tint.ModTints;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerTooltipClient;
 
-//? if <1.21.9
+//? if >=1.21.9 {
+/*import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
+
+import net.neoforged.fml.loading.FMLEnvironment;
+*///?} else {
 import net.neoforged.fml.loading.FMLLoader;
 import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
-//? if >=1.21.9
-//import net.neoforged.fml.loading.FMLEnvironment;
+//?}
 
 @Mod(MusaCore.MOD_ID)
 public final class MusaCore {
@@ -53,10 +54,12 @@ public final class MusaCore {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final String VERSION =
-            /*$ mod_version*/ "0.0.1";
+            //$ mod_version
+            "0.0.1";
 
     public static final String MINECRAFT =
-            /*$ minecraft*/ "1.21.8";
+            //$ minecraft
+            "1.21.8";
 
     public MusaCore(
             IEventBus modBus,
@@ -76,8 +79,11 @@ public final class MusaCore {
         ModAttachments.register(modBus);
         ModNetworking.register(modBus);
         EconomyConfig.register(container);
+        //? if >=26.3 {
+        /*NeoForge.EVENT_BUS.addListener(space.anatomyuniverse.musavacca.block.custom.StrippableLogBlock::onUseItemOnBlock);
+        NeoForge.EVENT_BUS.addListener(space.anatomyuniverse.musavacca.block.custom.StrippableMusavaccaStemBlock::onUseItemOnBlock);
+        *///?}
 
-        modBus.addListener(this::commonSetup);
         modBus.addListener(
                 ModDataGenerators::gatherData
         );
@@ -108,8 +114,12 @@ public final class MusaCore {
         );
 
         if (
-            /*? if <1.21.9 {*/ FMLLoader
-                /*?} else {*//*FMLEnvironment*//*?}*/
+             //? if >=1.21.9 {
+             /*FMLEnvironment
+             *///?} else {
+             FMLLoader
+
+             //?}
                 .getDist() == Dist.CLIENT
         ) {
             ModTints.register(modBus);
@@ -122,13 +132,13 @@ public final class MusaCore {
                     MusaRenderLayers::onModifyBakingResult
             );
 
+            modBus.addListener(
             //? if <1.21.4 {
-            /*modBus.addListener(
-                    CustomHelmetModels::registerAdditionalModels
+                    /*CustomHelmetModels::registerAdditionalModels
             );
-            *///?}
 
             modBus.addListener(
+            *///?}
                     ModMenuEvents::register
             );
 
@@ -153,13 +163,5 @@ public final class MusaCore {
             VocoCameraClientModEvents.register(modBus);
             PlayerStatusClient.register(modBus);
         }
-    }
-
-    private void commonSetup(
-            final FMLCommonSetupEvent event
-    ) {
-        event.enqueueWork(
-                PearlFireBlock::bootStrap
-        );
     }
 }

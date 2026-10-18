@@ -29,7 +29,7 @@ public final class PotassiumSwordItem
             //?}
             float attackDamage,
             float attackSpeed,
-            Item.Properties properties
+            Properties properties
     ) {
         //? if <1.21.2 {
         /*super(material, properties.attributes(SwordItem.createAttributes(material, attackDamage, attackSpeed)));
@@ -52,7 +52,7 @@ public final class PotassiumSwordItem
         return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
     }
     *///?} else {
-    private static Item.Properties swordProperties(Item.Properties properties, ToolMaterial material, float attackDamage, float attackSpeed) {
+    private static Properties swordProperties(Properties properties, ToolMaterial material, float attackDamage, float attackSpeed) {
         //? if >=1.21.5 {
         return properties.sword(material, attackDamage, attackSpeed);
         //?} else {

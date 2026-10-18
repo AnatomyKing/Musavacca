@@ -1,20 +1,44 @@
 package space.anatomyuniverse.musavacca.gui.frontend;
+//? if >=1.21.9 {
+/*import net.minecraft.client.input.CharacterEvent;
 
-//? if >=1.21.2 <1.21.6
-//import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.KeyEvent;
+
+import net.minecraft.client.input.MouseButtonEvent;
+*///?}
+
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-//? if >=1.21.6
-import net.minecraft.client.renderer.RenderPipelines;
-//? if >=1.21.7
+
+//? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-//? if <1.21.7
-//import net.neoforged.neoforge.network.PacketDistributor;
+//?} else {
+/*import net.neoforged.neoforge.network.PacketDistributor;
+*///?}
+
+//? if >=26.1 {
+/*import net.minecraft.client.gui.GuiGraphicsExtractor;
+*///?} else if <1.21.2 || (>=1.21.6 <26.1) {
+import net.minecraft.client.gui.GuiGraphics;
+//?} else {
+/*import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.GuiGraphics;
+*///?}
+
+//? if >=1.21.11 {
+/*import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+*///?} else if >=1.21.6 <1.21.11 {
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+//?} else {
+/*import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+*///?}
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.gui.menu.payloads.FlintAndPearlColorPayload;
@@ -88,6 +112,24 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private static final int DOUBLE_FLASH = 2;
     private static final Object PEARL_TARGET = new Object();
     private static final Object HEX_TARGET = new Object();
+    //? if >=1.21.11 {
+    /*private static final Identifier HEX_NORMAL = guiTexture("hex_bar");
+    private static final Identifier HEX_PRESSED = guiTexture("hex_bar_pressed");
+    private static final Identifier HEX_FLASH = guiTexture("hex_bar_flash");
+    private static final Identifier HEX_PRESSED_FLASH = guiTexture("hex_bar_pressed_flash");
+    private static final Identifier BAR_NORMAL = guiTexture("bar");
+    private static final Identifier BAR_PRESSED = guiTexture("bar_pressed");
+    private static final Identifier BAR_FLASH = guiTexture("bar_flash");
+    private static final Identifier BAR_PRESSED_FLASH = guiTexture("bar_pressed_flash");
+    private static final Identifier SLIDER = guiTexture("slider");
+    private static final Identifier ARROW_UP = guiTexture("arrow_up");
+    private static final Identifier ARROW_UP_PRESSED = guiTexture("arrow_up_pressed");
+    private static final Identifier ARROW_DOWN = guiTexture("arrow_down");
+    private static final Identifier ARROW_DOWN_PRESSED = guiTexture("arrow_down_pressed");
+    private static final Identifier[] PEARL = textureArray("flint_and_pearl_", PEARL_LAYER_COUNT);
+    private static final Identifier[] PEARL_PRESSED = textureArray("flint_and_pearl_pressed_", PEARL_LAYER_COUNT);
+    private static final Identifier[] SYMBOLS = symbolArray();
+    *///?} else {
     private static final ResourceLocation HEX_NORMAL = guiTexture("hex_bar");
     private static final ResourceLocation HEX_PRESSED = guiTexture("hex_bar_pressed");
     private static final ResourceLocation HEX_FLASH = guiTexture("hex_bar_flash");
@@ -104,6 +146,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private static final ResourceLocation[] PEARL = textureArray("flint_and_pearl_", PEARL_LAYER_COUNT);
     private static final ResourceLocation[] PEARL_PRESSED = textureArray("flint_and_pearl_pressed_", PEARL_LAYER_COUNT);
     private static final ResourceLocation[] SYMBOLS = symbolArray();
+    //?}
     private static final ArrowButton[] ARROWS = arrows();
 
     private float hue;
@@ -133,9 +176,13 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private double sliderGrabOffsetX = SLIDER_WIDTH / 2.0D;
 
     public FlintAndPearlFrontend(FlintAndPearlMenu menu, Inventory playerInventory, Component title) {
+        //? if >=26.1 {
+        /*super(menu, playerInventory, title, GUI_WIDTH, GUI_HEIGHT);
+        *///?} else {
         super(menu, playerInventory, title);
         this.imageWidth = GUI_WIDTH;
         this.imageHeight = GUI_HEIGHT;
+        //?}
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
         int initialRgb = MusavaccaTints.rgb(menu.getHexColor());
@@ -143,24 +190,44 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         this.lastSyncedRgb = initialRgb;
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier guiTexture(String name) {
+        return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/flintandpearl/" + name + ".png");
+    *///?} else {
     private static ResourceLocation guiTexture(String name) {
         return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/flintandpearl/" + name + ".png");
+    //?}
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier symbolTexture(String name) {
+        return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/flintandpearl/symbols/" + name + ".png");
+    *///?} else {
     private static ResourceLocation symbolTexture(String name) {
         return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/flintandpearl/symbols/" + name + ".png");
+    //?}
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier[] textureArray(String prefix, int count) {
+        Identifier[] textures = new Identifier[count];
+    *///?} else {
     private static ResourceLocation[] textureArray(String prefix, int count) {
         ResourceLocation[] textures = new ResourceLocation[count];
+    //?}
         for (int i = 0; i < count; i++) {
             textures[i] = guiTexture(prefix + i);
         }
         return textures;
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier[] symbolArray() {
+        Identifier[] textures = new Identifier[16];
+    *///?} else {
     private static ResourceLocation[] symbolArray() {
         ResourceLocation[] textures = new ResourceLocation[16];
+    //?}
         for (int i = 0; i < textures.length; i++) {
             textures[i] = symbolTexture(Integer.toHexString(i));
         }
@@ -178,7 +245,12 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
+    *///?} else {
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    //?}
         this.tickPressedTarget();
         this.tickBackspaceRepeat();
         this.tickFlash();
@@ -196,8 +268,16 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         }
     }
 
+    //? if >=26.1 {
+    /*private void blitPearl(GuiGraphicsExtractor graphics, int guiX, int guiY, int rgb) {
+        Identifier[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
+    *///?} else if >=1.21.11 <26.1 {
+    /*private void blitPearl(GuiGraphics graphics, int guiX, int guiY, int rgb) {
+        Identifier[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
+    *///?} else {
     private void blitPearl(GuiGraphics graphics, int guiX, int guiY, int rgb) {
         ResourceLocation[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
+    //?}
         for (int layer = 0; layer < textures.length; layer++) {
             this.blitTinted(
                     graphics,
@@ -215,7 +295,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         }
     }
 
+    //? if >=26.1 {
+    /*private void blitHex(GuiGraphicsExtractor graphics, int guiX, int guiY, int rgb) {
+    *///?} else {
     private void blitHex(GuiGraphics graphics, int guiX, int guiY, int rgb) {
+    //?}
         boolean pressed = this.isPressed(HEX_TARGET);
         boolean editing = this.isEditing(HEX_TARGET);
         int symbolY = guiY + HEX_Y + (pressed ? HEX_SYMBOL_PRESSED_Y : HEX_SYMBOL_Y);
@@ -249,7 +333,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         }
     }
 
+    //? if >=26.1 {
+    /*private void blitSliderGroup(GuiGraphicsExtractor graphics, int guiX, int guiY, SliderId slider, int rgb) {
+    *///?} else {
     private void blitSliderGroup(GuiGraphics graphics, int guiX, int guiY, SliderId slider, int rgb) {
+    //?}
         int offsetY = this.barOffset(slider);
         int symbolY = guiY + slider.y + VALUE_Y + offsetY;
         boolean editing = this.isEditing(slider);
@@ -298,7 +386,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         );
     }
 
+    //? if >=26.1 {
+    /*private void blitCaret(GuiGraphicsExtractor graphics, int x, int y) {
+    *///?} else {
     private void blitCaret(GuiGraphics graphics, int x, int y) {
+    //?}
         if (!this.isCaretVisible()) {
             return;
         }
@@ -311,7 +403,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         );
     }
 
+    //? if >=26.1 {
+    /*private void blitStrip(GuiGraphicsExtractor graphics, int x, int y, SliderId slider, int rgb) {
+    *///?} else {
     private void blitStrip(GuiGraphics graphics, int x, int y, SliderId slider, int rgb) {
+    //?}
         for (int column = 0; column < STRIP_WIDTH; column++) {
             float t = column / (float) (STRIP_WIDTH - 1);
             graphics.fill(
@@ -325,7 +421,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private void blitSymbols(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics,
+            *///?} else {
             GuiGraphics graphics,
+            //?}
             int x,
             int y,
             String text,
@@ -351,7 +451,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         }
     }
 
+    //? if >=26.1 {
+    /*private void blitArrow(GuiGraphicsExtractor graphics, int guiX, int guiY, ArrowButton arrow) {
+    *///?} else {
     private void blitArrow(GuiGraphics graphics, int guiX, int guiY, ArrowButton arrow) {
+    //?}
         this.blit(
                 graphics,
                 arrow.texture(this.isPressed(arrow)),
@@ -362,13 +466,24 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         );
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier stateTexture(
+    *///?} else {
     private static ResourceLocation stateTexture(
+    //?}
             boolean pressed,
             boolean flashing,
+            //? if >=1.21.11 {
+            /*Identifier normal,
+            Identifier pressedTexture,
+            Identifier flash,
+            Identifier pressedFlash
+            *///?} else {
             ResourceLocation normal,
             ResourceLocation pressedTexture,
             ResourceLocation flash,
             ResourceLocation pressedFlash
+            //?}
     ) {
         if (pressed) {
             return flashing ? pressedFlash : pressedTexture;
@@ -387,13 +502,27 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         };
     }
 
+    //? if >=26.1 {
+    /*private void blit(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width, int height) {
+    *///?} else if >=1.21.11 <26.1 {
+    /*private void blit(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height) {
+    *///?} else {
     private void blit(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height) {
+    //?}
         this.blitColored(graphics, texture, x, y, width, height, 0xFFFFFFFF);
     }
 
     private void blitTinted(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics,
+            Identifier texture,
+            *///?} else if >=1.21.11 <26.1 {
+            /*GuiGraphics graphics,
+            Identifier texture,
+            *///?} else {
             GuiGraphics graphics,
             ResourceLocation texture,
+            //?}
             int x,
             int y,
             int width,
@@ -414,42 +543,29 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private void blitColored(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics,
+            Identifier texture,
+            *///?} else if >=1.21.11 <26.1 {
+            /*GuiGraphics graphics,
+            Identifier texture,
+            *///?} else {
             GuiGraphics graphics,
             ResourceLocation texture,
+            //?}
             int x,
             int y,
             int width,
             int height,
             int color
     ) {
+
         //? if >=1.21.6 {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
-                texture,
-                x,
-                y,
-                0.0F,
-                0.0F,
-                width,
-                height,
-                width,
-                height,
-                color
-        );
-        //?} elif >=1.21.2 {
+        //?} else if >=1.21.2 <1.21.6 {
         /*graphics.blit(
                 RenderType::guiTextured,
-                texture,
-                x,
-                y,
-                0.0F,
-                0.0F,
-                width,
-                height,
-                width,
-                height,
-                color
-        );
         *///?} else {
         /*float alpha = ((color >> 24) & 0xFF) / 255.0F;
         float red = ((color >> 16) & 0xFF) / 255.0F;
@@ -458,6 +574,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
 
         graphics.setColor(red, green, blue, alpha);
         graphics.blit(
+        *///?}
                 texture,
                 x,
                 y,
@@ -466,16 +583,31 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
                 width,
                 height,
                 width,
-                height
+        //? if >=1.21.2 {
+                height,
+                color
+        );
+        //?} else {
+                /*height
         );
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         *///?}
+
     }
 
     @Override
+    //? if >=1.21.9 {
+    /*public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
+        if (button != 0) {
+            return super.mouseClicked(event, doubleClick);
+    *///?} else {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button != 0) {
             return super.mouseClicked(mouseX, mouseY, button);
+    //?}
         }
 
         Object textTarget = this.textTargetAt(mouseX, mouseY);
@@ -572,16 +704,36 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             }
         }
 
+        //? if >=1.21.9 {
+        /*return super.mouseClicked(event, doubleClick);
+        *///?} else {
         return super.mouseClicked(mouseX, mouseY, button);
+        //?}
     }
 
     @Override
+    //? if >=26.3 {
+    /*public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.keycode();
+        int modifiers = event.modifiers();
+        if (this.editingTarget == null) {
+            return super.keyPressed(event);
+    *///?} else if >=1.21.9 <26.3 {
+    /*public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
+        if (this.editingTarget == null) {
+            return super.keyPressed(event);
+    *///?} else {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (this.editingTarget == null) {
             return super.keyPressed(keyCode, scanCode, modifiers);
+    //?}
         }
 
-        if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+        if (keyCode == InputConstants.KEY_BACKSPACE) {
             if (!this.backspaceHeld) {
                 this.backspaceHeld = true;
                 this.backspaceRepeatMode = false;
@@ -591,9 +743,9 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             return true;
         }
 
-        if (keyCode == GLFW.GLFW_KEY_ENTER
-                || keyCode == GLFW.GLFW_KEY_KP_ENTER
-                || keyCode == GLFW.GLFW_KEY_ESCAPE) {
+        if (keyCode == InputConstants.KEY_RETURN
+                || keyCode == InputConstants.KEY_NUMPADENTER
+                || keyCode == InputConstants.KEY_ESCAPE) {
             this.stopEditing();
             return true;
         }
@@ -602,18 +754,50 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     @Override
+    //? if >=26.3 {
+    /*public boolean keyReleased(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.keycode();
+        int modifiers = event.modifiers();
+    *///?} else if >=1.21.9 <26.3 {
+    /*public boolean keyReleased(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
+        int modifiers = event.modifiers();
+    *///?} else {
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_BACKSPACE && this.backspaceHeld) {
+    //?}
+        if (keyCode == InputConstants.KEY_BACKSPACE && this.backspaceHeld) {
             this.clearBackspaceRepeat();
             return true;
         }
+        //? if >=1.21.9 {
+        /*return super.keyReleased(event);
+        *///?} else {
         return super.keyReleased(keyCode, scanCode, modifiers);
+        //?}
     }
 
     @Override
+    //? if >=26.1 {
+    /*public boolean charTyped(CharacterEvent event) {
+        if (!Character.isBmpCodePoint(event.codepoint())) return super.charTyped(event);
+        char codePoint = (char) event.codepoint();
+        int modifiers = 0;
+        if (this.editingTarget == null) {
+            return super.charTyped(event);
+    *///?} else if >=1.21.9 <26.1 {
+    /*public boolean charTyped(CharacterEvent event) {
+        if (!Character.isBmpCodePoint(event.codepoint())) return super.charTyped(event);
+        char codePoint = (char) event.codepoint();
+        int modifiers = event.modifiers();
+        if (this.editingTarget == null) {
+            return super.charTyped(event);
+    *///?} else {
     public boolean charTyped(char codePoint, int modifiers) {
         if (this.editingTarget == null) {
             return super.charTyped(codePoint, modifiers);
+    //?}
         }
 
         int digit = Character.digit(codePoint, this.editRadix());
@@ -1040,6 +1224,12 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     @Override
+    //? if >=1.21.9 {
+    /*public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
+    *///?} else {
     public boolean mouseDragged(
             double mouseX,
             double mouseY,
@@ -1047,17 +1237,31 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             double dragX,
             double dragY
     ) {
+    //?}
         if (button == 0 && this.activeSlider != null) {
             this.updateSliderFromMouse(mouseX);
             return true;
         }
+        //? if >=1.21.9 {
+        /*return super.mouseDragged(event, dragX, dragY);
+        *///?} else {
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        //?}
     }
 
     @Override
+    //? if >=1.21.9 {
+    /*public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
+        if (button != 0) {
+            return super.mouseReleased(event);
+    *///?} else {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button != 0) {
             return super.mouseReleased(mouseX, mouseY, button);
+    //?}
         }
 
         if (this.pressedTarget == HEX_TARGET
@@ -1082,7 +1286,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         this.activeSlider = null;
         this.clearPress();
         this.flushColorSync();
+        //? if >=1.21.9 {
+        /*return handled || super.mouseReleased(event);
+        *///?} else {
         return handled || super.mouseReleased(mouseX, mouseY, button);
+        //?}
     }
 
     @Override
@@ -1315,18 +1523,13 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
 
         this.lastSyncedRgb = this.pendingSyncRgb;
         this.lastSyncNanos = System.nanoTime();
-
-        //? if >=1.21.7 {
+        //? if >=1.21.6 {
         ClientPacketDistributor.sendToServer(
-                new FlintAndPearlColorPayload(this.pendingSyncRgb)
-        );
         //?} else {
         /*PacketDistributor.sendToServer(
-                new FlintAndPearlColorPayload(
-                        this.pendingSyncRgb
-                )
-        );
         *///?}
+                new FlintAndPearlColorPayload(this.pendingSyncRgb)
+        );
     }
 
     private static HsvColor rgbToHsv(int rgb) {
@@ -1440,27 +1643,42 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     @Override
+    //? if >=26.1 {
+    /*protected void extractLabels(
+            GuiGraphicsExtractor graphics,
+    *///?} else {
     protected void renderLabels(
             GuiGraphics graphics,
+    //?}
             int mouseX,
             int mouseY
     ) {
-        
+
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractRenderState(
+            GuiGraphicsExtractor graphics,
+    *///?} else {
     public void render(
             GuiGraphics graphics,
+    //?}
             int mouseX,
             int mouseY,
             float partialTick
     ) {
+        //? if >=26.1 {
+        /*super.extractRenderState(
+        *///?} else {
         this.renderBackground(
+        //?}
                 graphics,
                 mouseX,
                 mouseY,
                 partialTick
         );
+        //? if <26.1 {
         super.render(
                 graphics,
                 mouseX,
@@ -1468,6 +1686,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
                 partialTick
         );
         this.renderTooltip(graphics, mouseX, mouseY);
+        //?}
     }
 
     private enum SliderId {
@@ -1535,7 +1754,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
                     + (this.up ? ARROW_UP_Y : ARROW_DOWN_Y);
         }
 
+        //? if >=1.21.11 {
+        /*private Identifier texture(boolean pressed) {
+        *///?} else {
         private ResourceLocation texture(boolean pressed) {
+        //?}
             if (this.up) {
                 return pressed
                         ? ARROW_UP_PRESSED
@@ -1554,4 +1777,3 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     ) {
     }
 }
-

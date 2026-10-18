@@ -24,7 +24,7 @@ public final class ProfileTintParticles {
             return;
         }
 
-        RandomSource rng = random == null ? level.random : random;
+        RandomSource rng = random == null ? level.getRandom() : random;
         int layerCount = ProfileTintSprite.layerCount(renderType);
         int seed = rng.nextInt();
 
@@ -65,7 +65,7 @@ public final class ProfileTintParticles {
             return;
         }
 
-        RandomSource rng = random == null ? level.random : random;
+        RandomSource rng = random == null ? level.getRandom() : random;
         int safeCount = Math.max(0, count);
 
         if (safeCount <= 0) {
@@ -124,7 +124,7 @@ public final class ProfileTintParticles {
             return;
         }
 
-        RandomSource rng = random == null ? level.random : random;
+        RandomSource rng = random == null ? level.getRandom() : random;
         int layerCount = ProfileTintSprite.layerCount(renderType);
         int seed = rng.nextInt();
 
@@ -170,7 +170,7 @@ public final class ProfileTintParticles {
             return;
         }
 
-        RandomSource rng = random == null ? level.random : random;
+        RandomSource rng = random == null ? level.getRandom() : random;
         ParticleType<ProfileTintParticleOptions> renderType =
                 renderTypes[rng.nextInt(renderTypes.length)];
 

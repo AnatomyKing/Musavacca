@@ -1,18 +1,32 @@
 package space.anatomyuniverse.musavacca.gui.frontend;
 
-//? if <1.21.2
-//import com.mojang.blaze3d.systems.RenderSystem;
-//? if <1.21.6
-//import com.mojang.math.Axis;
-import net.minecraft.client.gui.GuiGraphics;
-//? if <1.21.2
-//import net.minecraft.client.renderer.GameRenderer;
-//? if >=1.21.6
+//? if >=26.1 {
+/*import net.minecraft.client.gui.GuiGraphicsExtractor;
+
 import net.minecraft.client.renderer.RenderPipelines;
-//? if <1.21.6
-////? if >=1.21.2
+*///?} else if >=1.21.6 <26.1 {
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.client.renderer.RenderPipelines;
+//?} else if >=1.21.2 <1.21.6 {
+/*import com.mojang.math.Axis;
+import net.minecraft.client.gui.GuiGraphics;
+*///?} else {
+/*import com.mojang.blaze3d.systems.RenderSystem;
+
+import com.mojang.math.Axis;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.client.renderer.GameRenderer;
+*///?}
+
+//? if >=1.21.11 {
+/*import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+//?}
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.bar.balance.ClientBalanceData;
 import space.anatomyuniverse.musavacca.gui.backend.VocoDialerBackend;
@@ -27,11 +41,19 @@ public final class VocoDialerControl {
     private static final int STOPPER_HEIGHT = 21;
     private static final int NO_NIBBLE = -1;
 
+    //? if >=1.21.11 {
+    /*private static final Identifier BASE_TEXTURE = guiTexture("base");
+    private static final Identifier BASE_LETTERS_TEXTURE = guiTexture("base_letters");
+    private static final Identifier DISK_TEXTURE = guiTexture("disk");
+    private static final Identifier STOPPER_BACK_TEXTURE = guiTexture("stopper_back");
+    private static final Identifier STOPPER_FRONT_TEXTURE = guiTexture("stopper_front");
+    *///?} else {
     private static final ResourceLocation BASE_TEXTURE = guiTexture("base");
     private static final ResourceLocation BASE_LETTERS_TEXTURE = guiTexture("base_letters");
     private static final ResourceLocation DISK_TEXTURE = guiTexture("disk");
     private static final ResourceLocation STOPPER_BACK_TEXTURE = guiTexture("stopper_back");
     private static final ResourceLocation STOPPER_FRONT_TEXTURE = guiTexture("stopper_front");
+    //?}
 
     private static final float DIAL_AXIS_X = 78.0F;
     private static final float DIAL_AXIS_Y = 78.0F;
@@ -81,25 +103,35 @@ public final class VocoDialerControl {
         this.buttonSender = buttonSender;
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier guiTexture(String fileName) {
+        return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/rotary_dialer/" + fileName + ".png");
+    *///?} else {
     private static ResourceLocation guiTexture(String fileName) {
         return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/rotary_dialer/" + fileName + ".png");
+    //?}
     }
 
+    //? if >=26.1 {
+    /*public void render(GuiGraphicsExtractor graphics, int guiX, int guiY) {
+    *///?} else {
     public void render(GuiGraphics graphics, int guiX, int guiY) {
+    //?}
         this.updateAnimations();
 
-        //? if <1.21.6
-        //graphics.pose().pushPose();
+        //? if >=1.21.2 <1.21.6 {
+        /*graphics.pose().pushPose();
+        *///?} else if <1.21.2 {
+        /*graphics.pose().pushPose();
 
-        //? if <1.21.2
-        //RenderSystem.enableBlend();
-        //? if <1.21.2
-        //RenderSystem.defaultBlendFunc();
-        //? if <1.21.2
-        //RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        //? if <1.21.2
-        //RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableBlend();
 
+        RenderSystem.defaultBlendFunc();
+
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        *///?}
         this.blitStopper(graphics, STOPPER_BACK_TEXTURE, guiX, guiY);
         this.nextLayer(graphics);
         this.blitTexture(graphics, this.lettersBase ? BASE_LETTERS_TEXTURE : BASE_TEXTURE, guiX, guiY, BASE_WIDTH, BASE_HEIGHT);
@@ -108,24 +140,42 @@ public final class VocoDialerControl {
         this.nextLayer(graphics);
         this.blitStopper(graphics, STOPPER_FRONT_TEXTURE, guiX, guiY);
 
-        //? if <1.21.2
-        //RenderSystem.disableBlend();
+        //? if >=1.21.2 <1.21.6 {
+        /*graphics.pose().popPose();
+        *///?} else if <1.21.2 {
+        /*RenderSystem.disableBlend();
 
-        //? if <1.21.6
-        //graphics.pose().popPose();
+        graphics.pose().popPose();
+        *///?}
     }
 
+    //? if >=26.1 {
+    /*private void blitDisk(GuiGraphicsExtractor graphics, int guiX, int guiY) {
+    *///?} else {
     private void blitDisk(GuiGraphics graphics, int guiX, int guiY) {
+    //?}
         this.blitRotatedTexture(graphics, DISK_TEXTURE, guiX + DISK_X, guiY + DISK_Y, DISK_SIZE, DISK_SIZE,
                 guiX + DIAL_AXIS_X, guiY + DIAL_AXIS_Y, this.diskAngleRadians);
     }
 
+    //? if >=26.1 {
+    /*private void blitStopper(GuiGraphicsExtractor graphics, Identifier texture, int guiX, int guiY) {
+    *///?} else if >=1.21.11 <26.1 {
+    /*private void blitStopper(GuiGraphics graphics, Identifier texture, int guiX, int guiY) {
+    *///?} else {
     private void blitStopper(GuiGraphics graphics, ResourceLocation texture, int guiX, int guiY) {
+    //?}
         this.blitRotatedTexture(graphics, texture, guiX + STOPPER_X, guiY + STOPPER_Y, STOPPER_WIDTH, STOPPER_HEIGHT,
                 guiX + STOPPER_X + STOPPER_PIVOT_X, guiY + STOPPER_Y + STOPPER_PIVOT_Y, this.stopperAngleRadians);
     }
 
+    //? if >=26.1 {
+    /*private void blitRotatedTexture(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width, int height,
+    *///?} else if >=1.21.11 <26.1 {
+    /*private void blitRotatedTexture(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height,
+    *///?} else {
     private void blitRotatedTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height,
+    //?}
                                     float axisX, float axisY, float angleRadians) {
         this.pushPose(graphics);
         this.translatePose(graphics, axisX, axisY);
@@ -135,10 +185,17 @@ public final class VocoDialerControl {
         this.popPose(graphics);
     }
 
+    //? if >=26.1 {
+    /*private void blitTexture(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width, int height) {
+    *///?} else if >=1.21.11 <26.1 {
+    /*private void blitTexture(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height) {
+    *///?} else {
     private void blitTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height) {
+    //?}
+
         //? if >=1.21.6 {
         graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0F, 0.0F, width, height, width, height);
-         //?} else if >=1.21.2 {
+        //?} else if >=1.21.2 <1.21.6 {
         /*graphics.blit(
                 RenderType::guiTextured,
                 texture,
@@ -154,46 +211,77 @@ public final class VocoDialerControl {
         *///?} else {
         /*graphics.blit(texture, x, y, 0.0F, 0.0F, width, height, width, height);
         *///?}
+
     }
 
+    //? if >=26.1 {
+    /*private void nextLayer(GuiGraphicsExtractor graphics) {
+    *///?} else {
     private void nextLayer(GuiGraphics graphics) {
+    //?}
+
         //? if >=1.21.6 {
         graphics.nextStratum();
-         //?} else {
+        //?} else {
         /*graphics.pose().translate(0.0F, 0.0F, 1.0F);
         *///?}
+
     }
 
+    //? if >=26.1 {
+    /*private void pushPose(GuiGraphicsExtractor graphics) {
+    *///?} else {
     private void pushPose(GuiGraphics graphics) {
+    //?}
+
         //? if >=1.21.6 {
         graphics.pose().pushMatrix();
-         //?} else {
+        //?} else {
         /*graphics.pose().pushPose();
         *///?}
+
     }
 
+    //? if >=26.1 {
+    /*private void popPose(GuiGraphicsExtractor graphics) {
+    *///?} else {
     private void popPose(GuiGraphics graphics) {
+    //?}
+
         //? if >=1.21.6 {
         graphics.pose().popMatrix();
-         //?} else {
+        //?} else {
         /*graphics.pose().popPose();
         *///?}
+
     }
 
+    //? if >=26.1 {
+    /*private void translatePose(GuiGraphicsExtractor graphics, float x, float y) {
+    *///?} else {
     private void translatePose(GuiGraphics graphics, float x, float y) {
+    //?}
+
         //? if >=1.21.6 {
         graphics.pose().translate(x, y);
-         //?} else {
+        //?} else {
         /*graphics.pose().translate(x, y, 0.0F);
         *///?}
+
     }
 
+    //? if >=26.1 {
+    /*private void rotatePose(GuiGraphicsExtractor graphics, float radians) {
+    *///?} else {
     private void rotatePose(GuiGraphics graphics, float radians) {
+    //?}
+
         //? if >=1.21.6 {
         graphics.pose().rotate(radians);
-         //?} else {
+        //?} else {
         /*graphics.pose().mulPose(Axis.ZP.rotation(radians));
         *///?}
+
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button, int guiX, int guiY) {

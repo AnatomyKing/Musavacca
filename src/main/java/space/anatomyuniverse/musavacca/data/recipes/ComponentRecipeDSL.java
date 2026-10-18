@@ -1,4 +1,7 @@
 package space.anatomyuniverse.musavacca.data.recipes;
+//? if >=26.3 {
+/*import net.minecraft.core.Holder;
+*///?}
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -19,7 +22,11 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -54,9 +61,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
+//? if >=1.21.2 {
 
-//? if >=1.21.3
 import net.minecraft.world.item.crafting.RecipeBookCategory;
+//?}
 
 public final class ComponentRecipeDSL {
     public static final String MOD_ID = "musavacca";
@@ -154,12 +162,20 @@ public final class ComponentRecipeDSL {
             return new ComponentPath(this.component, result);
         }
 
+        //? if >=1.21.11 {
+        /*public ComponentPath entry(Identifier entry) {
+        *///?} else {
         public ComponentPath entry(ResourceLocation entry) {
+        //?}
             return entry(entry.toString());
         }
 
         public ComponentPath entry(ResourceKey<?> entry) {
+            //? if >=1.21.11 {
+            /*return entry(entry.identifier());
+            *///?} else {
             return entry(entry.location());
+            //?}
         }
 
         private Selection selection() {
@@ -277,7 +293,23 @@ public final class ComponentRecipeDSL {
                 AbstractCookingRecipe base,
                 Source source
         ) {
-            //? if <1.21.3 {
+
+            //? if >=26.1 {
+            /*super(new Recipe.CommonInfo(base.showNotification()),
+                    new AbstractCookingRecipe.CookingBookInfo(base.category(), base.group()),
+                    base.input(),
+                    net.minecraft.world.item.ItemStackTemplate.fromNonEmptyStack(base.assemble(new SingleRecipeInput(ItemStack.EMPTY))),
+                    base.experience(), base.cookingTime());
+            *///?} else if >=1.21.2 <26.1 {
+            super(
+                    base.group(),
+                    base.category(),
+                    base.input(),
+                    base.assemble(new SingleRecipeInput(ItemStack.EMPTY), RegistryAccess.EMPTY),
+                    base.experience(),
+                    base.cookingTime()
+            );
+            //?} else {
             /*super(
                     cookingType(kind),
                     base.getGroup(),
@@ -287,16 +319,8 @@ public final class ComponentRecipeDSL {
                     base.getExperience(),
                     base.getCookingTime()
             );
-            *///?} else {
-            super(
-                    base.group(),
-                    base.category(),
-                    base.input(),
-                    base.assemble(new SingleRecipeInput(ItemStack.EMPTY), RegistryAccess.EMPTY),
-                    base.experience(),
-                    base.cookingTime()
-            );
-            //?}
+            *///?}
+
             this.kind = kind;
             this.base = base;
             this.source = source;
@@ -317,8 +341,22 @@ public final class ComponentRecipeDSL {
         }
 
         @Override
-        public ItemStack assemble(SingleRecipeInput input, HolderLookup.Provider registries) {
-            ItemStack result = super.assemble(input, registries);
+        public ItemStack assemble(SingleRecipeInput input
+
+                //? if <26.1 {
+                , HolderLookup.Provider registries
+                //?}
+        ) {
+
+            //? if >=26.1 {
+            /*HolderLookup.Provider registries = ComponentRecipeDSL.runtimeRegistries();
+            *///?}
+            ItemStack result = super.assemble(input
+
+                    //? if <26.1 {
+                    , registries
+                    //?}
+            );
             transfer(this.source, input.getItem(0), result, registries);
             return result;
         }
@@ -327,8 +365,8 @@ public final class ComponentRecipeDSL {
         public RecipeType<? extends AbstractCookingRecipe> getType() {
             return cookingType(this.kind);
         }
+        //? if >=1.21.2 {
 
-        //? if >=1.21.3 {
         @Override
         protected net.minecraft.world.item.Item furnaceIcon() {
             return switch (this.kind) {
@@ -345,6 +383,7 @@ public final class ComponentRecipeDSL {
             return this.base.recipeBookCategory();
         }
         //?}
+
     }
 
     public static Source source(ItemLike item) {
@@ -601,39 +640,43 @@ public final class ComponentRecipeDSL {
             Function<Recipe<?>, Recipe<?>> wrapper
     ) {
         return new RecipeOutput() {
-            //? if <1.21.3 {
-            /*@Override
-            public void accept(
-                    ResourceLocation id,
-                    Recipe<?> recipe,
-                    AdvancementHolder advancement,
-                    ICondition... conditions
-            ) {
-                output.accept(id, wrapper.apply(recipe), advancement, conditions);
-            }
-            *///?} else {
+
             @Override
             public void accept(
+                    //? if >=1.21.2 {
                     ResourceKey<Recipe<?>> id,
+                    //?} else {
+                    /*ResourceLocation id,
+                    *///?}
                     Recipe<?> recipe,
                     AdvancementHolder advancement,
                     ICondition... conditions
             ) {
                 output.accept(id, wrapper.apply(recipe), advancement, conditions);
             }
-            //?}
 
+            //? if >=26.3 {
+            /*@Override
+            public <S> net.minecraft.core.HolderGetter<S> lookup(ResourceKey<? extends net.minecraft.core.Registry<? extends S>> key) {
+                return output.lookup(key);
+            }
+            @Override
+            public <S> java.util.stream.Stream<Holder.Reference<S>> listContextElements(ResourceKey<? extends net.minecraft.core.Registry<? extends S>> key) {
+                return output.listContextElements(key);
+            }
+            *///?}
             @Override
             public Advancement.Builder advancement() {
                 return output.advancement();
             }
+            //? if >=1.21.2 <26.3 {
 
-            //? if >=1.21.3 {
             @Override
             public void includeRootAdvancement() {
                 output.includeRootAdvancement();
             }
             //?}
+
         };
     }
 
@@ -646,10 +689,17 @@ public final class ComponentRecipeDSL {
             RecipeDSL.RecipeKind kind
     ) {
         return switch (kind) {
+            //? if >=26.1 {
+            /*case SMELTING -> net.minecraft.world.item.crafting.SmeltingRecipe.SERIALIZER;
+            case BLASTING -> net.minecraft.world.item.crafting.BlastingRecipe.SERIALIZER;
+            case SMOKING -> net.minecraft.world.item.crafting.SmokingRecipe.SERIALIZER;
+            case CAMPFIRE -> net.minecraft.world.item.crafting.CampfireCookingRecipe.SERIALIZER;
+            *///?} else {
             case SMELTING -> RecipeSerializer.SMELTING_RECIPE;
             case BLASTING -> RecipeSerializer.BLASTING_RECIPE;
             case SMOKING -> RecipeSerializer.SMOKING_RECIPE;
             case CAMPFIRE -> RecipeSerializer.CAMPFIRE_COOKING_RECIPE;
+            //?}
             default -> throw new IllegalStateException("Not a cooking recipe kind: " + kind);
         };
     }
@@ -698,14 +748,29 @@ public final class ComponentRecipeDSL {
         return false;
     }
 
-    private static HolderLookup.Provider runtimeRegistries() {
+    public static HolderLookup.Provider runtimeRegistries() {
         Player player = CommonHooks.getCraftingPlayer();
         if (player != null) {
             return player.level().registryAccess();
         }
 
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        return server != null ? server.registryAccess() : RegistryAccess.EMPTY;
+        if (server != null) return server.registryAccess();
+
+        //? if >=1.21.9 {
+        /*if (net.neoforged.fml.loading.FMLEnvironment.getDist().isClient()) return ClientRegistries.get();
+        *///?} else {
+        if (net.neoforged.fml.loading.FMLLoader.getDist().isClient()) return ClientRegistries.get();
+        //?}
+
+        return RegistryAccess.EMPTY;
+    }
+
+    private static final class ClientRegistries {
+        private static HolderLookup.Provider get() {
+            var level = net.minecraft.client.Minecraft.getInstance().level;
+            return level == null ? RegistryAccess.EMPTY : level.registryAccess();
+        }
     }
 
     private static boolean contains(
@@ -859,6 +924,3 @@ public final class ComponentRecipeDSL {
 
     private ComponentRecipeDSL() {}
 }
-
-
-

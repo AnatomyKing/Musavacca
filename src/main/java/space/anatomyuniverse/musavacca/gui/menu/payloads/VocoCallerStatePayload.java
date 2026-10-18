@@ -3,7 +3,11 @@ package space.anatomyuniverse.musavacca.gui.menu.payloads;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.codec.StreamCodec;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import space.anatomyuniverse.musavacca.MusaCore;
@@ -19,10 +23,11 @@ public record VocoCallerStatePayload(
 
     public static final Type<VocoCallerStatePayload> TYPE =
             new Type<>(
-                    ResourceLocation.fromNamespaceAndPath(
-                            MusaCore.MOD_ID,
-                            "voco_caller_state"
-                    )
+                    //? if >=1.21.11 {
+                    /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_caller_state")
+                    *///?} else {
+                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_caller_state")
+                    //?}
             );
 
     public static final StreamCodec<ByteBuf, VocoCallerStatePayload>
@@ -111,4 +116,3 @@ public record VocoCallerStatePayload(
         }
     }
 }
-

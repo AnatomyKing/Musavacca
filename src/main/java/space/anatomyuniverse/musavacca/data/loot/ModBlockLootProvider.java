@@ -1,6 +1,30 @@
 package space.anatomyuniverse.musavacca.data.loot;
 
+//? if >=26.3 {
+/*import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
+*///?} else {
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+//?}
+
+//? if >=26.3 {
+/*import net.minecraft.world.level.storage.loot.predicates.MatchBlock;
+*///?} else {
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+//?}
+
+//? if >=26.3 {
+/*import net.minecraft.core.registries.BuiltInRegistries;
+
+import net.minecraft.core.Holder;
+
+import net.minecraft.advancements.predicates.StatePropertiesPredicate;
+*///?} else if >=26.2 <26.3 {
+/*import net.minecraft.advancements.predicates.StatePropertiesPredicate;
+*///?} else if >=1.21.11 <26.2 {
+/*import net.minecraft.advancements.criterion.StatePropertiesPredicate;
+*///?} else {
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
+//?}
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
@@ -14,17 +38,16 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-//? if <1.21.9 {
-import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
-//?} else {
+
+//? if >=1.21.9 {
 /*import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 *///?}
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
@@ -37,7 +60,12 @@ import java.util.Set;
 
 public final class ModBlockLootProvider extends BlockLootSubProvider {
 
+    //? if >=26.3 {
+    /*public ModBlockLootProvider(net.minecraft.data.loot.LootTableSubProvider.Context registries) {
+    *///?} else {
     public ModBlockLootProvider(HolderLookup.Provider registries) {
+    //?}
+
         super(
                 Set.of(),
                 FeatureFlags.REGISTRY.allFlags(),
@@ -111,7 +139,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.BANANA_PEARL_CHALICE.get(),
                 this.createSingleItemTable(
                         ModItems.SMALL_BANANA_PEARL.get(),
+                        //? if >=26.3 {
+                        /*Holder.direct(new ConstantValue(6))
+                        *///?} else {
                         ConstantValue.exactly(6.0F)
+                        //?}
                 )
         );
 
@@ -157,7 +189,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(
+                                                //? if >=26.3 {
+                                                /*Holder.direct(new ConstantValue(1))
+                                                *///?} else {
                                                 ConstantValue.exactly(1.0F)
+                                                //?}
                                         )
                                         .when(
                                                 lowerDoorHalf(block)
@@ -191,7 +227,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(
+                                                //? if >=26.3 {
+                                                /*Holder.direct(new ConstantValue(1))
+                                                *///?} else {
                                                 ConstantValue.exactly(1.0F)
+                                                //?}
                                         )
                                         .when(
                                                 lowerDoorHalf(block)
@@ -371,7 +411,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(
+                                                //? if >=26.3 {
+                                                /*Holder.direct(new ConstantValue(1))
+                                                *///?} else {
                                                 ConstantValue.exactly(1.0F)
+                                                //?}
                                         )
                                         .add(
                                                 this.applyExplosionCondition(
@@ -422,7 +466,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(
+                                                //? if >=26.3 {
+                                                /*Holder.direct(new ConstantValue(1))
+                                                *///?} else {
                                                 ConstantValue.exactly(1.0F)
+                                                //?}
                                         )
                                         .add(
                                                 this.applyExplosionCondition(
@@ -447,16 +495,16 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
             Block block,
             boolean lit
     ) {
-        return LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(
-                        StatePropertiesPredicate.Builder
+        //? if >=26.3 {
+        /*return MatchBlock.blockMatches(BuiltInRegistries.BLOCK, block, StatePropertiesPredicate.Builder
+        *///?} else {
+        return LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder
+        //?}
                                 .properties()
                                 .hasProperty(
                                         MusavaccaPortalTrapdoorBlock.LIT,
                                         lit
-                                )
-                );
+                                ));
     }
 
     private static LootItemCondition.Builder
@@ -464,31 +512,31 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
             Block block,
             boolean litPortal
     ) {
-        return LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(
-                        StatePropertiesPredicate.Builder
+        //? if >=26.3 {
+        /*return MatchBlock.blockMatches(BuiltInRegistries.BLOCK, block, StatePropertiesPredicate.Builder
+        *///?} else {
+        return LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder
+        //?}
                                 .properties()
                                 .hasProperty(
                                         MusavaccaPortalTrapdoorBlock.LIT_PORTAL,
                                         litPortal
-                                )
-                );
+                                ));
     }
 
     private static LootItemCondition.Builder lowerDoorHalf(
             Block block
     ) {
-        return LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(
-                        StatePropertiesPredicate.Builder
+        //? if >=26.3 {
+        /*return MatchBlock.blockMatches(BuiltInRegistries.BLOCK, block, StatePropertiesPredicate.Builder
+        *///?} else {
+        return LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder
+        //?}
                                 .properties()
                                 .hasProperty(
                                         DoorBlock.HALF,
                                         DoubleBlockHalf.LOWER
-                                )
-                );
+                                ));
     }
 
     private static LootItemCondition.Builder
@@ -496,16 +544,16 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
             Block block,
             boolean litPortal
     ) {
-        return LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(
-                        StatePropertiesPredicate.Builder
+        //? if >=26.3 {
+        /*return MatchBlock.blockMatches(BuiltInRegistries.BLOCK, block, StatePropertiesPredicate.Builder
+        *///?} else {
+        return LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder
+        //?}
                                 .properties()
                                 .hasProperty(
                                         MusavaccaPortalDoorBlock.LIT_PORTAL,
                                         litPortal
-                                )
-                );
+                                ));
     }
 
     private static LootItemCondition.Builder
@@ -514,10 +562,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
             boolean lit,
             boolean litPortal
     ) {
-        return LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(
-                        StatePropertiesPredicate.Builder
+        //? if >=26.3 {
+        /*return MatchBlock.blockMatches(BuiltInRegistries.BLOCK, block, StatePropertiesPredicate.Builder
+        *///?} else {
+        return LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder
+        //?}
                                 .properties()
                                 .hasProperty(
                                         MusavaccaPortalDoorBlock.LIT,
@@ -526,8 +575,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 .hasProperty(
                                         MusavaccaPortalDoorBlock.LIT_PORTAL,
                                         litPortal
-                                )
-                );
+                                ));
     }
 
     private static LootItemCondition.Builder
@@ -537,10 +585,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
             boolean litPortal,
             boolean portal
     ) {
-        return LootItemBlockStatePropertyCondition
-                .hasBlockStateProperties(block)
-                .setProperties(
-                        StatePropertiesPredicate.Builder
+        //? if >=26.3 {
+        /*return MatchBlock.blockMatches(BuiltInRegistries.BLOCK, block, StatePropertiesPredicate.Builder
+        *///?} else {
+        return LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder
+        //?}
                                 .properties()
                                 .hasProperty(
                                         MusavaccaPortalDoorBlock.LIT,
@@ -553,31 +602,26 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 .hasProperty(
                                         MusavaccaPortalDoorBlock.PORTAL,
                                         portal
-                                )
-                );
+                                ));
     }
 
     private static CopyComponentsFunction.Builder
     copyHexColorFromBlockEntity() {
         return
-                //? if <1.21.9 {
+
                 CopyComponentsFunction
+                        //? if >=1.21.9 {
+                        /*.copyComponentsFromBlockEntity(
+                                net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY
+                        *///?} else {
                         .copyComponents(
                                 CopyComponentsFunction.Source.BLOCK_ENTITY
+                        //?}
                         )
                         .include(
                                 ModDataComponents.HEX_COLOR.get()
                         );
-        //?} else {
-                /*CopyComponentsFunction
-                        .copyComponentsFromBlockEntity(
-                                LootContext.BlockEntityTarget.BLOCK_ENTITY
-                                        .getParam()
-                        )
-                        .include(
-                                ModDataComponents.HEX_COLOR.get()
-                        );
-                *///?}
+
     }
 
     private void silkTouchMusavaccaEggByAge(
@@ -589,7 +633,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(
+                                                //? if >=26.3 {
+                                                /*Holder.direct(new ConstantValue(1))
+                                                *///?} else {
                                                 ConstantValue.exactly(1.0F)
+                                                //?}
                                         )
                                         .add(
                                                 eggDropEntry(
@@ -628,16 +676,16 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 this.hasSilkTouch()
                         )
                         .when(
-                                LootItemBlockStatePropertyCondition
-                                        .hasBlockStateProperties(block)
-                                        .setProperties(
-                                                StatePropertiesPredicate.Builder
+                                //? if >=26.3 {
+                                /*MatchBlock.blockMatches(BuiltInRegistries.BLOCK, block, StatePropertiesPredicate.Builder
+                                *///?} else {
+                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder
+                                //?}
                                                         .properties()
                                                         .hasProperty(
                                                                 BreakBlock.AGE,
                                                                 age
-                                                        )
-                                        )
+                                                        ))
                         )
         );
     }
@@ -652,7 +700,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(
+                                                //? if >=26.3 {
+                                                /*Holder.direct(new ConstantValue(1))
+                                                *///?} else {
                                                 ConstantValue.exactly(1.0F)
+                                                //?}
                                         )
                                         .add(
                                                 this.applyExplosionCondition(
@@ -662,24 +714,20 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                                         this.hasSilkTouch()
                                                                 )
                                                                 .apply(
-                                                                        //? if <1.21.9 {
+
                                                                         CopyComponentsFunction
+                                                                                //? if >=1.21.9 {
+                                                                                /*.copyComponentsFromBlockEntity(
+                                                                                        net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY
+                                                                                *///?} else {
                                                                                 .copyComponents(
                                                                                         CopyComponentsFunction.Source.BLOCK_ENTITY
+                                                                                //?}
                                                                                 )
                                                                                 .include(
                                                                                         ModDataComponents.HEX_COLOR.get()
                                                                                 )
-                                                                        //?} else {
-                                                                        /*CopyComponentsFunction
-                                                                                .copyComponentsFromBlockEntity(
-                                                                                        LootContext.BlockEntityTarget.BLOCK_ENTITY
-                                                                                                .getParam()
-                                                                                )
-                                                                                .include(
-                                                                                        ModDataComponents.HEX_COLOR.get()
-                                                                                )
-                                                                        *///?}
+
                                                                 )
                                                 )
                                         )
@@ -725,7 +773,11 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(
+                                                //? if >=26.3 {
+                                                /*Holder.direct(new ConstantValue(1))
+                                                *///?} else {
                                                 ConstantValue.exactly(1.0F)
+                                                //?}
                                         )
                                         .add(
                                                 candleDropEntry(
@@ -770,24 +822,24 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                 vanillaCandle
                         )
                         .when(
-                                LootItemBlockStatePropertyCondition
-                                        .hasBlockStateProperties(
-                                                pearlCandle
-                                        )
-                                        .setProperties(
-                                                StatePropertiesPredicate.Builder
+                                //? if >=26.3 {
+                                /*MatchBlock.blockMatches(BuiltInRegistries.BLOCK, pearlCandle, StatePropertiesPredicate.Builder
+                                *///?} else {
+                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(pearlCandle).setProperties(StatePropertiesPredicate.Builder
+                                //?}
                                                         .properties()
                                                         .hasProperty(
                                                                 CandleBlock.CANDLES,
                                                                 candles
-                                                        )
-                                        )
+                                                        ))
                         )
                         .apply(
                                 SetItemCountFunction.setCount(
-                                        ConstantValue.exactly(
-                                                candles
-                                        )
+                                        //? if >=26.3 {
+                                        /*Holder.direct(new ConstantValue(candles))
+                                        *///?} else {
+                                        ConstantValue.exactly(candles)
+                                        //?}
                                 )
                         )
         );

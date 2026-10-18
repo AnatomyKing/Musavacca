@@ -1,11 +1,25 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.Nullable;
 
 public final class DoorModels {
+    //? if >=1.21.11 {
+    /*private final Identifier bottomLeft;
+    private final Identifier bottomLeftOpen;
+    private final Identifier bottomRight;
+    private final Identifier bottomRightOpen;
+    private final Identifier topLeft;
+    private final Identifier topLeftOpen;
+    private final Identifier topRight;
+    private final Identifier topRightOpen;
+    *///?} else {
     private final ResourceLocation bottomLeft;
     private final ResourceLocation bottomLeftOpen;
     private final ResourceLocation bottomRight;
@@ -14,6 +28,7 @@ public final class DoorModels {
     private final ResourceLocation topLeftOpen;
     private final ResourceLocation topRight;
     private final ResourceLocation topRightOpen;
+    //?}
 
     private DoorModels(Builder builder) {
         this.bottomLeft = builder.bottomLeft;
@@ -71,7 +86,11 @@ public final class DoorModels {
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier model(
+    *///?} else {
     public ResourceLocation model(
+    //?}
             DoubleBlockHalf half,
             DoorHingeSide hinge,
             boolean open
@@ -111,6 +130,16 @@ public final class DoorModels {
     }
 
     public static final class Builder {
+        //? if >=1.21.11 {
+        /*private Identifier bottomLeft;
+        private Identifier bottomLeftOpen;
+        private Identifier bottomRight;
+        private Identifier bottomRightOpen;
+        private Identifier topLeft;
+        private Identifier topLeftOpen;
+        private Identifier topRight;
+        private Identifier topRightOpen;
+        *///?} else {
         private ResourceLocation bottomLeft;
         private ResourceLocation bottomLeftOpen;
         private ResourceLocation bottomRight;
@@ -119,6 +148,7 @@ public final class DoorModels {
         private ResourceLocation topLeftOpen;
         private ResourceLocation topRight;
         private ResourceLocation topRightOpen;
+        //?}
 
         private Builder() {}
 
@@ -166,13 +196,20 @@ public final class DoorModels {
             return new DoorModels(this);
         }
 
+        //? if >=1.21.11 {
+        /*private static Identifier parse(String model, String name) {
+        *///?} else {
         private static ResourceLocation parse(String model, String name) {
+        //?}
             if (model == null || model.isBlank()) {
                 throw new IllegalArgumentException(name + " must not be blank");
             }
 
+            //? if >=1.21.11 {
+            /*return Identifier.parse(model);
+            *///?} else {
             return ResourceLocation.parse(model);
+            //?}
         }
     }
 }
-

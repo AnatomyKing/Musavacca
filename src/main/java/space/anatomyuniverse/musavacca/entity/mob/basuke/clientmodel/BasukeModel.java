@@ -2,12 +2,14 @@ package space.anatomyuniverse.musavacca.entity.mob.basuke.clientmodel;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.ArmedModel;
-//? if <1.21.2 {
-/*import net.minecraft.client.model.HierarchicalModel;
-*///?} else {
+
+//? if >=1.21.2 {
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.state.AllayRenderState;
-//?}
+//?} else {
+/*import net.minecraft.client.model.HierarchicalModel;
+*///?}
+
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -16,7 +18,11 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import org.jetbrains.annotations.NotNull;
@@ -24,14 +30,16 @@ import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
 public class BasukeModel extends
-        //? if <1.21.2 {
-        /*HierarchicalModel<Basuke>
-        *///?} else {
-        EntityModel<BasukeModel.State>
-        //?}
-        implements ArmedModel {
 
+        //? if >=1.21.2 {
+        EntityModel<BasukeModel.State>
+        //?} else {
+        /*HierarchicalModel<Basuke>
+        *///?}
+
+        implements ArmedModel {
     //? if >=1.21.2 {
+
     public static class State extends AllayRenderState {
         public float headYawRad;
         public float headPitchRad;
@@ -45,7 +53,11 @@ public class BasukeModel extends
 
     public static final ModelLayerLocation LAYER_LOCATION =
             new ModelLayerLocation(
+                    //? if >=1.21.11 {
+                    /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "basuke"),
+                    *///?} else {
                     ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "basuke"),
+                    //?}
                     "main"
             );
 
@@ -57,8 +69,10 @@ public class BasukeModel extends
     private static final float EATING_ARM_BOB_STRENGTH = 0.145F;
 
     private final ModelPart basuke;
-    //? if <1.21.2
-    //private final ModelPart root;
+
+    //? if <1.21.2 {
+    /*private final ModelPart root;
+    *///?}
     private final ModelPart hHead;
     private final ModelPart leftWing;
     private final ModelPart rightWing;
@@ -90,10 +104,12 @@ public class BasukeModel extends
     private final float rightArmBaseY;
 
     public BasukeModel(ModelPart bakedRoot) {
-        //? if >=1.21.2
+
+        //? if >=1.21.2 {
         super(bakedRoot);
-        //? if <1.21.2
-        //this.root = bakedRoot;
+        //?} else {
+        /*this.root = bakedRoot;
+        *///?}
 
         this.basuke = bakedRoot.getChild("basuke");
         this.hHead = this.basuke.getChild("h_head");
@@ -291,7 +307,19 @@ public class BasukeModel extends
         this.rightArm.y += armYOffset;
     }
 
-    //? if <1.21.2 {
+    //? if >=1.21.2 {
+    @Override
+    public void setupAnim(@NotNull State s) {
+        this.applyAnimation(
+                s.limbSwing,
+                s.ageTicks,
+                s.headYawRad,
+                s.headPitchRad,
+                s.flyAmount,
+                s.holdingAnimationProgress,
+                s.eatingTicks,
+                s.eatingTotalTicks
+    //?} else {
     /*@Override
     public ModelPart root() {
         return this.root;
@@ -316,26 +344,17 @@ public class BasukeModel extends
                 entity.getHoldingItemAnimationProgress(partialTick),
                 entity.getBasukeEatingTicks(),
                 entity.getBasukeEatingTotalTicks()
+    *///?}
         );
     }
-    *///?} else {
-    @Override
-    public void setupAnim(@NotNull State s) {
-        this.applyAnimation(
-                s.limbSwing,
-                s.ageTicks,
-                s.headYawRad,
-                s.headPitchRad,
-                s.flyAmount,
-                s.holdingAnimationProgress,
-                s.eatingTicks,
-                s.eatingTotalTicks
-        );
-    }
-    //?}
 
     @Override
-    public void translateToHand(HumanoidArm arm, PoseStack poseStack) {
+    public void translateToHand(
+
+            //? if >=1.21.9 {
+            /*net.minecraft.client.renderer.entity.state.EntityRenderState state,
+            *///?}
+            HumanoidArm arm, PoseStack poseStack) {
         this.basuke.translateAndRotate(poseStack);
         this.hHead.translateAndRotate(poseStack);
 
@@ -360,4 +379,3 @@ public class BasukeModel extends
         );
     }
 }
-

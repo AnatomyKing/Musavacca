@@ -1,4 +1,7 @@
 package space.anatomyuniverse.musavacca.basuke.particle;
+//? if >=26.1 {
+/*import net.minecraft.world.item.ItemStackTemplate;
+*///?}
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -173,10 +176,11 @@ public final class VocoTableParticles {
         }
 
         level.sendParticles(
-                new ItemParticleOption(
-                        ParticleTypes.ITEM,
-                        stack.copyWithCount(1)
-                ),
+                //? if >=26.1 {
+                /*new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(stack.copyWithCount(1))),
+                *///?} else {
+                new ItemParticleOption(ParticleTypes.ITEM, stack.copyWithCount(1)),
+                //?}
                 center.x,
                 center.y,
                 center.z,
@@ -188,4 +192,3 @@ public final class VocoTableParticles {
         );
     }
 }
-

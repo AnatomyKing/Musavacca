@@ -4,7 +4,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,7 +33,11 @@ public record VocoCameraSelectionPayload(
     private static final double MAX_PLAYER_DISTANCE_SQR = 100.0D;
 
     public static final Type<VocoCameraSelectionPayload> TYPE =
+            //? if >=1.21.11 {
+            /*new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
+            *///?} else {
             new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
+            //?}
 
     public static final StreamCodec<FriendlyByteBuf, VocoCameraSelectionPayload> STREAM_CODEC =
             new StreamCodec<>() {
@@ -155,4 +163,3 @@ public record VocoCameraSelectionPayload(
         return VocoReceptorLogic.clampPitch(Math.round(pitchDegrees));
     }
 }
-

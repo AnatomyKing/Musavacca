@@ -3,7 +3,11 @@ package space.anatomyuniverse.musavacca.item;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +38,11 @@ public final class ModCreativeTabs {
                     .displayItems((params, output) -> {
                         List<Item> mine = new ArrayList<>();
                         for (Item item : BuiltInRegistries.ITEM) {
+                            //? if >=1.21.11 {
+                            /*Identifier id = BuiltInRegistries.ITEM.getKey(item);
+                            *///?} else {
                             ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+                            //?}
                             if (id != null
                                     && MusaCore.MOD_ID.equals(id.getNamespace())
                                     && !BLACKLIST.contains(id.getPath())) {
@@ -53,4 +61,3 @@ public final class ModCreativeTabs {
 
     private ModCreativeTabs() {}
 }
-

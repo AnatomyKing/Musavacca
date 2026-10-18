@@ -1,6 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.Block;
 
 import java.util.Objects;
@@ -8,7 +12,11 @@ import java.util.Objects;
 public final class TallCrossTextures {
     private TallCrossTextures() {}
 
+    //? if >=1.21.11 {
+    /*public record Set(Identifier bottom, Identifier top) {
+    *///?} else {
     public record Set(ResourceLocation bottom, ResourceLocation top) {
+    //?}
         public Set {
             Objects.requireNonNull(bottom, "bottom");
             Objects.requireNonNull(top, "top");
@@ -18,8 +26,13 @@ public final class TallCrossTextures {
     public static final class Builder {
         private final Block block;
 
+        //? if >=1.21.11 {
+        /*private Identifier bottom;
+        private Identifier top;
+        *///?} else {
         private ResourceLocation bottom;
         private ResourceLocation top;
+        //?}
 
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
@@ -51,7 +64,11 @@ public final class TallCrossTextures {
             return new Set(bottom, top);
         }
 
+        //? if >=1.21.11 {
+        /*private Identifier suffix(String suffix) {
+        *///?} else {
         private ResourceLocation suffix(String suffix) {
+        //?}
             return TextureTokens.block(block, suffix);
         }
 
@@ -61,4 +78,3 @@ public final class TallCrossTextures {
         return new Builder(block);
     }
 }
-

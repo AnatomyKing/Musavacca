@@ -1,7 +1,11 @@
 package space.anatomyuniverse.musavacca.block;
 
 import net.minecraft.core.registries.Registries;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import space.anatomyuniverse.musavacca.MusaCore;
@@ -16,7 +20,11 @@ public final class ModBlockTags {
     private static TagKey<Block> create(String name) {
         return TagKey.create(
                 Registries.BLOCK,
+                //? if >=1.21.11 {
+                /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, name)
+                *///?} else {
                 ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, name)
+                //?}
         );
     }
 }

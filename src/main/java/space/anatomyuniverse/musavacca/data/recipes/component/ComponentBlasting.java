@@ -13,15 +13,20 @@ import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
 import java.util.function.Supplier;
+//? if >=1.21.2 {
 
-//? if >=1.21.3
 import net.minecraft.world.item.crafting.RecipeBookCategory;
+//?}
 
 public final class ComponentBlasting {
     private static Supplier<RecipeSerializer<ComponentRecipe>> serializer;
 
     public static void register(DeferredRegister<RecipeSerializer<?>> serializers) {
+        //? if >=26.1 {
+        /*serializer = serializers.register("component_blasting", () -> new RecipeSerializer<>(ComponentSerializer.CODEC, ComponentSerializer.STREAM_CODEC));
+        *///?} else {
         serializer = serializers.register("component_blasting", ComponentSerializer::new);
+        //?}
     }
 
     public static RecipeOutput output(
@@ -50,15 +55,20 @@ public final class ComponentBlasting {
             return serializer.get();
         }
 
-        //? if >=1.21.3 {
+        //? if >=1.21.2 {
         @Override
         public RecipeBookCategory recipeBookCategory() {
             return base().recipeBookCategory();
         }
+
         //?}
     }
 
+    //? if >=26.1 {
+    /*private static final class ComponentSerializer {
+    *///?} else {
     private static final class ComponentSerializer implements RecipeSerializer<ComponentRecipe> {
+    //?}
         private static final MapCodec<ComponentRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 ComponentRecipeDSL.cookingBaseCodec(RecipeDSL.RecipeKind.BLASTING)
                         .fieldOf("base").forGetter(ComponentRecipe::base),
@@ -68,6 +78,8 @@ public final class ComponentBlasting {
         private static final StreamCodec<RegistryFriendlyByteBuf, ComponentRecipe> STREAM_CODEC =
                 ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
 
+        //? if <26.1 {
+    
         @Override
         public MapCodec<ComponentRecipe> codec() {
             return CODEC;
@@ -77,8 +89,8 @@ public final class ComponentBlasting {
         public StreamCodec<RegistryFriendlyByteBuf, ComponentRecipe> streamCodec() {
             return STREAM_CODEC;
         }
+        //?}
     }
 
     private ComponentBlasting() {}
 }
-

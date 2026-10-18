@@ -3,6 +3,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven("https://maven.neoforged.net/releases/") { name = "NeoForged" }
+        maven("https://maven.kikugie.dev/releases") { name = "KikuGie Releases" }
         maven("https://maven.kikugie.dev/snapshots") { name = "KikuGie Snapshots" }
     }
 }
@@ -20,10 +21,15 @@ stonecutter {
             "1.21.5",
             "1.21.8",
             "1.21.10",
-            "1.21.11"
+            "1.21.11",
+            "26.1.2",
+            "26.2",
+            "26.3"
         )
         vcsVersion = "1.21.8"
     }
 }
 
 rootProject.name = "Musavacca"
+
+

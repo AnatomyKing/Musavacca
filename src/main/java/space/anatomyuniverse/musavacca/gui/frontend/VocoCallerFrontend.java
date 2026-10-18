@@ -1,27 +1,49 @@
 package space.anatomyuniverse.musavacca.gui.frontend;
+//? if >=1.21.9 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 
-//? if <1.21.6
-////? if >=1.21.2
-import net.minecraft.client.renderer.RenderType;
-
-import net.minecraft.client.gui.GuiGraphics;
-//? if <1.21.2 {
-/*import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
-*///?} else {
+//? if >=1.21.6 {
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.EffectsInInventory;
+
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+//?} else if >=1.21.2 <1.21.6 {
+/*import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+
+import net.neoforged.neoforge.network.PacketDistributor;
+*///?} else {
+/*import net.neoforged.neoforge.network.PacketDistributor;
+*///?}
+
+//? if >=1.21.11 {
+/*import net.minecraft.client.renderer.rendertype.RenderType;
+*///?} else {
+import net.minecraft.client.renderer.RenderType;
 //?}
 
-//? if >=1.21.6
+//? if >=26.1 {
+/*import net.minecraft.client.gui.GuiGraphicsExtractor;
+*///?} else {
+import net.minecraft.client.gui.GuiGraphics;
+//?}
+
+//? if >=1.21.6 {
+import net.minecraft.client.gui.screens.inventory.EffectsInInventory;
+
 import net.minecraft.client.renderer.RenderPipelines;
+//?} else if >=1.21.2 <1.21.6 {
+/*import net.minecraft.client.gui.screens.inventory.EffectsInInventory;
+*///?} else {
+/*import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+*///?}
 
 import net.minecraft.network.chat.Component;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.entity.player.Inventory;
-//? if >=1.21.7
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-//? if <1.21.7
-//import net.neoforged.neoforge.network.PacketDistributor;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.gui.backend.VocoCallerBackend;
 import space.anatomyuniverse.musavacca.gui.backend.VocoDialerBackend;
@@ -29,11 +51,12 @@ import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
 import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 
 public final class VocoCallerFrontend
-        //? if <1.21.2 {
-        /*extends EffectRenderingInventoryScreen<VocoCallerMenu> {
-        *///?} else {
+
+        //? if >=1.21.2 {
         extends AbstractContainerScreen<VocoCallerMenu> {
-        //?}
+        //?} else {
+        /*extends EffectRenderingInventoryScreen<VocoCallerMenu> {
+        *///?}
 
     private static final int GUI_WIDTH = 286;
     private static final int GUI_HEIGHT = 206;
@@ -98,34 +121,74 @@ public final class VocoCallerFrontend
     private static final long FLASH_PHASE_NANOS =
             75_000_000L;
 
+    //? if >=1.21.11 {
+    /*private static final Identifier PHONE_SCREEN_TEXTURE =
+    *///?} else {
     private static final ResourceLocation PHONE_SCREEN_TEXTURE =
+    //?}
             texture("phone_screen");
 
+    //? if >=1.21.11 {
+    /*private static final Identifier PHONE_SCREEN_FLASH_TEXTURE =
+    *///?} else {
     private static final ResourceLocation PHONE_SCREEN_FLASH_TEXTURE =
+    //?}
             texture("phone_screen_flash");
 
+    //? if >=1.21.11 {
+    /*private static final Identifier BUTTON_BAR_TEXTURE =
+    *///?} else {
     private static final ResourceLocation BUTTON_BAR_TEXTURE =
+    //?}
             texture("button_bar");
 
+    //? if >=1.21.11 {
+    /*private static final Identifier ARROW_LEFT_TEXTURE =
+    *///?} else {
     private static final ResourceLocation ARROW_LEFT_TEXTURE =
+    //?}
             texture("arrow_left");
 
+    //? if >=1.21.11 {
+    /*private static final Identifier ARROW_LEFT_PRESSED_TEXTURE =
+    *///?} else {
     private static final ResourceLocation ARROW_LEFT_PRESSED_TEXTURE =
+    //?}
             texture("arrow_left_pressed");
 
+    //? if >=1.21.11 {
+    /*private static final Identifier SPACE_BUTTON_TEXTURE =
+    *///?} else {
     private static final ResourceLocation SPACE_BUTTON_TEXTURE =
+    //?}
             texture("space_button");
 
+    //? if >=1.21.11 {
+    /*private static final Identifier SPACE_BUTTON_PRESSED_TEXTURE =
+    *///?} else {
     private static final ResourceLocation SPACE_BUTTON_PRESSED_TEXTURE =
+    //?}
             texture("space_button_pressed");
 
+    //? if >=1.21.11 {
+    /*private static final Identifier ARROW_RIGHT_TEXTURE =
+    *///?} else {
     private static final ResourceLocation ARROW_RIGHT_TEXTURE =
+    //?}
             texture("arrow_right");
 
+    //? if >=1.21.11 {
+    /*private static final Identifier ARROW_RIGHT_PRESSED_TEXTURE =
+    *///?} else {
     private static final ResourceLocation ARROW_RIGHT_PRESSED_TEXTURE =
+    //?}
             texture("arrow_right_pressed");
 
+    //? if >=1.21.11 {
+    /*private static final Identifier[] SYMBOL_TEXTURES =
+    *///?} else {
     private static final ResourceLocation[] SYMBOL_TEXTURES =
+    //?}
             createSymbolTextures();
 
     private final VocoDialerControl dialer =
@@ -133,9 +196,10 @@ public final class VocoCallerFrontend
                     this::sendBackendButton
             );
 
-    //? if >=1.21.2
+    //? if >=1.21.2 {
     private final EffectsInInventory effects;
 
+    //?}
     private int selectedPosition = 0;
 
     private boolean currentHexPressed = false;
@@ -163,19 +227,21 @@ public final class VocoCallerFrontend
             Inventory playerInventory,
             Component title
     ) {
-        super(
-                menu,
-                playerInventory,
-                title
-        );
 
+        //? if >=26.1 {
+        /*super(menu, playerInventory, title, GUI_WIDTH, GUI_HEIGHT);
+        *///?} else {
+        super(menu, playerInventory, title);
         this.imageWidth = GUI_WIDTH;
         this.imageHeight = GUI_HEIGHT;
+        //?}
+
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
+        //? if >=1.21.2 {
 
-        //? if >=1.21.2
         this.effects = new EffectsInInventory(this);
+        //?}
 
         this.ensureCaretOnFilledEntry();
     }
@@ -208,12 +274,17 @@ public final class VocoCallerFrontend
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
+    *///?} else {
     protected void renderBg(
             GuiGraphics graphics,
             float partialTick,
             int mouseX,
             int mouseY
     ) {
+    //?}
         this.tickHeldArrow();
         this.tickSpaceButton();
 
@@ -262,8 +333,13 @@ public final class VocoCallerFrontend
     }
 
     @Override
+    //? if >=26.1 {
+    /*protected void extractLabels(
+            GuiGraphicsExtractor graphics,
+    *///?} else {
     protected void renderLabels(
             GuiGraphics graphics,
+    //?}
             int mouseX,
             int mouseY
     ) {
@@ -273,7 +349,11 @@ public final class VocoCallerFrontend
     }
 
     private void renderCurrentDialed(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics
+            *///?} else {
             GuiGraphics graphics
+            //?}
     ) {
         this.drawHexCode(
                 graphics,
@@ -305,7 +385,11 @@ public final class VocoCallerFrontend
     }
 
     private void renderCallLists(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics
+            *///?} else {
             GuiGraphics graphics
+            //?}
     ) {
         for (
                 int row = 0;
@@ -333,7 +417,11 @@ public final class VocoCallerFrontend
     }
 
     private void drawHexCode(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics,
+            *///?} else {
             GuiGraphics graphics,
+            //?}
             String hexCode,
             int x,
             int y
@@ -370,7 +458,11 @@ public final class VocoCallerFrontend
     }
 
     private void renderSelectionCaret(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics
+            *///?} else {
             GuiGraphics graphics
+            //?}
     ) {
         if (
                 !this.hasEntry(this.selectedPosition)
@@ -412,6 +504,14 @@ public final class VocoCallerFrontend
     }
 
     @Override
+    //? if >=1.21.9 {
+    /*public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
+        if (button != 0) {
+            return super.mouseClicked(event, doubleClick);
+    *///?} else {
     public boolean mouseClicked(
             double mouseX,
             double mouseY,
@@ -423,6 +523,7 @@ public final class VocoCallerFrontend
                     mouseY,
                     button
             );
+    //?}
         }
 
         if (this.contains(
@@ -471,14 +572,24 @@ public final class VocoCallerFrontend
                 this.leftPos + DIALER_X,
                 this.topPos + DIALER_Y
         )
+        //? if >=1.21.9 {
+                /*|| super.mouseClicked(event, doubleClick);
+        *///?} else {
                 || super.mouseClicked(
                 mouseX,
                 mouseY,
                 button
         );
+        //?}
     }
 
     @Override
+    //? if >=1.21.9 {
+    /*public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
+    *///?} else {
     public boolean mouseDragged(
             double mouseX,
             double mouseY,
@@ -486,6 +597,7 @@ public final class VocoCallerFrontend
             double dragX,
             double dragY
     ) {
+    //?}
         return this.dialer.mouseDragged(
                 mouseX,
                 mouseY,
@@ -493,6 +605,9 @@ public final class VocoCallerFrontend
                 this.leftPos + DIALER_X,
                 this.topPos + DIALER_Y
         )
+        //? if >=1.21.9 {
+                /*|| super.mouseDragged(event, dragX, dragY);
+        *///?} else {
                 || super.mouseDragged(
                 mouseX,
                 mouseY,
@@ -500,9 +615,18 @@ public final class VocoCallerFrontend
                 dragX,
                 dragY
         );
+        //?}
     }
 
     @Override
+    //? if >=1.21.9 {
+    /*public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
+        if (button != 0) {
+            return super.mouseReleased(event);
+    *///?} else {
     public boolean mouseReleased(
             double mouseX,
             double mouseY,
@@ -514,6 +638,7 @@ public final class VocoCallerFrontend
                     mouseY,
                     button
             );
+    //?}
         }
 
         if (this.currentHexPressed) {
@@ -543,11 +668,15 @@ public final class VocoCallerFrontend
         }
 
         return this.dialer.mouseReleased(button)
+        //? if >=1.21.9 {
+                /*|| super.mouseReleased(event);
+        *///?} else {
                 || super.mouseReleased(
                 mouseX,
                 mouseY,
                 button
         );
+        //?}
     }
 
     private void startButtonPress(
@@ -1101,16 +1230,13 @@ public final class VocoCallerFrontend
                         this.backend()
                                 .copySavedAddresses()
                 );
-
-        //? if >=1.21.7 {
+        //? if >=1.21.6 {
         ClientPacketDistributor.sendToServer(
-                payload
-        );
         //?} else {
         /*PacketDistributor.sendToServer(
+        *///?}
                 payload
         );
-        *///?}
     }
 
     public void setRecentCall(
@@ -1202,38 +1328,79 @@ public final class VocoCallerFrontend
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractRenderState(
+            GuiGraphicsExtractor graphics,
+    *///?} else {
     public void render(
             GuiGraphics graphics,
+    //?}
             int mouseX,
             int mouseY,
             float partialTick
     ) {
+        //? if <26.1 {
         this.renderBackground(
                 graphics,
                 mouseX,
                 mouseY,
                 partialTick
         );
+        //?}
 
+        //? if >=26.1 {
+        /*super.extractRenderState(
+        *///?} else {
         super.render(
+        //?}
                 graphics,
                 mouseX,
                 mouseY,
                 partialTick
         );
 
-        //? if >=1.21.2 {
-        int originalTopPos = this.topPos;
+        //? if >=26.1 {
+        /*int originalTopPos = this.topPos;
         this.topPos += EFFECT_PANEL_Y_OFFSET;
 
         try {
-            //? if >=1.21.11 {
-            /*this.effects.render(
+
+            this.effects.extractRenderState(
                     graphics,
                     mouseX,
                     mouseY
             );
-            *///?} else if >=1.21.6 {
+
+        } finally {
+            this.topPos = originalTopPos;
+        }
+        *///?} else if >=1.21.11 <26.1 {
+        /*int originalTopPos = this.topPos;
+        this.topPos += EFFECT_PANEL_Y_OFFSET;
+
+        try {
+
+            this.effects.render(
+                    graphics,
+                    mouseX,
+                    mouseY
+            );
+
+        } finally {
+            this.topPos = originalTopPos;
+        }
+
+        this.renderTooltip(
+                graphics,
+                mouseX,
+                mouseY
+        );
+        *///?} else if >=1.21.6 <1.21.11 {
+        int originalTopPos = this.topPos;
+        this.topPos += EFFECT_PANEL_Y_OFFSET;
+
+        try {
+
             this.effects.renderEffects(
                     graphics,
                     mouseX,
@@ -1244,24 +1411,45 @@ public final class VocoCallerFrontend
                     mouseX,
                     mouseY
             );
-            //?} else {
-            /*this.effects.render(
-                    graphics,
-                    mouseX,
-                    mouseY,
-                    partialTick
-            );
-            *///?}
+
         } finally {
             this.topPos = originalTopPos;
         }
-        //?}
 
         this.renderTooltip(
                 graphics,
                 mouseX,
                 mouseY
         );
+        //?} else if >=1.21.2 <1.21.6 {
+        /*int originalTopPos = this.topPos;
+        this.topPos += EFFECT_PANEL_Y_OFFSET;
+
+        try {
+
+            this.effects.render(
+                    graphics,
+                    mouseX,
+                    mouseY,
+                    partialTick
+            );
+
+        } finally {
+            this.topPos = originalTopPos;
+        }
+
+        this.renderTooltip(
+                graphics,
+                mouseX,
+                mouseY
+        );
+        *///?} else {
+        /*this.renderTooltip(
+                graphics,
+                mouseX,
+                mouseY
+        );
+        *///?}
     }
 
     private boolean contains(
@@ -1286,10 +1474,17 @@ public final class VocoCallerFrontend
                 && mouseY < y + height;
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier[]
+    createSymbolTextures() {
+        Identifier[] textures =
+                new Identifier[16];
+    *///?} else {
     private static ResourceLocation[]
     createSymbolTextures() {
         ResourceLocation[] textures =
                 new ResourceLocation[16];
+    //?}
 
         for (
                 int value = 0;
@@ -1309,25 +1504,39 @@ public final class VocoCallerFrontend
         return textures;
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier texture(
+    *///?} else {
     private static ResourceLocation texture(
+    //?}
             String name
     ) {
-        return ResourceLocation.fromNamespaceAndPath(
-                MusaCore.MOD_ID,
-                "textures/gui/voco_caller/"
+        //? if >=1.21.11 {
+        /*return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/"
+        *///?} else {
+        return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/"
+        //?}
                         + name
-                        + ".png"
-        );
+                        + ".png");
     }
 
     private static void blit(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics,
+            Identifier texture,
+            *///?} else if >=1.21.11 <26.1 {
+            /*GuiGraphics graphics,
+            Identifier texture,
+            *///?} else {
             GuiGraphics graphics,
             ResourceLocation texture,
+            //?}
             int x,
             int y,
             int width,
             int height
     ) {
+
         //? if >=1.21.6 {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
@@ -1341,7 +1550,7 @@ public final class VocoCallerFrontend
                 width,
                 height
         );
-        //?} else if >=1.21.2 {
+        //?} else if >=1.21.2 <1.21.6 {
         /*graphics.blit(
                 RenderType::guiTextured,
                 texture,
@@ -1357,13 +1566,20 @@ public final class VocoCallerFrontend
         *///?} else {
         /*graphics.blit(texture, x, y, 0.0F, 0.0F, width, height, width, height);
         *///?}
+
     }
 
     private static void nextLayer(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics
+            *///?} else {
             GuiGraphics graphics
+            //?}
     ) {
-        //? if >=1.21.6
+
+        //? if >=1.21.6 {
         graphics.nextStratum();
+        //?}
     }
 
     private enum CallerButton {
@@ -1391,7 +1607,11 @@ public final class VocoCallerFrontend
             this.width = width;
         }
 
+        //? if >=1.21.11 {
+        /*private Identifier texture(
+        *///?} else {
         private ResourceLocation texture(
+        //?}
                 boolean pressed
         ) {
             return switch (this) {

@@ -54,11 +54,10 @@ public final class TeleportEconomy {
     }
 
     private static void showNeedsBalanceMessage(ServerPlayer player, int cost) {
-        player.displayClientMessage(
-                Component.literal("You need " + cost + " balance to teleport."),
-                true
-        );
+        //? if >=26.1 {
+        /*player.sendOverlayMessage(Component.literal("You need " + cost + " balance to teleport."));
+        *///?} else {
+        player.displayClientMessage(Component.literal("You need " + cost + " balance to teleport."), true);
+        //?}
     }
 }
-
-

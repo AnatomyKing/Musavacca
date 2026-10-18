@@ -1,9 +1,6 @@
-import org.gradle.api.Project
-import java.io.File
-
 plugins {
     id("dev.kikugie.stonecutter")
-    id("net.neoforged.moddev") version "2.0.141" apply false
+    id("net.neoforged.moddev") version "2.0.148" apply false
 }
 
 stonecutter active "1.21.8"
@@ -14,57 +11,39 @@ stonecutter parameters {
     constants["release"] = property("mod.id") != "template"
 }
 
-fun readActiveProjectName(): String {
-    val text = file("stonecutter.gradle.kts").readText()
-    val m = Regex("""stonecutter\s+active\s+"([^"]+)"""").find(text)
-        ?: error("Could not find `stonecutter active \"...\"` in stonecutter.gradle.kts")
-    return m.groupValues[1]
+
+stonecutter tasks {
+    order("runData")
 }
 
-val versionsDir: File = rootProject.layout.projectDirectory
-    .dir("versions")
-    .asFile
-    .canonicalFile
 
-fun isVersionNode(p: Project): Boolean =
-    p.projectDir.parentFile?.canonicalFile == versionsDir
-
-val runDatagenAll = tasks.register("runDatagenAll") {
+tasks.register("runDatagenAll") {
     group = "stonecutter"
-    description = "Runs datagen for ALL Stonecutter version projects."
+    description = "Runs datagen for every registered Minecraft version."
+    dependsOn(stonecutter.tasks.named("runDatagen"))
 }
 
-gradle.projectsEvaluated {
-    val nodes = rootProject.allprojects.filter(::isVersionNode)
+tasks.register("compileAll") {
+    group = "stonecutter"
+    description = "Compiles the Java sources for every registered Minecraft version."
+    dependsOn(stonecutter.tasks.named("compileJava"))
+}
 
-    runDatagenAll.configure {
-        doFirst {
-            logger.lifecycle(
-                "runDatagenAll -> ${nodes.size} version projects: " +
-                        nodes.joinToString { it.path }
-            )
-        }
-        dependsOn(nodes.map { "${it.path}:runDatagen" })
+tasks.register("buildAll") {
+    group = "stonecutter"
+    description = "Builds and collects every version. Run runDatagenAll first."
+    dependsOn(stonecutter.tasks.named("buildAndCollect"))
+}
+
+val activeProject = requireNotNull(stonecutter.current) { "Set an active Stonecutter version first." }.project
+for ((alias, target) in mapOf(
+    "runDatagenActive" to "runDatagen",
+    "runClientActive" to "runClient",
+    "runServerActive" to "runServer"
+)) {
+    tasks.register(alias) {
+        group = "stonecutter"
+        description = "Runs $target for the active Stonecutter version."
+        dependsOn(":$activeProject:$target")
     }
-}
-
-tasks.register("runDatagenActive") {
-    group = "stonecutter"
-    description = "Runs datagen only for the CURRENT active Stonecutter project."
-    val active = readActiveProjectName()
-    dependsOn(":$active:runDatagen")
-}
-
-tasks.register("runClientActive") {
-    group = "stonecutter"
-    description = "Runs the client only for the CURRENT active Stonecutter project."
-    val active = readActiveProjectName()
-    dependsOn(":$active:runClient")
-}
-
-tasks.register("runServerActive") {
-    group = "stonecutter"
-    description = "Runs the server only for the CURRENT active Stonecutter project."
-    val active = readActiveProjectName()
-    dependsOn(":$active:runServer")
 }

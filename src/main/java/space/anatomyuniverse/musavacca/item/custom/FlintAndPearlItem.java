@@ -1,6 +1,11 @@
 package space.anatomyuniverse.musavacca.item.custom;
 
+import net.minecraft.world.item.DyeColor;
+//? if >=26.2 {
+/*import net.minecraft.advancements.triggers.CriteriaTriggers;
+*///?} else {
 import net.minecraft.advancements.CriteriaTriggers;
+//?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -9,8 +14,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2
-//import net.minecraft.world.InteractionResultHolder;
+
+//? if <1.21.2 {
+/*import net.minecraft.world.InteractionResultHolder;
+*///?}
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -233,6 +240,24 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         }
 
         if (block == Blocks.CANDLE) return ModBlocks.PEARL_CANDLE.get();
+        //? if >=26.2 {
+        /*if (block == Blocks.DYED_CANDLE.pick(DyeColor.WHITE)) return ModBlocks.PEARL_WHITE_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.ORANGE)) return ModBlocks.PEARL_ORANGE_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.MAGENTA)) return ModBlocks.PEARL_MAGENTA_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.LIGHT_BLUE)) return ModBlocks.PEARL_LIGHT_BLUE_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.YELLOW)) return ModBlocks.PEARL_YELLOW_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.LIME)) return ModBlocks.PEARL_LIME_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.PINK)) return ModBlocks.PEARL_PINK_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.GRAY)) return ModBlocks.PEARL_GRAY_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.LIGHT_GRAY)) return ModBlocks.PEARL_LIGHT_GRAY_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.CYAN)) return ModBlocks.PEARL_CYAN_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.PURPLE)) return ModBlocks.PEARL_PURPLE_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.BLUE)) return ModBlocks.PEARL_BLUE_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.BROWN)) return ModBlocks.PEARL_BROWN_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.GREEN)) return ModBlocks.PEARL_GREEN_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.RED)) return ModBlocks.PEARL_RED_CANDLE.get();
+        if (block == Blocks.DYED_CANDLE.pick(DyeColor.BLACK)) return ModBlocks.PEARL_BLACK_CANDLE.get();
+        *///?} else {
         if (block == Blocks.WHITE_CANDLE) return ModBlocks.PEARL_WHITE_CANDLE.get();
         if (block == Blocks.ORANGE_CANDLE) return ModBlocks.PEARL_ORANGE_CANDLE.get();
         if (block == Blocks.MAGENTA_CANDLE) return ModBlocks.PEARL_MAGENTA_CANDLE.get();
@@ -249,28 +274,18 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         if (block == Blocks.GREEN_CANDLE) return ModBlocks.PEARL_GREEN_CANDLE.get();
         if (block == Blocks.RED_CANDLE) return ModBlocks.PEARL_RED_CANDLE.get();
         if (block == Blocks.BLACK_CANDLE) return ModBlocks.PEARL_BLACK_CANDLE.get();
+        //?}
 
         return null;
     }
 
     @Override
-    //? if <1.21.2 {
-    /*public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        ensureDefaultColorComponent(stack);
 
-        if (shouldOpenGui(level, player)) {
-            if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
-                openGui(serverPlayer, hand, stack);
-            }
-
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
-        }
-
-        return InteractionResultHolder.pass(stack);
-    }
-    *///?} else {
+    //? if >=1.21.2 {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
+    //?} else {
+    /*public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    *///?}
         ItemStack stack = player.getItemInHand(hand);
         ensureDefaultColorComponent(stack);
 
@@ -279,12 +294,19 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
                 openGui(serverPlayer, hand, stack);
             }
 
+            //? if >=1.21.2 {
             return InteractionResult.SUCCESS_SERVER;
+            //?} else {
+            /*return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+            *///?}
         }
 
+        //? if >=1.21.2 {
         return InteractionResult.PASS;
+        //?} else {
+        /*return InteractionResultHolder.pass(stack);
+        *///?}
     }
-    //?}
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
@@ -436,11 +458,13 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     }
 
     private static InteractionResult successResult(Level level) {
-        //? if <1.21.2 {
-        /*return InteractionResult.sidedSuccess(level.isClientSide());
-        *///?} else {
+
+        //? if >=1.21.2 {
         return InteractionResult.SUCCESS_SERVER;
-        //?}
+        //?} else {
+        /*return InteractionResult.sidedSuccess(level.isClientSide());
+        *///?}
+
     }
 
     private static void damageStack(ItemStack stack, @Nullable Player player, InteractionHand hand) {

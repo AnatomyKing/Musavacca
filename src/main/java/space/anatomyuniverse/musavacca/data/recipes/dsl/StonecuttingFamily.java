@@ -1,7 +1,11 @@
 package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
 import net.minecraft.data.recipes.RecipeCategory;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -100,7 +104,11 @@ public final class StonecuttingFamily {
         save(this.dsl.id(path));
     }
 
+    //? if >=1.21.11 {
+    /*public void save(Identifier id) {
+    *///?} else {
     public void save(ResourceLocation id) {
+    //?}
         Objects.requireNonNull(id, "id");
         requireConfigured();
 
@@ -187,7 +195,11 @@ public final class StonecuttingFamily {
             Object input,
             ItemLike result,
             int count,
+            //? if >=1.21.11 {
+            /*Identifier id
+            *///?} else {
             ResourceLocation id
+            //?}
     ) {
         Stonecutting recipe = this.dsl.stonecut()
                 .of(
@@ -208,8 +220,13 @@ public final class StonecuttingFamily {
         recipe.save(id);
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier siblingId(
+            Identifier base,
+    *///?} else {
     private static ResourceLocation siblingId(
             ResourceLocation base,
+    //?}
             String name
     ) {
         String path = base.getPath();
@@ -219,10 +236,11 @@ public final class StonecuttingFamily {
                 ? path.substring(0, slash + 1)
                 : "";
 
-        return ResourceLocation.fromNamespaceAndPath(
-                base.getNamespace(),
-                folder + name
-        );
+        //? if >=1.21.11 {
+        /*return Identifier.fromNamespaceAndPath(base.getNamespace(), folder + name);
+        *///?} else {
+        return ResourceLocation.fromNamespaceAndPath(base.getNamespace(), folder + name);
+        //?}
     }
 
     private static void addUnique(

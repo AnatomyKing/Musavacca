@@ -1,21 +1,26 @@
 package space.anatomyuniverse.musavacca.mixin;
 
-//? if <1.21.2 {
-/*import net.minecraft.world.entity.vehicle.Boat;
-*///?} else {
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
+*///?} else if >=1.21.2 <1.21.11 {
 import net.minecraft.world.entity.vehicle.AbstractBoat;
-//?}
+//?} else {
+/*import net.minecraft.world.entity.vehicle.Boat;
+*///?}
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import space.anatomyuniverse.musavacca.entity.boat.musavacca.MusavaccaBoat;
 
 @Mixin(
-        //? if <1.21.2 {
-        /*Boat.class
-        *///?} else {
+
+        //? if >=1.21.2 {
         AbstractBoat.class
-        //?}
+        //?} else {
+        /*Boat.class
+        *///?}
+
 )
 public abstract class AbstractBoatFloatMixin {
 
@@ -34,4 +39,3 @@ public abstract class AbstractBoatFloatMixin {
                 : original;
     }
 }
-

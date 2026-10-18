@@ -1,10 +1,15 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
+//? if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+*///?}
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-//? if >=1.21.5
+
+//? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
+//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -16,10 +21,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if >=1.21.6
+
+//? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
-//? if >=1.21.6
+
 import net.minecraft.world.level.storage.ValueOutput;
+//?}
 import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -189,8 +196,8 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
         this.cleanupBeforeRemoval();
         super.preRemoveSideEffects(pos, state);
     }
-    //?}
 
+    //?}
     private void setChangedAndSync() {
         this.setChanged();
 
@@ -241,26 +248,60 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
         );
     }
 
-    //? if >=1.21.6 {
     @Override
+    //? if >=1.21.6 {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+    //?} else {
+    /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+    *///?}
 
+        //? if >=1.21.6 {
         this.portalId = readUuid(input, TAG_PORTAL_ID, UUID.randomUUID());
         this.hexColor = MusavaccaTints.stored(input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.DEFAULT_TINT));
         this.originPos = readBlockPos(input, TAG_ORIGIN_X, TAG_ORIGIN_Y, TAG_ORIGIN_Z, this.getBlockPos());
         this.axis = axisFromString(input.getStringOr(TAG_AXIS, "x"));
+        //?} else if >=1.21.5 <1.21.6 {
+        /*this.portalId = readUuid(tag, TAG_PORTAL_ID, UUID.randomUUID());
+        this.hexColor = MusavaccaTints.stored(tag.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.DEFAULT_TINT));
+        this.originPos = readBlockPos(tag, TAG_ORIGIN_X, TAG_ORIGIN_Y, TAG_ORIGIN_Z, this.getBlockPos());
+        this.axis = axisFromString(tag.getStringOr(TAG_AXIS, "x"));
+        *///?} else {
+        /*this.portalId = readUuid(tag, TAG_PORTAL_ID, UUID.randomUUID());
+        this.hexColor = MusavaccaTints.stored((tag.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? tag.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.DEFAULT_TINT));
+        this.originPos = readBlockPos(tag, TAG_ORIGIN_X, TAG_ORIGIN_Y, TAG_ORIGIN_Z, this.getBlockPos());
+        this.axis = axisFromString((tag.contains(TAG_AXIS, Tag.TAG_STRING) ? tag.getString(TAG_AXIS) : "x"));
+        *///?}
         this.frontDirection = PearlPortalFrame.normalizeFrontDirection(
                 this.axis,
+                //? if >=1.21.6 {
                 directionFromString(input.getStringOr(TAG_FRONT_DIRECTION, ""))
+                //?} else if >=1.21.5 <1.21.6 {
+                /*directionFromString(tag.getStringOr(TAG_FRONT_DIRECTION, ""))
+                *///?} else {
+                /*directionFromString((tag.contains(TAG_FRONT_DIRECTION, Tag.TAG_STRING) ? tag.getString(TAG_FRONT_DIRECTION) : ""))
+                *///?}
         );
         this.upDirection = PearlPortalFrame.normalizeUpDirection(
                 this.axis,
                 this.frontDirection,
+        //? if >=1.21.6 {
                 directionFromString(input.getStringOr(TAG_UP_DIRECTION, ""))
         );
         this.width = clampWidth(input.getIntOr(TAG_WIDTH, PearlPortalFrame.MIN_WIDTH));
         this.height = clampHeight(input.getIntOr(TAG_HEIGHT, PearlPortalFrame.MIN_HEIGHT));
+        //?} else if >=1.21.5 <1.21.6 {
+                /*directionFromString(tag.getStringOr(TAG_UP_DIRECTION, ""))
+        );
+        this.width = clampWidth(tag.getIntOr(TAG_WIDTH, PearlPortalFrame.MIN_WIDTH));
+        this.height = clampHeight(tag.getIntOr(TAG_HEIGHT, PearlPortalFrame.MIN_HEIGHT));
+        *///?} else {
+                /*directionFromString((tag.contains(TAG_UP_DIRECTION, Tag.TAG_STRING) ? tag.getString(TAG_UP_DIRECTION) : ""))
+        );
+        this.width = clampWidth((tag.contains(TAG_WIDTH, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_WIDTH) : PearlPortalFrame.MIN_WIDTH));
+        this.height = clampHeight((tag.contains(TAG_HEIGHT, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_HEIGHT) : PearlPortalFrame.MIN_HEIGHT));
+        *///?}
 
         PearlPortalFrame.Shape fallbackShape = new PearlPortalFrame.Shape(
                 this.axis,
@@ -273,7 +314,11 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
         );
 
         this.exitAnchorPos = readBlockPos(
+                //? if >=1.21.6 {
                 input,
+                //?} else {
+                /*tag,
+                *///?}
                 TAG_EXIT_ANCHOR_X,
                 TAG_EXIT_ANCHOR_Y,
                 TAG_EXIT_ANCHOR_Z,
@@ -282,106 +327,65 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
     }
 
     @Override
+    //? if >=1.21.6 {
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+    //?} else {
+    /*protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+    *///?}
 
+        //? if >=1.21.6 {
         output.putString(TAG_PORTAL_ID, this.portalId.toString());
         output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
+        //?} else {
+        /*tag.putString(TAG_PORTAL_ID, this.portalId.toString());
+        tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
+        *///?}
 
         BlockPos origin = this.getOriginPos();
+        //? if >=1.21.6 {
         output.putInt(TAG_ORIGIN_X, origin.getX());
         output.putInt(TAG_ORIGIN_Y, origin.getY());
         output.putInt(TAG_ORIGIN_Z, origin.getZ());
+        //?} else {
+        /*tag.putInt(TAG_ORIGIN_X, origin.getX());
+        tag.putInt(TAG_ORIGIN_Y, origin.getY());
+        tag.putInt(TAG_ORIGIN_Z, origin.getZ());
+        *///?}
 
+        //? if >=1.21.6 {
         output.putString(TAG_AXIS, axisToString(this.getPortalAxis()));
         output.putString(TAG_FRONT_DIRECTION, directionToString(this.getPortalFrontDirection()));
         output.putString(TAG_UP_DIRECTION, directionToString(this.getPortalUpDirection()));
         output.putInt(TAG_WIDTH, this.width);
         output.putInt(TAG_HEIGHT, this.height);
-
-        BlockPos anchor = this.getExitAnchorPos();
-        output.putInt(TAG_EXIT_ANCHOR_X, anchor.getX());
-        output.putInt(TAG_EXIT_ANCHOR_Y, anchor.getY());
-        output.putInt(TAG_EXIT_ANCHOR_Z, anchor.getZ());
-    }
-    //?} else {
-    /*@Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-
-        this.portalId = readUuid(tag, TAG_PORTAL_ID, UUID.randomUUID());
-        this.hexColor = MusavaccaTints.stored(tagGetIntOr(tag, MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.DEFAULT_TINT));
-        this.originPos = readBlockPos(tag, TAG_ORIGIN_X, TAG_ORIGIN_Y, TAG_ORIGIN_Z, this.getBlockPos());
-        this.axis = axisFromString(tagGetStringOr(tag, TAG_AXIS, "x"));
-        this.frontDirection = PearlPortalFrame.normalizeFrontDirection(
-                this.axis,
-                directionFromString(tagGetStringOr(tag, TAG_FRONT_DIRECTION, ""))
-        );
-        this.upDirection = PearlPortalFrame.normalizeUpDirection(
-                this.axis,
-                this.frontDirection,
-                directionFromString(tagGetStringOr(tag, TAG_UP_DIRECTION, ""))
-        );
-        this.width = clampWidth(tagGetIntOr(tag, TAG_WIDTH, PearlPortalFrame.MIN_WIDTH));
-        this.height = clampHeight(tagGetIntOr(tag, TAG_HEIGHT, PearlPortalFrame.MIN_HEIGHT));
-
-        PearlPortalFrame.Shape fallbackShape = new PearlPortalFrame.Shape(
-                this.axis,
-                this.getOriginPos(),
-                this.width,
-                this.height,
-                this.frontDirection,
-                this.upDirection,
-                null
-        );
-
-        this.exitAnchorPos = readBlockPos(
-                tag,
-                TAG_EXIT_ANCHOR_X,
-                TAG_EXIT_ANCHOR_Y,
-                TAG_EXIT_ANCHOR_Z,
-                fallbackShape.exitAnchorPos()
-        );
-    }
-
-    @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-
-        tag.putString(TAG_PORTAL_ID, this.portalId.toString());
-        tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
-
-        BlockPos origin = this.getOriginPos();
-        tag.putInt(TAG_ORIGIN_X, origin.getX());
-        tag.putInt(TAG_ORIGIN_Y, origin.getY());
-        tag.putInt(TAG_ORIGIN_Z, origin.getZ());
-
-        tag.putString(TAG_AXIS, axisToString(this.getPortalAxis()));
+        //?} else {
+        /*tag.putString(TAG_AXIS, axisToString(this.getPortalAxis()));
         tag.putString(TAG_FRONT_DIRECTION, directionToString(this.getPortalFrontDirection()));
         tag.putString(TAG_UP_DIRECTION, directionToString(this.getPortalUpDirection()));
         tag.putInt(TAG_WIDTH, this.width);
         tag.putInt(TAG_HEIGHT, this.height);
+        *///?}
 
         BlockPos anchor = this.getExitAnchorPos();
-        tag.putInt(TAG_EXIT_ANCHOR_X, anchor.getX());
+        //? if >=1.21.6 {
+        output.putInt(TAG_EXIT_ANCHOR_X, anchor.getX());
+        output.putInt(TAG_EXIT_ANCHOR_Y, anchor.getY());
+        output.putInt(TAG_EXIT_ANCHOR_Z, anchor.getZ());
+        //?} else {
+        /*tag.putInt(TAG_EXIT_ANCHOR_X, anchor.getX());
         tag.putInt(TAG_EXIT_ANCHOR_Y, anchor.getY());
         tag.putInt(TAG_EXIT_ANCHOR_Z, anchor.getZ());
+        *///?}
     }
-    *///?}
 
-    //? if >=1.21.5 {
     @Override
+    //? if >=1.21.5 {
     protected void applyImplicitComponents(DataComponentGetter input) {
-        super.applyImplicitComponents(input);
-
-        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        if (savedHex != null) {
-            this.hexColor = MusavaccaTints.stored(savedHex);
-        }
-    }
     //?} else {
-    /*@Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    /*protected void applyImplicitComponents(DataComponentInput input) {
+    *///?}
         super.applyImplicitComponents(input);
 
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
@@ -389,7 +393,6 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
             this.hexColor = MusavaccaTints.stored(savedHex);
         }
     }
-    *///?}
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
@@ -407,101 +410,76 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    //? if >=1.21.6 {
     @Override
+    //? if >=1.21.6 {
     public void handleUpdateTag(ValueInput input) {
         super.handleUpdateTag(input);
+    //?} else {
+    /*public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
+        super.handleUpdateTag(tag, provider);
+    *///?}
         this.rerenderClientNow();
     }
 
     @Override
+    //? if >=1.21.6 {
     public void onDataPacket(Connection connection, ValueInput input) {
         super.onDataPacket(connection, input);
-        this.rerenderClientNow();
-    }
     //?} else {
-    /*@Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        super.handleUpdateTag(tag, provider);
-        this.rerenderClientNow();
-    }
-
-    @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider provider) {
+    /*public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider provider) {
         super.onDataPacket(connection, packet, provider);
+    *///?}
         this.rerenderClientNow();
     }
-    *///?}
 
-    //? if >=1.21.6 {
     private static BlockPos readBlockPos(
+            //? if >=1.21.6 {
             ValueInput input,
+            //?} else {
+            /*CompoundTag tag,
+            *///?}
             String xTag,
             String yTag,
             String zTag,
             BlockPos fallback
     ) {
         return new BlockPos(
+                //? if >=1.21.6 {
                 input.getIntOr(xTag, fallback.getX()),
                 input.getIntOr(yTag, fallback.getY()),
                 input.getIntOr(zTag, fallback.getZ())
+                //?} else if >=1.21.5 <1.21.6 {
+                /*tag.getIntOr(xTag, fallback.getX()),
+                tag.getIntOr(yTag, fallback.getY()),
+                tag.getIntOr(zTag, fallback.getZ())
+                *///?} else {
+                /*(tag.contains(xTag, Tag.TAG_ANY_NUMERIC) ? tag.getInt(xTag) : fallback.getX()),
+                (tag.contains(yTag, Tag.TAG_ANY_NUMERIC) ? tag.getInt(yTag) : fallback.getY()),
+                (tag.contains(zTag, Tag.TAG_ANY_NUMERIC) ? tag.getInt(zTag) : fallback.getZ())
+                *///?}
         );
     }
 
+    //? if >=1.21.6 {
     private static UUID readUuid(ValueInput input, String key, UUID fallback) {
         String text = input.getStringOr(key, "");
-        if (text.isEmpty()) {
-            return fallback;
-        }
-
-        try {
-            return UUID.fromString(text);
-        } catch (IllegalArgumentException ignored) {
-            return fallback;
-        }
-    }
-    //?} else {
-    /*private static BlockPos readBlockPos(
-            CompoundTag tag,
-            String xTag,
-            String yTag,
-            String zTag,
-            BlockPos fallback
-    ) {
-        return new BlockPos(
-                tagGetIntOr(tag, xTag, fallback.getX()),
-                tagGetIntOr(tag, yTag, fallback.getY()),
-                tagGetIntOr(tag, zTag, fallback.getZ())
-        );
-    }
-
-    private static UUID readUuid(CompoundTag tag, String key, UUID fallback) {
-        String text = tagGetStringOr(tag, key, "");
-        if (text.isEmpty()) {
-            return fallback;
-        }
-
-        try {
-            return UUID.fromString(text);
-        } catch (IllegalArgumentException ignored) {
-            return fallback;
-        }
-    }
-
-    private static int tagGetIntOr(CompoundTag tag, String key, int fallback) {
-        //? if >=1.21.5 {
-        return tag.getIntOr(key, fallback);
-        //?} else
-        //return tag.contains(key) ? tag.getInt(key) : fallback;
-    }
-
-    private static String tagGetStringOr(CompoundTag tag, String key, String fallback) {
-        //? if >=1.21.5 {
-        return tag.getStringOr(key, fallback);
-        //?} else
-        //return tag.contains(key) ? tag.getString(key) : fallback;
-    }
+    //?} else if >=1.21.5 <1.21.6 {
+    /*private static UUID readUuid(CompoundTag tag, String key, UUID fallback) {
+        String text = tag.getStringOr(key, "");
+    *///?} else {
+    /*private static UUID readUuid(CompoundTag tag, String key, UUID fallback) {
+        String text = (tag.contains(key, Tag.TAG_STRING) ? tag.getString(key) : "");
     *///?}
+        if (text.isEmpty()) {
+            return fallback;
+        }
+
+        try {
+            return UUID.fromString(text);
+        } catch (IllegalArgumentException ignored) {
+            return fallback;
+        }
+    }
 
     private static Direction.Axis axisFromString(String text) {
         return switch ((text == null ? "" : text).toLowerCase()) {
@@ -554,4 +532,3 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
         return Math.max(min, Math.min(max, value));
     }
 }
-

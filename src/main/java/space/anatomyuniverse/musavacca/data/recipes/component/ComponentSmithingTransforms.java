@@ -17,8 +17,8 @@ import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
+//? if >=1.21.2 {
 
-//? if >=1.21.3 {
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
@@ -33,7 +33,11 @@ public final class ComponentSmithingTransforms {
     private static Supplier<RecipeSerializer<ComponentRecipe>> serializer;
 
     public static void register(DeferredRegister<RecipeSerializer<?>> serializers) {
+        //? if >=26.1 {
+        /*serializer = serializers.register("component_smithing_transform", () -> new RecipeSerializer<>(ComponentSerializer.CODEC, ComponentSerializer.STREAM_CODEC));
+        *///?} else {
         serializer = serializers.register("component_smithing_transform", ComponentSerializer::new);
+        //?}
     }
 
     public static RecipeOutput output(
@@ -93,8 +97,22 @@ public final class ComponentSmithingTransforms {
         }
 
         @Override
-        public ItemStack assemble(SmithingRecipeInput input, HolderLookup.Provider registries) {
-            ItemStack result = this.base.assemble(input, registries);
+        public ItemStack assemble(SmithingRecipeInput input
+
+                //? if <26.1 {
+                , HolderLookup.Provider registries
+                //?}
+        ) {
+
+            //? if >=26.1 {
+            /*HolderLookup.Provider registries = ComponentRecipeDSL.runtimeRegistries();
+            *///?}
+            ItemStack result = this.base.assemble(input
+
+                    //? if <26.1 {
+                    , registries
+                    //?}
+            );
 
             for (ComponentRecipeDSL.SmithingSource source : this.sources) {
                 ComponentRecipeDSL.transfer(
@@ -113,106 +131,134 @@ public final class ComponentSmithingTransforms {
             return serializer.get();
         }
 
-        //? if <1.21.3 {
-        /*@Override
-        public String getGroup() {
-            return this.base.getGroup();
-        }
-
-        @Override
-        public boolean canCraftInDimensions(int width, int height) {
-            return this.base.canCraftInDimensions(width, height);
-        }
-
-        @Override
-        public ItemStack getResultItem(HolderLookup.Provider registries) {
-            return this.base.getResultItem(registries);
-        }
-
-        @Override
-        public NonNullList<Ingredient> getIngredients() {
-            return this.base.getIngredients();
-        }
-
-        @Override
-        public boolean isTemplateIngredient(ItemStack stack) {
-            return this.base.isTemplateIngredient(stack);
-        }
-
-        @Override
-        public boolean isBaseIngredient(ItemStack stack) {
-            return this.base.isBaseIngredient(stack);
-        }
-
-        @Override
-        public boolean isAdditionIngredient(ItemStack stack) {
-            return this.base.isAdditionIngredient(stack);
-        }
-        *///?} else {
+        //? if >=1.21.2 {
         @Override
         public String group() {
             return this.base.group();
         }
+        //?} else {
+        /*@Override
+        public String getGroup() {
+            return this.base.getGroup();
+        }
+        *///?}
 
+        //? if >=1.21.2 {
         @Override
         public boolean showNotification() {
             return this.base.showNotification();
         }
+        //?} else {
+        /*@Override
+        public boolean canCraftInDimensions(int width, int height) {
+            return this.base.canCraftInDimensions(width, height);
+        }
+        *///?}
 
+        //? if >=1.21.2 {
         @Override
         public PlacementInfo placementInfo() {
             return this.base.placementInfo();
         }
+        //?} else {
+        /*@Override
+        public ItemStack getResultItem(HolderLookup.Provider registries) {
+            return this.base.getResultItem(registries);
+        }
+        *///?}
 
+        //? if >=1.21.2 {
         @Override
         public RecipeBookCategory recipeBookCategory() {
             return this.base.recipeBookCategory();
         }
+        //?} else {
+        /*@Override
+        public NonNullList<Ingredient> getIngredients() {
+            return this.base.getIngredients();
+        }
+        *///?}
 
+        //? if >=1.21.2 {
         @Override
         public List<RecipeDisplay> display() {
             return this.base.display();
         }
+        //?} else {
+        /*@Override
+        public boolean isTemplateIngredient(ItemStack stack) {
+            return this.base.isTemplateIngredient(stack);
+        }
+        *///?}
 
+        //? if >=1.21.2 {
         @Override
         public Optional<Ingredient> templateIngredient() {
             return this.base.templateIngredient();
         }
+        //?} else {
+        /*@Override
+        public boolean isBaseIngredient(ItemStack stack) {
+            return this.base.isBaseIngredient(stack);
+        }
+        *///?}
 
         //? if >=1.21.5 {
         @Override
         public Ingredient baseIngredient() {
             return this.base.baseIngredient();
         }
-        //?} else {
-        /*@Override
-        public Optional<Ingredient> baseIngredient() {
-            return this.base.baseIngredient();
-        }
-        *///?}
 
         @Override
         public Optional<Ingredient> additionIngredient() {
             return this.base.additionIngredient();
         }
-        //?}
+        //?} else if >=1.21.2 <1.21.5 {
+        /*@Override
+        public Optional<Ingredient> baseIngredient() {
+            return this.base.baseIngredient();
+        }
+
+        @Override
+        public Optional<Ingredient> additionIngredient() {
+            return this.base.additionIngredient();
+        }
+        *///?} else {
+        /*@Override
+        public boolean isAdditionIngredient(ItemStack stack) {
+            return this.base.isAdditionIngredient(stack);
+        }
+        *///?}
+
     }
 
+    //? if >=26.1 {
+    /*private static final class ComponentSerializer {
+        private static final MapCodec<ComponentRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                net.minecraft.world.item.crafting.SmithingTransformRecipe.SERIALIZER.codec().codec().fieldOf("base").forGetter(ComponentRecipe::base),
+    *///?} else {
     private static final class ComponentSerializer implements RecipeSerializer<ComponentRecipe> {
         private static final MapCodec<ComponentRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 RecipeSerializer.SMITHING_TRANSFORM.codec().codec().fieldOf("base").forGetter(ComponentRecipe::base),
+    //?}
                 ComponentRecipeDSL.SmithingSource.CODEC.listOf().fieldOf("sources").forGetter(ComponentRecipe::sources)
         ).apply(instance, ComponentRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, ComponentRecipe> STREAM_CODEC =
                 StreamCodec.composite(
+                        //? if >=26.1 {
+                        /*net.minecraft.world.item.crafting.SmithingTransformRecipe.SERIALIZER.streamCodec(),
+                        *///?} else {
                         RecipeSerializer.SMITHING_TRANSFORM.streamCodec(),
+                        //?}
                         ComponentRecipe::base,
                         ByteBufCodecs.fromCodecWithRegistries(ComponentRecipeDSL.SmithingSource.CODEC.listOf()),
                         ComponentRecipe::sources,
                         ComponentRecipe::new
                 );
 
+        //? if <26.1 {
+    
         @Override
         public MapCodec<ComponentRecipe> codec() {
             return CODEC;
@@ -222,8 +268,8 @@ public final class ComponentSmithingTransforms {
         public StreamCodec<RegistryFriendlyByteBuf, ComponentRecipe> streamCodec() {
             return STREAM_CODEC;
         }
+        //?}
     }
 
     private ComponentSmithingTransforms() {}
 }
-

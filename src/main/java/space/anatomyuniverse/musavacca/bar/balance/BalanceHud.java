@@ -3,13 +3,25 @@ package space.anatomyuniverse.musavacca.bar.balance;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-//? if >=1.21.6
+//? if >=26.1 {
+/*import net.minecraft.client.gui.GuiGraphicsExtractor;
+
 import net.minecraft.client.renderer.RenderPipelines;
-//? if <1.21.6
-////? if >=1.21.2
+*///?} else if >=1.21.6 <26.1 {
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.client.renderer.RenderPipelines;
+//?} else {
+/*import net.minecraft.client.gui.GuiGraphics;
+*///?}
+
+//? if >=1.21.11 {
+/*import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -28,7 +40,11 @@ public final class BalanceHud {
     private static final int TEXT_COLOR = 0xFFD5C349;
     private static final int SHADOW_COLOR = 0xFF000000;
 
+    //? if >=1.21.11 {
+    /*private static final Identifier[] PEARL_ICON_LAYERS = {
+    *///?} else {
     private static final ResourceLocation[] PEARL_ICON_LAYERS = {
+    //?}
             sprite("hud/pearl_husk"),
             sprite("hud/pearl")
     };
@@ -36,7 +52,11 @@ public final class BalanceHud {
     private BalanceHud() {
     }
 
+    //? if >=26.1 {
+    /*public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+    *///?} else {
     public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+    //?}
         Minecraft minecraft = Minecraft.getInstance();
         Player player = minecraft.player;
 
@@ -61,7 +81,11 @@ public final class BalanceHud {
     }
 
     private static boolean shouldRender(Minecraft minecraft, Player player) {
+        //? if >=26.2 {
+        /*return !minecraft.gui.hud.isHidden()
+        *///?} else {
         return !minecraft.options.hideGui
+        //?}
                 && player != null
                 && ClientBalanceData.isActive()
                 && !player.isSpectator()
@@ -69,7 +93,11 @@ public final class BalanceHud {
                 && !hasVisibleMountHealth(player);
     }
 
+    //? if >=26.1 {
+    /*private static int getY(GuiGraphicsExtractor graphics, Player player) {
+    *///?} else {
     private static int getY(GuiGraphics graphics, Player player) {
+    //?}
         int y = graphics.guiHeight() - BALANCE_BASE_Y_OFFSET;
 
         if (player.isEyeInFluid(FluidTags.WATER) || player.getAirSupply() < player.getMaxAirSupply()) {
@@ -89,31 +117,61 @@ public final class BalanceHud {
                 && vehicle.getMaxHealth() > 0.0F;
     }
 
+    //? if >=26.1 {
+    /*private static void drawSpriteLayers(GuiGraphicsExtractor graphics, Identifier[] sprites, int x, int y) {
+        for (Identifier sprite : sprites) {
+    *///?} else if >=1.21.11 <26.1 {
+    /*private static void drawSpriteLayers(GuiGraphics graphics, Identifier[] sprites, int x, int y) {
+        for (Identifier sprite : sprites) {
+    *///?} else {
     private static void drawSpriteLayers(GuiGraphics graphics, ResourceLocation[] sprites, int x, int y) {
         for (ResourceLocation sprite : sprites) {
+    //?}
             drawSprite(graphics, sprite, x, y);
         }
     }
 
+    //? if >=26.1 {
+    /*private static void drawSprite(GuiGraphicsExtractor graphics, Identifier sprite, int x, int y) {
+    *///?} else if >=1.21.11 <26.1 {
+    /*private static void drawSprite(GuiGraphics graphics, Identifier sprite, int x, int y) {
+    *///?} else {
     private static void drawSprite(GuiGraphics graphics, ResourceLocation sprite, int x, int y) {
-        //? if >=1.21.6
+    //?}
+
+        //? if >=1.21.6 {
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, ICON_SIZE, ICON_SIZE);
-        //? if >=1.21.2 && <1.21.6
-        //graphics.blitSprite(RenderType::guiTextured, sprite, x, y, ICON_SIZE, ICON_SIZE);
-        //? if <1.21.2
-        //graphics.blitSprite(sprite, x, y, ICON_SIZE, ICON_SIZE);
+
+        //?} else if >=1.21.2 <1.21.6 {
+        /*graphics.blitSprite(RenderType::guiTextured, sprite, x, y, ICON_SIZE, ICON_SIZE);
+        *///?} else {
+        /*graphics.blitSprite(sprite, x, y, ICON_SIZE, ICON_SIZE);
+        *///?}
     }
 
+    //? if >=26.1 {
+    /*private static void drawOutlinedString(GuiGraphicsExtractor graphics, Font font, String text, int x, int y) {
+        graphics.text(font, text, x + 1, y, SHADOW_COLOR, false);
+        graphics.text(font, text, x - 1, y, SHADOW_COLOR, false);
+        graphics.text(font, text, x, y + 1, SHADOW_COLOR, false);
+        graphics.text(font, text, x, y - 1, SHADOW_COLOR, false);
+        graphics.text(font, text, x, y, TEXT_COLOR, false);
+    *///?} else {
     private static void drawOutlinedString(GuiGraphics graphics, Font font, String text, int x, int y) {
         graphics.drawString(font, text, x + 1, y, SHADOW_COLOR, false);
         graphics.drawString(font, text, x - 1, y, SHADOW_COLOR, false);
         graphics.drawString(font, text, x, y + 1, SHADOW_COLOR, false);
         graphics.drawString(font, text, x, y - 1, SHADOW_COLOR, false);
         graphics.drawString(font, text, x, y, TEXT_COLOR, false);
+    //?}
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier sprite(String path) {
+        return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, path);
+    *///?} else {
     private static ResourceLocation sprite(String path) {
         return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, path);
+    //?}
     }
 }
-

@@ -439,7 +439,11 @@ public final class VocoTableSending {
         return sendingPlayer != null
                 && server.getPlayerList()
                 .isOp(
+                        //? if >=1.21.9 {
+                        /*new net.minecraft.server.players.NameAndId(sendingPlayer.getGameProfile())
+                        *///?} else {
                         sendingPlayer.getGameProfile()
+                        //?}
                 );
     }
 

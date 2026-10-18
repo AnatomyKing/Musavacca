@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -11,7 +10,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 //? if <1.21.2 {
 /*import net.minecraft.world.ItemInteractionResult;
- *///?}
+*///?}
+
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -25,11 +25,11 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 
-//? if <1.21.5 {
-/*import net.minecraft.world.level.block.LeavesBlock;
- *///?} else {
+//? if >=1.21.5 {
 import net.minecraft.world.level.block.TintedParticleLeavesBlock;
-//?}
+//?} else {
+/*import net.minecraft.world.level.block.LeavesBlock;
+*///?}
 
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,11 +41,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 public class MusavaccaLeaves
-        //? if <1.21.5 {
-        /*extends LeavesBlock
-         *///?} else {
+
+        //? if >=1.21.5 {
         extends TintedParticleLeavesBlock
-        //?}
+        //?} else {
+        /*extends LeavesBlock
+        *///?}
+
         implements BonemealableBlock {
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
@@ -53,11 +55,12 @@ public class MusavaccaLeaves
     public static final int MAX_AGE = 2;
 
     public MusavaccaLeaves(float leafParticleChance, Properties properties) {
-        //? if <1.21.5 {
-        /*super(properties);
-         *///?} else {
+
+        //? if >=1.21.5 {
         super(leafParticleChance, properties);
-        //?}
+        //?} else {
+        /*super(properties);
+        *///?}
 
         this.registerDefaultState(
                 this.defaultBlockState()
@@ -92,30 +95,32 @@ public class MusavaccaLeaves
         builder.add(FACING, AGE);
     }
 
-    //? if <1.21.2 {
-    /*private static ItemInteractionResult passToDefault() {
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-    }
-
-    private static ItemInteractionResult successResult() {
-        return ItemInteractionResult.SUCCESS;
-    }
-    *///?} else {
+    //? if >=1.21.2 {
     private static InteractionResult passToDefault() {
         return InteractionResult.TRY_WITH_EMPTY_HAND;
+    //?} else {
+    /*private static ItemInteractionResult passToDefault() {
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    *///?}
     }
 
+    //? if >=1.21.2 {
     private static InteractionResult successResult() {
         return InteractionResult.SUCCESS;
+    //?} else {
+    /*private static ItemInteractionResult successResult() {
+        return ItemInteractionResult.SUCCESS;
+    *///?}
     }
-    //?}
 
     @Override
-            //? if <1.21.2 {
-    /*protected ItemInteractionResult useItemOn(
-     *///?} else {
+
+    //? if >=1.21.2 {
     protected InteractionResult useItemOn(
-            //?}
+    //?} else {
+    /*protected ItemInteractionResult useItemOn(
+    *///?}
+
             ItemStack stack,
             BlockState state,
             Level level,
@@ -167,17 +172,32 @@ public class MusavaccaLeaves
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         return state.getValue(AGE) < MAX_AGE;
     }
 
     @Override
-    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         return state.getValue(AGE) < MAX_AGE;
     }
 
     @Override
-    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         int age = state.getValue(AGE);
         if (age < MAX_AGE) {
             level.setBlock(pos, state.setValue(AGE, age + 1), Block.UPDATE_ALL);
@@ -189,4 +209,3 @@ public class MusavaccaLeaves
         return Type.GROWER;
     }
 }
-

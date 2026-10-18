@@ -13,20 +13,18 @@ import net.thatmaidenjaden.gleam.client.lighting.GleamLight;
 import org.spongepowered.asm.mixin.injection.At;
 import space.anatomyuniverse.musavacca.compat.gleam.GleamHexLight;
 *///?}
-
 @Pseudo
-//? if <1.21.2 {
-/*@Mixin(
-        targets = "net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection$RebuildTask",
-        priority = 1100
-)
-*///?}
-//? if >=1.21.2 {
+
 @Mixin(
+        //? if >=1.21.2 {
         targets = "space.anatomyuniverse.musavacca.compat.gleam.DisabledGleamCompatTarget",
         remap = false
+        //?} else {
+        /*targets = "net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection$RebuildTask",
+        priority = 1100
+        *///?}
 )
-//?}
+
 public abstract class GleamVanillaMixin {
 
     //? if <1.21.2 {

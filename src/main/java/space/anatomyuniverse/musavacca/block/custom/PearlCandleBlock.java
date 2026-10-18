@@ -4,8 +4,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2
-//import net.minecraft.world.ItemInteractionResult;
+
+//? if <1.21.2 {
+/*import net.minecraft.world.ItemInteractionResult;
+*///?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -84,27 +86,12 @@ public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
         PearlCandleLogic.onPlace(this, state, level, pos, oldState, movedByPiston);
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected ItemInteractionResult useItemOn(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hitResult
-    ) {
-        InteractionResult result = PearlCandleLogic.useItemOn(
-                this, stack, state, level, pos, player, hand, hitResult
-        );
-        return result == InteractionResult.PASS
-                ? super.useItemOn(stack, state, level, pos, player, hand, hitResult)
-                : InteractionResultCompat.forItemUse(result);
-    }
-    *///?} else {
     @Override
+    //? if >=1.21.2 {
     protected InteractionResult useItemOn(
+    //?} else {
+    /*protected ItemInteractionResult useItemOn(
+    *///?}
             ItemStack stack,
             BlockState state,
             Level level,
@@ -114,6 +101,7 @@ public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
             BlockHitResult hitResult
     ) {
         InteractionResult result = PearlCandleLogic.useItemOn(
+        //? if >=1.21.2 {
                 this,
                 stack,
                 state,
@@ -124,40 +112,43 @@ public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
                 hitResult
         );
 
+        //?} else {
+                /*this, stack, state, level, pos, player, hand, hitResult
+        );
+        *///?}
         return result == InteractionResult.PASS
                 ? super.useItemOn(stack, state, level, pos, player, hand, hitResult)
+                //? if >=1.21.2 {
                 : result;
+                //?} else {
+                /*: InteractionResultCompat.forItemUse(result);
+                *///?}
     }
-    //?}
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         PearlCandleLogic.animateTick(this, state, level, pos, random);
     }
 
-    //? if <1.21.4 {
-    /*@Override
-    public ItemStack getCloneItemStack(
-            LevelReader level,
-            BlockPos pos,
-            BlockState state
-    ) {
-        return new ItemStack(this.vanillaCandleBlock.asItem());
-    }
-    *///?} else {
     @Override
+    //? if >=1.21.4 {
     protected ItemStack getCloneItemStack(
+    //?} else {
+    /*public ItemStack getCloneItemStack(
+    *///?}
             LevelReader level,
             BlockPos pos,
+            //? if >=1.21.4 {
             BlockState state,
             boolean includeData
+            //?} else {
+            /*BlockState state
+            *///?}
     ) {
         return new ItemStack(this.vanillaCandleBlock.asItem());
     }
-    //?}
 
     public static int candleLightLevel(BlockState state) {
         return PearlCandleLogic.candleLightLevel(state);
     }
 }
-

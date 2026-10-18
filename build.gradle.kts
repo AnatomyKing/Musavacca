@@ -13,12 +13,8 @@ val sc = stonecutter
 version = "${property("mod.version")}+${sc.current.version}"
 base.archivesName = property("mod.id") as String
 
-val requiredJava = when {
-    sc.current.parsed >= "1.20.6" -> JavaVersion.VERSION_21
-    sc.current.parsed >= "1.18" -> JavaVersion.VERSION_17
-    sc.current.parsed >= "1.17" -> JavaVersion.VERSION_16
-    else -> JavaVersion.VERSION_1_8
-}
+val requiredJava = if (sc.current.parsed >= "26.1")
+    JavaVersion.VERSION_25 else JavaVersion.VERSION_21
 
 val usesClientData = sc.current.parsed >= "1.21.4"
 
@@ -141,6 +137,7 @@ dependencies {
 }
 
 java {
+    toolchain.languageVersion = JavaLanguageVersion.of(requiredJava.majorVersion.toInt())
     withSourcesJar()
     targetCompatibility = requiredJava
     sourceCompatibility = requiredJava
@@ -148,6 +145,7 @@ java {
 
 sourceSets {
     named("main") {
+        resources.exclude("**/.cache/**")
         resources.setSrcDirs(
             listOf(
                 versionResourcesDir.asFile,
@@ -222,7 +220,10 @@ tasks {
         }
 
         val mixinJava = "JAVA_${requiredJava.majorVersion}"
-        filesMatching("*.mixins.json") { expand("java" to mixinJava) }
+        inputs.property("mixin_java", mixinJava)
+        filesMatching("*.mixins.json") {
+            expand("java" to mixinJava)
+        }
     }
 
     named("createMinecraftArtifacts") {
@@ -335,3 +336,4 @@ publishing {
     }
 }
  */
+

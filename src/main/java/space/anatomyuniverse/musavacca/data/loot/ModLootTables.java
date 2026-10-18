@@ -2,7 +2,11 @@ package space.anatomyuniverse.musavacca.data.loot;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.storage.loot.LootTable;
 import space.anatomyuniverse.musavacca.MusaCore;
 
@@ -43,11 +47,11 @@ public final class ModLootTables {
     ) {
         return ResourceKey.create(
                 Registries.LOOT_TABLE,
-                ResourceLocation.fromNamespaceAndPath(
-                        namespace,
-                        path
-                )
+                //? if >=1.21.11 {
+                /*Identifier.fromNamespaceAndPath(namespace, path)
+                *///?} else {
+                ResourceLocation.fromNamespaceAndPath(namespace, path)
+                //?}
         );
     }
 }
-

@@ -1,13 +1,24 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import org.jetbrains.annotations.Nullable;
 
 public final class WallModels {
+    //? if >=1.21.11 {
+    /*private final Identifier post;
+    private final Identifier lowSide;
+    private final Identifier tallSide;
+    private final Identifier inventory;
+    *///?} else {
     private final ResourceLocation post;
     private final ResourceLocation lowSide;
     private final ResourceLocation tallSide;
     private final ResourceLocation inventory;
+    //?}
 
     private WallModels(Builder builder) {
         post = builder.post;
@@ -39,22 +50,38 @@ public final class WallModels {
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier post() {
+    *///?} else {
     public ResourceLocation post() {
+    //?}
         return post;
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier lowSide() {
+    *///?} else {
     public ResourceLocation lowSide() {
+    //?}
         return lowSide;
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier tallSide() {
+    *///?} else {
     public ResourceLocation tallSide() {
+    //?}
         return tallSide;
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier inventory() {
+    *///?} else {
     public ResourceLocation inventory() {
+    //?}
         return inventory;
     }
 
@@ -71,10 +98,17 @@ public final class WallModels {
     }
 
     public static final class Builder {
+        //? if >=1.21.11 {
+        /*private Identifier post;
+        private Identifier lowSide;
+        private Identifier tallSide;
+        private Identifier inventory;
+        *///?} else {
         private ResourceLocation post;
         private ResourceLocation lowSide;
         private ResourceLocation tallSide;
         private ResourceLocation inventory;
+        //?}
 
         private Builder() {}
 
@@ -103,11 +137,18 @@ public final class WallModels {
         }
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier parse(String model, String name) {
+    *///?} else {
     private static ResourceLocation parse(String model, String name) {
+    //?}
         if (model == null || model.isBlank()) {
             throw new IllegalArgumentException(name + " must not be blank");
         }
+        //? if >=1.21.11 {
+        /*return Identifier.parse(model);
+        *///?} else {
         return ResourceLocation.parse(model);
+        //?}
     }
 }
-

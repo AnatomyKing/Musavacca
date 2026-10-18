@@ -1,4 +1,19 @@
 package space.anatomyuniverse.musavacca.bar.balance;
+//? if >=26.1 {
+/*import java.nio.file.StandardCopyOption;
+
+import java.nio.file.Path;
+
+import java.nio.file.Files;
+
+import java.nio.file.AtomicMoveNotSupportedException;
+
+import java.io.IOException;
+
+import space.anatomyuniverse.musavacca.MusaCore;
+
+import net.minecraft.resources.Identifier;
+*///?}
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -7,12 +22,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
 
-//? if <1.21.5 {
+//? if >=1.21.5 {
+import net.minecraft.world.level.saveddata.SavedDataType;
+//?} else {
 /*import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-*///?} else {
-import net.minecraft.world.level.saveddata.SavedDataType;
-//?}
+*///?}
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -48,9 +63,20 @@ public final class BalanceStore extends SavedData {
                             .forGetter(store -> store.knownNames)
             ).apply(instance, BalanceStore::new));
 
-    //? if >=1.21.5 {
+    //? if >=26.1 {
+    /*public static final SavedDataType<BalanceStore> TYPE =
+            new SavedDataType<>(
+
+                    Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID),
+
+                    BalanceStore::new, CODEC);
+    *///?} else if >=1.21.5 <26.1 {
     public static final SavedDataType<BalanceStore> TYPE =
-            new SavedDataType<>(STORAGE_ID, BalanceStore::new, CODEC);
+            new SavedDataType<>(
+
+                    STORAGE_ID,
+
+                    BalanceStore::new, CODEC);
     //?} else {
     /*private static final SavedData.Factory<BalanceStore> FACTORY =
             new SavedData.Factory<>(BalanceStore::new, BalanceStore::load);
@@ -96,7 +122,13 @@ public final class BalanceStore extends SavedData {
         });
     }
 
-    //? if <1.21.5 {
+    //? if >=26.1 {
+    /*public static BalanceStore get(MinecraftServer server) {
+        migrateLegacyData(server, STORAGE_ID);
+    *///?} else if >=1.21.5 <26.1 {
+    public static BalanceStore get(MinecraftServer server) {
+        
+    //?} else {
     /*private static BalanceStore load(
             CompoundTag tag,
             HolderLookup.Provider registries
@@ -163,18 +195,18 @@ public final class BalanceStore extends SavedData {
         tag.put(KNOWN_NAMES_TAG, knownNamesTag);
         return tag;
     }
-    *///?}
 
     public static BalanceStore get(MinecraftServer server) {
-        //? if >=1.21.5 {
+    *///?}
+
         return server.overworld()
                 .getDataStorage()
+                //? if >=1.21.5 {
                 .computeIfAbsent(TYPE);
-        //?} else {
-        /*return server.overworld()
-                .getDataStorage()
-                .computeIfAbsent(FACTORY, STORAGE_ID);
-        *///?}
+                //?} else {
+                /*.computeIfAbsent(FACTORY, STORAGE_ID);
+                *///?}
+
     }
 
     public void rememberPlayer(ServerPlayer player) {
@@ -184,7 +216,7 @@ public final class BalanceStore extends SavedData {
 
         rememberPlayer(
                 player.getUUID(),
-                player.getGameProfile().getName()
+                player.getName().getString()
         );
     }
 
@@ -333,5 +365,44 @@ public final class BalanceStore extends SavedData {
                 () -> "Invalid balance UUID: " + rawUuid
         );
     }
-}
+    //? if >=26.1 {
+    /*// Minecraft 26.1 stores mod data in namespaced paths. Retain the legacy file.
+    private static final java.util.Map<Object, java.util.Set<String>> CHECKED = new java.util.WeakHashMap<>();
 
+    private static synchronized void migrateLegacyData(MinecraftServer server, String name) {
+
+        var storage = server.overworld().getDataStorage();
+        var checked = CHECKED.computeIfAbsent(storage, ignored -> new java.util.HashSet<>());
+        if (checked.contains(name)) return;
+        var directory = ((space.anatomyuniverse.musavacca.mixin.SavedDataStorageAccessor) storage).musavacca$dataFolder();
+        var target = net.minecraft.resources.Identifier.fromNamespaceAndPath("musavacca", name + ".dat").resolveAgainst(directory);
+        try {
+            copyLegacyData(directory.resolve(name + ".dat"), target);
+            copyLegacyData(server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)
+                    .resolve("data").resolve(name + ".dat"), target);
+        } catch (java.io.IOException error) {
+            throw new java.io.UncheckedIOException("Cannot migrate Musavacca saved data " + name + "; original retained", error);
+        }
+        checked.add(name);
+
+    }
+
+    private static void copyLegacyData(Path legacy, Path target) throws IOException {
+        if (Files.exists(target) || !Files.isRegularFile(legacy)) return;
+        Files.createDirectories(target.getParent());
+        Path temporary = Files.createTempFile(target.getParent(), target.getFileName().toString(), ".migrating");
+        try {
+            Files.copy(legacy, temporary, StandardCopyOption.REPLACE_EXISTING);
+            if (!Files.exists(target)) {
+                try {
+                    Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
+                } catch (AtomicMoveNotSupportedException ignored) {
+                    Files.move(temporary, target);
+                }
+            }
+        } finally {
+            Files.deleteIfExists(temporary);
+        }
+    }
+    *///?}
+}

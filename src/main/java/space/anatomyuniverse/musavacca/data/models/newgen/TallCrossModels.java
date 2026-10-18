@@ -1,6 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.Block;
 
 import java.util.Objects;
@@ -64,12 +68,20 @@ public final class TallCrossModels {
                 ? ""
                 : suffix;
 
+        //? if >=1.21.11 {
+        /*Identifier lowerModel = ModelLocations.blockModel(
+        *///?} else {
         ResourceLocation lowerModel = ModelLocations.blockModel(
+        //?}
                 block,
                 cleanSuffix + "_bottom"
         );
 
+        //? if >=1.21.11 {
+        /*Identifier upperModel = ModelLocations.blockModel(
+        *///?} else {
         ResourceLocation upperModel = ModelLocations.blockModel(
+        //?}
                 block,
                 cleanSuffix + "_top"
         );
@@ -87,4 +99,3 @@ public final class TallCrossModels {
         );
     }
 }
-

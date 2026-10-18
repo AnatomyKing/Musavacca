@@ -3,8 +3,9 @@
   "minVersion": "0.8",
   "package": "space.anatomyuniverse.musavacca.mixin",
   "plugin": "space.anatomyuniverse.musavacca.mixin.OptionalCompatMixinPlugin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "${java}",
   "mixins": [
+    "SavedDataStorageAccessor",
     "AbstractBoatFloatMixin"
   ],
   "client": [

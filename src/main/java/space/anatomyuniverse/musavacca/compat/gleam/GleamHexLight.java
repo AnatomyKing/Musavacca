@@ -1,4 +1,4 @@
-//? if <1.21.2 {
+package space.anatomyuniverse.musavacca.compat.gleam;//? if <1.21.2 {
 /*package space.anatomyuniverse.musavacca.compat.gleam;
 
 import net.minecraft.core.BlockPos;

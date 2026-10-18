@@ -200,23 +200,36 @@ public final class VocoReceptorLogic {
     }
 
     public static void showNeedsPortalMessage(Player player) {
+        //? if >=26.1 {
+        /*player.sendSystemMessage(Component.literal("This receptor needs a lit Pearl Candle."));
+        *///?} else {
         player.displayClientMessage(Component.literal("This receptor needs a lit Pearl Candle."), false);
+        //?}
     }
 
     public static void showLatestHexMessage(Player player, ReceptorPosition receptor, int hexColor) {
         if (hexColor == MusavaccaTints.NO_TINT) {
+            //? if >=26.1 {
+            /*player.sendOverlayMessage(Component.literal("No lit Voco candle is active."));
+            *///?} else {
             player.displayClientMessage(Component.literal("No lit Voco candle is active."), true);
+            //?}
             return;
         }
 
-        player.displayClientMessage(
-                Component.literal(String.format(
+        //? if >=26.1 {
+        /*player.sendOverlayMessage(Component.literal(String.format(
+        *///?} else {
+        player.displayClientMessage(Component.literal(String.format(
+        //?}
                         "Latest Voco hex: %s %s",
                         receptor.displayName(),
                         MusavaccaTints.formatHex(hexColor)
-                )),
-                true
-        );
+                //? if >=26.1 {
+                /*)));
+                *///?} else {
+                )), true);
+                //?}
     }
 
     public static int clampYaw(int yawDegrees) {
@@ -235,4 +248,3 @@ public final class VocoReceptorLogic {
         return Math.max(min, Math.min(max, value));
     }
 }
-

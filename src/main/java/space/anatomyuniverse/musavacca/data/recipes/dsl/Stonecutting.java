@@ -2,7 +2,11 @@ package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -66,7 +70,11 @@ public final class Stonecutting {
         save(this.dsl.id(path));
     }
 
+    //? if >=1.21.11 {
+    /*public void save(Identifier id) {
+    *///?} else {
     public void save(ResourceLocation id) {
+    //?}
         requireBuilder();
         this.dsl.save(
                 this.builder,
@@ -81,4 +89,3 @@ public final class Stonecutting {
         }
     }
 }
-

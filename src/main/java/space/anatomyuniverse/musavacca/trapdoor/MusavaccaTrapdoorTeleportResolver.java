@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.trapdoor;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -66,8 +72,11 @@ public final class MusavaccaTrapdoorTeleportResolver {
         String ownerKey =
                 HexTeleportDirectory
                         .trapdoorOwnerKey(
-                                level.dimension()
-                                        .location(),
+                                //? if >=1.21.11 {
+                                /*level.dimension().identifier(),
+                                *///?} else {
+                                level.dimension().location(),
+                                //?}
                                 entryPos
                         );
 
@@ -267,4 +276,3 @@ public final class MusavaccaTrapdoorTeleportResolver {
         );
     }
 }
-

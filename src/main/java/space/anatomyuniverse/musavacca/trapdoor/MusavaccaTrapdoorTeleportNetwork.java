@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.trapdoor;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -64,8 +70,11 @@ public final class MusavaccaTrapdoorTeleportNetwork {
         String ownerKey =
                 HexTeleportDirectory
                         .trapdoorOwnerKey(
-                                level.dimension()
-                                        .location(),
+                                //? if >=1.21.11 {
+                                /*level.dimension().identifier(),
+                                *///?} else {
+                                level.dimension().location(),
+                                //?}
                                 trapdoorPos
                         );
 
@@ -90,8 +99,11 @@ public final class MusavaccaTrapdoorTeleportNetwork {
         directory.registerTrapdoorEndpoint(
                 ownerKey,
                 resolvedHex,
-                level.dimension()
-                        .location(),
+                //? if >=1.21.11 {
+                /*level.dimension().identifier(),
+                *///?} else {
+                level.dimension().location(),
+                //?}
                 trapdoorPos
         );
 
@@ -122,8 +134,11 @@ public final class MusavaccaTrapdoorTeleportNetwork {
         String ownerKey =
                 HexTeleportDirectory
                         .trapdoorOwnerKey(
-                                level.dimension()
-                                        .location(),
+                                //? if >=1.21.11 {
+                                /*level.dimension().identifier(),
+                                *///?} else {
+                                level.dimension().location(),
+                                //?}
                                 trapdoorPos
                         );
 
@@ -180,4 +195,3 @@ public final class MusavaccaTrapdoorTeleportNetwork {
                 );
     }
 }
-

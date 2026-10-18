@@ -6,10 +6,11 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.util.RandomSource;
 //? if >=1.21.9 {
 /*import net.minecraft.util.RandomSource;
- *///?}
+*///?}
+import net.minecraft.util.RandomSource;
+
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticleOptions;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintSprite;
@@ -39,15 +40,26 @@ public final class PearlFlameParticle extends FlameParticle {
             double z,
             double xd,
             double yd,
-            double zd
+            double zd,
+            net.minecraft.client.renderer.texture.TextureAtlasSprite initialSprite
     ) {
-        super(level, x, y, z, xd, yd, zd);
+        super(level, x, y, z, xd, yd, zd
+
+                //? if >=1.21.9 {
+                /*, initialSprite
+                *///?}
+        );
     }
 
-    @Override
+    //? if >=1.21.9 {
+    /*public net.minecraft.client.particle.SingleQuadParticle.Layer getLayer() {
+        return net.minecraft.client.particle.SingleQuadParticle.Layer.TRANSLUCENT;
+    }
+    *///?} else {
     public ParticleRenderType getRenderType() {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
+    //?}
 
     private static PearlFlameParticle createLayer(
             ProfileTintParticleOptions options,
@@ -97,7 +109,8 @@ public final class PearlFlameParticle extends FlameParticle {
                 finalZ,
                 finalXd,
                 finalYd,
-                finalZd
+                finalZd,
+                layer.sprite()
         );
 
         particle.setPos(finalX, finalY, finalZ);
@@ -147,7 +160,6 @@ public final class PearlFlameParticle extends FlameParticle {
             );
         }
 
-        //? if <1.21.9 {
         @Override
         public @Nullable Particle createParticle(
                 ProfileTintParticleOptions options,
@@ -157,26 +169,15 @@ public final class PearlFlameParticle extends FlameParticle {
                 double z,
                 double xSpeed,
                 double ySpeed,
-                double zSpeed
-        ) {
-            return this.createInternal(options, level, x, y, z, xSpeed, ySpeed, zSpeed);
-        }
-        //?} else {
-        /*@Override
-        public @Nullable Particle createParticle(
-                ProfileTintParticleOptions options,
-                ClientLevel level,
-                double x,
-                double y,
-                double z,
-                double xSpeed,
-                double ySpeed,
-                double zSpeed,
+                //? if >=1.21.9 {
+                /*double zSpeed,
                 RandomSource random
+                *///?} else {
+                double zSpeed
+                //?}
         ) {
             return this.createInternal(options, level, x, y, z, xSpeed, ySpeed, zSpeed);
         }
-        *///?}
+
     }
 }
-

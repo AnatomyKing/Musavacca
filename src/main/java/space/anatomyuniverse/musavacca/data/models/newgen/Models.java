@@ -1,6 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.Block;
 
 import java.util.Objects;
@@ -12,14 +16,22 @@ public final class Models {
     public interface Source {
     }
 
+    //? if >=1.21.11 {
+    /*public record Existing(Identifier model) implements Source {
+    *///?} else {
     public record Existing(ResourceLocation model) implements Source {
+    //?}
 
         public Existing {
             Objects.requireNonNull(model, "model");
         }
     }
 
+    //? if >=1.21.11 {
+    /*public record Generated(Identifier model, Textures.Set textures) implements Source {
+    *///?} else {
     public record Generated(ResourceLocation model, Textures.Set textures) implements Source {
+    //?}
 
         public Generated {
             Objects.requireNonNull(model, "model");
@@ -33,7 +45,11 @@ public final class Models {
             throw new IllegalArgumentException("modelId must not be blank");
         }
 
+        //? if >=1.21.11 {
+        /*return new Existing(Identifier.parse(modelId));
+        *///?} else {
         return new Existing(ResourceLocation.parse(modelId));
+        //?}
     }
 
     public static Generated generated(Block block) {
@@ -64,4 +80,3 @@ public final class Models {
         );
     }
 }
-

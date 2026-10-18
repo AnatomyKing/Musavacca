@@ -1,6 +1,10 @@
 package space.anatomyuniverse.musavacca.data.recipes;
 
+//? if >=26.2 {
+/*import net.minecraft.advancements.triggers.Criterion;
+*///?} else {
 import net.minecraft.advancements.Criterion;
+//?}
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -21,31 +25,37 @@ public final class ModRecipeProvider extends RecipeProvider {
 
     public static final String MOD_ID = "musavacca";
 
-    //? if <1.21.3 {
-    /*private final CompletableFuture<HolderLookup.Provider> lookupFuture;
-
-    public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
-        this.lookupFuture = registries;
-    }
-
-    @Override
-    protected void buildRecipes(@NotNull RecipeOutput output) {
-        final HolderLookup.Provider registries = lookupFuture.join();
-        buildAll(output, registries);
-    }
-
-    *///?} else {
+    //? if >=26.3 {
+    /*private final HolderLookup.Provider registries;
+    *///?} else if >=1.21.2 <26.3 {
     private final HolderLookup.Provider registries;
     private final RecipeOutput output;
+    //?} else {
+    /*private final CompletableFuture<HolderLookup.Provider> lookupFuture;
+    *///?}
 
+    //? if >=26.3 {
+    /*public ModRecipeProvider(net.minecraft.data.worldgen.BootstrapContext<net.minecraft.world.item.crafting.Recipe<?>> recipes,
+                             net.minecraft.data.worldgen.BootstrapContext<net.minecraft.advancements.Advancement> advancements,
+                             HolderLookup.Provider registries) {
+        super(recipes, advancements);
+        this.registries = registries;
+    *///?} else if >=1.21.2 <26.3 {
     public ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         super(registries, output);
         this.registries = registries;
         this.output = output;
+    //?} else {
+    /*public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+        super(output, registries);
+        this.lookupFuture = registries;
+    *///?}
     }
 
     @Override
+    //? if >=26.3 {
+    /*protected void buildRecipes() { buildAll(this.output, this.registries); }
+    *///?} else if >=1.21.2 <26.3 {
     protected void buildRecipes() {
         buildAll(this.output, this.registries);
     }
@@ -65,7 +75,12 @@ public final class ModRecipeProvider extends RecipeProvider {
             return MOD_ID + " recipes";
         }
     }
-    //?}
+    //?} else {
+    /*protected void buildRecipes(@NotNull RecipeOutput output) {
+        final HolderLookup.Provider registries = lookupFuture.join();
+        buildAll(output, registries);
+    }
+    *///?}
 
     private void buildAll(RecipeOutput output, HolderLookup.Provider registries) {
         final RecipeDSL.Unlocker unlocker = new RecipeDSL.Unlocker() {
@@ -81,9 +96,7 @@ public final class ModRecipeProvider extends RecipeProvider {
         };
 
         final RecipeDSL dsl;
-        //? if <1.21.3 {
-        /*dsl = new RecipeDSL(output, MOD_ID, unlocker, registries);
-         *///?} else
+
         dsl = new RecipeDSL(output, MOD_ID, unlocker, registries);
 
         dsl.shapelessCountFamily(RecipeCategory.MISC)
@@ -132,7 +145,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('p', ModItems.BANANA_PELLIS.get(), 4)
                 .unlockedByHas(ModItems.BANANA_PELLIS.get(), Items.AMETHYST_SHARD)
                 .save("misc/banana_pearl_from_banana_pellis");
-
         //? if <1.21.2 {
         /*dsl.compat("neapolitan", compat -> {
             Item banana = compat.item("banana");
@@ -216,7 +228,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
                 .save("blocks/gilded_musavacca_planks");
 
-
         dsl.shapeless(RecipeCategory.MISC, ModItems.FLINT_AND_PEARL.get(), 1)
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())
@@ -257,7 +268,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 )
                 .unlockedByHas(ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), ModItems.VACACA.get())
                 .save("misc/potassium_ingot");
-
 
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_SLAB.get(), 6)
                 .pattern("ppp")

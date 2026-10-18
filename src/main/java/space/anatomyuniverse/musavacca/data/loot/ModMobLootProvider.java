@@ -1,12 +1,27 @@
 package space.anatomyuniverse.musavacca.data.loot;
 
-//? if <1.21.11 {
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.NbtPredicate;
-//?} else {
+//? if >=26.3 {
+/*import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
+*///?} else {
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+//?}
+
+//? if >=26.3 {
+/*import net.minecraft.core.Holder;
+
+import net.minecraft.advancements.predicates.entity.EntityPredicate;
+import net.minecraft.advancements.predicates.NbtPredicate;
+*///?} else if >=26.2 <26.3 {
+/*import net.minecraft.advancements.predicates.entity.EntityPredicate;
+import net.minecraft.advancements.predicates.NbtPredicate;
+*///?} else if >=1.21.11 <26.2 {
 /*import net.minecraft.advancements.criterion.EntityPredicate;
 import net.minecraft.advancements.criterion.NbtPredicate;
-*///?}
+*///?} else {
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.NbtPredicate;
+//?}
+
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.nbt.CompoundTag;
@@ -18,7 +33,6 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
@@ -29,13 +43,12 @@ public final class ModMobLootProvider implements LootTableSubProvider {
     private static final float INTACT_VACACA_CHANCE = 0.60F;
     private static final float EXPOSED_VACACA_CHANCE = 0.20F;
 
-    public ModMobLootProvider(HolderLookup.Provider registries) {
-    }
-
+    //? if >=26.3 {
+    /*private final LootTableSubProvider.Context output;
+    public ModMobLootProvider(LootTableSubProvider.Context output) { this.output = output; }
     @Override
-    public void generate(
-            BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output
-    ) {
+    public void run() {
+
         output.accept(
                 ModLootTables.BANANA_COW,
                 LootTable.lootTable()
@@ -62,14 +75,55 @@ public final class ModMobLootProvider implements LootTableSubProvider {
                         )
         );
     }
+    *///?} else {
+    public ModMobLootProvider(HolderLookup.Provider registries) {
+    }
+
+    @Override
+    public void generate(
+            BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output
+    ) {
+
+        output.accept(
+                ModLootTables.BANANA_COW,
+                LootTable.lootTable()
+
+                        .withPool(
+                                createVacacaPool(
+                                        BananaCow.PEEL_STAGE_DEFAULT,
+                                        INTACT_VACACA_CHANCE
+                                )
+                        )
+
+                        .withPool(
+                                createVacacaPool(
+                                        BananaCow.PEEL_STAGE_SHEARED,
+                                        EXPOSED_VACACA_CHANCE
+                                )
+                        )
+
+                        .withPool(
+                                createVacacaPool(
+                                        BananaCow.PEEL_STAGE_PEELD,
+                                        EXPOSED_VACACA_CHANCE
+                                )
+                        )
+        );
+    }
+    //?}
 
     private static LootPool.Builder createVacacaPool(
             int requiredPeelStage,
             float chance
     ) {
         return LootPool.lootPool()
+                //? if >=26.3 {
+                /*.setRolls(Holder.direct(new ConstantValue(1)))
+                .setBonusRolls(Holder.direct(new net.minecraft.world.level.storage.loot.providers.number.floats.ConstantValue(0.0F)))
+                *///?} else {
                 .setRolls(ConstantValue.exactly(1.0F))
                 .setBonusRolls(ConstantValue.exactly(0.0F))
+                //?}
                 .when(peelStageIs(requiredPeelStage))
                 .when(
                         LootItemRandomChanceCondition.randomChance(
@@ -104,4 +158,3 @@ public final class ModMobLootProvider implements LootTableSubProvider {
         );
     }
 }
-

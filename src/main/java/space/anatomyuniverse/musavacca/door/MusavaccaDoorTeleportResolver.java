@@ -1,5 +1,11 @@
 package space.anatomyuniverse.musavacca.door;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -83,8 +89,11 @@ public final class MusavaccaDoorTeleportResolver {
         String ownerKey =
                 HexTeleportDirectory
                         .doorOwnerKey(
-                                level.dimension()
-                                        .location(),
+                                //? if >=1.21.11 {
+                                /*level.dimension().identifier(),
+                                *///?} else {
+                                level.dimension().location(),
+                                //?}
                                 lowerPos
                         );
 
@@ -282,4 +291,3 @@ public final class MusavaccaDoorTeleportResolver {
         );
     }
 }
-

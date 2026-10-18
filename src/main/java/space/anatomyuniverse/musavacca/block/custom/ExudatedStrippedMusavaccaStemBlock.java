@@ -19,11 +19,11 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 
 import java.util.function.Supplier;
 
-//? if <1.21.2 {
-/*import net.minecraft.world.ItemInteractionResult;
- *///?} else {
+//? if >=1.21.2 {
 import net.minecraft.world.InteractionResult;
-//?}
+//?} else {
+/*import net.minecraft.world.ItemInteractionResult;
+*///?}
 
 public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
     public static final IntegerProperty STAGE =
@@ -44,30 +44,12 @@ public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
         );
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected ItemInteractionResult useItemOn(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hitResult
-    ) {
-        if (!stack.is(Items.GLASS_BOTTLE)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        }
-
-        if (!level.isClientSide()) {
-            collectExudate(stack, state, level, pos, player, hand);
-        }
-
-        return ItemInteractionResult.sidedSuccess(level.isClientSide());
-    }
-    *///?} else {
     @Override
+    //? if >=1.21.2 {
     protected InteractionResult useItemOn(
+    //?} else {
+    /*protected ItemInteractionResult useItemOn(
+    *///?}
             ItemStack stack,
             BlockState state,
             Level level,
@@ -77,16 +59,23 @@ public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
             BlockHitResult hitResult
     ) {
         if (!stack.is(Items.GLASS_BOTTLE)) {
+            //? if >=1.21.2 {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
+            //?} else {
+            /*return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            *///?}
         }
 
         if (!level.isClientSide()) {
             collectExudate(stack, state, level, pos, player, hand);
         }
 
+        //? if >=1.21.2 {
         return InteractionResult.SUCCESS;
+        //?} else {
+        /*return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        *///?}
     }
-    //?}
 
     private void collectExudate(
             ItemStack glassBottles,
@@ -135,4 +124,3 @@ public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
         builder.add(STAGE);
     }
 }
-

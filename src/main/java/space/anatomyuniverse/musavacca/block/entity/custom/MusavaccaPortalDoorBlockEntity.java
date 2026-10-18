@@ -1,11 +1,15 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
+//? if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+*///?}
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-
 //? if >=1.21.5 {
+
 import net.minecraft.core.component.DataComponentGetter;
 //?}
+
 import net.minecraft.server.level.ServerLevel;
 import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportNetwork;
 import net.minecraft.core.component.DataComponentMap;
@@ -18,8 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
 //? if >=1.21.6 {
+
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
@@ -110,8 +114,8 @@ public final class MusavaccaPortalDoorBlockEntity
                 state
         );
     }
-    //?}
 
+    //?}
     private void syncDoor(
             boolean playPortalSound
     ) {
@@ -180,40 +184,33 @@ public final class MusavaccaPortalDoorBlockEntity
         );
     }
 
-    private static int readIntOr(
-            CompoundTag tag,
-            String key,
-            int fallback
-    ) {
-        //? if <1.21.5 {
-        /*return tag.contains(key)
-                ? tag.getInt(key)
-                : fallback;
-        *///?} else {
-        return tag.getIntOr(
-                key,
-                fallback
-        );
-        //?}
-    }
-
-    //? if <1.21.6 {
-    /*@Override
+    @Override
     protected void loadAdditional(
-            CompoundTag tag,
+    //? if >=1.21.6 {
+            ValueInput input
+    ) {
+        super.loadAdditional(input);
+    //?} else {
+            /*CompoundTag tag,
             HolderLookup.Provider registries
     ) {
         super.loadAdditional(
                 tag,
                 registries
         );
+    *///?}
 
         int loaded =
-                readIntOr(
-                        tag,
+                //? if >=1.21.6 {
+                input.getIntOr(
                         MusavaccaTints.HEX_COLOR_KEY,
                         MusavaccaTints.NO_TINT
                 );
+                //?} else if >=1.21.5 <1.21.6 {
+                /*tag.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
+                *///?} else {
+                /*(tag.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? tag.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
+                *///?}
 
         this.hexColor =
                 loaded == MusavaccaTints.NO_TINT
@@ -223,78 +220,39 @@ public final class MusavaccaPortalDoorBlockEntity
 
     @Override
     protected void saveAdditional(
-            CompoundTag tag,
+    //? if >=1.21.6 {
+            ValueOutput output
+    ) {
+        super.saveAdditional(output);
+    //?} else {
+            /*CompoundTag tag,
             HolderLookup.Provider registries
     ) {
         super.saveAdditional(
                 tag,
                 registries
         );
+    *///?}
 
         if (this.hasHexColor()) {
-            tag.putInt(
-                    MusavaccaTints.HEX_COLOR_KEY,
-                    this.hexColor
-            );
-        }
-    }
-    *///?} else {
-    @Override
-    protected void loadAdditional(
-            ValueInput input
-    ) {
-        super.loadAdditional(input);
-
-        int loaded =
-                input.getIntOr(
-                        MusavaccaTints.HEX_COLOR_KEY,
-                        MusavaccaTints.NO_TINT
-                );
-
-        this.hexColor =
-                loaded == MusavaccaTints.NO_TINT
-                        ? MusavaccaTints.NO_TINT
-                        : MusavaccaTints.stored(loaded);
-    }
-
-    @Override
-    protected void saveAdditional(
-            ValueOutput output
-    ) {
-        super.saveAdditional(output);
-
-        if (this.hasHexColor()) {
+            //? if >=1.21.6 {
             output.putInt(
+            //?} else {
+            /*tag.putInt(
+            *///?}
                     MusavaccaTints.HEX_COLOR_KEY,
                     this.hexColor
             );
         }
     }
-    //?}
 
-    //? if <1.21.5 {
-    /*@Override
-    protected void applyImplicitComponents(
-            DataComponentInput input
-    ) {
-        super.applyImplicitComponents(input);
-
-        Integer savedHex =
-                input.get(
-                        ModDataComponents
-                                .HEX_COLOR
-                                .get()
-                );
-
-        this.hexColor =
-                savedHex == null
-                        ? MusavaccaTints.NO_TINT
-                        : MusavaccaTints.stored(savedHex);
-    }
-    *///?} else {
     @Override
     protected void applyImplicitComponents(
+            //? if >=1.21.5 {
             DataComponentGetter input
+            //?} else {
+            /*DataComponentInput input
+            *///?}
     ) {
         super.applyImplicitComponents(input);
 
@@ -310,7 +268,6 @@ public final class MusavaccaPortalDoorBlockEntity
                         ? MusavaccaTints.NO_TINT
                         : MusavaccaTints.stored(savedHex);
     }
-    //?}
 
     @Override
     protected void collectImplicitComponents(
@@ -342,55 +299,45 @@ public final class MusavaccaPortalDoorBlockEntity
                 .create(this);
     }
 
-    //? if <1.21.6 {
-    /*@Override
+    @Override
     public void handleUpdateTag(
-            CompoundTag tag,
+    //? if >=1.21.6 {
+            ValueInput input
+    ) {
+        super.handleUpdateTag(input);
+    //?} else {
+            /*CompoundTag tag,
             HolderLookup.Provider registries
     ) {
         super.handleUpdateTag(
                 tag,
                 registries
         );
-
+    *///?}
         this.rerenderClientDoor();
     }
 
     @Override
     public void onDataPacket(
             Connection connection,
-            ClientboundBlockEntityDataPacket packet,
+            //? if >=1.21.6 {
+            ValueInput input
+            //?} else {
+            /*ClientboundBlockEntityDataPacket packet,
             HolderLookup.Provider registries
+            *///?}
     ) {
         super.onDataPacket(
                 connection,
-                packet,
-                registries
-        );
-
-        this.rerenderClientDoor();
-    }
-    *///?} else {
-    @Override
-    public void handleUpdateTag(
-            ValueInput input
-    ) {
-        super.handleUpdateTag(input);
-        this.rerenderClientDoor();
-    }
-
-    @Override
-    public void onDataPacket(
-            Connection connection,
-            ValueInput input
-    ) {
-        super.onDataPacket(
-                connection,
+                //? if >=1.21.6 {
                 input
+                //?} else {
+                /*packet,
+                registries
+                *///?}
         );
 
         this.rerenderClientDoor();
     }
-    //?}
-}
 
+}

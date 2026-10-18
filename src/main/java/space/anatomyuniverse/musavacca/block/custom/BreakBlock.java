@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -8,12 +7,14 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-//? if <1.21.2 {
-/*import net.minecraft.world.level.LevelAccessor;
- *///?} else {
+
+//? if >=1.21.2 {
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.ScheduledTickAccess;
-//?}
+//?} else {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?}
+
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -100,24 +101,10 @@ public class BreakBlock extends Block implements BonemealableBlock {
         return BreakHexLogic.canBreakBlockSurvive(state, level, pos);
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected BlockState updateShape(
-            BlockState state,
-            Direction direction,
-            BlockState neighborState,
-            LevelAccessor level,
-            BlockPos pos,
-            BlockPos neighborPos
-    ) {
-        return BreakHexLogic.shouldBreakBreakBlockOnNeighborChange(state, direction, level, pos)
-                ? Blocks.AIR.defaultBlockState()
-                : super.updateShape(state, direction, neighborState, level, pos, neighborPos);
-    }
-    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
+            //? if >=1.21.2 {
             LevelReader level,
             ScheduledTickAccess scheduledTickAccess,
             BlockPos pos,
@@ -125,12 +112,22 @@ public class BreakBlock extends Block implements BonemealableBlock {
             BlockPos neighborPos,
             BlockState neighborState,
             RandomSource random
+            //?} else {
+            /*Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+            *///?}
     ) {
         return BreakHexLogic.shouldBreakBreakBlockOnNeighborChange(state, direction, level, pos)
                 ? Blocks.AIR.defaultBlockState()
+                //? if >=1.21.2 {
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+                //?} else {
+                /*: super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+                *///?}
     }
-    //?}
 
     private static VoxelShape shapeFor(BlockState state) {
         return switch (state.getValue(AGE)) {
@@ -151,17 +148,14 @@ public class BreakBlock extends Block implements BonemealableBlock {
         return shapeFor(state);
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return Shapes.empty();
-    }
-    *///?} else {
     @Override
+    //? if >=1.21.2 {
     protected VoxelShape getOcclusionShape(BlockState state) {
+    //?} else {
+    /*protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+    *///?}
         return Shapes.empty();
     }
-    //?}
 
     @Override
     public void spawnAfterBreak(BlockState state, ServerLevel level, BlockPos pos, ItemStack stack, boolean dropExperience) {
@@ -171,15 +165,14 @@ public class BreakBlock extends Block implements BonemealableBlock {
             return;
         }
 
-        //? if <1.21.2 {
-        /*Holder<Enchantment> silkTouch = level.registryAccess()
-                .registryOrThrow(Registries.ENCHANTMENT)
-                .getHolderOrThrow(Enchantments.SILK_TOUCH);
-        *///?} else {
         Holder<Enchantment> silkTouch = level.registryAccess()
+                //? if >=1.21.2 {
                 .lookupOrThrow(Registries.ENCHANTMENT)
                 .getOrThrow(Enchantments.SILK_TOUCH);
-        //?}
+                //?} else {
+                /*.registryOrThrow(Registries.ENCHANTMENT)
+                .getHolderOrThrow(Enchantments.SILK_TOUCH);
+                *///?}
 
         if (stack.getEnchantmentLevel(silkTouch) > 0) {
             return;
@@ -193,12 +186,22 @@ public class BreakBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         return state.getValue(AGE) < MAX_AGE && BreakHexLogic.canBonemealBreakBlock(level, pos);
     }
 
     @Override
-    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         return state.getValue(AGE) < MAX_AGE && BreakHexLogic.canBonemealBreakBlock(level, pos);
     }
 
@@ -216,11 +219,21 @@ public class BreakBlock extends Block implements BonemealableBlock {
             return;
         }
 
-        performBonemeal(level, random, pos, state);
+        performBonemeal(level, random, pos, state
+
+                //? if >=26.3 {
+                /*, net.minecraft.world.level.block.BonemealSource.MOB
+                *///?}
+        );
     }
 
     @Override
-    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         if (!BreakHexLogic.canBonemealBreakBlock(level, pos)) {
             return;
         }
@@ -237,16 +250,18 @@ public class BreakBlock extends Block implements BonemealableBlock {
     }
 
     private static <T extends Entity> void spawnEntitySafely(ServerLevel level, BlockPos pos, boolean attached, EntityType<T> type) {
-        //? if <1.21.2 {
-        /*T entity = type.create(level);
-         *///?} else {
+
+        //? if >=1.21.2 {
         T entity = type.create(level, EntitySpawnReason.TRIGGERED);
-        //?}
+        //?} else {
+        /*T entity = type.create(level);
+        *///?}
+
         if (entity == null) return;
 
         final double x = pos.getX() + 0.5D;
         final double z = pos.getZ() + 0.5D;
-        final float yaw = level.random.nextFloat() * 360.0F;
+        final float yaw = level.getRandom().nextFloat() * 360.0F;
 
         boolean ground = !level.getBlockState(pos.below()).isAir();
         boolean ceiling = !level.getBlockState(pos.above()).isAir();
@@ -267,11 +282,12 @@ public class BreakBlock extends Block implements BonemealableBlock {
     }
 
     private static boolean trySpawn(ServerLevel level, Entity entity, double x, double y, double z, float yaw) {
-        //? if <1.21.5 {
-        /*entity.moveTo(x, y, z, yaw, 0.0F);
-         *///?} else {
+
+        //? if >=1.21.5 {
         entity.snapTo(x, y, z, yaw, 0.0F);
-        //?}
+        //?} else {
+        /*entity.moveTo(x, y, z, yaw, 0.0F);
+        *///?}
 
         if (!level.noCollision(entity)) return false;
 
@@ -279,4 +295,3 @@ public class BreakBlock extends Block implements BonemealableBlock {
         return true;
     }
 }
-

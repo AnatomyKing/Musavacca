@@ -36,8 +36,10 @@ import net.neoforged.neoforge.common.extensions.IBlockExtension;
 
 public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtension {
 
+    //? if <26.3 {
     public static final MapCodec<SmallBananaPearlBlock> CODEC = simpleCodec(SmallBananaPearlBlock::new);
 
+    //?}
     public static final int MAX_SMALL_PEARL_AMOUNT = 80;
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -59,11 +61,13 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
                         .setValue(SMALL_PEARL_AMOUNT, 1)
         );
     }
+    //? if <26.3 {
 
     @Override
     protected MapCodec<? extends FallingBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Override
     public int getDustColor(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
@@ -151,8 +155,10 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
             Level level,
             BlockPos pos,
             Player player,
-            //? if >=1.21.10
-            //ItemStack toolStack,
+
+            //? if >=1.21.9 {
+            /*ItemStack toolStack,
+            *///?}
             boolean willHarvest,
             FluidState fluid
     ) {
@@ -165,7 +171,8 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
 
         if (amount > 1) {
             if (!level.isClientSide() && willHarvest) {
-                //? if >=1.21.10 {
+
+                //? if >=1.21.9 {
                 /*ItemStack effectiveTool = toolStack;
                 *///?} else {
                 ItemStack effectiveTool = player == null ? ItemStack.EMPTY : player.getMainHandItem();
@@ -210,4 +217,3 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
         return state.setValue(SMALL_PEARL_AMOUNT, amount + 1);
     }
 }
-

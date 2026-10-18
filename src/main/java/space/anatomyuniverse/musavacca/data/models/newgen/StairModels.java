@@ -1,13 +1,23 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.state.properties.StairsShape;
 import org.jetbrains.annotations.Nullable;
 
 public final class StairModels {
+    //? if >=1.21.11 {
+    /*private final Identifier straight;
+    private final Identifier inner;
+    private final Identifier outer;
+    *///?} else {
     private final ResourceLocation straight;
     private final ResourceLocation inner;
     private final ResourceLocation outer;
+    //?}
 
     private StairModels(Builder builder) {
         straight = builder.straight;
@@ -36,7 +46,11 @@ public final class StairModels {
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier model(StairsShape shape) {
+    *///?} else {
     public ResourceLocation model(StairsShape shape) {
+    //?}
         return switch (shape) {
             case STRAIGHT -> straight;
             case INNER_LEFT, INNER_RIGHT -> inner;
@@ -57,9 +71,15 @@ public final class StairModels {
     }
 
     public static final class Builder {
+        //? if >=1.21.11 {
+        /*private Identifier straight;
+        private Identifier inner;
+        private Identifier outer;
+        *///?} else {
         private ResourceLocation straight;
         private ResourceLocation inner;
         private ResourceLocation outer;
+        //?}
 
         private Builder() {}
 
@@ -82,13 +102,20 @@ public final class StairModels {
             return new StairModels(this);
         }
 
+        //? if >=1.21.11 {
+        /*private static Identifier parse(String model, String name) {
+        *///?} else {
         private static ResourceLocation parse(String model, String name) {
+        //?}
             if (model == null || model.isBlank()) {
                 throw new IllegalArgumentException(name + " must not be blank");
             }
 
+            //? if >=1.21.11 {
+            /*return Identifier.parse(model);
+            *///?} else {
             return ResourceLocation.parse(model);
+            //?}
         }
     }
 }
-

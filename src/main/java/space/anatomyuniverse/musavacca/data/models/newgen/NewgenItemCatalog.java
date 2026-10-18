@@ -72,7 +72,41 @@ public final class NewgenItemCatalog {
         return List.copyOf(result);
     }
 
-    //? if >=1.21.4 {
+    //? if >=1.21.11 {
+    /*public static List<Tints.ItemTintType> itemTintTypes() {
+        Map<net.minecraft.resources.Identifier, Tints.ItemTintType> types = new LinkedHashMap<>();
+
+        for (Binding binding : tintBindings()) {
+            List<Tints.Tint> tints = binding.model().isExisting()
+                    ? binding.model().existingTints()
+                    : binding.model().physicalLayers(binding.item()).stream()
+                    .map(SimpleItems.PhysicalLayer::tint)
+                    .toList();
+
+            for (Tints.Tint tint : tints) {
+                Tints.ItemTintType type = tint.itemTintType();
+                if (type == null) {
+                    continue;
+                }
+
+                Tints.ItemTintType previous = types.putIfAbsent(type.id(), type);
+                if (previous != null && previous.codec() != type.codec()) {
+                    throw new IllegalStateException("Different item tint codecs use " + type.id());
+                }
+            }
+        }
+
+        boolean usesArmorTrimTint = NewModelSets.armorItems().stream()
+                .anyMatch(entry -> entry.inventory().trims());
+
+        if (usesArmorTrimTint) {
+            Tints.ItemTintType type = ArmorTrimItemTintSource.itemTintType();
+            types.putIfAbsent(type.id(), type);
+        }
+
+        return List.copyOf(types.values());
+    }
+    *///?} else if >=1.21.4 <1.21.11 {
     public static List<Tints.ItemTintType> itemTintTypes() {
         Map<net.minecraft.resources.ResourceLocation, Tints.ItemTintType> types = new LinkedHashMap<>();
 
@@ -106,8 +140,8 @@ public final class NewgenItemCatalog {
 
         return List.copyOf(types.values());
     }
-    //?}
 
+    //?}
     private static void addModelFamilyItems(
             List<Binding> result,
             List<? extends BlockFamily.ModelFamilyEntry<?, ?>> entries
@@ -173,4 +207,3 @@ public final class NewgenItemCatalog {
         result.add(new Binding(item, model));
     }
 }
-

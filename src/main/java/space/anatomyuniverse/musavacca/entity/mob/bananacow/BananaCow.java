@@ -1,10 +1,13 @@
 package space.anatomyuniverse.musavacca.entity.mob.bananacow;
+//? if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+*///?}
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-
-//? if <1.21.6
-//import net.minecraft.nbt.CompoundTag;
+//? if <1.21.6 {
+/*import net.minecraft.nbt.CompoundTag;
+*///?}
 
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -20,19 +23,23 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.animal.cow.Cow;
+*///?} else {
 import net.minecraft.world.entity.animal.Cow;
+//?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.IShearable;
+//? if >=1.21.6 {
 
-//? if >=1.21.6
 import net.minecraft.world.level.storage.ValueInput;
 
-//? if >=1.21.6
 import net.minecraft.world.level.storage.ValueOutput;
+//?}
 
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.item.ModItems;
@@ -102,10 +109,10 @@ public class BananaCow extends Cow implements IShearable {
                         .add(Attributes.MAX_HEALTH, 10.0D)
                         .add(Attributes.MOVEMENT_SPEED, 0.25D)
                         .add(Attributes.FOLLOW_RANGE, 16.0D);
-
         //? if >=1.21.2 {
+
         builder.add(Attributes.TEMPT_RANGE, 10.0D);
-         //?}
+        //?}
 
         return builder;
     }
@@ -230,29 +237,27 @@ public class BananaCow extends Cow implements IShearable {
         );
     }
 
-    //? if >=1.21.2 {
     @Override
+    //? if >=1.21.2 {
     protected void customServerAiStep(
             @NotNull ServerLevel level
     ) {
-        this.eatAnimationTick =
-                this.eatBlockGoal.getEatAnimationTick();
-
-        super.customServerAiStep(level);
-    }
     //?} else {
-    /*@Override
-    protected void customServerAiStep() {
+    /*protected void customServerAiStep() {
+    *///?}
         this.eatAnimationTick =
                 this.eatBlockGoal.getEatAnimationTick();
 
-        super.customServerAiStep();
+        //? if >=1.21.2 {
+        super.customServerAiStep(level);
+        //?} else {
+        /*super.customServerAiStep();
+        *///?}
     }
-    *///?}
 
     @Override
     public void aiStep() {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             this.eatAnimationTick = Math.max(
                     0,
                     this.eatAnimationTick - 1
@@ -370,7 +375,7 @@ public class BananaCow extends Cow implements IShearable {
 
         if (player.isShiftKeyDown()
                 && this.canBananaCowBeEaten()) {
-            if (!this.level().isClientSide
+            if (!this.level().isClientSide()
                     && this.level()
                     instanceof ServerLevel serverLevel) {
                 this.eatBananaCow(
@@ -481,18 +486,17 @@ public class BananaCow extends Cow implements IShearable {
             @NotNull DamageSource source,
             float damage
     ) {
+
         //? if >=1.21.6 {
         this.hurtServer(
                 level,
-                source,
-                damage
-        );
         //?} else {
         /*this.hurt(
+        *///?}
                 source,
                 damage
         );
-        *///?}
+
     }
 
     private static int clampInt(
@@ -506,105 +510,87 @@ public class BananaCow extends Cow implements IShearable {
         );
     }
 
-    //? if >=1.21.6 {
     @Override
+    //? if >=1.21.6 {
     protected void addAdditionalSaveData(
             @NotNull ValueOutput output
     ) {
         super.addAdditionalSaveData(output);
+    //?} else {
+    /*public void addAdditionalSaveData(
+            @NotNull CompoundTag tag
+    ) {
+        super.addAdditionalSaveData(tag);
+    *///?}
 
+        //? if >=1.21.6 {
         output.putInt(
+        //?} else {
+        /*tag.putInt(
+        *///?}
                 TAG_PEEL_STAGE,
                 this.getPeelStage()
         );
 
+        //? if >=1.21.6 {
         output.putInt(
+        //?} else {
+        /*tag.putInt(
+        *///?}
                 TAG_EATEN_BITES,
                 this.getEatenBites()
         );
     }
 
     @Override
+    //? if >=1.21.6 {
     protected void readAdditionalSaveData(
             @NotNull ValueInput input
     ) {
         super.readAdditionalSaveData(input);
-
-        this.setPeelStage(
-                input.getIntOr(
-                        TAG_PEEL_STAGE,
-                        PEEL_STAGE_DEFAULT
-                )
-        );
-
-        this.setEatenBites(
-                input.getIntOr(
-                        TAG_EATEN_BITES,
-                        0
-                )
-        );
-    }
     //?} else {
-    /*@Override
-    public void addAdditionalSaveData(
-            @NotNull CompoundTag tag
-    ) {
-        super.addAdditionalSaveData(tag);
-
-        tag.putInt(
-                TAG_PEEL_STAGE,
-                this.getPeelStage()
-        );
-
-        tag.putInt(
-                TAG_EATEN_BITES,
-                this.getEatenBites()
-        );
-    }
-
-    @Override
-    public void readAdditionalSaveData(
+    /*public void readAdditionalSaveData(
             @NotNull CompoundTag tag
     ) {
         super.readAdditionalSaveData(tag);
+    *///?}
 
         this.setPeelStage(
-                getIntOr(
-                        tag,
+                //? if >=1.21.6 {
+                input.getIntOr(
                         TAG_PEEL_STAGE,
                         PEEL_STAGE_DEFAULT
                 )
+                //?} else if >=1.21.5 <1.21.6 {
+                /*tag.getIntOr(TAG_PEEL_STAGE, PEEL_STAGE_DEFAULT)
+                *///?} else {
+                /*(tag.contains(TAG_PEEL_STAGE, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_PEEL_STAGE) : PEEL_STAGE_DEFAULT)
+                *///?}
         );
 
         this.setEatenBites(
-                getIntOr(
-                        tag,
+                //? if >=1.21.6 {
+                input.getIntOr(
                         TAG_EATEN_BITES,
                         0
                 )
+                //?} else if >=1.21.5 <1.21.6 {
+                /*tag.getIntOr(TAG_EATEN_BITES, 0)
+                *///?} else {
+                /*(tag.contains(TAG_EATEN_BITES, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_EATEN_BITES) : 0)
+                *///?}
         );
     }
-    *///?}
-
-    //? if <1.21.6 {
-    /*private static int getIntOr(
-            CompoundTag tag,
-            String key,
-            int fallback
-    ) {
-        //? if >=1.21.5
-        return tag.getIntOr(key, fallback);
-
-        //? if <1.21.5
-        //return tag.contains(key) ? tag.getInt(key) : fallback;
-    }
-    *///?}
 
     @Override
     public boolean isFood(ItemStack stack) {
         return false;
     }
 
+    //? if >=26.2 {
+    /*@Override
+    protected boolean canBeABaby() { return false; }
+    *///?} else {
     @Override
     public boolean isBaby() {
         return false;
@@ -614,4 +600,6 @@ public class BananaCow extends Cow implements IShearable {
     public void setBaby(boolean isBaby) {
 
     }
+    //?}
+
 }

@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.block;
 
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DoubleHighBlockItem;
@@ -33,7 +34,11 @@ public final class ModBlocks {
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<Block> BANANA_PEARL_BRICKS =
             BLOCKS.registerBlock("banana_pearl_bricks",
@@ -42,7 +47,11 @@ public final class ModBlocks {
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<BreakBlock> MUSAVACCA_EGG =
             BLOCKS.registerBlock("musavacca_egg",
@@ -52,7 +61,11 @@ public final class ModBlocks {
                             .sound(SoundType.GRASS)
                             .randomTicks()
                             .noOcclusion()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     private static DeferredItem<BlockItem> MusavaccaEggItems(String name, int age) {
         return ITEMS.registerItem(
@@ -82,7 +95,11 @@ public final class ModBlocks {
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<Block> BANANA_PEARL_MASCARON =
             BLOCKS.registerBlock("banana_pearl_mascaron",
@@ -92,7 +109,11 @@ public final class ModBlocks {
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
                             .noOcclusion()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<RotatedPillarBlock> BANANA_PEARL_PILLAR =
             BLOCKS.registerBlock("banana_pearl_pillar",
@@ -101,7 +122,11 @@ public final class ModBlocks {
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
                             .requiresCorrectToolForDrops()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_MUSAVACCA_STEM =
             BLOCKS.registerBlock("stripped_musavacca_stem",
@@ -109,7 +134,11 @@ public final class ModBlocks {
                             .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.0F, 2.0F)
                             .sound(SoundType.STEM)
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<ExudatedStrippedMusavaccaStemBlock> EXUDATED_STRIPPED_MUSAVACCA_STEM =
             BLOCKS.registerBlock("exudated_stripped_musavacca_stem",
@@ -118,7 +147,11 @@ public final class ModBlocks {
                                     .mapColor(MapColor.COLOR_BROWN)
                                     .strength(2.0F, 2.0F)
                                     .sound(SoundType.STEM)
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.PUSH_PULL),
+                                    *///?} else {
                                     .pushReaction(PushReaction.NORMAL),
+                                    //?}
                             STRIPPED_MUSAVACCA_STEM
                     ));
 
@@ -129,7 +162,11 @@ public final class ModBlocks {
                                     .mapColor(MapColor.COLOR_BROWN)
                                     .strength(2.0F, 2.0F)
                                     .sound(SoundType.STEM)
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.PUSH_PULL),
+                                    *///?} else {
                                     .pushReaction(PushReaction.NORMAL),
+                                    //?}
                             STRIPPED_MUSAVACCA_STEM,
                             EXUDATED_STRIPPED_MUSAVACCA_STEM
                     ));
@@ -142,10 +179,18 @@ public final class ModBlocks {
                             .sound(SoundType.CHAIN)
                             .noOcclusion()
                             .isSuffocating((state, level, pos) -> false)
+                            //? if >=26.3 {
+                            /*.isViewBlocking((state, level, pos, bounds) -> false)
+                            *///?} else {
                             .isViewBlocking((state, level, pos) -> false)
+                            //?}
                             .isRedstoneConductor((state, level, pos) -> false)
                             .isValidSpawn((state, level, pos, entityType) -> false)
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)
+                            //?}
                     ));
 
     public static final DeferredBlock<PearlFireBlock> PEARL_FIRE =
@@ -153,31 +198,43 @@ public final class ModBlocks {
                     props -> new PearlFireBlock(props
                             .mapColor(MapColor.FIRE)
                             .replaceable()
-                            //? if <1.21.10 {
-                            .noCollission()
-                            //?} else {
+
+                            //? if >=1.21.9 {
                             /*.noCollision()
-                             *///?}
+                            *///?} else {
+                            .noCollission()
+                            //?}
+
                             .instabreak()
                             .lightLevel(state -> 15)
                             .sound(SoundType.WOOL)
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.POPPED)
+                            *///?} else {
                             .pushReaction(PushReaction.DESTROY)
+                            //?}
                             .noLootTable()));
 
     public static final DeferredBlock<PearlPortalBlock> PEARL_PORTAL =
             BLOCKS.registerBlock("pearl_portal",
                     props -> new PearlPortalBlock(props
                             .mapColor(MapColor.COLOR_PURPLE)
-                            //? if <1.21.10 {
-                            .noCollission()
-                            //?} else {
+
+                            //? if >=1.21.9 {
                             /*.noCollision()
-                             *///?}
+                            *///?} else {
+                            .noCollission()
+                            //?}
+
                             .noOcclusion()
                             .strength(-1.0F, 3600000.0F)
                             .lightLevel(state -> 11)
                             .sound(SoundType.GLASS)
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.IMMOVEABLE)
+                            *///?} else {
                             .pushReaction(PushReaction.BLOCK)
+                            //?}
                             .noLootTable()));
 
     public static final DeferredBlock<Block> MUSAVACCA_PLANKS =
@@ -186,7 +243,11 @@ public final class ModBlocks {
                             .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.0F, 3.0F)
                             .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<Block> GILDED_MUSAVACCA_PLANKS =
             BLOCKS.registerBlock("gilded_musavacca_planks",
@@ -194,7 +255,11 @@ public final class ModBlocks {
                             .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.2F, 3.0F)
                             .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<StairBlock> MUSAVACCA_STAIRS =
             BLOCKS.registerBlock("musavacca_stairs",
@@ -204,7 +269,11 @@ public final class ModBlocks {
                                     .mapColor(MapColor.COLOR_BROWN)
                                     .strength(2.0F, 3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.PUSH_PULL)
+                                    *///?} else {
                                     .pushReaction(PushReaction.NORMAL)
+                                    //?}
                     ));
 
     public static final DeferredBlock<SlabBlock> MUSAVACCA_SLAB =
@@ -213,7 +282,11 @@ public final class ModBlocks {
                             .mapColor(MapColor.COLOR_BROWN)
                             .strength(2.0F, 3.0F)
                             .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<FenceBlock> MUSAVACCA_FENCE =
             BLOCKS.registerBlock("musavacca_fence",
@@ -222,7 +295,11 @@ public final class ModBlocks {
                             .strength(2.0F, 3.0F)
                             .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                             .forceSolidOn()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<FenceGateBlock> MUSAVACCA_FENCE_GATE =
             BLOCKS.registerBlock("musavacca_fence_gate",
@@ -233,7 +310,11 @@ public final class ModBlocks {
                                     .strength(2.0F, 3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA.soundType())
                                     .forceSolidOn()
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.PUSH_PULL)
+                                    *///?} else {
                                     .pushReaction(PushReaction.NORMAL)
+                                    //?}
                     ));
 
     public static final DeferredBlock<MusavaccaPortalDoorBlock> MUSAVACCA_DOOR =
@@ -245,7 +326,11 @@ public final class ModBlocks {
                                     .strength(3.0F, 3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     .noOcclusion()
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.POPPED)
+                                    *///?} else {
                                     .pushReaction(PushReaction.DESTROY)
+                                    //?}
                     ));
 
     public static final DeferredBlock<MusavaccaPortalTrapdoorBlock> MUSAVACCA_TRAPDOOR =
@@ -257,16 +342,12 @@ public final class ModBlocks {
                                     .strength(3.0F, 3.0F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     .noOcclusion()
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.POPPED)
+                                    *///?} else {
                                     .pushReaction(PushReaction.DESTROY)
+                                    //?}
                     ));
-
-//    public static final DeferredBlock<CampfireBlock> PEARL_CAMPFIRE =
-//            BLOCKS.registerBlock("pearl_campfire",
-//                    props -> new CampfireBlock(
-//
-//
-//
-//                    )
 
     public static final DeferredBlock<PressurePlateBlock> MUSAVACCA_PRESSURE_PLATE =
             BLOCKS.registerBlock("musavacca_pressure_plate",
@@ -277,12 +358,18 @@ public final class ModBlocks {
                                     .strength(0.5F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     .forceSolidOn()
-                                    //? if <1.21.10 {
-                                    .noCollission()
-                                    //?} else {
+
+                                    //? if >=1.21.9 {
                                     /*.noCollision()
-                                     *///?}
+                                    *///?} else {
+                                    .noCollission()
+                                    //?}
+
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.POPPED)
+                                    *///?} else {
                                     .pushReaction(PushReaction.DESTROY)
+                                    //?}
                     ));
 
     public static final DeferredBlock<ButtonBlock> MUSAVACCA_BUTTON =
@@ -294,12 +381,18 @@ public final class ModBlocks {
                                     .mapColor(MapColor.COLOR_BROWN)
                                     .strength(0.5F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
-                                    //? if <1.21.10 {
-                                    .noCollission()
-                                    //?} else {
+
+                                    //? if >=1.21.9 {
                                     /*.noCollision()
-                                     *///?}
+                                    *///?} else {
+                                    .noCollission()
+                                    //?}
+
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.POPPED)
+                                    *///?} else {
                                     .pushReaction(PushReaction.DESTROY)
+                                    //?}
                     ));
 
     public static final DeferredBlock<Block> MUSAVACCA_LEAVES =
@@ -311,8 +404,13 @@ public final class ModBlocks {
                         .sound(SoundType.GRASS)
                         .noOcclusion()
                         .isSuffocating((s, l, pos) -> false)
+                        //? if >=26.3 {
+                        /*.isViewBlocking((s, l, pos, bounds) -> false)
+                        .pushReaction(PushReaction.POPPED);
+                        *///?} else {
                         .isViewBlocking((s, l, pos) -> false)
                         .pushReaction(PushReaction.DESTROY);
+                        //?}
 
                 return new MusavaccaLeaves(0.0F, p);
             });
@@ -322,11 +420,19 @@ public final class ModBlocks {
                 props -> new MusavaccaCropBlock(
                         age,
                         props.mapColor(MapColor.PLANT)
+                                //? if >=1.21.9 {
+                                /*.noCollision()
+                                *///?} else {
                                 .noCollission()
+                                //?}
                                 .randomTicks()
                                 .instabreak()
                                 .sound(SoundType.CROP)
+                                //? if >=26.3 {
+                                /*.pushReaction(PushReaction.POPPED)
+                                *///?} else {
                                 .pushReaction(PushReaction.DESTROY)
+                                //?}
                                 .noLootTable()
                 )
         );
@@ -345,11 +451,19 @@ public final class ModBlocks {
             BLOCKS.registerBlock("musavacca_pseudostem",
                     props -> new MusavaccaSaplingBlock(
                             props.mapColor(MapColor.PLANT)
+                                    //? if >=1.21.9 {
+                                    /*.noCollision()
+                                    *///?} else {
                                     .noCollission()
+                                    //?}
                                     .randomTicks()
                                     .instabreak()
                                     .sound(SoundType.GRASS)
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.POPPED)
+                                    *///?} else {
                                     .pushReaction(PushReaction.DESTROY)
+                                    //?}
                                     .noLootTable()
                     ));
 
@@ -360,7 +474,11 @@ public final class ModBlocks {
                                     .strength(0.2F, 3.0F)
                                     .sound(SoundType.CHAIN)
                                     .noOcclusion()
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.POPPED),
+                                    *///?} else {
                                     .pushReaction(PushReaction.DESTROY),
+                                    //?}
                             DecorationBlock.Options.builder()
 
                                     .floorRotating()
@@ -383,7 +501,11 @@ public final class ModBlocks {
                             .strength(2.0F, 3.0F)
                             .sound(SoundType.WOOD)
                             .noOcclusion()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.POPPED)));
+                            *///?} else {
                             .pushReaction(PushReaction.DESTROY)));
+                            //?}
 
     public static final DeferredBlock<VocoPostBlock> VOCO_POST =
             BLOCKS.registerBlock("voco_post",
@@ -392,7 +514,11 @@ public final class ModBlocks {
                             .strength(2.0F, 3.0F)
                             .sound(SoundType.WOOD)
                             .noOcclusion()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.POPPED)));
+                            *///?} else {
                             .pushReaction(PushReaction.DESTROY)));
+                            //?}
 
     public static final DeferredBlock<HexBlock> HEX_BLOCK =
             BLOCKS.registerBlock("hex_block",
@@ -402,7 +528,11 @@ public final class ModBlocks {
                             .randomTicks()
                             .sound(SoundType.GRASS)
                             .noOcclusion()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<HardHexBlock> HARD_HEX_BLOCK =
             BLOCKS.registerBlock("hard_hex_block",
@@ -411,7 +541,11 @@ public final class ModBlocks {
                             .strength(0.1F, 6.0F)
                             .sound(SoundType.HONEY_BLOCK)
                             .noOcclusion()
+                            //? if >=26.3 {
+                            /*.pushReaction(PushReaction.PUSH_PULL)));
+                            *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
+                            //?}
 
     public static final DeferredBlock<StairBlock> BANANA_PEARL_STAIRS =
             BLOCKS.registerBlock("banana_pearl_stairs",
@@ -422,7 +556,11 @@ public final class ModBlocks {
                                     .strength(3.0F, 6.0F)
                                     .sound(SoundType.COPPER)
                                     .requiresCorrectToolForDrops()
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.PUSH_PULL)
+                                    *///?} else {
                                     .pushReaction(PushReaction.NORMAL)
+                                    //?}
                     ));
 
     public static final DeferredBlock<StairBlock> BANANA_PEARL_BRICK_STAIRS =
@@ -434,7 +572,11 @@ public final class ModBlocks {
                                     .strength(3.0F, 6.0F)
                                     .sound(SoundType.COPPER)
                                     .requiresCorrectToolForDrops()
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.PUSH_PULL)
+                                    *///?} else {
                                     .pushReaction(PushReaction.NORMAL)
+                                    //?}
                     ));
 
     private static DeferredBlock<PearlCandleBlock> pearlCandle(String name, Block vanillaCandleBlock) {
@@ -447,7 +589,11 @@ public final class ModBlocks {
                                 .sound(SoundType.CANDLE)
                                 .noOcclusion()
                                 .lightLevel(PearlCandleBlock::candleLightLevel)
+                                //? if >=26.3 {
+                                /*.pushReaction(PushReaction.POPPED)
+                                *///?} else {
                                 .pushReaction(PushReaction.DESTROY)
+                                //?}
                 )
         );
     }
@@ -456,52 +602,116 @@ public final class ModBlocks {
             pearlCandle("pearl_candle", Blocks.CANDLE);
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_WHITE_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_white_candle", Blocks.DYED_CANDLE.pick(DyeColor.WHITE));
+            *///?} else {
             pearlCandle("pearl_white_candle", Blocks.WHITE_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_ORANGE_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_orange_candle", Blocks.DYED_CANDLE.pick(DyeColor.ORANGE));
+            *///?} else {
             pearlCandle("pearl_orange_candle", Blocks.ORANGE_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_MAGENTA_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_magenta_candle", Blocks.DYED_CANDLE.pick(DyeColor.MAGENTA));
+            *///?} else {
             pearlCandle("pearl_magenta_candle", Blocks.MAGENTA_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_BLUE_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_light_blue_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIGHT_BLUE));
+            *///?} else {
             pearlCandle("pearl_light_blue_candle", Blocks.LIGHT_BLUE_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_YELLOW_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_yellow_candle", Blocks.DYED_CANDLE.pick(DyeColor.YELLOW));
+            *///?} else {
             pearlCandle("pearl_yellow_candle", Blocks.YELLOW_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_LIME_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_lime_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIME));
+            *///?} else {
             pearlCandle("pearl_lime_candle", Blocks.LIME_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_PINK_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_pink_candle", Blocks.DYED_CANDLE.pick(DyeColor.PINK));
+            *///?} else {
             pearlCandle("pearl_pink_candle", Blocks.PINK_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_GRAY_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_gray_candle", Blocks.DYED_CANDLE.pick(DyeColor.GRAY));
+            *///?} else {
             pearlCandle("pearl_gray_candle", Blocks.GRAY_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_GRAY_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_light_gray_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIGHT_GRAY));
+            *///?} else {
             pearlCandle("pearl_light_gray_candle", Blocks.LIGHT_GRAY_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_CYAN_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_cyan_candle", Blocks.DYED_CANDLE.pick(DyeColor.CYAN));
+            *///?} else {
             pearlCandle("pearl_cyan_candle", Blocks.CYAN_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_PURPLE_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_purple_candle", Blocks.DYED_CANDLE.pick(DyeColor.PURPLE));
+            *///?} else {
             pearlCandle("pearl_purple_candle", Blocks.PURPLE_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_BLUE_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_blue_candle", Blocks.DYED_CANDLE.pick(DyeColor.BLUE));
+            *///?} else {
             pearlCandle("pearl_blue_candle", Blocks.BLUE_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_BROWN_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_brown_candle", Blocks.DYED_CANDLE.pick(DyeColor.BROWN));
+            *///?} else {
             pearlCandle("pearl_brown_candle", Blocks.BROWN_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_GREEN_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_green_candle", Blocks.DYED_CANDLE.pick(DyeColor.GREEN));
+            *///?} else {
             pearlCandle("pearl_green_candle", Blocks.GREEN_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_RED_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_red_candle", Blocks.DYED_CANDLE.pick(DyeColor.RED));
+            *///?} else {
             pearlCandle("pearl_red_candle", Blocks.RED_CANDLE);
+            //?}
 
     public static final DeferredBlock<PearlCandleBlock> PEARL_BLACK_CANDLE =
+            //? if >=26.2 {
+            /*pearlCandle("pearl_black_candle", Blocks.DYED_CANDLE.pick(DyeColor.BLACK));
+            *///?} else {
             pearlCandle("pearl_black_candle", Blocks.BLACK_CANDLE);
+            //?}
 
     public static final List<DeferredBlock<PearlCandleBlock>> PEARL_CANDLES = List.of(
             PEARL_CANDLE,
@@ -530,7 +740,11 @@ public final class ModBlocks {
                                     .strength(0.6F)
                                     .sound(SoundType.GRASS)
                                     .randomTicks()
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.PUSH_PULL)
+                                    *///?} else {
                                     .pushReaction(PushReaction.NORMAL)
+                                    //?}
                     ));
 
     public static final DeferredBlock<CaroteneShortGrassBlock> CAROTENE_SHORT_GRASS =
@@ -538,15 +752,21 @@ public final class ModBlocks {
                     props -> new CaroteneShortGrassBlock(
                             props.mapColor(MapColor.COLOR_ORANGE)
                                     .replaceable()
-                                    //? if <1.21.10 {
-                                    .noCollission()
-                                    //?} else {
+
+                                    //? if >=1.21.9 {
                                     /*.noCollision()
-                                     *///?}
+                                    *///?} else {
+                                    .noCollission()
+                                    //?}
+
                                     .instabreak()
                                     .sound(SoundType.GRASS)
                                     .offsetType(BlockBehaviour.OffsetType.XZ)
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.POPPED)
+                                    *///?} else {
                                     .pushReaction(PushReaction.DESTROY)
+                                    //?}
                     ));
 
     public static final DeferredBlock<DoublePlantBlock> CAROTENE_TALL_GRASS =
@@ -554,15 +774,21 @@ public final class ModBlocks {
                     props -> new DoublePlantBlock(
                             props.mapColor(MapColor.COLOR_ORANGE)
                                     .replaceable()
-                                    //? if <1.21.10 {
-                                    .noCollission()
-                                    //?} else {
+
+                                    //? if >=1.21.9 {
                                     /*.noCollision()
-                                     *///?}
+                                    *///?} else {
+                                    .noCollission()
+                                    //?}
+
                                     .instabreak()
                                     .sound(SoundType.GRASS)
                                     .offsetType(BlockBehaviour.OffsetType.XZ)
+                                    //? if >=26.3 {
+                                    /*.pushReaction(PushReaction.POPPED)
+                                    *///?} else {
                                     .pushReaction(PushReaction.DESTROY)
+                                    //?}
                     ));
 
     private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
@@ -592,4 +818,3 @@ public final class ModBlocks {
 
     private ModBlocks() {}
 }
-

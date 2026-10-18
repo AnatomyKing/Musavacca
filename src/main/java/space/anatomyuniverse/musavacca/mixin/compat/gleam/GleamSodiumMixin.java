@@ -13,21 +13,18 @@ import net.thatmaidenjaden.gleam.client.lighting.GleamLight;
 import org.spongepowered.asm.mixin.injection.At;
 import space.anatomyuniverse.musavacca.compat.gleam.GleamHexLight;
 *///?}
-
 @Pseudo
-//? if <1.21.2 {
-/*@Mixin(
-        targets = "net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask",
-        priority = 1100,
-        remap = false
-)
-*///?}
-//? if >=1.21.2 {
+
 @Mixin(
+        //? if >=1.21.2 {
         targets = "space.anatomyuniverse.musavacca.compat.gleam.DisabledGleamCompatTarget",
+        //?} else {
+        /*targets = "net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask",
+        priority = 1100,
+        *///?}
         remap = false
 )
-//?}
+
 public abstract class GleamSodiumMixin {
 
     //? if <1.21.2 {

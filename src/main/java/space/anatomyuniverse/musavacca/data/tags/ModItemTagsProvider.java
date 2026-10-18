@@ -3,14 +3,18 @@ package space.anatomyuniverse.musavacca.data.tags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-//? if >=1.21.6
+//? if >=1.21.6 <26.2 {
+
 import net.minecraft.data.tags.KeyTagProvider;
-//? if <1.21.6
-//import net.minecraft.data.tags.ItemTagsProvider;
-//? if <1.21.6
-//import net.minecraft.data.tags.TagsProvider;
-//? if >=1.21.6
+//?} else if <1.21.6 {
+/*import net.minecraft.data.tags.ItemTagsProvider;
+*///?}
+
+//? if >=1.21.6 {
 import net.minecraft.resources.ResourceKey;
+//?} else {
+/*import net.minecraft.data.tags.TagsProvider;
+*///?}
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -22,36 +26,35 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 
 import java.util.concurrent.CompletableFuture;
 
-//? if >=1.21.6 {
+//? if >=26.2 {
+/*public final class ModItemTagsProvider extends net.minecraft.data.tags.TagsProvider<Item> {
+*///?} else if >=1.21.6 <26.2 {
 public final class ModItemTagsProvider extends KeyTagProvider<Item> {
- //?} else
-//public final class ModItemTagsProvider extends ItemTagsProvider {
+//?} else {
+/*public final class ModItemTagsProvider extends ItemTagsProvider {
+*///?}
 
-    //? if >=1.21.6 {
     public ModItemTagsProvider(
             PackOutput output,
+            //? if >=1.21.6 {
             CompletableFuture<HolderLookup.Provider> lookupProvider
+            //?} else {
+            /*CompletableFuture<HolderLookup.Provider> lookupProvider,
+            CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider
+            *///?}
     ) {
         super(
                 output,
+                //? if >=1.21.6 {
                 Registries.ITEM,
                 lookupProvider,
                 MusaCore.MOD_ID
-        );
-    }
-    //?} else {
-    /*public ModItemTagsProvider(
-            PackOutput output,
-            CompletableFuture<HolderLookup.Provider> lookupProvider,
-            CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider
-    ) {
-        super(
-                output,
-                lookupProvider,
+                //?} else {
+                /*lookupProvider,
                 blockTagsProvider
+                *///?}
         );
     }
-    *///?}
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
@@ -146,7 +149,12 @@ public final class ModItemTagsProvider extends KeyTagProvider<Item> {
                 .add(key(ModItems.POTASSIUM_SHOVEL))
                 .add(key(ModItems.POTASSIUM_HOE));
 
+        //? if >=1.21.11 {
+        /*tag(ItemTags.MELEE_WEAPON_ENCHANTABLE)
+        *///?} else {
         tag(ItemTags.SWORD_ENCHANTABLE)
+        //?}
+
                 .add(key(ModItems.POTASSIUM_SWORD));
 
         tag(ItemTags.WEAPON_ENCHANTABLE)
@@ -207,33 +215,36 @@ public final class ModItemTagsProvider extends KeyTagProvider<Item> {
 
     //? if >=1.21.6 {
     private static ResourceKey<Item> key(
+    //?} else {
+    /*private static Item key(
+    *///?}
             DeferredItem<? extends Item> item
     ) {
+        //? if >=1.21.6 {
         return ResourceKey.create(
                 Registries.ITEM,
                 item.getId()
         );
+        //?} else {
+        /*return item.get();
+        *///?}
     }
 
+    //? if >=1.21.6 {
     private static ResourceKey<Item> key(
+    //?} else {
+    /*private static Item key(
+    *///?}
             DeferredBlock<? extends Block> block
     ) {
+        //? if >=1.21.6 {
         return ResourceKey.create(
                 Registries.ITEM,
                 block.getId()
         );
-    }
-    //?} else {
-    /*private static Item key(
-            DeferredItem<? extends Item> item
-    ) {
-        return item.get();
+        //?} else {
+        /*return block.get().asItem();
+        *///?}
     }
 
-    private static Item key(
-            DeferredBlock<? extends Block> block
-    ) {
-        return block.get().asItem();
-    }
-    *///?}
 }

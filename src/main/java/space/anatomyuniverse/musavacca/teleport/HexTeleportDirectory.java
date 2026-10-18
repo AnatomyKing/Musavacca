@@ -1,22 +1,39 @@
 package space.anatomyuniverse.musavacca.teleport;
+//? if >=26.1 {
+/*import java.nio.file.StandardCopyOption;
+
+import java.nio.file.Path;
+
+import java.nio.file.Files;
+
+import java.nio.file.AtomicMoveNotSupportedException;
+
+import java.io.IOException;
+
+import space.anatomyuniverse.musavacca.MusaCore;
+*///?}
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 
-//? if <1.21.5 {
+//? if >=1.21.5 {
+import net.minecraft.world.level.saveddata.SavedDataType;
+//?} else {
 /*import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-*///?} else {
-import net.minecraft.world.level.saveddata.SavedDataType;
-//?}
+*///?}
 
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
@@ -212,7 +229,11 @@ public final class HexTeleportDirectory extends SavedData {
             String ownerKey,
             Kind kind,
             int hexColor,
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos ownerPos,
             Target target,
             float yaw,
@@ -226,7 +247,11 @@ public final class HexTeleportDirectory extends SavedData {
                 Codec.STRING.fieldOf("owner_key").forGetter(Endpoint::ownerKey),
                 KIND_CODEC.fieldOf("kind").forGetter(Endpoint::kind),
                 Codec.INT.fieldOf("hex_color").forGetter(Endpoint::hexColor),
+                //? if >=1.21.11 {
+                /*Identifier.CODEC.fieldOf("dimension").forGetter(Endpoint::dimensionId),
+                *///?} else {
                 ResourceLocation.CODEC.fieldOf("dimension").forGetter(Endpoint::dimensionId),
+                //?}
                 BlockPos.CODEC.fieldOf("owner_pos").forGetter(Endpoint::ownerPos),
                 Target.CODEC.fieldOf("target").forGetter(Endpoint::target),
                 Codec.FLOAT.fieldOf("yaw").forGetter(Endpoint::yaw),
@@ -270,13 +295,21 @@ public final class HexTeleportDirectory extends SavedData {
     public record DoorEndpoint(
             String ownerKey,
             int hexColor,
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos ownerPos
     ) {
         public static final Codec<DoorEndpoint> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.STRING.fieldOf("owner_key").forGetter(DoorEndpoint::ownerKey),
                 Codec.INT.fieldOf("hex_color").forGetter(DoorEndpoint::hexColor),
+                //? if >=1.21.11 {
+                /*Identifier.CODEC.fieldOf("dimension").forGetter(DoorEndpoint::dimensionId),
+                *///?} else {
                 ResourceLocation.CODEC.fieldOf("dimension").forGetter(DoorEndpoint::dimensionId),
+                //?}
                 BlockPos.CODEC.fieldOf("owner_pos").forGetter(DoorEndpoint::ownerPos)
         ).apply(instance, DoorEndpoint::new));
 
@@ -322,9 +355,20 @@ public final class HexTeleportDirectory extends SavedData {
             PhoneRegistration.CODEC.listOf().optionalFieldOf("phone_registrations", List.of()).forGetter(data -> data.phoneRegistrations)
     ).apply(instance, HexTeleportDirectory::new));
 
-    //? if >=1.21.5 {
+    //? if >=26.1 {
+    /*public static final SavedDataType<HexTeleportDirectory> TYPE =
+            new SavedDataType<>(
+
+                    Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID),
+
+                    HexTeleportDirectory::new, CODEC);
+    *///?} else if >=1.21.5 <26.1 {
     public static final SavedDataType<HexTeleportDirectory> TYPE =
-            new SavedDataType<>(STORAGE_ID, HexTeleportDirectory::new, CODEC);
+            new SavedDataType<>(
+
+                    STORAGE_ID,
+
+                    HexTeleportDirectory::new, CODEC);
     //?} else {
     /*private static final SavedData.Factory<HexTeleportDirectory> FACTORY =
             new SavedData.Factory<>(HexTeleportDirectory::new, HexTeleportDirectory::load);
@@ -365,7 +409,13 @@ public final class HexTeleportDirectory extends SavedData {
         this.normalizeLoadedPhoneRegistrations();
     }
 
-    //? if <1.21.5 {
+    //? if >=26.1 {
+    /*public static HexTeleportDirectory get(MinecraftServer server) {
+        migrateLegacyData(server, STORAGE_ID);
+    *///?} else if >=1.21.5 <26.1 {
+    public static HexTeleportDirectory get(MinecraftServer server) {
+        
+    //?} else {
     /*private static HexTeleportDirectory load(
             CompoundTag tag,
             HolderLookup.Provider registries
@@ -396,9 +446,10 @@ public final class HexTeleportDirectory extends SavedData {
                 "Codec for " + STORAGE_ID + " did not produce a CompoundTag"
         );
     }
-    *///?}
 
     public static HexTeleportDirectory get(MinecraftServer server) {
+    *///?}
+
         //? if >=1.21.5 {
         return server.overworld().getDataStorage().computeIfAbsent(TYPE);
         //?} else {
@@ -406,6 +457,7 @@ public final class HexTeleportDirectory extends SavedData {
                 .getDataStorage()
                 .computeIfAbsent(FACTORY, STORAGE_ID);
         *///?}
+
     }
 
     public boolean isHexReserved(int hexColor) {
@@ -450,7 +502,11 @@ public final class HexTeleportDirectory extends SavedData {
             String ownerKey,
             Kind kind,
             int hexColor,
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos ownerPos,
             Vec3 targetPos,
             float yaw,
@@ -476,7 +532,11 @@ public final class HexTeleportDirectory extends SavedData {
             String ownerKey,
             Kind kind,
             int hexColor,
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos ownerPos,
             Vec3 targetPos,
             float yaw,
@@ -583,7 +643,11 @@ public final class HexTeleportDirectory extends SavedData {
     public Result registerPortalEndpoint(
             UUID portalId,
             int hexColor,
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             PearlPortalFrame.Shape shape
     ) {
         if (portalId == null || dimensionId == null || shape == null) {
@@ -620,7 +684,11 @@ public final class HexTeleportDirectory extends SavedData {
     public Result registerDoorEndpoint(
             String ownerKey,
             int hexColor,
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos ownerPos
     ) {
         ownerKey = normalizeOwnerKey(ownerKey);
@@ -686,7 +754,11 @@ public final class HexTeleportDirectory extends SavedData {
     public Result registerTrapdoorEndpoint(
             String ownerKey,
             int hexColor,
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos ownerPos
     ) {
         ownerKey = normalizeOwnerKey(ownerKey);
@@ -1081,7 +1153,11 @@ public final class HexTeleportDirectory extends SavedData {
     private static boolean matchesDoorEndpoint(
             DoorEndpoint endpoint,
             int hexColor,
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos ownerPos
     ) {
         return endpoint != null
@@ -1200,7 +1276,11 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     public static String vocoTableReceptorCornerOwnerKey(
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos pos,
             ReceptorPosition receptor
     ) {
@@ -1213,7 +1293,11 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     public static String vocoPostReceptorCornerOwnerKey(
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos pos
     ) {
         return ownerKey(
@@ -1225,7 +1309,11 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     public static String doorOwnerKey(
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos pos
     ) {
         return "musavacca_door"
@@ -1236,7 +1324,11 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     public static String trapdoorOwnerKey(
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos pos
     ) {
         return "musavacca_trapdoor"
@@ -1266,7 +1358,11 @@ public final class HexTeleportDirectory extends SavedData {
 
     public static String ownerKey(
             Kind kind,
+            //? if >=1.21.11 {
+            /*Identifier dimensionId,
+            *///?} else {
             ResourceLocation dimensionId,
+            //?}
             BlockPos pos,
             int slotId
     ) {
@@ -1605,5 +1701,44 @@ public final class HexTeleportDirectory extends SavedData {
             );
         }
     }
-}
+    //? if >=26.1 {
+    /*// Minecraft 26.1 stores mod data in namespaced paths. Retain the legacy file.
+    private static final java.util.Map<Object, java.util.Set<String>> CHECKED = new java.util.WeakHashMap<>();
 
+    private static synchronized void migrateLegacyData(MinecraftServer server, String name) {
+
+        var storage = server.overworld().getDataStorage();
+        var checked = CHECKED.computeIfAbsent(storage, ignored -> new java.util.HashSet<>());
+        if (checked.contains(name)) return;
+        var directory = ((space.anatomyuniverse.musavacca.mixin.SavedDataStorageAccessor) storage).musavacca$dataFolder();
+        var target = net.minecraft.resources.Identifier.fromNamespaceAndPath("musavacca", name + ".dat").resolveAgainst(directory);
+        try {
+            copyLegacyData(directory.resolve(name + ".dat"), target);
+            copyLegacyData(server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)
+                    .resolve("data").resolve(name + ".dat"), target);
+        } catch (java.io.IOException error) {
+            throw new java.io.UncheckedIOException("Cannot migrate Musavacca saved data " + name + "; original retained", error);
+        }
+        checked.add(name);
+
+    }
+
+    private static void copyLegacyData(Path legacy, Path target) throws IOException {
+        if (Files.exists(target) || !Files.isRegularFile(legacy)) return;
+        Files.createDirectories(target.getParent());
+        Path temporary = Files.createTempFile(target.getParent(), target.getFileName().toString(), ".migrating");
+        try {
+            Files.copy(legacy, temporary, StandardCopyOption.REPLACE_EXISTING);
+            if (!Files.exists(target)) {
+                try {
+                    Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
+                } catch (AtomicMoveNotSupportedException ignored) {
+                    Files.move(temporary, target);
+                }
+            }
+        } finally {
+            Files.deleteIfExists(temporary);
+        }
+    }
+    *///?}
+}

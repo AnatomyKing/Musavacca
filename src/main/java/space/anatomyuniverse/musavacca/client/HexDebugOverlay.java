@@ -13,16 +13,23 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 import java.util.List;
 
-//? if <1.21.9 {
-import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
-//?} else {
+//? if >=1.21.11 {
+/*import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
+import net.minecraft.client.gui.components.debug.DebugScreenEntry;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.neoforged.neoforge.client.event.RegisterDebugEntriesEvent;
+*///?} else if >=1.21.9 <1.21.11 {
 /*import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.client.event.RegisterDebugEntriesEvent;
-*///?}
+*///?} else {
+import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
+//?}
 
 @EventBusSubscriber(modid = MusaCore.MOD_ID, value = Dist.CLIENT)
 public final class HexDebugOverlay {
@@ -77,18 +84,10 @@ public final class HexDebugOverlay {
         void add(String line);
     }
 
-    //? if <1.21.9 {
-    @SubscribeEvent
-    public static void onDebugText(CustomizeGuiOverlayEvent.DebugText event) {
-        addHexDebugLines(event.getRight()::add);
-    }
-    //?} else {
+    //? if >=1.21.11 {
     /*@SubscribeEvent
     public static void registerDebugEntries(RegisterDebugEntriesEvent event) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(
-                MusaCore.MOD_ID,
-                "hex_debug_overlay"
-        );
+        Identifier id = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "hex_debug_overlay");
 
         event.register(id, new DebugScreenEntry() {
             @Override
@@ -107,6 +106,33 @@ public final class HexDebugOverlay {
             }
         });
     }
-    *///?}
+    *///?} else if >=1.21.9 <1.21.11 {
+    /*@SubscribeEvent
+    public static void registerDebugEntries(RegisterDebugEntriesEvent event) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "hex_debug_overlay");
+
+        event.register(id, new DebugScreenEntry() {
+            @Override
+            public void display(
+                    DebugScreenDisplayer displayer,
+                    Level level,
+                    LevelChunk clientChunk,
+                    LevelChunk serverChunk
+            ) {
+                addHexDebugLines(displayer::addLine);
+            }
+
+            @Override
+            public boolean isAllowed(boolean reducedDebugInfo) {
+                return true;
+            }
+        });
+    }
+    *///?} else {
+    @SubscribeEvent
+    public static void onDebugText(CustomizeGuiOverlayEvent.DebugText event) {
+        addHexDebugLines(event.getRight()::add);
+    }
+    //?}
 
 }

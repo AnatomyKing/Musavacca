@@ -3,7 +3,14 @@ package space.anatomyuniverse.musavacca.item.custom;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
-//? if <1.21.2 {
+
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
+import net.minecraft.world.item.BoatItem;
+*///?} else if >=1.21.2 <1.21.11 {
+import net.minecraft.world.entity.vehicle.AbstractBoat;
+import net.minecraft.world.item.BoatItem;
+//?} else {
 /*import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -16,36 +23,39 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.entity.boat.musavacca.MusavaccaBoat;
 import java.util.List;
-*///?} else {
-import net.minecraft.world.entity.vehicle.AbstractBoat;
-import net.minecraft.world.item.BoatItem;
-//?}
+*///?}
 
 public final class MusavaccaBoatItem extends
-        //? if <1.21.2 {
-        /*Item
-        *///?} else {
+
+        //? if >=1.21.2 {
         BoatItem
-        //?}
+        //?} else {
+        /*Item
+        *///?}
+
 {
 
-    //? if <1.21.2
-    //private final EntityType<? extends MusavaccaBoat> entityType;
-
+    //? if <1.21.2 {
+    /*private final EntityType<? extends MusavaccaBoat> entityType;
+    *///?}
     public MusavaccaBoatItem(
-            //? if <1.21.2 {
-            /*EntityType<? extends MusavaccaBoat> entityType,
-            *///?} else {
+
+            //? if >=1.21.2 {
             EntityType<? extends AbstractBoat> entityType,
-            //?}
+            //?} else {
+            /*EntityType<? extends MusavaccaBoat> entityType,
+            *///?}
+
             Properties properties
     ) {
-        //? if <1.21.2 {
+
+        //? if >=1.21.2 {
+        super(entityType, properties);
+        //?} else {
         /*super(properties);
         this.entityType = entityType;
-        *///?} else {
-        super(entityType, properties);
-        //?}
+        *///?}
+
     }
 
     //? if <1.21.2 {
@@ -102,4 +112,3 @@ public final class MusavaccaBoatItem extends
     }
     *///?}
 }
-

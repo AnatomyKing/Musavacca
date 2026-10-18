@@ -2,8 +2,10 @@ package space.anatomyuniverse.musavacca.basuke.summon;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-//? if >=1.21.2
+
+//? if >=1.21.2 {
 import net.minecraft.world.entity.EntitySpawnReason;
+//?}
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.item.ItemStack;
@@ -229,14 +231,20 @@ public final class BasukeSealed {
             ServerLevel level,
             BlockPos pos
     ) {
-        //? if <1.21.2 {
-        /*LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
-        *///?} else {
+
+        //? if >=26.2 {
+        /*LightningBolt lightning = net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT.create(
+                level,
+                EntitySpawnReason.TRIGGERED
+        );
+        *///?} else if >=1.21.2 <26.2 {
         LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(
                 level,
                 EntitySpawnReason.TRIGGERED
         );
-        //?}
+        //?} else {
+        /*LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
+        *///?}
 
         if (lightning == null) {
             return;
@@ -244,20 +252,15 @@ public final class BasukeSealed {
 
         //? if >=1.21.5 {
         lightning.snapTo(
-                pos.getX() + 0.5D,
-                pos.getY() + 1.05D,
-                pos.getZ() + 0.5D
-        );
         //?} else {
         /*lightning.moveTo(
+        *///?}
                 pos.getX() + 0.5D,
                 pos.getY() + 1.05D,
                 pos.getZ() + 0.5D
         );
-        *///?}
 
         lightning.setVisualOnly(true);
         level.addFreshEntity(lightning);
     }
 }
-

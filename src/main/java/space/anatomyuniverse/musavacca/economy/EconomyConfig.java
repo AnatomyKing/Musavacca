@@ -63,7 +63,11 @@ public final class EconomyConfig {
     private EconomyConfig() {}
 
     public static void register(ModContainer container) {
+        //? if >=26.3 {
+        /*container.registerConfig(ModConfig.Type.SYNCED, SPEC, FILE_NAME);
+        *///?} else {
         container.registerConfig(ModConfig.Type.SERVER, SPEC, FILE_NAME);
+        //?}
     }
 
     public static int vocoTableTeleportCost() {

@@ -1,25 +1,34 @@
 package space.anatomyuniverse.musavacca.bar.hunger;
 
-//? if <1.21.6
-//import net.minecraft.core.HolderLookup;
-//? if <1.21.11
+//? if >=1.21.5 <1.21.6 {
+/*import net.minecraft.core.HolderLookup;
+*///?} else if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+
+import net.minecraft.core.HolderLookup;
+*///?}
 import net.minecraft.nbt.CompoundTag;
 
 import net.minecraft.util.Mth;
-//? if >=1.21.6
+
+//? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
-//? if >=1.21.6
+
 import net.minecraft.world.level.storage.ValueOutput;
-//? if <1.21.6
-//import net.neoforged.neoforge.common.util.INBTSerializable;
-//? if >=1.21.6
+
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
+//?} else {
+/*import net.neoforged.neoforge.common.util.INBTSerializable;
+*///?}
 
 @SuppressWarnings({"unused", "CommentedOutCode", "NullableProblems"})
+
 //? if >=1.21.6 {
 public final class BonusHungerData implements ValueIOSerializable {
-    //?} else
-    //public final class BonusHungerData implements INBTSerializable<CompoundTag> {
+
+//?} else {
+    /*public final class BonusHungerData implements INBTSerializable<CompoundTag> {
+*///?}
     public static final int MAX_FOOD = 20;
 
     private static final float EXHAUSTION_STEP = 4.0F;
@@ -54,17 +63,6 @@ public final class BonusHungerData implements ValueIOSerializable {
         output.putFloat("exhaustion", this.exhaustion);
         output.putInt("tick_timer", this.tickTimer);
     }
-
-    @Override
-    public void deserialize(ValueInput input) {
-        this.food = Mth.clamp(input.getIntOr("food", MAX_FOOD), 0, MAX_FOOD);
-        this.saturation = Mth.clamp(input.getFloatOr("saturation", (float) MAX_FOOD), 0.0F, this.food);
-        this.exhaustion = Mth.clamp(input.getFloatOr("exhaustion", 0.0F), 0.0F, MAX_STORED_EXHAUSTION);
-        this.tickTimer = Math.max(0, input.getIntOr("tick_timer", 0));
-
-        resetTransientState();
-        clampToValidState();
-    }
     //?} else {
     /*@Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
@@ -75,32 +73,42 @@ public final class BonusHungerData implements ValueIOSerializable {
         tag.putInt("tick_timer", this.tickTimer);
         return tag;
     }
+    *///?}
 
+    //? if >=1.21.6 {
     @Override
+    public void deserialize(ValueInput input) {
+        this.food = Mth.clamp(input.getIntOr("food", MAX_FOOD), 0, MAX_FOOD);
+        this.saturation = Mth.clamp(input.getFloatOr("saturation", (float) MAX_FOOD), 0.0F, this.food);
+        this.exhaustion = Mth.clamp(input.getFloatOr("exhaustion", 0.0F), 0.0F, MAX_STORED_EXHAUSTION);
+        this.tickTimer = Math.max(0, input.getIntOr("tick_timer", 0));
+
+        resetTransientState();
+        clampToValidState();
+    }
+    //?} else if >=1.21.5 <1.21.6 {
+    /*@Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
-        this.food = Mth.clamp(readInt(tag, "food", MAX_FOOD), 0, MAX_FOOD);
-        this.saturation = Mth.clamp(readFloat(tag, "saturation", (float) MAX_FOOD), 0.0F, this.food);
-        this.exhaustion = Mth.clamp(readFloat(tag, "exhaustion", 0.0F), 0.0F, MAX_STORED_EXHAUSTION);
-        this.tickTimer = Math.max(0, readInt(tag, "tick_timer", 0));
+        this.food = Mth.clamp(tag.getIntOr("food", MAX_FOOD), 0, MAX_FOOD);
+        this.saturation = Mth.clamp(tag.getFloatOr("saturation", (float) MAX_FOOD), 0.0F, this.food);
+        this.exhaustion = Mth.clamp(tag.getFloatOr("exhaustion", 0.0F), 0.0F, MAX_STORED_EXHAUSTION);
+        this.tickTimer = Math.max(0, tag.getIntOr("tick_timer", 0));
+
+        resetTransientState();
+        clampToValidState();
+    }
+    *///?} else {
+    /*@Override
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+        this.food = Mth.clamp((tag.contains("food", Tag.TAG_ANY_NUMERIC) ? tag.getInt("food") : MAX_FOOD), 0, MAX_FOOD);
+        this.saturation = Mth.clamp((tag.contains("saturation", Tag.TAG_ANY_NUMERIC) ? tag.getFloat("saturation") : (float) MAX_FOOD), 0.0F, this.food);
+        this.exhaustion = Mth.clamp((tag.contains("exhaustion", Tag.TAG_ANY_NUMERIC) ? tag.getFloat("exhaustion") : 0.0F), 0.0F, MAX_STORED_EXHAUSTION);
+        this.tickTimer = Math.max(0, (tag.contains("tick_timer", Tag.TAG_ANY_NUMERIC) ? tag.getInt("tick_timer") : 0));
 
         resetTransientState();
         clampToValidState();
     }
     *///?}
-
-    private static int readInt(CompoundTag tag, String key, int fallback) {
-        //? if >=1.21.5
-        return tag.getIntOr(key, fallback);
-        //? if <1.21.5
-        //return tag.contains(key) ? tag.getInt(key) : fallback;
-    }
-
-    private static float readFloat(CompoundTag tag, String key, float fallback) {
-        //? if >=1.21.5
-        return tag.getFloatOr(key, fallback);
-        //? if <1.21.5
-        //return tag.contains(key) ? tag.getFloat(key) : fallback;
-    }
 
     private void resetTransientState() {
         this.lastBaseFood = MAX_FOOD;
@@ -306,4 +314,3 @@ public final class BonusHungerData implements ValueIOSerializable {
         this.tickTimer = Math.max(0, this.tickTimer);
     }
 }
-

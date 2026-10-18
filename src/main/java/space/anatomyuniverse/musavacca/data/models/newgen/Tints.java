@@ -2,16 +2,26 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.BlockPos;
+//? if >=26.1 {
+/*import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+*///?} else if >=1.21.11 <26.1 {
+/*import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockAndTintGetter;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
+//?}
 import net.minecraft.world.level.FoliageColor;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 import java.util.Objects;
-
 //? if >=1.21.4 {
+
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.color.item.ItemTintSource;
 //?}
@@ -59,6 +69,7 @@ public final class Tints {
         default ItemTintType itemTintType() {
             return null;
         }
+
         //?}
     }
 
@@ -94,6 +105,7 @@ public final class Tints {
         public ItemTintSource itemTintSource() {
             return new net.minecraft.client.color.item.Constant(rgb);
         }
+
         //?}
     }
 
@@ -114,13 +126,14 @@ public final class Tints {
         public int itemColor(ItemStack stack) {
             return defaultFoliageColor();
         }
-
         //? if >=1.21.4 {
+
         @Override
         public ItemTintSource itemTintSource() {
             return new net.minecraft.client.color.item.Constant(defaultFoliageColor());
         }
         //?}
+
     }
 
     public record GeneratedLayer(int sourceLayer, int tintIndex) {
@@ -168,7 +181,17 @@ public final class Tints {
         }
     }
 
-    //? if >=1.21.4 {
+    //? if >=1.21.11 {
+    /*public record ItemTintType(
+            Identifier id,
+            MapCodec<? extends ItemTintSource> codec
+    ) {
+        public ItemTintType {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(codec, "codec");
+        }
+    }
+    *///?} else if >=1.21.4 <1.21.11 {
     public record ItemTintType(
             ResourceLocation id,
             MapCodec<? extends ItemTintSource> codec
@@ -178,8 +201,8 @@ public final class Tints {
             Objects.requireNonNull(codec, "codec");
         }
     }
-    //?}
 
+    //?}
     private static final None NONE = new None();
     private static final BiomeFoliage FOLIAGE = new BiomeFoliage();
 
@@ -226,10 +249,12 @@ public final class Tints {
     }
 
     private static int defaultFoliageColor() {
-        //? if >1.21.3 {
+
+        //? if >=1.21.4 {
         return FoliageColor.FOLIAGE_DEFAULT;
         //?} else {
         /*return FoliageColor.getDefaultColor();
         *///?}
+
     }
 }

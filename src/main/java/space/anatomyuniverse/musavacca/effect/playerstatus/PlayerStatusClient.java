@@ -1,46 +1,68 @@
 package space.anatomyuniverse.musavacca.effect.playerstatus;
 
+//? if >=1.21.6 {
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+//?} else {
+/*import net.neoforged.neoforge.network.PacketDistributor;
+*///?}
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.gui.Gui;
+//? if >=26.1 {
+/*import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
+*///?} else {
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
+//?}
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-//? if <1.21.2 {
-/*import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
-*///?} else {
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-//?}
-//? if >=1.21.6
+
+//? if >=1.21.11 {
+/*import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+
 import net.minecraft.client.renderer.RenderPipelines;
-//? if <1.21.6
-////? if >=1.21.2
+
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+*///?} else if >=1.21.6 <1.21.11 {
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+
+import net.minecraft.client.renderer.RenderPipelines;
+
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-//? if <1.21.11 {
 import net.minecraft.resources.ResourceLocation;
-//?} else {
-/*import net.minecraft.resources.Identifier;
+//?} else if >=1.21.2 <1.21.6 {
+/*import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+*///?} else {
+/*import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 *///?}
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-//? if >=1.21.6
+
+//? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+//?}
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientMobEffectExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-//? if >=1.21.7
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-//? if <1.21.7
-//import net.neoforged.neoforge.network.PacketDistributor;
-
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
 import space.anatomyuniverse.musavacca.gui.frontend.VocoCallerFrontend;
@@ -82,6 +104,33 @@ public final class PlayerStatusClient {
 
     private static final IClientMobEffectExtensions EXTENSIONS =
             new IClientMobEffectExtensions() {
+
+                //? if >=26.2 {
+                /*@Override
+                public boolean extractHudIcon(MobEffectInstance instance, net.minecraft.client.gui.Hud hud,
+                        GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
+                    return renderPlayerFaces(graphics, x + HUD_ICON_X_OFFSET, y + HUD_ICON_Y_OFFSET,
+                            ((color >>> 24) & 255) / 255.0F);
+                }
+                *///?} else if >=26.1 <26.2 {
+                /*@Override
+                public boolean renderGuiIcon(
+                        MobEffectInstance instance,
+                        Gui gui,
+                        GuiGraphicsExtractor graphics,
+                        int x,
+                        int y,
+                        float z,
+                        float alpha
+                ) {
+                    return renderPlayerFaces(
+                            graphics,
+                            x + HUD_ICON_X_OFFSET,
+                            y + HUD_ICON_Y_OFFSET,
+                            alpha
+                    );
+                }
+                *///?} else {
                 @Override
                 public boolean renderGuiIcon(
                         MobEffectInstance instance,
@@ -99,8 +148,91 @@ public final class PlayerStatusClient {
                             alpha
                     );
                 }
+                //?}
 
-                //? if <1.21.2 {
+                //? if >=26.2 {
+                /*@Override
+                public boolean extractInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen,
+                        GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
+                    return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET, ((color >>> 24) & 255) / 255.0F);
+                }
+                @Override
+                public boolean extractInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen,
+                        GuiGraphicsExtractor graphics, int x, int y, int canvasWidth, int color) {
+                    renderControls(screen, graphics, x, y);
+                    return false;
+                }
+                *///?} else if >=26.1 <26.2 {
+                /*@Override
+                public boolean renderInventoryIcon(
+                        MobEffectInstance instance,
+                        AbstractContainerScreen<?> screen,
+                        GuiGraphicsExtractor graphics,
+                        int x,
+                        int y,
+                        int blitOffset
+                ) {
+                    return renderPlayerFaces(
+                            graphics,
+                            x,
+                            y + INVENTORY_ICON_Y_OFFSET,
+                            1.0F
+                    );
+                }
+
+                @Override
+                public boolean renderInventoryText(
+                        MobEffectInstance instance,
+                        AbstractContainerScreen<?> screen,
+                        GuiGraphicsExtractor graphics,
+                        int x,
+                        int y,
+                        int blitOffset
+                ) {
+                    renderControls(
+                            screen,
+                            graphics,
+                            x,
+                            y
+                    );
+                    return false;
+                }
+                *///?} else if >=1.21.2 <26.1 {
+                @Override
+                public boolean renderInventoryIcon(
+                        MobEffectInstance instance,
+                        AbstractContainerScreen<?> screen,
+                        GuiGraphics graphics,
+                        int x,
+                        int y,
+                        int blitOffset
+                ) {
+                    return renderPlayerFaces(
+                            graphics,
+                            x,
+                            y + INVENTORY_ICON_Y_OFFSET,
+                            1.0F
+                    );
+                }
+
+                @Override
+                public boolean renderInventoryText(
+                        MobEffectInstance instance,
+                        AbstractContainerScreen<?> screen,
+                        GuiGraphics graphics,
+                        int x,
+                        int y,
+                        int blitOffset
+                ) {
+                    renderControls(
+                            screen,
+                            graphics,
+                            x,
+                            y
+                    );
+                    return false;
+                }
+                //?} else {
                 /*@Override
                 public boolean renderInventoryIcon(
                         MobEffectInstance instance,
@@ -135,50 +267,18 @@ public final class PlayerStatusClient {
                     );
                     return false;
                 }
-                *///?} else {
-                @Override
-                public boolean renderInventoryIcon(
-                        MobEffectInstance instance,
-                        AbstractContainerScreen<?> screen,
-                        GuiGraphics graphics,
-                        int x,
-                        int y,
-                        int blitOffset
-                ) {
-                    return renderPlayerFaces(
-                            graphics,
-                            x,
-                            y + INVENTORY_ICON_Y_OFFSET,
-                            1.0F
-                    );
-                }
+                *///?}
 
-                @Override
-                public boolean renderInventoryText(
-                        MobEffectInstance instance,
-                        AbstractContainerScreen<?> screen,
-                        GuiGraphics graphics,
-                        int x,
-                        int y,
-                        int blitOffset
-                ) {
-                    renderControls(
-                            screen,
-                            graphics,
-                            x,
-                            y
-                    );
-                    return false;
-                }
-                //?}
             };
 
     private PlayerStatusClient() {}
 
     public static void register(IEventBus modBus) {
-        //? if >=1.21.6
+        //? if >=1.21.6 {
+
         modBus.addListener(PlayerStatusClient::registerClientPayloads);
 
+        //?}
         NeoForge.EVENT_BUS.addListener(PlayerStatusClient::onLoggingOut);
 
         modBus.addListener(
@@ -214,8 +314,8 @@ public final class PlayerStatusClient {
                 ModMobEffects.PLAYER_STATUS
         );
     }
-
     //? if >=1.21.6 {
+
     private static void registerClientPayloads(RegisterClientPayloadHandlersEvent event) {
         event.register(
                 PlayerStatusCallerPayload.TYPE,
@@ -265,7 +365,11 @@ public final class PlayerStatusClient {
     }
 
     private static boolean renderPlayerFaces(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics,
+            *///?} else {
             GuiGraphics graphics,
+            //?}
             int iconX,
             int iconY,
             float alpha
@@ -291,41 +395,27 @@ public final class PlayerStatusClient {
                         callerId != null ? callerId : PlayerStatusCallerPayload.CLEAR.callerId()
                 );
 
-        //? if <1.21.2 {
-        /*graphics.setColor(
-                1.0F,
-                1.0F,
-                1.0F,
-                alpha
+        //? if >=26.1 {
+        /*int alphaChannel = Math.max(
+                0,
+                Math.min(
+                        255,
+                        Math.round(alpha * 255.0F)
+                )
         );
 
-        PlayerFaceRenderer.draw(
+        int color =
+                alphaChannel << 24
+                        | 0x00FFFFFF;
+
+        PlayerFaceExtractor.extractRenderState(
                 graphics,
-                callerSkin.texture(),
+                callerSkin,
                 firstX,
                 firstY,
                 FACE_SIZE,
-                true,
-                false
-        );
-
-        PlayerFaceRenderer.draw(
-                graphics,
-                minecraft.player.getSkin().texture(),
-                secondX,
-                secondY,
-                FACE_SIZE,
-                true,
-                false
-        );
-
-        graphics.setColor(
-                1.0F,
-                1.0F,
-                1.0F,
-                1.0F
-        );
-        *///?} else {
+                color
+        *///?} else if >=1.21.2 <26.1 {
         int alphaChannel = Math.max(
                 0,
                 Math.min(
@@ -345,24 +435,66 @@ public final class PlayerStatusClient {
                 firstY,
                 FACE_SIZE,
                 color
+        //?} else {
+        /*graphics.setColor(
+                1.0F,
+                1.0F,
+                1.0F,
+                alpha
+        *///?}
+        );
+
+        //? if >=26.1 {
+        /*PlayerFaceExtractor.extractRenderState(
+                graphics,
+                minecraft.player.getSkin(),
+        *///?} else if >=1.21.2 <26.1 {
+        PlayerFaceRenderer.draw(
+                graphics,
+                minecraft.player.getSkin(),
+        //?} else {
+        /*PlayerFaceRenderer.draw(
+                graphics,
+                callerSkin.texture(),
+                firstX,
+                firstY,
+                FACE_SIZE,
+                true,
+                false
         );
 
         PlayerFaceRenderer.draw(
                 graphics,
-                minecraft.player.getSkin(),
+                minecraft.player.getSkin().texture(),
+        *///?}
                 secondX,
                 secondY,
                 FACE_SIZE,
+        //? if >=1.21.2 {
                 color
+        //?} else {
+                /*true,
+                false
         );
-        //?}
+
+        graphics.setColor(
+                1.0F,
+                1.0F,
+                1.0F,
+                1.0F
+        *///?}
+        );
 
         return true;
     }
 
     private static void renderControls(
             Screen screen,
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics,
+            *///?} else {
             GuiGraphics graphics,
+            //?}
             int x,
             int y
     ) {
@@ -401,7 +533,11 @@ public final class PlayerStatusClient {
     }
 
     private static void renderButtonTooltip(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics,
+            *///?} else {
             GuiGraphics graphics,
+            //?}
             StatusButton button
     ) {
         Minecraft minecraft = Minecraft.getInstance();
@@ -417,19 +553,15 @@ public final class PlayerStatusClient {
 
         //? if >=1.21.6 {
         graphics.setTooltipForNextFrame(
-                minecraft.font,
-                lines,
-                (int) mouseX,
-                (int) mouseY
-        );
         //?} else {
         /*graphics.renderTooltip(
+        *///?}
                 minecraft.font,
                 lines,
                 (int) mouseX,
                 (int) mouseY
         );
-        *///?}
+
     }
 
     private static void onScreenRenderPre(
@@ -467,7 +599,7 @@ public final class PlayerStatusClient {
             ScreenEvent.MouseButtonPressed.Pre event
     ) {
         if (event.getButton()
-                != GLFW.GLFW_MOUSE_BUTTON_LEFT
+                != InputConstants.MOUSE_BUTTON_LEFT
                 || !hasActiveControls(
                         event.getScreen()
                 )) {
@@ -491,7 +623,7 @@ public final class PlayerStatusClient {
             ScreenEvent.MouseButtonReleased.Pre event
     ) {
         if (event.getButton()
-                != GLFW.GLFW_MOUSE_BUTTON_LEFT
+                != InputConstants.MOUSE_BUTTON_LEFT
                 || pressedButton == null) {
             return;
         }
@@ -567,39 +699,52 @@ public final class PlayerStatusClient {
     private static void send(
             PlayerStatusActionPayload payload
     ) {
-        //? if >=1.21.7 {
+        //? if >=1.21.6 {
         ClientPacketDistributor.sendToServer(payload);
         //?} else {
         /*PacketDistributor.sendToServer(payload);
         *///?}
     }
 
-    private static /*? if <1.21.11 {*/ ResourceLocation
-            /*?} else {*//*Identifier*//*?}*/ buttonTexture(
+    //? if >=1.21.11 {
+    /*private static Identifier buttonTexture(
+    *///?} else {
+    private static ResourceLocation buttonTexture(
+    //?}
             String name
     ) {
-        return /*? if <1.21.11 {*/ ResourceLocation
-                /*?} else {*//*Identifier*//*?}*/
-                .fromNamespaceAndPath(
-                        MusaCore.MOD_ID,
-                        "textures/gui/voco_caller/"
+        //? if >=1.21.11 {
+        /*return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/"
+        *///?} else {
+        return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/"
+        //?}
                                 + name
-                                + ".png"
-                );
+                                + ".png");
     }
 
     private static void blit(
+            //? if >=26.1 {
+            /*GuiGraphicsExtractor graphics,
+            Identifier texture,
+            *///?} else if >=1.21.11 <26.1 {
+            /*GuiGraphics graphics,
+            Identifier texture,
+            *///?} else {
             GuiGraphics graphics,
-            /*? if <1.21.11 {*/ ResourceLocation
-            /*?} else {*//*Identifier*//*?}*/ texture,
+            ResourceLocation texture,
+            //?}
             int x,
             int y,
             int width,
             int height
     ) {
-        //? if >=1.21.6 {
+
         graphics.blit(
+                //? if >=1.21.6 {
                 RenderPipelines.GUI_TEXTURED,
+                //?} else if >=1.21.2 <1.21.6 {
+                /*RenderType::guiTextured,
+                *///?}
                 texture,
                 x,
                 y,
@@ -610,32 +755,7 @@ public final class PlayerStatusClient {
                 width,
                 height
         );
-        //?} else if >=1.21.2 {
-        /*graphics.blit(
-                RenderType::guiTextured,
-                texture,
-                x,
-                y,
-                0.0F,
-                0.0F,
-                width,
-                height,
-                width,
-                height
-        );
-        *///?} else {
-        /*graphics.blit(
-                texture,
-                x,
-                y,
-                0.0F,
-                0.0F,
-                width,
-                height,
-                width,
-                height
-        );
-        *///?}
+
     }
 
     private enum StatusButton {
@@ -656,18 +776,24 @@ public final class PlayerStatusClient {
 
         private final int xOffset;
         private final String tooltip;
-        private final /*? if <1.21.11 {*/ ResourceLocation
-                /*?} else {*//*Identifier*//*?}*/ normalTexture;
-        private final /*? if <1.21.11 {*/ ResourceLocation
-                /*?} else {*//*Identifier*//*?}*/ pressedTexture;
+        //? if >=1.21.11 {
+        /*private final Identifier normalTexture;
+        private final Identifier pressedTexture;
+        *///?} else {
+        private final ResourceLocation normalTexture;
+        private final ResourceLocation pressedTexture;
+        //?}
 
         StatusButton(
                 int xOffset,
                 String tooltip,
-                /*? if <1.21.11 {*/ ResourceLocation
-                /*?} else {*//*Identifier*//*?}*/ normalTexture,
-                /*? if <1.21.11 {*/ ResourceLocation
-                /*?} else {*//*Identifier*//*?}*/ pressedTexture
+                //? if >=1.21.11 {
+                /*Identifier normalTexture,
+                Identifier pressedTexture
+                *///?} else {
+                ResourceLocation normalTexture,
+                ResourceLocation pressedTexture
+                //?}
         ) {
             this.xOffset = xOffset;
             this.tooltip = tooltip;
@@ -675,8 +801,11 @@ public final class PlayerStatusClient {
             this.pressedTexture = pressedTexture;
         }
 
-        private /*? if <1.21.11 {*/ ResourceLocation
-                /*?} else {*//*Identifier*//*?}*/ currentTexture(
+        //? if >=1.21.11 {
+        /*private Identifier currentTexture(
+        *///?} else {
+        private ResourceLocation currentTexture(
+        //?}
                 boolean pressed
         ) {
             return pressed

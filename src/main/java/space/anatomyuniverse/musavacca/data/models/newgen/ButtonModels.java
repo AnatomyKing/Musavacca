@@ -1,12 +1,22 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import org.jetbrains.annotations.Nullable;
 
 public final class ButtonModels {
+    //? if >=1.21.11 {
+    /*private final Identifier normal;
+    private final Identifier pressed;
+    private final Identifier inventory;
+    *///?} else {
     private final ResourceLocation normal;
     private final ResourceLocation pressed;
     private final ResourceLocation inventory;
+    //?}
 
     private ButtonModels(Builder builder) {
         normal = builder.normal;
@@ -27,12 +37,20 @@ public final class ButtonModels {
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier model(boolean powered) {
+    *///?} else {
     public ResourceLocation model(boolean powered) {
+    //?}
         return powered ? pressed : normal;
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier inventory() {
+    *///?} else {
     public ResourceLocation inventory() {
+    //?}
         return inventory;
     }
 
@@ -49,9 +67,15 @@ public final class ButtonModels {
     }
 
     public static final class Builder {
+        //? if >=1.21.11 {
+        /*private Identifier normal;
+        private Identifier pressed;
+        private Identifier inventory;
+        *///?} else {
         private ResourceLocation normal;
         private ResourceLocation pressed;
         private ResourceLocation inventory;
+        //?}
 
         private Builder() {}
 
@@ -75,11 +99,18 @@ public final class ButtonModels {
         }
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier parse(String model, String name) {
+    *///?} else {
     private static ResourceLocation parse(String model, String name) {
+    //?}
         if (model == null || model.isBlank()) {
             throw new IllegalArgumentException(name + " must not be blank");
         }
+        //? if >=1.21.11 {
+        /*return Identifier.parse(model);
+        *///?} else {
         return ResourceLocation.parse(model);
+        //?}
     }
 }
-

@@ -9,17 +9,21 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
-//? if >=1.21.5
+
+//? if >=1.21.5 {
 import net.minecraft.world.entity.InsideBlockEffectApplier;
+//?}
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-//? if <1.21.2 {
-/*import net.minecraft.world.level.LevelAccessor;
-*///?} else {
+
+//? if >=1.21.2 {
 import net.minecraft.world.level.ScheduledTickAccess;
-//?}
+//?} else {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?}
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Portal;
@@ -31,11 +35,13 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.portal.PortalShape;
-//? if <1.21.2 {
-/*import net.minecraft.world.level.portal.DimensionTransition;
-*///?} else {
+
+//? if >=1.21.2 {
 import net.minecraft.world.level.portal.TeleportTransition;
-//?}
+//?} else {
+/*import net.minecraft.world.level.portal.DimensionTransition;
+*///?}
+
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -52,12 +58,17 @@ import space.anatomyuniverse.musavacca.portal.PearlPortalTransform;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportPreloader;
 
 import java.util.Map;
-//? if >=1.21.2
+//? if >=1.21.2 {
+
 import java.util.Set;
+//?}
 
 public class PearlPortalBlock extends Block implements Portal, EntityBlock {
+
+    //? if <26.3 {
     public static final MapCodec<PearlPortalBlock> CODEC = simpleCodec(PearlPortalBlock::new);
 
+    //?}
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
 
     private static final Map<Direction.Axis, VoxelShape> SHAPES = Map.of(
@@ -74,11 +85,13 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     public EnumProperty<Direction.Axis> getAxisProperty() {
         return AXIS;
     }
+    //? if <26.3 {
 
     @Override
     public MapCodec<PearlPortalBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Nullable
     @Override
@@ -96,27 +109,10 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         return SHAPES.getOrDefault(state.getValue(AXIS), SHAPES.get(Direction.Axis.X));
     }
 
-    //? if <1.21.2 {
-    /*@Override
-    protected BlockState updateShape(
-            BlockState state,
-            Direction direction,
-            BlockState neighborState,
-            LevelAccessor level,
-            BlockPos pos,
-            BlockPos neighborPos
-    ) {
-        if (this.shouldRemovePortal(state, level, pos, direction, neighborState)) {
-            this.removeInvalidPortal(level, pos);
-            return state;
-        }
-
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
-    }
-    *///?} else {
     @Override
     protected BlockState updateShape(
             BlockState state,
+            //? if >=1.21.2 {
             LevelReader level,
             ScheduledTickAccess scheduledTickAccess,
             BlockPos pos,
@@ -124,12 +120,20 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             BlockPos neighborPos,
             BlockState neighborState,
             RandomSource random
+            //?} else {
+            /*Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+            *///?}
     ) {
         if (this.shouldRemovePortal(state, level, pos, direction, neighborState)) {
             this.removeInvalidPortal(level, pos);
             return state;
         }
 
+        //? if >=1.21.2 {
         return super.updateShape(
                 state,
                 level,
@@ -140,8 +144,10 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                 neighborState,
                 random
         );
+        //?} else {
+        /*return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        *///?}
     }
-    //?}
 
     private boolean shouldRemovePortal(
             BlockState state,
@@ -162,28 +168,33 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         }
     }
 
-    //? if >=1.21.5 {
     @Override
+    //? if >=1.21.9 {
+    /*protected void entityInside(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Entity entity,
+            InsideBlockEffectApplier effectApplier
+
+            , boolean intersects
+    ) {
+    *///?} else if >=1.21.5 <1.21.9 {
     protected void entityInside(
             BlockState state,
             Level level,
             BlockPos pos,
             Entity entity,
             InsideBlockEffectApplier effectApplier
-    ) {
-        if (entity.canUsePortal(false)) {
-            entity.setAsInsidePortal(this, pos);
-        }
-    }
-    //?} else {
-    /*@Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (entity.canUsePortal(false)) {
-            entity.setAsInsidePortal(this, pos);
-        }
-    }
-    *///?}
 
+    ) {
+    //?} else {
+    /*protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    *///?}
+        if (entity.canUsePortal(false)) {
+            entity.setAsInsidePortal(this, pos);
+        }
+    }
     //? if <1.21.5 {
     /*@Override
     protected void onRemove(
@@ -210,11 +221,13 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     @Nullable
     @Override
     public
-    //? if <1.21.2 {
-    /*DimensionTransition
-    *///?} else {
+
+    //? if >=1.21.2 {
     TeleportTransition
-    //?}
+    //?} else {
+    /*DimensionTransition
+    *///?}
+
     getPortalDestination(
             ServerLevel currentLevel,
             Entity entity,
@@ -281,11 +294,13 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                 );
 
         var postTeleport =
-                //? if <1.21.2 {
-                /*DimensionTransition
-                *///?} else {
+
+                //? if >=1.21.2 {
                 TeleportTransition
-                //?}
+                //?} else {
+                /*DimensionTransition
+                *///?}
+
                         .PLAY_PORTAL_SOUND
                         .then(
                                 teleportedEntity -> {
@@ -306,18 +321,22 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                         );
 
         return new
-                //? if <1.21.2 {
-                /*DimensionTransition(
-                *///?} else {
+
+                //? if >=1.21.2 {
                 TeleportTransition(
-                //?}
+                //?} else {
+                /*DimensionTransition(
+                *///?}
+
                 targetLevel,
                 safePos,
                 transform.deltaMovement(),
                 transform.yRot(),
                 transform.xRot(),
-                //? if >=1.21.2
+
+                //? if >=1.21.2 {
                 Set.of(),
+                //?}
                 postTeleport
         );
     }
@@ -608,26 +627,23 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         );
     }
 
-    //? if <1.21.4 {
-    /*@Override
-    public ItemStack getCloneItemStack(
-            LevelReader level,
-            BlockPos pos,
-            BlockState state
-    ) {
-        return ItemStack.EMPTY;
-    }
-    *///?} else {
     @Override
+    //? if >=1.21.4 {
     protected ItemStack getCloneItemStack(
+    //?} else {
+    /*public ItemStack getCloneItemStack(
+    *///?}
             LevelReader level,
             BlockPos pos,
+            //? if >=1.21.4 {
             BlockState state,
             boolean includeData
+            //?} else {
+            /*BlockState state
+            *///?}
     ) {
         return ItemStack.EMPTY;
     }
-    //?}
 
     @Override
     protected BlockState rotate(

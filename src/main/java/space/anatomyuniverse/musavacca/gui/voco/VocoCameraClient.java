@@ -1,9 +1,19 @@
 package space.anatomyuniverse.musavacca.gui.voco;
 
+//? if >=1.21.6 {
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+//?} else {
+/*import net.neoforged.neoforge.network.PacketDistributor;
+*///?}
+
 import net.minecraft.client.CameraType;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+//? if >=26.1 {
+/*import net.minecraft.client.gui.GuiGraphicsExtractor;
+*///?} else {
 import net.minecraft.client.gui.GuiGraphics;
+//?}
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -11,12 +21,7 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.minecraft.util.Mth;
-import org.lwjgl.glfw.GLFW;
-
-//? if >=1.21.7
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-//? if <1.21.7
-//import net.neoforged.neoforge.network.PacketDistributor;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public final class VocoCameraClient {
 
@@ -93,7 +98,11 @@ public final class VocoCameraClient {
             return;
         }
 
+        //? if >=26.2 {
+        /*if (minecraft.gui.screen() != null) {
+        *///?} else {
         if (minecraft.screen != null) {
+        //?}
             finish(FinishMessage.NONE);
             return;
         }
@@ -108,17 +117,17 @@ public final class VocoCameraClient {
     }
 
     public static void onMouseButton(InputEvent.MouseButton.Pre event) {
-        if (!active || event.getAction() != GLFW.GLFW_PRESS) {
+        if (!active || event.getAction() != InputConstants.PRESS) {
             return;
         }
 
-        if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+        if (event.getButton() == InputConstants.MOUSE_BUTTON_LEFT) {
             event.setCanceled(true);
             save(false);
             return;
         }
 
-        if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+        if (event.getButton() == InputConstants.MOUSE_BUTTON_RIGHT) {
             event.setCanceled(true);
             save(true);
         }
@@ -143,7 +152,11 @@ public final class VocoCameraClient {
         }
     }
 
+    //? if >=26.1 {
+    /*public static void renderHud(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+    *///?} else {
     public static void renderHud(GuiGraphics graphics, DeltaTracker deltaTracker) {
+    //?}
         if (!active) {
             return;
         }
@@ -182,7 +195,11 @@ public final class VocoCameraClient {
 
         int centerX = width / 2;
 
+        //? if >=26.1 {
+        /*graphics.centeredText(
+        *///?} else {
         graphics.drawCenteredString(
+        //?}
                 minecraft.font,
                 "Voco view",
                 centerX,
@@ -190,7 +207,11 @@ public final class VocoCameraClient {
                 0xFFE6C95D
         );
 
+        //? if >=26.1 {
+        /*graphics.centeredText(
+        *///?} else {
         graphics.drawCenteredString(
+        //?}
                 minecraft.font,
                 "Left-click: save  |  Right-click: default  |  Esc: cancel",
                 centerX,
@@ -217,8 +238,7 @@ public final class VocoCameraClient {
                 pitch,
                 resetToDefault
         );
-
-        //? if >=1.21.7 {
+        //? if >=1.21.6 {
         ClientPacketDistributor.sendToServer(payload);
         //?} else {
         /*PacketDistributor.sendToServer(payload);
@@ -242,15 +262,15 @@ public final class VocoCameraClient {
             }
 
             if (finishMessage == FinishMessage.SAVED) {
-                minecraft.player.displayClientMessage(
-                        net.minecraft.network.chat.Component.literal("Voco arrival position and view saved."),
-                        true
-                );
+            //? if >=26.1 {
+                /*minecraft.player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("Voco arrival position and view saved."));
             } else if (finishMessage == FinishMessage.RESET) {
-                minecraft.player.displayClientMessage(
-                        net.minecraft.network.chat.Component.literal("Voco receptor restored to its default arrival."),
-                        true
-                );
+                minecraft.player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("Voco receptor restored to its default arrival."));
+            *///?} else {
+                minecraft.player.displayClientMessage(net.minecraft.network.chat.Component.literal("Voco arrival position and view saved."), true);
+            } else if (finishMessage == FinishMessage.RESET) {
+                minecraft.player.displayClientMessage(net.minecraft.network.chat.Component.literal("Voco receptor restored to its default arrival."), true);
+            //?}
             }
         }
 
@@ -265,4 +285,3 @@ public final class VocoCameraClient {
         RESET
     }
 }
-

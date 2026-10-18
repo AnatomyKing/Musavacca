@@ -1,7 +1,11 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.Block;
 
 import java.util.Objects;
@@ -16,7 +20,11 @@ final class BlockFamilySources {
             throw new IllegalArgumentException("suffix must not be blank");
         }
 
+        //? if >=1.21.11 {
+        /*Identifier id = ModelLocations.blockId(child);
+        *///?} else {
         ResourceLocation id = ModelLocations.blockId(child);
+        //?}
         String path = id.getPath();
 
         if (!path.endsWith(suffix)) {
@@ -29,10 +37,11 @@ final class BlockFamilySources {
         String stem = path.substring(0, path.length() - suffix.length());
 
         Block planks = getBlockIfPresent(
-                ResourceLocation.fromNamespaceAndPath(
-                        id.getNamespace(),
-                        stem + "_planks"
-                )
+                //? if >=1.21.11 {
+                /*Identifier.fromNamespaceAndPath(id.getNamespace(), stem + "_planks")
+                *///?} else {
+                ResourceLocation.fromNamespaceAndPath(id.getNamespace(), stem + "_planks")
+                //?}
         );
 
         if (planks != null) {
@@ -40,10 +49,11 @@ final class BlockFamilySources {
         }
 
         Block fullBlock = getBlockIfPresent(
-                ResourceLocation.fromNamespaceAndPath(
-                        id.getNamespace(),
-                        stem + "_block"
-                )
+                //? if >=1.21.11 {
+                /*Identifier.fromNamespaceAndPath(id.getNamespace(), stem + "_block")
+                *///?} else {
+                ResourceLocation.fromNamespaceAndPath(id.getNamespace(), stem + "_block")
+                //?}
         );
 
         if (fullBlock != null) {
@@ -51,10 +61,11 @@ final class BlockFamilySources {
         }
 
         Block plain = getBlockIfPresent(
-                ResourceLocation.fromNamespaceAndPath(
-                        id.getNamespace(),
-                        stem
-                )
+                //? if >=1.21.11 {
+                /*Identifier.fromNamespaceAndPath(id.getNamespace(), stem)
+                *///?} else {
+                ResourceLocation.fromNamespaceAndPath(id.getNamespace(), stem)
+                //?}
         );
 
         if (plain != null) {
@@ -68,10 +79,13 @@ final class BlockFamilySources {
         );
     }
 
+    //? if >=1.21.11 {
+    /*private static Block getBlockIfPresent(Identifier id) {
+    *///?} else {
     private static Block getBlockIfPresent(ResourceLocation id) {
+    //?}
         return BuiltInRegistries.BLOCK
                 .getOptional(id)
                 .orElse(null);
     }
 }
-

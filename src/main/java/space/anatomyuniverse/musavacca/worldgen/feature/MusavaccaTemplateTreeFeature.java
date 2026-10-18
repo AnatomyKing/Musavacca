@@ -7,11 +7,13 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
+//? if <26.3
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
+//? if <26.3 {
 public final class MusavaccaTemplateTreeFeature extends Feature<MusavaccaTemplateTreeConfiguration> {
 
     public MusavaccaTemplateTreeFeature(Codec<MusavaccaTemplateTreeConfiguration> codec) {
@@ -24,6 +26,19 @@ public final class MusavaccaTemplateTreeFeature extends Feature<MusavaccaTemplat
         BlockPos origin = context.origin();
         MusavaccaTemplateTreeConfiguration config = context.config();
 
+//?} else {
+/*public record MusavaccaTemplateTreeFeature(MusavaccaTemplateTreeConfiguration config) implements Feature {
+    public static final com.mojang.serialization.MapCodec<MusavaccaTemplateTreeFeature> CODEC =
+            MusavaccaTemplateTreeConfiguration.CODEC.fieldOf("config")
+                    .xmap(MusavaccaTemplateTreeFeature::new, MusavaccaTemplateTreeFeature::config);
+    @Override
+    public com.mojang.serialization.MapCodec<MusavaccaTemplateTreeFeature> codec() { return CODEC; }
+    @Override
+    public java.util.stream.Stream<net.minecraft.core.Holder<Feature>> getSubFeatures() { return java.util.stream.Stream.empty(); }
+    @Override
+    public boolean place(WorldGenLevel level, net.minecraft.world.level.chunk.ChunkGenerator generator,
+                         net.minecraft.util.RandomSource random, BlockPos origin) {
+*///?}
         List<ResolvedBlock> resolvedBlocks = new ArrayList<>(config.blocks().size());
 
         for (MusavaccaTemplateTreeConfiguration.TemplateBlock templateBlock : config.blocks()) {

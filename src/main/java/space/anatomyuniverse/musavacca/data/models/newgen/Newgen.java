@@ -1,6 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.item.Item;
@@ -19,15 +23,15 @@ import space.anatomyuniverse.musavacca.MusaCore;
 
 import java.util.List;
 
-//? if <1.21.4 {
-/*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-*///?} else {
+//? if >=1.21.4 {
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
-//?}
+//?} else {
+/*import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+*///?}
 
 public final class Newgen {
     private static final float[] DECORATION_EXTRA_Y_ROT = {0.0F, -22.5F, -45.0F, 22.5F};
@@ -41,11 +45,13 @@ public final class Newgen {
     }
 
     public static void generate(
-            //? if <1.21.4 {
-            /*BlockStateProvider blocks, ItemModelProvider items
-            *///?} else {
+
+            //? if >=1.21.4 {
             BlockModelGenerators blocks, ItemModelGenerators items
-            //?}
+            //?} else {
+            /*BlockStateProvider blocks, ItemModelProvider items
+            *///?}
+
     ) {
         Newgen gen = new Newgen(new NewgenOutput(blocks, items));
         NewModelSets.simpleBlocks().forEach(gen::simple);
@@ -78,7 +84,11 @@ public final class Newgen {
         NewgenOutput.State state = output.state(entry.block());
 
         for (DecorationBlocks.Model rule : entry.models()) {
+            //? if >=1.21.11 {
+            /*Identifier baseModel = models.resolve(
+            *///?} else {
             ResourceLocation baseModel = models.resolve(
+            //?}
                     rule.source(),
                     Tints.effective(entry.tint(), rule.tint())
             );
@@ -115,7 +125,11 @@ public final class Newgen {
                 case ROTATION -> {
                     for (int rotation = 0; rotation < 16; rotation++) {
                         DecorationRotation step = decorationRotation(rotation);
+                        //? if >=1.21.11 {
+                        /*Identifier model = step.rootY() == 0.0F
+                        *///?} else {
                         ResourceLocation model = step.rootY() == 0.0F
+                        //?}
                                 ? baseModel
                                 : models.rootRotateY(entry.block(), baseModel, step.rootY());
 
@@ -142,7 +156,11 @@ public final class Newgen {
 
             case PLACEMENT -> {
                 DecorationBlocks.Model itemRule = entry.itemRule();
+                //? if >=1.21.11 {
+                /*Identifier itemModel = models.resolve(
+                *///?} else {
                 ResourceLocation itemModel = models.resolve(
+                //?}
                         itemRule.source(),
                         Tints.effective(entry.tint(), itemRule.tint())
                 );
@@ -246,7 +264,11 @@ public final class Newgen {
             return;
         }
 
+        //? if >=1.21.11 {
+        /*Identifier model = models.resolve(source, effectiveTint);
+        *///?} else {
         ResourceLocation model = models.resolve(source, effectiveTint);
+        //?}
         emitItem(
                 entry.block().asItem(),
                 SimpleItems.Model.existing(model).tint(effectiveTint)
@@ -255,7 +277,11 @@ public final class Newgen {
 
     private void modelRule(NewgenOutput.State state, BlockFamily.ModelFamilyEntry<?, ?> entry,
                            BlockFamily.ModelRule<?, ?> rule, Models.Source source, Conditions.Match when) {
+        //? if >=1.21.11 {
+        /*Identifier model = models.resolve(source, Tints.effective(entry.tint(), rule.tint()));
+        *///?} else {
         ResourceLocation model = models.resolve(source, Tints.effective(entry.tint(), rule.tint()));
+        //?}
         for (Rotations.Case rotation : entry.rotations().cases()) {
             Conditions.Match match = when;
             if (rotation.value() != null) {
@@ -272,14 +298,22 @@ public final class Newgen {
             BlockFamily.StateFamilyEntry<P> entry, M base, List<NewgenStates.Pose<M>> poses) {
         NewgenOutput.State state = output.state(entry.block());
         for (var pose : poses) {
+            //? if >=1.21.11 {
+            /*Identifier model = pose.model().apply(base);
+            *///?} else {
             ResourceLocation model = pose.model().apply(base);
+            //?}
             if (model == null) throw new IllegalStateException("Incomplete base model family for " + entry.block()
                     + ": " + pose.when().terms());
             state.add(model, pose.when(), ModelTransforms.combine(pose.x(), entry.rotationX()),
                     ModelTransforms.combine(pose.y(), entry.rotationY()), entry.variants(), pose.uvLock());
             for (P part : entry.parts()) {
                 if (!compatible(pose.when(), part.conditions())) continue;
+                //? if >=1.21.11 {
+                /*Identifier partModel = pose.model().apply(part.source());
+                *///?} else {
                 ResourceLocation partModel = pose.model().apply(part.source());
+                //?}
                 if (partModel == null) continue; 
                 partModel = models.resolve(new Models.Existing(partModel),
                         Tints.effective(Tints.none(), part.tint()));
@@ -346,10 +380,17 @@ public final class Newgen {
 
     void fire(FireBlocks.Entry entry) {
         List<Tints.GeneratedLayer> layers = Tints.generatedLayers(entry.tint());
+        //? if >=1.21.11 {
+        /*List<Identifier> floor = fireModels(entry, layers, NewgenModels.Shape.FLOOR, "floor");
+        List<Identifier> sides = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.SIDE, "side"));
+        sides.addAll(fireModels(entry, layers, NewgenModels.Shape.SIDE_ALT, "side_alt"));
+        List<Identifier> up = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.UP, "up"));
+        *///?} else {
         List<ResourceLocation> floor = fireModels(entry, layers, NewgenModels.Shape.FLOOR, "floor");
         List<ResourceLocation> sides = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.SIDE, "side"));
         sides.addAll(fireModels(entry, layers, NewgenModels.Shape.SIDE_ALT, "side_alt"));
         List<ResourceLocation> up = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.UP, "up"));
+        //?}
         up.addAll(fireModels(entry, layers, NewgenModels.Shape.UP_ALT, "up_alt"));
         Conditions.Match noFaces = Conditions.when(FireBlock.NORTH, false).and(FireBlock.EAST, false)
                 .and(FireBlock.SOUTH, false).and(FireBlock.WEST, false).and(FireBlock.UP, false);
@@ -372,13 +413,21 @@ public final class Newgen {
         }
     }
 
+    //? if >=1.21.11 {
+    /*private List<Identifier> fireModels(FireBlocks.Entry entry, List<Tints.GeneratedLayer> layers,
+    *///?} else {
     private List<ResourceLocation> fireModels(FireBlocks.Entry entry, List<Tints.GeneratedLayer> layers,
+    //?}
                                               NewgenModels.Shape shape, String suffix) {
         return List.of(models.fire(entry, suffix + "0", shape, 0, layers),
                 models.fire(entry, suffix + "1", shape, 1, layers));
     }
 
+    //? if >=1.21.11 {
+    /*private void familyItem(BlockFamily.StateFamilyEntry<?> entry, Identifier defaultModel) {
+    *///?} else {
     private void familyItem(BlockFamily.StateFamilyEntry<?> entry, ResourceLocation defaultModel) {
+    //?}
         if (entry.familyItemMode() == FamilyItemMode.NONE) return;
         if (entry.familyItemMode() == FamilyItemMode.CUSTOM) {
             emitItem(entry.block().asItem(), entry.item());
@@ -398,12 +447,10 @@ public final class Newgen {
     }
 
     void spawnEgg(SpawnEggItems.Entry entry) {
-        //? if <1.21.4 {
-        /*emitItem(
-                entry.item(),
-                SimpleItems.Model.existing("minecraft:item/template_spawn_egg")
-        );
-        *///?} else if =1.21.4 {
+
+        //? if >=1.21.5 {
+        emitItem(entry.item(), entry.modernModel());
+        //?} else if >=1.21.4 <1.21.5 {
         /*output.item(
                 entry.item().asItem(),
                 ResourceLocation.fromNamespaceAndPath("minecraft", "item/template_spawn_egg"),
@@ -413,17 +460,29 @@ public final class Newgen {
                 )
         );
         *///?} else {
-        emitItem(entry.item(), entry.modernModel());
-        //?}
+        /*emitItem(
+                entry.item(),
+                SimpleItems.Model.existing("minecraft:item/template_spawn_egg")
+        );
+        *///?}
+
     }
 
     void armor(ArmorItems.Entry entry) {
         for (ArmorItems.Piece piece : ArmorItems.Piece.values()) {
             Item item = entry.item(piece).asItem();
+            //? if >=1.21.11 {
+            /*Identifier head = piece == ArmorItems.Piece.HELMET ? entry.helmetHeadModel() : null;
+            *///?} else {
             ResourceLocation head = piece == ArmorItems.Piece.HELMET ? entry.helmetHeadModel() : null;
+            //?}
 
             if (entry.inventory().existing()) {
+                //? if >=1.21.11 {
+                /*Identifier model = entry.existingInventoryModel(piece);
+                *///?} else {
                 ResourceLocation model = entry.existingInventoryModel(piece);
+                //?}
                 if (head == null) {
                     emitItem(item, SimpleItems.Model.existing(model));
                 } else {
@@ -432,7 +491,11 @@ public final class Newgen {
                 continue;
             }
 
+            //? if >=1.21.11 {
+            /*Identifier texture = entry.inventoryTexture(piece);
+            *///?} else {
             ResourceLocation texture = entry.inventoryTexture(piece);
+            //?}
 
             if (entry.inventory().trims()) {
                 NewgenModels.ArmorItemModels armorModels = models.armorItemModels(
@@ -471,31 +534,36 @@ public final class Newgen {
     }
 
     public static final class Provider
-            //? if <1.21.4 {
-            /*extends BlockStateProvider
-             *///?} else {
-            extends ModelProvider
-            //?}
-    {
-        //? if <1.21.4 {
-        /*public Provider(PackOutput output, ExistingFileHelper existingFileHelper) {
-            super(output, MusaCore.MOD_ID, existingFileHelper);
-        }
 
-        @Override
-        protected void registerStatesAndModels() {
-            Newgen.generate(this, itemModels());
-        }
-        *///?} else {
+            //? if >=1.21.4 {
+            extends ModelProvider
+            //?} else {
+            /*extends BlockStateProvider
+            *///?}
+
+    {
+
+        //? if >=1.21.4 {
         public Provider(PackOutput output) {
             super(output, MusaCore.MOD_ID);
+        //?} else {
+        /*public Provider(PackOutput output, ExistingFileHelper existingFileHelper) {
+            super(output, MusaCore.MOD_ID, existingFileHelper);
+        *///?}
         }
 
+        //? if >=1.21.4 {
         @Override
         protected void registerModels(BlockModelGenerators blocks, ItemModelGenerators items) {
             Newgen.generate(blocks, items);
         }
-        //?}
+        //?} else {
+        /*@Override
+        protected void registerStatesAndModels() {
+            Newgen.generate(this, itemModels());
+        }
+        *///?}
+
     }
 
 }

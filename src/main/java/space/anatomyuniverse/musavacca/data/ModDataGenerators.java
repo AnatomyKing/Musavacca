@@ -1,5 +1,7 @@
 package space.anatomyuniverse.musavacca.data;
 
+import space.anatomyuniverse.musavacca.MusaCore;
+
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -34,6 +36,7 @@ public final class ModDataGenerators {
         final ExistingFileHelper efh = event.getExistingFileHelper();
 
         if (event.includeClient()) {
+            verifyClientMixins();
             event.getGenerator().addProvider(
                     true,
                     new ModLanguageProvider(output, "en_us")
@@ -141,12 +144,14 @@ public final class ModDataGenerators {
 
     //? if >=1.21.4 {
     public static void gatherData(final GatherDataEvent.Client event) {
+        verifyClientMixins();
         event.createProvider(
                 output -> new ModLanguageProvider(output, "en_us")
         );
 
         event.createProvider(Newgen.Provider::new);
 
+        //? if <26.3
         event.createProvider(ModRecipeProvider.Runner::new);
         event.createProvider(ModMobEffectTagsProvider::new);
 
@@ -170,6 +175,7 @@ public final class ModDataGenerators {
         event.createProvider(MusavaccaTreeFeatureProvider::new);
         event.createProvider(ModGlobalLootModifierProvider::new);
 
+        //? if <26.3 {
         event.createProvider(
                 (output, lookup) -> new LootTableProvider(
                         output,
@@ -195,8 +201,50 @@ public final class ModDataGenerators {
                         lookup
                 )
         );
+        //?} else {
+        /*var registries = event.getWorldLookupProvider();
+        event.getDefaultPackGenerator().createReloadableRegistryObjects(new net.minecraft.core.RegistrySetBuilder()
+                .add(net.minecraft.data.recipes.RecipeProvider.asBootstrap((recipes, advancements) ->
+                        new ModRecipeProvider(recipes, advancements, registries.join())))
+                .add(net.minecraft.core.registries.Registries.LOOT_TABLE,
+                        new LootTableProvider(Set.of(), List.of(
+                                new LootTableProvider.SubProviderEntry(
+                                        ModBlockLootProvider::new,
+                                        LootContextParamSets.BLOCK
+                                ),
+                                new LootTableProvider.SubProviderEntry(
+                                        ModMobLootProvider::new,
+                                        LootContextParamSets.ENTITY
+                                ),
+                                new LootTableProvider.SubProviderEntry(
+                                        ModSnifferDiggingLootProvider::new,
+                                        LootContextParamSets.GIFT
+                                ),
+                                new LootTableProvider.SubProviderEntry(
+                                        ModJungleTempleLootProvider::new,
+                                        LootContextParamSets.CHEST
+                                )
+                        ))));
+        *///?}
     }
     //?}
 
     private ModDataGenerators() {}
+
+    // Datagen also verifies that the client mixin targets still transform.
+    private static void verifyClientMixins() {
+        var loader = ModDataGenerators.class.getClassLoader();
+        for (String target : new String[] {
+                "net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer",
+                "net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip"
+        }) {
+            try {
+                Class.forName(target, false, loader);
+            } catch (ClassNotFoundException error) {
+                throw new IllegalStateException("Missing Musavacca mixin target " + target, error);
+            }
+        }
+        MusaCore.LOGGER.info("Musavacca client mixin targets loaded successfully");
+    }
+
 }

@@ -1,11 +1,11 @@
 package space.anatomyuniverse.musavacca.effect;
 
 import net.minecraft.core.registries.Registries;
-//? if <1.21.11 {
-import net.minecraft.resources.ResourceLocation;
-//?} else {
+//? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
-*///?}
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
 import space.anatomyuniverse.musavacca.MusaCore;
@@ -17,7 +17,10 @@ public final class ModMobEffectTags {
 
     private static TagKey<MobEffect> create(String name) {
         return TagKey.create(Registries.MOB_EFFECT,
-                /*? if <1.21.11 {*/ ResourceLocation
-                /*?} else {*//*Identifier*//*?}*/.fromNamespaceAndPath(MusaCore.MOD_ID, name));
+                //? if >=1.21.11 {
+                /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, name));
+                *///?} else {
+                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, name));
+                //?}
     }
 }

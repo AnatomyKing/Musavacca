@@ -1,13 +1,24 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import org.jetbrains.annotations.Nullable;
 
 public final class FenceGateModels {
+    //? if >=1.21.11 {
+    /*private final Identifier closed;
+    private final Identifier open;
+    private final Identifier wallClosed;
+    private final Identifier wallOpen;
+    *///?} else {
     private final ResourceLocation closed;
     private final ResourceLocation open;
     private final ResourceLocation wallClosed;
     private final ResourceLocation wallOpen;
+    //?}
 
     private FenceGateModels(Builder builder) {
         closed = builder.closed;
@@ -39,7 +50,11 @@ public final class FenceGateModels {
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier model(boolean open, boolean inWall) {
+    *///?} else {
     public ResourceLocation model(boolean open, boolean inWall) {
+    //?}
         if (inWall) {
             return open ? wallOpen : wallClosed;
         }
@@ -48,7 +63,11 @@ public final class FenceGateModels {
     }
 
     @Nullable
+    //? if >=1.21.11 {
+    /*public Identifier closed() {
+    *///?} else {
     public ResourceLocation closed() {
+    //?}
         return closed;
     }
 
@@ -61,10 +80,17 @@ public final class FenceGateModels {
     }
 
     public static final class Builder {
+        //? if >=1.21.11 {
+        /*private Identifier closed;
+        private Identifier open;
+        private Identifier wallClosed;
+        private Identifier wallOpen;
+        *///?} else {
         private ResourceLocation closed;
         private ResourceLocation open;
         private ResourceLocation wallClosed;
         private ResourceLocation wallOpen;
+        //?}
 
         private Builder() {}
 
@@ -93,11 +119,18 @@ public final class FenceGateModels {
         }
     }
 
+    //? if >=1.21.11 {
+    /*private static Identifier parse(String model, String name) {
+    *///?} else {
     private static ResourceLocation parse(String model, String name) {
+    //?}
         if (model == null || model.isBlank()) {
             throw new IllegalArgumentException(name + " must not be blank");
         }
+        //? if >=1.21.11 {
+        /*return Identifier.parse(model);
+        *///?} else {
         return ResourceLocation.parse(model);
+        //?}
     }
 }
-

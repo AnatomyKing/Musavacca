@@ -6,10 +6,11 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SimpleAnimatedParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.util.RandomSource;
 //? if >=1.21.9 {
 /*import net.minecraft.util.RandomSource;
- *///?}
+*///?}
+import net.minecraft.util.RandomSource;
+
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticleOptions;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticleType;
@@ -83,10 +84,15 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
         this.setGlitherSpriteFromAge();
     }
 
-    @Override
+    //? if >=1.21.9 {
+    /*public net.minecraft.client.particle.SingleQuadParticle.Layer getLayer() {
+        return net.minecraft.client.particle.SingleQuadParticle.Layer.TRANSLUCENT;
+    }
+    *///?} else {
     public ParticleRenderType getRenderType() {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
+    //?}
 
     @Override
     public void tick() {
@@ -136,7 +142,7 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
         return clamp(Math.round(t * (targetCount - 1)), 0, targetCount - 1);
     }
 
-    private static void applyTint(Particle particle, int tint) {
+    private static void applyTint(net.minecraft.client.particle.SingleQuadParticle particle, int tint) {
         int rgb = MusavaccaTints.rgb(tint);
 
         particle.setColor(
@@ -180,7 +186,6 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
             );
         }
 
-        //? if <1.21.9 {
         @Override
         public @Nullable Particle createParticle(
                 ProfileTintParticleOptions options,
@@ -190,26 +195,15 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
                 double z,
                 double xSpeed,
                 double ySpeed,
-                double zSpeed
-        ) {
-            return this.createInternal(options, level, x, y, z, xSpeed, ySpeed, zSpeed);
-        }
-        //?} else {
-        /*@Override
-        public @Nullable Particle createParticle(
-                ProfileTintParticleOptions options,
-                ClientLevel level,
-                double x,
-                double y,
-                double z,
-                double xSpeed,
-                double ySpeed,
-                double zSpeed,
+                //? if >=1.21.9 {
+                /*double zSpeed,
                 RandomSource random
+                *///?} else {
+                double zSpeed
+                //?}
         ) {
             return this.createInternal(options, level, x, y, z, xSpeed, ySpeed, zSpeed);
         }
-        *///?}
+
     }
 }
-

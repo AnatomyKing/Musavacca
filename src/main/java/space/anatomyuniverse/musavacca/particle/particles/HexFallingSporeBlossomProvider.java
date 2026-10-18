@@ -7,7 +7,8 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 //? if >=1.21.9 {
 /*import net.minecraft.util.RandomSource;
- *///?}
+*///?}
+
 import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
 
 public final class HexFallingSporeBlossomProvider implements ParticleProvider<HexColorParticleOptions> {
@@ -53,16 +54,15 @@ public final class HexFallingSporeBlossomProvider implements ParticleProvider<He
         particle.setColor(options.red(), options.green(), options.blue());
 
         particle.setParticleSpeed(
-                (level.random.nextDouble() - 0.5D) * 0.005D,
-                -0.010D - level.random.nextDouble() * 0.006D,
-                (level.random.nextDouble() - 0.5D) * 0.005D
+                (level.getRandom().nextDouble() - 0.5D) * 0.005D,
+                -0.010D - level.getRandom().nextDouble() * 0.006D,
+                (level.getRandom().nextDouble() - 0.5D) * 0.005D
         );
 
-        particle.setLifetime(level.random.nextInt(22) + 24);
+        particle.setLifetime(level.getRandom().nextInt(22) + 24);
         return particle;
     }
 
-    //? if <1.21.9 {
     @Override
     public Particle createParticle(
             HexColorParticleOptions options,
@@ -72,25 +72,14 @@ public final class HexFallingSporeBlossomProvider implements ParticleProvider<He
             double z,
             double xSpeed,
             double ySpeed,
-            double zSpeed
-    ) {
-        return this.createInternal(options, level, x, y, z);
-    }
-    //?} else {
-    /*@Override
-    public Particle createParticle(
-            HexColorParticleOptions options,
-            ClientLevel level,
-            double x,
-            double y,
-            double z,
-            double xSpeed,
-            double ySpeed,
-            double zSpeed,
+            //? if >=1.21.9 {
+            /*double zSpeed,
             RandomSource random
+            *///?} else {
+            double zSpeed
+            //?}
     ) {
         return this.createInternal(options, level, x, y, z);
     }
-    *///?}
-}
 
+}

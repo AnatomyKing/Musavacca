@@ -1,6 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.custom.DecorationBlock;
 
@@ -394,4 +398,3 @@ public final class DecorationBlocks {
         }
     }
 }
-

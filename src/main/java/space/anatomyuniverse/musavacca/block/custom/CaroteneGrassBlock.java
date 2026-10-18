@@ -1,4 +1,7 @@
 package space.anatomyuniverse.musavacca.block.custom;
+//? if >=26.1 {
+/*import net.minecraft.resources.Identifier;
+*///?}
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -6,10 +9,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
-//? if <1.21.5
-//import net.neoforged.neoforge.common.util.TriState;
-//? if >=1.21.5
+
+//? if >=1.21.5 {
 import net.minecraft.util.TriState;
+//?} else {
+/*import net.neoforged.neoforge.common.util.TriState;
+*///?}
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -18,17 +23,38 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LightEngine;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 
-public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements BonemealableBlock {
+//? if >=26.3 {
+/*public final class CaroteneGrassBlock extends SpreadingSnowyBlock implements BonemealableBlock {
+*///?} else if >=26.1 <26.3 {
+/*public final class CaroteneGrassBlock extends SpreadingSnowyBlock implements BonemealableBlock {
+
     public static final MapCodec<CaroteneGrassBlock> CODEC = simpleCodec(CaroteneGrassBlock::new);
+*///?} else {
+public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements BonemealableBlock {
+
+    public static final MapCodec<CaroteneGrassBlock> CODEC = simpleCodec(CaroteneGrassBlock::new);
+//?}
 
     public CaroteneGrassBlock(Properties properties) {
-        super(properties);
+        super(properties
+
+                //? if >=26.1 {
+                /*, net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("minecraft", "dirt"))
+                *///?}
+        );
     }
+    //? if >=26.1 <26.3 {
+    /*@Override
+    protected MapCodec<? extends SpreadingSnowyBlock> codec() {
+        return CODEC;
+    }
+    *///?} else if <26.1 {
 
     @Override
     protected MapCodec<? extends SpreadingSnowyDirtBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
@@ -65,7 +91,25 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
         if (above.is(Blocks.SNOW) && above.getValue(SnowLayerBlock.LAYERS) == 1) return true;
         if (above.getFluidState().getAmount() == 8) return false;
 
-        //? if <1.21.2 {
+        //? if >=26.2 {
+        /*int lightBlock = LightEngine.getLightDampeningInto(
+                state,
+                above,
+                Direction.UP,
+                above.getLightDampening()
+        *///?} else if >=26.1 <26.2 {
+        /*int lightBlock = LightEngine.getLightBlockInto(
+                state,
+                above,
+                Direction.UP,
+                above.getLightDampening()
+        *///?} else if >=1.21.2 <26.1 {
+        int lightBlock = LightEngine.getLightBlockInto(
+                state,
+                above,
+                Direction.UP,
+                above.getLightBlock()
+        //?} else {
         /*int lightBlock = LightEngine.getLightBlockInto(
                 level,
                 state,
@@ -74,15 +118,8 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
                 abovePos,
                 Direction.UP,
                 above.getLightBlock(level, abovePos)
+        *///?}
         );
-        *///?} else {
-        int lightBlock = LightEngine.getLightBlockInto(
-                state,
-                above,
-                Direction.UP,
-                above.getLightBlock()
-        );
-        //?}
 
         return lightBlock < LightEngine.MAX_LEVEL;
     }
@@ -117,17 +154,32 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         return level.getBlockState(pos.above()).isAir();
     }
 
     @Override
-    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state
+
+            //? if >=26.3 {
+            /*, net.minecraft.world.level.block.BonemealSource source
+            *///?}
+    ) {
         BlockPos start = pos.above();
 
         outer:
@@ -153,11 +205,13 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
 
             if (roll == 0) {
                 BlockState petals = Blocks.PINK_PETALS.defaultBlockState().setValue(
-                        //? if <1.21.5 {
-                        /*PinkPetalsBlock.AMOUNT,
-                         *///?} else {
+
+                        //? if >=1.21.5 {
                         FlowerBedBlock.AMOUNT,
-                        //?}
+                        //?} else {
+                        /*PinkPetalsBlock.AMOUNT,
+                        *///?}
+
                         random.nextInt(4) + 1
                 );
 
@@ -180,6 +234,3 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
         }
     }
 }
-
-
-
