@@ -5,7 +5,12 @@ package space.anatomyuniverse.musavacca.gui.frontend;
 import net.minecraft.client.renderer.RenderType;
 
 import net.minecraft.client.gui.GuiGraphics;
+//? if <1.21.2 {
+/*import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+*///?} else {
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.EffectsInInventory;
+//?}
 
 //? if >=1.21.6
 import net.minecraft.client.renderer.RenderPipelines;
@@ -24,10 +29,18 @@ import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
 import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 
 public final class VocoCallerFrontend
+        //? if <1.21.2 {
+        /*extends EffectRenderingInventoryScreen<VocoCallerMenu> {
+        *///?} else {
         extends AbstractContainerScreen<VocoCallerMenu> {
+        //?}
 
     private static final int GUI_WIDTH = 286;
     private static final int GUI_HEIGHT = 206;
+
+    private static final int EFFECT_PANEL_WIDTH = 120;
+    private static final int EFFECT_PANEL_GAP = 2;
+    private static final int EFFECT_PANEL_Y_OFFSET = 34;
 
     private static final int PHONE_X = 0;
     private static final int PHONE_Y = 0;
@@ -120,6 +133,9 @@ public final class VocoCallerFrontend
                     this::sendBackendButton
             );
 
+    //? if >=1.21.2
+    private final EffectsInInventory effects;
+
     private int selectedPosition = 0;
 
     private boolean currentHexPressed = false;
@@ -137,12 +153,10 @@ public final class VocoCallerFrontend
     private int spacePressPosition = -1;
     private long spacePressStartNanos = 0L;
     private boolean spacePressConsumed = false;
+    private boolean spaceDoubleClick = false;
 
     private int pendingSpacePosition = -1;
     private long pendingSpaceClickNanos = 0L;
-
-    private VocoCallerBackend.CallStateSnapshot
-            pendingSpaceSnapshot = null;
 
     public VocoCallerFrontend(
             VocoCallerMenu menu,
@@ -160,7 +174,37 @@ public final class VocoCallerFrontend
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
 
+        //? if >=1.21.2
+        this.effects = new EffectsInInventory(this);
+
         this.ensureCaretOnFilledEntry();
+    }
+
+    public int getEffectPanelX() {
+        int right =
+                this.leftPos
+                        + this.imageWidth
+                        + EFFECT_PANEL_GAP;
+
+        if (this.width - right >= EFFECT_PANEL_WIDTH) {
+            return right;
+        }
+
+        int left =
+                this.leftPos
+                        - EFFECT_PANEL_WIDTH
+                        - EFFECT_PANEL_GAP;
+
+        if (left >= EFFECT_PANEL_GAP) {
+            return left;
+        }
+
+        return Math.max(
+                EFFECT_PANEL_GAP,
+                this.width
+                        - EFFECT_PANEL_WIDTH
+                        - EFFECT_PANEL_GAP
+        );
     }
 
     @Override
@@ -635,43 +679,40 @@ public final class VocoCallerFrontend
 
         this.spacePressStartNanos = now;
         this.spacePressConsumed = false;
+        this.spaceDoubleClick = false;
 
         if (this.spacePressPosition < 0) {
             return;
         }
 
-        if (
-                this.pendingSpaceSnapshot == null
-                        || now
-                        - this.pendingSpaceClickNanos
-                        > DOUBLE_CLICK_NANOS
-        ) {
-            this.clearPendingSpaceClick();
+        if (this.pendingSpacePosition < 0) {
             return;
         }
 
-        int originalPosition =
-                this.pendingSpacePosition;
+        if (
+                now
+                        - this.pendingSpaceClickNanos
+                        > DOUBLE_CLICK_NANOS
+        ) {
+            int pendingPosition =
+                    this.pendingSpacePosition;
 
-        VocoCallerBackend.CallStateSnapshot snapshot =
-                this.pendingSpaceSnapshot;
+            this.clearPendingSpaceClick();
+            this.spacePressPosition = -1;
+            this.spacePressConsumed = true;
 
-        this.clearPendingSpaceClick();
+            this.dialEntry(
+                    pendingPosition
+            );
 
-        this.backend()
-                .restoreCallState(snapshot);
-
-        this.selectedPosition =
-                originalPosition;
+            return;
+        }
 
         this.spacePressPosition =
-                originalPosition;
+                this.pendingSpacePosition;
 
-        this.spacePressConsumed = true;
-
-        this.deleteEntry(
-                originalPosition
-        );
+        this.clearPendingSpaceClick();
+        this.spaceDoubleClick = true;
     }
 
     private void tickSpaceButton() {
@@ -688,20 +729,26 @@ public final class VocoCallerFrontend
                         >= LONG_PRESS_NANOS
         ) {
             this.clearPendingSpaceClick();
+            this.spaceDoubleClick = false;
             this.spacePressConsumed = true;
 
-            this.dialEntry(
+            this.deleteEntry(
                     this.spacePressPosition
             );
         }
 
         if (
-                this.pendingSpaceSnapshot != null
+                this.pendingSpacePosition >= 0
                         && now
                         - this.pendingSpaceClickNanos
                         > DOUBLE_CLICK_NANOS
         ) {
+            int position =
+                    this.pendingSpacePosition;
+
             this.clearPendingSpaceClick();
+
+            this.dialEntry(position);
         }
     }
 
@@ -719,8 +766,15 @@ public final class VocoCallerFrontend
                             >= LONG_PRESS_NANOS
             ) {
                 this.clearPendingSpaceClick();
+                this.spaceDoubleClick = false;
 
-                this.dialEntry(
+                this.deleteEntry(
+                        this.spacePressPosition
+                );
+            } else if (this.spaceDoubleClick) {
+                this.clearPendingSpaceClick();
+
+                this.activateDoubleSpaceClick(
                         this.spacePressPosition
                 );
             } else {
@@ -729,22 +783,14 @@ public final class VocoCallerFrontend
                 this.pendingSpacePosition =
                         this.spacePressPosition;
 
-                this.pendingSpaceSnapshot =
-                        this.backend()
-                                .snapshotCallState();
-
                 this.pendingSpaceClickNanos = now;
-
-                this.activateSingleSpaceClick(
-                        this.spacePressPosition
-                );
             }
         }
 
         this.clearSpacePress();
     }
 
-    private void activateSingleSpaceClick(
+    private void activateDoubleSpaceClick(
             int position
     ) {
         if (!this.hasEntry(position)) {
@@ -764,13 +810,13 @@ public final class VocoCallerFrontend
     private void clearPendingSpaceClick() {
         this.pendingSpacePosition = -1;
         this.pendingSpaceClickNanos = 0L;
-        this.pendingSpaceSnapshot = null;
     }
 
     private void clearSpacePress() {
         this.spacePressPosition = -1;
         this.spacePressStartNanos = 0L;
         this.spacePressConsumed = false;
+        this.spaceDoubleClick = false;
     }
 
     private void moveRecentEntryToSaved(
@@ -1175,6 +1221,41 @@ public final class VocoCallerFrontend
                 mouseY,
                 partialTick
         );
+
+        //? if >=1.21.2 {
+        int originalTopPos = this.topPos;
+        this.topPos += EFFECT_PANEL_Y_OFFSET;
+
+        try {
+            //? if >=1.21.11 {
+            /*this.effects.render(
+                    graphics,
+                    mouseX,
+                    mouseY
+            );
+            *///?} else if >=1.21.6 {
+            this.effects.renderEffects(
+                    graphics,
+                    mouseX,
+                    mouseY
+            );
+            this.effects.renderTooltip(
+                    graphics,
+                    mouseX,
+                    mouseY
+            );
+            //?} else {
+            /*this.effects.render(
+                    graphics,
+                    mouseX,
+                    mouseY,
+                    partialTick
+            );
+            *///?}
+        } finally {
+            this.topPos = originalTopPos;
+        }
+        //?}
 
         this.renderTooltip(
                 graphics,

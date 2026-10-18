@@ -25,14 +25,8 @@ public final class PlayerStatusEvents {
 
     @SubscribeEvent
     public static void onPlayerTickPost(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)
-                || VocoCallerNetwork.tickCall(player)) {
-            return;
-        }
-
-        if (player.hasEffect(ModMobEffects.PLAYER_STATUS)
-                && !hasBananaPhone(player)) {
-            player.removeEffect(ModMobEffects.PLAYER_STATUS);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            VocoCallerNetwork.tickCall(player);
         }
     }
 
@@ -60,3 +54,5 @@ public final class PlayerStatusEvents {
         return false;
     }
 }
+
+

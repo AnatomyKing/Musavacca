@@ -51,15 +51,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         if (pending != null) this.pushRecentCallToTop(pending);
     }
 
-    public CallStateSnapshot snapshotCallState() {
-        return new CallStateSnapshot(this.state.recentCalls.clone(), this.state.savedNumbers.clone());
-    }
-
-    public void restoreCallState(CallStateSnapshot snapshot) {
-        System.arraycopy(snapshot.recentCalls, 0, this.state.recentCalls, 0, ROW_COUNT);
-        System.arraycopy(snapshot.savedNumbers, 0, this.state.savedNumbers, 0, ROW_COUNT);
-    }
-
     public void replaceCallState(
             int[] recent,
             int[] saved
@@ -354,15 +345,5 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         private final String[] recentCalls = new String[ROW_COUNT];
         private final String[] savedNumbers = new String[ROW_COUNT];
         private String pendingRecentCall;
-    }
-
-    public static final class CallStateSnapshot {
-        private final String[] recentCalls;
-        private final String[] savedNumbers;
-
-        private CallStateSnapshot(String[] recentCalls, String[] savedNumbers) {
-            this.recentCalls = recentCalls;
-            this.savedNumbers = savedNumbers;
-        }
     }
 }

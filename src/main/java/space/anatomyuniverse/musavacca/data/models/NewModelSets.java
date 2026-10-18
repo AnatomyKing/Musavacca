@@ -83,6 +83,12 @@ public final class NewModelSets {
                         .rotations(Rotations.shulkerBox())
                         .build(),
 
+                SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_MASCARON.get())
+                        .model("musavacca:block/banana_pearl_mascaron")
+                        .rotations(Rotations.crafter())
+                        .build(),
+
+
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_PILLAR.get())
                         .generated()
                         .textures(textures -> textures
@@ -1042,6 +1048,18 @@ public final class NewModelSets {
                 StairBlocks.Entry.builder(ModBlocks.MUSAVACCA_STAIRS.get())
                         .generated()
                         .texture()
+                        .item()
+                        .build(),
+
+                StairBlocks.Entry.builder(ModBlocks.BANANA_PEARL_STAIRS.get())
+                        .generated()
+                        .texture(ModBlocks.BANANA_PEARL_BLOCK.get())
+                        .item()
+                        .build(),
+
+                StairBlocks.Entry.builder(ModBlocks.BANANA_PEARL_BRICK_STAIRS.get())
+                        .generated()
+                        .texture(ModBlocks.BANANA_PEARL_BRICKS.get())
                         .item()
                         .build()
         );

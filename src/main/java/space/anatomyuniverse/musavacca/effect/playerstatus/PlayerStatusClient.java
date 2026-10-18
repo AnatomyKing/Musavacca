@@ -43,6 +43,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.lwjgl.glfw.GLFW;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
+import space.anatomyuniverse.musavacca.gui.frontend.VocoCallerFrontend;
 
 import java.util.UUID;
 
@@ -186,6 +187,10 @@ public final class PlayerStatusClient {
 
         NeoForge.EVENT_BUS.addListener(
                 PlayerStatusClient::onScreenRenderPre
+        );
+
+        NeoForge.EVENT_BUS.addListener(
+                PlayerStatusClient::onRenderInventoryMobEffects
         );
 
         NeoForge.EVENT_BUS.addListener(
@@ -361,7 +366,7 @@ public final class PlayerStatusClient {
             int x,
             int y
     ) {
-        if (!(screen instanceof InventoryScreen)) {
+        if (!supportsControls(screen)) {
             return;
         }
 
@@ -436,13 +441,26 @@ public final class PlayerStatusClient {
 
         Minecraft minecraft = Minecraft.getInstance();
 
-        if (!(event.getScreen() instanceof InventoryScreen)
+        if (!supportsControls(event.getScreen())
                 || minecraft.player == null
                 || !minecraft.player.hasEffect(
                         ModMobEffects.PLAYER_STATUS
                 )) {
             pressedButton = null;
         }
+    }
+
+    private static void onRenderInventoryMobEffects(
+            ScreenEvent.RenderInventoryMobEffects event
+    ) {
+        if (!(event.getScreen() instanceof VocoCallerFrontend screen)) {
+            return;
+        }
+
+        event.setCompact(false);
+        event.setHorizontalOffset(
+                screen.getEffectPanelX()
+        );
     }
 
     private static void onMouseButtonPressed(
@@ -501,12 +519,19 @@ public final class PlayerStatusClient {
         );
     }
 
+    private static boolean supportsControls(
+            Screen screen
+    ) {
+        return screen instanceof InventoryScreen
+                || screen instanceof VocoCallerFrontend;
+    }
+
     private static boolean hasActiveControls(
             Screen screen
     ) {
         Minecraft minecraft = Minecraft.getInstance();
 
-        return screen instanceof InventoryScreen
+        return supportsControls(screen)
                 && buttonScreen == screen
                 && minecraft.player != null
                 && minecraft.player.hasEffect(

@@ -30,6 +30,7 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 import space.anatomyuniverse.musavacca.economy.EconomyConfig;
+import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 
 import java.util.HashSet;
 import java.util.List;
@@ -79,7 +80,7 @@ public final class HexTeleportResolver {
     public static boolean teleportToHex(
             ServerPlayer player,
             int hexColor,
-            int phoneCost
+            int cost
     ) {
         MinecraftServer server =
                 player.level().getServer();
@@ -110,7 +111,7 @@ public final class HexTeleportResolver {
                     .teleportToPhone(
                             player,
                             phone,
-                            phoneCost
+                            cost
                     );
         }
 
@@ -153,12 +154,12 @@ public final class HexTeleportResolver {
                     );
 
             if (resolved.isPresent()) {
-                teleport(
+                ResolvedEndpoint target = resolved.get();
+                return TeleportEconomy.tryTeleport(
                         player,
-                        resolved.get()
+                        cost,
+                        () -> teleport(player, target)
                 );
-
-                return true;
             }
 
             HexTeleportAddressNetwork
@@ -239,12 +240,10 @@ public final class HexTeleportResolver {
             return false;
         }
 
-        teleport(
+        return teleport(
                 player,
                 resolved.get()
         );
-
-        return true;
     }
 
     public static Optional<ResolvedEndpoint> resolveLinkedPortal(
@@ -804,11 +803,11 @@ public final class HexTeleportResolver {
                 == endpoint.hexColor();
     }
 
-    public static void teleport(
+    public static boolean teleport(
             ServerPlayer player,
             ResolvedEndpoint resolved
     ) {
-        teleportToTarget(
+        return teleportToTarget(
                 player,
                 resolved.level(),
                 resolved.targetPos(),
@@ -817,7 +816,7 @@ public final class HexTeleportResolver {
         );
     }
 
-    public static void teleportToTarget(
+    public static boolean teleportToTarget(
             ServerPlayer player,
             ServerLevel targetLevel,
             Vec3 wantedPos,
@@ -854,18 +853,18 @@ public final class HexTeleportResolver {
                     yaw,
                     pitch
             );
-        } else {
-            player.teleportTo(
-                    targetLevel,
-                    safePos.x,
-                    safePos.y,
-                    safePos.z,
-                    Set.of(),
-                    yaw,
-                    pitch
-                    //? if >=1.21.2
-                    , true
-            );
+        } else if (!player.teleportTo(
+                targetLevel,
+                safePos.x,
+                safePos.y,
+                safePos.z,
+                Set.of(),
+                yaw,
+                pitch
+                //? if >=1.21.2
+                , true
+        )) {
+            return false;
         }
 
         player.setYHeadRot(yaw);
@@ -882,6 +881,7 @@ public final class HexTeleportResolver {
                 0.35F,
                 1.15F
         );
+        return true;
     }
 
     public static void keepChunkLoaded(
@@ -916,3 +916,5 @@ public final class HexTeleportResolver {
         );
     }
 }
+
+

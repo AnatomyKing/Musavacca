@@ -84,6 +84,16 @@ public final class ModBlocks {
                             .requiresCorrectToolForDrops()
                             .pushReaction(PushReaction.NORMAL)));
 
+    public static final DeferredBlock<Block> BANANA_PEARL_MASCARON =
+            BLOCKS.registerBlock("banana_pearl_mascaron",
+                    props -> new BananaPearlMascaron(props
+                            .mapColor(MapColor.COLOR_YELLOW)
+                            .strength(3.0F, 6.0F)
+                            .sound(SoundType.COPPER)
+                            .requiresCorrectToolForDrops()
+                            .noOcclusion()
+                            .pushReaction(PushReaction.NORMAL)));
+
     public static final DeferredBlock<RotatedPillarBlock> BANANA_PEARL_PILLAR =
             BLOCKS.registerBlock("banana_pearl_pillar",
                     props -> new RotatedPillarBlock(props
@@ -402,6 +412,30 @@ public final class ModBlocks {
                             .sound(SoundType.HONEY_BLOCK)
                             .noOcclusion()
                             .pushReaction(PushReaction.NORMAL)));
+
+    public static final DeferredBlock<StairBlock> BANANA_PEARL_STAIRS =
+            BLOCKS.registerBlock("banana_pearl_stairs",
+                    props -> new StairBlock(
+                            BANANA_PEARL_BLOCK.get().defaultBlockState(),
+                            props
+                                    .mapColor(MapColor.COLOR_YELLOW)
+                                    .strength(3.0F, 6.0F)
+                                    .sound(SoundType.COPPER)
+                                    .requiresCorrectToolForDrops()
+                                    .pushReaction(PushReaction.NORMAL)
+                    ));
+
+    public static final DeferredBlock<StairBlock> BANANA_PEARL_BRICK_STAIRS =
+            BLOCKS.registerBlock("banana_pearl_brick_stairs",
+                    props -> new StairBlock(
+                            BANANA_PEARL_BRICKS.get().defaultBlockState(),
+                            props
+                                    .mapColor(MapColor.COLOR_YELLOW)
+                                    .strength(3.0F, 6.0F)
+                                    .sound(SoundType.COPPER)
+                                    .requiresCorrectToolForDrops()
+                                    .pushReaction(PushReaction.NORMAL)
+                    ));
 
     private static DeferredBlock<PearlCandleBlock> pearlCandle(String name, Block vanillaCandleBlock) {
         return BLOCKS.registerBlock(name,

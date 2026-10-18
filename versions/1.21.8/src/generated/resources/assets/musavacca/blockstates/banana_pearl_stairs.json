@@ -1,0 +1,442 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs",
+        "uvlock": true,
+        "x": 180,
+        "y": 270
+      },
+      "when": {
+        "facing": "north",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_inner",
+        "uvlock": true,
+        "x": 180,
+        "y": 270
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "north",
+            "half": "top",
+            "shape": "inner_left"
+          },
+          {
+            "facing": "west",
+            "half": "top",
+            "shape": "inner_right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_inner",
+        "uvlock": true,
+        "x": 180
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "north",
+            "half": "top",
+            "shape": "inner_right"
+          },
+          {
+            "facing": "east",
+            "half": "top",
+            "shape": "inner_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_outer",
+        "uvlock": true,
+        "x": 180,
+        "y": 270
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "north",
+            "half": "top",
+            "shape": "outer_left"
+          },
+          {
+            "facing": "west",
+            "half": "top",
+            "shape": "outer_right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_outer",
+        "uvlock": true,
+        "x": 180
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "north",
+            "half": "top",
+            "shape": "outer_right"
+          },
+          {
+            "facing": "east",
+            "half": "top",
+            "shape": "outer_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_inner",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "north",
+            "half": "bottom",
+            "shape": "inner_left"
+          },
+          {
+            "facing": "west",
+            "half": "bottom",
+            "shape": "inner_right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_inner",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "north",
+            "half": "bottom",
+            "shape": "inner_right"
+          },
+          {
+            "facing": "east",
+            "half": "bottom",
+            "shape": "inner_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_outer",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "north",
+            "half": "bottom",
+            "shape": "outer_left"
+          },
+          {
+            "facing": "west",
+            "half": "bottom",
+            "shape": "outer_right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_outer",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "north",
+            "half": "bottom",
+            "shape": "outer_right"
+          },
+          {
+            "facing": "east",
+            "half": "bottom",
+            "shape": "outer_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs",
+        "uvlock": true,
+        "x": 180
+      },
+      "when": {
+        "facing": "east",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_inner",
+        "uvlock": true,
+        "x": 180,
+        "y": 90
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "east",
+            "half": "top",
+            "shape": "inner_right"
+          },
+          {
+            "facing": "south",
+            "half": "top",
+            "shape": "inner_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_outer",
+        "uvlock": true,
+        "x": 180,
+        "y": 90
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "east",
+            "half": "top",
+            "shape": "outer_right"
+          },
+          {
+            "facing": "south",
+            "half": "top",
+            "shape": "outer_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs",
+        "uvlock": true
+      },
+      "when": {
+        "facing": "east",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_inner",
+        "uvlock": true
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "east",
+            "half": "bottom",
+            "shape": "inner_right"
+          },
+          {
+            "facing": "south",
+            "half": "bottom",
+            "shape": "inner_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_outer",
+        "uvlock": true
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "east",
+            "half": "bottom",
+            "shape": "outer_right"
+          },
+          {
+            "facing": "south",
+            "half": "bottom",
+            "shape": "outer_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs",
+        "uvlock": true,
+        "x": 180,
+        "y": 90
+      },
+      "when": {
+        "facing": "south",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_inner",
+        "uvlock": true,
+        "x": 180,
+        "y": 180
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "south",
+            "half": "top",
+            "shape": "inner_right"
+          },
+          {
+            "facing": "west",
+            "half": "top",
+            "shape": "inner_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_outer",
+        "uvlock": true,
+        "x": 180,
+        "y": 180
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "south",
+            "half": "top",
+            "shape": "outer_right"
+          },
+          {
+            "facing": "west",
+            "half": "top",
+            "shape": "outer_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "facing": "south",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_inner",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "south",
+            "half": "bottom",
+            "shape": "inner_right"
+          },
+          {
+            "facing": "west",
+            "half": "bottom",
+            "shape": "inner_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs_outer",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "OR": [
+          {
+            "facing": "south",
+            "half": "bottom",
+            "shape": "outer_right"
+          },
+          {
+            "facing": "west",
+            "half": "bottom",
+            "shape": "outer_left"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs",
+        "uvlock": true,
+        "x": 180,
+        "y": 180
+      },
+      "when": {
+        "facing": "west",
+        "half": "top",
+        "shape": "straight"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_stairs",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "facing": "west",
+        "half": "bottom",
+        "shape": "straight"
+      }
+    }
+  ]
+}

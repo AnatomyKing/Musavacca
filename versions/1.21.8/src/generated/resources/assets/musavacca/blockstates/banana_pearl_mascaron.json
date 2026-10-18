@@ -1,0 +1,117 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "x": 90,
+        "y": 90
+      },
+      "when": {
+        "orientation": "down_east"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "x": 90
+      },
+      "when": {
+        "orientation": "down_north"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "x": 90,
+        "y": 180
+      },
+      "when": {
+        "orientation": "down_south"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "x": 90,
+        "y": 270
+      },
+      "when": {
+        "orientation": "down_west"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "y": 90
+      },
+      "when": {
+        "orientation": "east_up"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron"
+      },
+      "when": {
+        "orientation": "north_up"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "y": 180
+      },
+      "when": {
+        "orientation": "south_up"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "y": 270
+      },
+      "when": {
+        "orientation": "west_up"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "x": 270,
+        "y": 270
+      },
+      "when": {
+        "orientation": "up_east"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "x": 270,
+        "y": 180
+      },
+      "when": {
+        "orientation": "up_north"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "x": 270
+      },
+      "when": {
+        "orientation": "up_south"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_mascaron",
+        "x": 270,
+        "y": 90
+      },
+      "when": {
+        "orientation": "up_west"
+      }
+    }
+  ]
+}

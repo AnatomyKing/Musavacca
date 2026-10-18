@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "musavacca:block/banana_pearl_bricks",
+    "side": "musavacca:block/banana_pearl_bricks",
+    "top": "musavacca:block/banana_pearl_bricks"
+  }
+}

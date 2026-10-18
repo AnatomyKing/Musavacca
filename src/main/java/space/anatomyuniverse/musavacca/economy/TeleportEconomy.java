@@ -11,18 +11,31 @@ public final class TeleportEconomy {
     private TeleportEconomy() {}
 
     public static boolean tryTeleport(ServerPlayer player, int cost, BooleanSupplier teleport) {
-        int safeCost = Math.max(0, cost);
+        if (player == null || teleport == null) return false;
 
-        if (safeCost > 0 && !BalanceApi.hasBalance(player, safeCost)) {
+        int safeCost = Math.max(0, cost);
+        if (safeCost > 0 && !BalanceApi.deductBalance(player, safeCost)) {
             showNeedsBalanceMessage(player, safeCost);
             return false;
         }
 
-        if (!teleport.getAsBoolean()) {
-            return false;
+        boolean success = false;
+        try {
+            success = teleport.getAsBoolean();
+            return success;
+        } finally {
+            if (!success && safeCost > 0) BalanceApi.addBalance(player, safeCost);
         }
+    }
 
-        return safeCost == 0 || BalanceApi.deductBalance(player, safeCost);
+    public static boolean canAfford(ServerPlayer player, int cost) {
+        if (player == null) return false;
+
+        int safeCost = Math.max(0, cost);
+        if (safeCost == 0 || BalanceApi.hasBalance(player, safeCost)) return true;
+
+        showNeedsBalanceMessage(player, safeCost);
+        return false;
     }
 
     public static boolean tryCharge(Entity entity, int cost) {
@@ -47,3 +60,5 @@ public final class TeleportEconomy {
         );
     }
 }
+
+

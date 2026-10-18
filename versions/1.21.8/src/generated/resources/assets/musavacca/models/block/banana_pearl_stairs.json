@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "musavacca:block/banana_pearl_block",
+    "side": "musavacca:block/banana_pearl_block",
+    "top": "musavacca:block/banana_pearl_block"
+  }
+}

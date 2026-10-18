@@ -284,56 +284,22 @@ public final class VocoCallerNetwork {
             HexTeleportDirectory.PhoneRegistration registration,
             int cost
     ) {
-        if (
-                caller == null
-                        || registration == null
-        ) {
-            return false;
-        }
+        if (caller == null || registration == null || !caller.isAlive()) return false;
 
-        MinecraftServer server =
-                caller.level().getServer();
+        MinecraftServer server = caller.level().getServer();
+        if (server == null || isCalling(caller.getUUID())) return false;
 
-        if (server == null) {
-            return false;
-        }
-
-        if (PENDING_CALLS.values().stream()
-                .anyMatch(call -> call.callerId().equals(caller.getUUID()))) {
-            return false;
-        }
-
-        for (
-                ServerPlayer candidate
-                : server.getPlayerList()
-                .getPlayers()
-        ) {
-            if (
-                    !carriesPhone(
-                            candidate,
-                            registration.hexColor()
-                    )
-            ) {
+        for (ServerPlayer recipient : server.getPlayerList().getPlayers()) {
+            if (!recipient.isAlive()
+                    || !carriesPhone(recipient, registration.hexColor())
+                    || PENDING_CALLS.containsKey(recipient.getUUID())
+                    || recipient.hasEffect(ModMobEffects.PLAYER_STATUS)) {
                 continue;
             }
 
-            ServerLevel targetLevel =
-                    server.getLevel(
-                            candidate.level()
-                                    .dimension()
-                    );
+            if (!TeleportEconomy.canAfford(caller, cost)) return false;
 
-            if (targetLevel == null) {
-                continue;
-            }
-
-            if (!caller.isAlive() || !candidate.isAlive()
-                    || PENDING_CALLS.containsKey(candidate.getUUID())
-                    || candidate.hasEffect(ModMobEffects.PLAYER_STATUS)) {
-                return false;
-            }
-
-            if (!candidate.addEffect(
+            if (!recipient.addEffect(
                     new MobEffectInstance(
                             ModMobEffects.PLAYER_STATUS,
                             PLAYER_STATUS_DURATION_TICKS,
@@ -342,125 +308,121 @@ public final class VocoCallerNetwork {
                             false,
                             true
                     )
-            ) || !candidate.hasEffect(ModMobEffects.PLAYER_STATUS)) {
-                return false;
+            )) {
+                continue;
             }
 
+            MobEffectInstance effect = recipient.getEffect(ModMobEffects.PLAYER_STATUS);
+            if (effect == null) continue;
+
             PENDING_CALLS.put(
-                    candidate.getUUID(),
+                    recipient.getUUID(),
                     new PendingCall(
                             caller.getUUID(),
                             registration.hexColor(),
-                            cost,
+                            Math.max(0, cost),
                             server.overworld().getGameTime() + PLAYER_STATUS_DURATION_TICKS,
-                            candidate.getEffect(ModMobEffects.PLAYER_STATUS)
+                            effect
                     )
             );
 
             PacketDistributor.sendToPlayer(
-                    candidate,
+                    recipient,
                     new PlayerStatusCallerPayload(
                             caller.getUUID(),
                             caller.getName().getString()
                     )
             );
-
-            return false;
+            return true;
         }
 
         caller.displayClientMessage(
                 Component.literal(
                         "Voco phone #"
-                                + HexTeleportDirectory.toHex(
-                                registration.hexColor()
-                        )
+                                + HexTeleportDirectory.toHex(registration.hexColor())
                                 + " is unreachable."
                 ),
                 true
         );
-
         return false;
     }
 
     public static boolean answerCall(ServerPlayer recipient, boolean accepted) {
         PendingCall call = PENDING_CALLS.remove(recipient.getUUID());
         boolean valid = accepted && call != null && isValidCall(recipient, call);
-
-        recipient.removeEffect(ModMobEffects.PLAYER_STATUS);
-        PacketDistributor.sendToPlayer(recipient, PlayerStatusCallerPayload.CLEAR);
-
-        if (!valid) {
-            return false;
-        }
+        clearStatus(recipient);
+        if (!valid) return false;
 
         MinecraftServer server = recipient.level().getServer();
+        if (server == null) return false;
+
         ServerPlayer caller = server.getPlayerList().getPlayer(call.callerId());
         ServerLevel targetLevel = server.getLevel(recipient.level().dimension());
+        if (caller == null || targetLevel == null) return false;
 
-        if (caller == null || targetLevel == null) {
-            return false;
-        }
-
-        return TeleportEconomy.tryTeleport(caller, call.cost(), () -> {
-            HexTeleportResolver.teleportToTarget(
-                    caller,
-                    targetLevel,
-                    recipient.position(),
-                    recipient.getYRot(),
-                    recipient.getXRot()
-            );
-            return true;
-        });
+        return TeleportEconomy.tryTeleport(
+                caller,
+                call.cost(),
+                () -> HexTeleportResolver.teleportToTarget(
+                        caller,
+                        targetLevel,
+                        recipient.position(),
+                        recipient.getYRot(),
+                        recipient.getXRot()
+                )
+        );
     }
 
-    public static boolean tickCall(ServerPlayer recipient) {
+    public static void tickCall(ServerPlayer recipient) {
         PendingCall call = PENDING_CALLS.get(recipient.getUUID());
 
         if (call == null) {
-            return false;
+            if (recipient.hasEffect(ModMobEffects.PLAYER_STATUS)) clearStatus(recipient);
+            return;
         }
 
-        if (!isValidCall(recipient, call)) {
-            answerCall(recipient, false);
-        }
-
-        return true;
+        if (!isValidCall(recipient, call)) answerCall(recipient, false);
     }
 
     private static boolean isValidCall(ServerPlayer recipient, PendingCall call) {
         MinecraftServer server = recipient.level().getServer();
-
-        if (server == null || !recipient.isAlive()
+        if (server == null
+                || !recipient.isAlive()
                 || recipient.getEffect(ModMobEffects.PLAYER_STATUS) != call.effect()
                 || server.overworld().getGameTime() >= call.expiresAt()) {
             return false;
         }
 
         ServerPlayer caller = server.getPlayerList().getPlayer(call.callerId());
-
-        return caller != null && caller.isAlive()
+        return caller != null
+                && caller.isAlive()
                 && isActive(server, call.phoneHex())
                 && carriesPhone(recipient, call.phoneHex());
     }
 
+    private static boolean isCalling(UUID playerId) {
+        return PENDING_CALLS.values().stream()
+                .anyMatch(call -> call.callerId().equals(playerId));
+    }
+
+    private static void clearStatus(ServerPlayer player) {
+        player.removeEffect(ModMobEffects.PLAYER_STATUS);
+        PacketDistributor.sendToPlayer(player, PlayerStatusCallerPayload.CLEAR);
+    }
+
     public static void cancelCalls(ServerPlayer player) {
         MinecraftServer server = player.level().getServer();
-
-        if (server == null) {
-            return;
-        }
+        if (server == null) return;
 
         for (var entry : new ArrayList<>(PENDING_CALLS.entrySet())) {
-            if (entry.getKey().equals(player.getUUID())
-                    || entry.getValue().callerId().equals(player.getUUID())) {
-                PENDING_CALLS.remove(entry.getKey());
-                ServerPlayer recipient = server.getPlayerList().getPlayer(entry.getKey());
-
-                if (recipient != null) {
-                    recipient.removeEffect(ModMobEffects.PLAYER_STATUS);
-                    PacketDistributor.sendToPlayer(recipient, PlayerStatusCallerPayload.CLEAR);
-                }
+            if (!entry.getKey().equals(player.getUUID())
+                    && !entry.getValue().callerId().equals(player.getUUID())) {
+                continue;
             }
+
+            PENDING_CALLS.remove(entry.getKey());
+            ServerPlayer recipient = server.getPlayerList().getPlayer(entry.getKey());
+            if (recipient != null) clearStatus(recipient);
         }
     }
 
@@ -470,11 +432,7 @@ public final class VocoCallerNetwork {
 
         for (UUID id : recipients) {
             ServerPlayer recipient = server.getPlayerList().getPlayer(id);
-
-            if (recipient != null) {
-                recipient.removeEffect(ModMobEffects.PLAYER_STATUS);
-                PacketDistributor.sendToPlayer(recipient, PlayerStatusCallerPayload.CLEAR);
-            }
+            if (recipient != null) clearStatus(recipient);
         }
     }
 
@@ -486,3 +444,5 @@ public final class VocoCallerNetwork {
             MobEffectInstance effect
     ) {}
 }
+
+
