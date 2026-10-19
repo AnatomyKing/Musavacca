@@ -11,11 +11,9 @@ stonecutter parameters {
     constants["release"] = property("mod.id") != "template"
 }
 
-
 stonecutter tasks {
     order("runData")
 }
-
 
 tasks.register("runDatagenAll") {
     group = "stonecutter"
@@ -35,7 +33,10 @@ tasks.register("buildAll") {
     dependsOn(stonecutter.tasks.named("buildAndCollect"))
 }
 
-val activeProject = requireNotNull(stonecutter.current) { "Set an active Stonecutter version first." }.project
+val activeProject = requireNotNull(stonecutter.current) {
+    "Set an active Stonecutter version first."
+}.project
+
 for ((alias, target) in mapOf(
     "runDatagenActive" to "runDatagen",
     "runClientActive" to "runClient",

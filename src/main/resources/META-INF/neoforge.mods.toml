@@ -1,3 +1,4 @@
+
 license = "LGPL-3.0-only"
 
 modLoader = "javafml"
@@ -13,7 +14,7 @@ version = "${version}"
 authors = "AnatomyKing"
 description = "Banana Cows."
 
-logoFile = "assets/${id}/icon.png"
+${logo_properties}
 
 #displayURL = "..."
 #issueTrackerUrl = "..."

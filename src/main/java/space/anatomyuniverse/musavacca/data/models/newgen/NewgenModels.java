@@ -703,7 +703,7 @@ final class NewgenModels {
     private static void addSide(JsonArray elements, List<Tints.GeneratedLayer> layers, boolean alternateUv) {
         for (Tints.GeneratedLayer layer : layers) {
             JsonObject element = element(0, 0, 0.01F, 16, 22.4F, 0.01F);
-            element.addProperty("shade", false);
+            setUnshaded(element);
 
             JsonObject faces = new JsonObject();
             faces.add("south", face(layer, alternateUv, 0));
@@ -762,7 +762,7 @@ final class NewgenModels {
                                            float originX, float originY, float originZ,
                                            String axis, float angle, String faceDirection, int faceRotation) {
         JsonObject element = element(fromX, fromY, fromZ, toX, toY, toZ);
-        element.addProperty("shade", false);
+        setUnshaded(element);
 
         JsonObject rotation = new JsonObject();
         rotation.add("origin", vector(originX, originY, originZ));
@@ -776,6 +776,18 @@ final class NewgenModels {
         element.add("faces", faces);
 
         return element;
+    }
+
+    /**
+     * Uses the Minecraft 26.3 replacement for the legacy unshaded model-element flag.
+     * Older Stonecutter targets continue to emit the exact legacy JSON property.
+     */
+    private static void setUnshaded(JsonObject element) {
+        //? if >=26.3 {
+        /*element.addProperty("shade_direction_override", "up");
+        *///?} else {
+        element.addProperty("shade", false);
+        //?}
     }
 
     private static JsonObject element(float fromX, float fromY, float fromZ,

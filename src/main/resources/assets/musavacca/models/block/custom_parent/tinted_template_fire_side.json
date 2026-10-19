@@ -16,6 +16,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -51,6 +52,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -86,6 +88,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -121,6 +124,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -156,6 +160,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -191,6 +196,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -226,6 +232,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -261,6 +268,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -296,6 +304,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -331,6 +340,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -366,6 +376,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -401,6 +412,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -436,6 +448,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -471,6 +484,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -506,6 +520,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -541,6 +556,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -576,6 +592,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -611,6 +628,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -646,6 +664,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -681,6 +700,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -716,6 +736,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -751,6 +772,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -786,6 +808,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -821,6 +844,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -856,6 +880,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -891,6 +916,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -926,6 +952,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -961,6 +988,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -996,6 +1024,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -1031,6 +1060,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -1066,6 +1096,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -1101,6 +1132,7 @@
                 0.01
             ],
             "shade": false,
+            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [

@@ -136,11 +136,18 @@ dependencies {
     }
 }
 
+// Stonecutter chooses the Java version for each Minecraft target.
+// Gradle/Foojay selects or downloads the matching Eclipse Temurin JDK.
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(requiredJava.majorVersion.toInt())
     withSourcesJar()
-    targetCompatibility = requiredJava
+
     sourceCompatibility = requiredJava
+    targetCompatibility = requiredJava
+
+    toolchain {
+        vendor = JvmVendorSpec.ADOPTIUM
+        languageVersion = JavaLanguageVersion.of(requiredJava.majorVersion.toInt())
+    }
 }
 
 sourceSets {
@@ -207,13 +214,27 @@ tasks {
 
         inputs.property("compat_dependencies", compatDependencies)
 
+
+        val logoProperties = if (sc.current.parsed >= "26.2") {
+            """
+            iconFile = "assets/${prop("mod.id")}/icon.png"
+            bannerFile = "assets/${prop("mod.id")}/banner.png"
+            """.trimIndent()
+            } else {
+            """
+            logoFile = "assets/${prop("mod.id")}/icon.png"
+            """.trimIndent()
+        }
+
         val props = mapOf(
             "id" to prop("mod.id"),
             "name" to prop("mod.name"),
             "version" to prop("mod.version"),
             "minecraft" to prop("mod.mc_dep"),
-            "compat_dependencies" to compatDependencies
+            "compat_dependencies" to compatDependencies,
+            "logo_properties" to logoProperties
         )
+
 
         filesMatching("META-INF/neoforge.mods.toml") {
             expand(props)

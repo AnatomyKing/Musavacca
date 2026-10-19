@@ -85,21 +85,28 @@ public final class MusaRenderLayers {
     );
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(
-            ModBlocks.PEARL_PORTAL.get(),
-            ModBlocks.BANANA_PEARL_MASCARON.get()
 
     );
 
     private static final Set<Block> NO_AO_BLOCKS = Sets.newHashSet(
             ModBlocks.HEX_BLOCK.get(),
-            ModBlocks.MUSAVACCA_LEAVES.get()
+            ModBlocks.MUSAVACCA_LEAVES.get(),
+            ModBlocks.PEARL_FIRE.get(),
+            ModBlocks.PEARL_PORTAL.get()
+    );
+
+    private static final Set<Block> NO_DIRECTIONAL_SHADE_BLOCKS = Sets.newHashSet(
+            ModBlocks.PEARL_FIRE.get(),
+            ModBlocks.PEARL_PORTAL.get()
+
     );
 
     private MusaRenderLayers() {
     }
 
     public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
-        if (CUTOUT_BLOCKS.isEmpty() && TRANSLUCENT_BLOCKS.isEmpty() && NO_AO_BLOCKS.isEmpty()) {
+        if (CUTOUT_BLOCKS.isEmpty() && TRANSLUCENT_BLOCKS.isEmpty()
+                && NO_AO_BLOCKS.isEmpty() && NO_DIRECTIONAL_SHADE_BLOCKS.isEmpty()) {
             return;
         }
 
@@ -111,7 +118,28 @@ public final class MusaRenderLayers {
 
     }
 
-    //? if >=26.1 {
+    //? if >=26.3 {
+    /*private static void onModifyBakingResultNewPipeline(ModelEvent.ModifyBakingResult event) {
+        var models = event.getBakingResult().blockStateModels();
+        for (var entry : models.entrySet()) {
+            Block block = entry.getKey().getBlock();
+
+            // Preserve the older pipeline's precedence if a block appears in both sets.
+            ChunkSectionLayer forcedLayer = CUTOUT_BLOCKS.contains(block)
+                    ? ChunkSectionLayer.CUTOUT
+                    : TRANSLUCENT_BLOCKS.contains(block) ? ChunkSectionLayer.TRANSLUCENT : null;
+
+            boolean noAo = NO_AO_BLOCKS.contains(block);
+            boolean noDirectionalShade = NO_DIRECTIONAL_SHADE_BLOCKS.contains(block);
+
+            if (forcedLayer != null || noAo || noDirectionalShade) {
+                entry.setValue(new ForceRenderPropertiesModel(
+                        entry.getValue(), forcedLayer, noAo, noDirectionalShade
+                ));
+            }
+        }
+    }
+    *///?} else if >=26.1 <26.3 {
     /*private static void onModifyBakingResultNewPipeline(ModelEvent.ModifyBakingResult event) {
         // Transparency is part of baked materials on 26.1+.
         // The existing no-AO set still needs its explicit lighting override.
@@ -243,7 +271,110 @@ public final class MusaRenderLayers {
     }
     *///?}
 
-    //? if >=26.1 {
+    //? if >=26.3 {
+    /*private static final class ForceRenderPropertiesModel extends DelegateBlockStateModel {
+        private final ChunkSectionLayer forcedLayer;
+        private final boolean noAo;
+        private final boolean noDirectionalShade;
+
+        ForceRenderPropertiesModel(BlockStateModel delegate,
+                                   ChunkSectionLayer forcedLayer,
+                                   boolean noAo,
+                                   boolean noDirectionalShade) {
+            super(delegate);
+            this.forcedLayer = forcedLayer;
+            this.noAo = noAo;
+            this.noDirectionalShade = noDirectionalShade;
+        }
+
+        @Override
+        public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state,
+                                 RandomSource random, List<BlockStateModelPart> out) {
+            List<BlockStateModelPart> parts = new ArrayList<>();
+            delegate.collectParts(level, pos, state, random, parts);
+            for (BlockStateModelPart part : parts) {
+                out.add(new ForcedRenderPart(part, forcedLayer, noAo, noDirectionalShade));
+            }
+        }
+
+        @Override
+        public int materialFlags() {
+            return adjustMaterialFlags(delegate.materialFlags(), forcedLayer);
+        }
+
+        @Override
+        public int materialFlags(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+            return adjustMaterialFlags(delegate.materialFlags(level, pos, state), forcedLayer);
+        }
+    }
+
+    private record ForcedRenderPart(BlockStateModelPart delegate,
+                                    ChunkSectionLayer forcedLayer,
+                                    boolean noAo,
+                                    boolean noDirectionalShade) implements BlockStateModelPart {
+        @Override
+        public List<net.minecraft.client.resources.model.geometry.BakedQuad> getQuads(Direction face) {
+            var original = delegate.getQuads(face);
+            if (original.isEmpty()) return original;
+
+            List<net.minecraft.client.resources.model.geometry.BakedQuad> result =
+                    new ArrayList<>(original.size());
+
+            for (var quad : original) {
+                var info = quad.materialInfo();
+                ChunkSectionLayer layer = forcedLayer != null ? forcedLayer : info.layer();
+                Direction shade = noDirectionalShade ? Direction.UP : info.shadeDirectionOverride();
+                boolean ao = !noAo && info.ambientOcclusion();
+
+                if (layer == info.layer()
+                        && shade == info.shadeDirectionOverride()
+                        && ao == info.ambientOcclusion()) {
+                    result.add(quad);
+                    continue;
+                }
+
+                var modifiedInfo = new net.minecraft.client.resources.model.geometry.BakedQuad.MaterialInfo(
+                        info.sprite(), layer, info.itemRenderType(),
+                        info.itemGlintRenderType(), info.itemGlintSpecialRenderType(),
+                        info.tintIndex(), shade, info.lightEmission(), ao
+                );
+
+                result.add(new net.minecraft.client.resources.model.geometry.BakedQuad(
+                        quad.position0(), quad.position1(), quad.position2(), quad.position3(),
+                        quad.packedUV0(), quad.packedUV1(), quad.packedUV2(), quad.packedUV3(),
+                        quad.direction(), modifiedInfo, quad.bakedNormals(), quad.bakedColors()
+                ));
+            }
+            return result;
+        }
+
+        @Override public boolean useAmbientOcclusion() {
+            return !noAo && delegate.useAmbientOcclusion();
+        }
+
+        @Override public TriState ambientOcclusion() {
+            return noAo ? TriState.FALSE : delegate.ambientOcclusion();
+        }
+
+        @Override public net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial() {
+            return delegate.particleMaterial();
+        }
+
+        @Override public int materialFlags() {
+            return adjustMaterialFlags(delegate.materialFlags(), forcedLayer);
+        }
+    }
+
+    private static int adjustMaterialFlags(int flags, ChunkSectionLayer forcedLayer) {
+        if (forcedLayer == ChunkSectionLayer.TRANSLUCENT) {
+            return flags | net.minecraft.client.resources.model.geometry.BakedQuad.FLAG_TRANSLUCENT;
+        }
+        if (forcedLayer != null) {
+            return flags & ~net.minecraft.client.resources.model.geometry.BakedQuad.FLAG_TRANSLUCENT;
+        }
+        return flags;
+    }
+    *///?} else if >=26.1 <26.3 {
     /*private static final class ForceAmbientOcclusionModel extends DelegateBlockStateModel {
         ForceAmbientOcclusionModel(BlockStateModel delegate) { super(delegate); }
 
@@ -551,3 +682,5 @@ public final class MusaRenderLayers {
     *///?}
 
 }
+
+

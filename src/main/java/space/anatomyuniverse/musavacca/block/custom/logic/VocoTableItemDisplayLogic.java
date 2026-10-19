@@ -378,7 +378,7 @@ public final class VocoTableItemDisplayLogic {
                     removed,
                     false
                     //? if >=26.3
-                    /*, net.minecraft.util.Prediction.SERVER_ONLY*/
+                    //, net.minecraft.util.Prediction.SERVER_ONLY
             );
         }
 

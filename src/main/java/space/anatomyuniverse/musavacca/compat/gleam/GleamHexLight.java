@@ -1,7 +1,9 @@
-package space.anatomyuniverse.musavacca.compat.gleam;//? if <1.21.2 {
-/*package space.anatomyuniverse.musavacca.compat.gleam;
+package space.anatomyuniverse.musavacca.compat.gleam;
 
-import net.minecraft.core.BlockPos;
+//? if <1.21.2 {
+
+
+/*import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
