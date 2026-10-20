@@ -85,6 +85,7 @@ public final class MusaRenderLayers {
     );
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Sets.newHashSet(
+            ModBlocks.PEARL_PORTAL.get()
 
     );
 

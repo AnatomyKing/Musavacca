@@ -12,7 +12,8 @@
     "client.HumanoidArmorLayerMixin",
     "client.ClientBundleTooltipAccessor",
     "compat.gleam.GleamVanillaMixin",
-    "compat.gleam.GleamSodiumMixin"
+    "compat.gleam.GleamSodiumMixin",
+    "client.LevelRendererNearestSamplingMixin"
   ],
   "injectors": {
     "defaultRequire": 1
