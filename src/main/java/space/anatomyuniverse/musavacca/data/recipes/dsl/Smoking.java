@@ -12,13 +12,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public final class Smoking {
     private final RecipeDSL dsl;
     private final SimpleCookingRecipeBuilder builder;
-    private final List<RecipeDSL.ExtendedIngredient> extendedIngredients = new ArrayList<>();
 
     public Smoking(
             RecipeDSL dsl,
@@ -30,20 +27,12 @@ public final class Smoking {
     ) {
         this.dsl = dsl;
         this.builder = SimpleCookingRecipeBuilder.smoking(
-                ingredient(input),
+                this.dsl.ingredient(input),
                 category,
                 result,
                 experience,
                 time
         );
-    }
-
-    private net.minecraft.world.item.crafting.Ingredient ingredient(Object input) {
-        if (input instanceof RecipeDSL.ExtendedIngredient source) {
-            this.extendedIngredients.add(source);
-        }
-
-        return this.dsl.ingredient(input);
     }
 
     public Smoking group(String group) {
@@ -73,10 +62,6 @@ public final class Smoking {
     *///?} else {
     public void save(ResourceLocation id) {
     //?}
-        this.dsl.save(
-                this.builder,
-                id,
-                this.dsl.decorateOutput(RecipeDSL.RecipeKind.SMOKING, this.extendedIngredients)
-        );
+        this.dsl.save(this.builder, id);
     }
 }

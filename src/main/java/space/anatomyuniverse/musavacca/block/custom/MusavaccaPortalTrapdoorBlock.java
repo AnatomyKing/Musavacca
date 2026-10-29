@@ -23,6 +23,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.block.RenderShape;
+*///?}
 import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -225,6 +228,14 @@ public final class MusavaccaPortalTrapdoorBlock
                 : super.getEntityInsideCollisionShape(state, level, pos);
     }
     *///?}
+    //? if >=1.21.11 {
+    /*@Override
+    protected RenderShape getRenderShape(BlockState state) {
+        // The nearest-sampling BER draws this block's existing baked model.
+        return RenderShape.INVISIBLE;
+    }
+    *///?}
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(

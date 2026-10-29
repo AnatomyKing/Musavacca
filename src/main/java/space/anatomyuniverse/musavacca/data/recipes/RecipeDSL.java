@@ -38,56 +38,13 @@ import space.anatomyuniverse.musavacca.data.recipes.dsl.Smoking;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.Stonecutting;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.StonecuttingFamily;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public class RecipeDSL {
-    public enum RecipeKind {
-        SHAPED,
-        SHAPELESS,
-        SMELTING,
-        BLASTING,
-        SMOKING,
-        CAMPFIRE,
-        STONECUTTING,
-        SMITHING_TRANSFORM
-    }
-
-    public interface ExtendedIngredient {
-        Ingredient ingredient();
-
-        RecipeOutput decorate(
-                RecipeOutput output,
-                RecipeKind kind,
-                List<ExtendedIngredient> sources,
-                HolderLookup.Provider registries
-        );
-    }
-
     public interface Unlocker {
         Criterion<?> item(ItemLike itemLike);
         Criterion<?> tag(TagKey<Item> tag);
-    }
-
-    public record SlottedExtendedIngredient(
-            int slot,
-            ExtendedIngredient delegate
-    ) implements ExtendedIngredient {
-        @Override
-        public Ingredient ingredient() {
-            return this.delegate.ingredient();
-        }
-
-        @Override
-        public RecipeOutput decorate(
-                RecipeOutput output,
-                RecipeKind kind,
-                List<ExtendedIngredient> sources,
-                HolderLookup.Provider registries
-        ) {
-            return this.delegate.decorate(output, kind, sources, registries);
-        }
     }
 
     private final RecipeOutput output;
@@ -285,10 +242,6 @@ public class RecipeDSL {
     }
 
     public Ingredient ingredient(Object value) {
-        if (value instanceof ExtendedIngredient source) {
-            return source.ingredient();
-        }
-
         if (value instanceof Ingredient ingredient) {
             return ingredient;
         }
@@ -305,108 +258,68 @@ public class RecipeDSL {
         throw new IllegalArgumentException("Unsupported ingredient: " + value);
     }
 
-    public ExtendedIngredient extended(Object value) {
-        return value instanceof ExtendedIngredient source ? source : null;
-    }
-
-    public ExtendedIngredient sized(Object value, int amount) {
-        if (amount < 1) {
-            throw new IllegalArgumentException("amount must be >= 1");
-        }
-
-        if (value instanceof ComponentRecipeDSL.Source source) {
-            return source.amount(amount);
-        }
-
-        if (value instanceof ExtendedIngredient source) {
-            if (amount == 1) {
-                return source;
-            }
-
-            throw new IllegalArgumentException("Unsupported sized extended ingredient: " + value);
-        }
-
-        return ComponentRecipeDSL.source(ingredient(value)).amount(amount);
-    }
-
-    public RecipeOutput decorateOutput(
-            RecipeKind kind,
-            List<ExtendedIngredient> sources
-    ) {
-        if (sources.isEmpty()) {
-            return this.output;
-        }
-
-        return sources.getFirst().decorate(
-                this.output,
-                kind,
-                List.copyOf(sources),
-                this.registries
-        );
-    }
-
     //? if >=1.21.11 {
-    /*public void save(ShapedRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    /*public void save(ShapedRecipeBuilder builder, Identifier id) {
     *///?} else {
-    public void save(ShapedRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
+    public void save(ShapedRecipeBuilder builder, ResourceLocation id) {
     //?}
 
         //? if >=1.21.2 {
-        builder.save(output, recipeKey(id));
+        builder.save(this.output, recipeKey(id));
         //?} else {
-        /*builder.save(output, id);
+        /*builder.save(this.output, id);
         *///?}
     }
 
     //? if >=1.21.11 {
-    /*public void save(ShapelessRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    /*public void save(ShapelessRecipeBuilder builder, Identifier id) {
     *///?} else {
-    public void save(ShapelessRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
+    public void save(ShapelessRecipeBuilder builder, ResourceLocation id) {
     //?}
 
         //? if >=1.21.2 {
-        builder.save(output, recipeKey(id));
+        builder.save(this.output, recipeKey(id));
         //?} else {
-        /*builder.save(output, id);
+        /*builder.save(this.output, id);
         *///?}
     }
 
     //? if >=1.21.11 {
-    /*public void save(SimpleCookingRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    /*public void save(SimpleCookingRecipeBuilder builder, Identifier id) {
     *///?} else {
-    public void save(SimpleCookingRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
+    public void save(SimpleCookingRecipeBuilder builder, ResourceLocation id) {
     //?}
 
         //? if >=1.21.2 {
-        builder.save(output, recipeKey(id));
+        builder.save(this.output, recipeKey(id));
         //?} else {
-        /*builder.save(output, id);
+        /*builder.save(this.output, id);
         *///?}
     }
 
     //? if >=1.21.11 {
-    /*public void save(SingleItemRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    /*public void save(SingleItemRecipeBuilder builder, Identifier id) {
     *///?} else {
-    public void save(SingleItemRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
+    public void save(SingleItemRecipeBuilder builder, ResourceLocation id) {
     //?}
 
         //? if >=1.21.2 {
-        builder.save(output, recipeKey(id));
+        builder.save(this.output, recipeKey(id));
         //?} else {
-        /*builder.save(output, id);
+        /*builder.save(this.output, id);
         *///?}
     }
 
     //? if >=1.21.11 {
-    /*public void save(SmithingTransformRecipeBuilder builder, Identifier id, RecipeOutput output) {
+    /*public void save(SmithingTransformRecipeBuilder builder, Identifier id) {
     *///?} else {
-    public void save(SmithingTransformRecipeBuilder builder, ResourceLocation id, RecipeOutput output) {
+    public void save(SmithingTransformRecipeBuilder builder, ResourceLocation id) {
     //?}
 
         //? if >=1.21.2 {
-        builder.save(output, recipeKey(id));
+        builder.save(this.output, recipeKey(id));
         //?} else {
-        /*builder.save(output, id);
+        /*builder.save(this.output, id);
         *///?}
     }
 

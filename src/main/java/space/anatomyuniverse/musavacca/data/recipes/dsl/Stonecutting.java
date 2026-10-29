@@ -12,13 +12,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public final class Stonecutting {
     private final RecipeDSL dsl;
     private SingleItemRecipeBuilder builder;
-    private final List<RecipeDSL.ExtendedIngredient> extendedIngredients = new ArrayList<>();
 
     public Stonecutting(RecipeDSL dsl) {
         this.dsl = dsl;
@@ -30,10 +27,6 @@ public final class Stonecutting {
             ItemLike result,
             int count
     ) {
-        if (input instanceof RecipeDSL.ExtendedIngredient source) {
-            this.extendedIngredients.add(source);
-        }
-
         this.builder = SingleItemRecipeBuilder.stonecutting(
                 this.dsl.ingredient(input),
                 category,
@@ -76,11 +69,7 @@ public final class Stonecutting {
     public void save(ResourceLocation id) {
     //?}
         requireBuilder();
-        this.dsl.save(
-                this.builder,
-                id,
-                this.dsl.decorateOutput(RecipeDSL.RecipeKind.STONECUTTING, this.extendedIngredients)
-        );
+        this.dsl.save(this.builder, id);
     }
 
     private void requireBuilder() {

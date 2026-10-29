@@ -12,13 +12,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public final class Blasting {
     private final RecipeDSL dsl;
     private final SimpleCookingRecipeBuilder builder;
-    private final List<RecipeDSL.ExtendedIngredient> extendedIngredients = new ArrayList<>();
 
     public Blasting(
             RecipeDSL dsl,
@@ -30,7 +27,7 @@ public final class Blasting {
     ) {
         this.dsl = dsl;
         this.builder = SimpleCookingRecipeBuilder.blasting(
-                ingredient(input),
+                this.dsl.ingredient(input),
                 category,
 
                 //? if >=26.1 {
@@ -40,14 +37,6 @@ public final class Blasting {
                 experience,
                 time
         );
-    }
-
-    private net.minecraft.world.item.crafting.Ingredient ingredient(Object input) {
-        if (input instanceof RecipeDSL.ExtendedIngredient source) {
-            this.extendedIngredients.add(source);
-        }
-
-        return this.dsl.ingredient(input);
     }
 
     public Blasting group(String group) {
@@ -77,10 +66,6 @@ public final class Blasting {
     *///?} else {
     public void save(ResourceLocation id) {
     //?}
-        this.dsl.save(
-                this.builder,
-                id,
-                this.dsl.decorateOutput(RecipeDSL.RecipeKind.BLASTING, this.extendedIngredients)
-        );
+        this.dsl.save(this.builder, id);
     }
 }

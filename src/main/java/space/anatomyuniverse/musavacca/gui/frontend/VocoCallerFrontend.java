@@ -1,4 +1,6 @@
 package space.anatomyuniverse.musavacca.gui.frontend;
+
+import com.mojang.blaze3d.platform.InputConstants;
 //? if >=1.21.9 {
 /*import net.minecraft.client.input.MouseButtonEvent;
 *///?}
@@ -509,7 +511,7 @@ public final class VocoCallerFrontend
         double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.mouseClicked(event, doubleClick);
     *///?} else {
     public boolean mouseClicked(
@@ -517,7 +519,7 @@ public final class VocoCallerFrontend
             double mouseY,
             int button
     ) {
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.mouseClicked(
                     mouseX,
                     mouseY,
@@ -624,7 +626,7 @@ public final class VocoCallerFrontend
         double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.mouseReleased(event);
     *///?} else {
     public boolean mouseReleased(
@@ -632,7 +634,7 @@ public final class VocoCallerFrontend
             double mouseY,
             int button
     ) {
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.mouseReleased(
                     mouseX,
                     mouseY,

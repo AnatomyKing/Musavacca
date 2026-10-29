@@ -4,6 +4,9 @@
 	"ambientocclusion": false,
 	"elements": [
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -47,6 +50,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -90,6 +96,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -133,6 +142,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -176,6 +188,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -219,6 +234,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -262,6 +280,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -305,6 +326,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -348,6 +372,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -391,6 +418,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -434,6 +464,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -477,6 +510,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -520,6 +556,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -563,6 +602,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,
@@ -606,6 +648,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [
 				-0.02,
 				14,

@@ -88,12 +88,14 @@ public final class PlayerStatusClient {
 
     private static final int ACCEPT_X_OFFSET = 56;
     private static final int BUTTON_Y_OFFSET = 15;
+    private static final int EXPANDED_BUTTON_Y_OFFSET = 11;
+    private static final int BUTTON_ROW_WIDTH = BUTTON_WIDTH * 2 + BUTTON_GAP;
 
     private static final int RING_INTERVAL_TICKS = 24;
     private static final int SECOND_RING_TICK = 6;
 
     private static Screen buttonScreen;
-    private static int buttonTextX;
+    private static int buttonsLeftX;
     private static int buttonY;
     private static double mouseX;
     private static double mouseY;
@@ -102,174 +104,84 @@ public final class PlayerStatusClient {
     private static UUID callerId;
     private static String callerName = "";
 
-    private static final IClientMobEffectExtensions EXTENSIONS =
-            new IClientMobEffectExtensions() {
+    private static final IClientMobEffectExtensions EXTENSIONS = new IClientMobEffectExtensions() {
+        //? if >=26.2 {
+        /*@Override
+        public boolean extractHudIcon(MobEffectInstance instance, net.minecraft.client.gui.Hud hud,
+                GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
+            return renderPlayerFaces(graphics, x + HUD_ICON_X_OFFSET, y + HUD_ICON_Y_OFFSET,
+                    ((color >>> 24) & 255) / 255.0F);
+        }
+        *///?} else if >=26.1 <26.2 {
+        /*@Override
+        public boolean extractGuiIcon(MobEffectInstance instance, Gui gui,
+                GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
+            return renderPlayerFaces(graphics, x + HUD_ICON_X_OFFSET, y + HUD_ICON_Y_OFFSET,
+                    ((color >>> 24) & 255) / 255.0F);
+        }
+        *///?} else {
+        @Override
+        public boolean renderGuiIcon(MobEffectInstance instance, Gui gui,
+                GuiGraphics graphics, int x, int y, float z, float alpha) {
+            return renderPlayerFaces(graphics, x + HUD_ICON_X_OFFSET, y + HUD_ICON_Y_OFFSET, alpha);
+        }
+        //?}
 
-                //? if >=26.2 {
-                /*@Override
-                public boolean extractHudIcon(MobEffectInstance instance, net.minecraft.client.gui.Hud hud,
-                        GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
-                    return renderPlayerFaces(graphics, x + HUD_ICON_X_OFFSET, y + HUD_ICON_Y_OFFSET,
-                            ((color >>> 24) & 255) / 255.0F);
-                }
-                *///?} else if >=26.1 <26.2 {
-                /*@Override
-                public boolean renderGuiIcon(
-                        MobEffectInstance instance,
-                        Gui gui,
-                        GuiGraphicsExtractor graphics,
-                        int x,
-                        int y,
-                        float z,
-                        float alpha
-                ) {
-                    return renderPlayerFaces(
-                            graphics,
-                            x + HUD_ICON_X_OFFSET,
-                            y + HUD_ICON_Y_OFFSET,
-                            alpha
-                    );
-                }
-                *///?} else {
-                @Override
-                public boolean renderGuiIcon(
-                        MobEffectInstance instance,
-                        Gui gui,
-                        GuiGraphics graphics,
-                        int x,
-                        int y,
-                        float z,
-                        float alpha
-                ) {
-                    return renderPlayerFaces(
-                            graphics,
-                            x + HUD_ICON_X_OFFSET,
-                            y + HUD_ICON_Y_OFFSET,
-                            alpha
-                    );
-                }
-                //?}
+        //? if >=26.1 {
+        /*@Override
+        public boolean extractInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen,
+                GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
+            return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET,
+                    ((color >>> 24) & 255) / 255.0F);
+        }
 
-                //? if >=26.2 {
-                /*@Override
-                public boolean extractInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen,
-                        GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
-                    return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET, ((color >>> 24) & 255) / 255.0F);
-                }
-                @Override
-                public boolean extractInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen,
-                        GuiGraphicsExtractor graphics, int x, int y, int canvasWidth, int color) {
-                    renderControls(screen, graphics, x, y);
-                    return false;
-                }
-                *///?} else if >=26.1 <26.2 {
-                /*@Override
-                public boolean renderInventoryIcon(
-                        MobEffectInstance instance,
-                        AbstractContainerScreen<?> screen,
-                        GuiGraphicsExtractor graphics,
-                        int x,
-                        int y,
-                        int blitOffset
-                ) {
-                    return renderPlayerFaces(
-                            graphics,
-                            x,
-                            y + INVENTORY_ICON_Y_OFFSET,
-                            1.0F
-                    );
-                }
+        @Override
+        public boolean extractInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen,
+                GuiGraphicsExtractor graphics, int x, int y, int canvasWidth, int color) {
+            return renderExpandedControls(instance, screen, graphics, x, y, canvasWidth, color);
+        }
+        *///?} else if >=1.21.11 <26.1 {
+        /*@Override
+        public boolean renderInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen,
+                GuiGraphics graphics, int x, int y, int blitOffset) {
+            return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET, 1.0F);
+        }
 
-                @Override
-                public boolean renderInventoryText(
-                        MobEffectInstance instance,
-                        AbstractContainerScreen<?> screen,
-                        GuiGraphicsExtractor graphics,
-                        int x,
-                        int y,
-                        int blitOffset
-                ) {
-                    renderControls(
-                            screen,
-                            graphics,
-                            x,
-                            y
-                    );
-                    return false;
-                }
-                *///?} else if >=1.21.2 <26.1 {
-                @Override
-                public boolean renderInventoryIcon(
-                        MobEffectInstance instance,
-                        AbstractContainerScreen<?> screen,
-                        GuiGraphics graphics,
-                        int x,
-                        int y,
-                        int blitOffset
-                ) {
-                    return renderPlayerFaces(
-                            graphics,
-                            x,
-                            y + INVENTORY_ICON_Y_OFFSET,
-                            1.0F
-                    );
-                }
+        @Override
+        public boolean renderInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen,
+                GuiGraphics graphics, int x, int y, int blitOffset) {
+            // 1.21.11 has no canvasWidth parameter; use the width of the vanilla effect title.
+            int width = Minecraft.getInstance().font.width(instance.getEffect().value().getDisplayName());
+            return renderExpandedControls(instance, screen, graphics, x, y, width, 0xFFFFFFFF);
+        }
+        *///?} else if >=1.21.2 <1.21.11 {
+        @Override
+        public boolean renderInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen,
+                GuiGraphics graphics, int x, int y, int blitOffset) {
+            return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET, 1.0F);
+        }
 
-                @Override
-                public boolean renderInventoryText(
-                        MobEffectInstance instance,
-                        AbstractContainerScreen<?> screen,
-                        GuiGraphics graphics,
-                        int x,
-                        int y,
-                        int blitOffset
-                ) {
-                    renderControls(
-                            screen,
-                            graphics,
-                            x,
-                            y
-                    );
-                    return false;
-                }
-                //?} else {
-                /*@Override
-                public boolean renderInventoryIcon(
-                        MobEffectInstance instance,
-                        EffectRenderingInventoryScreen<?> screen,
-                        GuiGraphics graphics,
-                        int x,
-                        int y,
-                        int blitOffset
-                ) {
-                    return renderPlayerFaces(
-                            graphics,
-                            x,
-                            y + INVENTORY_ICON_Y_OFFSET,
-                            1.0F
-                    );
-                }
+        @Override
+        public boolean renderInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen,
+                GuiGraphics graphics, int x, int y, int blitOffset) {
+            renderLegacyControls(screen, graphics, x, y);
+            return false;
+        }
+        //?} else {
+        /*@Override
+        public boolean renderInventoryIcon(MobEffectInstance instance, EffectRenderingInventoryScreen<?> screen,
+                GuiGraphics graphics, int x, int y, int blitOffset) {
+            return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET, 1.0F);
+        }
 
-                @Override
-                public boolean renderInventoryText(
-                        MobEffectInstance instance,
-                        EffectRenderingInventoryScreen<?> screen,
-                        GuiGraphics graphics,
-                        int x,
-                        int y,
-                        int blitOffset
-                ) {
-                    renderControls(
-                            screen,
-                            graphics,
-                            x,
-                            y
-                    );
-                    return false;
-                }
-                *///?}
-
-            };
+        @Override
+        public boolean renderInventoryText(MobEffectInstance instance, EffectRenderingInventoryScreen<?> screen,
+                GuiGraphics graphics, int x, int y, int blitOffset) {
+            renderLegacyControls(screen, graphics, x, y);
+            return false;
+        }
+        *///?}
+    };
 
     private PlayerStatusClient() {}
 
@@ -488,48 +400,62 @@ public final class PlayerStatusClient {
         return true;
     }
 
-    private static void renderControls(
+    //? if >=26.1 {
+    /*private static boolean renderExpandedControls(
+            MobEffectInstance instance, Screen screen, GuiGraphicsExtractor graphics,
+            int x, int y, int availableWidth, int textColor
+    ) {
+        if (!supportsControls(screen)) return false;
+        if (availableWidth < BUTTON_ROW_WIDTH) {
+            pressedButton = null;
+            return false;
+        }
+        graphics.text(Minecraft.getInstance().font,
+                instance.getEffect().value().getDisplayName(), x, y, textColor);
+        drawControls(screen, graphics, x + (availableWidth - BUTTON_ROW_WIDTH) / 2,
+                y + EXPANDED_BUTTON_Y_OFFSET);
+        return true;
+    }
+    *///?} else if >=1.21.11 <26.1 {
+    /*private static boolean renderExpandedControls(
+            MobEffectInstance instance, Screen screen, GuiGraphics graphics,
+            int x, int y, int availableWidth, int textColor
+    ) {
+        if (!supportsControls(screen)) return false;
+        if (availableWidth < BUTTON_ROW_WIDTH) {
+            pressedButton = null;
+            return false;
+        }
+        graphics.drawString(Minecraft.getInstance().font,
+                instance.getEffect().value().getDisplayName(), x, y, textColor);
+        drawControls(screen, graphics, x + (availableWidth - BUTTON_ROW_WIDTH) / 2,
+                y + EXPANDED_BUTTON_Y_OFFSET);
+        return true;
+    }
+    *///?} else {
+    private static void renderLegacyControls(Screen screen, GuiGraphics graphics, int x, int y) {
+        drawControls(screen, graphics, x + ACCEPT_X_OFFSET, y + BUTTON_Y_OFFSET);
+    }
+    //?}
+
+    private static void drawControls(
             Screen screen,
             //? if >=26.1 {
             /*GuiGraphicsExtractor graphics,
             *///?} else {
             GuiGraphics graphics,
             //?}
-            int x,
-            int y
+            int left, int top
     ) {
-        if (!supportsControls(screen)) {
-            return;
-        }
-
         buttonScreen = screen;
-        buttonTextX = x;
-        buttonY = y + BUTTON_Y_OFFSET;
-
+        buttonsLeftX = left;
+        buttonY = top;
         for (StatusButton button : StatusButton.values()) {
-            blit(
-                    graphics,
-                    button.currentTexture(
-                            pressedButton == button
-                    ),
-                    buttonX(button),
-                    buttonY,
-                    BUTTON_WIDTH,
-                    BUTTON_HEIGHT
-            );
+            blit(graphics, button.currentTexture(pressedButton == button),
+                    buttonX(button), buttonY, BUTTON_WIDTH, BUTTON_HEIGHT);
         }
-
-        StatusButton hovered = buttonAt(
-                mouseX,
-                mouseY
-        );
-
-        if (hovered != null) {
-            renderButtonTooltip(
-                    graphics,
-                    hovered
-            );
-        }
+        StatusButton hovered = buttonAt(mouseX, mouseY);
+        if (hovered != null) renderButtonTooltip(graphics, hovered);
     }
 
     private static void renderButtonTooltip(
@@ -692,7 +618,7 @@ public final class PlayerStatusClient {
     private static int buttonX(
             StatusButton button
     ) {
-        return buttonTextX
+        return buttonsLeftX
                 + button.xOffset;
     }
 
@@ -760,15 +686,13 @@ public final class PlayerStatusClient {
 
     private enum StatusButton {
         ACCEPT(
-                ACCEPT_X_OFFSET,
+                0,
                 "accept",
                 buttonTexture("accept"),
                 buttonTexture("accept_pressed")
         ),
         CANCEL(
-                ACCEPT_X_OFFSET
-                        + BUTTON_WIDTH
-                        + BUTTON_GAP,
+                BUTTON_WIDTH + BUTTON_GAP,
                 "cancel",
                 buttonTexture("cancel"),
                 buttonTexture("cancel_pressed")

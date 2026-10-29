@@ -24,6 +24,9 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FireBlock;
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.block.RenderShape;
+*///?}
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
@@ -35,6 +38,14 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     public PearlFireBlock(Properties properties) {
         super(properties);
     }
+
+    //? if >=1.21.11 {
+    /*@Override
+    protected RenderShape getRenderShape(BlockState state) {
+        // The shared nearest-sampling BER draws the existing baked fire model.
+        return RenderShape.INVISIBLE;
+    }
+    *///?}
 
     public BlockState getPlacementState(BlockGetter level, BlockPos pos) {
         return this.getStateForPlacement(level, pos);
@@ -281,7 +292,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         targetState.onCaughtFire(level, pos, face, null
 
                 //? if >=26.3 {
-                /*, net.minecraft.world.item.ItemStack.EMPTY
+                /*, ItemStack.EMPTY
                 *///?}
         );
 

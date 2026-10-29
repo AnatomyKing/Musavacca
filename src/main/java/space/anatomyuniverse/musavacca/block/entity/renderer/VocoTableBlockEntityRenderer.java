@@ -30,6 +30,9 @@ import java.util.List;
 /*public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTableBlockEntity, VocoTableBlockEntityRenderer.State> {
     private final VocoTableBlockEntityItemDisplayRenderer itemRenderer;
     private final BlockEntityRendererProvider.Context context;
+    //? if >=1.21.11 {
+    /^private final NearestBlockEntityRenderer<VocoTableBlockEntity> nearest;
+    ^///?}
 *///?} else {
 public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTableBlockEntity> {
 
@@ -40,6 +43,9 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
     public VocoTableBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         //? if >=1.21.9 {
         /*this.context = context;
+        //? if >=1.21.11 {
+        /^this.nearest = new NearestBlockEntityRenderer<>(context, 0.5D);
+        ^///?}
         itemRenderer = new VocoTableBlockEntityItemDisplayRenderer(context);
         *///?} else {
         this.candleRenderer = new VocoTableBlockEntityCandleRenderer(context);
@@ -48,7 +54,13 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
     }
 
     //? if >=1.21.9 {
-    /*public static final class State extends BlockEntityRenderState {
+    /*public static final class State
+            //? if >=1.21.11 {
+            /^extends NearestBlockEntityRenderer.State
+            ^///?} else {
+            extends BlockEntityRenderState
+            //?}
+    {
         public final ItemStackRenderState item = new ItemStackRenderState();
         public final List<VocoTableBlockEntityCandleRenderer.Candle> candles = new ArrayList<>();
         public float itemRotation;
@@ -59,7 +71,11 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
     @Override
     public void extractRenderState(VocoTableBlockEntity entity, State state, float partialTick,
                                    Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
+        //? if >=1.21.11 {
+        /^nearest.extractRenderState(entity, state, partialTick, camera, overlay);
+        ^///?} else {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, camera, overlay);
+        //?}
         VocoTableBlockEntityCandleRenderer.extract(entity, state, context);
         itemRenderer.extract(entity, state, partialTick);
     *///?} else if >=1.21.5 <1.21.9 {
@@ -91,6 +107,9 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
     //? if >=1.21.9 {
     /*@Override
     public void submit(State state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+        //? if >=1.21.11 {
+        /^nearest.submit(state, pose, collector, camera);
+        ^///?}
         VocoTableBlockEntityCandleRenderer.submit(state, pose, collector);
         VocoTableBlockEntityItemDisplayRenderer.submit(state, pose, collector);
     }
@@ -125,4 +144,16 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
         );
     }
     //?}
+
+    //? if >=1.21.11 {
+    /*@Override
+    public net.minecraft.world.phys.AABB getRenderBoundingBox(VocoTableBlockEntity entity) {
+        return nearest.getRenderBoundingBox(entity);
+    }
+
+    @Override
+    public int getViewDistance() {
+        return nearest.getViewDistance();
+    }
+    *///?}
 }

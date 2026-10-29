@@ -4,6 +4,9 @@
 	"ambientocclusion": false,
 	"elements": [
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -16,6 +19,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -28,6 +34,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -40,6 +49,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -52,6 +64,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -64,6 +79,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -76,6 +94,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -88,6 +109,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -100,6 +124,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -112,6 +139,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -124,6 +154,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -136,6 +169,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -148,6 +184,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -160,6 +199,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {
@@ -172,6 +214,9 @@
 			}
 		},
 		{
+			"shade": false,
+			"shade_direction_override": "up",
+			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, -0.02, 0.02],
 			"to": [16.02, 15.98, 2.02],
 			"faces": {

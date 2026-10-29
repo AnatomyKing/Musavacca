@@ -12,6 +12,9 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.block.RenderShape;
+*///?}
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -47,6 +50,14 @@ public final class VocoTableBlock extends Block implements EntityBlock {
         super(properties);
         this.registerDefaultState(VocoTableLogic.defaultState(this.stateDefinition.any()));
     }
+
+    //? if >=1.21.11 {
+    /*@Override
+    protected RenderShape getRenderShape(BlockState state) {
+        // The nearest-sampling BER draws this block's existing baked model.
+        return RenderShape.INVISIBLE;
+    }
+    *///?}
 
     @Nullable
     @Override
@@ -143,4 +154,3 @@ public final class VocoTableBlock extends Block implements EntityBlock {
         return VocoTableVoxelShapes.collisionShape(state, level, pos);
     }
 }
-

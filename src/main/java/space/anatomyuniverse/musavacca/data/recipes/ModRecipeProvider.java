@@ -142,7 +142,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .pattern("apa")
                 .pattern("aaa")
                 .define('a', Items.AMETHYST_SHARD)
-                .define('p', ModItems.BANANA_PELLIS.get(), 4)
+                .define('p', ModItems.BANANA_PELLIS.get())
                 .unlockedByHas(ModItems.BANANA_PELLIS.get(), Items.AMETHYST_SHARD)
                 .save("misc/banana_pearl_from_banana_pellis");
         //? if <1.21.2 {
@@ -165,7 +165,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                     .pattern("bab")
                     .define('a', Items.AMETHYST_SHARD)
                     .define('b', banana)
-                    .define('p', ModItems.BANANA_PELLIS.get(), 4)
+                    .define('p', ModItems.BANANA_PELLIS.get())
                     .unlockedByHas(ModItems.BANANA_PELLIS.get(), Items.AMETHYST_SHARD, banana)
                     .save("misc/banana_pearl_from_banana_pellis");
         });

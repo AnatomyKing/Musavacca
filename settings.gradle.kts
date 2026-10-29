@@ -19,8 +19,6 @@ pluginManagement {
 
 plugins {
     id("dev.kikugie.stonecutter") version "0.9.8"
-
-    // Automatically provisions missing Java 21/25 Gradle toolchains.
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 

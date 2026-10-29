@@ -283,20 +283,27 @@ public final class MusavaccaTints {
                 : pos;
 
         BlockEntity blockEntity = level.getBlockEntity(sourcePos);
-        if (blockEntity == null) {
-            return NO_TINT;
-        }
-
         if (multiIndex >= 0) {
+            if (blockEntity == null) return NO_TINT;
             if (blockEntity instanceof MultiHexSource source) {
                 return stored(source.getHexColor(multiIndex));
             }
-
             DataComponentMap components = blockEntity.collectComponents();
             return multiColor(components.get(ModDataComponents.MULTI_HEX_COLOR.get()), multiIndex);
         }
 
-        return blockEntityHexColor(blockEntity);
+        int color = blockEntityHexColor(blockEntity);
+        if (level instanceof net.minecraft.world.level.Level world) {
+            if (hasTint(color)) {
+                //? if >=1.21.11 {
+                /*PearlPlacementColorMemory.remember(world, sourcePos, color);
+                *///?}
+            } else {
+                Integer remembered = PearlPlacementColorMemory.get(world, sourcePos);
+                if (remembered != null) return remembered;
+            }
+        }
+        return color;
     }
 
     private static int itemSourceColor(ItemStack stack, int multiIndex) {

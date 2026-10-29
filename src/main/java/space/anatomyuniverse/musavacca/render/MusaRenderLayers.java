@@ -67,23 +67,22 @@ public final class MusaRenderLayers {
             ModBlocks.MUSAVACCA_EGG.get(),
             ModBlocks.HEX_BLOCK.get(),
             ModBlocks.PEARL_FIRE.get(),
-            ModBlocks.PEARL_PORTAL.get(),
             ModBlocks.VOCO_TABLE.get(),
-            ModBlocks.VOCO_POST.get(),
             ModBlocks.MUSAVACCA_SPROUT.get(),
             ModBlocks.MUSAVACCA_SUCKER.get(),
             ModBlocks.MUSAVACCA_PLANT.get(),
             ModBlocks.MUSAVACCA_PSEUDOSTEM.get(),
-            ModBlocks.MUSAVACCA_DOOR.get(),
             ModBlocks.MUSAVACCA_TRAPDOOR.get(),
             ModBlocks.CAROTENE_GRASS.get(),
             ModBlocks.CAROTENE_SHORT_GRASS.get(),
             ModBlocks.CAROTENE_TALL_GRASS.get(),
-            ModBlocks.BANANA_PEARL_MASCARON.get()
+            ModBlocks.BANANA_PEARL_MASCARON.get(),
+            ModBlocks.VOCO_POST.get()
     );
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Set.of(
-
+            ModBlocks.PEARL_PORTAL.get(),
+            ModBlocks.MUSAVACCA_DOOR.get()
     );
 
     private static final Set<Block> NO_AO_BLOCKS = Set.of(
@@ -304,7 +303,7 @@ public final class MusaRenderLayers {
                     : original.getRenderType(state);
         }
     }
-    //?} else if >=1.21.5 {
+    //?} else if >=1.21.5 <1.21.6 {
     /*private record ForcedPart(BlockModelPart original, Properties properties)
             implements BlockModelPart {
         @Override public List<BakedQuad> getQuads(Direction face) {
@@ -350,7 +349,7 @@ public final class MusaRenderLayers {
                 quad.lightEmission(), quad.bakedNormals(), quad.bakedColors(),
                 quad.hasAmbientOcclusion());
     }
-    *///?} else if >=1.21.5 {
+    *///?} else if >=1.21.5 <1.21.11 {
     private static BakedQuad copyWithoutShade(BakedQuad quad) {
         return new BakedQuad(
                 quad.vertices(), quad.tintIndex(), quad.direction(), quad.sprite(),
@@ -431,3 +430,5 @@ public final class MusaRenderLayers {
     }
     *///?}
 }
+
+

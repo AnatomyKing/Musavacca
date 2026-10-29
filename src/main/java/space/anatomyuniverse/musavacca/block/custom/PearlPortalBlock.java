@@ -28,6 +28,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.Rotation;
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.block.RenderShape;
+*///?}
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -92,6 +95,15 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         return CODEC;
     }
     //?}
+
+    //? if >=1.21.11 {
+    /*@Override
+    protected RenderShape getRenderShape(BlockState state) {
+        // The block entity renderer draws the same baked model with its own sampler.
+        // Do not also put these translucent quads into the shared terrain batch.
+        return RenderShape.INVISIBLE;
+    }
+    *///?}
 
     @Nullable
     @Override

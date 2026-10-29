@@ -19,7 +19,6 @@ import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
 import space.anatomyuniverse.musavacca.client.helmet.CustomHelmetModels;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
-import space.anatomyuniverse.musavacca.data.recipes.ComponentRecipeDSL;
 import space.anatomyuniverse.musavacca.effect.BananaCowBlessingEvents;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
 import space.anatomyuniverse.musavacca.effect.PlayerStatusEvents;
@@ -71,7 +70,6 @@ public final class MusaCore {
         ModFeatures.register(modBus);
         ModDataComponents.register(modBus);
         ModMobEffects.register(modBus);
-        ComponentRecipeDSL.register(modBus);
         ModBlockEntities.register(modBus);
         ModMenuRegistries.register(modBus);
         ModParticleTypes.register(modBus);

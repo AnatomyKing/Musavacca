@@ -15,13 +15,10 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public final class ShapelessCrafting {
     private final RecipeDSL dsl;
     private final ShapelessRecipeBuilder builder;
-    private final List<RecipeDSL.ExtendedIngredient> extendedIngredients = new ArrayList<>();
 
     public ShapelessCrafting(
             RecipeDSL dsl,
@@ -61,11 +58,6 @@ public final class ShapelessCrafting {
         return this;
     }
 
-    public ShapelessCrafting requires(Object ingredient, int amount) {
-        addOnce(this.dsl.sized(ingredient, amount));
-        return this;
-    }
-
     public ShapelessCrafting requiresCount(Object ingredient, int count) {
         if (count <= 0) {
             throw new IllegalArgumentException("count must be >= 1");
@@ -99,10 +91,7 @@ public final class ShapelessCrafting {
     }
 
     private void addOnce(Object ingredient) {
-        if (ingredient instanceof RecipeDSL.ExtendedIngredient source) {
-            this.builder.requires(source.ingredient());
-            this.extendedIngredients.add(source);
-        } else if (ingredient instanceof ItemLike itemLike) {
+        if (ingredient instanceof ItemLike itemLike) {
             this.builder.requires(itemLike);
         } else if (ingredient instanceof TagKey<?> tagKey && tagKey.registry().equals(Registries.ITEM)) {
             @SuppressWarnings("unchecked") TagKey<Item> tag = (TagKey<Item>) tagKey;
@@ -141,10 +130,6 @@ public final class ShapelessCrafting {
     *///?} else {
     public void save(ResourceLocation id) {
     //?}
-        this.dsl.save(
-                this.builder,
-                id,
-                this.dsl.decorateOutput(RecipeDSL.RecipeKind.SHAPELESS, this.extendedIngredients)
-        );
+        this.dsl.save(this.builder, id);
     }
 }

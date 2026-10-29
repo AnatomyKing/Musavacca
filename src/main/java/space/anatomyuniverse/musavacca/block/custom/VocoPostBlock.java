@@ -25,6 +25,9 @@ import net.minecraft.world.level.ScheduledTickAccess;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.block.RenderShape;
+*///?}
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,6 +70,14 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
         return CODEC;
     }
     //?}
+
+    //? if >=1.21.11 {
+    /*@Override
+    protected RenderShape getRenderShape(BlockState state) {
+        // The nearest-sampling BER draws this block's existing baked model.
+        return RenderShape.INVISIBLE;
+    }
+    *///?}
 
     @Nullable
     @Override

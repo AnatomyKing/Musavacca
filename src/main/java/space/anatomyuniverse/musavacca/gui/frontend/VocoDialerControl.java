@@ -1,5 +1,7 @@
 package space.anatomyuniverse.musavacca.gui.frontend;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 //? if >=26.1 {
 /*import net.minecraft.client.gui.GuiGraphicsExtractor;
 
@@ -285,7 +287,7 @@ public final class VocoDialerControl {
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button, int guiX, int guiY) {
-        if (button != 0) return false;
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) return false;
         if (this.isMouseInsideRect(mouseX, mouseY, guiX, guiY, MIDDLE_BUTTON)) {
             this.lettersBase = !this.lettersBase;
             this.cancel();
@@ -307,7 +309,7 @@ public final class VocoDialerControl {
     }
 
     public boolean mouseDragged(double mouseX, double mouseY, int button, int guiX, int guiY) {
-        if (button != 0 || !this.draggingDisk || this.activeDialEntry == null) return false;
+        if (button != InputConstants.MOUSE_BUTTON_LEFT || !this.draggingDisk || this.activeDialEntry == null) return false;
         float currentMouseAngleRadians = normalizeRadians(this.angleFromDialAxis(mouseX, mouseY, guiX, guiY));
         float clockwiseDeltaRadians = signedShortestAngleDelta(this.previousDragMouseAngleRadians, currentMouseAngleRadians);
         if (clockwiseDeltaRadians > 0.0F && this.applyClockwiseDragSafely(clockwiseDeltaRadians)) return true;
@@ -316,7 +318,7 @@ public final class VocoDialerControl {
     }
 
     public boolean mouseReleased(int button) {
-        if (button != 0 || !this.draggingDisk) return false;
+        if (button != InputConstants.MOUSE_BUTTON_LEFT || !this.draggingDisk) return false;
         if (this.diskAngleRadians > MIN_RETURN_ANGLE_RADIANS) this.startReturningToStart(ReturnReason.RELEASED_EARLY);
         else this.stopDraggingWithoutReturn();
         return true;

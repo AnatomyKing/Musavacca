@@ -601,11 +601,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.mouseClicked(event, doubleClick);
     *///?} else {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.mouseClicked(mouseX, mouseY, button);
     //?}
         }
@@ -858,9 +858,19 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         }
         this.clearPress();
         this.resetCaretBlink();
+        //? if >=26.3 {
+        /*if (this.minecraft != null) {
+            this.minecraft.onTextInputFocusChange(this, true);
+        }
+        *///?}
     }
 
     private void stopEditing() {
+        //? if >=26.3 {
+        /*if (this.editingTarget != null && this.minecraft != null) {
+            this.minecraft.onTextInputFocusChange(this, false);
+        }
+        *///?}
         this.editingTarget = null;
         this.editText = "";
         this.caretBlinkStartNanos = 0L;
@@ -1238,7 +1248,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             double dragY
     ) {
     //?}
-        if (button == 0 && this.activeSlider != null) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && this.activeSlider != null) {
             this.updateSliderFromMouse(mouseX);
             return true;
         }
@@ -1255,11 +1265,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.mouseReleased(event);
     *///?} else {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.mouseReleased(mouseX, mouseY, button);
     //?}
         }

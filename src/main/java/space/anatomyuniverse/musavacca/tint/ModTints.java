@@ -50,6 +50,9 @@ public final class ModTints {
                     @Override public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
                         return blockTint(state, level, pos, index);
                     }
+                    @Override public int colorAsTerrainParticle(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+                        return blockTint(state, level, pos, index);
+                    }
                     @Override public java.util.Set<net.minecraft.world.level.block.state.properties.Property<?>> relevantProperties() {
                         return java.util.Set.copyOf(binding.block().getStateDefinition().getProperties());
                     }
@@ -83,22 +86,7 @@ public final class ModTints {
             return Tints.NO_TINT;
         }
 
-        int color = tint.blockColor(state, level, pos, tintIndex);
-        if (color != Tints.NO_TINT) {
-            if (tint instanceof MusavaccaTints.PearlFire) {
-                PearlPlacementColorMemory.clear(pos);
-            }
-            return color;
-        }
-
-        if (tint instanceof MusavaccaTints.PearlFire pearlFire) {
-            Integer rememberedColor = PearlPlacementColorMemory.get(pos);
-            if (rememberedColor != null) {
-                return pearlFire.blockColor(rememberedColor, tintIndex);
-            }
-        }
-
-        return Tints.NO_TINT;
+        return tint.blockColor(state, level, pos, tintIndex);
     }
 
     //? if >=1.21.4 {
