@@ -10,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -25,14 +24,12 @@ final class NewgenModels {
     private final Map<Key, ResourceLocation> resolved = new HashMap<>();
     private final Map<RootYKey, ResourceLocation> rootYModels = new HashMap<>();
     //?}
-
     private record Key(Models.Source source, Tints.ModelKey tint) {}
     //? if >=1.21.11 {
     /*private record RootYKey(Block owner, Identifier parent, float yDegrees) {}
     *///?} else {
     private record RootYKey(Block owner, ResourceLocation parent, float yDegrees) {}
     //?}
-
     //? if >=1.21.11 {
     /*record ItemPart(Identifier model, List<Tints.Tint> tints) {
     *///?} else {
@@ -43,90 +40,57 @@ final class NewgenModels {
             tints = List.copyOf(tints);
         }
     }
-
     record ItemRender(List<ItemPart> parts) {
         ItemRender {
-            if (parts == null || parts.isEmpty()) {
-                throw new IllegalArgumentException("ItemRender requires at least one model part");
-            }
-
+            if (parts == null || parts.isEmpty()) throw new IllegalArgumentException("ItemRender requires at least one model part");
             parts = List.copyOf(parts);
         }
     }
-
     NewgenModels(NewgenOutput output) {
         this.output = output;
     }
-
     //? if >=1.21.11 {
     /*Identifier resolve(Models.Source source, Tints.Tint tint) {
     *///?} else {
     ResourceLocation resolve(Models.Source source, Tints.Tint tint) {
     //?}
         if (source instanceof Models.Existing existing) return existing.model();
-
         Key key = new Key(source, Tints.modelKey(tint));
-
         return resolved.computeIfAbsent(key, ignored -> {
             if (source instanceof Models.Generated cube) return cube(cube, tint);
             if (source instanceof PortalModels.Pane pane) return portal(pane, tint);
-
             if (source instanceof CrossModels.Generated cross) {
                 Tints.GeneratedLayer layer = Tints.singleGeneratedLayer(tint, "CrossBlocks");
-
                 if (layer.tintIndex() > 0) {
-                    throw new IllegalStateException(
-                            "The generated cross template requires tint index 0; use an authored model for offsets."
-                    );
+                    throw new IllegalStateException("The generated cross template requires tint index 0; use an authored model for offsets.");
                 }
-
-                return parent(
-                        cross.model(),
-                        tint.tinted() ? "tinted_cross" : "cross",
-                        Map.of("cross", cross.textures().texture())
-                );
+                return parent(cross.model(), tint.tinted() ? "tinted_cross" : "cross", Map.of("cross", cross.textures().texture()));
             }
-
             throw new IllegalArgumentException("Unsupported model source: " + source);
         });
     }
-
     //? if >=1.21.11 {
     /*Identifier rootRotateY(Block owner, Identifier parent, float yDegrees) {
     *///?} else {
     ResourceLocation rootRotateY(Block owner, ResourceLocation parent, float yDegrees) {
     //?}
-        if (!Float.isFinite(yDegrees)) {
-            throw new IllegalArgumentException("Root Y rotation must be finite: " + yDegrees);
-        }
-
+        if (!Float.isFinite(yDegrees)) throw new IllegalArgumentException("Root Y rotation must be finite: " + yDegrees);
         if (Float.compare(yDegrees, 0.0F) == 0) return parent;
-
-        RootYKey key = new RootYKey(
-                java.util.Objects.requireNonNull(owner, "owner"),
-                java.util.Objects.requireNonNull(parent, "parent"),
-                yDegrees
-        );
-
+        RootYKey key = new RootYKey(java.util.Objects.requireNonNull(owner, "owner"), java.util.Objects.requireNonNull(parent, "parent"), yDegrees);
         return rootYModels.computeIfAbsent(key, ignored -> {
             //? if >=1.21.11 {
             /*Identifier id = rootTransformId(owner, parent, yDegrees);
             *///?} else {
             ResourceLocation id = rootTransformId(owner, parent, yDegrees);
             //?}
-
             JsonObject root = new JsonObject();
             root.addProperty("parent", parent.toString());
-
             JsonObject transform = new JsonObject();
             transform.addProperty("origin", "center");
-
             JsonObject rotation = new JsonObject();
             rotation.addProperty("y", yDegrees);
-
             transform.add("rotation", rotation);
             root.add("transform", transform);
-
             return output.model(id, root);
         });
     }
@@ -142,25 +106,22 @@ final class NewgenModels {
 
     private static String degreeKey(float degrees) {
         String value = BigDecimal.valueOf(degrees).stripTrailingZeros().toPlainString();
-
-        if (value.startsWith("-")) {
-            return "neg_" + value.substring(1).replace('.', '_');
-        }
-
+        if (value.startsWith("-")) return "neg_" + value.substring(1).replace('.', '_');
         return "pos_" + value.replace('.', '_');
     }
 
     //? if >=1.21.11 {
     /*private Identifier cube(Models.Generated generated, Tints.Tint tint) {
-        Textures.Set t = generated.textures();
-        Map<String, Identifier> textures = new java.util.LinkedHashMap<>();
     *///?} else {
     private ResourceLocation cube(Models.Generated generated, Tints.Tint tint) {
-        Textures.Set t = generated.textures();
-        Map<String, ResourceLocation> textures = new java.util.LinkedHashMap<>();
     //?}
+        Textures.Set t = generated.textures();
+        //? if >=1.21.11 {
+        /*Map<String, Identifier> textures = new java.util.LinkedHashMap<>();
+        *///?} else {
+        Map<String, ResourceLocation> textures = new java.util.LinkedHashMap<>();
+        //?}
         textures.put("particle", t.particle());
-
         //? if >=1.21.11 {
         /*Map<String, List<Identifier>> faceLayers = new java.util.LinkedHashMap<>();
         *///?} else {
@@ -172,14 +133,11 @@ final class NewgenModels {
         faceLayers.put("south", t.south());
         faceLayers.put("west", t.west());
         faceLayers.put("east", t.east());
-
         JsonArray elements = new JsonArray();
         int tintIndex = Tints.singleGeneratedLayer(tint, "SimpleBlocks").tintIndex();
-
         for (int layer = 0; layer < t.layerCount(); layer++) {
             JsonObject element = element(0, 0, 0, 16, 16, 16);
             JsonObject faces = new JsonObject();
-
             //? if >=1.21.11 {
             /*for (Map.Entry<String, List<Identifier>> entry : faceLayers.entrySet()) {
                 List<Identifier> layers = entry.getValue();
@@ -187,22 +145,11 @@ final class NewgenModels {
             for (Map.Entry<String, List<ResourceLocation>> entry : faceLayers.entrySet()) {
                 List<ResourceLocation> layers = entry.getValue();
             //?}
-                if (layer >= layers.size()) {
-                    continue;
-                }
-
+                if (layer >= layers.size()) continue;
                 String direction = entry.getKey();
-                String baseKey = switch (direction) {
-                    case "down" -> "bottom";
-                    case "up" -> "top";
-                    default -> direction;
-                };
-                String textureKey = layer == 0
-                        ? baseKey
-                        : baseKey + "_" + layer;
-
+                String baseKey = switch (direction) { case "down" -> "bottom"; case "up" -> "top"; default -> direction; };
+                String textureKey = layer == 0 ? baseKey : baseKey + "_" + layer;
                 textures.put(textureKey, layers.get(layer));
-
                 JsonObject face = new JsonObject();
                 face.add("uv", vector(0, 0, 16, 16));
                 face.addProperty("texture", "#" + textureKey);
@@ -212,13 +159,11 @@ final class NewgenModels {
                 }
                 faces.add(direction, face);
             }
-
             if (faces.size() > 0) {
                 element.add("faces", faces);
                 elements.add(element);
             }
         }
-
         JsonObject root = parentJson("minecraft:block/block", textures);
         root.add("elements", elements);
         return output.model(generated.model(), root);
@@ -236,29 +181,22 @@ final class NewgenModels {
         *///?} else {
         Map<String, ResourceLocation> textures = new java.util.LinkedHashMap<>();
         //?}
-
         textures.put("particle", t.particle() != null ? t.particle() : t.source(tint, 0));
-
         JsonArray elements = new JsonArray();
-
         List<String> directions = switch (pane.axis()) {
             case X -> List.of("north", "south");
             case Z -> List.of("east", "west");
             case Y -> List.of("up", "down");
         };
-
         for (Tints.GeneratedLayer layer : layers) {
             String key = "portal_" + layer.sourceLayer();
             textures.put(key, t.source(tint, layer.sourceLayer()));
-
             JsonObject element = switch (pane.axis()) {
                 case X -> element(0, 0, 6, 16, 16, 10);
                 case Z -> element(6, 0, 0, 10, 16, 16);
                 case Y -> element(0, 6, 0, 16, 10, 16);
             };
-
             JsonObject faces = new JsonObject();
-
             for (String direction : directions) {
                 JsonObject face = new JsonObject();
                 face.add("uv", vector(0, 0, 16, 16));
@@ -266,146 +204,79 @@ final class NewgenModels {
                 if (layer.tintIndex() >= 0) face.addProperty("tintindex", layer.tintIndex());
                 faces.add(direction, face);
             }
-
             element.add("faces", faces);
             elements.add(element);
         }
-
         JsonObject root = parentJson("minecraft:block/block", textures);
         root.add("elements", elements);
-
         return output.model(pane.model(), root);
     }
-
     ItemRender item(Item item, SimpleItems.Model spec) {
         java.util.Objects.requireNonNull(item, "item");
         java.util.Objects.requireNonNull(spec, "spec");
         spec.validate(item);
-
-        if (spec.isExisting()) {
-            return new ItemRender(List.of(
-                    new ItemPart(spec.existingModel(), spec.existingTints())
-            ));
-        }
-
+        if (spec.isExisting()) return new ItemRender(List.of(new ItemPart(spec.existingModel(), spec.existingTints())));
         List<SimpleItems.PhysicalLayer> layers = spec.physicalLayers(item);
-
         //? if >=1.21.4 {
         List<ItemPart> parts = new java.util.ArrayList<>();
         int groupCount = (layers.size() + 4) / 5;
-        //?} else {
-        /*ResourceLocation id = ModelLocations.itemModel(item);
-        *///?}
-
-        //? if >=1.21.11 {
-        /*for (int group = 0; group < groupCount; group++) {
-            int from = group * 5;
-            int to = Math.min(layers.size(), from + 5);
-
-            List<SimpleItems.PhysicalLayer> chunk = layers.subList(from, to);
-
-            Identifier id = groupCount == 1
-                    ? ModelLocations.itemModel(item)
-                    : ModelLocations.itemModel(item, "layers_" + group);
-        *///?} else if >=1.21.4 <1.21.11 {
         for (int group = 0; group < groupCount; group++) {
             int from = group * 5;
             int to = Math.min(layers.size(), from + 5);
-
             List<SimpleItems.PhysicalLayer> chunk = layers.subList(from, to);
-
-            ResourceLocation id = groupCount == 1
-                    ? ModelLocations.itemModel(item)
-                    : ModelLocations.itemModel(item, "layers_" + group);
-
-        //?} else {
-        /*if (layers.size() <= 5) {
-        *///?}
-            generatedItemModel(
-                    id,
-                    spec.style(),
-                    //? if >=1.21.4 {
-                    chunk.stream().map(SimpleItems.PhysicalLayer::texture).toList(),
-                    //?} else {
-                    /*layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(),
-                    *///?}
-                    false
-            );
+            //? if >=1.21.11 {
+            /*Identifier id = groupCount == 1 ? ModelLocations.itemModel(item) : ModelLocations.itemModel(item, "layers_" + group);
+            *///?} else {
+            ResourceLocation id = groupCount == 1 ? ModelLocations.itemModel(item) : ModelLocations.itemModel(item, "layers_" + group);
+            //?}
+        //?}
         //? if >=1.21.4 {
-
-            parts.add(new ItemPart(
-                    id,
-                    chunk.stream().map(SimpleItems.PhysicalLayer::tint).toList()
-            ));
+            generatedItemModel(id, spec.style(), chunk.stream().map(SimpleItems.PhysicalLayer::texture).toList(), false);
+            parts.add(new ItemPart(id, chunk.stream().map(SimpleItems.PhysicalLayer::tint).toList()));
         //?} else {
-        /*} else {
-            generatedItemModel(
-                    id,
-                    spec.style(),
-                    layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(),
-                    true
-            );
+        /*ResourceLocation id = ModelLocations.itemModel(item);
+        if (layers.size() <= 5) {
+            generatedItemModel(id, spec.style(), layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(), false);
+        } else {
+            generatedItemModel(id, spec.style(), layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(), true);
         *///?}
         }
-
         //? if >=1.21.4 {
         return new ItemRender(parts);
         //?} else {
-        /*return new ItemRender(List.of(
-                new ItemPart(
-                        id,
-                        layers.stream().map(SimpleItems.PhysicalLayer::tint).toList()
-                )
-        ));
+        /*return new ItemRender(List.of(new ItemPart(id, layers.stream().map(SimpleItems.PhysicalLayer::tint).toList())));
         *///?}
-
     }
 
     //? if >=1.21.11 {
-    /*private Identifier generatedItemModel(Identifier id, SimpleItems.Style style,
-                                                List<Identifier> textures, boolean unlimitedLegacyLayers) {
+    /*private Identifier generatedItemModel(Identifier id, SimpleItems.Style style, List<Identifier> textures, boolean unlimitedLegacyLayers) {
     *///?} else {
-    private ResourceLocation generatedItemModel(ResourceLocation id, SimpleItems.Style style,
-                                                List<ResourceLocation> textures, boolean unlimitedLegacyLayers) {
+    private ResourceLocation generatedItemModel(ResourceLocation id, SimpleItems.Style style, List<ResourceLocation> textures, boolean unlimitedLegacyLayers) {
     //?}
-        if (textures == null || textures.isEmpty()) {
-            throw new IllegalArgumentException("generated item model requires at least one texture");
-        }
-
+        if (textures == null || textures.isEmpty()) throw new IllegalArgumentException("generated item model requires at least one texture");
         if (!unlimitedLegacyLayers && textures.size() > 5) {
             throw new IllegalArgumentException("Vanilla generated item models support at most five texture layers");
         }
-
         //? if >=1.21.11 {
         /*Map<String, Identifier> mapping = new java.util.LinkedHashMap<>();
         *///?} else {
         Map<String, ResourceLocation> mapping = new java.util.LinkedHashMap<>();
         //?}
-
         for (int i = 0; i < textures.size(); i++) {
             mapping.put("layer" + i, textures.get(i));
         }
-
         String parent;
         if (unlimitedLegacyLayers) {
-            parent = style == SimpleItems.Style.HANDHELD
-                    ? "neoforge:item/default-tool"
-                    : "neoforge:item/default";
+            parent = style == SimpleItems.Style.HANDHELD ? "neoforge:item/default-tool" : "neoforge:item/default";
         } else {
-            parent = style == SimpleItems.Style.HANDHELD
-                    ? "minecraft:item/handheld"
-                    : "minecraft:item/generated";
+            parent = style == SimpleItems.Style.HANDHELD ? "minecraft:item/handheld" : "minecraft:item/generated";
         }
-
         JsonObject root = parentJson(parent, mapping);
-
         if (unlimitedLegacyLayers) {
             root.addProperty("loader", "neoforge:item_layers");
         }
-
         return output.model(id, root);
     }
-
     //? if >=1.21.11 {
     /*ArmorItemModels armorItemModels(Item item, Identifier baseTexture, Identifier trimTexture) {
         Identifier baseId = ModelLocations.itemModel(item);
@@ -415,163 +286,85 @@ final class NewgenModels {
         ResourceLocation baseId = ModelLocations.itemModel(item);
         ResourceLocation trimmedId = ModelLocations.itemModel(item, "trimmed");
     //?}
-
-        JsonObject trimmed = parentJson(
-                "minecraft:item/generated",
-                Map.of("layer0", baseTexture, "layer1", trimTexture)
-        );
-
+        JsonObject trimmed = parentJson("minecraft:item/generated", Map.of("layer0", baseTexture, "layer1", trimTexture));
         output.model(trimmedId, trimmed);
-
-        JsonObject base = parentJson(
-                "minecraft:item/generated",
-                Map.of("layer0", baseTexture)
-        );
+        JsonObject base = parentJson("minecraft:item/generated", Map.of("layer0", baseTexture));
         //? if <1.21.4 {
         /*JsonArray overrides = new JsonArray();
-
         JsonObject override = new JsonObject();
         JsonObject predicate = new JsonObject();
-
         predicate.addProperty(ArmorTrimItemTintSource.legacyTrimPropertyId().toString(), 1.0F);
         override.add("predicate", predicate);
         override.addProperty("model", trimmedId.toString());
-
         overrides.add(override);
         base.add("overrides", overrides);
         *///?}
-
         output.model(baseId, base);
-
         return new ArmorItemModels(baseId, trimmedId);
     }
-
     //? if >=1.21.11 {
     /*record ArmorItemModels(Identifier base, Identifier trimmed) {}
     *///?} else {
     record ArmorItemModels(ResourceLocation base, ResourceLocation trimmed) {}
     //?}
-
     SlabModels slab(SlabBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
-
         var t = e.textures();
         var textures = Map.of("side", t.side(), "bottom", t.bottom(), "top", t.top());
-
-        return SlabModels.full(
-                template(e.block(), "", "slab", textures),
-                template(e.block(), "_top", "slab_top", textures),
-                template(e.block(), "_double", "cube_bottom_top", textures)
-        );
+        return SlabModels.full(template(e.block(), "", "slab", textures), template(e.block(), "_top", "slab_top", textures),
+                template(e.block(), "_double", "cube_bottom_top", textures));
     }
-
     StairModels stair(StairBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
-
         var t = e.textures();
         var textures = Map.of("side", t.side(), "bottom", t.bottom(), "top", t.top());
-
-        return StairModels.full(
-                template(e.block(), "", "stairs", textures),
-                template(e.block(), "_inner", "inner_stairs", textures),
-                template(e.block(), "_outer", "outer_stairs", textures)
-        );
+        return StairModels.full(template(e.block(), "", "stairs", textures), template(e.block(), "_inner", "inner_stairs", textures),
+                template(e.block(), "_outer", "outer_stairs", textures));
     }
-
     FenceModels fence(FenceBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
-
         var textures = Map.of("texture", e.textures().texture());
-
-        return FenceModels.full(
-                template(e.block(), "_post", "fence_post", textures),
-                template(e.block(), "_side", "fence_side", textures),
-                template(e.block(), "_inventory", "fence_inventory", textures)
-        );
+        return FenceModels.full(template(e.block(), "_post", "fence_post", textures), template(e.block(), "_side", "fence_side", textures),
+                template(e.block(), "_inventory", "fence_inventory", textures));
     }
-
     FenceGateModels fenceGate(FenceGateBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
-
         var textures = Map.of("texture", e.textures().texture());
-
-        return FenceGateModels.full(
-                template(e.block(), "", "template_fence_gate", textures),
-                template(e.block(), "_open", "template_fence_gate_open", textures),
-                template(e.block(), "_wall", "template_fence_gate_wall", textures),
-                template(e.block(), "_wall_open", "template_fence_gate_wall_open", textures)
-        );
+        return FenceGateModels.full(template(e.block(), "", "template_fence_gate", textures), template(e.block(), "_open", "template_fence_gate_open", textures),
+                template(e.block(), "_wall", "template_fence_gate_wall", textures), template(e.block(), "_wall_open", "template_fence_gate_wall_open", textures));
     }
-
     PressurePlateModels pressurePlate(PressurePlateBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
-
         var textures = Map.of("texture", e.textures().texture());
-
-        return PressurePlateModels.full(
-                template(e.block(), "", "pressure_plate_up", textures),
-                template(e.block(), "_down", "pressure_plate_down", textures)
-        );
+        return PressurePlateModels.full(template(e.block(), "", "pressure_plate_up", textures), template(e.block(), "_down", "pressure_plate_down", textures));
     }
-
     ButtonModels button(ButtonBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
-
         var textures = Map.of("texture", e.textures().texture());
-
-        return ButtonModels.full(
-                template(e.block(), "", "button", textures),
-                template(e.block(), "_pressed", "button_pressed", textures),
-                template(e.block(), "_inventory", "button_inventory", textures)
-        );
+        return ButtonModels.full(template(e.block(), "", "button", textures), template(e.block(), "_pressed", "button_pressed", textures),
+                template(e.block(), "_inventory", "button_inventory", textures));
     }
-
     WallModels wall(WallBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
-
         var textures = Map.of("wall", e.textures().texture());
-
-        return WallModels.full(
-                template(e.block(), "_post", "template_wall_post", textures),
-                template(e.block(), "_side", "template_wall_side", textures),
-                template(e.block(), "_side_tall", "template_wall_side_tall", textures),
-                template(e.block(), "_inventory", "wall_inventory", textures)
-        );
+        return WallModels.full(template(e.block(), "_post", "template_wall_post", textures), template(e.block(), "_side", "template_wall_side", textures),
+                template(e.block(), "_side_tall", "template_wall_side_tall", textures), template(e.block(), "_inventory", "wall_inventory", textures));
     }
-
     TrapdoorModels trapdoor(TrapdoorBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
-
         var textures = Map.of("texture", e.textures().texture());
-        String prefix = e.orientation() == TrapdoorBlocks.Orientation.ORIENTABLE
-                ? "template_orientable_trapdoor_"
-                : "template_trapdoor_";
-
-        return TrapdoorModels.full(
-                template(e.block(), "_bottom", prefix + "bottom", textures),
-                template(e.block(), "_top", prefix + "top", textures),
-                template(e.block(), "_open", prefix + "open", textures)
-        );
+        String prefix = e.orientation() == TrapdoorBlocks.Orientation.ORIENTABLE ? "template_orientable_trapdoor_" : "template_trapdoor_";
+        return TrapdoorModels.full(template(e.block(), "_bottom", prefix + "bottom", textures), template(e.block(), "_top", prefix + "top", textures),
+                template(e.block(), "_open", prefix + "open", textures));
     }
-
     DoorModels door(DoorBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
-
-        var textures = Map.of(
-                "bottom", e.textures().bottom(),
-                "top", e.textures().top()
-        );
-
-        return DoorModels.full(
-                template(e.block(), "_bottom_left", "door_bottom_left", textures),
-                template(e.block(), "_bottom_left_open", "door_bottom_left_open", textures),
-                template(e.block(), "_bottom_right", "door_bottom_right", textures),
-                template(e.block(), "_bottom_right_open", "door_bottom_right_open", textures),
-                template(e.block(), "_top_left", "door_top_left", textures),
-                template(e.block(), "_top_left_open", "door_top_left_open", textures),
-                template(e.block(), "_top_right", "door_top_right", textures),
-                template(e.block(), "_top_right_open", "door_top_right_open", textures)
-        );
+        var textures = Map.of("bottom", e.textures().bottom(), "top", e.textures().top());
+        return DoorModels.full(template(e.block(), "_bottom_left", "door_bottom_left", textures),
+                template(e.block(), "_bottom_left_open", "door_bottom_left_open", textures), template(e.block(), "_bottom_right", "door_bottom_right", textures),
+                template(e.block(), "_bottom_right_open", "door_bottom_right_open", textures), template(e.block(), "_top_left", "door_top_left", textures),
+                template(e.block(), "_top_left_open", "door_top_left_open", textures), template(e.block(), "_top_right", "door_top_right", textures),
+                template(e.block(), "_top_right_open", "door_top_right_open", textures));
     }
 
     //? if >=1.21.11 {
@@ -597,26 +390,18 @@ final class NewgenModels {
     //?}
         JsonObject root = new JsonObject();
         root.addProperty("parent", parent);
-
         JsonObject mapping = new JsonObject();
         textures.forEach((key, texture) -> mapping.addProperty(key, texture.toString()));
-
         root.add("textures", mapping);
         return root;
     }
-
     //? if >=1.21.11 {
-    /*Identifier fire(FireBlocks.Entry entry, String suffix, Shape shape, int frame,
+    /*Identifier fire(FireBlocks.Entry entry, String suffix, Shape shape, int frame, List<Tints.GeneratedLayer> layers) {
     *///?} else {
-    ResourceLocation fire(FireBlocks.Entry entry, String suffix, Shape shape, int frame,
+    ResourceLocation fire(FireBlocks.Entry entry, String suffix, Shape shape, int frame, List<Tints.GeneratedLayer> layers) {
     //?}
-                          List<Tints.GeneratedLayer> layers) {
-        return output.model(
-                ModelLocations.blockModel(entry.block(), suffix),
-                fireJson(entry, shape, frame, layers)
-        );
+        return output.model(ModelLocations.blockModel(entry.block(), suffix), fireJson(entry, shape, frame, layers));
     }
-
     enum Shape {
         FLOOR,
         SIDE,
@@ -625,29 +410,16 @@ final class NewgenModels {
         UP_ALT
     }
 
-    private static JsonObject fireJson(FireBlocks.Entry entry, Shape shape, int frame,
-                                       List<Tints.GeneratedLayer> layers) {
+    private static JsonObject fireJson(FireBlocks.Entry entry, Shape shape, int frame, List<Tints.GeneratedLayer> layers) {
         JsonObject root = new JsonObject();
         root.addProperty("ambientocclusion", false);
-
         JsonObject textures = new JsonObject();
-
-        textures.addProperty(
-                "particle",
-                textureForLayer(entry.textures(), entry.tint(), frame, layers.get(0)).toString()
-        );
-
+        textures.addProperty("particle", textureForLayer(entry.textures(), entry.tint(), frame, layers.get(0)).toString());
         for (Tints.GeneratedLayer layer : layers) {
-            textures.addProperty(
-                    textureKey(layer),
-                    textureForLayer(entry.textures(), entry.tint(), frame, layer).toString()
-            );
+            textures.addProperty(textureKey(layer), textureForLayer(entry.textures(), entry.tint(), frame, layer).toString());
         }
-
         root.add("textures", textures);
-
         JsonArray elements = new JsonArray();
-
         switch (shape) {
             case FLOOR -> addFloor(elements, layers);
             case SIDE -> addSide(elements, layers, false);
@@ -655,48 +427,16 @@ final class NewgenModels {
             case UP -> addUp(elements, layers, false);
             case UP_ALT -> addUp(elements, layers, true);
         }
-
         root.add("elements", elements);
         return root;
     }
 
     private static void addFloor(JsonArray elements, List<Tints.GeneratedLayer> layers) {
         for (Tints.GeneratedLayer layer : layers) {
-            elements.add(rotatedPlane(
-                    layer,
-                    0, 0, 8.8F,
-                    16, 22.4F, 8.8F,
-                    8, 8, 8,
-                    "x", -22.5F,
-                    "south", 0
-            ));
-
-            elements.add(rotatedPlane(
-                    layer,
-                    0, 0, 7.2F,
-                    16, 22.4F, 7.2F,
-                    8, 8, 8,
-                    "x", 22.5F,
-                    "north", 0
-            ));
-
-            elements.add(rotatedPlane(
-                    layer,
-                    8.8F, 0, 0,
-                    8.8F, 22.4F, 16,
-                    8, 8, 8,
-                    "z", -22.5F,
-                    "west", 0
-            ));
-
-            elements.add(rotatedPlane(
-                    layer,
-                    7.2F, 0, 0,
-                    7.2F, 22.4F, 16,
-                    8, 8, 8,
-                    "z", 22.5F,
-                    "east", 0
-            ));
+            elements.add(rotatedPlane(layer, 0, 0, 8.8F, 16, 22.4F, 8.8F, 8, 8, 8, "x", -22.5F, "south", 0));
+            elements.add(rotatedPlane(layer, 0, 0, 7.2F, 16, 22.4F, 7.2F, 8, 8, 8, "x", 22.5F, "north", 0));
+            elements.add(rotatedPlane(layer, 8.8F, 0, 0, 8.8F, 22.4F, 16, 8, 8, 8, "z", -22.5F, "west", 0));
+            elements.add(rotatedPlane(layer, 7.2F, 0, 0, 7.2F, 22.4F, 16, 8, 8, 8, "z", 22.5F, "east", 0));
         }
     }
 
@@ -704,11 +444,9 @@ final class NewgenModels {
         for (Tints.GeneratedLayer layer : layers) {
             JsonObject element = element(0, 0, 0.01F, 16, 22.4F, 0.01F);
             setUnshaded(element);
-
             JsonObject faces = new JsonObject();
             faces.add("south", face(layer, alternateUv, 0));
             faces.add("north", face(layer, alternateUv, 0));
-
             element.add("faces", faces);
             elements.add(element);
         }
@@ -717,71 +455,31 @@ final class NewgenModels {
     private static void addUp(JsonArray elements, List<Tints.GeneratedLayer> layers, boolean alternate) {
         for (Tints.GeneratedLayer layer : layers) {
             if (!alternate) {
-                elements.add(rotatedPlane(
-                        layer,
-                        0, 16, 0,
-                        16, 16, 16,
-                        16, 16, 8,
-                        "z", 22.5F,
-                        "down", 270
-                ));
-
-                elements.add(rotatedPlane(
-                        layer,
-                        0, 16, 0,
-                        16, 16, 16,
-                        0, 16, 8,
-                        "z", -22.5F,
-                        "down", 90
-                ));
+                elements.add(rotatedPlane(layer, 0, 16, 0, 16, 16, 16, 16, 16, 8, "z", 22.5F, "down", 270));
+                elements.add(rotatedPlane(layer, 0, 16, 0, 16, 16, 16, 0, 16, 8, "z", -22.5F, "down", 90));
             } else {
-                elements.add(rotatedPlane(
-                        layer,
-                        0, 16, 0,
-                        16, 16, 16,
-                        8, 16, 16,
-                        "x", -22.5F,
-                        "down", 180
-                ));
-
-                elements.add(rotatedPlane(
-                        layer,
-                        0, 16, 0,
-                        16, 16, 16,
-                        8, 16, 0,
-                        "x", 22.5F,
-                        "down", 0
-                ));
+                elements.add(rotatedPlane(layer, 0, 16, 0, 16, 16, 16, 8, 16, 16, "x", -22.5F, "down", 180));
+                elements.add(rotatedPlane(layer, 0, 16, 0, 16, 16, 16, 8, 16, 0, "x", 22.5F, "down", 0));
             }
         }
     }
 
-    private static JsonObject rotatedPlane(Tints.GeneratedLayer layer,
-                                           float fromX, float fromY, float fromZ,
-                                           float toX, float toY, float toZ,
-                                           float originX, float originY, float originZ,
-                                           String axis, float angle, String faceDirection, int faceRotation) {
+    private static JsonObject rotatedPlane(Tints.GeneratedLayer layer, float fromX, float fromY, float fromZ, float toX, float toY, float toZ, float originX,
+            float originY, float originZ, String axis, float angle, String faceDirection, int faceRotation) {
         JsonObject element = element(fromX, fromY, fromZ, toX, toY, toZ);
         setUnshaded(element);
-
         JsonObject rotation = new JsonObject();
         rotation.add("origin", vector(originX, originY, originZ));
         rotation.addProperty("axis", axis);
         rotation.addProperty("angle", angle);
         rotation.addProperty("rescale", true);
         element.add("rotation", rotation);
-
         JsonObject faces = new JsonObject();
         faces.add(faceDirection, face(layer, false, faceRotation));
         element.add("faces", faces);
-
         return element;
     }
 
-    /**
-     * Uses the Minecraft 26.3 replacement for the legacy unshaded model-element flag.
-     * Older Stonecutter targets continue to emit the exact legacy JSON property.
-     */
     private static void setUnshaded(JsonObject element) {
         //? if >=26.3 {
         /*element.addProperty("shade_direction_override", "up");
@@ -790,8 +488,7 @@ final class NewgenModels {
         //?}
     }
 
-    private static JsonObject element(float fromX, float fromY, float fromZ,
-                                      float toX, float toY, float toZ) {
+    private static JsonObject element(float fromX, float fromY, float fromZ, float toX, float toY, float toZ) {
         JsonObject element = new JsonObject();
         element.add("from", vector(fromX, fromY, fromZ));
         element.add("to", vector(toX, toY, toZ));
@@ -800,46 +497,36 @@ final class NewgenModels {
 
     private static JsonObject face(Tints.GeneratedLayer layer, boolean alternateUv, int rotation) {
         JsonObject face = new JsonObject();
-
         JsonArray uv = new JsonArray();
         uv.add(alternateUv ? 16 : 0);
         uv.add(0);
         uv.add(alternateUv ? 0 : 16);
         uv.add(16);
-
         face.add("uv", uv);
         face.addProperty("texture", "#" + textureKey(layer));
-
         if (layer.tintIndex() >= 0) {
             face.addProperty("tintindex", layer.tintIndex());
         }
-
         if (rotation != 0) {
             face.addProperty("rotation", rotation);
         }
-
         return face;
     }
 
     private static JsonArray vector(float... values) {
         JsonArray array = new JsonArray();
-
         for (float value : values) {
             array.add(value);
         }
-
         return array;
     }
 
     //? if >=1.21.11 {
-    /*private static Identifier textureForLayer(FireTextures.Set textures, Tints.Tint tint,
+    /*private static Identifier textureForLayer(FireTextures.Set textures, Tints.Tint tint, int frame, Tints.GeneratedLayer layer) {
     *///?} else {
-    private static ResourceLocation textureForLayer(FireTextures.Set textures, Tints.Tint tint,
+    private static ResourceLocation textureForLayer(FireTextures.Set textures, Tints.Tint tint, int frame, Tints.GeneratedLayer layer) {
     //?}
-                                                    int frame, Tints.GeneratedLayer layer) {
-        return Tints.generatedLayerCount(tint) > 1
-                ? FireTextures.layer(textures, frame, layer.sourceLayer())
-                : FireTextures.frame(textures, frame);
+        return Tints.generatedLayerCount(tint) > 1 ? FireTextures.layer(textures, frame, layer.sourceLayer()) : FireTextures.frame(textures, frame);
     }
 
     private static String textureKey(Tints.GeneratedLayer layer) {

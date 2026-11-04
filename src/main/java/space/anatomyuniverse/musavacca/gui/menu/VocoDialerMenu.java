@@ -14,7 +14,6 @@ import space.anatomyuniverse.musavacca.gui.backend.VocoDialerBackend;
 
 public class VocoDialerMenu extends AbstractContainerMenu {
     private final VocoDialerBackend backend;
-
     public VocoDialerMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf ignored) {
         this(containerId, playerInventory);
     }
@@ -56,4 +55,3 @@ public class VocoDialerMenu extends AbstractContainerMenu {
         return true;
     }
 }
-

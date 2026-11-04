@@ -1,13 +1,7 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.custom.DecorationBlock;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +9,6 @@ import java.util.Objects;
 
 public final class DecorationBlocks {
     private DecorationBlocks() {}
-
     enum ItemMode {
         UNSET,
         PLACEMENT,
@@ -26,45 +19,10 @@ public final class DecorationBlocks {
     public static final class Model extends BlockFamily.ModelRule<Models.Source, Model> {
         private final DecorationBlock.Placement placement;
         private final DecorationBlock.Orientation orientation;
-
-        private Model(
-                DecorationBlock.Placement placement,
-                DecorationBlock.Orientation orientation,
-                Models.Source source,
-                Conditions.Match conditions
-        ) {
+        private Model(DecorationBlock.Placement placement, DecorationBlock.Orientation orientation, Models.Source source, Conditions.Match conditions) {
             super(source, conditions);
             this.placement = Objects.requireNonNull(placement, "placement");
             this.orientation = Objects.requireNonNull(orientation, "orientation");
-        }
-
-        public static Model fixed(DecorationBlock.Placement placement, String modelId) {
-            return fixed(placement, Models.existing(modelId), Conditions.always());
-        }
-
-        public static Model fixed(DecorationBlock.Placement placement, Models.Source source) {
-            return fixed(placement, source, Conditions.always());
-        }
-
-        public static Model fixed(
-                DecorationBlock.Placement placement,
-                String modelId,
-                Conditions.Match conditions
-        ) {
-            return fixed(placement, Models.existing(modelId), conditions);
-        }
-
-        public static Model fixed(
-                DecorationBlock.Placement placement,
-                Models.Source source,
-                Conditions.Match conditions
-        ) {
-            return new Model(
-                    placement,
-                    DecorationBlock.Orientation.FIXED,
-                    source,
-                    conditions
-            );
         }
 
         public static Model facing(DecorationBlock.Placement placement, String modelId) {
@@ -75,25 +33,12 @@ public final class DecorationBlocks {
             return facing(placement, source, Conditions.always());
         }
 
-        public static Model facing(
-                DecorationBlock.Placement placement,
-                String modelId,
-                Conditions.Match conditions
-        ) {
+        public static Model facing(DecorationBlock.Placement placement, String modelId, Conditions.Match conditions) {
             return facing(placement, Models.existing(modelId), conditions);
         }
 
-        public static Model facing(
-                DecorationBlock.Placement placement,
-                Models.Source source,
-                Conditions.Match conditions
-        ) {
-            return new Model(
-                    placement,
-                    DecorationBlock.Orientation.FACING,
-                    source,
-                    conditions
-            );
+        public static Model facing(DecorationBlock.Placement placement, Models.Source source, Conditions.Match conditions) {
+            return new Model(placement, DecorationBlock.Orientation.FACING, source, conditions);
         }
 
         public static Model rotating(DecorationBlock.Placement placement, String modelId) {
@@ -104,25 +49,12 @@ public final class DecorationBlocks {
             return rotating(placement, source, Conditions.always());
         }
 
-        public static Model rotating(
-                DecorationBlock.Placement placement,
-                String modelId,
-                Conditions.Match conditions
-        ) {
+        public static Model rotating(DecorationBlock.Placement placement, String modelId, Conditions.Match conditions) {
             return rotating(placement, Models.existing(modelId), conditions);
         }
 
-        public static Model rotating(
-                DecorationBlock.Placement placement,
-                Models.Source source,
-                Conditions.Match conditions
-        ) {
-            return new Model(
-                    placement,
-                    DecorationBlock.Orientation.ROTATION,
-                    source,
-                    conditions
-            );
+        public static Model rotating(DecorationBlock.Placement placement, Models.Source source, Conditions.Match conditions) {
+            return new Model(placement, DecorationBlock.Orientation.ROTATION, source, conditions);
         }
 
         public DecorationBlock.Placement placement() {
@@ -141,7 +73,6 @@ public final class DecorationBlocks {
         private final ItemMode itemMode;
         private final DecorationBlock.Placement itemPlacement;
         private final SimpleItems.Model itemModel;
-
         private Entry(Builder builder) {
             this.block = builder.block;
             this.models = List.copyOf(builder.models);
@@ -166,29 +97,19 @@ public final class DecorationBlocks {
         public Tints.Tint tint() {
             return tint;
         }
-
         ItemMode itemMode() {
             return itemMode;
-        }
-
-        DecorationBlock.Placement itemPlacement() {
-            return itemPlacement;
         }
 
         SimpleItems.Model itemModel() {
             return itemModel;
         }
-
         Model itemRule() {
-            if (itemMode != ItemMode.PLACEMENT) {
-                throw new IllegalStateException("Decoration item is not configured from a placement");
-            }
-
+            if (itemMode != ItemMode.PLACEMENT) throw new IllegalStateException("Decoration item is not configured from a placement");
             List<Model> candidates = models.stream()
                     .filter(model -> model.placement() == itemPlacement)
                     .filter(model -> model.conditions().isAlways())
                     .toList();
-
             if (candidates.size() != 1) {
                 throw new IllegalStateException(
                         "Decoration item placement " + itemPlacement.getSerializedName()
@@ -196,36 +117,16 @@ public final class DecorationBlocks {
                                 + " must have exactly one unconditional model; use .item(model) instead"
                 );
             }
-
             return candidates.get(0);
         }
 
         private void validate() {
-            if (models.isEmpty()) {
-                throw new IllegalStateException(
-                        "DecorationBlocks requires at least one model for " + ModelLocations.blockId(block)
-                );
-            }
-
-            BlockFamilyValidation.requireProperty(
-                    block,
-                    DecorationBlock.PLACEMENT,
-                    "DecorationBlocks"
-            );
-            BlockFamilyValidation.requireProperty(
-                    block,
-                    DecorationBlock.ROTATION,
-                    "DecorationBlocks"
-            );
-            BlockFamilyValidation.requireProperty(
-                    block,
-                    DecorationBlock.FACING,
-                    "DecorationBlocks"
-            );
-
+            if (models.isEmpty()) throw new IllegalStateException("DecorationBlocks requires at least one model for " + ModelLocations.blockId(block));
+            BlockFamilyValidation.requireProperty(block, DecorationBlock.PLACEMENT, "DecorationBlocks");
+            BlockFamilyValidation.requireProperty(block, DecorationBlock.ROTATION, "DecorationBlocks");
+            BlockFamilyValidation.requireProperty(block, DecorationBlock.FACING, "DecorationBlocks");
             for (Model model : models) {
                 BlockFamilyValidation.conditions(block, model.conditions());
-
                 if (model.conditions().contains(DecorationBlock.PLACEMENT)
                         || model.conditions().contains(DecorationBlock.ROTATION)
                         || model.conditions().contains(DecorationBlock.FACING)) {
@@ -234,7 +135,6 @@ public final class DecorationBlocks {
                                     + ModelLocations.blockId(block)
                     );
                 }
-
                 if (!block.isEnabled(model.placement())) {
                     throw new IllegalStateException(
                             "Decoration model declares disabled placement "
@@ -242,7 +142,6 @@ public final class DecorationBlocks {
                                     + " on " + ModelLocations.blockId(block)
                     );
                 }
-
                 DecorationBlock.Orientation actual = block.orientation(model.placement());
                 if (actual != model.orientation()) {
                     throw new IllegalStateException(
@@ -253,12 +152,8 @@ public final class DecorationBlocks {
                     );
                 }
             }
-
             for (DecorationBlock.Placement placement : DecorationBlock.Placement.values()) {
-                List<Model> placementModels = models.stream()
-                        .filter(model -> model.placement() == placement)
-                        .toList();
-
+                List<Model> placementModels = models.stream().filter(model -> model.placement() == placement).toList();
                 if (!block.isEnabled(placement)) {
                     if (!placementModels.isEmpty()) {
                         throw new IllegalStateException(
@@ -269,7 +164,6 @@ public final class DecorationBlocks {
                     }
                     continue;
                 }
-
                 if (placementModels.isEmpty()) {
                     throw new IllegalStateException(
                             "DecorationBlocks is missing a model for enabled placement "
@@ -277,17 +171,14 @@ public final class DecorationBlocks {
                                     + " on " + ModelLocations.blockId(block)
                     );
                 }
-
                 validatePlacementCoverage(placement, placementModels);
             }
-
             if (itemMode == ItemMode.UNSET) {
                 throw new IllegalStateException(
                         "DecorationBlocks requires explicit item handling for " + ModelLocations.blockId(block)
                                 + ": use .item(placement), .item(model), .item(SimpleItems.Model), or .noItem()"
                 );
             }
-
             if (itemMode == ItemMode.PLACEMENT) {
                 if (!block.isEnabled(itemPlacement)) {
                     throw new IllegalStateException(
@@ -296,27 +187,19 @@ public final class DecorationBlocks {
                                     + " on " + ModelLocations.blockId(block)
                     );
                 }
-
                 itemRule();
             }
         }
 
-        private void validatePlacementCoverage(
-                DecorationBlock.Placement placement,
-                List<Model> placementModels
-        ) {
+        private void validatePlacementCoverage(DecorationBlock.Placement placement, List<Model> placementModels) {
             for (BlockState state : block.getStateDefinition().getPossibleStates()) {
-                if (state.getValue(DecorationBlock.PLACEMENT) != placement) {
-                    continue;
-                }
-
+                if (state.getValue(DecorationBlock.PLACEMENT) != placement) continue;
                 int matches = 0;
                 for (Model model : placementModels) {
                     if (model.conditions().matches(state)) {
                         matches++;
                     }
                 }
-
                 if (matches != 1) {
                     throw new IllegalStateException(
                             "DecorationBlocks must match each enabled placement state exactly once, but "
@@ -334,7 +217,6 @@ public final class DecorationBlocks {
         private ItemMode itemMode = ItemMode.UNSET;
         private DecorationBlock.Placement itemPlacement;
         private SimpleItems.Model itemModel;
-
         private Builder(DecorationBlock block) {
             this.block = Objects.requireNonNull(block, "block");
         }
@@ -345,14 +227,8 @@ public final class DecorationBlocks {
         }
 
         public Builder models(Model... models) {
-            if (models == null || models.length == 0) {
-                throw new IllegalArgumentException("models(...) requires at least one model");
-            }
-
-            Arrays.stream(models)
-                    .map(model -> Objects.requireNonNull(model, "model"))
-                    .forEach(this.models::add);
-
+            if (models == null || models.length == 0) throw new IllegalArgumentException("models(...) requires at least one model");
+            Arrays.stream(models).map(model -> Objects.requireNonNull(model, "model")).forEach(this.models::add);
             return this;
         }
 
@@ -386,9 +262,7 @@ public final class DecorationBlocks {
         }
 
         private void requireItemUnset() {
-            if (itemMode != ItemMode.UNSET) {
-                throw new IllegalStateException("Decoration item handling is already configured");
-            }
+            if (itemMode != ItemMode.UNSET) throw new IllegalStateException("Decoration item handling is already configured");
         }
 
         public Entry build() {

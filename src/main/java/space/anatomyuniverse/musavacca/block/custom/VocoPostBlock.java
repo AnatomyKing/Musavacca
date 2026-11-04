@@ -6,7 +6,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-
 //? if <1.21.2 {
 /*import net.minecraft.world.ItemInteractionResult;
 *///?}
@@ -15,14 +14,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-
 //? if >=1.21.2 {
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 //?} else {
 /*import net.minecraft.world.level.LevelAccessor;
 *///?}
-
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 //? if >=1.21.11 {
@@ -45,85 +42,48 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 
 public final class VocoPostBlock extends HorizontalDirectionalBlock implements EntityBlock {
-
     //? if <26.3 {
     public static final MapCodec<VocoPostBlock> CODEC = simpleCodec(VocoPostBlock::new);
-
     //?}
     public static final BooleanProperty LIT = BooleanProperty.create("lit");
     public static final BooleanProperty PORTAL = BooleanProperty.create("portal");
-
     public VocoPostBlock(Properties properties) {
         super(properties);
-
-        this.registerDefaultState(
-                this.stateDefinition.any()
-                        .setValue(FACING, Direction.NORTH)
-                        .setValue(LIT, false)
-                        .setValue(PORTAL, false)
-        );
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, false).setValue(PORTAL, false));
     }
-    //? if <26.3 {
 
+    //? if <26.3 {
     @Override
     protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
         return CODEC;
     }
     //?}
-
     //? if >=1.21.11 {
     /*@Override
     protected RenderShape getRenderShape(BlockState state) {
-        // The nearest-sampling BER draws this block's existing baked model.
         return RenderShape.INVISIBLE;
     }
     *///?}
-
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new VocoPostBlockEntity(pos, state);
     }
-    //? if >=1.21.2 <1.21.5 {
+
+    //? if <1.21.5 {
     /*@Override
-    protected void onRemove(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            BlockState newState,
-            boolean movedByPiston
-    ) {
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()
                 && level.getBlockEntity(pos) instanceof VocoPostBlockEntity blockEntity) {
             blockEntity.cleanupBeforeRemoval();
         }
-
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
-    *///?}
-
-    //? if <1.21.2 {
-    /*@Override
-    protected void onRemove(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            BlockState newState,
-            boolean movedByPiston
-    ) {
-        if (state.getBlock() != newState.getBlock()
-                && level.getBlockEntity(pos) instanceof VocoPostBlockEntity blockEntity) {
-            blockEntity.cleanupBeforeRemoval();
-        }
-
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
     *///?}
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState()
-                .setValue(FACING, context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
@@ -132,112 +92,60 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     }
 
     @Override
-    protected VoxelShape getShape(
-            BlockState state,
-            BlockGetter level,
-            BlockPos pos,
-            CollisionContext context
-    ) {
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return VocoPostVoxelShapes.SHAPE;
     }
 
     @Override
-    protected InteractionResult useWithoutItem(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            BlockHitResult hit
-    ) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         return VocoPostLogic.useWithoutItem(state, level, pos, player, hit);
     }
 
     @Override
-
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     //?} else {
-    /*protected ItemInteractionResult useItemOn(
+    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
     *///?}
-
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit
-    ) {
         InteractionResult result = VocoPostLogic.useItemOn(stack, state, level, pos, player, hand, hit);
-
         //? if >=1.21.2 {
         return result;
         //?} else {
         /*return InteractionResultCompat.forItemUse(result);
         *///?}
-
     }
 
     @Override
-    protected void onPlace(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            BlockState oldState,
-            boolean movedByPiston
-    ) {
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-
         if (!level.isClientSide()) {
             VocoPostCandleLogic.refreshPortalAt(level, pos);
         }
     }
 
     @Override
-    protected BlockState updateShape(
-            BlockState state,
     //? if >=1.21.2 {
-            LevelReader levelReader,
-            ScheduledTickAccess scheduledTickAccess,
-            BlockPos pos,
-            Direction direction,
-            BlockPos neighborPos,
-            BlockState neighborState,
-            RandomSource random
-    ) {
-        return VocoPostCandleLogic.updateShape(state, levelReader, pos, direction);
+    protected BlockState updateShape(BlockState state, LevelReader levelReader, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction,
+            BlockPos neighborPos, BlockState neighborState, RandomSource random) {
     //?} else {
-            /*Direction direction,
-            BlockState neighborState,
-            LevelAccessor level,
-            BlockPos pos,
-            BlockPos neighborPos
-    ) {
-        return VocoPostCandleLogic.updateShape(state, level, pos, direction);
+    /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
     *///?}
+        //? if >=1.21.2 {
+        return VocoPostCandleLogic.updateShape(state, levelReader, pos, direction);
+        //?} else {
+        /*return VocoPostCandleLogic.updateShape(state, level, pos, direction);
+        *///?}
     }
 
     public static ReceptorPosition receptorPosition(BlockState state) {
-        Direction facing = state.hasProperty(FACING)
-                ? state.getValue(FACING)
-                : Direction.NORTH;
-
+        Direction facing = state.hasProperty(FACING) ? state.getValue(FACING) : Direction.NORTH;
         return switch (facing) {
             case NORTH -> ReceptorPosition.NORTH_EAST;
             case EAST -> ReceptorPosition.SOUTH_EAST;
             case SOUTH -> ReceptorPosition.SOUTH_WEST;
             case WEST -> ReceptorPosition.NORTH_WEST;
             default -> ReceptorPosition.NORTH_EAST;
-        };
-    }
-
-    public static int yRotationDegrees(Direction facing) {
-        return switch (facing) {
-            case NORTH -> 0;
-            case EAST -> 90;
-            case SOUTH -> 180;
-            case WEST -> 270;
-            default -> 0;
         };
     }
 }

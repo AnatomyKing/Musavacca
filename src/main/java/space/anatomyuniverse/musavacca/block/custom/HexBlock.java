@@ -9,7 +9,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-
 //? if <1.21.2 {
 /*import net.minecraft.world.ItemInteractionResult;
 *///?}
@@ -21,13 +20,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-
 //? if >=1.21.2 {
 import net.minecraft.world.level.ScheduledTickAccess;
 //?} else {
 /*import net.minecraft.world.level.LevelAccessor;
 *///?}
-
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -47,36 +44,20 @@ import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
-
     //? if <26.3 {
     public static final MapCodec<HexBlock> CODEC = simpleCodec(HexBlock::new);
-
     //?}
     public static final BooleanProperty CLIPPED = BooleanProperty.create("clipped");
-
     private static final VoxelShape SHAPE = Block.box(3.5, 8.0, 3.5, 12.5, 16.0, 12.5);
-
-    private static final int ADD_PARTICLE_ATTEMPTS = 10;
-    private static final int PARTICLE_XZ_RADIUS = 10;
-    private static final int PARTICLE_Y_MAX = 10;
-    private static final int NATURAL_EGG_GROWTH_CHANCE = 5;
-
-    private static final int FALLING_PARTICLE_CHANCE = 4;
-    private static final int FALLING_PARTICLE_COLOR = 0xFFFFFF;
     //? if <26.3 {
-
     @Override
     public MapCodec<HexBlock> codec() {
         return CODEC;
     }
     //?}
-
     public HexBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-                this.stateDefinition.any()
-                        .setValue(CLIPPED, true)
-        );
+        this.registerDefaultState(this.stateDefinition.any().setValue(CLIPPED, true));
     }
 
     @Override
@@ -91,20 +72,26 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
     //? if >=1.21.2 {
     private static InteractionResult passToDefault() {
-        return InteractionResult.TRY_WITH_EMPTY_HAND;
     //?} else {
     /*private static ItemInteractionResult passToDefault() {
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     *///?}
+        //? if >=1.21.2 {
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
+        //?} else {
+        /*return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        *///?}
     }
 
     //? if >=1.21.2 {
     private static InteractionResult successResult() {
-        return InteractionResult.SUCCESS;
     //?} else {
     /*private static ItemInteractionResult successResult() {
-        return ItemInteractionResult.SUCCESS;
     *///?}
+        //? if >=1.21.2 {
+        return InteractionResult.SUCCESS;
+        //?} else {
+        /*return ItemInteractionResult.SUCCESS;
+        *///?}
     }
 
     @Override
@@ -113,24 +100,13 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     }
 
     @Override
-    protected BlockState updateShape(
-            BlockState state,
-            //? if >=1.21.2 {
-            LevelReader level,
-            ScheduledTickAccess scheduledTickAccess,
-            BlockPos pos,
-            net.minecraft.core.Direction direction,
-            BlockPos neighborPos,
-            BlockState neighborState,
-            RandomSource random
-            //?} else {
-            /*net.minecraft.core.Direction direction,
-            BlockState neighborState,
-            LevelAccessor level,
-            BlockPos pos,
-            BlockPos neighborPos
-            *///?}
-    ) {
+    //? if >=1.21.2 {
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos,
+            net.minecraft.core.Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+    //?} else {
+    /*protected BlockState updateShape(BlockState state, net.minecraft.core.Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos,
+            BlockPos neighborPos) {
+    *///?}
         return net.minecraft.core.Direction.UP == direction && !this.canSurvive(state, level, pos)
                 ? Blocks.AIR.defaultBlockState()
                 //? if >=1.21.2 {
@@ -148,15 +124,8 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-
-        if (level.isClientSide()) {
-            return;
-        }
-
-        if (oldState.is(state.getBlock())) {
-            return;
-        }
-
+        if (level.isClientSide()) return;
+        if (oldState.is(state.getBlock())) return;
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HexBlockEntity hexBe) {
             hexBe.ensureRandomHexColor();
@@ -166,16 +135,9 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-
-        if (level.isClientSide()) {
-            return;
-        }
-
+        if (level.isClientSide()) return;
         Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-        if (savedHex == null) {
-            return;
-        }
-
+        if (savedHex == null) return;
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HexBlockEntity hexBe) {
             hexBe.setHexColor(savedHex);
@@ -183,187 +145,111 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     }
 
     @Override
-
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     //?} else {
-    /*protected ItemInteractionResult useItemOn(
+    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
     *///?}
-
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit
-    ) {
-        if (!stack.is(Items.SHEARS)) {
-            return passToDefault();
-        }
-
-        if (state.getValue(CLIPPED)) {
-            return passToDefault();
-        }
-
+        if (!stack.is(Items.SHEARS)) return passToDefault();
+        if (state.getValue(CLIPPED)) return passToDefault();
         if (!level.isClientSide()) {
             level.setBlock(pos, state.setValue(CLIPPED, true), Block.UPDATE_ALL);
-
-            stack.hurtAndBreak(
-                    1,
-                    player,
-                    hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND
-            );
-
-            level.playSound(
-                    null,
-                    pos,
-                    SoundEvents.SHEEP_SHEAR,
-                    SoundSource.BLOCKS,
-                    1.0F,
-                    1.0F
-            );
-
-            level.playSound(
-                    null,
-                    pos,
-                    SoundEvents.AMETHYST_CLUSTER_BREAK,
-                    SoundSource.BLOCKS,
-                    1.0F,
-                    1.0F
-            );
+            stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+            level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.playSound(null, pos, SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
-
         return successResult();
     }
 
-//? if >=1.21.5 {
+    //? if >=1.21.5 {
     @Override
     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
         BreakHexLogic.breakBreakBlockAboveIfPresent(level, pos);
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
-//?} else {
+    //?}
+//? if <1.21.5 {
 /*@Override
 protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
     if (!state.is(newState.getBlock()) && newState.isAir()) {
         BreakHexLogic.breakBreakBlockAboveIfPresent(level, pos);
     }
-
     super.onRemove(state, level, pos, newState, movedByPiston);
 }
 *///?}
-
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        if (state.getValue(CLIPPED)) {
-            return;
-        }
-
+        if (state.getValue(CLIPPED)) return;
         int i = pos.getX();
         int j = pos.getY();
         int k = pos.getZ();
-
         int rgb = getParticleRgb(level, pos);
-
-        if (random.nextInt(FALLING_PARTICLE_CHANCE) == 0) {
+        if (random.nextInt(4) == 0) {
             double d0 = (double) i + 0.35 + random.nextDouble() * 0.30;
             double d1 = (double) j + 0.72;
             double d2 = (double) k + 0.35 + random.nextDouble() * 0.30;
-
-            level.addParticle(
-                    new HexColorParticleOptions(
-                            ModParticleTypes.HEX_FALLING_SPORE_BLOSSOM.get(),
-                            FALLING_PARTICLE_COLOR
-                    ),
-                    d0, d1, d2,
-                    0.0, 0.0, 0.0
-            );
+            level.addParticle(new HexColorParticleOptions(ModParticleTypes.HEX_FALLING_SPORE_BLOSSOM.get(), 0xFFFFFF), d0, d1, d2, 0.0, 0.0, 0.0);
         }
-
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-
-        for (int l = 0; l < ADD_PARTICLE_ATTEMPTS; ++l) {
-            mutablePos.set(
-                    i + Mth.nextInt(random, -PARTICLE_XZ_RADIUS, PARTICLE_XZ_RADIUS),
-                    j - random.nextInt(PARTICLE_Y_MAX),
-                    k + Mth.nextInt(random, -PARTICLE_XZ_RADIUS, PARTICLE_XZ_RADIUS)
-            );
-
+        for (int l = 0; l < 10; ++l) {
+            mutablePos.set(i + Mth.nextInt(random, -10, 10), j - random.nextInt(10), k + Mth.nextInt(random, -10, 10));
             BlockState blockState = level.getBlockState(mutablePos);
             if (!blockState.isCollisionShapeFullBlock(level, mutablePos)) {
-                level.addParticle(
-                        new HexColorParticleOptions(ModParticleTypes.HEX_SPORE_BLOSSOM_AIR.get(), rgb),
-                        (double) mutablePos.getX() + random.nextDouble(),
-                        (double) mutablePos.getY() + random.nextDouble(),
-                        (double) mutablePos.getZ() + random.nextDouble(),
-                        0.0, 0.0, 0.0
-                );
+                level.addParticle(new HexColorParticleOptions(ModParticleTypes.HEX_SPORE_BLOSSOM_AIR.get(), rgb),
+                        (double) mutablePos.getX() + random.nextDouble(), (double) mutablePos.getY() + random.nextDouble(),
+                        (double) mutablePos.getZ() + random.nextDouble(), 0.0, 0.0, 0.0);
             }
         }
     }
 
     private static int getParticleRgb(Level level, BlockPos pos) {
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof HexBlockEntity hexBe && hexBe.hasHexColor()) {
-            return hexBe.getHexColor();
-        }
-
+        if (be instanceof HexBlockEntity hexBe && hexBe.hasHexColor()) return hexBe.getHexColor();
         return MusavaccaTints.DEFAULT_TINT;
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state
-
-            //? if >=26.3 {
-            /*, net.minecraft.world.level.block.BonemealSource source
-            *///?}
-    ) {
+    //? if >=26.3 {
+    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    *///?} else {
+    public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
+    //?}
         return true;
     }
 
     @Override
-    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state
-
-            //? if >=26.3 {
-            /*, net.minecraft.world.level.block.BonemealSource source
-            *///?}
-    ) {
+    //? if >=26.3 {
+    /*public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    *///?} else {
+    public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
+    //?}
         return true;
     }
 
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (state.getValue(CLIPPED)) {
-            return;
-        }
-
-        if (random.nextInt(NATURAL_EGG_GROWTH_CHANCE) != 0) {
-            return;
-        }
-
+        if (state.getValue(CLIPPED)) return;
+        if (random.nextInt(5) != 0) return;
         if (BreakHexLogic.canGrowHexIntoEggPair(level, pos, state)) {
             BreakHexLogic.growHexIntoEggPair(level, pos, state);
         }
     }
 
     @Override
-    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state
-
-            //? if >=26.3 {
-            /*, net.minecraft.world.level.block.BonemealSource source
-            *///?}
-    ) {
+    //? if >=26.3 {
+    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    *///?} else {
+    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+    //?}
         if (state.getValue(CLIPPED)) {
             level.setBlock(pos, state.setValue(CLIPPED, false), Block.UPDATE_ALL);
             return;
         }
-
         if (BreakHexLogic.canGrowHexIntoEggPair(level, pos, state)) {
             BreakHexLogic.growHexIntoEggPair(level, pos, state);
             return;
         }
-
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HexBlockEntity hexBe) {
             hexBe.setHexColor(random.nextInt(0x1000000));

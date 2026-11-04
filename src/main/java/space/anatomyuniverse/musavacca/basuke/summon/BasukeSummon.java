@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.basuke.summon;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-
 //? if >=1.21.2 {
 import net.minecraft.world.entity.EntitySpawnReason;
 //?}
@@ -22,99 +21,48 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class BasukeSummon {
-
     private BasukeSummon() {
     }
 
-    public static boolean trySummonFromVocoTable(
-            Level level,
-            BlockPos pos
-    ) {
+    public static boolean trySummonFromVocoTable(Level level, BlockPos pos) {
         if (
-                BasukeSealed.trySealFromVocoTable(
-                        level,
-                        pos
-                )
+                BasukeSealed.trySealFromVocoTable(level, pos)
         ) {
             return true;
         }
-
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return false;
-        }
-
-        BlockState state =
-                serverLevel.getBlockState(pos);
-
-        if (!(state.getBlock() instanceof VocoTableBlock)) {
-            return false;
-        }
-
+        if (!(level instanceof ServerLevel serverLevel)) return false;
+        BlockState state = serverLevel.getBlockState(pos);
+        if (!(state.getBlock() instanceof VocoTableBlock)) return false;
         if (
-                state.getValue(
-                        VocoTableBlock.ROTARY_DIALERS
-                )
+                state.getValue(VocoTableBlock.ROTARY_DIALERS)
         ) {
             return false;
         }
-
         if (
                 !(serverLevel.getBlockEntity(pos)
                         instanceof VocoTableBlockEntity tableBe)
         ) {
             return false;
         }
-
-        if (!matchesSummonRecipe(state, tableBe)) {
-            return false;
-        }
-
-        completeSummon(
-                serverLevel,
-                pos,
-                state,
-                tableBe
-        );
-
+        if (!matchesSummonRecipe(state, tableBe)) return false;
+        completeSummon(serverLevel, pos, state, tableBe);
         return true;
     }
 
-    private static boolean matchesSummonRecipe(
-            @NotNull BlockState state,
-            @NotNull VocoTableBlockEntity tableBe
-    ) {
-        ItemStack displayed =
-                tableBe.getDisplayedItem();
-
-        return displayed.is(
-                ModItems.BIG_BANANA_PEARL.get()
-        )
-                && allReceptorsCharged(state)
-                && allNormalCandleCornersLit(tableBe);
+    private static boolean matchesSummonRecipe(@NotNull BlockState state, @NotNull VocoTableBlockEntity tableBe) {
+        ItemStack displayed = tableBe.getDisplayedItem();
+        return displayed.is(ModItems.BIG_BANANA_PEARL.get()) && allReceptorsCharged(state) && allNormalCandleCornersLit(tableBe);
     }
 
-    private static boolean allReceptorsCharged(
-            @NotNull BlockState state
-    ) {
-        for (
-                BooleanProperty property
-                : VocoTableBlock.RECEPTOR_LIGHTS
-        ) {
-            if (!state.getValue(property)) {
-                return false;
-            }
+    private static boolean allReceptorsCharged(@NotNull BlockState state) {
+        for (BooleanProperty property : VocoTableBlock.RECEPTOR_LIGHTS) {
+            if (!state.getValue(property)) return false;
         }
-
         return true;
     }
 
-    private static boolean allNormalCandleCornersLit(
-            @NotNull VocoTableBlockEntity tableBe
-    ) {
-        for (
-                ReceptorPosition receptor
-                : ReceptorPosition.values()
-        ) {
+    private static boolean allNormalCandleCornersLit(@NotNull VocoTableBlockEntity tableBe) {
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
             if (
                     !tableBe.isCandleLit(receptor)
                             || tableBe.getCornerHexColor(receptor)
@@ -123,98 +71,37 @@ public final class BasukeSummon {
                 return false;
             }
         }
-
         return true;
     }
 
-    private static void completeSummon(
-            ServerLevel level,
-            BlockPos pos,
-            BlockState state,
-            VocoTableBlockEntity tableBe
-    ) {
+    private static void completeSummon(ServerLevel level, BlockPos pos, BlockState state, VocoTableBlockEntity tableBe) {
         tableBe.removeDisplayedItems(1);
         tableBe.extinguishAllCandlesForSummon();
-
         BlockState newState = state;
-
-        for (
-                ReceptorPosition receptor
-                : ReceptorPosition.values()
-        ) {
-            newState =
-                    newState
-                            .setValue(
-                                    VocoTableBlock.lightProperty(
-                                            receptor
-                                    ),
-                                    false
-                            )
-                            .setValue(
-                                    VocoTableBlock.portalProperty(
-                                            receptor
-                                    ),
-                                    false
-                            );
-
-            VocoTeleportLogic.syncEndpoint(
-                    level,
-                    pos,
-                    receptor,
-                    false,
-                    MusavaccaTints.NO_TINT
-            );
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            newState = newState.setValue(VocoTableBlock.lightProperty(receptor), false).setValue(VocoTableBlock.portalProperty(receptor), false);
+            VocoTeleportLogic.syncEndpoint(level, pos, receptor, false, MusavaccaTints.NO_TINT);
         }
-
-        newState =
-                newState.setValue(
-                        VocoTableBlock.ROTARY_DIALERS,
-                        true
-                );
-
-        level.setBlock(
-                pos,
-                newState,
-                VocoReceptorLogic.UPDATE_FLAGS
-        );
-
+        newState = newState.setValue(VocoTableBlock.ROTARY_DIALERS, true);
+        level.setBlock(pos, newState, VocoReceptorLogic.UPDATE_FLAGS);
         spawnSummonLightning(level, pos);
         tableBe.activateBasukeFromRotaryDialers(level);
     }
 
-    private static void spawnSummonLightning(
-            ServerLevel level,
-            BlockPos pos
-    ) {
-
+    private static void spawnSummonLightning(ServerLevel level, BlockPos pos) {
         //? if >=26.2 {
-        /*LightningBolt lightning = net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT.create(
-                level,
-                EntitySpawnReason.TRIGGERED
-        );
+        /*LightningBolt lightning = net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
         *///?} else if >=1.21.2 <26.2 {
-        LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(
-                level,
-                EntitySpawnReason.TRIGGERED
-        );
+        LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
         //?} else {
         /*LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
         *///?}
-
-        if (lightning == null) {
-            return;
-        }
-
+        if (lightning == null) return;
         //? if >=1.21.5 {
-        lightning.snapTo(
+        lightning.snapTo(pos.getX() + 0.5D, pos.getY() + 1.05D, pos.getZ() + 0.5D);
         //?} else {
-        /*lightning.moveTo(
+        /*lightning.moveTo(pos.getX() + 0.5D, pos.getY() + 1.05D, pos.getZ() + 0.5D);
         *///?}
-                pos.getX() + 0.5D,
-                pos.getY() + 1.05D,
-                pos.getZ() + 0.5D
-        );
-
         lightning.setVisualOnly(true);
         level.addFreshEntity(lightning);
     }

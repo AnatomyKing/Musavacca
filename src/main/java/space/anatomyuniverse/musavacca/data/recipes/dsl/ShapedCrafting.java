@@ -13,41 +13,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
-
 import java.util.Objects;
 
 public final class ShapedCrafting {
     private final RecipeDSL dsl;
     private final ShapedRecipeBuilder builder;
-
-    public ShapedCrafting(
-            RecipeDSL dsl,
-            RecipeCategory category,
-            ItemLike result,
-            int count
-    ) {
+    public ShapedCrafting(RecipeDSL dsl, RecipeCategory category, ItemLike result, int count) {
         this.dsl = dsl;
-
         //? if >=26.1 {
-        /*this.builder = ShapedRecipeBuilder.shaped(
-                dsl.items(),
-                category,
-
-                new net.minecraft.world.item.ItemStackTemplate(result.asItem(), count)
-
-        );
+        /*this.builder = ShapedRecipeBuilder.shaped(dsl.items(), category, new net.minecraft.world.item.ItemStackTemplate(result.asItem(), count));
         *///?} else if >=1.21.2 <26.1 {
-        this.builder = ShapedRecipeBuilder.shaped(
-                dsl.items(),
-                category,
-
-                new ItemStack(result.asItem(), count)
-
-        );
+        this.builder = ShapedRecipeBuilder.shaped(dsl.items(), category, new ItemStack(result.asItem(), count));
         //?} else {
         /*this.builder = ShapedRecipeBuilder.shaped(category, result, count);
         *///?}
-
     }
 
     public ShapedCrafting pattern(String line) {
@@ -57,7 +36,6 @@ public final class ShapedCrafting {
 
     public ShapedCrafting define(char key, Object ingredient) {
         Objects.requireNonNull(ingredient, "ingredient");
-
         if (ingredient instanceof ItemLike itemLike) {
             this.builder.define(key, itemLike);
         } else if (ingredient instanceof TagKey<?> tagKey
@@ -69,7 +47,6 @@ public final class ShapedCrafting {
         } else {
             throw new IllegalArgumentException("Unsupported ingredient for key '" + key + "': " + ingredient);
         }
-
         return this;
     }
 
@@ -82,7 +59,6 @@ public final class ShapedCrafting {
         for (ItemLike item : items) {
             this.builder.unlockedBy(RecipeDSL.hasName(item), this.dsl.unlocker().item(item));
         }
-
         return this;
     }
 

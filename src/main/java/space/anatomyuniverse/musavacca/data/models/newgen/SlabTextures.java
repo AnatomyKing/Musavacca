@@ -6,23 +6,15 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.block.Block;
-
 import java.util.Objects;
 
 public final class SlabTextures {
     private SlabTextures() {}
-
-    public record Set(
-            //? if >=1.21.11 {
-            /*Identifier side,
-            Identifier bottom,
-            Identifier top
-            *///?} else {
-            ResourceLocation side,
-            ResourceLocation bottom,
-            ResourceLocation top
-            //?}
-    ) {
+    //? if >=1.21.11 {
+    /*public record Set(Identifier side, Identifier bottom, Identifier top) {
+    *///?} else {
+    public record Set(ResourceLocation side, ResourceLocation bottom, ResourceLocation top) {
+    //?}
         public Set {
             Objects.requireNonNull(side, "side");
             Objects.requireNonNull(bottom, "bottom");
@@ -45,7 +37,6 @@ public final class SlabTextures {
         private ResourceLocation bottom;
         private ResourceLocation top;
         //?}
-
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
         }
@@ -56,13 +47,10 @@ public final class SlabTextures {
 
         public Builder all(Block source) {
             //? if >=1.21.11 {
-            /*Identifier texture = TextureTokens.block(
+            /*Identifier texture = TextureTokens.block(Objects.requireNonNull(source, "source"));
             *///?} else {
-            ResourceLocation texture = TextureTokens.block(
+            ResourceLocation texture = TextureTokens.block(Objects.requireNonNull(source, "source"));
             //?}
-                    Objects.requireNonNull(source, "source")
-            );
-
             side = texture;
             bottom = texture;
             top = texture;
@@ -101,13 +89,10 @@ public final class SlabTextures {
                 all();
             } else if (side == null || bottom == null || top == null) {
                 //? if >=1.21.11 {
-                /*Identifier fallback = TextureTokens.block(
+                /*Identifier fallback = TextureTokens.block(BlockFamilySources.inferBaseBlock(block, "_slab"));
                 *///?} else {
-                ResourceLocation fallback = TextureTokens.block(
+                ResourceLocation fallback = TextureTokens.block(BlockFamilySources.inferBaseBlock(block, "_slab"));
                 //?}
-                        BlockFamilySources.inferBaseBlock(block, "_slab")
-                );
-
                 if (side == null) {
                     side = fallback;
                 }
@@ -118,7 +103,6 @@ public final class SlabTextures {
                     top = fallback;
                 }
             }
-
             return new Set(side, bottom, top);
         }
     }

@@ -19,34 +19,20 @@ public final class WallModels {
     private final ResourceLocation tallSide;
     private final ResourceLocation inventory;
     //?}
-
     private WallModels(Builder builder) {
         post = builder.post;
         lowSide = builder.lowSide;
         tallSide = builder.tallSide;
         inventory = builder.inventory;
-
-        if (isEmpty()) {
-            throw new IllegalStateException("WallModels requires at least one model");
-        }
+        if (isEmpty()) throw new IllegalStateException("WallModels requires at least one model");
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static WallModels full(
-            String post,
-            String lowSide,
-            String tallSide,
-            String inventory
-    ) {
-        return builder()
-                .post(post)
-                .lowSide(lowSide)
-                .tallSide(tallSide)
-                .inventory(inventory)
-                .build();
+    public static WallModels full(String post, String lowSide, String tallSide, String inventory) {
+        return builder().post(post).lowSide(lowSide).tallSide(tallSide).inventory(inventory).build();
     }
 
     @Nullable
@@ -109,9 +95,7 @@ public final class WallModels {
         private ResourceLocation tallSide;
         private ResourceLocation inventory;
         //?}
-
         private Builder() {}
-
         public Builder post(String model) {
             post = parse(model, "post");
             return this;
@@ -142,9 +126,7 @@ public final class WallModels {
     *///?} else {
     private static ResourceLocation parse(String model, String name) {
     //?}
-        if (model == null || model.isBlank()) {
-            throw new IllegalArgumentException(name + " must not be blank");
-        }
+        if (model == null || model.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
         //? if >=1.21.11 {
         /*return Identifier.parse(model);
         *///?} else {

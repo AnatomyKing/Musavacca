@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.worldgen.ModTreeGrowers;
 
 public class MusavaccaSaplingBlock extends SaplingBlock {
-
     public MusavaccaSaplingBlock(Properties properties) {
         super(ModTreeGrowers.MUSAVACCA, properties);
     }
@@ -23,10 +22,8 @@ public class MusavaccaSaplingBlock extends SaplingBlock {
     @Override
     public void advanceTree(ServerLevel level, BlockPos pos, BlockState state, RandomSource random) {
         super.advanceTree(level, pos, state, random);
-
         if (!level.getBlockState(pos).is(this)) {
             level.setBlock(pos.below(), Blocks.ROOTED_DIRT.defaultBlockState(), 3);
         }
     }
 }
-

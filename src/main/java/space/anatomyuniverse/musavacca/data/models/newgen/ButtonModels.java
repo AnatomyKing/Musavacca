@@ -17,15 +17,11 @@ public final class ButtonModels {
     private final ResourceLocation pressed;
     private final ResourceLocation inventory;
     //?}
-
     private ButtonModels(Builder builder) {
         normal = builder.normal;
         pressed = builder.pressed;
         inventory = builder.inventory;
-
-        if (isEmpty()) {
-            throw new IllegalStateException("ButtonModels requires at least one model");
-        }
+        if (isEmpty()) throw new IllegalStateException("ButtonModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -76,9 +72,7 @@ public final class ButtonModels {
         private ResourceLocation pressed;
         private ResourceLocation inventory;
         //?}
-
         private Builder() {}
-
         public Builder normal(String model) {
             normal = parse(model, "normal");
             return this;
@@ -104,9 +98,7 @@ public final class ButtonModels {
     *///?} else {
     private static ResourceLocation parse(String model, String name) {
     //?}
-        if (model == null || model.isBlank()) {
-            throw new IllegalArgumentException(name + " must not be blank");
-        }
+        if (model == null || model.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
         //? if >=1.21.11 {
         /*return Identifier.parse(model);
         *///?} else {

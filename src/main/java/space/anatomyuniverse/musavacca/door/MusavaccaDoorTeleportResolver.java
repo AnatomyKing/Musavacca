@@ -1,11 +1,5 @@
 package space.anatomyuniverse.musavacca.door;
 
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -20,274 +14,103 @@ import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalDoorHit
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
-
 import java.util.Optional;
 
 public final class MusavaccaDoorTeleportResolver {
-
     private MusavaccaDoorTeleportResolver() {}
-
-    public record ResolvedDoor(
-            String ownerKey,
-            ServerLevel level,
-            BlockPos pos,
-            int hexColor,
-            Direction facing,
-            Vec3 portalCenter
-    ) {}
-
-    public static Optional<ResolvedDoor> resolveSourceDoor(
-            ServerLevel level,
-            BlockPos entryPos
-    ) {
-        BlockState entryState =
-                level.getBlockState(
-                        entryPos
-                );
-
+    public record ResolvedDoor(String ownerKey, ServerLevel level, BlockPos pos, int hexColor, Direction facing, Vec3 portalCenter) {}
+    public static Optional<ResolvedDoor> resolveSourceDoor(ServerLevel level, BlockPos entryPos) {
+        BlockState entryState = level.getBlockState(entryPos);
         if (
                 !(entryState.getBlock()
                         instanceof MusavaccaPortalDoorBlock)
         ) {
             return Optional.empty();
         }
-
-        BlockPos lowerPos =
-                MusavaccaPortalDoorBlock
-                        .lowerDoorPos(
-                                entryState,
-                                entryPos
-                        );
-
-        BlockState lowerState =
-                level.getBlockState(
-                        lowerPos
-                );
-
+        BlockPos lowerPos = MusavaccaPortalDoorBlock.lowerDoorPos(entryState, entryPos);
+        BlockState lowerState = level.getBlockState(lowerPos);
         if (
-                !isOpenPortalDoor(
-                        lowerState
-                )
+                !isOpenPortalDoor(lowerState)
         ) {
             return Optional.empty();
         }
-
         if (
-                !(level.getBlockEntity(
-                        lowerPos
-                )
+                !(level.getBlockEntity(lowerPos)
                         instanceof MusavaccaPortalDoorBlockEntity doorBe)
                         || !doorBe.hasHexColor()
         ) {
             return Optional.empty();
         }
-
-        MusavaccaDoorTeleportNetwork.refresh(
-                doorBe
-        );
-
-        String ownerKey =
-                HexTeleportDirectory
-                        .doorOwnerKey(
-                                //? if >=1.21.11 {
-                                /*level.dimension().identifier(),
-                                *///?} else {
-                                level.dimension().location(),
-                                //?}
-                                lowerPos
-                        );
-
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        level.getServer()
-                );
-
-        HexTeleportDirectory.DoorEndpoint registered =
-                directory
-                        .getDoorEndpointByOwner(
-                                ownerKey
-                        )
-                        .orElse(null);
-
+        MusavaccaDoorTeleportNetwork.refresh(doorBe);
+        //? if >=1.21.11 {
+        /*String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().identifier(), lowerPos);
+        *///?} else {
+        String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().location(), lowerPos);
+        //?}
+        HexTeleportDirectory directory = HexTeleportDirectory.get(level.getServer());
+        HexTeleportDirectory.DoorEndpoint registered = directory.getDoorEndpointByOwner(ownerKey).orElse(null);
         if (
                 registered == null
                         || registered.hexColor()
                         != HexTeleportDirectory
-                        .normalizeHex(
-                                doorBe.getHexColor()
-                        )
+                        .normalizeHex(doorBe.getHexColor())
         ) {
             return Optional.empty();
         }
-
-        return Optional.of(
-                resolvedDoor(
-                        ownerKey,
-                        level,
-                        lowerPos,
-                        lowerState,
-                        doorBe.getHexColor()
-                )
-        );
+        return Optional.of(resolvedDoor(ownerKey, level, lowerPos, lowerState, doorBe.getHexColor()));
     }
 
-    public static Optional<ResolvedDoor> resolveLinkedDoor(
-            ResolvedDoor source
-    ) {
-
-        HexTeleportResolver.ResolvedDoorEndpoint loaded =
-                HexTeleportResolver
-                        .resolveLinkedDoor(
-                                source.level(),
-                                source.ownerKey()
-                        )
-                        .orElse(null);
-
-        if (loaded == null) {
-            return Optional.empty();
-        }
-
-        ServerLevel targetLevel =
-                loaded.level();
-
-        HexTeleportDirectory.DoorEndpoint targetEndpoint =
-                loaded.endpoint();
-
-        BlockPos targetPos =
-                targetEndpoint.ownerPos();
-
-        BlockState targetState =
-                targetLevel.getBlockState(
-                        targetPos
-                );
-
+    public static Optional<ResolvedDoor> resolveLinkedDoor(ResolvedDoor source) {
+        HexTeleportResolver.ResolvedDoorEndpoint loaded = HexTeleportResolver.resolveLinkedDoor(source.level(), source.ownerKey()).orElse(null);
+        if (loaded == null) return Optional.empty();
+        ServerLevel targetLevel = loaded.level();
+        HexTeleportDirectory.DoorEndpoint targetEndpoint = loaded.endpoint();
+        BlockPos targetPos = targetEndpoint.ownerPos();
+        BlockState targetState = targetLevel.getBlockState(targetPos);
         if (
-                !(targetLevel.getBlockEntity(
-                        targetPos
-                )
+                !(targetLevel.getBlockEntity(targetPos)
                         instanceof MusavaccaPortalDoorBlockEntity targetBe)
                         || !targetBe.hasHexColor()
         ) {
             return Optional.empty();
         }
-
         if (
-                HexTeleportDirectory.normalizeHex(
-                        targetBe.getHexColor()
-                )
+                HexTeleportDirectory.normalizeHex(targetBe.getHexColor())
                         != source.hexColor()
         ) {
-
-            MusavaccaDoorTeleportNetwork
-                    .refresh(
-                            targetBe
-                    );
-
+            MusavaccaDoorTeleportNetwork.refresh(targetBe);
             return Optional.empty();
         }
-
         if (
-                !isOpenPortalDoor(
-                        targetState
-                )
+                !isOpenPortalDoor(targetState)
         ) {
             return Optional.empty();
         }
-
-        return Optional.of(
-                resolvedDoor(
-                        targetEndpoint.ownerKey(),
-                        targetLevel,
-                        targetPos,
-                        targetState,
-                        targetBe.getHexColor()
-                )
-        );
+        return Optional.of(resolvedDoor(targetEndpoint.ownerKey(), targetLevel, targetPos, targetState, targetBe.getHexColor()));
     }
 
-    public static void keepDestinationAlive(
-            Entity teleportedEntity,
-            BlockPos destinationPos
-    ) {
-        teleportedEntity.placePortalTicket(
-                destinationPos
-        );
+    public static void keepDestinationAlive(Entity teleportedEntity, BlockPos destinationPos) {
+        teleportedEntity.placePortalTicket(destinationPos);
     }
 
-    private static ResolvedDoor resolvedDoor(
-            String ownerKey,
-            ServerLevel level,
-            BlockPos lowerPos,
-            BlockState state,
-            int hexColor
-    ) {
-        return new ResolvedDoor(
-                ownerKey,
-                level,
-                lowerPos,
-                HexTeleportDirectory.normalizeHex(
-                        hexColor
-                ),
-                state.getValue(
-                        MusavaccaPortalDoorBlock.FACING
-                ),
-                portalCenter(
-                        lowerPos,
-                        state
-                )
-        );
+    private static ResolvedDoor resolvedDoor(String ownerKey, ServerLevel level, BlockPos lowerPos, BlockState state, int hexColor) {
+        return new ResolvedDoor(ownerKey, level, lowerPos, HexTeleportDirectory.normalizeHex(hexColor), state.getValue(MusavaccaPortalDoorBlock.FACING),
+                portalCenter(lowerPos, state));
     }
 
-    private static boolean isOpenPortalDoor(
-            BlockState state
-    ) {
+    private static boolean isOpenPortalDoor(BlockState state) {
         return state.getBlock()
                 instanceof MusavaccaPortalDoorBlock
-                && state.getValue(
-                MusavaccaPortalDoorBlock.HALF
-        )
+                && state.getValue(MusavaccaPortalDoorBlock.HALF)
                 == DoubleBlockHalf.LOWER
-                && state.getValue(
-                MusavaccaPortalDoorBlock.PORTAL
-        )
-                && state.getValue(
-                MusavaccaPortalDoorBlock.OPEN
-        );
+                && state.getValue(MusavaccaPortalDoorBlock.PORTAL)
+                && state.getValue(MusavaccaPortalDoorBlock.OPEN);
     }
 
-    private static Vec3 portalCenter(
-            BlockPos pos,
-            BlockState state
-    ) {
-        VoxelShape panel =
-                MusavaccaPortalDoorHitboxes
-                        .portalPanel(
-                                state
-                        );
-
-        if (panel.isEmpty()) {
-            throw new IllegalStateException(
-                    "Active Musavacca portal door has no portal panel."
-            );
-        }
-
-        AABB bounds =
-                panel.bounds();
-
-        return new Vec3(
-                pos.getX()
-                        + (
-                        bounds.minX
-                                + bounds.maxX
-                )
-                        * 0.5D,
-                pos.getY(),
-                pos.getZ()
-                        + (
-                        bounds.minZ
-                                + bounds.maxZ
-                )
-                        * 0.5D
-        );
+    private static Vec3 portalCenter(BlockPos pos, BlockState state) {
+        VoxelShape panel = MusavaccaPortalDoorHitboxes.portalPanel(state);
+        if (panel.isEmpty()) throw new IllegalStateException("Active Musavacca portal door has no portal panel.");
+        AABB bounds = panel.bounds();
+        return new Vec3(pos.getX() + (bounds.minX + bounds.maxX) * 0.5D, pos.getY(), pos.getZ() + (bounds.minZ + bounds.maxZ) * 0.5D);
     }
 }

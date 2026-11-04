@@ -28,114 +28,53 @@ import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoTableCandleLogic {
-    private static final int MAX_PEARL_FLAME_PARTICLES_PER_ANIMATE_TICK = 6;
-    private static final float PEARL_FLAME_SPAWN_CHANCE = 0.90F;
-
     private VocoTableCandleLogic() {}
-
-    public static void addCandleToSlot(
-            ItemStack stack,
-            Level level,
-            BlockPos pos,
-            Player player,
-            Block candleBlock,
-            ReceptorPosition receptor
-    ) {
+    public static void addCandleToSlot(ItemStack stack, Level level, BlockPos pos, Player player, Block candleBlock, ReceptorPosition receptor) {
         if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)
                 || !tableBe.addCandle(receptor, candleBlock)) {
             return;
         }
-
         SoundType soundType = candleBlock.defaultBlockState().getSoundType();
-
-        level.playSound(
-                null,
-                pos,
-                soundType.getPlaceSound(),
-                SoundSource.BLOCKS,
-                (soundType.getVolume() + 1.0F) / 2.0F,
-                soundType.getPitch() * 0.8F
-        );
-
+        level.playSound(null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
         if (!player.getAbilities().instabuild) {
             stack.consume(1, player);
         }
-
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         syncPortalStateFromCandles(level, pos, receptor);
     }
 
-    public static void lightCandleSlot(
-            ItemStack stack,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            VocoTableBlockEntity tableBe,
-            ReceptorPosition receptor
-    ) {
-        if (!tableBe.lightPearlCandle(receptor, FlintAndPearlItem.getStoredHexOrDefault(stack))) {
-            return;
-        }
-
+    public static void lightCandleSlot(ItemStack stack, Level level, BlockPos pos, Player player, InteractionHand hand, VocoTableBlockEntity tableBe,
+            ReceptorPosition receptor) {
+        if (!tableBe.lightPearlCandle(receptor, FlintAndPearlItem.getStoredHexOrDefault(stack))) return;
         playFlintAndSteelEffects(level, player, pos);
         VocoReceptorLogic.damageItem(stack, player, hand);
         syncPortalStateFromCandles(level, pos, receptor);
     }
 
-    public static void lightVanillaCandleSlot(
-            ItemStack stack,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            VocoTableBlockEntity tableBe,
-            ReceptorPosition receptor
-    ) {
-        if (!stack.is(Items.FLINT_AND_STEEL) || !tableBe.lightVanillaCandle(receptor)) {
-            return;
-        }
-
+    public static void lightVanillaCandleSlot(ItemStack stack, Level level, BlockPos pos, Player player, InteractionHand hand, VocoTableBlockEntity tableBe,
+            ReceptorPosition receptor) {
+        if (!stack.is(Items.FLINT_AND_STEEL) || !tableBe.lightVanillaCandle(receptor)) return;
         playFlintAndSteelEffects(level, player, pos);
         VocoReceptorLogic.damageItem(stack, player, hand);
         syncPortalStateFromCandles(level, pos, receptor);
     }
 
     public static void syncPortalStateFromCandles(Level level, BlockPos pos, ReceptorPosition receptor) {
-        if (level == null || level.isClientSide()) {
-            return;
-        }
-
+        if (level == null || level.isClientSide()) return;
         BlockState state = level.getBlockState(pos);
         BlockEntity be = level.getBlockEntity(pos);
-
         if (!(state.getBlock() instanceof VocoTableBlock)
                 || !(be instanceof VocoTableBlockEntity tableBe)) {
             return;
         }
-
         BooleanProperty litProperty = VocoTableBlock.lightProperty(receptor);
         BooleanProperty portalProperty = VocoTableBlock.portalProperty(receptor);
-
         Sync sync = syncEndpoint(level, pos, receptor, state.getValue(litProperty), tableBe);
         boolean wasPortal = state.getValue(portalProperty);
-
         if (wasPortal != sync.portal()) {
-            level.setBlock(
-                    pos,
-                    state.setValue(portalProperty, sync.portal()),
-                    VocoReceptorLogic.UPDATE_FLAGS
-            );
-
-            PearlSlotIgnition
-                    .playPortalStateChangeSound(
-                            level,
-                            pos,
-                            wasPortal,
-                            sync.portal()
-                    );
+            level.setBlock(pos, state.setValue(portalProperty, sync.portal()), VocoReceptorLogic.UPDATE_FLAGS);
+            PearlSlotIgnition.playPortalStateChangeSound(level, pos, wasPortal, sync.portal());
         }
-
         if (sync.portal()) {
             tableBe.activatePortal(receptor);
         } else {
@@ -143,36 +82,18 @@ public final class VocoTableCandleLogic {
         }
     }
 
-    private static Sync syncEndpoint(
-            Level level,
-            BlockPos pos,
-            ReceptorPosition receptor,
-            boolean receptorLit,
-            VocoTableBlockEntity tableBe
-    ) {
+    private static Sync syncEndpoint(Level level, BlockPos pos, ReceptorPosition receptor, boolean receptorLit, VocoTableBlockEntity tableBe) {
         if (!receptorLit || !tableBe.isPearlCandleLit(receptor)) {
             removeEndpoint(level, pos, receptor);
             return Sync.INACTIVE;
         }
-
         int hexColor = tableBe.getPortalHexColorOrNoTint(receptor);
         if (hexColor == MusavaccaTints.NO_TINT) {
             removeEndpoint(level, pos, receptor);
             return Sync.INACTIVE;
         }
-
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return Sync.INACTIVE;
-        }
-
-        VocoTeleportLogic.SyncResult result = VocoTeleportLogic.syncEndpointDetailed(
-                serverLevel,
-                pos,
-                receptor,
-                true,
-                hexColor
-        );
-
+        if (!(level instanceof ServerLevel serverLevel)) return Sync.INACTIVE;
+        VocoTeleportLogic.SyncResult result = VocoTeleportLogic.syncEndpointDetailed(serverLevel, pos, receptor, true, hexColor);
         return switch (result) {
             case ACTIVE -> Sync.ACTIVE;
             case QUEUED -> Sync.QUEUED;
@@ -185,13 +106,7 @@ public final class VocoTableCandleLogic {
 
     private static void removeEndpoint(Level level, BlockPos pos, ReceptorPosition receptor) {
         if (level instanceof ServerLevel serverLevel) {
-            VocoTeleportLogic.syncEndpointDetailed(
-                    serverLevel,
-                    pos,
-                    receptor,
-                    false,
-                    MusavaccaTints.NO_TINT
-            );
+            VocoTeleportLogic.syncEndpointDetailed(serverLevel, pos, receptor, false, MusavaccaTints.NO_TINT);
         }
     }
 
@@ -200,97 +115,47 @@ public final class VocoTableCandleLogic {
         return receptor != null && breakOneCandle(level, pos, player, receptor);
     }
 
-    private static boolean breakOneCandle(
-            Level level,
-            BlockPos pos,
-            Player player,
-            ReceptorPosition receptor
-    ) {
+    private static boolean breakOneCandle(Level level, BlockPos pos, Player player, ReceptorPosition receptor) {
         if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)
                 || !tableBe.hasCandle(receptor)) {
             return false;
         }
-
         Block candleBlock = tableBe.getCandleBlock(receptor);
         int candleCountBefore = tableBe.getCandleCount(receptor);
         ItemStack removed = tableBe.removeOneCandle(receptor);
-
-        if (removed.isEmpty()) {
-            return false;
-        }
-
-        Vec3 dropPos = VocoTableCandleVoxelShapes
-                .dropPosition(receptor, candleCountBefore)
-                .add(pos.getX(), pos.getY(), pos.getZ());
-
+        if (removed.isEmpty()) return false;
+        Vec3 dropPos = VocoTableCandleVoxelShapes.dropPosition(receptor, candleCountBefore).add(pos.getX(), pos.getY(), pos.getZ());
         ItemEntity item = new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z, removed);
         item.setDefaultPickUpDelay();
         level.addFreshEntity(item);
-
-        SoundType soundType = candleBlock == null
-                ? SoundType.CANDLE
-                : candleBlock.defaultBlockState().getSoundType();
-
-        level.playSound(
-                null,
-                dropPos.x,
-                dropPos.y,
-                dropPos.z,
-                soundType.getBreakSound(),
-                SoundSource.BLOCKS,
-                (soundType.getVolume() + 1.0F) / 2.0F,
-                soundType.getPitch() * 0.8F
-        );
-
+        SoundType soundType = candleBlock == null ? SoundType.CANDLE : candleBlock.defaultBlockState().getSoundType();
+        level.playSound(null, dropPos.x, dropPos.y, dropPos.z, soundType.getBreakSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F,
+                soundType.getPitch() * 0.8F);
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         syncPortalStateFromCandles(level, pos, receptor);
-
         return true;
     }
 
     public static void animateTick(Level level, BlockPos pos, RandomSource random) {
-        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
-            return;
-        }
-
+        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) return;
         int spreadTicks = particleSpreadTicks(countLitCandleParticlePositions(tableBe));
-        if (spreadTicks <= 0) {
-            return;
-        }
-
+        if (spreadTicks <= 0) return;
         long gameTime = level.getGameTime();
         int spawnedPearlFlames = 0;
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            if (!tableBe.isCandleLit(receptor)) {
-                continue;
-            }
-
-            Vec3[] offsets = VocoTableCandleVoxelShapes.particleOffsets(
-                    receptor,
-                    tableBe.getCandleCount(receptor)
-            );
-
+            if (!tableBe.isCandleLit(receptor)) continue;
+            Vec3[] offsets = VocoTableCandleVoxelShapes.particleOffsets(receptor, tableBe.getCandleCount(receptor));
             boolean pearlLit = tableBe.isPearlCandleLit(receptor);
             int hexColor = tableBe.getCandleHexColorOrFallback(receptor);
-
             for (int candleIndex = 0; candleIndex < offsets.length; candleIndex++) {
-                if (!isScheduledFlameTick(gameTime, receptor, candleIndex, spreadTicks)) {
-                    continue;
-                }
-
+                if (!isScheduledFlameTick(gameTime, receptor, candleIndex, spreadTicks)) continue;
                 Vec3 particlePos = offsets[candleIndex].add(pos.getX(), pos.getY(), pos.getZ());
-
                 if (!pearlLit) {
                     CandleParticleEffects.spawnVanilla(level, random, particlePos);
                     continue;
                 }
-
-                if (spawnedPearlFlames >= MAX_PEARL_FLAME_PARTICLES_PER_ANIMATE_TICK) {
-                    return;
-                }
-
-                if (random.nextFloat() <= PEARL_FLAME_SPAWN_CHANCE) {
+                if (spawnedPearlFlames >= 6) return;
+                if (random.nextFloat() <= 0.90F) {
                     CandleParticleEffects.spawnPearlTableStyle(level, random, particlePos, hexColor);
                     spawnedPearlFlames++;
                 }
@@ -298,114 +163,64 @@ public final class VocoTableCandleLogic {
         }
     }
 
-    public static void extinguishCandleSlot(
-            Level level,
-            BlockPos pos,
-            Player player,
-            ReceptorPosition receptor
-    ) {
+    public static void extinguishCandleSlot(Level level, BlockPos pos, Player player, ReceptorPosition receptor) {
         if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)
                 || !tableBe.isCandleLit(receptor)) {
             return;
         }
-
         for (Vec3 offset : VocoTableCandleVoxelShapes.particleOffsets(receptor, tableBe.getCandleCount(receptor))) {
-            level.addParticle(
-                    ParticleTypes.SMOKE,
-                    pos.getX() + offset.x,
-                    pos.getY() + offset.y,
-                    pos.getZ() + offset.z,
-                    0.0D,
-                    0.1D,
-                    0.0D
-            );
+            level.addParticle(ParticleTypes.SMOKE, pos.getX() + offset.x, pos.getY() + offset.y, pos.getZ() + offset.z, 0.0D, 0.1D, 0.0D);
         }
-
         tableBe.extinguishCandle(receptor);
-
         level.playSound(null, pos, SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F);
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-
         syncPortalStateFromCandles(level, pos, receptor);
     }
 
     @Nullable
     public static ReceptorPosition detectExistingCandleHit(Level level, BlockPos pos, BlockHitResult hit) {
-        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
-            return null;
-        }
-
+        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) return null;
         Vec3 local = VocoHitboxes.local16(pos, hit);
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             if (tableBe.hasCandle(receptor)
                     && VocoTableCandleHitboxes.hitBox(receptor, tableBe.getCandleCount(receptor)).contains(local)) {
                 return receptor;
             }
         }
-
         return null;
     }
 
     @Nullable
     private static ReceptorPosition detectLookedAtCandle(Level level, BlockPos pos, Player player) {
-        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) {
-            return null;
-        }
-
+        if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) return null;
         Vec3 localStart = VocoHitboxes.local16(pos, player.getEyePosition());
-        Vec3 localEnd = VocoHitboxes.local16(
-                pos,
-                player.getEyePosition().add(player.getLookAngle().scale(player.blockInteractionRange()))
-        );
-
+        Vec3 localEnd = VocoHitboxes.local16(pos, player.getEyePosition().add(player.getLookAngle().scale(player.blockInteractionRange())));
         ReceptorPosition bestReceptor = null;
         double bestDistance = Double.POSITIVE_INFINITY;
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            if (!tableBe.hasCandle(receptor)) {
-                continue;
-            }
-
-            double distance = VocoTableCandleHitboxes.rayHitDistance(
-                    localStart,
-                    localEnd,
-                    VocoTableCandleHitboxes.hitBox(receptor, tableBe.getCandleCount(receptor))
-            );
-
+            if (!tableBe.hasCandle(receptor)) continue;
+            double distance = VocoTableCandleHitboxes.rayHitDistance(localStart, localEnd,
+                    VocoTableCandleHitboxes.hitBox(receptor, tableBe.getCandleCount(receptor)));
             if (!Double.isNaN(distance) && distance < bestDistance) {
                 bestDistance = distance;
                 bestReceptor = receptor;
             }
         }
-
         return bestReceptor;
     }
 
     private static void playFlintAndSteelEffects(Level level, Player player, BlockPos pos) {
-        level.playSound(
-                null,
-                pos,
-                SoundEvents.FLINTANDSTEEL_USE,
-                SoundSource.BLOCKS,
-                1.0F,
-                level.getRandom().nextFloat() * 0.4F + 0.8F
-        );
-
+        level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
     }
 
     private static int countLitCandleParticlePositions(VocoTableBlockEntity tableBe) {
         int total = 0;
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             if (tableBe.isCandleLit(receptor)) {
-                total += VocoTableCandleVoxelShapes
-                        .particleOffsets(receptor, tableBe.getCandleCount(receptor))
-                        .length;
+                total += VocoTableCandleVoxelShapes.particleOffsets(receptor, tableBe.getCandleCount(receptor)).length;
             }
         }
-
         return total;
     }
 
@@ -416,14 +231,8 @@ public final class VocoTableCandleLogic {
         return 4;
     }
 
-    private static boolean isScheduledFlameTick(
-            long gameTime,
-            ReceptorPosition receptor,
-            int candleIndex,
-            int spreadTicks
-    ) {
-        return spreadTicks <= 1
-                || Math.floorMod(gameTime + receptor.id() * 7 + candleIndex * 3, spreadTicks) == 0;
+    private static boolean isScheduledFlameTick(long gameTime, ReceptorPosition receptor, int candleIndex, int spreadTicks) {
+        return spreadTicks <= 1 || Math.floorMod(gameTime + receptor.id() * 7 + candleIndex * 3, spreadTicks) == 0;
     }
 
     private record Sync(boolean portal) {
@@ -432,4 +241,3 @@ public final class VocoTableCandleLogic {
         private static final Sync INACTIVE = new Sync(false);
     }
 }
-

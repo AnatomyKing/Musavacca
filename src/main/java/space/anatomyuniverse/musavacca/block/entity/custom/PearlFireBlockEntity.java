@@ -1,12 +1,11 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
+
 //? if <1.21.5 {
 /*import net.minecraft.nbt.Tag;
 *///?}
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 
+import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
 //?}
@@ -20,10 +19,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
 //? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
-
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
@@ -32,9 +29,7 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class PearlFireBlockEntity extends BlockEntity implements HexSource {
-
     private int hexColor = MusavaccaTints.NO_TINT;
-
     public PearlFireBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.PEARL_FIRE_BLOCK_ENTITY.get(), pos, state);
     }
@@ -50,10 +45,7 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
 
     public void setHexColor(int hexColor) {
         int normalized = MusavaccaTints.resolve(hexColor);
-        if (this.hexColor == normalized) {
-            return;
-        }
-
+        if (this.hexColor == normalized) return;
         this.hexColor = normalized;
         this.setChanged();
         this.syncToClientAndRerender();
@@ -61,52 +53,35 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
 
     private void syncToClientAndRerender() {
         Level level = this.getLevel();
-        if (level == null) {
-            return;
-        }
-
+        if (level == null) return;
         if (level.isClientSide()) {
             this.rerenderClientNow();
             return;
         }
-
         BlockPos pos = this.getBlockPos();
         BlockState state = this.getBlockState();
-
-        level.sendBlockUpdated(
-                pos,
-                state,
-                state,
-                Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
-        );
+        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
     private void rerenderClientNow() {
         Level level = this.getLevel();
-        if (level == null || !level.isClientSide()) {
-            return;
-        }
-
+        if (level == null || !level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();
         BlockState state = this.getBlockState();
-
-        level.sendBlockUpdated(
-                pos,
-                state,
-                state,
-                Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
-        );
+        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
     @Override
     //? if >=1.21.6 {
     protected void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
     //?} else {
     /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
     *///?}
-
+        //? if >=1.21.6 {
+        super.loadAdditional(input);
+        //?} else {
+        /*super.loadAdditional(tag, provider);
+        *///?}
         //? if >=1.21.6 {
         int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
         //?} else if >=1.21.5 <1.21.6 {
@@ -120,12 +95,14 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
     @Override
     //? if >=1.21.6 {
     protected void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
     //?} else {
     /*protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
     *///?}
-
+        //? if >=1.21.6 {
+        super.saveAdditional(output);
+        //?} else {
+        /*super.saveAdditional(tag, provider);
+        *///?}
         if (this.hasHexColor()) {
             //? if >=1.21.6 {
             output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
@@ -142,7 +119,6 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
     /*protected void applyImplicitComponents(DataComponentInput input) {
     *///?}
         super.applyImplicitComponents(input);
-
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex != null) {
             this.hexColor = MusavaccaTints.stored(savedHex);
@@ -152,7 +128,6 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
-
         if (this.hasHexColor()) {
             components.set(ModDataComponents.HEX_COLOR.get(), this.hexColor);
         }
@@ -171,23 +146,28 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
     @Override
     //? if >=1.21.6 {
     public void handleUpdateTag(ValueInput input) {
-        super.handleUpdateTag(input);
     //?} else {
     /*public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        super.handleUpdateTag(tag, provider);
     *///?}
+        //? if >=1.21.6 {
+        super.handleUpdateTag(input);
+        //?} else {
+        /*super.handleUpdateTag(tag, provider);
+        *///?}
         this.rerenderClientNow();
     }
 
     @Override
     //? if >=1.21.6 {
     public void onDataPacket(Connection connection, ValueInput input) {
-        super.onDataPacket(connection, input);
     //?} else {
     /*public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider provider) {
-        super.onDataPacket(connection, packet, provider);
     *///?}
+        //? if >=1.21.6 {
+        super.onDataPacket(connection, input);
+        //?} else {
+        /*super.onDataPacket(connection, packet, provider);
+        *///?}
         this.rerenderClientNow();
     }
-
 }

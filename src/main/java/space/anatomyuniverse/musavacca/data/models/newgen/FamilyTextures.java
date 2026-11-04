@@ -6,12 +6,10 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.block.Block;
-
 import java.util.Objects;
 
 public final class FamilyTextures {
     private FamilyTextures() {}
-
     //? if >=1.21.11 {
     /*public record Set(Identifier texture) {
     *///?} else {
@@ -34,14 +32,9 @@ public final class FamilyTextures {
         *///?} else {
         private ResourceLocation texture;
         //?}
-
         private Builder(Block block, String suffix) {
             this.block = Objects.requireNonNull(block, "block");
-
-            if (suffix == null || suffix.isBlank()) {
-                throw new IllegalArgumentException("suffix must not be blank");
-            }
-
+            if (suffix == null || suffix.isBlank()) throw new IllegalArgumentException("suffix must not be blank");
             this.suffix = suffix;
         }
 
@@ -63,7 +56,6 @@ public final class FamilyTextures {
             if (texture == null) {
                 source();
             }
-
             return new Set(texture);
         }
     }

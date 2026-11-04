@@ -1,11 +1,5 @@
 package space.anatomyuniverse.musavacca.teleport;
 
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -35,9 +29,8 @@ import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntit
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
-import space.anatomyuniverse.musavacca.economy.EconomyConfig;
-import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 
+import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -45,14 +38,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class HexTeleportResolver {
-
     private HexTeleportResolver() {}
-
-    public record ResolvedEndpoint(
-            UUID endpointId,
-            ServerLevel level,
-            HexTeleportDirectory.Endpoint endpoint
-    ) {
+    public record ResolvedEndpoint(UUID endpointId, ServerLevel level, HexTeleportDirectory.Endpoint endpoint) {
         public Vec3 targetPos() {
             return this.endpoint.target().vec3();
         }
@@ -66,327 +53,81 @@ public final class HexTeleportResolver {
         }
     }
 
-    public record ResolvedDoorEndpoint(
-            ServerLevel level,
-            HexTeleportDirectory.DoorEndpoint endpoint
-    ) {}
+    public record ResolvedDoorEndpoint(ServerLevel level, HexTeleportDirectory.DoorEndpoint endpoint) {}
+    public record ResolvedTrapdoorEndpoint(ServerLevel level, HexTeleportDirectory.DoorEndpoint endpoint) {}
 
-    public record ResolvedTrapdoorEndpoint(
-            ServerLevel level,
-            HexTeleportDirectory.DoorEndpoint endpoint
-    ) {}
-
-    public static boolean teleportToHex(
-            ServerPlayer player,
-            int hexColor
-    ) {
-        return teleportToHex(player, hexColor, EconomyConfig.vocoCallerTeleportCost());
-    }
-
-    public static boolean teleportToHex(
-            ServerPlayer player,
-            int hexColor,
-            int cost
-    ) {
-        MinecraftServer server =
-                player.level().getServer();
-
-        if (server == null) {
-            return false;
-        }
-
-        int normalizedHex =
-                HexTeleportDirectory.normalizeHex(
-                        hexColor
-                );
-
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        server
-                );
-
-        HexTeleportDirectory.PhoneRegistration phone =
-                directory
-                        .getPhoneRegistrationByHex(
-                                normalizedHex
-                        )
-                        .orElse(null);
-
-        if (phone != null) {
-            return VocoCallerNetwork
-                    .teleportToPhone(
-                            player,
-                            phone,
-                            cost
-                    );
-        }
-
-        Set<UUID> attempted =
-                new HashSet<>();
-
+    public static boolean teleportToHex(ServerPlayer player, int hexColor, int cost) {
+        MinecraftServer server = player.level().getServer();
+        if (server == null) return false;
+        int normalizedHex = HexTeleportDirectory.normalizeHex(hexColor);
+        HexTeleportDirectory directory = HexTeleportDirectory.get(server);
+        HexTeleportDirectory.PhoneRegistration phone = directory.getPhoneRegistrationByHex(normalizedHex).orElse(null);
+        if (phone != null) return VocoCallerNetwork.teleportToPhone(player, phone, cost);
+        Set<UUID> attempted = new HashSet<>();
         while (true) {
-            List<HexTeleportDirectory.Endpoint> endpoints =
-                    directory.getEndpointsByHex(
-                            normalizedHex
-                    );
-
-            HexTeleportDirectory.Endpoint next =
-                    null;
-
-            for (
-                    HexTeleportDirectory.Endpoint endpoint :
-                    endpoints
-            ) {
+            List<HexTeleportDirectory.Endpoint> endpoints = directory.getEndpointsByHex(normalizedHex);
+            HexTeleportDirectory.Endpoint next = null;
+            for (HexTeleportDirectory.Endpoint endpoint : endpoints) {
                 if (
-                        attempted.add(
-                                endpoint.endpointId()
-                        )
+                        attempted.add(endpoint.endpointId())
                 ) {
-                    next =
-                            endpoint;
-
+                    next = endpoint;
                     break;
                 }
             }
-
-            if (next == null) {
-                break;
-            }
-
-            Optional<ResolvedEndpoint> resolved =
-                    resolveEndpoint(
-                            server,
-                            next
-                    );
-
+            if (next == null) break;
+            Optional<ResolvedEndpoint> resolved = resolveEndpoint(server, next);
             if (resolved.isPresent()) {
                 ResolvedEndpoint target = resolved.get();
-                return TeleportEconomy.tryTeleport(
-                        player,
-                        cost,
-                        () -> teleport(player, target)
-                );
+                return TeleportEconomy.tryTeleport(player, cost, () -> teleport(player, target));
             }
-
-            HexTeleportAddressNetwork
-                    .releaseEndpoint(
-                            server,
-                            next.endpointId()
-                    );
+            HexTeleportAddressNetwork.releaseEndpoint(server, next.endpointId());
         }
-
         //? if >=26.1 {
-        /*player.sendOverlayMessage(Component.literal(
+        /*player.sendOverlayMessage(Component.literal("No active teleport address found for #" + HexTeleportDirectory.toHex(normalizedHex) + "."));
         *///?} else {
-        player.displayClientMessage(Component.literal(
+        player.displayClientMessage(Component.literal("No active teleport address found for #" + HexTeleportDirectory.toHex(normalizedHex) + "."), true);
         //?}
-                        "No active teleport address found for #"
-                                + HexTeleportDirectory.toHex(
-                                normalizedHex
-                        )
-                                + "."
-                //? if >=26.1 {
-                /*));
-                *///?} else {
-                ), true);
-                //?}
-
         return false;
     }
 
-    public static boolean teleportToOwner(
-            ServerPlayer player,
-            String ownerKey
-    ) {
-        MinecraftServer server =
-                player.level().getServer();
-
-        if (server == null) {
-            return false;
-        }
-
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        server
-                );
-
-        HexTeleportDirectory.Endpoint endpoint =
-                directory
-                        .getEndpointByOwner(
-                                ownerKey
-                        )
-                        .orElse(null);
-
-        if (endpoint == null) {
-            //? if >=26.1 {
-            /*player.sendOverlayMessage(Component.literal(
-                            "This endpoint is not registered."
-                    ));
-            *///?} else {
-            player.displayClientMessage(Component.literal(
-                            "This endpoint is not registered."
-                    ), true);
-            //?}
-
-            return false;
-        }
-
-        Optional<ResolvedEndpoint> resolved =
-                resolveEndpoint(
-                        server,
-                        endpoint
-                );
-
+    public static Optional<ResolvedEndpoint> resolveLinkedPortal(ServerLevel sourceLevel, UUID sourcePortalId) {
+        MinecraftServer server = sourceLevel.getServer();
+        HexTeleportDirectory directory = HexTeleportDirectory.get(server);
+        HexTeleportDirectory.Endpoint target = directory.getLinkedPortalEndpoint(sourcePortalId).orElse(null);
+        if (target == null) return Optional.empty();
+        Optional<ResolvedEndpoint> resolved = resolveEndpoint(server, target);
         if (resolved.isEmpty()) {
-            HexTeleportAddressNetwork
-                    .releaseEndpoint(
-                            server,
-                            endpoint.endpointId()
-                    );
-
-            //? if >=26.1 {
-            /*player.sendOverlayMessage(Component.literal(
-                            "This endpoint was stale and has been cleaned up."
-                    ));
-            *///?} else {
-            player.displayClientMessage(Component.literal(
-                            "This endpoint was stale and has been cleaned up."
-                    ), true);
-            //?}
-
-            return false;
+            HexTeleportAddressNetwork.releaseEndpoint(server, target.endpointId());
         }
-
-        return teleport(
-                player,
-                resolved.get()
-        );
-    }
-
-    public static Optional<ResolvedEndpoint> resolveLinkedPortal(
-            ServerLevel sourceLevel,
-            UUID sourcePortalId
-    ) {
-        MinecraftServer server =
-                sourceLevel.getServer();
-
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        server
-                );
-
-        HexTeleportDirectory.Endpoint target =
-                directory
-                        .getLinkedPortalEndpoint(
-                                sourcePortalId
-                        )
-                        .orElse(null);
-
-        if (target == null) {
-            return Optional.empty();
-        }
-
-        Optional<ResolvedEndpoint> resolved =
-                resolveEndpoint(
-                        server,
-                        target
-                );
-
-        if (resolved.isEmpty()) {
-            HexTeleportAddressNetwork
-                    .releaseEndpoint(
-                            server,
-                            target.endpointId()
-                    );
-        }
-
         return resolved;
     }
 
-    public static Optional<ResolvedDoorEndpoint> resolveLinkedDoor(
-            ServerLevel sourceLevel,
-            String sourceOwnerKey
-    ) {
-        MinecraftServer server =
-                sourceLevel.getServer();
-
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        server
-                );
-
-        HexTeleportDirectory.DoorEndpoint target =
-                directory
-                        .getLinkedDoorEndpoint(
-                                sourceOwnerKey
-                        )
-                        .orElse(null);
-
-        if (target == null) {
-            return Optional.empty();
-        }
-
-        Optional<ResolvedDoorEndpoint> resolved =
-                resolveDoorEndpoint(
-                        server,
-                        target
-                );
-
+    public static Optional<ResolvedDoorEndpoint> resolveLinkedDoor(ServerLevel sourceLevel, String sourceOwnerKey) {
+        MinecraftServer server = sourceLevel.getServer();
+        HexTeleportDirectory directory = HexTeleportDirectory.get(server);
+        HexTeleportDirectory.DoorEndpoint target = directory.getLinkedDoorEndpoint(sourceOwnerKey).orElse(null);
+        if (target == null) return Optional.empty();
+        Optional<ResolvedDoorEndpoint> resolved = resolveDoorEndpoint(server, target);
         if (resolved.isEmpty()) {
-            HexTeleportAddressNetwork
-                    .releaseOwner(
-                            server,
-                            target.ownerKey()
-                    );
+            HexTeleportAddressNetwork.releaseOwner(server, target.ownerKey());
         }
-
         return resolved;
     }
 
-    public static Optional<ResolvedTrapdoorEndpoint> resolveLinkedTrapdoor(
-            ServerLevel sourceLevel,
-            String sourceOwnerKey
-    ) {
-        MinecraftServer server =
-                sourceLevel.getServer();
-
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        server
-                );
-
-        HexTeleportDirectory.DoorEndpoint target =
-                directory
-                        .getLinkedTrapdoorEndpoint(
-                                sourceOwnerKey
-                        )
-                        .orElse(null);
-
-        if (target == null) {
-            return Optional.empty();
-        }
-
-        Optional<ResolvedTrapdoorEndpoint> resolved =
-                resolveTrapdoorEndpoint(
-                        server,
-                        target
-                );
-
+    public static Optional<ResolvedTrapdoorEndpoint> resolveLinkedTrapdoor(ServerLevel sourceLevel, String sourceOwnerKey) {
+        MinecraftServer server = sourceLevel.getServer();
+        HexTeleportDirectory directory = HexTeleportDirectory.get(server);
+        HexTeleportDirectory.DoorEndpoint target = directory.getLinkedTrapdoorEndpoint(sourceOwnerKey).orElse(null);
+        if (target == null) return Optional.empty();
+        Optional<ResolvedTrapdoorEndpoint> resolved = resolveTrapdoorEndpoint(server, target);
         if (resolved.isEmpty()) {
-            HexTeleportAddressNetwork
-                    .releaseOwner(
-                            server,
-                            target.ownerKey()
-                    );
+            HexTeleportAddressNetwork.releaseOwner(server, target.ownerKey());
         }
-
         return resolved;
     }
 
-    public static Optional<ResolvedEndpoint> resolveEndpoint(
-            MinecraftServer server,
-            HexTeleportDirectory.Endpoint endpoint
-    ) {
+    public static Optional<ResolvedEndpoint> resolveEndpoint(MinecraftServer server, HexTeleportDirectory.Endpoint endpoint) {
         if (
                 server == null
                         || endpoint == null
@@ -394,56 +135,20 @@ public final class HexTeleportResolver {
         ) {
             return Optional.empty();
         }
-
-        ResourceKey<Level> dimensionKey =
-                ResourceKey.create(
-                        Registries.DIMENSION,
-                        endpoint.dimensionId()
-                );
-
-        ServerLevel level =
-                server.getLevel(
-                        dimensionKey
-                );
-
-        if (level == null) {
-            return Optional.empty();
-        }
-
-        keepChunkLoaded(
-                level,
-                endpoint.ownerPos()
-        );
-
+        ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, endpoint.dimensionId());
+        ServerLevel level = server.getLevel(dimensionKey);
+        if (level == null) return Optional.empty();
+        keepChunkLoaded(level, endpoint.ownerPos());
         if (
-                !isEndpointStillValid(
-                        level,
-                        endpoint
-                )
+                !isEndpointStillValid(level, endpoint)
         ) {
             return Optional.empty();
         }
-
-        keepChunkLoaded(
-                level,
-                BlockPos.containing(
-                        endpoint.target().vec3()
-                )
-        );
-
-        return Optional.of(
-                new ResolvedEndpoint(
-                        endpoint.endpointId(),
-                        level,
-                        endpoint
-                )
-        );
+        keepChunkLoaded(level, BlockPos.containing(endpoint.target().vec3()));
+        return Optional.of(new ResolvedEndpoint(endpoint.endpointId(), level, endpoint));
     }
 
-    public static Optional<ResolvedDoorEndpoint> resolveDoorEndpoint(
-            MinecraftServer server,
-            HexTeleportDirectory.DoorEndpoint endpoint
-    ) {
+    public static Optional<ResolvedDoorEndpoint> resolveDoorEndpoint(MinecraftServer server, HexTeleportDirectory.DoorEndpoint endpoint) {
         if (
                 server == null
                         || endpoint == null
@@ -451,48 +156,19 @@ public final class HexTeleportResolver {
         ) {
             return Optional.empty();
         }
-
-        ResourceKey<Level> dimensionKey =
-                ResourceKey.create(
-                        Registries.DIMENSION,
-                        endpoint.dimensionId()
-                );
-
-        ServerLevel level =
-                server.getLevel(
-                        dimensionKey
-                );
-
-        if (level == null) {
-            return Optional.empty();
-        }
-
-        keepChunkLoaded(
-                level,
-                endpoint.ownerPos()
-        );
-
+        ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, endpoint.dimensionId());
+        ServerLevel level = server.getLevel(dimensionKey);
+        if (level == null) return Optional.empty();
+        keepChunkLoaded(level, endpoint.ownerPos());
         if (
-                !isDoorEndpointStillValid(
-                        level,
-                        endpoint
-                )
+                !isDoorEndpointStillValid(level, endpoint)
         ) {
             return Optional.empty();
         }
-
-        return Optional.of(
-                new ResolvedDoorEndpoint(
-                        level,
-                        endpoint
-                )
-        );
+        return Optional.of(new ResolvedDoorEndpoint(level, endpoint));
     }
 
-    public static Optional<ResolvedTrapdoorEndpoint> resolveTrapdoorEndpoint(
-            MinecraftServer server,
-            HexTeleportDirectory.DoorEndpoint endpoint
-    ) {
+    public static Optional<ResolvedTrapdoorEndpoint> resolveTrapdoorEndpoint(MinecraftServer server, HexTeleportDirectory.DoorEndpoint endpoint) {
         if (
                 server == null
                         || endpoint == null
@@ -500,450 +176,200 @@ public final class HexTeleportResolver {
         ) {
             return Optional.empty();
         }
-
-        ResourceKey<Level> dimensionKey =
-                ResourceKey.create(
-                        Registries.DIMENSION,
-                        endpoint.dimensionId()
-                );
-
-        ServerLevel level =
-                server.getLevel(
-                        dimensionKey
-                );
-
-        if (level == null) {
-            return Optional.empty();
-        }
-
-        keepChunkLoaded(
-                level,
-                endpoint.ownerPos()
-        );
-
+        ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, endpoint.dimensionId());
+        ServerLevel level = server.getLevel(dimensionKey);
+        if (level == null) return Optional.empty();
+        keepChunkLoaded(level, endpoint.ownerPos());
         if (
-                !isTrapdoorEndpointStillValid(
-                        level,
-                        endpoint
-                )
+                !isTrapdoorEndpointStillValid(level, endpoint)
         ) {
             return Optional.empty();
         }
-
-        return Optional.of(
-                new ResolvedTrapdoorEndpoint(
-                        level,
-                        endpoint
-                )
-        );
+        return Optional.of(new ResolvedTrapdoorEndpoint(level, endpoint));
     }
 
-    private static boolean isEndpointStillValid(
-            ServerLevel level,
-            HexTeleportDirectory.Endpoint endpoint
-    ) {
-        BlockPos pos =
-                endpoint.ownerPos();
-
-        BlockState state =
-                level.getBlockState(
-                        pos
-                );
-
+    private static boolean isEndpointStillValid(ServerLevel level, HexTeleportDirectory.Endpoint endpoint) {
+        BlockPos pos = endpoint.ownerPos();
+        BlockState state = level.getBlockState(pos);
         return switch (endpoint.kind()) {
             case PEARL_PORTAL ->
-                    isValidPearlPortalEndpoint(
-                            level,
-                            pos,
-                            endpoint
-                    );
-
+                    isValidPearlPortalEndpoint(level, pos, endpoint);
             case VOCO_POST_RECEPTOR_CORNER ->
-                    isValidVocoPostReceptorCornerEndpoint(
-                            level,
-                            pos,
-                            state,
-                            endpoint
-                    );
-
+                    isValidVocoPostReceptorCornerEndpoint(level, pos, state, endpoint);
             case VOCO_TABLE_RECEPTOR_CORNER ->
-                    isValidVocoTableReceptorCornerEndpoint(
-                            level,
-                            pos,
-                            state,
-                            endpoint
-                    );
+                    isValidVocoTableReceptorCornerEndpoint(level, pos, state, endpoint);
         };
     }
 
-    private static boolean isDoorEndpointStillValid(
-            ServerLevel level,
-            HexTeleportDirectory.DoorEndpoint endpoint
-    ) {
-        BlockPos pos =
-                endpoint.ownerPos();
-
-        BlockState state =
-                level.getBlockState(
-                        pos
-                );
-
+    private static boolean isDoorEndpointStillValid(ServerLevel level, HexTeleportDirectory.DoorEndpoint endpoint) {
+        BlockPos pos = endpoint.ownerPos();
+        BlockState state = level.getBlockState(pos);
         if (
                 !(state.getBlock()
                         instanceof MusavaccaPortalDoorBlock)
-                        || state.getValue(
-                        MusavaccaPortalDoorBlock.HALF
-                )
+                        || state.getValue(MusavaccaPortalDoorBlock.HALF)
                         != DoubleBlockHalf.LOWER
         ) {
             return false;
         }
-
         if (
-                !(level.getBlockEntity(
-                        pos
-                )
+                !(level.getBlockEntity(pos)
                         instanceof MusavaccaPortalDoorBlockEntity doorBe)
                         || !doorBe.hasHexColor()
         ) {
             return false;
         }
-
-        String expectedOwnerKey =
-                HexTeleportDirectory
-                        .doorOwnerKey(
-                                //? if >=1.21.11 {
-                                /*level.dimension().identifier(),
-                                *///?} else {
-                                level.dimension().location(),
-                                //?}
-                                pos
-                        );
-
+        //? if >=1.21.11 {
+        /*String expectedOwnerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().identifier(), pos);
+        *///?} else {
+        String expectedOwnerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().location(), pos);
+        //?}
         return endpoint.ownerKey()
-                .equals(
-                        expectedOwnerKey
-                )
-                && state.getValue(
-                MusavaccaPortalDoorBlock.LIT
-        )
-                && state.getValue(
-                MusavaccaPortalDoorBlock.LIT_PORTAL
-        )
-                && state.getValue(
-                MusavaccaPortalDoorBlock.PORTAL
-        )
+                .equals(expectedOwnerKey)
+                && state.getValue(MusavaccaPortalDoorBlock.LIT)
+                && state.getValue(MusavaccaPortalDoorBlock.LIT_PORTAL)
+                && state.getValue(MusavaccaPortalDoorBlock.PORTAL)
                 && HexTeleportDirectory
-                .normalizeHex(
-                        doorBe.getHexColor()
-                )
+                .normalizeHex(doorBe.getHexColor())
                 == endpoint.hexColor();
     }
 
-    private static boolean isTrapdoorEndpointStillValid(
-            ServerLevel level,
-            HexTeleportDirectory.DoorEndpoint endpoint
-    ) {
-        BlockPos pos =
-                endpoint.ownerPos();
-
-        BlockState state =
-                level.getBlockState(
-                        pos
-                );
-
+    private static boolean isTrapdoorEndpointStillValid(ServerLevel level, HexTeleportDirectory.DoorEndpoint endpoint) {
+        BlockPos pos = endpoint.ownerPos();
+        BlockState state = level.getBlockState(pos);
         if (
                 !(state.getBlock()
                         instanceof MusavaccaPortalTrapdoorBlock)
         ) {
             return false;
         }
-
         if (
-                !(level.getBlockEntity(
-                        pos
-                )
+                !(level.getBlockEntity(pos)
                         instanceof MusavaccaPortalTrapdoorBlockEntity trapdoorBe)
                         || !trapdoorBe.hasHexColor()
         ) {
             return false;
         }
-
-        String expectedOwnerKey =
-                HexTeleportDirectory
-                        .trapdoorOwnerKey(
-                                //? if >=1.21.11 {
-                                /*level.dimension().identifier(),
-                                *///?} else {
-                                level.dimension().location(),
-                                //?}
-                                pos
-                        );
-
+        //? if >=1.21.11 {
+        /*String expectedOwnerKey = HexTeleportDirectory.trapdoorOwnerKey(level.dimension().identifier(), pos);
+        *///?} else {
+        String expectedOwnerKey = HexTeleportDirectory.trapdoorOwnerKey(level.dimension().location(), pos);
+        //?}
         return endpoint.ownerKey()
-                .equals(
-                        expectedOwnerKey
-                )
-                && state.getValue(
-                MusavaccaPortalTrapdoorBlock.LIT
-        )
-                && state.getValue(
-                MusavaccaPortalTrapdoorBlock.LIT_PORTAL
-        )
-                && state.getValue(
-                MusavaccaPortalTrapdoorBlock.PORTAL
-        )
+                .equals(expectedOwnerKey)
+                && state.getValue(MusavaccaPortalTrapdoorBlock.LIT)
+                && state.getValue(MusavaccaPortalTrapdoorBlock.LIT_PORTAL)
+                && state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
                 && HexTeleportDirectory
-                .normalizeHex(
-                        trapdoorBe.getHexColor()
-                )
+                .normalizeHex(trapdoorBe.getHexColor())
                 == endpoint.hexColor();
     }
 
-    private static boolean isValidPearlPortalEndpoint(
-            ServerLevel level,
-            BlockPos pos,
-            HexTeleportDirectory.Endpoint endpoint
-    ) {
+    private static boolean isValidPearlPortalEndpoint(ServerLevel level, BlockPos pos, HexTeleportDirectory.Endpoint endpoint) {
         if (
-                !level.getBlockState(
-                                pos
-                        )
-                        .is(
-                                ModBlocks.PEARL_PORTAL.get()
-                        )
+                !level.getBlockState(pos)
+                        .is(ModBlocks.PEARL_PORTAL.get())
         ) {
             return false;
         }
-
         if (
-                !(level.getBlockEntity(
-                        pos
-                )
+                !(level.getBlockEntity(pos)
                         instanceof PearlPortalBlockEntity portalBe)
         ) {
             return false;
         }
-
         return portalBe.isValidPortalTile()
                 && endpoint.endpointId()
-                .equals(
-                        portalBe.getPortalId()
-                )
-                && HexTeleportDirectory.normalizeHex(
-                portalBe.getHexColor()
-        )
+                .equals(portalBe.getPortalId())
+                && HexTeleportDirectory.normalizeHex(portalBe.getHexColor())
                 == endpoint.hexColor();
     }
 
-    private static boolean isValidVocoPostReceptorCornerEndpoint(
-            ServerLevel level,
-            BlockPos pos,
-            BlockState state,
-            HexTeleportDirectory.Endpoint endpoint
-    ) {
+    private static boolean isValidVocoPostReceptorCornerEndpoint(ServerLevel level, BlockPos pos, BlockState state, HexTeleportDirectory.Endpoint endpoint) {
         if (
                 !(state.getBlock()
                         instanceof VocoPostBlock)
         ) {
             return false;
         }
-
         if (
-                !state.hasProperty(
-                        VocoPostBlock.PORTAL
-                )
-                        || !state.getValue(
-                        VocoPostBlock.PORTAL
-                )
+                !state.hasProperty(VocoPostBlock.PORTAL)
+                        || !state.getValue(VocoPostBlock.PORTAL)
         ) {
             return false;
         }
-
         if (
-                !(level.getBlockEntity(
-                        pos
-                )
+                !(level.getBlockEntity(pos)
                         instanceof VocoPostBlockEntity postBe)
         ) {
             return false;
         }
-
-        return postBe.hasHexColor()
-                && HexTeleportDirectory.normalizeHex(
-                postBe.getHexColor()
-        )
-                == endpoint.hexColor();
+        return postBe.hasHexColor() && HexTeleportDirectory.normalizeHex(postBe.getHexColor()) == endpoint.hexColor();
     }
 
-    private static boolean isValidVocoTableReceptorCornerEndpoint(
-            ServerLevel level,
-            BlockPos pos,
-            BlockState state,
-            HexTeleportDirectory.Endpoint endpoint
-    ) {
+    private static boolean isValidVocoTableReceptorCornerEndpoint(ServerLevel level, BlockPos pos, BlockState state, HexTeleportDirectory.Endpoint endpoint) {
         if (
                 !(state.getBlock()
                         instanceof VocoTableBlock)
         ) {
             return false;
         }
-
         if (
-                !(level.getBlockEntity(
-                        pos
-                )
+                !(level.getBlockEntity(pos)
                         instanceof VocoTableBlockEntity tableBe)
         ) {
             return false;
         }
-
-        ReceptorPosition receptor =
-                ReceptorPosition.byId(
-                        endpoint.slotId()
-                );
-
+        ReceptorPosition receptor = ReceptorPosition.byId(endpoint.slotId());
         if (
-                !state.hasProperty(
-                        VocoTableBlock.portalProperty(
-                                receptor
-                        )
-                )
-                        || !state.getValue(
-                        VocoTableBlock.portalProperty(
-                                receptor
-                        )
-                )
+                !state.hasProperty(VocoTableBlock.portalProperty(receptor))
+                        || !state.getValue(VocoTableBlock.portalProperty(receptor))
         ) {
             return false;
         }
-
-        return HexTeleportDirectory.normalizeHex(
-                tableBe.getPortalHexColorOrNoTint(
-                        receptor
-                )
-        )
-                == endpoint.hexColor();
+        return HexTeleportDirectory.normalizeHex(tableBe.getPortalHexColorOrNoTint(receptor)) == endpoint.hexColor();
     }
 
-    public static boolean teleport(
-            ServerPlayer player,
-            ResolvedEndpoint resolved
-    ) {
-        return teleportToTarget(
-                player,
-                resolved.level(),
-                resolved.targetPos(),
-                resolved.yaw(),
-                resolved.pitch()
-        );
+    public static boolean teleport(ServerPlayer player, ResolvedEndpoint resolved) {
+        return teleportToTarget(player, resolved.level(), resolved.targetPos(), resolved.yaw(), resolved.pitch());
     }
 
-    public static boolean teleportToTarget(
-            ServerPlayer player,
-            ServerLevel targetLevel,
-            Vec3 wantedPos,
-            float yaw,
-            float pitch
-    ) {
-        EntityDimensions dimensions =
-                player.getDimensions(
-                        player.getPose()
-                );
-
-        Vec3 safePos =
-                PortalShape.findCollisionFreePosition(
-                        wantedPos,
-                        targetLevel,
-                        player,
-                        dimensions
-                );
-
-        HexTeleportPreloader.prepare(
-                player,
-                targetLevel,
-                safePos
-        );
-
+    public static boolean teleportToTarget(ServerPlayer player, ServerLevel targetLevel, Vec3 wantedPos, float yaw, float pitch) {
+        EntityDimensions dimensions = player.getDimensions(player.getPose());
+        Vec3 safePos = PortalShape.findCollisionFreePosition(wantedPos, targetLevel, player, dimensions);
+        HexTeleportPreloader.prepare(player, targetLevel, safePos);
         if (
                 player.level()
                         == targetLevel
         ) {
-            player.connection.teleport(
-                    safePos.x,
-                    safePos.y,
-                    safePos.z,
-                    yaw,
-                    pitch
-            );
-        } else if (!player.teleportTo(
-                targetLevel,
-                safePos.x,
-                safePos.y,
-                safePos.z,
-                Set.of(),
-                yaw,
-                pitch
-
-                //? if >=1.21.2 {
-                , true
-                //?}
-        )) {
-            return false;
-        }
-
+            player.connection.teleport(safePos.x, safePos.y, safePos.z, yaw, pitch);
+        //? if >=1.21.2 {
+        } else if (!player.teleportTo(targetLevel, safePos.x, safePos.y, safePos.z, Set.of(), yaw, pitch, true)) return false;
+        //?} else {
+        /*} else if (!player.teleportTo(targetLevel, safePos.x, safePos.y, safePos.z, Set.of(), yaw, pitch)) return false;
+        *///?}
         player.setYHeadRot(yaw);
         player.setYBodyRot(yaw);
         player.setPortalCooldown();
-
-        targetLevel.playSound(
-                null,
-                safePos.x,
-                safePos.y,
-                safePos.z,
-                SoundEvents.PORTAL_TRAVEL,
-                SoundSource.PLAYERS,
-                0.35F,
-                1.15F
-        );
+        targetLevel.playSound(null, safePos.x, safePos.y, safePos.z, SoundEvents.PORTAL_TRAVEL, SoundSource.PLAYERS, 0.35F, 1.15F);
         return true;
     }
 
-    public static void keepChunkLoaded(
-            ServerLevel level,
-            BlockPos pos
-    ) {
-        ChunkPos chunkPos =
-                //? if >=26.1 {
-                /*ChunkPos.containing(pos);
-                *///?} else {
-                new ChunkPos(pos);
-                //?}
-
-        level.getChunkSource()
-                //? if >=1.21.5 {
-                .addTicketWithRadius(
-                //?} else {
-                /*.addRegionTicket(
-                *///?}
-                        TicketType.PORTAL,
-                        chunkPos,
-                        //? if >=1.21.5 {
-                        3
-                        //?} else {
-                        /*3,
-                        pos
-                        *///?}
-                );
-
-        level.getChunk(
-                //? if >=26.1 {
-                /*chunkPos.x(),
-                chunkPos.z()
-                *///?} else {
-                chunkPos.x,
-                chunkPos.z
-                //?}
-        );
+    public static void keepChunkLoaded(ServerLevel level, BlockPos pos) {
+        //? if >=26.1 {
+        /*ChunkPos chunkPos = ChunkPos.containing(pos);
+        *///?} else {
+        ChunkPos chunkPos = new ChunkPos(pos);
+        //?}
+        //? if >=1.21.5 {
+        level.getChunkSource().addTicketWithRadius(TicketType.PORTAL, chunkPos, 3);
+        //?} else {
+        /*level.getChunkSource().addRegionTicket(TicketType.PORTAL, chunkPos, 3, pos);
+        *///?}
+        //? if >=26.1 {
+        /*level.getChunk(chunkPos.x(), chunkPos.z());
+        *///?} else {
+        level.getChunk(chunkPos.x, chunkPos.z);
+        //?}
     }
 }

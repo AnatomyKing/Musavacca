@@ -12,28 +12,15 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
-
 public final class Stonecutting {
     private final RecipeDSL dsl;
     private SingleItemRecipeBuilder builder;
-
     public Stonecutting(RecipeDSL dsl) {
         this.dsl = dsl;
     }
 
-    public Stonecutting of(
-            Object input,
-            RecipeCategory category,
-            ItemLike result,
-            int count
-    ) {
-        this.builder = SingleItemRecipeBuilder.stonecutting(
-                this.dsl.ingredient(input),
-                category,
-                result,
-                count
-        );
-
+    public Stonecutting of(Object input, RecipeCategory category, ItemLike result, int count) {
+        this.builder = SingleItemRecipeBuilder.stonecutting(this.dsl.ingredient(input), category, result, count);
         return this;
     }
 
@@ -45,11 +32,9 @@ public final class Stonecutting {
 
     public Stonecutting unlockedByHas(ItemLike... items) {
         requireBuilder();
-
         for (ItemLike item : items) {
             this.builder.unlockedBy(RecipeDSL.hasName(item), this.dsl.unlocker().item(item));
         }
-
         return this;
     }
 
@@ -73,8 +58,6 @@ public final class Stonecutting {
     }
 
     private void requireBuilder() {
-        if (this.builder == null) {
-            throw new IllegalStateException("No stonecutting recipe configured");
-        }
+        if (this.builder == null) throw new IllegalStateException("No stonecutting recipe configured");
     }
 }

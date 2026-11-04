@@ -15,15 +15,14 @@ public final class CaroteneShortGrassBlock extends TallGrassBlock {
     }
 
     @Override
-    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state
-            //? if >=26.3
-            //, net.minecraft.world.level.block.BonemealSource source
-    ) {
+    //? if >=26.3 {
+    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    *///?} else {
+    public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
+    //?}
         BlockState tall = ModBlocks.CAROTENE_TALL_GRASS.get().defaultBlockState();
-
         if (level.isEmptyBlock(pos.above()) && tall.canSurvive(level, pos)) {
             DoublePlantBlock.placeAt(level, tall, pos, Block.UPDATE_ALL);
         }
     }
 }
-

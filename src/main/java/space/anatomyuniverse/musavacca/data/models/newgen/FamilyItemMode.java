@@ -5,4 +5,3 @@ enum FamilyItemMode {
     CUSTOM,
     NONE
 }
-

@@ -14,55 +14,32 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlMenu;
 
-public record FlintAndPearlColorPayload(
-        int hexColor
-) implements CustomPacketPayload {
-
-    public static final Type<FlintAndPearlColorPayload> TYPE =
-            new Type<>(
-                    //? if >=1.21.11 {
-                    /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl_color")
-                    *///?} else {
-                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl_color")
-                    //?}
-            );
-
+public record FlintAndPearlColorPayload(int hexColor) implements CustomPacketPayload {
+    //? if >=1.21.11 {
+    /*public static final Type<FlintAndPearlColorPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl_color"));
+    *///?} else {
+    public static final Type<FlintAndPearlColorPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl_color"));
+    //?}
     public static final StreamCodec<
             ByteBuf,
             FlintAndPearlColorPayload
             > STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.VAR_INT,
-                    FlintAndPearlColorPayload::hexColor,
-                    FlintAndPearlColorPayload::new
-            );
-
+            StreamCodec.composite(ByteBufCodecs.VAR_INT, FlintAndPearlColorPayload::hexColor, FlintAndPearlColorPayload::new);
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    public static void handle(
-            FlintAndPearlColorPayload payload,
-            IPayloadContext context
-    ) {
+    public static void handle(FlintAndPearlColorPayload payload, IPayloadContext context) {
         if (!(context.player()
                 instanceof ServerPlayer player)) {
             return;
         }
-
         if (!(player.containerMenu
                 instanceof FlintAndPearlMenu menu)) {
             return;
         }
-
-        if (!menu.applyHexColor(
-                player,
-                payload.hexColor()
-        )) {
-            return;
-        }
-
+        if (!menu.applyHexColor(player, payload.hexColor())) return;
         player.containerMenu.broadcastChanges();
         player.inventoryMenu.broadcastChanges();
     }

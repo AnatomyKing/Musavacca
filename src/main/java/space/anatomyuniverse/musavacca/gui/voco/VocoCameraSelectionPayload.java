@@ -23,33 +23,18 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
-public record VocoCameraSelectionPayload(
-        BlockPos pos,
-        int receptorId,
-        float yawDegrees,
-        float pitchDegrees,
-        boolean resetToDefault
-) implements CustomPacketPayload {
-    private static final double MAX_PLAYER_DISTANCE_SQR = 100.0D;
-
-    public static final Type<VocoCameraSelectionPayload> TYPE =
-            //? if >=1.21.11 {
-            /*new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
-            *///?} else {
-            new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
-            //?}
-
+public record VocoCameraSelectionPayload(BlockPos pos, int receptorId, float yawDegrees, float pitchDegrees, boolean resetToDefault) implements CustomPacketPayload {
+    //? if >=1.21.11 {
+    /*public static final Type<VocoCameraSelectionPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
+    *///?} else {
+    public static final Type<VocoCameraSelectionPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
+    //?}
     public static final StreamCodec<FriendlyByteBuf, VocoCameraSelectionPayload> STREAM_CODEC =
             new StreamCodec<>() {
                 @Override
                 public VocoCameraSelectionPayload decode(FriendlyByteBuf buffer) {
-                    return new VocoCameraSelectionPayload(
-                            buffer.readBlockPos(),
-                            buffer.readVarInt(),
-                            buffer.readFloat(),
-                            buffer.readFloat(),
-                            buffer.readBoolean()
-                    );
+                    return new VocoCameraSelectionPayload(buffer.readBlockPos(), buffer.readVarInt(), buffer.readFloat(), buffer.readFloat(),
+                            buffer.readBoolean());
                 }
 
                 @Override
@@ -61,97 +46,48 @@ public record VocoCameraSelectionPayload(
                     buffer.writeBoolean(payload.resetToDefault());
                 }
             };
-
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
     public static void handle(VocoCameraSelectionPayload payload, IPayloadContext context) {
-        if (!(context.player() instanceof ServerPlayer player)) {
-            return;
-        }
-
+        if (!(context.player() instanceof ServerPlayer player)) return;
         BlockPos pos = payload.pos();
-        if (!player.level().hasChunkAt(pos)) {
-            return;
-        }
-
-        if (player.distanceToSqr(
-                pos.getX() + 0.5D,
-                pos.getY() + 0.5D,
-                pos.getZ() + 0.5D
-        ) > MAX_PLAYER_DISTANCE_SQR) {
-            return;
-        }
-
-        if (payload.receptorId() < 0 || payload.receptorId() >= ReceptorPosition.COUNT) {
-            return;
-        }
-
-        VocoCameraServerSessions.Session session =
-                VocoCameraServerSessions.consume(player, pos, payload.receptorId());
-
-        if (session == null) {
-            return;
-        }
-
+        if (!player.level().hasChunkAt(pos)) return;
+        if (player.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) > 100.0D) return;
+        if (payload.receptorId() < 0 || payload.receptorId() >= ReceptorPosition.COUNT) return;
+        VocoCameraServerSessions.Session session = VocoCameraServerSessions.consume(player, pos, payload.receptorId());
+        if (session == null) return;
         BlockState state = player.level().getBlockState(pos);
         BlockEntity blockEntity = player.level().getBlockEntity(pos);
         ReceptorPosition receptor = ReceptorPosition.byId(payload.receptorId());
-
         if (state.getBlock() instanceof VocoPostBlock) {
-            if (!(blockEntity instanceof VocoPostBlockEntity postBe)) {
-                return;
-            }
-
+            if (!(blockEntity instanceof VocoPostBlockEntity postBe)) return;
             receptor = VocoPostBlock.receptorPosition(state);
-
-            if (receptor.id() != session.receptorId()) {
-                return;
-            }
-
-            if (!VocoReceptorLogic.isReceptorLit(player.level(), pos, receptor)) {
-                return;
-            }
-
+            if (receptor.id() != session.receptorId()) return;
+            if (!VocoReceptorLogic.isReceptorLit(player.level(), pos, receptor)) return;
             if (payload.resetToDefault()) {
                 postBe.resetCustomTarget();
                 VocoReceptorLogic.playUiClick(player.level(), pos);
                 return;
             }
-
-            postBe.setCustomTarget(
-                    session.capturedTarget(),
-                    normalizeYaw(payload.yawDegrees()),
-                    normalizePitch(payload.pitchDegrees())
-            );
+            postBe.setCustomTarget(session.capturedTarget(), normalizeYaw(payload.yawDegrees()), normalizePitch(payload.pitchDegrees()));
             VocoReceptorLogic.playUiClick(player.level(), pos);
             return;
         }
-
         if (!(state.getBlock() instanceof VocoTableBlock)
                 || !(blockEntity instanceof VocoTableBlockEntity tableBe)) {
             return;
         }
-
-        if (!VocoReceptorLogic.isReceptorLit(player.level(), pos, receptor)) {
-            return;
-        }
-
+        if (!VocoReceptorLogic.isReceptorLit(player.level(), pos, receptor)) return;
         if (payload.resetToDefault()) {
             tableBe.resetCustomTarget(receptor);
             VocoReceptorLogic.playUiClick(player.level(), pos);
             return;
         }
-
         Vec3 capturedTarget = session.capturedTarget();
-        tableBe.setCustomTarget(
-                receptor,
-                capturedTarget,
-                normalizeYaw(payload.yawDegrees()),
-                normalizePitch(payload.pitchDegrees())
-        );
+        tableBe.setCustomTarget(receptor, capturedTarget, normalizeYaw(payload.yawDegrees()), normalizePitch(payload.pitchDegrees()));
         VocoReceptorLogic.playUiClick(player.level(), pos);
     }
 

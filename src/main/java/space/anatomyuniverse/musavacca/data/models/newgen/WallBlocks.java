@@ -4,11 +4,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-import java.util.Objects;
-
 public final class WallBlocks {
     private WallBlocks() {}
-
     public static final class Part extends BlockFamily.ModelRule<WallModels, Part> {
         private Part(WallModels source, Conditions.Match conditions) {
             super(source, conditions);
@@ -30,7 +27,6 @@ public final class WallBlocks {
     public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
         private final FamilyTextures.Set textures;
         private final WallModels baseModels;
-
         private Entry(Builder builder) {
             super(builder);
             textures = builder.textures;
@@ -50,39 +46,21 @@ public final class WallBlocks {
         }
 
         public void validate() {
-            if (!(block() instanceof WallBlock)) {
-                throw new IllegalStateException(
-                        "WallBlocks requires a WallBlock: " + ModelLocations.blockId(block())
-                );
-            }
-
+            if (!(block() instanceof WallBlock)) throw new IllegalStateException("WallBlocks requires a WallBlock: " + ModelLocations.blockId(block()));
             BlockFamilyValidation.requireProperty(block(), BlockStateProperties.UP, "WallBlocks");
             BlockFamilyValidation.requireProperty(block(), BlockStateProperties.NORTH_WALL, "WallBlocks");
             BlockFamilyValidation.requireProperty(block(), BlockStateProperties.EAST_WALL, "WallBlocks");
             BlockFamilyValidation.requireProperty(block(), BlockStateProperties.SOUTH_WALL, "WallBlocks");
             BlockFamilyValidation.requireProperty(block(), BlockStateProperties.WEST_WALL, "WallBlocks");
-
-            if (baseMode() == null) {
-                throw new IllegalStateException(
-                        "No base model selected for " + ModelLocations.blockId(block())
-                );
-            }
-
+            if (baseMode() == null) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
             if (baseMode() == BaseModelMode.GENERATED && textures == null) {
-                throw new IllegalStateException(
-                        "No generated textures configured for " + ModelLocations.blockId(block())
-                );
+                throw new IllegalStateException("No generated textures configured for " + ModelLocations.blockId(block()));
             }
-
             if (baseMode() == BaseModelMode.EXISTING) {
                 if (baseModels == null || !baseModels.worldComplete()) {
-                    throw new IllegalStateException(
-                            "Base WallModels must provide the complete in-world family for "
-                                    + ModelLocations.blockId(block())
-                    );
+                    throw new IllegalStateException("Base WallModels must provide the complete in-world family for " + ModelLocations.blockId(block()));
                 }
             }
-
             if (familyItemMode() == FamilyItemMode.DEFAULT
                     && baseMode() == BaseModelMode.EXISTING
                     && baseModels.inventory() == null) {
@@ -91,27 +69,18 @@ public final class WallBlocks {
                                 + "; provide it in the model family, use .item(model), or .noItem()."
                 );
             }
-
             validatePartConditions();
-
         }
 
         public static final class Builder extends BlockFamily.ItemFamilyBuilder<Builder, Part> {
             private FamilyTextures.Set textures;
             private WallModels baseModels;
-
             private Builder(Block block) {
                 super(block);
             }
 
             public Builder generated() {
                 selectGenerated();
-                return this;
-            }
-
-            public Builder models(WallModels models) {
-                selectExisting();
-                baseModels = Objects.requireNonNull(models, "models");
                 return this;
             }
 
@@ -141,4 +110,3 @@ public final class WallBlocks {
         }
     }
 }
-

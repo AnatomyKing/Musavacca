@@ -8,31 +8,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class ModMobEffects {
-
-    public static final DeferredRegister<MobEffect> MOB_EFFECTS =
-            DeferredRegister.create(
-                    Registries.MOB_EFFECT,
-                    MusaCore.MOD_ID
-            );
-
+    public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MusaCore.MOD_ID);
     public static final DeferredHolder<
             MobEffect,
             BananaCowBlessingEffect
             > BANANA_COW_BLESSING =
-            MOB_EFFECTS.register(
-                    "cow_blessing",
-                    BananaCowBlessingEffect::new
-            );
-
-    public static final DeferredHolder<
-            MobEffect,
-            PlayerStatusEffect
-            > PLAYER_STATUS =
-            MOB_EFFECTS.register(
-                    "incoming_call",
-                    PlayerStatusEffect::new
-            );
-
+            MOB_EFFECTS.register("cow_blessing", BananaCowBlessingEffect::new);
+    public static final DeferredHolder< MobEffect, PlayerStatusEffect > PLAYER_STATUS = MOB_EFFECTS.register("incoming_call", PlayerStatusEffect::new);
     public static void register(IEventBus modBus) {
         MOB_EFFECTS.register(modBus);
     }

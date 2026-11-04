@@ -1,15 +1,13 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
+
 //? if <1.21.5 {
 /*import net.minecraft.nbt.Tag;
 *///?}
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
-
 import net.minecraft.core.component.DataComponentGetter;
 //?}
-
 import net.minecraft.server.level.ServerLevel;
 import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportNetwork;
 import net.minecraft.core.component.DataComponentMap;
@@ -23,11 +21,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 //? if >=1.21.6 {
-
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
-
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -36,21 +32,9 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class MusavaccaPortalDoorBlockEntity
         extends BlockEntity implements HexSource {
-
-    private int hexColor =
-            MusavaccaTints.NO_TINT;
-
-    public MusavaccaPortalDoorBlockEntity(
-            BlockPos pos,
-            BlockState state
-    ) {
-        super(
-                ModBlockEntities
-                        .MUSAVACCA_DOOR_BLOCK_ENTITY
-                        .get(),
-                pos,
-                state
-        );
+    private int hexColor = MusavaccaTints.NO_TINT;
+    public MusavaccaPortalDoorBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.MUSAVACCA_DOOR_BLOCK_ENTITY.get(), pos, state);
     }
 
     @Override
@@ -59,36 +43,24 @@ public final class MusavaccaPortalDoorBlockEntity
     }
 
     public boolean hasHexColor() {
-        return this.hexColor
-                != MusavaccaTints.NO_TINT;
+        return this.hexColor != MusavaccaTints.NO_TINT;
     }
 
     public void setHexColor(int hexColor) {
-        int resolved =
-                hexColor == MusavaccaTints.NO_TINT
-                        ? MusavaccaTints.NO_TINT
-                        : MusavaccaTints.resolve(hexColor);
-
-        if (this.hexColor == resolved) {
-            return;
-        }
-
+        int resolved = hexColor == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.resolve(hexColor);
+        if (this.hexColor == resolved) return;
         this.hexColor = resolved;
-
         this.setChanged();
         this.syncDoor(true);
     }
 
     public void clearHexColor() {
-        this.setHexColor(
-                MusavaccaTints.NO_TINT
-        );
+        this.setHexColor(MusavaccaTints.NO_TINT);
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
-
         this.syncDoor(false);
     }
 
@@ -97,11 +69,7 @@ public final class MusavaccaPortalDoorBlockEntity
                 this.level
                         instanceof ServerLevel serverLevel
         ) {
-            MusavaccaDoorTeleportNetwork
-                    .removeDoor(
-                            serverLevel,
-                            this.getBlockPos()
-                    );
+            MusavaccaDoorTeleportNetwork.removeDoor(serverLevel, this.getBlockPos());
         }
     }
 
@@ -109,235 +77,138 @@ public final class MusavaccaPortalDoorBlockEntity
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         this.cleanupBeforeRemoval();
-        super.preRemoveSideEffects(
-                pos,
-                state
-        );
+        super.preRemoveSideEffects(pos, state);
     }
-
     //?}
-    private void syncDoor(
-            boolean playPortalSound
-    ) {
-        Level level =
-                this.getLevel();
-
-        if (level == null) {
-            return;
-        }
-
+    private void syncDoor(boolean playPortalSound) {
+        Level level = this.getLevel();
+        if (level == null) return;
         if (!level.isClientSide()) {
-            MusavaccaPortalDoorBlock
-                    .synchronizePearlState(
-                            level,
-                            this.getBlockPos(),
-                            playPortalSound
-                    );
+            MusavaccaPortalDoorBlock.synchronizePearlState(level, this.getBlockPos(), playPortalSound);
             return;
         }
-
         this.rerenderClientDoor();
     }
 
     private void rerenderClientDoor() {
-        Level level =
-                this.getLevel();
-
+        Level level = this.getLevel();
         if (
                 level == null
                         || !level.isClientSide()
         ) {
             return;
         }
-
-        rerenderPosition(
-                level,
-                this.getBlockPos()
-        );
-
-        rerenderPosition(
-                level,
-                this.getBlockPos().above()
-        );
+        rerenderPosition(level, this.getBlockPos());
+        rerenderPosition(level, this.getBlockPos().above());
     }
 
-    private void rerenderPosition(
-            Level level,
-            BlockPos pos
-    ) {
-        BlockState targetState =
-                level.getBlockState(pos);
-
+    private void rerenderPosition(Level level, BlockPos pos) {
+        BlockState targetState = level.getBlockState(pos);
         if (
                 targetState.getBlock()
                         != this.getBlockState().getBlock()
         ) {
             return;
         }
-
-        level.sendBlockUpdated(
-                pos,
-                targetState,
-                targetState,
-                Block.UPDATE_CLIENTS
-                        | Block.UPDATE_IMMEDIATE
-        );
+        level.sendBlockUpdated(pos, targetState, targetState, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
     @Override
-    protected void loadAdditional(
     //? if >=1.21.6 {
-            ValueInput input
-    ) {
+    protected void loadAdditional(ValueInput input) {
+    //?} else {
+    /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    *///?}
+        //? if >=1.21.6 {
         super.loadAdditional(input);
-    //?} else {
-            /*CompoundTag tag,
-            HolderLookup.Provider registries
-    ) {
-        super.loadAdditional(
-                tag,
-                registries
-        );
-    *///?}
-
-        int loaded =
-                //? if >=1.21.6 {
-                input.getIntOr(
-                        MusavaccaTints.HEX_COLOR_KEY,
-                        MusavaccaTints.NO_TINT
-                );
-                //?} else if >=1.21.5 <1.21.6 {
-                /*tag.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
-                *///?} else {
-                /*(tag.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? tag.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
-                *///?}
-
-        this.hexColor =
-                loaded == MusavaccaTints.NO_TINT
-                        ? MusavaccaTints.NO_TINT
-                        : MusavaccaTints.stored(loaded);
+        //?} else {
+        /*super.loadAdditional(tag, registries);
+        *///?}
+        //? if >=1.21.6 {
+        int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
+        //?} else if >=1.21.5 <1.21.6 {
+        /*int loaded = tag.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
+        *///?} else {
+        /*int loaded = (tag.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? tag.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
+        *///?}
+        this.hexColor = loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
 
     @Override
-    protected void saveAdditional(
     //? if >=1.21.6 {
-            ValueOutput output
-    ) {
-        super.saveAdditional(output);
+    protected void saveAdditional(ValueOutput output) {
     //?} else {
-            /*CompoundTag tag,
-            HolderLookup.Provider registries
-    ) {
-        super.saveAdditional(
-                tag,
-                registries
-        );
+    /*protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
     *///?}
-
+        //? if >=1.21.6 {
+        super.saveAdditional(output);
+        //?} else {
+        /*super.saveAdditional(tag, registries);
+        *///?}
         if (this.hasHexColor()) {
             //? if >=1.21.6 {
-            output.putInt(
+            output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
             //?} else {
-            /*tag.putInt(
+            /*tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
             *///?}
-                    MusavaccaTints.HEX_COLOR_KEY,
-                    this.hexColor
-            );
         }
     }
 
     @Override
-    protected void applyImplicitComponents(
-            //? if >=1.21.5 {
-            DataComponentGetter input
-            //?} else {
-            /*DataComponentInput input
-            *///?}
-    ) {
+    //? if >=1.21.5 {
+    protected void applyImplicitComponents(DataComponentGetter input) {
+    //?} else {
+    /*protected void applyImplicitComponents(DataComponentInput input) {
+    *///?}
         super.applyImplicitComponents(input);
-
-        Integer savedHex =
-                input.get(
-                        ModDataComponents
-                                .HEX_COLOR
-                                .get()
-                );
-
-        this.hexColor =
-                savedHex == null
-                        ? MusavaccaTints.NO_TINT
-                        : MusavaccaTints.stored(savedHex);
+        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
+        this.hexColor = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
     }
 
     @Override
-    protected void collectImplicitComponents(
-            DataComponentMap.Builder components
-    ) {
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
-
         if (this.hasHexColor()) {
-            components.set(
-                    ModDataComponents
-                            .HEX_COLOR
-                            .get(),
-                    this.hexColor
-            );
+            components.set(ModDataComponents.HEX_COLOR.get(), this.hexColor);
         }
     }
 
     @Override
-    public CompoundTag getUpdateTag(
-            HolderLookup.Provider provider
-    ) {
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         return this.saveWithoutMetadata(provider);
     }
 
     @Override
     public Packet<ClientGamePacketListener>
     getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket
-                .create(this);
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public void handleUpdateTag(
     //? if >=1.21.6 {
-            ValueInput input
-    ) {
-        super.handleUpdateTag(input);
+    public void handleUpdateTag(ValueInput input) {
     //?} else {
-            /*CompoundTag tag,
-            HolderLookup.Provider registries
-    ) {
-        super.handleUpdateTag(
-                tag,
-                registries
-        );
+    /*public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
     *///?}
+        //? if >=1.21.6 {
+        super.handleUpdateTag(input);
+        //?} else {
+        /*super.handleUpdateTag(tag, registries);
+        *///?}
         this.rerenderClientDoor();
     }
 
     @Override
-    public void onDataPacket(
-            Connection connection,
-            //? if >=1.21.6 {
-            ValueInput input
-            //?} else {
-            /*ClientboundBlockEntityDataPacket packet,
-            HolderLookup.Provider registries
-            *///?}
-    ) {
-        super.onDataPacket(
-                connection,
-                //? if >=1.21.6 {
-                input
-                //?} else {
-                /*packet,
-                registries
-                *///?}
-        );
-
+    //? if >=1.21.6 {
+    public void onDataPacket(Connection connection, ValueInput input) {
+    //?} else {
+    /*public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+    *///?}
+        //? if >=1.21.6 {
+        super.onDataPacket(connection, input);
+        //?} else {
+        /*super.onDataPacket(connection, packet, registries);
+        *///?}
         this.rerenderClientDoor();
     }
-
 }

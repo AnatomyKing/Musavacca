@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
@@ -14,7 +13,6 @@ import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class HardHexBlock extends Block implements EntityBlock {
-
     public HardHexBlock(Properties properties) {
         super(properties);
     }
@@ -27,15 +25,8 @@ public class HardHexBlock extends Block implements EntityBlock {
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-
-        if (level.isClientSide()) {
-            return;
-        }
-
-        if (oldState.is(state.getBlock())) {
-            return;
-        }
-
+        if (level.isClientSide()) return;
+        if (oldState.is(state.getBlock())) return;
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HardHexBlockEntity hardHexBe) {
             hardHexBe.setHexColor(MusavaccaTints.DEFAULT_TINT);
@@ -45,13 +36,8 @@ public class HardHexBlock extends Block implements EntityBlock {
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-
-        if (level.isClientSide()) {
-            return;
-        }
-
+        if (level.isClientSide()) return;
         Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HardHexBlockEntity hardHexBe) {
             if (savedHex != null) {
@@ -62,4 +48,3 @@ public class HardHexBlock extends Block implements EntityBlock {
         }
     }
 }
-

@@ -18,31 +18,19 @@ public final class StairModels {
     private final ResourceLocation inner;
     private final ResourceLocation outer;
     //?}
-
     private StairModels(Builder builder) {
         straight = builder.straight;
         inner = builder.inner;
         outer = builder.outer;
-
-        if (isEmpty()) {
-            throw new IllegalStateException("StairModels requires at least one model");
-        }
+        if (isEmpty()) throw new IllegalStateException("StairModels requires at least one model");
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static StairModels full(
-            String straight,
-            String inner,
-            String outer
-    ) {
-        return builder()
-                .straight(straight)
-                .inner(inner)
-                .outer(outer)
-                .build();
+    public static StairModels full(String straight, String inner, String outer) {
+        return builder().straight(straight).inner(inner).outer(outer).build();
     }
 
     @Nullable
@@ -51,23 +39,15 @@ public final class StairModels {
     *///?} else {
     public ResourceLocation model(StairsShape shape) {
     //?}
-        return switch (shape) {
-            case STRAIGHT -> straight;
-            case INNER_LEFT, INNER_RIGHT -> inner;
-            case OUTER_LEFT, OUTER_RIGHT -> outer;
-        };
+        return switch (shape) { case STRAIGHT -> straight; case INNER_LEFT, INNER_RIGHT -> inner; case OUTER_LEFT, OUTER_RIGHT -> outer; };
     }
 
     public boolean complete() {
-        return straight != null
-                && inner != null
-                && outer != null;
+        return straight != null && inner != null && outer != null;
     }
 
     public boolean isEmpty() {
-        return straight == null
-                && inner == null
-                && outer == null;
+        return straight == null && inner == null && outer == null;
     }
 
     public static final class Builder {
@@ -80,9 +60,7 @@ public final class StairModels {
         private ResourceLocation inner;
         private ResourceLocation outer;
         //?}
-
         private Builder() {}
-
         public Builder straight(String model) {
             straight = parse(model, "straight");
             return this;
@@ -107,10 +85,7 @@ public final class StairModels {
         *///?} else {
         private static ResourceLocation parse(String model, String name) {
         //?}
-            if (model == null || model.isBlank()) {
-                throw new IllegalArgumentException(name + " must not be blank");
-            }
-
+            if (model == null || model.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
             //? if >=1.21.11 {
             /*return Identifier.parse(model);
             *///?} else {

@@ -6,33 +6,19 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.block.Block;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public final class Textures {
     private Textures() {}
-
-    public record Set(
-            //? if >=1.21.11 {
-            /*List<Identifier> top,
-            List<Identifier> bottom,
-            List<Identifier> north,
-            List<Identifier> south,
-            List<Identifier> west,
-            List<Identifier> east,
-            Identifier particle
-            *///?} else {
-            List<ResourceLocation> top,
-            List<ResourceLocation> bottom,
-            List<ResourceLocation> north,
-            List<ResourceLocation> south,
-            List<ResourceLocation> west,
-            List<ResourceLocation> east,
-            ResourceLocation particle
-            //?}
-    ) {
+    //? if >=1.21.11 {
+    /*public record Set(List<Identifier> top, List<Identifier> bottom, List<Identifier> north, List<Identifier> south, List<Identifier> west,
+            List<Identifier> east, Identifier particle) {
+    *///?} else {
+    public record Set(List<ResourceLocation> top, List<ResourceLocation> bottom, List<ResourceLocation> north, List<ResourceLocation> south,
+            List<ResourceLocation> west, List<ResourceLocation> east, ResourceLocation particle) {
+    //?}
         public Set {
             top = requireLayers(top, "top");
             bottom = requireLayers(bottom, "bottom");
@@ -44,24 +30,12 @@ public final class Textures {
         }
 
         private Set(Builder b) {
-            this(
-                    first(b.top, b.ends, b.all),
-                    first(b.bottom, b.ends, b.all),
-                    first(b.north, b.sides, b.all),
-                    first(b.south, b.sides, b.all),
-                    first(b.west, b.sides, b.all),
-                    first(b.east, b.sides, b.all),
-                    b.particle != null
-                            ? b.particle
-                            : first(b.north, b.sides, b.all).get(0)
-            );
+            this(first(b.top, b.ends, b.all), first(b.bottom, b.ends, b.all), first(b.north, b.sides, b.all), first(b.south, b.sides, b.all),
+                    first(b.west, b.sides, b.all), first(b.east, b.sides, b.all), b.particle != null ? b.particle : first(b.north, b.sides, b.all).get(0));
         }
 
         public int layerCount() {
-            return Math.max(
-                    Math.max(Math.max(top.size(), bottom.size()), Math.max(north.size(), south.size())),
-                    Math.max(west.size(), east.size())
-            );
+            return Math.max(Math.max(Math.max(top.size(), bottom.size()), Math.max(north.size(), south.size())), Math.max(west.size(), east.size()));
         }
 
         @SafeVarargs
@@ -78,18 +52,12 @@ public final class Textures {
         }
 
         //? if >=1.21.11 {
-        /*private static List<Identifier> requireLayers(
-                List<Identifier> layers,
+        /*private static List<Identifier> requireLayers(List<Identifier> layers, String name) {
         *///?} else {
-        private static List<ResourceLocation> requireLayers(
-                List<ResourceLocation> layers,
+        private static List<ResourceLocation> requireLayers(List<ResourceLocation> layers, String name) {
         //?}
-                String name
-        ) {
             Objects.requireNonNull(layers, name);
-            if (layers.isEmpty()) {
-                throw new IllegalStateException("No textures resolve for generated " + name + " face");
-            }
+            if (layers.isEmpty()) throw new IllegalStateException("No textures resolve for generated " + name + " face");
             //? if >=1.21.11 {
             /*for (Identifier layer : layers) {
             *///?} else {
@@ -103,43 +71,29 @@ public final class Textures {
 
     public static final class Builder {
         private final Block block;
-
         //? if >=1.21.11 {
         /*private List<Identifier> all;
         private List<Identifier> sides;
         private List<Identifier> ends;
+        private List<Identifier> top;
+        private List<Identifier> bottom;
+        private List<Identifier> north;
+        private List<Identifier> south;
+        private List<Identifier> west;
+        private List<Identifier> east;
+        private Identifier particle;
         *///?} else {
         private List<ResourceLocation> all;
         private List<ResourceLocation> sides;
         private List<ResourceLocation> ends;
-        //?}
-
-        //? if >=1.21.11 {
-        /*private List<Identifier> top;
-        private List<Identifier> bottom;
-        *///?} else {
         private List<ResourceLocation> top;
         private List<ResourceLocation> bottom;
-        //?}
-
-        //? if >=1.21.11 {
-        /*private List<Identifier> north;
-        private List<Identifier> south;
-        private List<Identifier> west;
-        private List<Identifier> east;
-        *///?} else {
         private List<ResourceLocation> north;
         private List<ResourceLocation> south;
         private List<ResourceLocation> west;
         private List<ResourceLocation> east;
-        //?}
-
-        //? if >=1.21.11 {
-        /*private Identifier particle;
-        *///?} else {
         private ResourceLocation particle;
         //?}
-
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
             this.all = List.of(TextureTokens.block(block));
@@ -195,11 +149,6 @@ public final class Textures {
             return this;
         }
 
-        public Builder particle(String texture) {
-            this.particle = resolve(texture);
-            return this;
-        }
-
         public Set build() {
             return new Set(this);
         }
@@ -209,13 +158,8 @@ public final class Textures {
         *///?} else {
         private List<ResourceLocation> resolve(String... tokens) {
         //?}
-            if (tokens == null || tokens.length == 0) {
-                throw new IllegalArgumentException("At least one texture is required");
-            }
-
-            return Arrays.stream(tokens)
-                    .map(this::resolve)
-                    .toList();
+            if (tokens == null || tokens.length == 0) throw new IllegalArgumentException("At least one texture is required");
+            return Arrays.stream(tokens).map(this::resolve).toList();
         }
 
         //? if >=1.21.11 {

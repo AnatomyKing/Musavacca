@@ -7,18 +7,15 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
-
 import java.util.HashMap;
 import java.util.EnumMap;
 import java.util.Map;
 *///?}
-
 //? if >=26.3 {
 /*import com.mojang.renderpearl.api.textures.FilterMode;
-*///?} else if >=1.21.11 {
+*///?} else if >=1.21.11 <26.3 {
 /*import com.mojang.blaze3d.textures.FilterMode;
 *///?}
-
 //? if >=1.21.11 <26.1 {
 /*import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -27,37 +24,30 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 *///?}
-
 //? if >=1.21.11 <26.1 {
+
 /*@EventBusSubscriber(modid = "musavacca", value = Dist.CLIENT)
 *///?}
 public final class NearestBlockRenderTypes {
     private NearestBlockRenderTypes() {}
-
     //? if >=1.21.11 {
-    /*private static final Map<ChunkSectionLayer, Map<Identifier, RenderType>> TYPES =
-            new EnumMap<>(ChunkSectionLayer.class);
-
+    /*private static final Map<ChunkSectionLayer, Map<Identifier, RenderType>> TYPES = new EnumMap<>(ChunkSectionLayer.class);
     static {
         for (ChunkSectionLayer layer : ChunkSectionLayer.values()) TYPES.put(layer, new HashMap<>());
     }
 
-    //? if <26.1 {
-    // 1.21.11 has no TRANSLUCENT_BLOCK constant. Reuse vanilla block shaders.
-    private static final RenderPipeline TRANSLUCENT_PIPELINE =
+    //? if >=1.21.11 <26.1 {
+    /^private static final RenderPipeline TRANSLUCENT_PIPELINE =
             RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
-                    .withLocation(Identifier.fromNamespaceAndPath(
-                            "musavacca", "pipeline/nearest_translucent_block"))
+                    .withLocation(Identifier.fromNamespaceAndPath("musavacca", "pipeline/nearest_translucent_block"))
                     .withBlend(BlendFunction.TRANSLUCENT)
                     .withShaderDefine("ALPHA_CUTOUT", 0.01F)
                     .build();
-
     @SubscribeEvent
     public static void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(TRANSLUCENT_PIPELINE);
     }
-    //?}
-
+    ^///?}
     public static RenderType forAtlas(Identifier atlas, ChunkSectionLayer layer) {
         Map<Identifier, RenderType> cache = TYPES.get(layer);
         RenderType result = cache.get(atlas);
@@ -79,17 +69,15 @@ public final class NearestBlockRenderTypes {
             case TRIPWIRE -> RenderPipelines.TRIPWIRE_BLOCK;
             //?}
         };
-
         var setup = RenderSetup.builder(pipeline)
                 .withTexture("Sampler0", atlas,
                         () -> RenderSystem.getSamplerCache()
                                 .getClampToEdge(FilterMode.NEAREST, false))
                 .useLightmap();
-
         boolean translucent = layer == ChunkSectionLayer.TRANSLUCENT;
-        //? if <26.1 {
-        translucent |= layer == ChunkSectionLayer.TRIPWIRE;
-        //?}
+        //? if >=1.21.11 <26.1 {
+        /^translucent |= layer == ChunkSectionLayer.TRIPWIRE;
+        ^///?}
         if (translucent) {
             setup.sortOnUpload();
             //? if >=26.3 {

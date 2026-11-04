@@ -7,12 +7,10 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-
 import java.util.Objects;
 
 public final class TextureTokens {
     private TextureTokens() {}
-
     //? if >=1.21.11 {
     /*public static Identifier block(Block block) {
         Identifier id = ModelLocations.blockId(block);
@@ -26,15 +24,17 @@ public final class TextureTokens {
 
     //? if >=1.21.11 {
     /*public static Identifier block(Block block, String suffix) {
-        Objects.requireNonNull(suffix, "suffix");
-        Identifier id = ModelLocations.blockId(block);
-        return Identifier.fromNamespaceAndPath(id.getNamespace(), block(block).getPath() + suffix);
     *///?} else {
     public static ResourceLocation block(Block block, String suffix) {
+    //?}
         Objects.requireNonNull(suffix, "suffix");
+        //? if >=1.21.11 {
+        /*Identifier id = ModelLocations.blockId(block);
+        return Identifier.fromNamespaceAndPath(id.getNamespace(), block(block).getPath() + suffix);
+        *///?} else {
         ResourceLocation id = ModelLocations.blockId(block);
         return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), block(block).getPath() + suffix);
-    //?}
+        //?}
     }
 
     //? if >=1.21.11 {
@@ -46,12 +46,14 @@ public final class TextureTokens {
         if (token == null || token.isBlank()) throw new IllegalArgumentException("texture token must not be blank");
         //? if >=1.21.11 {
         /*if (token.indexOf(':') >= 0) return Identifier.parse(token);
-        if (token.startsWith("_")) return block(block, token);
-        Identifier id = ModelLocations.blockId(block);
-        return Identifier.fromNamespaceAndPath(id.getNamespace(), token.startsWith("block/") ? token : "block/" + token);
         *///?} else {
         if (token.indexOf(':') >= 0) return ResourceLocation.parse(token);
+        //?}
         if (token.startsWith("_")) return block(block, token);
+        //? if >=1.21.11 {
+        /*Identifier id = ModelLocations.blockId(block);
+        return Identifier.fromNamespaceAndPath(id.getNamespace(), token.startsWith("block/") ? token : "block/" + token);
+        *///?} else {
         ResourceLocation id = ModelLocations.blockId(block);
         return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), token.startsWith("block/") ? token : "block/" + token);
         //?}
@@ -81,13 +83,15 @@ public final class TextureTokens {
 
     //? if >=1.21.11 {
     /*public static Identifier itemLayer(Identifier base, int layer) {
-        if (layer < 0) throw new IllegalArgumentException("layer must be >= 0");
-        return Identifier.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + layer);
     *///?} else {
     public static ResourceLocation itemLayer(ResourceLocation base, int layer) {
-        if (layer < 0) throw new IllegalArgumentException("layer must be >= 0");
-        return ResourceLocation.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + layer);
     //?}
+        if (layer < 0) throw new IllegalArgumentException("layer must be >= 0");
+        //? if >=1.21.11 {
+        /*return Identifier.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + layer);
+        *///?} else {
+        return ResourceLocation.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + layer);
+        //?}
     }
 
     //? if >=1.21.11 {

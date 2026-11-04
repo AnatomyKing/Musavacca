@@ -15,13 +15,8 @@ import space.anatomyuniverse.musavacca.basuke.summon.BasukeSummon;
 
 public final class VocoTableItemDisplayLogic {
     private VocoTableItemDisplayLogic() {}
-
-    public static void onRightClickBlock(
-            PlayerInteractEvent.RightClickBlock event
-    ) {
-        Player player =
-                event.getEntity();
-
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        Player player = event.getEntity();
         if (
                 !player.isShiftKeyDown()
                         || event.getHand()
@@ -29,289 +24,103 @@ public final class VocoTableItemDisplayLogic {
         ) {
             return;
         }
-
-        Level level =
-                event.getLevel();
-
-        BlockPos pos =
-                event.getPos();
-
+        Level level = event.getLevel();
+        BlockPos pos = event.getPos();
         if (
                 !(level.getBlockEntity(pos)
                         instanceof VocoTableBlockEntity)
         ) {
             return;
         }
-
-        ItemStack stack =
-                event.getItemStack();
-
-        if (stack.isEmpty()) {
-            return;
-        }
-
+        ItemStack stack = event.getItemStack();
+        if (stack.isEmpty()) return;
         if (
                 !VocoTableItemDisplayHitboxes
-                        .detectHitPart(
-                                pos,
-                                event.getHitVec()
-                        )
+                        .detectHitPart(pos, event.getHitVec())
                         .isItemDisplay()
         ) {
             return;
         }
-
-        InteractionResult result =
-                useItemOn(
-                        stack,
-                        level,
-                        pos,
-                        player,
-                        event.getHand(),
-                        true
-                );
-
+        InteractionResult result = useItemOn(stack, level, pos, player, event.getHand(), true);
         event.setCancellationResult(result);
         event.setCanceled(true);
     }
 
-    public static InteractionResult useWithoutItem(
-            Level level,
-            BlockPos pos,
-            Player player,
-            boolean bulk
-    ) {
+    public static InteractionResult useWithoutItem(Level level, BlockPos pos, Player player, boolean bulk) {
         if (
                 !(level.getBlockEntity(pos)
                         instanceof VocoTableBlockEntity tableBe)
         ) {
             return InteractionResult.CONSUME;
         }
-
-        boolean canRemove =
-                tableBe.hasDisplayedItem();
-
-        if (level.isClientSide()) {
-            return canRemove
-                    ? InteractionResult.SUCCESS
-                    : InteractionResult.CONSUME;
-        }
-
-        return removeDisplayedItem(
-                level,
-                pos,
-                player,
-                tableBe,
-                bulk
-        )
-                ? InteractionResult.SUCCESS
-                : InteractionResult.CONSUME;
+        boolean canRemove = tableBe.hasDisplayedItem();
+        if (level.isClientSide()) return canRemove ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
+        return removeDisplayedItem(level, pos, player, tableBe, bulk) ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
     }
 
-    public static InteractionResult useItemOn(
-            ItemStack stack,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            boolean bulk
-    ) {
+    public static InteractionResult useItemOn(ItemStack stack, Level level, BlockPos pos, Player player, InteractionHand hand, boolean bulk) {
         if (
                 hand == InteractionHand.OFF_HAND
                         || stack.isEmpty()
         ) {
             return InteractionResult.CONSUME;
         }
-
         if (
                 !(level.getBlockEntity(pos)
                         instanceof VocoTableBlockEntity tableBe)
         ) {
             return InteractionResult.CONSUME;
         }
-
-        TransferAction action =
-                transferAction(
-                        tableBe,
-                        stack
-                );
-
-        if (level.isClientSide()) {
-            return action == TransferAction.NONE
-                    ? InteractionResult.CONSUME
-                    : InteractionResult.SUCCESS;
-        }
-
+        TransferAction action = transferAction(tableBe, stack);
+        if (level.isClientSide()) return action == TransferAction.NONE ? InteractionResult.CONSUME : InteractionResult.SUCCESS;
         boolean changed =
                 switch (action) {
                     case INSERT ->
-                            insertDisplayedItem(
-                                    level,
-                                    pos,
-                                    player,
-                                    tableBe,
-                                    stack,
-                                    bulk
-                            );
-
+                            insertDisplayedItem(level, pos, player, tableBe, stack, bulk);
                     case MERGE ->
-                            mergeDisplayedItem(
-                                    level,
-                                    pos,
-                                    player,
-                                    tableBe,
-                                    stack,
-                                    bulk
-                            );
-
+                            mergeDisplayedItem(level, pos, player, tableBe, stack, bulk);
                     case SWAP ->
-                            swapDisplayedItem(
-                                    level,
-                                    pos,
-                                    player,
-                                    tableBe,
-                                    stack,
-                                    hand
-                            );
-
+                            swapDisplayedItem(level, pos, player, tableBe, stack, hand);
                     case NONE -> false;
                 };
-
         if (changed) {
-            BasukeSummon.trySummonFromVocoTable(
-                    level,
-                    pos
-            );
+            BasukeSummon.trySummonFromVocoTable(level, pos);
         }
-
-        return changed
-                ? InteractionResult.SUCCESS
-                : InteractionResult.CONSUME;
+        return changed ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
     }
 
-    private static TransferAction transferAction(
-            VocoTableBlockEntity tableBe,
-            ItemStack stack
-    ) {
-        if (stack.isEmpty()) {
-            return TransferAction.NONE;
-        }
-
-        ItemStack displayed =
-                tableBe.getDisplayedItem();
-
-        if (!tableBe.hasDisplayedItem()) {
-            return TransferAction.INSERT;
-        }
-
-        if (tableBe.canMergeDisplayedItem(stack)) {
-            return tableBe.getDisplayedItemCount()
-                    < Integer.MAX_VALUE
-                    ? TransferAction.MERGE
-                    : TransferAction.NONE;
-        }
-
+    private static TransferAction transferAction(VocoTableBlockEntity tableBe, ItemStack stack) {
+        if (stack.isEmpty()) return TransferAction.NONE;
+        ItemStack displayed = tableBe.getDisplayedItem();
+        if (!tableBe.hasDisplayedItem()) return TransferAction.INSERT;
+        if (tableBe.canMergeDisplayedItem(stack)) return tableBe.getDisplayedItemCount() < Integer.MAX_VALUE ? TransferAction.MERGE : TransferAction.NONE;
         if (
-                ItemStack.isSameItemSameComponents(
-                        displayed,
-                        stack
-                )
+                ItemStack.isSameItemSameComponents(displayed, stack)
         ) {
             return TransferAction.NONE;
         }
-
-        return tableBe.getDisplayedItemCount()
-                <= displayed.getMaxStackSize()
-                ? TransferAction.SWAP
-                : TransferAction.NONE;
+        return tableBe.getDisplayedItemCount() <= displayed.getMaxStackSize() ? TransferAction.SWAP : TransferAction.NONE;
     }
 
-    private static boolean insertDisplayedItem(
-            Level level,
-            BlockPos pos,
-            Player player,
-            VocoTableBlockEntity tableBe,
-            ItemStack stack,
-            boolean bulk
-    ) {
-        int moved =
-                tableBe.addDisplayedItems(
-                        stack,
-                        transferAmount(
-                                stack,
-                                bulk
-                        )
-                );
-
-        if (moved <= 0) {
-            return false;
-        }
-
-        shrinkHeldStack(
-                player,
-                stack,
-                moved
-        );
-
-        playItemDisplaySound(
-                level,
-                pos,
-                SoundEvents.ITEM_FRAME_ADD_ITEM
-        );
-
+    private static boolean insertDisplayedItem(Level level, BlockPos pos, Player player, VocoTableBlockEntity tableBe, ItemStack stack, boolean bulk) {
+        int moved = tableBe.addDisplayedItems(stack, transferAmount(stack, bulk));
+        if (moved <= 0) return false;
+        shrinkHeldStack(player, stack, moved);
+        playItemDisplaySound(level, pos, SoundEvents.ITEM_FRAME_ADD_ITEM);
         return true;
     }
 
-    private static boolean mergeDisplayedItem(
-            Level level,
-            BlockPos pos,
-            Player player,
-            VocoTableBlockEntity tableBe,
-            ItemStack stack,
-            boolean bulk
-    ) {
-        int moved =
-                tableBe.addDisplayedItems(
-                        stack,
-                        transferAmount(
-                                stack,
-                                bulk
-                        )
-                );
-
-        if (moved <= 0) {
-            return false;
-        }
-
-        shrinkHeldStack(
-                player,
-                stack,
-                moved
-        );
-
-        playItemDisplaySound(
-                level,
-                pos,
-                SoundEvents.ITEM_FRAME_ROTATE_ITEM
-        );
-
+    private static boolean mergeDisplayedItem(Level level, BlockPos pos, Player player, VocoTableBlockEntity tableBe, ItemStack stack, boolean bulk) {
+        int moved = tableBe.addDisplayedItems(stack, transferAmount(stack, bulk));
+        if (moved <= 0) return false;
+        shrinkHeldStack(player, stack, moved);
+        playItemDisplaySound(level, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM);
         return true;
     }
 
-    private static boolean swapDisplayedItem(
-            Level level,
-            BlockPos pos,
-            Player player,
-            VocoTableBlockEntity tableBe,
-            ItemStack stack,
-            InteractionHand hand
-    ) {
-        ItemStack displayed =
-                tableBe.getDisplayedItem();
-
-        int displayedCount =
-                tableBe.getDisplayedItemCount();
-
+    private static boolean swapDisplayedItem(Level level, BlockPos pos, Player player, VocoTableBlockEntity tableBe, ItemStack stack, InteractionHand hand) {
+        ItemStack displayed = tableBe.getDisplayedItem();
+        int displayedCount = tableBe.getDisplayedItemCount();
         if (
                 displayed.isEmpty()
                         || displayedCount <= 0
@@ -320,114 +129,43 @@ public final class VocoTableItemDisplayLogic {
         ) {
             return false;
         }
-
-        ItemStack removed =
-                displayed.copyWithCount(
-                        displayedCount
-                );
-
-        tableBe.setDisplayedItem(
-                stack,
-                stack.getCount()
-        );
-
-        player.setItemInHand(
-                hand,
-                removed
-        );
-
-        playItemDisplaySound(
-                level,
-                pos,
-                SoundEvents.ITEM_FRAME_ROTATE_ITEM
-        );
-
+        ItemStack removed = displayed.copyWithCount(displayedCount);
+        tableBe.setDisplayedItem(stack, stack.getCount());
+        player.setItemInHand(hand, removed);
+        playItemDisplaySound(level, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM);
         return true;
     }
 
-    private static boolean removeDisplayedItem(
-            Level level,
-            BlockPos pos,
-            Player player,
-            VocoTableBlockEntity tableBe,
-            boolean bulk
-    ) {
-        ItemStack displayed =
-                tableBe.getDisplayedItem();
-
-        if (displayed.isEmpty()) {
-            return false;
-        }
-
-        int requestedAmount =
-                bulk
-                        ? displayed.getMaxStackSize()
-                        : 1;
-
-        ItemStack removed =
-                tableBe.removeDisplayedItems(
-                        requestedAmount
-                );
-
-        if (removed.isEmpty()) {
-            return false;
-        }
-
+    private static boolean removeDisplayedItem(Level level, BlockPos pos, Player player, VocoTableBlockEntity tableBe, boolean bulk) {
+        ItemStack displayed = tableBe.getDisplayedItem();
+        if (displayed.isEmpty()) return false;
+        int requestedAmount = bulk ? displayed.getMaxStackSize() : 1;
+        ItemStack removed = tableBe.removeDisplayedItems(requestedAmount);
+        if (removed.isEmpty()) return false;
         if (!player.addItem(removed)) {
-            player.drop(
-                    removed,
-                    false
-                    //? if >=26.3
-                    //, net.minecraft.util.Prediction.SERVER_ONLY
-            );
+            //? if >=26.3 {
+            /*player.drop(removed, false, net.minecraft.util.Prediction.SERVER_ONLY);
+            *///?} else {
+            player.drop(removed, false);
+            //?}
         }
-
-        playItemDisplaySound(
-                level,
-                pos,
-                SoundEvents.ITEM_FRAME_REMOVE_ITEM
-        );
-
+        playItemDisplaySound(level, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM);
         return true;
     }
 
-    private static int transferAmount(
-            ItemStack stack,
-            boolean bulk
-    ) {
-        if (!bulk) {
-            return 1;
-        }
-
-        return Math.min(
-                stack.getCount(),
-                stack.getMaxStackSize()
-        );
+    private static int transferAmount(ItemStack stack, boolean bulk) {
+        if (!bulk) return 1;
+        return Math.min(stack.getCount(), stack.getMaxStackSize());
     }
 
-    private static void shrinkHeldStack(
-            Player player,
-            ItemStack stack,
-            int amount
-    ) {
+    private static void shrinkHeldStack(Player player, ItemStack stack, int amount) {
         if (!player.getAbilities().instabuild) {
             stack.shrink(amount);
         }
     }
 
-    private static void playItemDisplaySound(
-            Level level,
-            BlockPos pos,
-            SoundEvent sound
-    ) {
-        level.playSound(
-                null,
-                pos,
-                sound,
-                SoundSource.BLOCKS,
-                1.0F,
-                1.0F
-        );
+    private static void playItemDisplaySound(Level level, BlockPos pos, SoundEvent sound) {
+        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     private enum TransferAction {
@@ -437,4 +175,3 @@ public final class VocoTableItemDisplayLogic {
         SWAP
     }
 }
-

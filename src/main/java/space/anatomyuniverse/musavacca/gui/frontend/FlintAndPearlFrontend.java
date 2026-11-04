@@ -1,41 +1,33 @@
 package space.anatomyuniverse.musavacca.gui.frontend;
+
 //? if >=1.21.9 {
 /*import net.minecraft.client.input.CharacterEvent;
-
 import net.minecraft.client.input.KeyEvent;
-
 import net.minecraft.client.input.MouseButtonEvent;
 *///?}
-
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-
 //? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 //?} else {
 /*import net.neoforged.neoforge.network.PacketDistributor;
 *///?}
-
 //? if >=26.1 {
 /*import net.minecraft.client.gui.GuiGraphicsExtractor;
-*///?} else if <1.21.2 || (>=1.21.6 <26.1) {
-import net.minecraft.client.gui.GuiGraphics;
-//?} else {
+*///?} else if >=1.21.2 <1.21.6 {
 /*import net.minecraft.client.renderer.RenderType;
+*///?}
+//? if <26.1 {
 import net.minecraft.client.gui.GuiGraphics;
-*///?}
-
-//? if >=1.21.11 {
-/*import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-*///?} else if >=1.21.6 <1.21.11 {
+//?}
+//? if >=1.21.6 {
 import net.minecraft.client.renderer.RenderPipelines;
+//?}
 import net.minecraft.network.chat.Component;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
-//?} else {
-/*import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-*///?}
+//?}
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -49,67 +41,13 @@ import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearlMenu> {
-    private static final int GUI_WIDTH = 275;
-    private static final int GUI_HEIGHT = 256;
-    private static final int PEARL_X = 5;
-    private static final int PEARL_Y = 10;
-    private static final int PEARL_WIDTH = 124;
-    private static final int PEARL_HEIGHT = 156;
-    private static final int PEARL_LAYER_COUNT = 13;
-    private static final int HEX_X = 139;
-    private static final int HEX_Y = 22;
-    private static final int HEX_WIDTH = 78;
-    private static final int HEX_HEIGHT = 38;
-    private static final int HEX_SYMBOL_X = 25;
-    private static final int HEX_SYMBOL_Y = 11;
-    private static final int HEX_SYMBOL_PRESSED_Y = 13;
-    private static final int HEX_SYMBOL_COUNT = 6;
-    private static final int BAR_WIDTH = 115;
-    private static final int BAR_HEIGHT = 38;
-    private static final int BAR_PRESSED_OFFSET_Y = 2;
-    private static final int STRIP_X = 10;
-    private static final int STRIP_Y = 10;
-    private static final int STRIP_WIDTH = 76;
-    private static final int STRIP_HEIGHT = 13;
-    private static final int VALUE_X = 88;
-    private static final int VALUE_Y = 12;
-    private static final int VALUE_SYMBOL_COUNT = 3;
-    private static final int SYMBOL_WIDTH = 7;
-    private static final int SYMBOL_HEIGHT = 9;
-    private static final int SYMBOL_SPACING = 8;
-    private static final int HEX_TEXT_WIDTH = (HEX_SYMBOL_COUNT - 1) * SYMBOL_SPACING + SYMBOL_WIDTH;
-    private static final int HEX_TEXT_HEIGHT = SYMBOL_HEIGHT + (HEX_SYMBOL_PRESSED_Y - HEX_SYMBOL_Y);
-    private static final int HEX_CARET_X = HEX_SYMBOL_X + HEX_SYMBOL_COUNT * SYMBOL_SPACING - 1;
-    private static final int VALUE_TEXT_WIDTH = (VALUE_SYMBOL_COUNT - 1) * SYMBOL_SPACING + SYMBOL_WIDTH;
-    private static final int VALUE_TEXT_HEIGHT = SYMBOL_HEIGHT + BAR_PRESSED_OFFSET_Y;
-    private static final int VALUE_CARET_X = VALUE_X + VALUE_SYMBOL_COUNT * SYMBOL_SPACING - 1;
-    private static final int CARET_WIDTH = 1;
-    private static final int CARET_HEIGHT = 9;
-    private static final int CARET_OFFSET_Y = 0;
-    private static final int CARET_COLOR = 0xFF818181;
-    private static final int SLIDER_WIDTH = 13;
-    private static final int SLIDER_HEIGHT = 11;
-    private static final int SLIDER_MIN_X = 4;
-    private static final int SLIDER_MAX_X = 79;
-    private static final int SLIDER_Y = 21;
-    private static final int ARROW_WIDTH = 20;
-    private static final int ARROW_HEIGHT = 19;
-    private static final int ARROW_X = BAR_WIDTH + 1;
-    private static final int ARROW_UP_Y = -1;
-    private static final int ARROW_DOWN_Y = 20;
-    private static final long FLASH_PHASE_NANOS = 75_000_000L;
-    private static final long LONG_CLICK_NANOS = 500_000_000L;
-    private static final long COLOR_SYNC_INTERVAL_NANOS = 50_000_000L;
-    private static final long EDIT_DOUBLE_CLICK_NANOS = 250_000_000L;
-    private static final long CARET_BLINK_NANOS = 500_000_000L;
-    private static final long BACKSPACE_REPEAT_DELAY_NANOS = 280_000_000L;
-    private static final long BACKSPACE_REPEAT_INTERVAL_NANOS = 35_000_000L;
-    private static final long PEARL_REPEAT_DELAY_NANOS = 220_000_000L;
-    private static final long PEARL_REPEAT_INTERVAL_NANOS = 115_000_000L;
-    private static final long ARROW_REPEAT_DELAY_NANOS = 280_000_000L;
-    private static final long ARROW_REPEAT_INTERVAL_NANOS = 35_000_000L;
-    private static final int SINGLE_FLASH = 1;
-    private static final int DOUBLE_FLASH = 2;
+    private static final int HEX_TEXT_WIDTH = (6 - 1) * 8 + 7;
+    private static final int HEX_TEXT_HEIGHT = 9 + (13 - 11);
+    private static final int HEX_CARET_X = 25 + 6 * 8 - 1;
+    private static final int VALUE_TEXT_WIDTH = (3 - 1) * 8 + 7;
+    private static final int VALUE_TEXT_HEIGHT = 9 + 2;
+    private static final int VALUE_CARET_X = 88 + 3 * 8 - 1;
+    private static final int ARROW_X = 115 + 1;
     private static final Object PEARL_TARGET = new Object();
     private static final Object HEX_TARGET = new Object();
     //? if >=1.21.11 {
@@ -126,8 +64,8 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private static final Identifier ARROW_UP_PRESSED = guiTexture("arrow_up_pressed");
     private static final Identifier ARROW_DOWN = guiTexture("arrow_down");
     private static final Identifier ARROW_DOWN_PRESSED = guiTexture("arrow_down_pressed");
-    private static final Identifier[] PEARL = textureArray("flint_and_pearl_", PEARL_LAYER_COUNT);
-    private static final Identifier[] PEARL_PRESSED = textureArray("flint_and_pearl_pressed_", PEARL_LAYER_COUNT);
+    private static final Identifier[] PEARL = textureArray("flint_and_pearl_", 13);
+    private static final Identifier[] PEARL_PRESSED = textureArray("flint_and_pearl_pressed_", 13);
     private static final Identifier[] SYMBOLS = symbolArray();
     *///?} else {
     private static final ResourceLocation HEX_NORMAL = guiTexture("hex_bar");
@@ -143,12 +81,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private static final ResourceLocation ARROW_UP_PRESSED = guiTexture("arrow_up_pressed");
     private static final ResourceLocation ARROW_DOWN = guiTexture("arrow_down");
     private static final ResourceLocation ARROW_DOWN_PRESSED = guiTexture("arrow_down_pressed");
-    private static final ResourceLocation[] PEARL = textureArray("flint_and_pearl_", PEARL_LAYER_COUNT);
-    private static final ResourceLocation[] PEARL_PRESSED = textureArray("flint_and_pearl_pressed_", PEARL_LAYER_COUNT);
+    private static final ResourceLocation[] PEARL = textureArray("flint_and_pearl_", 13);
+    private static final ResourceLocation[] PEARL_PRESSED = textureArray("flint_and_pearl_pressed_", 13);
     private static final ResourceLocation[] SYMBOLS = symbolArray();
     //?}
     private static final ArrowButton[] ARROWS = arrows();
-
     private float hue;
     private float saturation;
     private float value;
@@ -173,15 +110,14 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private int lastSyncedRgb = -1;
     private int pendingSyncRgb = -1;
     private String editText = "";
-    private double sliderGrabOffsetX = SLIDER_WIDTH / 2.0D;
-
+    private double sliderGrabOffsetX = 13 / 2.0D;
     public FlintAndPearlFrontend(FlintAndPearlMenu menu, Inventory playerInventory, Component title) {
         //? if >=26.1 {
-        /*super(menu, playerInventory, title, GUI_WIDTH, GUI_HEIGHT);
+        /*super(menu, playerInventory, title, 275, 256);
         *///?} else {
         super(menu, playerInventory, title);
-        this.imageWidth = GUI_WIDTH;
-        this.imageHeight = GUI_HEIGHT;
+        this.imageWidth = 275;
+        this.imageHeight = 256;
         //?}
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
@@ -244,13 +180,10 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         return buttons;
     }
 
-    @Override
     //? if >=26.1 {
-    /*public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    /*@Override
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
-    *///?} else {
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-    //?}
         this.tickPressedTarget();
         this.tickBackspaceRepeat();
         this.tickFlash();
@@ -267,31 +200,40 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             this.blitArrow(graphics, guiX, guiY, arrow);
         }
     }
-
+    *///?}
+    //? if <26.1 {
+    @Override
+    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        this.tickPressedTarget();
+        this.tickBackspaceRepeat();
+        this.tickFlash();
+        this.flushColorSyncIfReady();
+        int guiX = this.leftPos;
+        int guiY = this.topPos;
+        int rgb = this.getPreviewRgb();
+        this.blitPearl(graphics, guiX, guiY, rgb);
+        this.blitHex(graphics, guiX, guiY, rgb);
+        for (SliderId slider : SliderId.values()) {
+            this.blitSliderGroup(graphics, guiX, guiY, slider, rgb);
+        }
+        for (ArrowButton arrow : ARROWS) {
+            this.blitArrow(graphics, guiX, guiY, arrow);
+        }
+    }
+    //?}
     //? if >=26.1 {
     /*private void blitPearl(GuiGraphicsExtractor graphics, int guiX, int guiY, int rgb) {
-        Identifier[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
-    *///?} else if >=1.21.11 <26.1 {
-    /*private void blitPearl(GuiGraphics graphics, int guiX, int guiY, int rgb) {
-        Identifier[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
     *///?} else {
     private void blitPearl(GuiGraphics graphics, int guiX, int guiY, int rgb) {
-        ResourceLocation[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
     //?}
+        //? if >=1.21.11 {
+        /*Identifier[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
+        *///?} else {
+        ResourceLocation[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
+        //?}
         for (int layer = 0; layer < textures.length; layer++) {
-            this.blitTinted(
-                    graphics,
-                    textures[layer],
-                    guiX + PEARL_X,
-                    guiY + PEARL_Y,
-                    PEARL_WIDTH,
-                    PEARL_HEIGHT,
-                    PearlFireTintSource.profileTint(
-                            rgb,
-                            layer,
-                            PearlFireTintProfiles.FLINT_AND_PEARL
-                    )
-            );
+            this.blitTinted(graphics, textures[layer], guiX + 5, guiY + 10, 124, 156,
+                    PearlFireTintSource.profileTint(rgb, layer, PearlFireTintProfiles.FLINT_AND_PEARL));
         }
     }
 
@@ -302,34 +244,13 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     //?}
         boolean pressed = this.isPressed(HEX_TARGET);
         boolean editing = this.isEditing(HEX_TARGET);
-        int symbolY = guiY + HEX_Y + (pressed ? HEX_SYMBOL_PRESSED_Y : HEX_SYMBOL_Y);
+        int symbolY = guiY + 22 + (pressed ? 13 : 11);
         String hexText = editing ? this.editText : toSixDigitHex(rgb);
-        this.blit(
-                graphics,
-                stateTexture(
-                        pressed,
-                        this.isFlashing(HEX_TARGET),
-                        HEX_NORMAL,
-                        HEX_PRESSED,
-                        HEX_FLASH,
-                        HEX_PRESSED_FLASH
-                ),
-                guiX + HEX_X,
-                guiY + HEX_Y,
-                HEX_WIDTH,
-                HEX_HEIGHT
-        );
-        this.blitSymbols(
-                graphics,
-                guiX + HEX_X + HEX_SYMBOL_X,
-                symbolY,
-                hexText,
-                16,
-                HEX_SYMBOL_COUNT,
-                editing
-        );
+        this.blit(graphics, stateTexture(pressed, this.isFlashing(HEX_TARGET), HEX_NORMAL, HEX_PRESSED, HEX_FLASH, HEX_PRESSED_FLASH), guiX + 139, guiY + 22, 78,
+                38);
+        this.blitSymbols(graphics, guiX + 139 + 25, symbolY, hexText, 16, 6, editing);
         if (editing) {
-            this.blitCaret(graphics, guiX + HEX_X + HEX_CARET_X, symbolY);
+            this.blitCaret(graphics, guiX + 139 + HEX_CARET_X, symbolY);
         }
     }
 
@@ -339,51 +260,17 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private void blitSliderGroup(GuiGraphics graphics, int guiX, int guiY, SliderId slider, int rgb) {
     //?}
         int offsetY = this.barOffset(slider);
-        int symbolY = guiY + slider.y + VALUE_Y + offsetY;
+        int symbolY = guiY + slider.y + 12 + offsetY;
         boolean editing = this.isEditing(slider);
         String valueText = editing ? this.editText : Integer.toString(this.displayValue(slider));
-        this.blitStrip(
-                graphics,
-                guiX + slider.stripX(),
-                guiY + slider.stripY() + offsetY,
-                slider,
-                rgb
-        );
-        this.blit(
-                graphics,
-                stateTexture(
-                        this.isPressed(slider),
-                        this.isFlashing(slider),
-                        BAR_NORMAL,
-                        BAR_PRESSED,
-                        BAR_FLASH,
-                        BAR_PRESSED_FLASH
-                ),
-                guiX + slider.x,
-                guiY + slider.y,
-                BAR_WIDTH,
-                BAR_HEIGHT
-        );
-        this.blitSymbols(
-                graphics,
-                guiX + slider.x + VALUE_X,
-                symbolY,
-                valueText,
-                10,
-                VALUE_SYMBOL_COUNT,
-                true
-        );
+        this.blitStrip(graphics, guiX + slider.stripX(), guiY + slider.stripY() + offsetY, slider, rgb);
+        this.blit(graphics, stateTexture(this.isPressed(slider), this.isFlashing(slider), BAR_NORMAL, BAR_PRESSED, BAR_FLASH, BAR_PRESSED_FLASH),
+                guiX + slider.x, guiY + slider.y, 115, 38);
+        this.blitSymbols(graphics, guiX + slider.x + 88, symbolY, valueText, 10, 3, true);
         if (editing) {
             this.blitCaret(graphics, guiX + slider.x + VALUE_CARET_X, symbolY);
         }
-        this.blit(
-                graphics,
-                SLIDER,
-                guiX + slider.sliderX(this.sliderProgress(slider)),
-                guiY + slider.sliderY() + offsetY,
-                SLIDER_WIDTH,
-                SLIDER_HEIGHT
-        );
+        this.blit(graphics, SLIDER, guiX + slider.sliderX(this.sliderProgress(slider)), guiY + slider.sliderY() + offsetY, 13, 11);
     }
 
     //? if >=26.1 {
@@ -391,16 +278,8 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     *///?} else {
     private void blitCaret(GuiGraphics graphics, int x, int y) {
     //?}
-        if (!this.isCaretVisible()) {
-            return;
-        }
-        graphics.fill(
-                x,
-                y + CARET_OFFSET_Y,
-                x + CARET_WIDTH,
-                y + CARET_OFFSET_Y + CARET_HEIGHT,
-                CARET_COLOR
-        );
+        if (!this.isCaretVisible()) return;
+        graphics.fill(x, y + 0, x + 1, y + 0 + 9, 0xFF818181);
     }
 
     //? if >=26.1 {
@@ -408,45 +287,24 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     *///?} else {
     private void blitStrip(GuiGraphics graphics, int x, int y, SliderId slider, int rgb) {
     //?}
-        for (int column = 0; column < STRIP_WIDTH; column++) {
-            float t = column / (float) (STRIP_WIDTH - 1);
-            graphics.fill(
-                    x + column,
-                    y,
-                    x + column + 1,
-                    y + STRIP_HEIGHT,
-                    this.stripColor(slider, t, rgb)
-            );
+        for (int column = 0; column < 76; column++) {
+            float t = column / (float) (76 - 1);
+            graphics.fill(x + column, y, x + column + 1, y + 13, this.stripColor(slider, t, rgb));
         }
     }
 
-    private void blitSymbols(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics,
-            *///?} else {
-            GuiGraphics graphics,
-            //?}
-            int x,
-            int y,
-            String text,
-            int radix,
-            int slots,
-            boolean rightAligned
-    ) {
+    //? if >=26.1 {
+    /*private void blitSymbols(GuiGraphicsExtractor graphics, int x, int y, String text, int radix, int slots, boolean rightAligned) {
+    *///?} else {
+    private void blitSymbols(GuiGraphics graphics, int x, int y, String text, int radix, int slots, boolean rightAligned) {
+    //?}
         int count = Math.min(text.length(), slots);
         int firstChar = text.length() - count;
         int firstSlot = rightAligned ? slots - count : 0;
         for (int i = 0; i < count; i++) {
             int value = Character.digit(text.charAt(firstChar + i), radix);
             if (value >= 0 && value < SYMBOLS.length) {
-                this.blit(
-                        graphics,
-                        SYMBOLS[value],
-                        x + ((firstSlot + i) * SYMBOL_SPACING),
-                        y,
-                        SYMBOL_WIDTH,
-                        SYMBOL_HEIGHT
-                );
+                this.blit(graphics, SYMBOLS[value], x + ((firstSlot + i) * 8), y, 7, 9);
             }
         }
     }
@@ -456,38 +314,20 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     *///?} else {
     private void blitArrow(GuiGraphics graphics, int guiX, int guiY, ArrowButton arrow) {
     //?}
-        this.blit(
-                graphics,
-                arrow.texture(this.isPressed(arrow)),
-                guiX + arrow.x(),
-                guiY + arrow.y(),
-                ARROW_WIDTH,
-                ARROW_HEIGHT
-        );
+        this.blit(graphics, arrow.texture(this.isPressed(arrow)), guiX + arrow.x(), guiY + arrow.y(), 20, 19);
     }
 
     //? if >=1.21.11 {
-    /*private static Identifier stateTexture(
+    /*private static Identifier stateTexture(boolean pressed, boolean flashing, Identifier normal, Identifier pressedTexture, Identifier flash,
     *///?} else {
-    private static ResourceLocation stateTexture(
+    private static ResourceLocation stateTexture(boolean pressed, boolean flashing, ResourceLocation normal, ResourceLocation pressedTexture,
     //?}
-            boolean pressed,
-            boolean flashing,
             //? if >=1.21.11 {
-            /*Identifier normal,
-            Identifier pressedTexture,
-            Identifier flash,
-            Identifier pressedFlash
+            /*Identifier pressedFlash) {
             *///?} else {
-            ResourceLocation normal,
-            ResourceLocation pressedTexture,
-            ResourceLocation flash,
-            ResourceLocation pressedFlash
+            ResourceLocation flash, ResourceLocation pressedFlash) {
             //?}
-    ) {
-        if (pressed) {
-            return flashing ? pressedFlash : pressedTexture;
-        }
+        if (pressed) return flashing ? pressedFlash : pressedTexture;
         return flashing ? flash : normal;
     }
 
@@ -512,87 +352,38 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         this.blitColored(graphics, texture, x, y, width, height, 0xFFFFFFFF);
     }
 
-    private void blitTinted(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics,
-            Identifier texture,
-            *///?} else if >=1.21.11 <26.1 {
-            /*GuiGraphics graphics,
-            Identifier texture,
-            *///?} else {
-            GuiGraphics graphics,
-            ResourceLocation texture,
-            //?}
-            int x,
-            int y,
-            int width,
-            int height,
-            int tint
-    ) {
-        this.blitColored(
-                graphics,
-                texture,
-                x,
-                y,
-                width,
-                height,
-                tint == MusavaccaTints.NO_TINT
-                        ? 0xFFFFFFFF
-                        : 0xFF000000 | MusavaccaTints.rgb(tint)
-        );
+    //? if >=26.1 {
+    /*private void blitTinted(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width, int height, int tint) {
+    *///?} else if >=1.21.11 <26.1 {
+    /*private void blitTinted(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height, int tint) {
+    *///?} else {
+    private void blitTinted(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, int tint) {
+    //?}
+        this.blitColored(graphics, texture, x, y, width, height, tint == MusavaccaTints.NO_TINT ? 0xFFFFFFFF : 0xFF000000 | MusavaccaTints.rgb(tint));
     }
 
-    private void blitColored(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics,
-            Identifier texture,
-            *///?} else if >=1.21.11 <26.1 {
-            /*GuiGraphics graphics,
-            Identifier texture,
-            *///?} else {
-            GuiGraphics graphics,
-            ResourceLocation texture,
-            //?}
-            int x,
-            int y,
-            int width,
-            int height,
-            int color
-    ) {
-
+    //? if >=26.1 {
+    /*private void blitColored(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width, int height, int color) {
+    *///?} else if >=1.21.11 <26.1 {
+    /*private void blitColored(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height, int color) {
+    *///?} else {
+    private void blitColored(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, int color) {
+    //?}
         //? if >=1.21.6 {
-        graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0F, 0.0F, width, height, width, height, color);
         //?} else if >=1.21.2 <1.21.6 {
-        /*graphics.blit(
-                RenderType::guiTextured,
+        /*graphics.blit(RenderType::guiTextured, texture, x, y, 0.0F, 0.0F, width, height, width, height, color);
         *///?} else {
         /*float alpha = ((color >> 24) & 0xFF) / 255.0F;
         float red = ((color >> 16) & 0xFF) / 255.0F;
         float green = ((color >> 8) & 0xFF) / 255.0F;
         float blue = (color & 0xFF) / 255.0F;
-
         graphics.setColor(red, green, blue, alpha);
-        graphics.blit(
         *///?}
-                texture,
-                x,
-                y,
-                0.0F,
-                0.0F,
-                width,
-                height,
-                width,
-        //? if >=1.21.2 {
-                height,
-                color
-        );
-        //?} else {
-                /*height
-        );
+        //? if <1.21.2 {
+        /*graphics.blit(texture, x, y, 0.0F, 0.0F, width, height, width, height);
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         *///?}
-
     }
 
     @Override
@@ -601,15 +392,14 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
-            return super.mouseClicked(event, doubleClick);
     *///?} else {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
-            return super.mouseClicked(mouseX, mouseY, button);
     //?}
-        }
-
+        //? if >=1.21.9 {
+        /*if (button != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseClicked(event, doubleClick);
+        *///?} else {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseClicked(mouseX, mouseY, button);
+        //?}
         Object textTarget = this.textTargetAt(mouseX, mouseY);
         if (this.editingTarget != null) {
             if (java.util.Objects.equals(this.editingTarget, textTarget)) {
@@ -618,12 +408,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             }
             this.stopEditing();
         }
-
         if (textTarget != null) {
             long now = System.nanoTime();
             if (java.util.Objects.equals(this.lastTextClickTarget, textTarget)
                     && this.lastTextClickNanos != 0L
-                    && now - this.lastTextClickNanos <= EDIT_DOUBLE_CLICK_NANOS) {
+                    && now - this.lastTextClickNanos <= 250_000_000L) {
                 this.clearLastTextClick();
                 this.startEditing(textTarget);
                 return true;
@@ -633,77 +422,31 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         } else {
             this.clearLastTextClick();
         }
-
         if (textTarget == HEX_TARGET) {
-            this.press(
-                    mouseX,
-                    mouseY,
-                    HEX_TARGET,
-                    HEX_X + HEX_SYMBOL_X,
-                    HEX_Y + HEX_SYMBOL_Y,
-                    HEX_TEXT_WIDTH,
-                    HEX_TEXT_HEIGHT
-            );
+            this.press(mouseX, mouseY, HEX_TARGET, 139 + 25, 22 + 11, HEX_TEXT_WIDTH, HEX_TEXT_HEIGHT);
             return true;
         }
-
         if (textTarget instanceof SliderId slider) {
-            this.press(
-                    mouseX,
-                    mouseY,
-                    slider,
-                    slider.x + VALUE_X,
-                    slider.y + VALUE_Y,
-                    VALUE_TEXT_WIDTH,
-                    VALUE_TEXT_HEIGHT
-            );
+            this.press(mouseX, mouseY, slider, slider.x + 88, slider.y + 12, VALUE_TEXT_WIDTH, VALUE_TEXT_HEIGHT);
             return true;
         }
-
-        if (this.press(mouseX, mouseY, PEARL_TARGET, PEARL_X, PEARL_Y, PEARL_WIDTH, PEARL_HEIGHT)) {
+        if (this.press(mouseX, mouseY, PEARL_TARGET, 5, 10, 124, 156)) {
             this.randomizeColor();
             return true;
         }
-
-        if (this.press(mouseX, mouseY, HEX_TARGET, HEX_X, HEX_Y, HEX_WIDTH, HEX_HEIGHT)) {
-            return true;
-        }
-
+        if (this.press(mouseX, mouseY, HEX_TARGET, 139, 22, 78, 38)) return true;
         for (ArrowButton arrow : ARROWS) {
-            if (this.press(
-                    mouseX,
-                    mouseY,
-                    arrow,
-                    arrow.x(),
-                    arrow.y(),
-                    ARROW_WIDTH,
-                    ARROW_HEIGHT
-            )) {
+            if (this.press(mouseX, mouseY, arrow, arrow.x(), arrow.y(), 20, 19)) {
                 this.stepArrow(arrow);
                 return true;
             }
         }
-
         for (SliderId slider : SliderId.values()) {
-            if (this.tryStartSliderDrag(mouseX, mouseY, slider)) {
-                return true;
-            }
+            if (this.tryStartSliderDrag(mouseX, mouseY, slider)) return true;
         }
-
         for (SliderId slider : SliderId.values()) {
-            if (this.press(
-                    mouseX,
-                    mouseY,
-                    slider,
-                    slider.x,
-                    slider.y,
-                    BAR_WIDTH,
-                    BAR_HEIGHT
-            )) {
-                return true;
-            }
+            if (this.press(mouseX, mouseY, slider, slider.x, slider.y, 115, 38)) return true;
         }
-
         //? if >=1.21.9 {
         /*return super.mouseClicked(event, doubleClick);
         *///?} else {
@@ -712,27 +455,16 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     @Override
-    //? if >=26.3 {
+    //? if >=1.21.9 {
     /*public boolean keyPressed(KeyEvent event) {
         int keyCode = event.key();
-        int scanCode = event.keycode();
-        int modifiers = event.modifiers();
-        if (this.editingTarget == null) {
-            return super.keyPressed(event);
-    *///?} else if >=1.21.9 <26.3 {
-    /*public boolean keyPressed(KeyEvent event) {
-        int keyCode = event.key();
-        int scanCode = event.scancode();
-        int modifiers = event.modifiers();
-        if (this.editingTarget == null) {
-            return super.keyPressed(event);
+    *///?}
+    //? if >=1.21.9 {
+        /*if (this.editingTarget == null) return super.keyPressed(event);
     *///?} else {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.editingTarget == null) {
-            return super.keyPressed(keyCode, scanCode, modifiers);
+        if (this.editingTarget == null) return super.keyPressed(keyCode, scanCode, modifiers);
     //?}
-        }
-
         if (keyCode == InputConstants.KEY_BACKSPACE) {
             if (!this.backspaceHeld) {
                 this.backspaceHeld = true;
@@ -742,29 +474,22 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             }
             return true;
         }
-
         if (keyCode == InputConstants.KEY_RETURN
                 || keyCode == InputConstants.KEY_NUMPADENTER
                 || keyCode == InputConstants.KEY_ESCAPE) {
             this.stopEditing();
             return true;
         }
-
         return true;
     }
 
     @Override
-    //? if >=26.3 {
+    //? if >=1.21.9 {
     /*public boolean keyReleased(KeyEvent event) {
         int keyCode = event.key();
-        int scanCode = event.keycode();
-        int modifiers = event.modifiers();
-    *///?} else if >=1.21.9 <26.3 {
-    /*public boolean keyReleased(KeyEvent event) {
-        int keyCode = event.key();
-        int scanCode = event.scancode();
-        int modifiers = event.modifiers();
-    *///?} else {
+    *///?}
+    //? if >=1.21.9 {
+    //?} else {
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
     //?}
         if (keyCode == InputConstants.KEY_BACKSPACE && this.backspaceHeld) {
@@ -779,70 +504,51 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     @Override
-    //? if >=26.1 {
+    //? if >=1.21.9 {
     /*public boolean charTyped(CharacterEvent event) {
-        if (!Character.isBmpCodePoint(event.codepoint())) return super.charTyped(event);
-        char codePoint = (char) event.codepoint();
-        int modifiers = 0;
-        if (this.editingTarget == null) {
-            return super.charTyped(event);
-    *///?} else if >=1.21.9 <26.1 {
-    /*public boolean charTyped(CharacterEvent event) {
-        if (!Character.isBmpCodePoint(event.codepoint())) return super.charTyped(event);
-        char codePoint = (char) event.codepoint();
-        int modifiers = event.modifiers();
-        if (this.editingTarget == null) {
-            return super.charTyped(event);
     *///?} else {
     public boolean charTyped(char codePoint, int modifiers) {
-        if (this.editingTarget == null) {
-            return super.charTyped(codePoint, modifiers);
     //?}
-        }
-
+        //? if >=1.21.9 {
+        /*if (!Character.isBmpCodePoint(event.codepoint())) return super.charTyped(event);
+        char codePoint = (char) event.codepoint();
+        *///?}
+        //? if >=1.21.9 {
+        /*if (this.editingTarget == null) return super.charTyped(event);
+        *///?} else {
+        if (this.editingTarget == null) return super.charTyped(codePoint, modifiers);
+        //?}
         int digit = Character.digit(codePoint, this.editRadix());
-        if (digit < 0 || this.editText.length() >= this.editSymbolCount()) {
-            return true;
-        }
-
+        //? if >=1.21.9 {
+        /*if (digit < 0 || this.editText.length() >= this.editSymbolCount()) return true;
+        *///?} else {
+        if (digit < 0 || this.editText.length() >= this.editSymbolCount()) return true;
+        //?}
         String candidate = this.editText + Character.forDigit(digit, this.editRadix());
         if (this.editingTarget instanceof SliderId slider
                 && Integer.parseInt(candidate) > slider.max) {
             this.resetCaretBlink();
+            //? if >=1.21.9 {
+            /*return true;
+            *///?} else {
             return true;
+            //?}
         }
-
         this.editText = candidate;
         this.resetCaretBlink();
         this.applyEditText();
+        //? if >=1.21.9 {
+        /*return true;
+        *///?} else {
         return true;
+        //?}
     }
 
     private Object textTargetAt(double mouseX, double mouseY) {
-        if (this.contains(
-                mouseX,
-                mouseY,
-                HEX_X + HEX_SYMBOL_X,
-                HEX_Y + HEX_SYMBOL_Y,
-                HEX_TEXT_WIDTH,
-                HEX_TEXT_HEIGHT
-        )) {
-            return HEX_TARGET;
-        }
-
+        if (this.contains(mouseX, mouseY, 139 + 25, 22 + 11, HEX_TEXT_WIDTH, HEX_TEXT_HEIGHT)) return HEX_TARGET;
         for (SliderId slider : SliderId.values()) {
-            if (this.contains(
-                    mouseX,
-                    mouseY,
-                    slider.x + VALUE_X,
-                    slider.y + VALUE_Y,
-                    VALUE_TEXT_WIDTH,
-                    VALUE_TEXT_HEIGHT
-            )) {
-                return slider;
-            }
+            if (this.contains(mouseX, mouseY, slider.x + 88, slider.y + 12, VALUE_TEXT_WIDTH, VALUE_TEXT_HEIGHT)) return slider;
         }
-
         return null;
     }
 
@@ -888,21 +594,17 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private int editSymbolCount() {
-        return this.editingTarget == HEX_TARGET ? HEX_SYMBOL_COUNT : VALUE_SYMBOL_COUNT;
+        return this.editingTarget == HEX_TARGET ? 6 : 3;
     }
 
     private void applyEditText() {
-        if (this.editText.isEmpty()) {
-            return;
-        }
-
+        if (this.editText.isEmpty()) return;
         if (this.editingTarget == HEX_TARGET) {
-            if (this.editText.length() == HEX_SYMBOL_COUNT) {
+            if (this.editText.length() == 6) {
                 this.setColorFromRgb(Integer.parseInt(this.editText, 16));
             }
             return;
         }
-
         if (this.editingTarget instanceof SliderId slider) {
             int editedValue = Integer.parseInt(this.editText);
             if (editedValue <= slider.max) {
@@ -920,25 +622,16 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private void tickBackspaceRepeat() {
-        if (this.editingTarget == null || !this.backspaceHeld) {
-            return;
-        }
-
+        if (this.editingTarget == null || !this.backspaceHeld) return;
         long now = System.nanoTime();
-        long wait = this.backspaceRepeatMode
-                ? BACKSPACE_REPEAT_INTERVAL_NANOS
-                : BACKSPACE_REPEAT_DELAY_NANOS;
-
-        if (now - this.backspaceRepeatLastNanos < wait) {
-            return;
-        }
-
+        long wait = this.backspaceRepeatMode ? 35_000_000L : 280_000_000L;
+        if (now - this.backspaceRepeatLastNanos < wait) return;
         int guard = 0;
         do {
             this.backspaceEditDigit();
             this.backspaceRepeatLastNanos += wait;
             this.backspaceRepeatMode = true;
-            wait = BACKSPACE_REPEAT_INTERVAL_NANOS;
+            wait = 35_000_000L;
             guard++;
         } while (now - this.backspaceRepeatLastNanos >= wait
                 && guard < this.editSymbolCount());
@@ -955,28 +648,15 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private boolean isCaretVisible() {
-        return (System.nanoTime() - this.caretBlinkStartNanos)
-                / CARET_BLINK_NANOS
-                % 2L == 0L;
+        return (System.nanoTime() - this.caretBlinkStartNanos) / 500_000_000L % 2L == 0L;
     }
 
     private boolean isEditing(Object target) {
         return java.util.Objects.equals(this.editingTarget, target);
     }
 
-    private boolean press(
-            double mouseX,
-            double mouseY,
-            Object target,
-            int x,
-            int y,
-            int width,
-            int height
-    ) {
-        if (!this.contains(mouseX, mouseY, x, y, width, height)) {
-            return false;
-        }
-
+    private boolean press(double mouseX, double mouseY, Object target, int x, int y, int width, int height) {
+        if (!this.contains(mouseX, mouseY, x, y, width, height)) return false;
         this.pressedTarget = target;
         this.pressStartNanos = System.nanoTime();
         this.repeatLastNanos = this.pressStartNanos;
@@ -987,72 +667,42 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
 
     private boolean tryStartSliderDrag(double mouseX, double mouseY, SliderId slider) {
         float progress = this.sliderProgress(slider);
-        if (this.contains(
-                mouseX,
-                mouseY,
-                slider.sliderX(progress),
-                slider.sliderY(),
-                SLIDER_WIDTH,
-                SLIDER_HEIGHT
-        )) {
+        if (this.contains(mouseX, mouseY, slider.sliderX(progress), slider.sliderY(), 13, 11)) {
             this.activeSlider = slider;
-            this.sliderGrabOffsetX =
-                    mouseX - (this.leftPos + slider.sliderX(progress));
+            this.sliderGrabOffsetX = mouseX - (this.leftPos + slider.sliderX(progress));
             return true;
         }
-
-        int trackWidth =
-                (slider.sliderMaxX() - slider.sliderMinX()) + SLIDER_WIDTH;
-
-        if (this.contains(
-                mouseX,
-                mouseY,
-                slider.sliderMinX(),
-                slider.sliderY(),
-                trackWidth,
-                SLIDER_HEIGHT
-        )) {
+        int trackWidth = (slider.sliderMaxX() - slider.sliderMinX()) + 13;
+        if (this.contains(mouseX, mouseY, slider.sliderMinX(), slider.sliderY(), trackWidth, 11)) {
             this.activeSlider = slider;
-            this.sliderGrabOffsetX = SLIDER_WIDTH / 2.0D;
+            this.sliderGrabOffsetX = 13 / 2.0D;
             this.updateSliderFromMouse(mouseX);
             return true;
         }
-
         return false;
     }
 
     private void tickPressedTarget() {
         if (this.pressedTarget == PEARL_TARGET) {
-            this.tickRepeat(
-                    PEARL_REPEAT_DELAY_NANOS,
-                    PEARL_REPEAT_INTERVAL_NANOS,
-                    this::randomizeColor
-            );
+            this.tickRepeat(220_000_000L, 115_000_000L, this::randomizeColor);
             return;
         }
-
         if (this.pressedTarget instanceof ArrowButton arrow) {
-            this.tickRepeat(
-                    ARROW_REPEAT_DELAY_NANOS,
-                    ARROW_REPEAT_INTERVAL_NANOS,
-                    () -> this.stepArrow(arrow)
-            );
+            this.tickRepeat(280_000_000L, 35_000_000L, () -> this.stepArrow(arrow));
             return;
         }
-
         if (this.pressedTarget == HEX_TARGET) {
-            this.tickLongClick(LONG_CLICK_NANOS, () -> {
+            this.tickLongClick(500_000_000L, () -> {
                 if (this.injectHexFromClipboard()) {
-                    this.startFlash(HEX_TARGET, SINGLE_FLASH);
+                    this.startFlash(HEX_TARGET, 1);
                 }
             });
             return;
         }
-
         if (this.pressedTarget instanceof SliderId slider) {
-            this.tickLongClick(LONG_CLICK_NANOS, () -> {
+            this.tickLongClick(500_000_000L, () -> {
                 if (this.injectSliderFromClipboard(slider)) {
-                    this.startFlash(slider, SINGLE_FLASH);
+                    this.startFlash(slider, 1);
                 }
             });
         }
@@ -1061,10 +711,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private void tickRepeat(long delay, long interval, Runnable action) {
         long now = System.nanoTime();
         long wait = this.repeatMode ? interval : delay;
-        if (now - this.repeatLastNanos < wait) {
-            return;
-        }
-
+        if (now - this.repeatLastNanos < wait) return;
         int guard = 0;
         do {
             action.run();
@@ -1076,12 +723,8 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private void tickLongClick(long delay, Runnable action) {
-        if (this.longClickHandled || this.pressStartNanos == 0L) {
-            return;
-        }
-        if (System.nanoTime() - this.pressStartNanos < delay) {
-            return;
-        }
+        if (this.longClickHandled || this.pressStartNanos == 0L) return;
+        if (System.nanoTime() - this.pressStartNanos < delay) return;
         this.longClickHandled = true;
         action.run();
     }
@@ -1093,17 +736,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             this.flashVisible = false;
             return;
         }
-
-        int phase = (int) (
-                (System.nanoTime() - this.flashStartNanos)
-                        / FLASH_PHASE_NANOS
-        );
-
+        int phase = (int) ((System.nanoTime() - this.flashStartNanos) / 75_000_000L);
         if (phase >= this.flashPhaseCount) {
             this.clearFlash();
             return;
         }
-
         this.flashVisible = phase % 2 == 0;
     }
 
@@ -1126,128 +763,79 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private void randomizeColor() {
-        this.setColorFromRgb(
-                java.util.concurrent.ThreadLocalRandom.current()
-                        .nextInt(0x1000000)
-        );
+        this.setColorFromRgb(java.util.concurrent.ThreadLocalRandom.current().nextInt(0x1000000));
     }
 
     private void stepArrow(ArrowButton arrow) {
-        float step = switch (arrow.slider()) {
-            case HUE -> 1.0F / 360.0F;
-            case SATURATION, VALUE -> 1.0F / 100.0F;
-            case RED, GREEN, BLUE -> 1.0F / 255.0F;
-        };
-
-        this.setSliderProgress(
-                arrow.slider(),
-                this.sliderProgress(arrow.slider())
-                        + (arrow.up() ? step : -step)
-        );
+        float step = switch (arrow.slider()) { case HUE -> 1.0F / 360.0F; case SATURATION, VALUE -> 1.0F / 100.0F; case RED, GREEN, BLUE -> 1.0F / 255.0F; };
+        this.setSliderProgress(arrow.slider(), this.sliderProgress(arrow.slider()) + (arrow.up() ? step : -step));
     }
 
     private boolean injectHexFromClipboard() {
         String hex = this.clipboardHex();
-        if (hex == null) {
-            return false;
-        }
+        if (hex == null) return false;
         this.setColorFromRgb(Integer.parseInt(hex, 16));
         return true;
     }
 
     private boolean injectSliderFromClipboard(SliderId slider) {
         Integer value = this.clipboardNumber(slider.max);
-        if (value == null) {
-            return false;
-        }
+        if (value == null) return false;
         this.setDisplayValue(slider, value);
         return true;
     }
 
     private String clipboardHex() {
-        if (this.minecraft == null) {
-            return null;
-        }
-
+        if (this.minecraft == null) return null;
         String value = this.minecraft.keyboardHandler.getClipboard();
-        if (value == null) {
-            return null;
-        }
-
+        if (value == null) return null;
         value = value.trim();
         if (value.startsWith("#")) {
             value = value.substring(1);
         }
-
-        if (value.length() != 6) {
-            return null;
-        }
-
+        if (value.length() != 6) return null;
         for (int i = 0; i < value.length(); i++) {
-            if (Character.digit(value.charAt(i), 16) < 0) {
-                return null;
-            }
+            if (Character.digit(value.charAt(i), 16) < 0) return null;
         }
-
         return value;
     }
 
     private Integer clipboardNumber(int max) {
-        if (this.minecraft == null) {
-            return null;
-        }
-
+        if (this.minecraft == null) return null;
         String value = this.minecraft.keyboardHandler.getClipboard();
-        if (value == null) {
-            return null;
-        }
-
+        if (value == null) return null;
         value = value.trim();
-        if (value.isEmpty() || value.length() > VALUE_SYMBOL_COUNT) {
-            return null;
-        }
-
+        if (value.isEmpty() || value.length() > 3) return null;
         for (int i = 0; i < value.length(); i++) {
-            if (!Character.isDigit(value.charAt(i))) {
-                return null;
-            }
+            if (!Character.isDigit(value.charAt(i))) return null;
         }
-
         int number = Integer.parseInt(value);
         return number <= max ? number : null;
     }
 
     private void copyHex() {
         if (this.minecraft != null) {
-            this.minecraft.keyboardHandler.setClipboard(
-                    "#" + toSixDigitHex(this.getPreviewRgb())
-            );
+            this.minecraft.keyboardHandler.setClipboard("#" + toSixDigitHex(this.getPreviewRgb()));
         }
     }
 
     private void copySlider(SliderId slider) {
         if (this.minecraft != null) {
-            this.minecraft.keyboardHandler.setClipboard(
-                    Integer.toString(this.displayValue(slider))
-            );
+            this.minecraft.keyboardHandler.setClipboard(Integer.toString(this.displayValue(slider)));
         }
     }
 
     @Override
     //? if >=1.21.9 {
     /*public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
-        double mouseX = event.x();
-        double mouseY = event.y();
-        int button = event.button();
     *///?} else {
-    public boolean mouseDragged(
-            double mouseX,
-            double mouseY,
-            int button,
-            double dragX,
-            double dragY
-    ) {
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
     //?}
+        //? if >=1.21.9 {
+        /*double mouseX = event.x();
+
+        int button = event.button();
+        *///?}
         if (button == InputConstants.MOUSE_BUTTON_LEFT && this.activeSlider != null) {
             this.updateSliderFromMouse(mouseX);
             return true;
@@ -1262,37 +850,30 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     @Override
     //? if >=1.21.9 {
     /*public boolean mouseReleased(MouseButtonEvent event) {
-        double mouseX = event.x();
-        double mouseY = event.y();
-        int button = event.button();
-        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
-            return super.mouseReleased(event);
     *///?} else {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
-            return super.mouseReleased(mouseX, mouseY, button);
     //?}
-        }
-
+        //? if >=1.21.9 {
+        /*int button = event.button();
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseReleased(event);
+        *///?} else {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseReleased(mouseX, mouseY, button);
+        //?}
         if (this.pressedTarget == HEX_TARGET
                 || this.pressedTarget instanceof SliderId) {
             this.tickPressedTarget();
         }
-
         Object releasedTarget = this.pressedTarget;
-        boolean handled =
-                releasedTarget != null || this.activeSlider != null;
-
+        boolean handled = releasedTarget != null || this.activeSlider != null;
         if (!this.longClickHandled) {
             if (releasedTarget == HEX_TARGET) {
                 this.copyHex();
-                this.startFlash(HEX_TARGET, DOUBLE_FLASH);
+                this.startFlash(HEX_TARGET, 2);
             } else if (releasedTarget instanceof SliderId slider) {
                 this.copySlider(slider);
-                this.startFlash(slider, DOUBLE_FLASH);
+                this.startFlash(slider, 2);
             }
         }
-
         this.activeSlider = null;
         this.clearPress();
         this.flushColorSync();
@@ -1322,40 +903,16 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private void updateSliderFromMouse(double mouseX) {
-        double sliderX =
-                mouseX - this.leftPos - this.sliderGrabOffsetX;
-        double clampedX = clamp(
-                sliderX,
-                this.activeSlider.sliderMinX(),
-                this.activeSlider.sliderMaxX()
-        );
-        double range =
-                this.activeSlider.sliderMaxX()
-                        - this.activeSlider.sliderMinX();
-
-        this.setSliderProgress(
-                this.activeSlider,
-                (float) (
-                        (clampedX - this.activeSlider.sliderMinX())
-                                / range
-                )
-        );
+        double sliderX = mouseX - this.leftPos - this.sliderGrabOffsetX;
+        double clampedX = clamp(sliderX, this.activeSlider.sliderMinX(), this.activeSlider.sliderMaxX());
+        double range = this.activeSlider.sliderMaxX() - this.activeSlider.sliderMinX();
+        this.setSliderProgress(this.activeSlider, (float) ((clampedX - this.activeSlider.sliderMinX()) / range));
     }
 
-    private boolean contains(
-            double mouseX,
-            double mouseY,
-            int localX,
-            int localY,
-            int width,
-            int height
-    ) {
+    private boolean contains(double mouseX, double mouseY, int localX, int localY, int width, int height) {
         int x = this.leftPos + localX;
         int y = this.topPos + localY;
-        return mouseX >= x
-                && mouseX < x + width
-                && mouseY >= y
-                && mouseY < y + height;
+        return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
     private boolean isPressed(Object target) {
@@ -1363,18 +920,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private boolean isFlashing(Object target) {
-        return this.isEditing(target)
-                || (
-                this.flashVisible
-                        && java.util.Objects.equals(
-                        this.flashTarget,
-                        target
-                )
-        );
+        return this.isEditing(target) || (this.flashVisible && java.util.Objects.equals(this.flashTarget, target));
     }
 
     private int barOffset(SliderId slider) {
-        return this.isPressed(slider) ? BAR_PRESSED_OFFSET_Y : 0;
+        return this.isPressed(slider) ? 2 : 0;
     }
 
     private int getPreviewRgb() {
@@ -1384,21 +934,9 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private int displayValue(SliderId slider) {
         int rgb = this.getPreviewRgb();
         return switch (slider) {
-            case HUE -> clampInt(
-                    Math.round(this.hue * 360.0F),
-                    0,
-                    360
-            );
-            case SATURATION -> clampInt(
-                    Math.round(this.saturation * 100.0F),
-                    0,
-                    100
-            );
-            case VALUE -> clampInt(
-                    Math.round(this.value * 100.0F),
-                    0,
-                    100
-            );
+            case HUE -> clampInt(Math.round(this.hue * 360.0F), 0, 360);
+            case SATURATION -> clampInt(Math.round(this.saturation * 100.0F), 0, 100);
+            case VALUE -> clampInt(Math.round(this.value * 100.0F), 0, 100);
             case RED -> red(rgb);
             case GREEN -> green(rgb);
             case BLUE -> blue(rgb);
@@ -1421,10 +959,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
                 this.queueColorSync();
             }
             case RED, GREEN, BLUE ->
-                    this.setSliderProgress(
-                            slider,
-                            displayValue / 255.0F
-                    );
+                    this.setSliderProgress(slider, displayValue / 255.0F);
         }
     }
 
@@ -1466,7 +1001,6 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         int g = green(rgb);
         int b = blue(rgb);
         int component = clamp255(Math.round(progress * 255.0F));
-
         switch (slider) {
             case RED -> r = component;
             case GREEN -> g = component;
@@ -1474,7 +1008,6 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
             default -> {
             }
         }
-
         this.setColorFromRgb(packRgb(r, g, b));
     }
 
@@ -1502,24 +1035,19 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         ItemStack stack = this.getHeldStack();
         if (!stack.isEmpty()
                 && stack.getItem() instanceof FlintAndPearlItem) {
-            stack.set(
-                    ModDataComponents.HEX_COLOR.get(),
-                    MusavaccaTints.rgb(rgb)
-            );
+            stack.set(ModDataComponents.HEX_COLOR.get(), MusavaccaTints.rgb(rgb));
         }
     }
 
     private ItemStack getHeldStack() {
-        if (this.minecraft == null || this.minecraft.player == null) {
-            return ItemStack.EMPTY;
-        }
+        if (this.minecraft == null || this.minecraft.player == null) return ItemStack.EMPTY;
         return this.minecraft.player.getItemInHand(this.menu.getHand());
     }
 
     private void flushColorSyncIfReady() {
         if (this.pendingSyncRgb < 0
                 || System.nanoTime() - this.lastSyncNanos
-                < COLOR_SYNC_INTERVAL_NANOS) {
+                < 50_000_000L) {
             return;
         }
         this.flushColorSync();
@@ -1530,16 +1058,13 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
                 || this.pendingSyncRgb == this.lastSyncedRgb) {
             return;
         }
-
         this.lastSyncedRgb = this.pendingSyncRgb;
         this.lastSyncNanos = System.nanoTime();
         //? if >=1.21.6 {
-        ClientPacketDistributor.sendToServer(
+        ClientPacketDistributor.sendToServer(new FlintAndPearlColorPayload(this.pendingSyncRgb));
         //?} else {
-        /*PacketDistributor.sendToServer(
+        /*PacketDistributor.sendToServer(new FlintAndPearlColorPayload(this.pendingSyncRgb));
         *///?}
-                new FlintAndPearlColorPayload(this.pendingSyncRgb)
-        );
     }
 
     private static HsvColor rgbToHsv(int rgb) {
@@ -1551,7 +1076,6 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         float min = Math.min(r, Math.min(g, b));
         float delta = max - min;
         float h = 0.0F;
-
         if (delta > 0.00001F) {
             if (max == r) {
                 h = ((g - b) / delta) / 6.0F;
@@ -1561,18 +1085,10 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
                 h = (((r - g) / delta) + 4.0F) / 6.0F;
             }
         }
-
         if (h < 0.0F) {
             h += 1.0F;
         }
-
-        return new HsvColor(
-                clamp01(h),
-                max <= 0.0F
-                        ? 0.0F
-                        : clamp01(delta / max),
-                clamp01(max)
-        );
+        return new HsvColor(clamp01(h), max <= 0.0F ? 0.0F : clamp01(delta / max), clamp01(max));
     }
 
     private static int hsvToArgb(float h, float s, float v) {
@@ -1583,14 +1099,12 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         h = clamp01(h);
         s = clamp01(s);
         v = clamp01(v);
-
         float scaled = h * 6.0F;
         int sector = Math.min(5, (int) Math.floor(scaled));
         float f = scaled - sector;
         float p = v * (1.0F - s);
         float q = v * (1.0F - (s * f));
         float t = v * (1.0F - (s * (1.0F - f)));
-
         return switch (sector) {
             case 0 -> packRgb(v, t, p);
             case 1 -> packRgb(q, v, p);
@@ -1607,17 +1121,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     }
 
     private static int packRgb(float r, float g, float b) {
-        return packRgb(
-                Math.round(r * 255.0F),
-                Math.round(g * 255.0F),
-                Math.round(b * 255.0F)
-        );
+        return packRgb(Math.round(r * 255.0F), Math.round(g * 255.0F), Math.round(b * 255.0F));
     }
 
     private static int packRgb(int r, int g, int b) {
-        return (clamp255(r) << 16)
-                | (clamp255(g) << 8)
-                | clamp255(b);
+        return (clamp255(r) << 16) | (clamp255(g) << 8) | clamp255(b);
     }
 
     private static int red(int rgb) {
@@ -1632,11 +1140,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         return rgb & 0xFF;
     }
 
-    private static double clamp(
-            double value,
-            double min,
-            double max
-    ) {
+    private static double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
 
@@ -1652,53 +1156,30 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         return Math.max(min, Math.min(max, value));
     }
 
-    @Override
     //? if >=26.1 {
-    /*protected void extractLabels(
-            GuiGraphicsExtractor graphics,
-    *///?} else {
-    protected void renderLabels(
-            GuiGraphics graphics,
-    //?}
-            int mouseX,
-            int mouseY
-    ) {
-
+    /*@Override
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
     }
-
+    *///?}
+    //? if <26.1 {
     @Override
-    //? if >=26.1 {
-    /*public void extractRenderState(
-            GuiGraphicsExtractor graphics,
-    *///?} else {
-    public void render(
-            GuiGraphics graphics,
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    }
     //?}
-            int mouseX,
-            int mouseY,
-            float partialTick
-    ) {
-        //? if >=26.1 {
-        /*super.extractRenderState(
-        *///?} else {
-        this.renderBackground(
-        //?}
-                graphics,
-                mouseX,
-                mouseY,
-                partialTick
-        );
-        //? if <26.1 {
-        super.render(
-                graphics,
-                mouseX,
-                mouseY,
-                partialTick
-        );
+    //? if >=26.1 {
+    /*@Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+    }
+    *///?}
+    //? if <26.1 {
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
+        super.render(graphics, mouseX, mouseY, partialTick);
         this.renderTooltip(graphics, mouseX, mouseY);
-        //?}
     }
-
+    //?}
     private enum SliderId {
         HUE(139, 64, 360),
         SATURATION(0, 170, 100),
@@ -1706,11 +1187,9 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         RED(139, 127, 255),
         GREEN(139, 169, 255),
         BLUE(139, 211, 255);
-
         private final int x;
         private final int y;
         private final int max;
-
         SliderId(int x, int y, int max) {
             this.x = x;
             this.y = y;
@@ -1718,50 +1197,37 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         }
 
         private int stripX() {
-            return this.x + STRIP_X;
+            return this.x + 10;
         }
 
         private int stripY() {
-            return this.y + STRIP_Y;
+            return this.y + 10;
         }
 
         private int sliderMinX() {
-            return this.x + SLIDER_MIN_X;
+            return this.x + 4;
         }
 
         private int sliderMaxX() {
-            return this.x + SLIDER_MAX_X;
+            return this.x + 79;
         }
 
         private int sliderY() {
-            return this.y + SLIDER_Y;
+            return this.y + 21;
         }
 
         private int sliderX(float progress) {
-            return Math.round(
-                    this.sliderMinX()
-                            + (
-                            (
-                                    this.sliderMaxX()
-                                            - this.sliderMinX()
-                            )
-                                    * clamp01(progress)
-                    )
-            );
+            return Math.round(this.sliderMinX() + ((this.sliderMaxX() - this.sliderMinX()) * clamp01(progress)));
         }
     }
 
-    private record ArrowButton(
-            SliderId slider,
-            boolean up
-    ) {
+    private record ArrowButton(SliderId slider, boolean up) {
         private int x() {
             return this.slider.x + ARROW_X;
         }
 
         private int y() {
-            return this.slider.y
-                    + (this.up ? ARROW_UP_Y : ARROW_DOWN_Y);
+            return this.slider.y + (this.up ? (-1) : 20);
         }
 
         //? if >=1.21.11 {
@@ -1769,21 +1235,11 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
         *///?} else {
         private ResourceLocation texture(boolean pressed) {
         //?}
-            if (this.up) {
-                return pressed
-                        ? ARROW_UP_PRESSED
-                        : ARROW_UP;
-            }
-            return pressed
-                    ? ARROW_DOWN_PRESSED
-                    : ARROW_DOWN;
+            if (this.up) return pressed ? ARROW_UP_PRESSED : ARROW_UP;
+            return pressed ? ARROW_DOWN_PRESSED : ARROW_DOWN;
         }
     }
 
-    private record HsvColor(
-            float hue,
-            float saturation,
-            float value
-    ) {
+    private record HsvColor(float hue, float saturation, float value) {
     }
 }

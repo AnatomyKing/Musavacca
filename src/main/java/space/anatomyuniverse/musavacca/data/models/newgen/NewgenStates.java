@@ -8,23 +8,18 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 final class NewgenStates {
     private NewgenStates() {}
-
     //? if >=1.21.11 {
-    /*record Pose<M>(Conditions.Match when, Function<M, Identifier> model,
+    /*record Pose<M>(Conditions.Match when, Function<M, Identifier> model, int x, int y, boolean uvLock) {}
     *///?} else {
-    record Pose<M>(Conditions.Match when, Function<M, ResourceLocation> model,
+    record Pose<M>(Conditions.Match when, Function<M, ResourceLocation> model, int x, int y, boolean uvLock) {}
     //?}
-                   int x, int y, boolean uvLock) {}
-
     private static final boolean[] BOOLEANS = {false, true};
-
     static final List<Pose<SlabModels>> SLABS = slabs();
     static final List<Pose<StairModels>> STAIRS = stairs();
     static final List<Pose<DoorModels>> DOORS = doors();
@@ -32,7 +27,6 @@ final class NewgenStates {
     static final List<Pose<FenceGateModels>> FENCE_GATES = fenceGates();
     static final List<Pose<ButtonModels>> BUTTONS = buttons();
     static final List<Pose<WallModels>> WALLS = walls();
-
     private static List<Pose<SlabModels>> slabs() {
         List<Pose<SlabModels>> poses = new ArrayList<>();
         for (SlabType type : SlabType.values()) {
@@ -49,10 +43,8 @@ final class NewgenStates {
                     int y = (int) facing.getClockWise().toYRot();
                     if (shape == StairsShape.INNER_LEFT || shape == StairsShape.OUTER_LEFT) y += 270;
                     if (shape != StairsShape.STRAIGHT && half == Half.TOP) y += 90;
-                    Conditions.Match when = Conditions.when(StairBlock.FACING, facing)
-                            .and(StairBlock.HALF, half).and(StairBlock.SHAPE, shape);
-                    poses.add(new Pose<>(when, m -> m.model(shape), half == Half.TOP ? 180 : 0,
-                            ModelTransforms.quarterTurn(y), true));
+                    Conditions.Match when = Conditions.when(StairBlock.FACING, facing).and(StairBlock.HALF, half).and(StairBlock.SHAPE, shape);
+                    poses.add(new Pose<>(when, m -> m.model(shape), half == Half.TOP ? 180 : 0, ModelTransforms.quarterTurn(y), true));
                 }
             }
         }
@@ -69,8 +61,7 @@ final class NewgenStates {
                         if (open) y += hinge == DoorHingeSide.LEFT ? 90 : -90;
                         Conditions.Match when = Conditions.when(DoorBlock.FACING, facing)
                                 .and(DoorBlock.HALF, half).and(DoorBlock.HINGE, hinge).and(DoorBlock.OPEN, open);
-                        poses.add(new Pose<>(when, m -> m.model(half, hinge, open), 0,
-                                ModelTransforms.quarterTurn(y), false));
+                        poses.add(new Pose<>(when, m -> m.model(half, hinge, open), 0, ModelTransforms.quarterTurn(y), false));
                     }
                 }
             }
@@ -87,10 +78,8 @@ final class NewgenStates {
                     boolean flip = orientable && open && half == Half.TOP;
                     int y = orientable || open ? northY(facing) : 0;
                     if (flip) y += 180;
-                    Conditions.Match when = Conditions.when(TrapDoorBlock.FACING, facing)
-                            .and(TrapDoorBlock.HALF, half).and(TrapDoorBlock.OPEN, open);
-                    poses.add(new Pose<>(when, m -> m.model(half, open), flip ? 180 : 0,
-                            ModelTransforms.quarterTurn(y), false));
+                    Conditions.Match when = Conditions.when(TrapDoorBlock.FACING, facing).and(TrapDoorBlock.HALF, half).and(TrapDoorBlock.OPEN, open);
+                    poses.add(new Pose<>(when, m -> m.model(half, open), flip ? 180 : 0, ModelTransforms.quarterTurn(y), false));
                 }
             }
         }
@@ -118,8 +107,7 @@ final class NewgenStates {
         for (Direction facing : ModelDirections.horizontal()) {
             for (boolean open : BOOLEANS) {
                 for (boolean inWall : BOOLEANS) {
-                    Conditions.Match when = Conditions.when(FenceGateBlock.FACING, facing)
-                            .and(FenceGateBlock.OPEN, open).and(FenceGateBlock.IN_WALL, inWall);
+                    Conditions.Match when = Conditions.when(FenceGateBlock.FACING, facing).and(FenceGateBlock.OPEN, open).and(FenceGateBlock.IN_WALL, inWall);
                     poses.add(new Pose<>(when, m -> m.model(open, inWall), 0, (int) facing.toYRot(), true));
                 }
             }
@@ -131,13 +119,11 @@ final class NewgenStates {
         List<Pose<PressurePlateModels>> poses = new ArrayList<>();
         if (block.defaultBlockState().hasProperty(PressurePlateBlock.POWERED)) {
             for (boolean powered : BOOLEANS) {
-                poses.add(new Pose<>(Conditions.when(PressurePlateBlock.POWERED, powered),
-                        m -> m.model(powered), 0, 0, false));
+                poses.add(new Pose<>(Conditions.when(PressurePlateBlock.POWERED, powered), m -> m.model(powered), 0, 0, false));
             }
         } else {
             for (int power : BlockStateProperties.POWER.getPossibleValues()) {
-                poses.add(new Pose<>(Conditions.when(BlockStateProperties.POWER, power),
-                        m -> m.model(power > 0), 0, 0, false));
+                poses.add(new Pose<>(Conditions.when(BlockStateProperties.POWER, power), m -> m.model(power > 0), 0, 0, false));
             }
         }
         return List.copyOf(poses);
@@ -150,8 +136,7 @@ final class NewgenStates {
                 for (boolean powered : BOOLEANS) {
                     int x = switch (face) { case FLOOR -> 0; case WALL -> 90; case CEILING -> 180; };
                     int y = face == AttachFace.CEILING ? (int) facing.toYRot() : northY(facing);
-                    Conditions.Match when = Conditions.when(ButtonBlock.FACE, face)
-                            .and(ButtonBlock.FACING, facing).and(ButtonBlock.POWERED, powered);
+                    Conditions.Match when = Conditions.when(ButtonBlock.FACE, face).and(ButtonBlock.FACING, facing).and(ButtonBlock.POWERED, powered);
                     poses.add(new Pose<>(when, m -> m.model(powered), x, y, face == AttachFace.WALL));
                 }
             }

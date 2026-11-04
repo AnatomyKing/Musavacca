@@ -6,11 +6,5 @@ import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
 public interface VocoTableEatingAction {
     int eatingTimeTicks();
-
-    boolean complete(
-            Basuke basuke,
-            ServerLevel level,
-            ItemStack heldStack
-    );
+    boolean complete(Basuke basuke, ServerLevel level, ItemStack heldStack);
 }
-

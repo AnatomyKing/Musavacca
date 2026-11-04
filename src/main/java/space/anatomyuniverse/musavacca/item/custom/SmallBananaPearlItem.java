@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.item.custom;
 
 import net.minecraft.core.BlockPos;
@@ -18,7 +17,6 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.SmallBananaPearlBlock;
 
 public class SmallBananaPearlItem extends Item {
-
     public SmallBananaPearlItem(Properties properties) {
         super(properties);
     }
@@ -36,73 +34,45 @@ public class SmallBananaPearlItem extends Item {
         Level level = context.getLevel();
         Player player = context.getPlayer();
         ItemStack stack = context.getItemInHand();
-
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = level.getBlockState(clickedPos);
-
         if (SmallBananaPearlBlock.canAcceptPearl(clickedState)) {
             if (!level.isClientSide()) {
                 BlockState next = SmallBananaPearlBlock.increment(clickedState);
                 level.setBlock(clickedPos, next, Block.UPDATE_ALL);
                 playPlaceSound(level, clickedPos, next, player);
-
                 if (player == null || !player.getAbilities().instabuild) {
                     stack.shrink(1);
                 }
             }
             return successResult();
         }
-
         BlockPlaceContext placeContext = new BlockPlaceContext(context);
-
-        BlockPos placePos = clickedState.canBeReplaced(placeContext)
-                ? clickedPos
-                : clickedPos.relative(context.getClickedFace());
-
+        BlockPos placePos = clickedState.canBeReplaced(placeContext) ? clickedPos : clickedPos.relative(context.getClickedFace());
         BlockState placeTarget = level.getBlockState(placePos);
-
-        if (!placeTarget.canBeReplaced(placeContext)) {
-            return passResult();
-        }
-
+        if (!placeTarget.canBeReplaced(placeContext)) return passResult();
         Direction facing = context.getHorizontalDirection().getOpposite();
-
         BlockState newState = ModBlocks.SMALL_BANANA_PEARL_BLOCK.get()
                 .defaultBlockState()
                 .setValue(SmallBananaPearlBlock.FACING, facing)
                 .setValue(SmallBananaPearlBlock.SMALL_PEARL_AMOUNT, 1);
-
         if (!level.isClientSide()) {
             boolean placed = level.setBlock(placePos, newState, Block.UPDATE_ALL);
-            if (!placed) {
-                return passResult();
-            }
-
+            if (!placed) return passResult();
             playPlaceSound(level, placePos, newState, player);
-
             if (player == null || !player.getAbilities().instabuild) {
                 stack.shrink(1);
             }
         }
-
         return successResult();
     }
 
     private static void playPlaceSound(Level level, BlockPos pos, BlockState state, Player player) {
-        //? if <1.21.6 {
-        /*SoundType sound = state.getSoundType();
-         *///?} else {
+        //? if >=1.21.6 {
         SoundType sound = state.getSoundType(level, pos, player);
-        //?}
-
-        level.playSound(
-                player,
-                pos,
-                sound.getPlaceSound(),
-                SoundSource.BLOCKS,
-                (sound.getVolume() + 1.0F) / 2.0F,
-                sound.getPitch() * 0.8F
-        );
+        //?} else {
+        /*SoundType sound = state.getSoundType();
+        *///?}
+        level.playSound(player, pos, sound.getPlaceSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
     }
 }
-

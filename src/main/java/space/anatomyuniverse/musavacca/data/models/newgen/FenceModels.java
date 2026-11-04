@@ -17,15 +17,11 @@ public final class FenceModels {
     private final ResourceLocation side;
     private final ResourceLocation inventory;
     //?}
-
     private FenceModels(Builder builder) {
         post = builder.post;
         side = builder.side;
         inventory = builder.inventory;
-
-        if (isEmpty()) {
-            throw new IllegalStateException("FenceModels requires at least one model");
-        }
+        if (isEmpty()) throw new IllegalStateException("FenceModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -85,9 +81,7 @@ public final class FenceModels {
         private ResourceLocation side;
         private ResourceLocation inventory;
         //?}
-
         private Builder() {}
-
         public Builder post(String model) {
             post = parse(model, "post");
             return this;
@@ -113,9 +107,7 @@ public final class FenceModels {
     *///?} else {
     private static ResourceLocation parse(String model, String name) {
     //?}
-        if (model == null || model.isBlank()) {
-            throw new IllegalArgumentException(name + " must not be blank");
-        }
+        if (model == null || model.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
         //? if >=1.21.11 {
         /*return Identifier.parse(model);
         *///?} else {

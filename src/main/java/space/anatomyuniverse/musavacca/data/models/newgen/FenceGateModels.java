@@ -19,34 +19,20 @@ public final class FenceGateModels {
     private final ResourceLocation wallClosed;
     private final ResourceLocation wallOpen;
     //?}
-
     private FenceGateModels(Builder builder) {
         closed = builder.closed;
         open = builder.open;
         wallClosed = builder.wallClosed;
         wallOpen = builder.wallOpen;
-
-        if (isEmpty()) {
-            throw new IllegalStateException("FenceGateModels requires at least one model");
-        }
+        if (isEmpty()) throw new IllegalStateException("FenceGateModels requires at least one model");
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static FenceGateModels full(
-            String closed,
-            String open,
-            String wallClosed,
-            String wallOpen
-    ) {
-        return builder()
-                .closed(closed)
-                .open(open)
-                .wallClosed(wallClosed)
-                .wallOpen(wallOpen)
-                .build();
+    public static FenceGateModels full(String closed, String open, String wallClosed, String wallOpen) {
+        return builder().closed(closed).open(open).wallClosed(wallClosed).wallOpen(wallOpen).build();
     }
 
     @Nullable
@@ -55,10 +41,7 @@ public final class FenceGateModels {
     *///?} else {
     public ResourceLocation model(boolean open, boolean inWall) {
     //?}
-        if (inWall) {
-            return open ? wallOpen : wallClosed;
-        }
-
+        if (inWall) return open ? wallOpen : wallClosed;
         return open ? this.open : closed;
     }
 
@@ -91,9 +74,7 @@ public final class FenceGateModels {
         private ResourceLocation wallClosed;
         private ResourceLocation wallOpen;
         //?}
-
         private Builder() {}
-
         public Builder closed(String model) {
             closed = parse(model, "closed");
             return this;
@@ -124,9 +105,7 @@ public final class FenceGateModels {
     *///?} else {
     private static ResourceLocation parse(String model, String name) {
     //?}
-        if (model == null || model.isBlank()) {
-            throw new IllegalArgumentException(name + " must not be blank");
-        }
+        if (model == null || model.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
         //? if >=1.21.11 {
         /*return Identifier.parse(model);
         *///?} else {

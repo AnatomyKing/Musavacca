@@ -1,11 +1,5 @@
 package space.anatomyuniverse.musavacca.door;
 
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -17,186 +11,64 @@ import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 public final class MusavaccaDoorTeleportNetwork {
-
     private MusavaccaDoorTeleportNetwork() {}
-
-    public static void refresh(
-            MusavaccaPortalDoorBlockEntity door
-    ) {
+    public static void refresh(MusavaccaPortalDoorBlockEntity door) {
         if (
                 !(door.getLevel()
                         instanceof ServerLevel level)
         ) {
             return;
         }
-
-        BlockPos lowerPos =
-                door.getBlockPos();
-
-        BlockState state =
-                level.getBlockState(
-                        lowerPos
-                );
-
+        BlockPos lowerPos = door.getBlockPos();
+        BlockState state = level.getBlockState(lowerPos);
         if (
                 !door.hasHexColor()
                         || !(state.getBlock()
                         instanceof MusavaccaPortalDoorBlock)
-                        || state.getValue(
-                        MusavaccaPortalDoorBlock.HALF
-                )
+                        || state.getValue(MusavaccaPortalDoorBlock.HALF)
                         != DoubleBlockHalf.LOWER
-                        || !state.getValue(
-                        MusavaccaPortalDoorBlock.LIT
-                )
-                        || !state.getValue(
-                        MusavaccaPortalDoorBlock.LIT_PORTAL
-                )
-                        || !state.getValue(
-                        MusavaccaPortalDoorBlock.PORTAL
-                )
+                        || !state.getValue(MusavaccaPortalDoorBlock.LIT)
+                        || !state.getValue(MusavaccaPortalDoorBlock.LIT_PORTAL)
+                        || !state.getValue(MusavaccaPortalDoorBlock.PORTAL)
         ) {
-            removeDoor(
-                    level,
-                    lowerPos
-            );
-
+            removeDoor(level, lowerPos);
             return;
         }
-
-        MinecraftServer server =
-                level.getServer();
-
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        server
-                );
-
-        String ownerKey =
-                HexTeleportDirectory
-                        .doorOwnerKey(
-                                //? if >=1.21.11 {
-                                /*level.dimension().identifier(),
-                                *///?} else {
-                                level.dimension().location(),
-                                //?}
-                                lowerPos
-                        );
-
-        HexTeleportDirectory.DoorEndpoint previous =
-                directory
-                        .getDoorEndpointByOwner(
-                                ownerKey
-                        )
-                        .orElse(null);
-
-        int previousHex =
-                previous == null
-                        ? -1
-                        : previous.hexColor();
-
-        int resolvedHex =
-                HexTeleportDirectory
-                        .normalizeHex(
-                                door.getHexColor()
-                        );
-
-        directory.registerDoorEndpoint(
-                ownerKey,
-                resolvedHex,
-                //? if >=1.21.11 {
-                /*level.dimension().identifier(),
-                *///?} else {
-                level.dimension().location(),
-                //?}
-                lowerPos
-        );
-
+        MinecraftServer server = level.getServer();
+        HexTeleportDirectory directory = HexTeleportDirectory.get(server);
+        //? if >=1.21.11 {
+        /*String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().identifier(), lowerPos);
+        *///?} else {
+        String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().location(), lowerPos);
+        //?}
+        HexTeleportDirectory.DoorEndpoint previous = directory.getDoorEndpointByOwner(ownerKey).orElse(null);
+        int previousHex = previous == null ? -1 : previous.hexColor();
+        int resolvedHex = HexTeleportDirectory.normalizeHex(door.getHexColor());
+        //? if >=1.21.11 {
+        /*directory.registerDoorEndpoint(ownerKey, resolvedHex, level.dimension().identifier(), lowerPos);
+        *///?} else {
+        directory.registerDoorEndpoint(ownerKey, resolvedHex, level.dimension().location(), lowerPos);
+        //?}
         if (
                 previousHex >= 0
                         && previousHex != resolvedHex
         ) {
-            HexTeleportAddressNetwork
-                    .addressChanged(
-                            server,
-                            previousHex,
-                            resolvedHex
-                    );
+            HexTeleportAddressNetwork.addressChanged(server, previousHex, resolvedHex);
         }
     }
 
-    public static void removeDoor(
-            ServerLevel level,
-            BlockPos lowerPos
-    ) {
+    public static void removeDoor(ServerLevel level, BlockPos lowerPos) {
         if (
                 level == null
                         || lowerPos == null
         ) {
             return;
         }
-
-        String ownerKey =
-                HexTeleportDirectory
-                        .doorOwnerKey(
-                                //? if >=1.21.11 {
-                                /*level.dimension().identifier(),
-                                *///?} else {
-                                level.dimension().location(),
-                                //?}
-                                lowerPos
-                        );
-
-        HexTeleportAddressNetwork
-                .releaseOwner(
-                        level.getServer(),
-                        ownerKey
-                );
-    }
-
-    public static void removeStaleEndpoint(
-            MinecraftServer server,
-            HexTeleportDirectory.DoorEndpoint endpoint
-    ) {
-        if (
-                server == null
-                        || endpoint == null
-        ) {
-            return;
-        }
-
-        HexTeleportDirectory directory =
-                HexTeleportDirectory.get(
-                        server
-                );
-
-        HexTeleportDirectory.DoorEndpoint current =
-                directory
-                        .getDoorEndpointByOwner(
-                                endpoint.ownerKey()
-                        )
-                        .orElse(null);
-
-        if (
-                current == null
-                        || current.hexColor()
-                        != endpoint.hexColor()
-                        || !current.dimensionId()
-                        .equals(
-                                endpoint.dimensionId()
-                        )
-                        || !current.ownerPos()
-                        .equals(
-                                endpoint.ownerPos()
-                        )
-        ) {
-            return;
-        }
-
-        HexTeleportAddressNetwork
-                .releaseOwner(
-                        server,
-                        endpoint.ownerKey()
-                );
+        //? if >=1.21.11 {
+        /*String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().identifier(), lowerPos);
+        *///?} else {
+        String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().location(), lowerPos);
+        //?}
+        HexTeleportAddressNetwork.releaseOwner(level.getServer(), ownerKey);
     }
 }

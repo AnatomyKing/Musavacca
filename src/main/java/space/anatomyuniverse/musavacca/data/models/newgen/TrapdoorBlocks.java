@@ -2,15 +2,12 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TrapDoorBlock;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public final class TrapdoorBlocks {
     private TrapdoorBlocks() {}
-
     public enum Orientation { NORMAL, ORIENTABLE }
-
     public static final class Part extends BlockFamily.ModelRule<TrapdoorModels, Part> {
         private Part(TrapdoorModels source, Conditions.Match conditions) {
             super(source, conditions);
@@ -25,7 +22,6 @@ public final class TrapdoorBlocks {
         private final TrapdoorTextures.Set textures;
         private final TrapdoorModels baseModels;
         private final Orientation orientation;
-
         private Entry(Builder builder) {
             super(builder);
             textures = builder.textures;
@@ -37,28 +33,20 @@ public final class TrapdoorBlocks {
         public TrapdoorTextures.Set textures() { return textures; }
         public TrapdoorModels baseModels() { return baseModels; }
         public Orientation orientation() { return orientation; }
-
         public void validate() {
             if (!(block() instanceof TrapDoorBlock)) {
-                throw new IllegalStateException(
-                        "TrapdoorBlocks requires a TrapDoorBlock: " + ModelLocations.blockId(block())
-                );
+                throw new IllegalStateException("TrapdoorBlocks requires a TrapDoorBlock: " + ModelLocations.blockId(block()));
             }
-
             BlockFamilyValidation.requireProperty(block(), TrapDoorBlock.FACING, "TrapdoorBlocks");
             BlockFamilyValidation.requireProperty(block(), TrapDoorBlock.HALF, "TrapdoorBlocks");
             BlockFamilyValidation.requireProperty(block(), TrapDoorBlock.OPEN, "TrapdoorBlocks");
-
-            if (baseMode() == null) {
-                throw new IllegalStateException("No base trapdoor model selected for " + ModelLocations.blockId(block()));
-            }
+            if (baseMode() == null) throw new IllegalStateException("No base trapdoor model selected for " + ModelLocations.blockId(block()));
             if (baseMode() == BaseModelMode.GENERATED && textures == null) {
                 throw new IllegalStateException("No generated trapdoor texture configured for " + ModelLocations.blockId(block()));
             }
             if (baseMode() == BaseModelMode.EXISTING && baseModels == null) {
                 throw new IllegalStateException("No existing TrapdoorModels configured for " + ModelLocations.blockId(block()));
             }
-
             validatePartConditions();
         }
 
@@ -66,23 +54,10 @@ public final class TrapdoorBlocks {
             private TrapdoorTextures.Set textures;
             private TrapdoorModels baseModels;
             private Orientation orientation = Orientation.NORMAL;
-
             private Builder(Block block) { super(block); }
-
             public Builder generated() {
                 selectGenerated();
                 if (textures == null) textures = TrapdoorTextures.builder(block).build();
-                return this;
-            }
-
-            public Builder models(TrapdoorModels models) {
-                selectExisting();
-                baseModels = Objects.requireNonNull(models, "models");
-                return this;
-            }
-
-            public Builder normal() {
-                orientation = Orientation.NORMAL;
                 return this;
             }
 

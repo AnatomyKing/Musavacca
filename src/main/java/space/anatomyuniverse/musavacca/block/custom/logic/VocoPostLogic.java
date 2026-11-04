@@ -14,114 +14,47 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 
 public final class VocoPostLogic {
     private VocoPostLogic() {}
-
-    public static InteractionResult useWithoutItem(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            BlockHitResult hit
-    ) {
+    public static InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         ReceptorPosition receptor = receptorHit(state, pos, hit);
-        if (receptor == null) {
-            return InteractionResult.PASS;
-        }
-
-        if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) {
-            return InteractionResult.SUCCESS;
-        }
-
-        if (!VocoReceptorLogic.isCompletelyEmptyHanded(player)) {
-            return InteractionResult.PASS;
-        }
-
-        PearlSlotIgnition.Slot pearlSlot =
-                VocoReceptorLogic.pearlSlot(
-                        VocoPostBlock.LIT,
-                        VocoPostBlock.PORTAL,
-                        receptor
-                );
-
+        if (receptor == null) return InteractionResult.PASS;
+        if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) return InteractionResult.SUCCESS;
+        if (!VocoReceptorLogic.isCompletelyEmptyHanded(player)) return InteractionResult.PASS;
+        PearlSlotIgnition.Slot pearlSlot = VocoReceptorLogic.pearlSlot(VocoPostBlock.LIT, VocoPostBlock.PORTAL, receptor);
         if (!PearlSlotIgnition.isLit(state, pearlSlot)) {
             if (
                     !level.isClientSide()
-                            && PearlSlotIgnition.igniteFromBalance(
-                            state,
-                            level,
-                            pos,
-                            player,
-                            pearlSlot
-                    )
+                            && PearlSlotIgnition.igniteFromBalance(state, level, pos, player, pearlSlot)
             ) {
                 VocoPostCandleLogic.refreshPortalAt(level, pos);
             }
-
             return InteractionResult.SUCCESS;
         }
-
         if (!state.getValue(VocoPostBlock.PORTAL) && level.isClientSide()) {
             VocoReceptorLogic.showNeedsPortalMessage(player);
         }
-
         return InteractionResult.SUCCESS;
     }
 
-    public static InteractionResult useItemOn(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit
-    ) {
-        if (stack.isEmpty()) {
-            //? if <1.21.2 {
-            /*return InteractionResult.PASS;
-            *///?} else {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
-            //?}
-        }
-
+    public static InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        //? if >=1.21.2 {
+        if (stack.isEmpty()) return InteractionResult.TRY_WITH_EMPTY_HAND;
+        //?} else {
+        /*if (stack.isEmpty()) return InteractionResult.PASS;
+        *///?}
         ReceptorPosition receptor = receptorHit(state, pos, hit);
-        if (receptor == null) {
-            return InteractionResult.PASS;
-        }
-
-        if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) {
-            return InteractionResult.SUCCESS;
-        }
-
-        PearlSlotIgnition.Slot pearlSlot =
-                VocoReceptorLogic.pearlSlot(
-                        VocoPostBlock.LIT,
-                        VocoPostBlock.PORTAL,
-                        receptor
-                );
-
-        InteractionResult result =
-                PearlSlotIgnition.handleHeldItemUse(
-                        stack,
-                        state,
-                        level,
-                        pos,
-                        player,
-                        hand,
-                        pearlSlot
-                );
-
+        if (receptor == null) return InteractionResult.PASS;
+        if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) return InteractionResult.SUCCESS;
+        PearlSlotIgnition.Slot pearlSlot = VocoReceptorLogic.pearlSlot(VocoPostBlock.LIT, VocoPostBlock.PORTAL, receptor);
+        InteractionResult result = PearlSlotIgnition.handleHeldItemUse(stack, state, level, pos, player, hand, pearlSlot);
         if (result == InteractionResult.SUCCESS && !level.isClientSide()) {
             VocoPostCandleLogic.refreshPortalAt(level, pos);
         }
-
         return result;
     }
 
     @Nullable
     private static ReceptorPosition receptorHit(BlockState state, BlockPos pos, BlockHitResult hit) {
-        return VocoPostReceptorHitboxes.detectHitPart(pos, hit).isReceptor()
-                ? VocoPostBlock.receptorPosition(state)
-                : null;
+        return VocoPostReceptorHitboxes.detectHitPart(pos, hit).isReceptor() ? VocoPostBlock.receptorPosition(state) : null;
     }
 }
-

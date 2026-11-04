@@ -21,31 +21,32 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 *///?}
-
 //? if >=26.1 {
 /*import com.mojang.blaze3d.vertex.QuadInstance;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-//? if >=26.2 {
-/^import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.util.RandomSource;
-^///?}
-*///?} else if >=1.21.11 {
+*///?} else if >=1.21.11 <26.1 {
 /*import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
+*///?}
+//? if >=26.1 {
+/*import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+*///?}
+//? if >=26.2 {
+/*import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+*///?} else if >=1.21.11 <26.1 {
+/*import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.RandomSource;
+*///?}
+//? if >=1.21.11 <26.1 || >=26.2 {
+/*import net.minecraft.util.RandomSource;
 *///?}
 
-/** Vanilla world-model lighting and quad emission, with a scoped nearest sampler. */
 public final class NearestBlockEntityRenderer
         //? if >=1.21.11 {
         /*<T extends BlockEntity> implements BlockEntityRenderer<T, NearestBlockEntityRenderer.State>
@@ -60,7 +61,6 @@ public final class NearestBlockEntityRenderer
     private final RandomSource random = RandomSource.create();
     private final List<BlockModelPart> parts = new ArrayList<>();
     //?}
-
     public NearestBlockEntityRenderer(BlockEntityRendererProvider.Context context) { this(context, 0); }
     public NearestBlockEntityRenderer(BlockEntityRendererProvider.Context context, double boundsInflation) {
         if (!Double.isFinite(boundsInflation) || boundsInflation < 0) throw new IllegalArgumentException("Invalid bounds inflation");
@@ -74,17 +74,18 @@ public final class NearestBlockEntityRenderer
         private int breakingProgress = -1;
         ^///?}
     }
+
     private record Batch(RenderType type, Matrix4f transform, List<LitQuad> quads) {}
-    //? if >=26.2 {
-    /^private record BreakBatch(int dy, List<BlockStateModelPart> parts, boolean translucent) {}
-    ^///?} else if >=26.1 {
-    /^private record BreakBatch(int dy, BlockStateModel model, long seed) {}
+    //? if >=26.1 {
+    /^//? if >=26.2 {
+    /^¹private record BreakBatch(int dy, List<BlockStateModelPart> parts, boolean translucent) {}
+    ¹^///?} else {
+    private record BreakBatch(int dy, BlockStateModel model, long seed) {}
+    //?}
     ^///?}
     @Override public State createRenderState() { return new State(); }
-
     @Override
-    public void extractRenderState(T entity, State state, float partialTick, Vec3 camera,
-                                   ModelFeatureRenderer.CrumblingOverlay overlay) {
+    public void extractRenderState(T entity, State state, float partialTick, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, camera, overlay);
         state.batches = List.of();
         //? if >=26.1 {
@@ -95,12 +96,10 @@ public final class NearestBlockEntityRenderer
         List<Batch> batches = new ArrayList<>();
         BlockPos pos = entity.getBlockPos();
         BlockState block = entity.getBlockState();
-
         extractModel(level, pos, block, 0, batches);
         //? if >=26.1 {
         /^int progress = state.breakProgress != null ? state.breakProgress.progress() : -1;
         ^///?}
-        // This door has a block entity only in its lower half.
         BlockState upperDoor = null;
         if (isLowerDoor(block)) {
             BlockPos above = pos.above();
@@ -109,18 +108,21 @@ public final class NearestBlockEntityRenderer
                     && level.getBlockEntity(above) == null) {
                 upperDoor = upper;
                 extractModel(level, above, upper, 1, batches);
-                //? if >=26.3 {
-                /^var upperProgress = level.destructionProgress().get(above.asLong());
+                //? if >=26.1 {
+                /^//? if >=26.3 {
+                /^¹var upperProgress = level.destructionProgress().get(above.asLong());
                 if (upperProgress != null && !upperProgress.isEmpty()) {
-                    progress = Math.max(progress, upperProgress.last().getProgress());
-                }
-                ^///?} else if >=26.1 {
-                /^// Older clients keep destruction progress private; cover local upper-half mining.
+                ¹^///?} else {
                 Minecraft mc = Minecraft.getInstance();
                 if (mc.gameMode != null && mc.gameMode.isDestroying()
                         && mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult hit
                         && hit.getBlockPos().equals(above)) {
+                //?}
+                    //? if >=26.3 {
+                    /^¹progress = Math.max(progress, upperProgress.last().getProgress());
+                    ¹^///?} else {
                     progress = Math.max(progress, mc.gameMode.getDestroyStage());
+                    //?}
                 }
                 ^///?}
             }
@@ -145,12 +147,6 @@ public final class NearestBlockEntityRenderer
         if (tessellator == null || ambientOcclusion != ao) {
             ambientOcclusion = ao;
             tessellator = new ModelBlockRenderer(ao, true, mc.getBlockColors());
-        }
-        var model = mc.getModelManager().getBlockStateModelSet().get(block);
-        tessellator.tesselateBlock((x, y, z, quad, lighting) -> {
-            if (capture.transform == null) capture.transform = new Matrix4f().translation(x, y, z);
-            capture.add(quad, quad.materialInfo().layer(), new LitQuad(quad, lighting));
-        }, 0, dy, 0, level, pos, block, model, block.getSeed(pos));
         ^///?} else {
         if (tessellator == null) tessellator = new ModelBlockRenderer(mc.getBlockColors());
         random.setSeed(block.getSeed(pos));
@@ -159,18 +155,23 @@ public final class NearestBlockEntityRenderer
         PoseStack localPose = new PoseStack();
         localPose.translate(0, dy, 0);
         try {
-            tessellator.tesselateBlock(level, parts, block, pos, localPose,
-                    capture::forLayer, true, OverlayTexture.NO_OVERLAY);
+            tessellator.tesselateBlock(level, parts, block, pos, localPose, capture::forLayer, true, OverlayTexture.NO_OVERLAY);
         } finally {
             parts.clear();
-        }
         //?}
+        }
+        //? if >=26.1 {
+        /^var model = mc.getModelManager().getBlockStateModelSet().get(block);
+        tessellator.tesselateBlock((x, y, z, quad, lighting) -> {
+            if (capture.transform == null) capture.transform = new Matrix4f().translation(x, y, z);
+            capture.add(quad, quad.materialInfo().layer(), new LitQuad(quad, lighting));
+        }, 0, dy, 0, level, pos, block, model, block.getSeed(pos));
+        ^///?}
         capture.groups.forEach((type, quads) -> output.add(new Batch(type, capture.transform, List.copyOf(quads))));
     }
 
     //? if >=26.1 {
-    /^private static void collectBreaking(ClientLevel level, BlockPos pos, BlockState block,
-                                        int dy, List<BreakBatch> output) {
+    /^private static void collectBreaking(ClientLevel level, BlockPos pos, BlockState block, int dy, List<BreakBatch> output) {
         BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(block);
         //? if >=26.2 {
         /^¹List<BlockStateModelPart> parts = new ArrayList<>();
@@ -183,14 +184,15 @@ public final class NearestBlockEntityRenderer
             ²^///?} else {
             boolean translucent = false;
             //?}
-            output.add(new BreakBatch(dy, List.copyOf(parts), translucent));
+        ¹^///?}
+        //? if >=26.2 {
+            /^¹output.add(new BreakBatch(dy, List.copyOf(parts), translucent));
         }
         ¹^///?} else {
         output.add(new BreakBatch(dy, model, block.getSeed(pos)));
         //?}
     }
     ^///?}
-
     @Override
     public void submit(State state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         for (Batch batch : state.batches) {
@@ -200,41 +202,38 @@ public final class NearestBlockEntityRenderer
                 for (LitQuad quad : batch.quads()) quad.draw(p, vertices);
             });
             pose.popPose();
-        }
         //? if >=26.1 {
-        /^if (state.breakingProgress >= 0) {
+        /^}
+        if (state.breakingProgress >= 0) {
             for (BreakBatch batch : state.breaking) {
                 pose.pushPose();
                 if (batch.dy() != 0) pose.translate(0.0D, batch.dy(), 0.0D);
                 //? if >=26.3 {
-                /^¹collector.submitBreakingBlockModel(pose, batch.parts(),
-                        state.breakingProgress, batch.translucent());
-                ¹^///?} else if >=26.2 {
-                /^¹collector.submitBreakingBlockModel(pose, batch.parts(),
-                        state.breakingProgress);
+                /^¹collector.submitBreakingBlockModel(pose, batch.parts(), state.breakingProgress, batch.translucent());
+                ¹^///?} else if >=26.2 <26.3 {
+                /^¹collector.submitBreakingBlockModel(pose, batch.parts(), state.breakingProgress);
                 ¹^///?} else {
-                collector.submitBreakingBlockModel(pose, batch.model(), batch.seed(),
-                        state.breakingProgress);
+                collector.submitBreakingBlockModel(pose, batch.model(), batch.seed(), state.breakingProgress);
                 //?}
                 pose.popPose();
             }
-        }
         ^///?}
+        }
     }
 
     private static boolean isLowerDoor(BlockState state) {
         return state.getBlock() instanceof DoorBlock && state.getValue(DoorBlock.HALF) == DoubleBlockHalf.LOWER;
     }
+
     @Override public AABB getRenderBoundingBox(T entity) {
         AABB box = new AABB(entity.getBlockPos());
         return (isLowerDoor(entity.getBlockState()) ? box.expandTowards(0, 1, 0) : box).inflate(boundsInflation);
     }
-    @Override public int getViewDistance() { return Minecraft.getInstance().options.getEffectiveRenderDistance() * 16; }
 
+    @Override public int getViewDistance() { return Minecraft.getInstance().options.getEffectiveRenderDistance() * 16; }
     //? if >=26.1 {
     /^private record LitQuad(BakedQuad quad, QuadInstance lighting) {
         LitQuad {
-            // Vanilla reuses its lighting object; own a snapshot until the queued draw.
             QuadInstance copy = new QuadInstance();
             for (int i = 0; i < 4; i++) {
                 copy.setColor(i, lighting.getColor(i));
@@ -244,21 +243,20 @@ public final class NearestBlockEntityRenderer
             lighting = copy;
         }
         void draw(PoseStack.Pose pose, VertexConsumer vertices) { vertices.putBakedQuad(pose, quad, lighting); }
-    }
-    ^///?} else {
-    private record LitQuad(BakedQuad quad, float[] brightness, float r, float g, float b, float a,
-                           int[] light, int overlay) {
+    ^///?}
+    //? if >=1.21.11 <26.1 {
+    /^private record LitQuad(BakedQuad quad, float[] brightness, float r, float g, float b, float a, int[] light, int overlay) {
         LitQuad { brightness = brightness.clone(); light = light.clone(); }
         void draw(PoseStack.Pose pose, VertexConsumer vertices) {
             vertices.putBulkData(pose, quad, brightness, r, g, b, a, light, overlay);
         }
+    ^///?}
     }
-    //?}
 
     private static final class Capture
-            //? if <26.1 {
-            implements VertexConsumer
-            //?}
+            //? if >=1.21.11 <26.1 {
+            /^implements VertexConsumer
+            ^///?}
     {
         final Map<RenderType, List<LitQuad>> groups = new LinkedHashMap<>();
         Matrix4f transform;
@@ -268,19 +266,17 @@ public final class NearestBlockEntityRenderer
             ^///?} else {
             var sprite = quad.sprite();
             //?}
-            groups.computeIfAbsent(NearestBlockRenderTypes.forAtlas(sprite.atlasLocation(), layer),
-                    ignored -> new ArrayList<>()).add(lit);
+            groups.computeIfAbsent(NearestBlockRenderTypes.forAtlas(sprite.atlasLocation(), layer), ignored -> new ArrayList<>()).add(lit);
         }
 
-        //? if <26.1 {
-        private ChunkSectionLayer layer;
+        //? if >=1.21.11 <26.1 {
+        /^private ChunkSectionLayer layer;
         VertexConsumer forLayer(ChunkSectionLayer layer) { this.layer = layer; return this; }
-        @Override public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] brightness,
-                                          float r, float g, float b, float a, int[] light, int overlay) {
+        @Override public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] brightness, float r, float g, float b, float a, int[] light, int overlay) {
             if (transform == null) transform = new Matrix4f(pose.pose());
             add(quad, layer, new LitQuad(quad, brightness, r, g, b, a, light, overlay));
         }
-        // This tessellator emits baked quads through putBulkData, never loose vertices.
+
         private static UnsupportedOperationException looseVertex() { return new UnsupportedOperationException("Expected a baked quad"); }
         @Override public VertexConsumer addVertex(float x, float y, float z) { throw looseVertex(); }
         @Override public VertexConsumer setColor(int color) { throw looseVertex(); }
@@ -290,7 +286,7 @@ public final class NearestBlockEntityRenderer
         @Override public VertexConsumer setUv2(int u, int v) { throw looseVertex(); }
         @Override public VertexConsumer setNormal(float x, float y, float z) { throw looseVertex(); }
         @Override public VertexConsumer setLineWidth(float width) { throw looseVertex(); }
-        //?}
+        ^///?}
     }
     *///?}
 }

@@ -1,18 +1,13 @@
 package space.anatomyuniverse.musavacca.teleport;
+
 //? if >=26.1 {
 /*import java.nio.file.StandardCopyOption;
-
 import java.nio.file.Path;
-
 import java.nio.file.Files;
-
 import java.nio.file.AtomicMoveNotSupportedException;
-
 import java.io.IOException;
-
 import space.anatomyuniverse.musavacca.MusaCore;
 *///?}
-
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -25,7 +20,6 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
-
 //? if >=1.21.5 {
 import net.minecraft.world.level.saveddata.SavedDataType;
 //?} else {
@@ -34,11 +28,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 *///?}
-
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -50,7 +42,6 @@ import java.util.function.Predicate;
 
 public final class HexTeleportDirectory extends SavedData {
     public static final String STORAGE_ID = "musavacca_hex_teleport_directory";
-
     private static final Codec<UUID> UUID_CODEC = Codec.STRING.comapFlatMap(
             text -> {
                 try {
@@ -61,19 +52,12 @@ public final class HexTeleportDirectory extends SavedData {
             },
             UUID::toString
     );
-
-    private static final Codec<Kind> KIND_CODEC = Codec.STRING.xmap(
-            Kind::fromSerializedName,
-            Kind::serializedName
-    );
-
+    private static final Codec<Kind> KIND_CODEC = Codec.STRING.xmap(Kind::fromSerializedName, Kind::serializedName);
     public enum Kind {
         PEARL_PORTAL("pearl_portal"),
         VOCO_TABLE_RECEPTOR_CORNER("voco_table_receptor_corner"),
         VOCO_POST_RECEPTOR_CORNER("voco_post_receptor_corner");
-
         private final String serializedName;
-
         Kind(String serializedName) {
             this.serializedName = serializedName;
         }
@@ -87,8 +71,7 @@ public final class HexTeleportDirectory extends SavedData {
         }
 
         public boolean isVoco() {
-            return this == VOCO_TABLE_RECEPTOR_CORNER
-                    || this == VOCO_POST_RECEPTOR_CORNER;
+            return this == VOCO_TABLE_RECEPTOR_CORNER || this == VOCO_POST_RECEPTOR_CORNER;
         }
 
         public boolean canQueueForAddress() {
@@ -97,13 +80,9 @@ public final class HexTeleportDirectory extends SavedData {
 
         public static Kind fromSerializedName(String name) {
             String normalized = name == null ? "" : name.toLowerCase(Locale.ROOT);
-
             for (Kind kind : values()) {
-                if (kind.serializedName.equals(normalized)) {
-                    return kind;
-                }
+                if (kind.serializedName.equals(normalized)) return kind;
             }
-
             return VOCO_POST_RECEPTOR_CORNER;
         }
     }
@@ -120,7 +99,6 @@ public final class HexTeleportDirectory extends SavedData {
         ALREADY_REGISTERED,
         HEX_OCCUPIED,
         INVALID_OWNER;
-
         public boolean success() {
             return this == REGISTERED
                     || this == UPDATED
@@ -135,12 +113,8 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     public record Target(double x, double y, double z) {
-        public static final Codec<Target> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.DOUBLE.fieldOf("x").forGetter(Target::x),
-                Codec.DOUBLE.fieldOf("y").forGetter(Target::y),
-                Codec.DOUBLE.fieldOf("z").forGetter(Target::z)
-        ).apply(instance, Target::new));
-
+        public static final Codec<Target> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.DOUBLE.fieldOf("x").forGetter(Target::x),
+                Codec.DOUBLE.fieldOf("y").forGetter(Target::y), Codec.DOUBLE.fieldOf("z").forGetter(Target::z)).apply(instance, Target::new));
         public static Target of(Vec3 vec3) {
             return new Target(vec3.x, vec3.y, vec3.z);
         }
@@ -150,137 +124,55 @@ public final class HexTeleportDirectory extends SavedData {
         }
     }
 
-    public record PortalData(
-            String axis,
-            String front,
-            String up,
-            int width,
-            int height,
-            int exitAnchorX,
-            int exitAnchorY,
-            int exitAnchorZ
-    ) {
-        public static final PortalData EMPTY = new PortalData(
-                "x",
-                "south",
-                "up",
-                PearlPortalFrame.MIN_WIDTH,
-                PearlPortalFrame.MIN_HEIGHT,
-                0,
-                0,
-                0
-        );
-
+    public record PortalData(String axis, String front, String up, int width, int height, int exitAnchorX, int exitAnchorY, int exitAnchorZ) {
+        public static final PortalData EMPTY = new PortalData("x", "south", "up", PearlPortalFrame.MIN_WIDTH, PearlPortalFrame.MIN_HEIGHT, 0, 0, 0);
         public static final Codec<PortalData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.STRING.fieldOf("axis").forGetter(PortalData::axis),
-                Codec.STRING.fieldOf("front").forGetter(PortalData::front),
-                Codec.STRING.fieldOf("up").forGetter(PortalData::up),
-                Codec.INT.fieldOf("width").forGetter(PortalData::width),
-                Codec.INT.fieldOf("height").forGetter(PortalData::height),
-                Codec.INT.fieldOf("exit_anchor_x").forGetter(PortalData::exitAnchorX),
-                Codec.INT.fieldOf("exit_anchor_y").forGetter(PortalData::exitAnchorY),
-                Codec.INT.fieldOf("exit_anchor_z").forGetter(PortalData::exitAnchorZ)
-        ).apply(instance, PortalData::new));
-
+                Codec.STRING.fieldOf("axis").forGetter(PortalData::axis), Codec.STRING.fieldOf("front").forGetter(PortalData::front),
+                Codec.STRING.fieldOf("up").forGetter(PortalData::up), Codec.INT.fieldOf("width").forGetter(PortalData::width),
+                Codec.INT.fieldOf("height").forGetter(PortalData::height), Codec.INT.fieldOf("exit_anchor_x").forGetter(PortalData::exitAnchorX),
+                Codec.INT.fieldOf("exit_anchor_y").forGetter(PortalData::exitAnchorY), Codec.INT.fieldOf("exit_anchor_z").forGetter(PortalData::exitAnchorZ)).apply(instance, PortalData::new));
         public static PortalData of(PearlPortalFrame.Shape shape) {
             BlockPos anchor = shape.exitAnchorPos();
-
-            return new PortalData(
-                    axisToString(shape.axis()),
-                    directionToString(shape.frontDirection()),
-                    directionToString(shape.upDirection()),
-                    shape.width(),
-                    shape.height(),
-                    anchor.getX(),
-                    anchor.getY(),
-                    anchor.getZ()
-            );
+            return new PortalData(axisToString(shape.axis()), directionToString(shape.frontDirection()), directionToString(shape.upDirection()), shape.width(),
+                    shape.height(), anchor.getX(), anchor.getY(), anchor.getZ());
         }
 
         public PearlPortalFrame.Shape toPortalShape(BlockPos origin) {
             Direction.Axis axis = axisFromString(this.axis);
             Direction.Axis safeAxis = PearlPortalFrame.normalizeAxis(axis);
-
-            Direction front = PearlPortalFrame.normalizeFrontDirection(
-                    safeAxis,
-                    directionFromString(this.front)
-            );
-
-            Direction up = PearlPortalFrame.normalizeUpDirection(
-                    safeAxis,
-                    front,
-                    directionFromString(this.up)
-            );
-
-            return new PearlPortalFrame.Shape(
-                    safeAxis,
-                    origin,
-                    clamp(this.width, PearlPortalFrame.MIN_WIDTH, PearlPortalFrame.MAX_WIDTH),
-                    clamp(this.height, PearlPortalFrame.MIN_HEIGHT, PearlPortalFrame.MAX_HEIGHT),
-                    front,
-                    up,
-                    new BlockPos(this.exitAnchorX, this.exitAnchorY, this.exitAnchorZ)
-            );
+            Direction front = PearlPortalFrame.normalizeFrontDirection(safeAxis, directionFromString(this.front));
+            Direction up = PearlPortalFrame.normalizeUpDirection(safeAxis, front, directionFromString(this.up));
+            return new PearlPortalFrame.Shape(safeAxis, origin, clamp(this.width, PearlPortalFrame.MIN_WIDTH, PearlPortalFrame.MAX_WIDTH),
+                    clamp(this.height, PearlPortalFrame.MIN_HEIGHT, PearlPortalFrame.MAX_HEIGHT), front, up,
+                    new BlockPos(this.exitAnchorX, this.exitAnchorY, this.exitAnchorZ));
         }
     }
 
-    public record Endpoint(
-            UUID endpointId,
-            String ownerKey,
-            Kind kind,
-            int hexColor,
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos ownerPos,
-            Target target,
-            float yaw,
-            float pitch,
-            boolean customTarget,
-            int slotId,
-            PortalData portalData
-    ) {
+    //? if >=1.21.11 {
+    /*public record Endpoint(UUID endpointId, String ownerKey, Kind kind, int hexColor, Identifier dimensionId, BlockPos ownerPos, Target target, float yaw,
+    *///?} else {
+    public record Endpoint(UUID endpointId, String ownerKey, Kind kind, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos, Target target, float yaw,
+    //?}
+            float pitch, boolean customTarget, int slotId, PortalData portalData) {
         public static final Codec<Endpoint> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                UUID_CODEC.fieldOf("endpoint_id").forGetter(Endpoint::endpointId),
-                Codec.STRING.fieldOf("owner_key").forGetter(Endpoint::ownerKey),
-                KIND_CODEC.fieldOf("kind").forGetter(Endpoint::kind),
-                Codec.INT.fieldOf("hex_color").forGetter(Endpoint::hexColor),
+                UUID_CODEC.fieldOf("endpoint_id").forGetter(Endpoint::endpointId), Codec.STRING.fieldOf("owner_key").forGetter(Endpoint::ownerKey),
+                KIND_CODEC.fieldOf("kind").forGetter(Endpoint::kind), Codec.INT.fieldOf("hex_color").forGetter(Endpoint::hexColor),
                 //? if >=1.21.11 {
-                /*Identifier.CODEC.fieldOf("dimension").forGetter(Endpoint::dimensionId),
+                /*Identifier.CODEC.fieldOf("dimension").forGetter(Endpoint::dimensionId), BlockPos.CODEC.fieldOf("owner_pos").forGetter(Endpoint::ownerPos),
                 *///?} else {
-                ResourceLocation.CODEC.fieldOf("dimension").forGetter(Endpoint::dimensionId),
+                ResourceLocation.CODEC.fieldOf("dimension").forGetter(Endpoint::dimensionId), BlockPos.CODEC.fieldOf("owner_pos").forGetter(Endpoint::ownerPos),
                 //?}
-                BlockPos.CODEC.fieldOf("owner_pos").forGetter(Endpoint::ownerPos),
-                Target.CODEC.fieldOf("target").forGetter(Endpoint::target),
-                Codec.FLOAT.fieldOf("yaw").forGetter(Endpoint::yaw),
-                Codec.FLOAT.fieldOf("pitch").forGetter(Endpoint::pitch),
-                Codec.BOOL.fieldOf("custom_target").forGetter(Endpoint::customTarget),
-                Codec.INT.fieldOf("slot_id").forGetter(Endpoint::slotId),
-                PortalData.CODEC.fieldOf("portal").forGetter(Endpoint::portalData)
-        ).apply(instance, Endpoint::new));
-
+                Target.CODEC.fieldOf("target").forGetter(Endpoint::target), Codec.FLOAT.fieldOf("yaw").forGetter(Endpoint::yaw),
+                Codec.FLOAT.fieldOf("pitch").forGetter(Endpoint::pitch), Codec.BOOL.fieldOf("custom_target").forGetter(Endpoint::customTarget),
+                Codec.INT.fieldOf("slot_id").forGetter(Endpoint::slotId), PortalData.CODEC.fieldOf("portal").forGetter(Endpoint::portalData)).apply(instance, Endpoint::new));
         public Endpoint normalized() {
             BlockPos safeOwnerPos = this.ownerPos == null ? BlockPos.ZERO : this.ownerPos.immutable();
             Kind safeKind = this.kind == null ? Kind.VOCO_POST_RECEPTOR_CORNER : this.kind;
-
-            return new Endpoint(
-                    this.endpointId == null ? UUID.randomUUID() : this.endpointId,
-                    normalizeOwnerKey(this.ownerKey),
-                    safeKind,
-                    normalizeHex(this.hexColor),
-                    this.dimensionId,
-                    safeOwnerPos,
-                    this.target == null
-                            ? new Target(safeOwnerPos.getX() + 0.5D, safeOwnerPos.getY(), safeOwnerPos.getZ() + 0.5D)
-                            : this.target,
-                    clampFloat(this.yaw, -180.0F, 180.0F),
-                    clampFloat(this.pitch, -90.0F, 90.0F),
-                    this.customTarget,
-                    clamp(this.slotId, 0, ReceptorPosition.COUNT - 1),
-                    this.portalData == null ? PortalData.EMPTY : this.portalData
-            );
+            return new Endpoint(this.endpointId == null ? UUID.randomUUID() : this.endpointId, normalizeOwnerKey(this.ownerKey), safeKind,
+                    normalizeHex(this.hexColor), this.dimensionId, safeOwnerPos,
+                    this.target == null ? new Target(safeOwnerPos.getX() + 0.5D, safeOwnerPos.getY(), safeOwnerPos.getZ() + 0.5D) : this.target,
+                    clampFloat(this.yaw, -180.0F, 180.0F), clampFloat(this.pitch, -90.0F, 90.0F), this.customTarget,
+                    clamp(this.slotId, 0, ReceptorPosition.COUNT - 1), this.portalData == null ? PortalData.EMPTY : this.portalData);
         }
 
         public boolean hasValidOwner() {
@@ -292,61 +184,38 @@ public final class HexTeleportDirectory extends SavedData {
         }
     }
 
-    public record DoorEndpoint(
-            String ownerKey,
-            int hexColor,
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos ownerPos
-    ) {
+    //? if >=1.21.11 {
+    /*public record DoorEndpoint(String ownerKey, int hexColor, Identifier dimensionId, BlockPos ownerPos) {
+    *///?} else {
+    public record DoorEndpoint(String ownerKey, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos) {
+    //?}
         public static final Codec<DoorEndpoint> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.STRING.fieldOf("owner_key").forGetter(DoorEndpoint::ownerKey),
-                Codec.INT.fieldOf("hex_color").forGetter(DoorEndpoint::hexColor),
+                Codec.STRING.fieldOf("owner_key").forGetter(DoorEndpoint::ownerKey), Codec.INT.fieldOf("hex_color").forGetter(DoorEndpoint::hexColor),
                 //? if >=1.21.11 {
                 /*Identifier.CODEC.fieldOf("dimension").forGetter(DoorEndpoint::dimensionId),
                 *///?} else {
                 ResourceLocation.CODEC.fieldOf("dimension").forGetter(DoorEndpoint::dimensionId),
                 //?}
-                BlockPos.CODEC.fieldOf("owner_pos").forGetter(DoorEndpoint::ownerPos)
-        ).apply(instance, DoorEndpoint::new));
-
+                BlockPos.CODEC.fieldOf("owner_pos").forGetter(DoorEndpoint::ownerPos)).apply(instance, DoorEndpoint::new));
         public DoorEndpoint normalized() {
-            return new DoorEndpoint(
-                    normalizeOwnerKey(this.ownerKey),
-                    normalizeHex(this.hexColor),
-                    this.dimensionId,
-                    this.ownerPos == null ? BlockPos.ZERO : this.ownerPos.immutable()
-            );
+            return new DoorEndpoint(normalizeOwnerKey(this.ownerKey), normalizeHex(this.hexColor), this.dimensionId,
+                    this.ownerPos == null ? BlockPos.ZERO : this.ownerPos.immutable());
         }
 
         public boolean hasValidOwner() {
-            return this.dimensionId != null
-                    && !normalizeOwnerKey(this.ownerKey).isEmpty();
+            return this.dimensionId != null && !normalizeOwnerKey(this.ownerKey).isEmpty();
         }
     }
 
-    public record PhoneRegistration(
-            int hexColor,
-            UUID ownerUuid
-    ) {
+    public record PhoneRegistration(int hexColor, UUID ownerUuid) {
         public static final Codec<PhoneRegistration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.INT.fieldOf("hex_color").forGetter(PhoneRegistration::hexColor),
-                UUID_CODEC.fieldOf("owner_uuid").forGetter(PhoneRegistration::ownerUuid)
-        ).apply(instance, PhoneRegistration::new));
-
+                Codec.INT.fieldOf("hex_color").forGetter(PhoneRegistration::hexColor), UUID_CODEC.fieldOf("owner_uuid").forGetter(PhoneRegistration::ownerUuid)).apply(instance, PhoneRegistration::new));
         public PhoneRegistration normalized() {
-            return new PhoneRegistration(
-                    normalizeHex(this.hexColor),
-                    this.ownerUuid
-            );
+            return new PhoneRegistration(normalizeHex(this.hexColor), this.ownerUuid);
         }
     }
 
     public record VocoRegistration(Result result, Endpoint removedActiveEndpoint) {}
-
     public static final Codec<HexTeleportDirectory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Endpoint.CODEC.listOf().fieldOf("endpoints").forGetter(data -> data.active.entries),
             Endpoint.CODEC.listOf().fieldOf("pending_endpoints").forGetter(data -> data.pending.entries),
@@ -354,198 +223,87 @@ public final class HexTeleportDirectory extends SavedData {
             DoorEndpoint.CODEC.listOf().fieldOf("pending_door_endpoints").forGetter(data -> data.pendingDoors.entries),
             PhoneRegistration.CODEC.listOf().optionalFieldOf("phone_registrations", List.of()).forGetter(data -> data.phoneRegistrations)
     ).apply(instance, HexTeleportDirectory::new));
-
     //? if >=26.1 {
     /*public static final SavedDataType<HexTeleportDirectory> TYPE =
-            new SavedDataType<>(
-
-                    Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID),
-
-                    HexTeleportDirectory::new, CODEC);
+            new SavedDataType<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID), HexTeleportDirectory::new, CODEC);
     *///?} else if >=1.21.5 <26.1 {
-    public static final SavedDataType<HexTeleportDirectory> TYPE =
-            new SavedDataType<>(
-
-                    STORAGE_ID,
-
-                    HexTeleportDirectory::new, CODEC);
+    public static final SavedDataType<HexTeleportDirectory> TYPE = new SavedDataType<>(STORAGE_ID, HexTeleportDirectory::new, CODEC);
     //?} else {
-    /*private static final SavedData.Factory<HexTeleportDirectory> FACTORY =
-            new SavedData.Factory<>(HexTeleportDirectory::new, HexTeleportDirectory::load);
+    /*private static final SavedData.Factory<HexTeleportDirectory> FACTORY = new SavedData.Factory<>(HexTeleportDirectory::new, HexTeleportDirectory::load);
     *///?}
-
     private final EndpointStore active = new EndpointStore();
     private final EndpointStore pending = new EndpointStore();
     private final DoorEndpointStore doors = new DoorEndpointStore();
     private final DoorEndpointStore pendingDoors = new DoorEndpointStore();
     private final ArrayList<PhoneRegistration> phoneRegistrations = new ArrayList<>();
-
     public HexTeleportDirectory() {}
-
-    private HexTeleportDirectory(
-            List<Endpoint> endpoints,
-            List<Endpoint> pendingEndpoints,
-            List<DoorEndpoint> doorEndpoints,
-            List<DoorEndpoint> pendingDoorEndpoints,
-            List<PhoneRegistration> phoneRegistrations
-    ) {
+    private HexTeleportDirectory(List<Endpoint> endpoints, List<Endpoint> pendingEndpoints, List<DoorEndpoint> doorEndpoints,
+            List<DoorEndpoint> pendingDoorEndpoints, List<PhoneRegistration> phoneRegistrations) {
         this.active.entries.addAll(endpoints);
         this.pending.entries.addAll(pendingEndpoints);
         this.doors.entries.addAll(doorEndpoints);
         this.pendingDoors.entries.addAll(pendingDoorEndpoints);
-
         if (phoneRegistrations != null) {
             for (PhoneRegistration registration : phoneRegistrations) {
                 if (registration != null
                         && registration.ownerUuid() != null) {
-                    this.phoneRegistrations.add(
-                            registration.normalized()
-                    );
+                    this.phoneRegistrations.add(registration.normalized());
                 }
             }
         }
-
         this.rebuildIndex();
         this.normalizeLoadedPhoneRegistrations();
     }
 
-    //? if >=26.1 {
-    /*public static HexTeleportDirectory get(MinecraftServer server) {
-        migrateLegacyData(server, STORAGE_ID);
-    *///?} else if >=1.21.5 <26.1 {
-    public static HexTeleportDirectory get(MinecraftServer server) {
-        
-    //?} else {
-    /*private static HexTeleportDirectory load(
-            CompoundTag tag,
-            HolderLookup.Provider registries
-    ) {
-        return CODEC.parse(NbtOps.INSTANCE, tag)
-                .result()
-                .orElseThrow(() -> new IllegalStateException(
-                        "Failed to decode " + STORAGE_ID
-                ));
+    //? if <1.21.5 {
+    /*private static HexTeleportDirectory load(CompoundTag tag, HolderLookup.Provider registries) {
+        return CODEC.parse(NbtOps.INSTANCE, tag).result().orElseThrow(() -> new IllegalStateException("Failed to decode " + STORAGE_ID));
     }
 
     @Override
-    public CompoundTag save(
-            CompoundTag tag,
-            HolderLookup.Provider registries
-    ) {
-        Tag encoded = CODEC.encodeStart(NbtOps.INSTANCE, this)
-                .result()
-                .orElseThrow(() -> new IllegalStateException(
-                        "Failed to encode " + STORAGE_ID
-                ));
-
-        if (encoded instanceof CompoundTag compound) {
-            return compound;
-        }
-
-        throw new IllegalStateException(
-                "Codec for " + STORAGE_ID + " did not produce a CompoundTag"
-        );
+    public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+        Tag encoded = CODEC.encodeStart(NbtOps.INSTANCE, this).result().orElseThrow(() -> new IllegalStateException("Failed to encode " + STORAGE_ID));
+        if (encoded instanceof CompoundTag compound) return compound;
+        throw new IllegalStateException("Codec for " + STORAGE_ID + " did not produce a CompoundTag");
     }
-
-    public static HexTeleportDirectory get(MinecraftServer server) {
     *///?}
-
+    public static HexTeleportDirectory get(MinecraftServer server) {
         //? if >=1.21.5 {
-        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
-        //?} else {
-        /*return server.overworld()
-                .getDataStorage()
-                .computeIfAbsent(FACTORY, STORAGE_ID);
+        //? if >=26.1 {
+        /*migrateLegacyData(server, STORAGE_ID);
         *///?}
-
+        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
+        //?}
+        //? if <1.21.5 {
+        /*return server.overworld().getDataStorage().computeIfAbsent(FACTORY, STORAGE_ID);
+        *///?}
     }
 
     public boolean isHexReserved(int hexColor) {
         int hex = normalizeHex(hexColor);
-
-        return this.active.hasHex(hex)
-                || this.isDoorHexReserved(hex)
-                || this.hasPhoneHex(hex);
+        return this.active.hasHex(hex) || this.isDoorHexReserved(hex) || this.hasPhoneHex(hex);
     }
 
     private boolean isHexReservedByOther(int hexColor, Endpoint self) {
         int hex = normalizeHex(hexColor);
-
-        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) {
-            return true;
-        }
-
+        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) return true;
         for (Endpoint endpoint : this.active.byHex(hex)) {
-            if (self == null || !endpoint.endpointId.equals(self.endpointId)) {
-                return true;
-            }
+            if (self == null || !endpoint.endpointId.equals(self.endpointId)) return true;
         }
-
         return false;
     }
 
-    public Result checkVocoEndpoint(String ownerKey, int hexColor) {
-        ownerKey = normalizeOwnerKey(ownerKey);
-
-        if (ownerKey.isEmpty()) {
-            return Result.INVALID_OWNER;
-        }
-
-        Endpoint self = this.active.byOwner(ownerKey).orElse(null);
-
-        return this.isHexReservedByOther(hexColor, self)
-                ? Result.HEX_OCCUPIED
-                : self == null ? Result.REGISTERED : Result.UPDATED;
-    }
-
-    public Result registerVocoEndpoint(
-            String ownerKey,
-            Kind kind,
-            int hexColor,
+    //? if >=1.21.11 {
+    /*public VocoRegistration registerOrQueueVocoEndpoint(String ownerKey, Kind kind, int hexColor, Identifier dimensionId, BlockPos ownerPos, Vec3 targetPos,
+    *///?} else {
+    public VocoRegistration registerOrQueueVocoEndpoint(String ownerKey, Kind kind, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos,
+    //?}
             //? if >=1.21.11 {
-            /*Identifier dimensionId,
+            /*float yaw, float pitch, boolean customTarget, int slotId) {
             *///?} else {
-            ResourceLocation dimensionId,
+            Vec3 targetPos, float yaw, float pitch, boolean customTarget, int slotId) {
             //?}
-            BlockPos ownerPos,
-            Vec3 targetPos,
-            float yaw,
-            float pitch,
-            boolean customTarget,
-            int slotId
-    ) {
-        return this.registerOrQueueVocoEndpoint(
-                ownerKey,
-                kind,
-                hexColor,
-                dimensionId,
-                ownerPos,
-                targetPos,
-                yaw,
-                pitch,
-                customTarget,
-                slotId
-        ).result();
-    }
-
-    public VocoRegistration registerOrQueueVocoEndpoint(
-            String ownerKey,
-            Kind kind,
-            int hexColor,
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos ownerPos,
-            Vec3 targetPos,
-            float yaw,
-            float pitch,
-            boolean customTarget,
-            int slotId
-    ) {
         ownerKey = normalizeOwnerKey(ownerKey);
-
         if (ownerKey.isEmpty()
                 || kind == null
                 || !kind.isVoco()
@@ -554,190 +312,88 @@ public final class HexTeleportDirectory extends SavedData {
                 || targetPos == null) {
             return new VocoRegistration(Result.INVALID_OWNER, null);
         }
-
         int hex = normalizeHex(hexColor);
-
         Endpoint existingActive = this.active.byOwner(ownerKey).orElse(null);
         Endpoint existingPending = this.pending.byOwner(ownerKey).orElse(null);
-
         boolean occupiedByOther = this.isHexReservedByOther(hex, existingActive);
-
-        UUID endpointId = existingActive != null
-                ? existingActive.endpointId
-                : existingPending != null
-                ? existingPending.endpointId
-                : UUID.randomUUID();
-
-        Endpoint endpoint = new Endpoint(
-                endpointId,
-                ownerKey,
-                kind,
-                hex,
-                dimensionId,
-                ownerPos.immutable(),
-                Target.of(targetPos),
-                yaw,
-                pitch,
-                customTarget,
-                slotId,
-                PortalData.EMPTY
-        ).normalized();
-
-        Endpoint removedActive = existingActive == null
-                ? null
-                : this.active.remove(existingActive.endpointId);
-
+        UUID endpointId = existingActive != null ? existingActive.endpointId : existingPending != null ? existingPending.endpointId : UUID.randomUUID();
+        Endpoint endpoint = new Endpoint(endpointId, ownerKey, kind, hex, dimensionId, ownerPos.immutable(), Target.of(targetPos), yaw, pitch, customTarget,
+                slotId, PortalData.EMPTY).normalized();
+        Endpoint removedActive = existingActive == null ? null : this.active.remove(existingActive.endpointId);
         if (existingPending != null) {
             this.pending.remove(existingPending.endpointId);
         }
-
         if (occupiedByOther) {
             this.pending.add(endpoint);
             this.setDirty();
             return new VocoRegistration(Result.HEX_OCCUPIED, removedActive);
         }
-
         this.active.add(endpoint);
         this.setDirty();
-
-        return new VocoRegistration(
-                existingActive == null ? Result.REGISTERED : Result.UPDATED,
-                removedActive
-        );
+        return new VocoRegistration(existingActive == null ? Result.REGISTERED : Result.UPDATED, removedActive);
     }
 
     public Result checkPortalEndpoint(UUID portalId, int hexColor) {
-        if (portalId == null) {
-            return Result.INVALID_OWNER;
-        }
-
+        if (portalId == null) return Result.INVALID_OWNER;
         int hex = normalizeHex(hexColor);
-
-        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) {
-            return Result.HEX_OCCUPIED;
-        }
-
+        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) return Result.HEX_OCCUPIED;
         int otherPortals = 0;
-
         for (Endpoint endpoint : this.active.byHex(hex)) {
-            if (endpoint.endpointId.equals(portalId)) {
-                continue;
-            }
-
-            if (!endpoint.kind.isPortal()) {
-                return Result.HEX_OCCUPIED;
-            }
-
+            if (endpoint.endpointId.equals(portalId)) continue;
+            if (!endpoint.kind.isPortal()) return Result.HEX_OCCUPIED;
             otherPortals++;
         }
-
-        if (otherPortals >= 2) {
-            return Result.HEX_OCCUPIED;
-        }
-
-        return otherPortals == 1
-                ? Result.LINKED_TO_EXISTING_PORTAL
-                : Result.WAITING_FOR_SECOND_PORTAL;
+        if (otherPortals >= 2) return Result.HEX_OCCUPIED;
+        return otherPortals == 1 ? Result.LINKED_TO_EXISTING_PORTAL : Result.WAITING_FOR_SECOND_PORTAL;
     }
 
-    public Result registerPortalEndpoint(
-            UUID portalId,
-            int hexColor,
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            PearlPortalFrame.Shape shape
-    ) {
-        if (portalId == null || dimensionId == null || shape == null) {
-            return Result.INVALID_OWNER;
-        }
-
+    //? if >=1.21.11 {
+    /*public Result registerPortalEndpoint(UUID portalId, int hexColor, Identifier dimensionId, PearlPortalFrame.Shape shape) {
+    *///?} else {
+    public Result registerPortalEndpoint(UUID portalId, int hexColor, ResourceLocation dimensionId, PearlPortalFrame.Shape shape) {
+    //?}
+        if (portalId == null || dimensionId == null || shape == null) return Result.INVALID_OWNER;
         Result checkBefore = this.checkPortalEndpoint(portalId, hexColor);
-        if (!checkBefore.success()) {
-            return checkBefore;
-        }
-
+        if (!checkBefore.success()) return checkBefore;
         this.active.remove(portalId);
-
-        this.active.add(new Endpoint(
-                portalId,
-                portalOwnerKey(portalId),
-                Kind.PEARL_PORTAL,
-                normalizeHex(hexColor),
-                dimensionId,
-                shape.minCorner().immutable(),
-                Target.of(shape.center()),
-                0.0F,
-                0.0F,
-                false,
-                0,
-                PortalData.of(shape)
-        ).normalized());
-
+        this.active.add(new Endpoint(portalId, portalOwnerKey(portalId), Kind.PEARL_PORTAL, normalizeHex(hexColor), dimensionId, shape.minCorner().immutable(),
+                Target.of(shape.center()), 0.0F, 0.0F, false, 0, PortalData.of(shape)).normalized());
         this.setDirty();
-
         return this.checkPortalEndpoint(portalId, hexColor);
     }
 
-    public Result registerDoorEndpoint(
-            String ownerKey,
-            int hexColor,
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos ownerPos
-    ) {
+    //? if >=1.21.11 {
+    /*public Result registerDoorEndpoint(String ownerKey, int hexColor, Identifier dimensionId, BlockPos ownerPos) {
+    *///?} else {
+    public Result registerDoorEndpoint(String ownerKey, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos) {
+    //?}
         ownerKey = normalizeOwnerKey(ownerKey);
-
         if (ownerKey.isEmpty()
                 || dimensionId == null
                 || ownerPos == null) {
             return Result.INVALID_OWNER;
         }
-
         int hex = normalizeHex(hexColor);
-
         DoorEndpoint existingActive = this.doors.byOwner(ownerKey).orElse(null);
         DoorEndpoint existingPending = this.pendingDoors.byOwner(ownerKey).orElse(null);
-
-        if (matchesDoorEndpoint(existingActive, hex, dimensionId, ownerPos)) {
-            return Result.LINKED_TO_EXISTING_DOOR;
-        }
-
-        if (matchesDoorEndpoint(existingPending, hex, dimensionId, ownerPos)) {
-            return Result.WAITING_FOR_SECOND_DOOR;
-        }
-
+        if (matchesDoorEndpoint(existingActive, hex, dimensionId, ownerPos)) return Result.LINKED_TO_EXISTING_DOOR;
+        if (matchesDoorEndpoint(existingPending, hex, dimensionId, ownerPos)) return Result.WAITING_FOR_SECOND_DOOR;
         if (existingActive != null || existingPending != null) {
             this.removeDoorOwner(ownerKey);
         }
-
         if (this.active.hasHex(hex)
                 || this.hasPhoneHex(hex)
                 || this.doors.countByHex(hex) >= 2) {
             return Result.HEX_OCCUPIED;
         }
-
-        DoorEndpoint candidate = new DoorEndpoint(
-                ownerKey,
-                hex,
-                dimensionId,
-                ownerPos.immutable()
-        ).normalized();
-
+        DoorEndpoint candidate = new DoorEndpoint(ownerKey, hex, dimensionId, ownerPos.immutable()).normalized();
         DoorEndpoint partner = this.pendingDoors.firstByHex(hex).orElse(null);
-
         if (
                 partner != null
                         && !isDoorOwnerKey(partner.ownerKey())
         ) {
             return Result.HEX_OCCUPIED;
         }
-
         if (partner != null && !partner.ownerKey.equals(ownerKey)) {
             this.pendingDoors.removeOwner(partner.ownerKey);
             this.doors.add(partner);
@@ -745,70 +401,44 @@ public final class HexTeleportDirectory extends SavedData {
             this.setDirty();
             return Result.LINKED_TO_EXISTING_DOOR;
         }
-
         this.pendingDoors.add(candidate);
         this.setDirty();
         return Result.WAITING_FOR_SECOND_DOOR;
     }
 
-    public Result registerTrapdoorEndpoint(
-            String ownerKey,
-            int hexColor,
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos ownerPos
-    ) {
+    //? if >=1.21.11 {
+    /*public Result registerTrapdoorEndpoint(String ownerKey, int hexColor, Identifier dimensionId, BlockPos ownerPos) {
+    *///?} else {
+    public Result registerTrapdoorEndpoint(String ownerKey, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos) {
+    //?}
         ownerKey = normalizeOwnerKey(ownerKey);
-
         if (ownerKey.isEmpty()
                 || dimensionId == null
                 || ownerPos == null
                 || !isTrapdoorOwnerKey(ownerKey)) {
             return Result.INVALID_OWNER;
         }
-
         int hex = normalizeHex(hexColor);
-
         DoorEndpoint existingActive = this.doors.byOwner(ownerKey).orElse(null);
         DoorEndpoint existingPending = this.pendingDoors.byOwner(ownerKey).orElse(null);
-
-        if (matchesDoorEndpoint(existingActive, hex, dimensionId, ownerPos)) {
-            return Result.LINKED_TO_EXISTING_TRAPDOOR;
-        }
-
-        if (matchesDoorEndpoint(existingPending, hex, dimensionId, ownerPos)) {
-            return Result.WAITING_FOR_SECOND_TRAPDOOR;
-        }
-
+        if (matchesDoorEndpoint(existingActive, hex, dimensionId, ownerPos)) return Result.LINKED_TO_EXISTING_TRAPDOOR;
+        if (matchesDoorEndpoint(existingPending, hex, dimensionId, ownerPos)) return Result.WAITING_FOR_SECOND_TRAPDOOR;
         if (existingActive != null || existingPending != null) {
             this.removeDoorOwner(ownerKey);
         }
-
         if (this.active.hasHex(hex)
                 || this.hasPhoneHex(hex)
                 || this.doors.countByHex(hex) >= 2) {
             return Result.HEX_OCCUPIED;
         }
-
-        DoorEndpoint candidate = new DoorEndpoint(
-                ownerKey,
-                hex,
-                dimensionId,
-                ownerPos.immutable()
-        ).normalized();
-
+        DoorEndpoint candidate = new DoorEndpoint(ownerKey, hex, dimensionId, ownerPos.immutable()).normalized();
         DoorEndpoint partner = this.pendingDoors.firstByHex(hex).orElse(null);
-
         if (
                 partner != null
                         && !isTrapdoorOwnerKey(partner.ownerKey())
         ) {
             return Result.HEX_OCCUPIED;
         }
-
         if (partner != null && !partner.ownerKey.equals(ownerKey)) {
             this.pendingDoors.removeOwner(partner.ownerKey);
             this.doors.add(partner);
@@ -816,61 +446,32 @@ public final class HexTeleportDirectory extends SavedData {
             this.setDirty();
             return Result.LINKED_TO_EXISTING_TRAPDOOR;
         }
-
         this.pendingDoors.add(candidate);
         this.setDirty();
         return Result.WAITING_FOR_SECOND_TRAPDOOR;
     }
 
-    public Result registerPhone(
-            int hexColor,
-            UUID ownerUuid
-    ) {
-        if (ownerUuid == null) {
-            return Result.INVALID_OWNER;
-        }
-
+    public Result registerPhone(int hexColor, UUID ownerUuid) {
+        if (ownerUuid == null) return Result.INVALID_OWNER;
         int hex = normalizeHex(hexColor);
-
-        if (this.isHexReserved(hex)) {
-            return Result.HEX_OCCUPIED;
-        }
-
-        this.phoneRegistrations.add(
-                new PhoneRegistration(
-                        hex,
-                        ownerUuid
-                )
-        );
-
+        if (this.isHexReserved(hex)) return Result.HEX_OCCUPIED;
+        this.phoneRegistrations.add(new PhoneRegistration(hex, ownerUuid));
         this.setDirty();
         return Result.REGISTERED;
     }
 
-    public Optional<PhoneRegistration> getPhoneRegistrationByHex(
-            int hexColor
-    ) {
+    public Optional<PhoneRegistration> getPhoneRegistrationByHex(int hexColor) {
         int hex = normalizeHex(hexColor);
-
         for (PhoneRegistration registration : this.phoneRegistrations) {
-            if (registration.hexColor() == hex) {
-                return Optional.of(registration);
-            }
+            if (registration.hexColor() == hex) return Optional.of(registration);
         }
-
         return Optional.empty();
     }
 
-    public Optional<PhoneRegistration> removePhoneRegistration(
-            int hexColor,
-            UUID ownerUuid
-    ) {
+    public Optional<PhoneRegistration> removePhoneRegistration(int hexColor, UUID ownerUuid) {
         int hex = normalizeHex(hexColor);
-
         for (int index = 0; index < this.phoneRegistrations.size(); index++) {
-            PhoneRegistration registration =
-                    this.phoneRegistrations.get(index);
-
+            PhoneRegistration registration = this.phoneRegistrations.get(index);
             if (registration.hexColor() == hex
                     && registration.ownerUuid().equals(ownerUuid)) {
                 this.phoneRegistrations.remove(index);
@@ -878,7 +479,6 @@ public final class HexTeleportDirectory extends SavedData {
                 return Optional.of(registration);
             }
         }
-
         return Optional.empty();
     }
 
@@ -887,13 +487,8 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     private void normalizeLoadedPhoneRegistrations() {
-        ArrayList<PhoneRegistration> raw =
-                new ArrayList<>(
-                        this.phoneRegistrations
-                );
-
+        ArrayList<PhoneRegistration> raw = new ArrayList<>(this.phoneRegistrations);
         this.phoneRegistrations.clear();
-
         for (PhoneRegistration registration : raw) {
             if (!this.active.hasHex(registration.hexColor())
                     && !this.isDoorHexReserved(registration.hexColor())
@@ -916,56 +511,41 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     public List<Endpoint> getEndpointsByHex(int hexColor) {
-        ArrayList<Endpoint> result = new ArrayList<>(
-                this.active.byHex(normalizeHex(hexColor))
-        );
-
+        ArrayList<Endpoint> result = new ArrayList<>(this.active.byHex(normalizeHex(hexColor)));
         result.sort(Comparator.comparingInt(endpoint -> switch (endpoint.kind()) {
             case VOCO_POST_RECEPTOR_CORNER -> 0;
             case VOCO_TABLE_RECEPTOR_CORNER -> 1;
             case PEARL_PORTAL -> 2;
         }));
-
         return result;
     }
 
     public Optional<Endpoint> getLinkedPortalEndpoint(UUID sourcePortalId) {
         Endpoint source = this.active.byId(sourcePortalId).orElse(null);
-
-        if (source == null || source.kind != Kind.PEARL_PORTAL) {
-            return Optional.empty();
-        }
-
+        if (source == null || source.kind != Kind.PEARL_PORTAL) return Optional.empty();
         for (Endpoint endpoint : this.active.byHex(source.hexColor)) {
             if (endpoint.kind == Kind.PEARL_PORTAL
                     && !endpoint.endpointId.equals(sourcePortalId)) {
                 return Optional.of(endpoint);
             }
         }
-
         return Optional.empty();
     }
 
     public Optional<DoorEndpoint> getDoorEndpointByOwner(String ownerKey) {
         DoorEndpoint activeDoor = this.doors.byOwner(ownerKey).orElse(null);
-
-        if (activeDoor != null) {
-            return Optional.of(activeDoor);
-        }
-
+        if (activeDoor != null) return Optional.of(activeDoor);
         return this.pendingDoors.byOwner(ownerKey);
     }
 
     public Optional<DoorEndpoint> getLinkedDoorEndpoint(String sourceOwnerKey) {
         DoorEndpoint source = this.doors.byOwner(sourceOwnerKey).orElse(null);
-
         if (
                 source == null
                         || !isDoorOwnerKey(source.ownerKey())
         ) {
             return Optional.empty();
         }
-
         for (DoorEndpoint endpoint : this.doors.byHex(source.hexColor)) {
             if (
                     !endpoint.ownerKey.equals(source.ownerKey)
@@ -974,33 +554,25 @@ public final class HexTeleportDirectory extends SavedData {
                 return Optional.of(endpoint);
             }
         }
-
         return Optional.empty();
     }
 
     public Optional<DoorEndpoint> getTrapdoorEndpointByOwner(String ownerKey) {
         DoorEndpoint endpoint = this.doors.byOwner(ownerKey).orElse(null);
-
         if (endpoint == null) {
             endpoint = this.pendingDoors.byOwner(ownerKey).orElse(null);
         }
-
-        return endpoint != null
-                && isTrapdoorOwnerKey(endpoint.ownerKey())
-                ? Optional.of(endpoint)
-                : Optional.empty();
+        return endpoint != null && isTrapdoorOwnerKey(endpoint.ownerKey()) ? Optional.of(endpoint) : Optional.empty();
     }
 
     public Optional<DoorEndpoint> getLinkedTrapdoorEndpoint(String sourceOwnerKey) {
         DoorEndpoint source = this.doors.byOwner(sourceOwnerKey).orElse(null);
-
         if (
                 source == null
                         || !isTrapdoorOwnerKey(source.ownerKey())
         ) {
             return Optional.empty();
         }
-
         for (DoorEndpoint endpoint : this.doors.byHex(source.hexColor)) {
             if (
                     !endpoint.ownerKey.equals(source.ownerKey)
@@ -1009,157 +581,68 @@ public final class HexTeleportDirectory extends SavedData {
                 return Optional.of(endpoint);
             }
         }
-
         return Optional.empty();
-    }
-
-    public Optional<DoorEndpoint> getFirstPendingDoorEndpointByHex(int hexColor) {
-        return this.pendingDoors.firstByHex(normalizeHex(hexColor));
     }
 
     public boolean isDoorHexReserved(int hexColor) {
         int hex = normalizeHex(hexColor);
-
-        return this.doors.hasHex(hex)
-                || this.pendingDoors.hasHex(hex);
-    }
-
-    public boolean isDoorWaitingForSecond(int hexColor) {
-        return this.pendingDoors.hasHex(hexColor);
-    }
-
-    public boolean isHexFullyOccupiedByPortals(int hexColor) {
-        int hex = normalizeHex(hexColor);
-
-        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) {
-            return true;
-        }
-
-        int portals = 0;
-
-        for (Endpoint endpoint : this.active.byHex(hex)) {
-            if (!endpoint.kind.isPortal()) {
-                return true;
-            }
-
-            portals++;
-        }
-
-        return portals >= 2;
-    }
-
-    public boolean isHexWaitingForSecondPortal(int hexColor) {
-        int hex = normalizeHex(hexColor);
-
-        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) {
-            return false;
-        }
-
-        int portals = 0;
-
-        for (Endpoint endpoint : this.active.byHex(hex)) {
-            if (endpoint.kind.isPortal()) {
-                portals++;
-            }
-        }
-
-        return portals == 1;
+        return this.doors.hasHex(hex) || this.pendingDoors.hasHex(hex);
     }
 
     public Optional<Endpoint> removeEndpoint(UUID endpointId) {
         Endpoint removedActive = this.active.remove(endpointId);
-        Endpoint removedPending = removedActive == null
-                ? this.pending.remove(endpointId)
-                : null;
-
+        Endpoint removedPending = removedActive == null ? this.pending.remove(endpointId) : null;
         if (removedActive != null || removedPending != null) {
             this.setDirty();
         }
-
         return Optional.ofNullable(removedActive);
     }
 
     public Optional<Endpoint> removeOwner(String ownerKey) {
         Endpoint removedActive = this.active.removeOwner(ownerKey);
         Endpoint removedPending = this.pending.removeOwner(ownerKey);
-
         if (removedActive != null || removedPending != null) {
             this.setDirty();
         }
-
         return Optional.ofNullable(removedActive);
     }
 
     public Optional<DoorEndpoint> removeDoorOwner(String ownerKey) {
         ownerKey = normalizeOwnerKey(ownerKey);
-
         DoorEndpoint removedActive = this.doors.removeOwner(ownerKey);
         DoorEndpoint removedPending = this.pendingDoors.removeOwner(ownerKey);
-
-        DoorEndpoint removed = removedActive != null
-                ? removedActive
-                : removedPending;
-
+        DoorEndpoint removed = removedActive != null ? removedActive : removedPending;
         if (removedActive != null) {
             this.demoteRemainingDoorAtHex(removedActive.hexColor);
         }
-
         if (removed != null) {
             this.setDirty();
         }
-
         return Optional.ofNullable(removed);
-    }
-
-    public Optional<DoorEndpoint> removeDoorEndpoint(DoorEndpoint expected) {
-        if (expected == null) {
-            return Optional.empty();
-        }
-
-        DoorEndpoint normalized = expected.normalized();
-        DoorEndpoint current = this.getDoorEndpointByOwner(normalized.ownerKey).orElse(null);
-
-        if (current == null || !current.equals(normalized)) {
-            return Optional.empty();
-        }
-
-        return this.removeDoorOwner(normalized.ownerKey);
     }
 
     public boolean removePendingEndpoint(UUID endpointId) {
         Endpoint removed = this.pending.remove(endpointId);
-
         if (removed != null) {
             this.setDirty();
         }
-
         return removed != null;
     }
 
     private void demoteRemainingDoorAtHex(int hexColor) {
         List<DoorEndpoint> remaining = this.doors.byHex(hexColor);
-
-        if (remaining.size() != 1) {
-            return;
-        }
-
+        if (remaining.size() != 1) return;
         DoorEndpoint partner = remaining.get(0);
-
         this.doors.removeOwner(partner.ownerKey);
         this.pendingDoors.removeOwner(partner.ownerKey);
         this.pendingDoors.add(partner);
     }
 
-    private static boolean matchesDoorEndpoint(
-            DoorEndpoint endpoint,
-            int hexColor,
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos ownerPos
-    ) {
+    //? if >=1.21.11 {
+    /*private static boolean matchesDoorEndpoint(DoorEndpoint endpoint, int hexColor, Identifier dimensionId, BlockPos ownerPos) {
+    *///?} else {
+    private static boolean matchesDoorEndpoint(DoorEndpoint endpoint, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos) {
+    //?}
         return endpoint != null
                 && endpoint.hexColor == normalizeHex(hexColor)
                 && endpoint.dimensionId.equals(dimensionId)
@@ -1169,31 +652,22 @@ public final class HexTeleportDirectory extends SavedData {
     private void rebuildIndex() {
         this.active.rebuild(this::canIndexActive);
         this.doors.rebuild(this::canIndexActiveDoor);
-
         this.normalizeLoadedDoorPairs();
-
         this.pendingDoors.rebuild(this::canIndexPendingDoor);
         this.pending.rebuild(this::canIndexPending);
     }
 
     private void normalizeLoadedDoorPairs() {
         ArrayList<Integer> hexes = new ArrayList<>();
-
         for (DoorEndpoint endpoint : this.doors.entries) {
             if (!hexes.contains(endpoint.hexColor)) {
                 hexes.add(endpoint.hexColor);
             }
         }
-
         for (int hex : hexes) {
             List<DoorEndpoint> endpoints = this.doors.byHex(hex);
-
-            if (endpoints.size() != 1) {
-                continue;
-            }
-
+            if (endpoints.size() != 1) continue;
             DoorEndpoint endpoint = endpoints.get(0);
-
             this.doors.removeOwner(endpoint.ownerKey);
             this.pendingDoors.entries.add(endpoint);
         }
@@ -1206,28 +680,14 @@ public final class HexTeleportDirectory extends SavedData {
                 || !endpoint.ownerKey.isEmpty() && this.active.hasOwner(endpoint.ownerKey)) {
             return false;
         }
-
         List<Endpoint> existingAtHex = this.active.byHex(endpoint.hexColor);
-
-        if (!endpoint.kind.isPortal()) {
-            return existingAtHex.isEmpty()
-                    && !this.isDoorHexReserved(endpoint.hexColor);
-        }
-
-        if (this.isDoorHexReserved(endpoint.hexColor)) {
-            return false;
-        }
-
+        if (!endpoint.kind.isPortal()) return existingAtHex.isEmpty() && !this.isDoorHexReserved(endpoint.hexColor);
+        if (this.isDoorHexReserved(endpoint.hexColor)) return false;
         int portals = 0;
-
         for (Endpoint existing : existingAtHex) {
-            if (!existing.kind.isPortal()) {
-                return false;
-            }
-
+            if (!existing.kind.isPortal()) return false;
             portals++;
         }
-
         return portals < 2;
     }
 
@@ -1237,22 +697,13 @@ public final class HexTeleportDirectory extends SavedData {
                 || this.active.hasHex(endpoint.hexColor)) {
             return false;
         }
-
         List<DoorEndpoint> sameHex = this.doors.byHex(endpoint.hexColor);
-
-        if (sameHex.size() >= 2) {
-            return false;
-        }
-
+        if (sameHex.size() >= 2) return false;
         if (!sameHex.isEmpty()) {
             boolean endpointTrapdoor = isTrapdoorOwnerKey(endpoint.ownerKey());
             boolean existingTrapdoor = isTrapdoorOwnerKey(sameHex.get(0).ownerKey());
-
-            if (endpointTrapdoor != existingTrapdoor) {
-                return false;
-            }
+            if (endpointTrapdoor != existingTrapdoor) return false;
         }
-
         return true;
     }
 
@@ -1275,104 +726,52 @@ public final class HexTeleportDirectory extends SavedData {
                 && !this.pending.hasOwner(endpoint.ownerKey);
     }
 
-    public static String vocoTableReceptorCornerOwnerKey(
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos pos,
-            ReceptorPosition receptor
-    ) {
-        return ownerKey(
-                Kind.VOCO_TABLE_RECEPTOR_CORNER,
-                dimensionId,
-                pos,
-                receptor.id()
-        );
+    //? if >=1.21.11 {
+    /*public static String vocoTableReceptorCornerOwnerKey(Identifier dimensionId, BlockPos pos, ReceptorPosition receptor) {
+    *///?} else {
+    public static String vocoTableReceptorCornerOwnerKey(ResourceLocation dimensionId, BlockPos pos, ReceptorPosition receptor) {
+    //?}
+        return ownerKey(Kind.VOCO_TABLE_RECEPTOR_CORNER, dimensionId, pos, receptor.id());
     }
 
-    public static String vocoPostReceptorCornerOwnerKey(
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos pos
-    ) {
-        return ownerKey(
-                Kind.VOCO_POST_RECEPTOR_CORNER,
-                dimensionId,
-                pos,
-                0
-        );
+    //? if >=1.21.11 {
+    /*public static String vocoPostReceptorCornerOwnerKey(Identifier dimensionId, BlockPos pos) {
+    *///?} else {
+    public static String vocoPostReceptorCornerOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
+    //?}
+        return ownerKey(Kind.VOCO_POST_RECEPTOR_CORNER, dimensionId, pos, 0);
     }
 
-    public static String doorOwnerKey(
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos pos
-    ) {
-        return "musavacca_door"
-                + "|"
-                + dimensionId
-                + "|"
-                + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+    //? if >=1.21.11 {
+    /*public static String doorOwnerKey(Identifier dimensionId, BlockPos pos) {
+    *///?} else {
+    public static String doorOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
+    //?}
+        return "musavacca_door" + "|" + dimensionId + "|" + pos.getX() + "," + pos.getY() + "," + pos.getZ();
     }
 
-    public static String trapdoorOwnerKey(
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos pos
-    ) {
-        return "musavacca_trapdoor"
-                + "|"
-                + dimensionId
-                + "|"
-                + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+    //? if >=1.21.11 {
+    /*public static String trapdoorOwnerKey(Identifier dimensionId, BlockPos pos) {
+    *///?} else {
+    public static String trapdoorOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
+    //?}
+        return "musavacca_trapdoor" + "|" + dimensionId + "|" + pos.getX() + "," + pos.getY() + "," + pos.getZ();
     }
 
-    private static boolean isDoorOwnerKey(
-            String ownerKey
-    ) {
-        return normalizeOwnerKey(ownerKey)
-                .startsWith(
-                        "musavacca_door|"
-                );
+    private static boolean isDoorOwnerKey(String ownerKey) {
+        return normalizeOwnerKey(ownerKey).startsWith("musavacca_door|");
     }
 
-    private static boolean isTrapdoorOwnerKey(
-            String ownerKey
-    ) {
-        return normalizeOwnerKey(ownerKey)
-                .startsWith(
-                        "musavacca_trapdoor|"
-                );
+    private static boolean isTrapdoorOwnerKey(String ownerKey) {
+        return normalizeOwnerKey(ownerKey).startsWith("musavacca_trapdoor|");
     }
 
-    public static String ownerKey(
-            Kind kind,
-            //? if >=1.21.11 {
-            /*Identifier dimensionId,
-            *///?} else {
-            ResourceLocation dimensionId,
-            //?}
-            BlockPos pos,
-            int slotId
-    ) {
-        return kind.serializedName()
-                + "|"
-                + dimensionId
-                + "|"
-                + pos.getX() + "," + pos.getY() + "," + pos.getZ()
-                + "|"
-                + slotId;
+    //? if >=1.21.11 {
+    /*public static String ownerKey(Kind kind, Identifier dimensionId, BlockPos pos, int slotId) {
+    *///?} else {
+    public static String ownerKey(Kind kind, ResourceLocation dimensionId, BlockPos pos, int slotId) {
+    //?}
+        return kind.serializedName() + "|" + dimensionId + "|" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + "|" + slotId;
     }
 
     public static String portalOwnerKey(UUID portalId) {
@@ -1400,11 +799,7 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     private static String axisToString(Direction.Axis axis) {
-        return switch (PearlPortalFrame.normalizeAxis(axis)) {
-            case X -> "x";
-            case Y -> "y";
-            case Z -> "z";
-        };
+        return switch (PearlPortalFrame.normalizeAxis(axis)) { case X -> "x"; case Y -> "y"; case Z -> "z"; };
     }
 
     private static Direction directionFromString(String text) {
@@ -1420,10 +815,7 @@ public final class HexTeleportDirectory extends SavedData {
     }
 
     private static String directionToString(Direction direction) {
-        if (direction == null) {
-            return "south";
-        }
-
+        if (direction == null) return "south";
         return switch (direction) {
             case NORTH -> "north";
             case SOUTH -> "south";
@@ -1447,18 +839,12 @@ public final class HexTeleportDirectory extends SavedData {
         private final HashMap<UUID, Endpoint> byId = new HashMap<>();
         private final HashMap<String, UUID> idByOwner = new HashMap<>();
         private final HashMap<Integer, ArrayList<UUID>> idsByHex = new HashMap<>();
-
         private void rebuild(Predicate<Endpoint> validator) {
             ArrayList<Endpoint> raw = new ArrayList<>(this.entries);
             this.clear();
-
             for (Endpoint endpoint : raw) {
-                if (endpoint == null) {
-                    continue;
-                }
-
+                if (endpoint == null) continue;
                 Endpoint normalized = endpoint.normalized();
-
                 if (validator.test(normalized)) {
                     this.add(normalized);
                 }
@@ -1474,51 +860,34 @@ public final class HexTeleportDirectory extends SavedData {
 
         private void add(Endpoint endpoint) {
             endpoint = endpoint.normalized();
-
             this.entries.add(endpoint);
             this.byId.put(endpoint.endpointId, endpoint);
-
             if (!endpoint.ownerKey.isEmpty()) {
                 this.idByOwner.put(endpoint.ownerKey, endpoint.endpointId);
             }
-
-            this.idsByHex
-                    .computeIfAbsent(endpoint.hexColor, ignored -> new ArrayList<>())
-                    .add(endpoint.endpointId);
+            this.idsByHex.computeIfAbsent(endpoint.hexColor, ignored -> new ArrayList<>()).add(endpoint.endpointId);
         }
 
         private Endpoint remove(UUID endpointId) {
             Endpoint endpoint = this.byId.remove(endpointId);
-
-            if (endpoint == null) {
-                return null;
-            }
-
+            if (endpoint == null) return null;
             if (!endpoint.ownerKey.isEmpty()) {
                 this.idByOwner.remove(endpoint.ownerKey);
             }
-
             ArrayList<UUID> ids = this.idsByHex.get(endpoint.hexColor);
-
             if (ids != null) {
                 ids.remove(endpointId);
-
                 if (ids.isEmpty()) {
                     this.idsByHex.remove(endpoint.hexColor);
                 }
             }
-
             this.entries.removeIf(entry -> entry.endpointId.equals(endpointId));
-
             return endpoint;
         }
 
         private Endpoint removeOwner(String ownerKey) {
             UUID endpointId = this.idByOwner.get(normalizeOwnerKey(ownerKey));
-
-            return endpointId == null
-                    ? null
-                    : this.remove(endpointId);
+            return endpointId == null ? null : this.remove(endpointId);
         }
 
         private Optional<Endpoint> byId(UUID endpointId) {
@@ -1527,47 +896,29 @@ public final class HexTeleportDirectory extends SavedData {
 
         private Optional<Endpoint> byOwner(String ownerKey) {
             UUID endpointId = this.idByOwner.get(normalizeOwnerKey(ownerKey));
-
-            return endpointId == null
-                    ? Optional.empty()
-                    : this.byId(endpointId);
+            return endpointId == null ? Optional.empty() : this.byId(endpointId);
         }
 
         private List<Endpoint> byHex(int hexColor) {
             ArrayList<UUID> ids = this.idsByHex.get(normalizeHex(hexColor));
-
-            if (ids == null || ids.isEmpty()) {
-                return List.of();
-            }
-
+            if (ids == null || ids.isEmpty()) return List.of();
             ArrayList<Endpoint> result = new ArrayList<>(ids.size());
-
             for (UUID id : ids) {
                 Endpoint endpoint = this.byId.get(id);
-
                 if (endpoint != null) {
                     result.add(endpoint);
                 }
             }
-
             return result;
         }
 
         private Optional<Endpoint> firstByHex(int hexColor) {
             ArrayList<UUID> ids = this.idsByHex.get(normalizeHex(hexColor));
-
-            if (ids == null || ids.isEmpty()) {
-                return Optional.empty();
-            }
-
+            if (ids == null || ids.isEmpty()) return Optional.empty();
             for (UUID id : ids) {
                 Endpoint endpoint = this.byId.get(id);
-
-                if (endpoint != null) {
-                    return Optional.of(endpoint);
-                }
+                if (endpoint != null) return Optional.of(endpoint);
             }
-
             return Optional.empty();
         }
 
@@ -1589,18 +940,12 @@ public final class HexTeleportDirectory extends SavedData {
         private final ArrayList<DoorEndpoint> entries = new ArrayList<>();
         private final HashMap<String, DoorEndpoint> byOwner = new HashMap<>();
         private final HashMap<Integer, ArrayList<String>> ownersByHex = new HashMap<>();
-
         private void rebuild(Predicate<DoorEndpoint> validator) {
             ArrayList<DoorEndpoint> raw = new ArrayList<>(this.entries);
             this.clear();
-
             for (DoorEndpoint endpoint : raw) {
-                if (endpoint == null) {
-                    continue;
-                }
-
+                if (endpoint == null) continue;
                 DoorEndpoint normalized = endpoint.normalized();
-
                 if (validator.test(normalized)) {
                     this.add(normalized);
                 }
@@ -1615,74 +960,47 @@ public final class HexTeleportDirectory extends SavedData {
 
         private void add(DoorEndpoint endpoint) {
             endpoint = endpoint.normalized();
-
             this.entries.add(endpoint);
             this.byOwner.put(endpoint.ownerKey, endpoint);
-
-            this.ownersByHex
-                    .computeIfAbsent(endpoint.hexColor, ignored -> new ArrayList<>())
-                    .add(endpoint.ownerKey);
+            this.ownersByHex.computeIfAbsent(endpoint.hexColor, ignored -> new ArrayList<>()).add(endpoint.ownerKey);
         }
 
         private DoorEndpoint removeOwner(String ownerKey) {
             ownerKey = normalizeOwnerKey(ownerKey);
-
             DoorEndpoint endpoint = this.byOwner.remove(ownerKey);
-
-            if (endpoint == null) {
-                return null;
-            }
-
+            if (endpoint == null) return null;
             ArrayList<String> owners = this.ownersByHex.get(endpoint.hexColor);
-
             if (owners != null) {
                 owners.remove(ownerKey);
-
                 if (owners.isEmpty()) {
                     this.ownersByHex.remove(endpoint.hexColor);
                 }
             }
-
             String finalOwnerKey = ownerKey;
             this.entries.removeIf(entry -> entry.ownerKey.equals(finalOwnerKey));
-
             return endpoint;
         }
 
         private Optional<DoorEndpoint> byOwner(String ownerKey) {
-            return Optional.ofNullable(
-                    this.byOwner.get(
-                            normalizeOwnerKey(ownerKey)
-                    )
-            );
+            return Optional.ofNullable(this.byOwner.get(normalizeOwnerKey(ownerKey)));
         }
 
         private List<DoorEndpoint> byHex(int hexColor) {
             ArrayList<String> owners = this.ownersByHex.get(normalizeHex(hexColor));
-
-            if (owners == null || owners.isEmpty()) {
-                return List.of();
-            }
-
+            if (owners == null || owners.isEmpty()) return List.of();
             ArrayList<DoorEndpoint> result = new ArrayList<>(owners.size());
-
             for (String ownerKey : owners) {
                 DoorEndpoint endpoint = this.byOwner.get(ownerKey);
-
                 if (endpoint != null) {
                     result.add(endpoint);
                 }
             }
-
             return result;
         }
 
         private Optional<DoorEndpoint> firstByHex(int hexColor) {
             List<DoorEndpoint> endpoints = this.byHex(hexColor);
-
-            return endpoints.isEmpty()
-                    ? Optional.empty()
-                    : Optional.of(endpoints.get(0));
+            return endpoints.isEmpty() ? Optional.empty() : Optional.of(endpoints.get(0));
         }
 
         private boolean hasHex(int hexColor) {
@@ -1696,17 +1014,13 @@ public final class HexTeleportDirectory extends SavedData {
         }
 
         private boolean hasOwner(String ownerKey) {
-            return this.byOwner.containsKey(
-                    normalizeOwnerKey(ownerKey)
-            );
+            return this.byOwner.containsKey(normalizeOwnerKey(ownerKey));
         }
     }
+
     //? if >=26.1 {
-    /*// Minecraft 26.1 stores mod data in namespaced paths. Retain the legacy file.
-    private static final java.util.Map<Object, java.util.Set<String>> CHECKED = new java.util.WeakHashMap<>();
-
+    /*private static final java.util.Map<Object, java.util.Set<String>> CHECKED = new java.util.WeakHashMap<>();
     private static synchronized void migrateLegacyData(MinecraftServer server, String name) {
-
         var storage = server.overworld().getDataStorage();
         var checked = CHECKED.computeIfAbsent(storage, ignored -> new java.util.HashSet<>());
         if (checked.contains(name)) return;
@@ -1714,13 +1028,11 @@ public final class HexTeleportDirectory extends SavedData {
         var target = net.minecraft.resources.Identifier.fromNamespaceAndPath("musavacca", name + ".dat").resolveAgainst(directory);
         try {
             copyLegacyData(directory.resolve(name + ".dat"), target);
-            copyLegacyData(server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)
-                    .resolve("data").resolve(name + ".dat"), target);
+            copyLegacyData(server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("data").resolve(name + ".dat"), target);
         } catch (java.io.IOException error) {
             throw new java.io.UncheckedIOException("Cannot migrate Musavacca saved data " + name + "; original retained", error);
         }
         checked.add(name);
-
     }
 
     private static void copyLegacyData(Path legacy, Path target) throws IOException {

@@ -11,31 +11,15 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import space.anatomyuniverse.musavacca.MusaCore;
 
-public record BonusHungerSyncPayload(
-        int food,
-        float saturation,
-        boolean active
-) implements CustomPacketPayload {
-    public static final Type<BonusHungerSyncPayload> TYPE =
-            new Type<>(
-                    //? if >=1.21.11 {
-                    /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "bonus_hunger_sync")
-                    *///?} else {
-                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "bonus_hunger_sync")
-                    //?}
-            );
-
+public record BonusHungerSyncPayload(int food, float saturation, boolean active) implements CustomPacketPayload {
+    //? if >=1.21.11 {
+    /*public static final Type<BonusHungerSyncPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "bonus_hunger_sync"));
+    *///?} else {
+    public static final Type<BonusHungerSyncPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "bonus_hunger_sync"));
+    //?}
     public static final StreamCodec<ByteBuf, BonusHungerSyncPayload> STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.VAR_INT,
-                    BonusHungerSyncPayload::food,
-                    ByteBufCodecs.FLOAT,
-                    BonusHungerSyncPayload::saturation,
-                    ByteBufCodecs.BOOL,
-                    BonusHungerSyncPayload::active,
-                    BonusHungerSyncPayload::new
-            );
-
+            StreamCodec.composite(ByteBufCodecs.VAR_INT, BonusHungerSyncPayload::food, ByteBufCodecs.FLOAT, BonusHungerSyncPayload::saturation,
+                    ByteBufCodecs.BOOL, BonusHungerSyncPayload::active, BonusHungerSyncPayload::new);
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;

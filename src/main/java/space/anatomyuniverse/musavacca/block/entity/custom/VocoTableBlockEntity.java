@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-
 //? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
 //?}
@@ -11,7 +10,6 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-
 //? if <1.21.5 {
 /*import net.minecraft.nbt.Tag;
 *///?}
@@ -27,7 +25,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
-
 //? if >=1.21.2 {
 import net.minecraft.world.entity.EntitySpawnReason;
 //?}
@@ -39,10 +36,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
 //? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
-
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
 import net.minecraft.world.phys.Vec3;
@@ -59,7 +54,6 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints.MultiHexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -67,122 +61,98 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     private static final String TAG_BASUKE_VISIBLE = "basuke_visible";
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
     private static final String TAG_DISPLAYED_ITEM_COUNT = "displayed_item_count";
-
     private static final String TAG_LATEST_HEX_COLOR = "latest_hex_color";
     private static final String TAG_LATEST_HEX_RECEPTOR_ID = "latest_hex_receptor_id";
-
     private static final String[] TAG_CANDLE_BLOCK_IDS = {
             "candle_block_north_east",
             "candle_block_north_west",
             "candle_block_south_east",
             "candle_block_south_west"
     };
-
     private static final String[] TAG_CANDLE_COUNTS = {
             "candle_count_north_east",
             "candle_count_north_west",
             "candle_count_south_east",
             "candle_count_south_west"
     };
-
     private static final String[] TAG_CANDLE_LIT = {
             "candle_lit_north_east",
             "candle_lit_north_west",
             "candle_lit_south_east",
             "candle_lit_south_west"
     };
-
     private static final String[] TAG_CANDLE_HAS_HEX_COLORS = {
             "candle_has_hex_north_east",
             "candle_has_hex_north_west",
             "candle_has_hex_south_east",
             "candle_has_hex_south_west"
     };
-
     private static final String[] TAG_CANDLE_HEX_COLORS = {
             "candle_hex_north_east",
             "candle_hex_north_west",
             "candle_hex_south_east",
             "candle_hex_south_west"
     };
-
     private static final String[] TAG_YAW_DEGREES = {
             "yaw_north_east",
             "yaw_north_west",
             "yaw_south_east",
             "yaw_south_west"
     };
-
     private static final String[] TAG_PITCH_DEGREES = {
             "pitch_north_east",
             "pitch_north_west",
             "pitch_south_east",
             "pitch_south_west"
     };
-
     private static final String[] TAG_CUSTOM_TARGET = {
             "custom_target_north_east",
             "custom_target_north_west",
             "custom_target_south_east",
             "custom_target_south_west"
     };
-
     private static final String[] TAG_TARGET_X = {
             "target_x_north_east",
             "target_x_north_west",
             "target_x_south_east",
             "target_x_south_west"
     };
-
     private static final String[] TAG_TARGET_Y = {
             "target_y_north_east",
             "target_y_north_west",
             "target_y_south_east",
             "target_y_south_west"
     };
-
     private static final String[] TAG_TARGET_Z = {
             "target_z_north_east",
             "target_z_north_west",
             "target_z_south_east",
             "target_z_south_west"
     };
-
     private static final ReceptorPosition[] MULTI_HEX_RECEPTORS = {
             ReceptorPosition.NORTH_EAST,
             ReceptorPosition.SOUTH_EAST,
             ReceptorPosition.SOUTH_WEST,
             ReceptorPosition.NORTH_WEST
     };
-
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
     private int displayedItemCount = 0;
-
     private final int[] yawDegrees = new int[ReceptorPosition.COUNT];
     private final int[] pitchDegrees = new int[ReceptorPosition.COUNT];
-
     private final boolean[] customTargetEnabled = new boolean[ReceptorPosition.COUNT];
     private final double[] targetX = new double[ReceptorPosition.COUNT];
     private final double[] targetY = new double[ReceptorPosition.COUNT];
     private final double[] targetZ = new double[ReceptorPosition.COUNT];
-
     private final CandleSlot[] candleSlots = new CandleSlot[ReceptorPosition.COUNT];
-
     private int latestHexColor = MusavaccaTints.NO_TINT;
     private int latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
-
     private boolean basukeVisible = false;
-
-    @Nullable
-    private UUID basukeUuid = null;
-
+    @Nullable private UUID basukeUuid = null;
     public VocoTableBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.VOCO_TABLE_BLOCK_ENTITY.get(), pos, state);
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             this.candleSlots[receptor.id()] = new CandleSlot();
         }
-
         this.resetFacingDefaults();
         this.resetTargetDefaults();
     }
@@ -192,166 +162,72 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     }
 
     public int getDisplayedItemCount() {
-        return this.hasDisplayedItem()
-                ? this.displayedItemCount
-                : 0;
+        return this.hasDisplayedItem() ? this.displayedItemCount : 0;
     }
 
     public boolean hasDisplayedItem() {
-        return !this.getDisplayedItem().isEmpty()
-                && this.displayedItemCount > 0;
+        return !this.getDisplayedItem().isEmpty() && this.displayedItemCount > 0;
     }
 
-    public void setDisplayedItem(ItemStack stack) {
-        this.setDisplayedItem(
-                stack,
-                stack.isEmpty()
-                        ? 0
-                        : stack.getCount()
-        );
-    }
-
-    public void setDisplayedItem(
-            ItemStack stack,
-            int count
-    ) {
+    public void setDisplayedItem(ItemStack stack, int count) {
         if (stack.isEmpty() || count <= 0) {
             this.items.set(0, ItemStack.EMPTY);
             this.displayedItemCount = 0;
             this.markChangedAndSync();
             return;
         }
-
-        ItemStack copy =
-                stack.copyWithCount(1);
-
+        ItemStack copy = stack.copyWithCount(1);
         this.items.set(0, copy);
-        this.displayedItemCount =
-                copy.getMaxStackSize() <= 1
-                        ? 1
-                        : count;
-
+        this.displayedItemCount = copy.getMaxStackSize() <= 1 ? 1 : count;
         this.markChangedAndSync();
     }
 
     public boolean canMergeDisplayedItem(ItemStack stack) {
-        ItemStack displayed =
-                this.getDisplayedItem();
-
-        return this.hasDisplayedItem()
-                && !stack.isEmpty()
-                && displayed.getMaxStackSize() > 1
-                && ItemStack.isSameItemSameComponents(
-                displayed,
-                stack
-        );
+        ItemStack displayed = this.getDisplayedItem();
+        return this.hasDisplayedItem() && !stack.isEmpty() && displayed.getMaxStackSize() > 1 && ItemStack.isSameItemSameComponents(displayed, stack);
     }
 
-    public int addDisplayedItems(
-            ItemStack stack,
-            int requestedAmount
-    ) {
-        if (stack.isEmpty() || requestedAmount <= 0) {
-            return 0;
-        }
-
-        ItemStack displayed =
-                this.getDisplayedItem();
+    public int addDisplayedItems(ItemStack stack, int requestedAmount) {
+        if (stack.isEmpty() || requestedAmount <= 0) return 0;
 
         if (!this.hasDisplayedItem()) {
-            int moved =
-                    stack.getMaxStackSize() <= 1
-                            ? 1
-                            : Math.min(
-                            requestedAmount,
-                            stack.getCount()
-                    );
-
-            this.items.set(
-                    0,
-                    stack.copyWithCount(1)
-            );
+            int moved = stack.getMaxStackSize() <= 1 ? 1 : Math.min(requestedAmount, stack.getCount());
+            this.items.set(0, stack.copyWithCount(1));
             this.displayedItemCount = moved;
             this.markChangedAndSync();
             return moved;
         }
-
-        if (!this.canMergeDisplayedItem(stack)) {
-            return 0;
-        }
-
-        long capacity =
-                (long) Integer.MAX_VALUE
-                        - this.displayedItemCount;
-
-        if (capacity <= 0L) {
-            return 0;
-        }
-
-        int moved = (int) Math.min(
-                Math.min(
-                        (long) requestedAmount,
-                        stack.getCount()
-                ),
-                capacity
-        );
-
-        if (moved <= 0) {
-            return 0;
-        }
-
+        if (!this.canMergeDisplayedItem(stack)) return 0;
+        long capacity = (long) Integer.MAX_VALUE - this.displayedItemCount;
+        if (capacity <= 0L) return 0;
+        int moved = (int) Math.min(Math.min((long) requestedAmount, stack.getCount()), capacity);
+        if (moved <= 0) return 0;
         this.displayedItemCount += moved;
         this.markChangedAndSync();
         return moved;
     }
 
-    public ItemStack removeDisplayedItems(
-            int requestedAmount
-    ) {
-        ItemStack displayed =
-                this.getDisplayedItem();
-
+    public ItemStack removeDisplayedItems(int requestedAmount) {
+        ItemStack displayed = this.getDisplayedItem();
         if (
                 !this.hasDisplayedItem()
                         || requestedAmount <= 0
         ) {
             return ItemStack.EMPTY;
         }
-
-        int legalStackSize =
-                Math.max(
-                        1,
-                        displayed.getMaxStackSize()
-                );
-
-        int removedCount =
-                Math.min(
-                        Math.min(
-                                requestedAmount,
-                                legalStackSize
-                        ),
-                        this.displayedItemCount
-                );
-
-        ItemStack removed =
-                displayed.copyWithCount(
-                        removedCount
-                );
-
+        int legalStackSize = Math.max(1, displayed.getMaxStackSize());
+        int removedCount = Math.min(Math.min(requestedAmount, legalStackSize), this.displayedItemCount);
+        ItemStack removed = displayed.copyWithCount(removedCount);
         this.displayedItemCount -= removedCount;
-
         if (this.displayedItemCount <= 0) {
             this.items.set(0, ItemStack.EMPTY);
             this.displayedItemCount = 0;
         }
-
         this.markChangedAndSync();
         return removed;
     }
 
-    public boolean consumeDisplayedItems(
-            int amount
-    ) {
+    public boolean consumeDisplayedItems(int amount) {
         if (
                 amount <= 0
                         || !this.hasDisplayedItem()
@@ -359,29 +235,13 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         ) {
             return false;
         }
-
         this.displayedItemCount -= amount;
-
         if (this.displayedItemCount <= 0) {
             this.items.set(0, ItemStack.EMPTY);
             this.displayedItemCount = 0;
         }
-
         this.markChangedAndSync();
         return true;
-    }
-
-    public ItemStack removeDisplayedItem() {
-        ItemStack displayed =
-                this.getDisplayedItem();
-
-        if (displayed.isEmpty()) {
-            return ItemStack.EMPTY;
-        }
-
-        return this.removeDisplayedItems(
-                displayed.getMaxStackSize()
-        );
     }
 
     public int getYawDegrees(ReceptorPosition receptor) {
@@ -392,80 +252,24 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         return this.pitchDegrees[receptor.id()];
     }
 
-    public void setYawDegrees(ReceptorPosition receptor, int yawDegrees) {
-        int index = receptor.id();
-        int clamped = VocoReceptorLogic.clampYaw(yawDegrees);
-
-        if (this.yawDegrees[index] == clamped) {
-            return;
-        }
-
-        this.yawDegrees[index] = clamped;
-        this.markChangedAndSync();
-        this.resyncEndpoint(receptor);
-    }
-
-    public void setPitchDegrees(ReceptorPosition receptor, int pitchDegrees) {
-        int index = receptor.id();
-        int clamped = VocoReceptorLogic.clampPitch(pitchDegrees);
-
-        if (this.pitchDegrees[index] == clamped) {
-            return;
-        }
-
-        this.pitchDegrees[index] = clamped;
-        this.markChangedAndSync();
-        this.resyncEndpoint(receptor);
-    }
-
     public boolean isCustomTargetEnabled(ReceptorPosition receptor) {
         return this.customTargetEnabled[receptor.id()];
     }
 
     public Vec3 getCustomTarget(ReceptorPosition receptor) {
         int index = receptor.id();
-
-        if (!this.customTargetEnabled[index]) {
-            return VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
-        }
-
-        return new Vec3(
-                this.targetX[index],
-                this.targetY[index],
-                this.targetZ[index]
-        );
-    }
-
-    public void setCustomTargetEnabled(ReceptorPosition receptor, boolean enabled) {
-        int index = receptor.id();
-
-        if (this.customTargetEnabled[index] == enabled) {
-            return;
-        }
-
-        this.customTargetEnabled[index] = enabled;
-
-        if (enabled && this.targetY[index] == 0.0D) {
-            Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
-            this.targetX[index] = fallback.x;
-            this.targetY[index] = fallback.y;
-            this.targetZ[index] = fallback.z;
-        }
-
-        this.markChangedAndSync();
-        this.resyncEndpoint(receptor);
+        if (!this.customTargetEnabled[index]) return VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
+        return new Vec3(this.targetX[index], this.targetY[index], this.targetZ[index]);
     }
 
     public void setCustomTarget(ReceptorPosition receptor, Vec3 target, int yawDegrees, int pitchDegrees) {
         int index = receptor.id();
-
         this.customTargetEnabled[index] = true;
         this.targetX[index] = target.x;
         this.targetY[index] = target.y;
         this.targetZ[index] = target.z;
         this.yawDegrees[index] = VocoReceptorLogic.clampYaw(yawDegrees);
         this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(pitchDegrees);
-
         this.markChangedAndSync();
         this.resyncEndpoint(receptor);
     }
@@ -473,14 +277,12 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     public void resetCustomTarget(ReceptorPosition receptor) {
         int index = receptor.id();
         Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
-
         this.customTargetEnabled[index] = false;
         this.targetX[index] = fallback.x;
         this.targetY[index] = fallback.y;
         this.targetZ[index] = fallback.z;
         this.yawDegrees[index] = receptor.defaultYawDegrees();
         this.pitchDegrees[index] = receptor.defaultPitchDegrees();
-
         this.markChangedAndSync();
         this.resyncEndpoint(receptor);
     }
@@ -489,17 +291,9 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         return this.latestHexColor != MusavaccaTints.NO_TINT;
     }
 
-    public int getLatestHexColor() {
-        return this.latestHexColor;
-    }
-
     @Override
     public int getHexColor() {
         return this.latestHexColor;
-    }
-
-    public ReceptorPosition getLatestHexReceptor() {
-        return ReceptorPosition.byId(this.latestHexReceptorId);
     }
 
     public int getCornerHexColor(ReceptorPosition receptor) {
@@ -509,43 +303,30 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     public int getPortalHexColorOrNoTint(ReceptorPosition receptor) {
         CandleSlot slot = this.slot(receptor);
-        return slot.hasCandle() && slot.lit && slot.hasHexColor
-                ? slot.hexColor
-                : MusavaccaTints.NO_TINT;
+        return slot.hasCandle() && slot.lit && slot.hasHexColor ? slot.hexColor : MusavaccaTints.NO_TINT;
     }
 
     @Nullable
     public static ReceptorPosition multiHexReceptor(int index) {
-        return index >= 0 && index < MULTI_HEX_RECEPTORS.length
-                ? MULTI_HEX_RECEPTORS[index]
-                : null;
+        return index >= 0 && index < MULTI_HEX_RECEPTORS.length ? MULTI_HEX_RECEPTORS[index] : null;
     }
 
     @Override
     public int getHexColor(int index) {
         ReceptorPosition receptor = multiHexReceptor(index);
-        return receptor == null
-                ? MusavaccaTints.NO_TINT
-                : this.getPortalHexColorOrNoTint(receptor);
+        return receptor == null ? MusavaccaTints.NO_TINT : this.getPortalHexColorOrNoTint(receptor);
     }
 
     public List<Integer> getMultiHexColors() {
-        return List.of(
-                this.getHexColor(0),
-                this.getHexColor(1),
-                this.getHexColor(2),
-                this.getHexColor(3)
-        );
+        return List.of(this.getHexColor(0), this.getHexColor(1), this.getHexColor(2), this.getHexColor(3));
     }
 
     public void activatePortal(ReceptorPosition receptor) {
         CandleSlot slot = this.slot(receptor);
-
         if (!slot.hasCandle() || !slot.lit || !slot.hasHexColor) {
             this.refreshLatestHexFromLitCandles();
             return;
         }
-
         this.setLatest(receptor, slot.hexColor);
         this.markChangedAndSync();
     }
@@ -553,21 +334,17 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     public void refreshLatestHexFromLitCandles() {
         ReceptorPosition current = ReceptorPosition.byId(this.latestHexReceptorId);
         CandleSlot currentSlot = this.slot(current);
-
         if (currentSlot.hasCandle() && currentSlot.lit && currentSlot.hasHexColor) {
             this.latestHexColor = currentSlot.hexColor;
             return;
         }
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             CandleSlot slot = this.slot(receptor);
-
             if (slot.hasCandle() && slot.lit && slot.hasHexColor) {
                 this.setLatest(receptor, slot.hexColor);
                 return;
             }
         }
-
         this.latestHexColor = MusavaccaTints.NO_TINT;
         this.latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
     }
@@ -602,24 +379,15 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     public boolean canAddCandle(ReceptorPosition receptor, Block candleBlock) {
         Block normalized = normalizeCandleBlock(candleBlock);
-        if (!isValidCandleBlock(normalized)) {
-            return false;
-        }
-
+        if (!isValidCandleBlock(normalized)) return false;
         CandleSlot slot = this.slot(receptor);
-
-        return !slot.hasCandle()
-                || slot.block == normalized && slot.count < CandleBlock.MAX_CANDLES;
+        return !slot.hasCandle() || slot.block == normalized && slot.count < CandleBlock.MAX_CANDLES;
     }
 
     public boolean addCandle(ReceptorPosition receptor, Block candleBlock) {
         Block normalized = normalizeCandleBlock(candleBlock);
-        if (!this.canAddCandle(receptor, normalized)) {
-            return false;
-        }
-
+        if (!this.canAddCandle(receptor, normalized)) return false;
         CandleSlot slot = this.slot(receptor);
-
         if (!slot.hasCandle()) {
             slot.block = normalized;
             slot.count = 1;
@@ -629,239 +397,79 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         } else {
             slot.count = Math.min(CandleBlock.MAX_CANDLES, slot.count + 1);
         }
-
         this.markChangedAndSync();
         return true;
     }
 
     public boolean lightPearlCandle(ReceptorPosition receptor, int hexColor) {
         CandleSlot slot = this.slot(receptor);
-        if (!slot.hasCandle() || slot.lit) {
-            return false;
-        }
-
+        if (!slot.hasCandle() || slot.lit) return false;
         slot.lit = true;
         slot.hasHexColor = true;
         slot.hexColor = MusavaccaTints.resolve(hexColor);
-
         this.markChangedAndSync();
         return true;
     }
 
     public boolean lightVanillaCandle(ReceptorPosition receptor) {
         CandleSlot slot = this.slot(receptor);
-        if (!slot.hasCandle() || slot.lit) {
-            return false;
-        }
-
+        if (!slot.hasCandle() || slot.lit) return false;
         slot.lit = true;
         slot.hasHexColor = false;
         slot.hexColor = MusavaccaTints.NO_TINT;
-
         this.markChangedAndSync();
         return true;
     }
 
-    public boolean lightCandle(ReceptorPosition receptor, int hexColor) {
-        return this.lightPearlCandle(receptor, hexColor);
-    }
-
     public boolean extinguishCandle(ReceptorPosition receptor) {
         CandleSlot slot = this.slot(receptor);
-
-        if (!slot.hasCandle() || !slot.lit) {
-            return false;
-        }
-
+        if (!slot.hasCandle() || !slot.lit) return false;
         slot.lit = false;
         slot.hasHexColor = false;
         slot.hexColor = MusavaccaTints.NO_TINT;
-
         this.refreshLatestHexFromLitCandles();
         this.markChangedAndSync();
         this.resyncEndpoint(receptor);
-
         return true;
     }
 
     public void extinguishAllCandlesForSummon() {
         boolean changed = false;
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             CandleSlot slot = this.slot(receptor);
-
-            if (!slot.hasCandle() || !slot.lit) {
-                continue;
-            }
-
+            if (!slot.hasCandle() || !slot.lit) continue;
             slot.lit = false;
             slot.hasHexColor = false;
             slot.hexColor = MusavaccaTints.NO_TINT;
-
             this.removeEndpoint(receptor);
             changed = true;
         }
-
-        if (!changed) {
-            return;
-        }
-
+        if (!changed) return;
         this.clearPortalPropertiesForUnlitCandles();
         this.refreshLatestHexFromLitCandles();
         this.markChangedAndSync();
     }
 
-    public int countLitReceptors() {
-        return this.countLitReceptors(this.getBlockState());
-    }
-
-    public boolean hasLitReceptorCost(int cost) {
-        return cost <= 0 || this.countLitReceptors() >= cost;
-    }
-
-    public boolean consumeLitReceptorsForCrafting(ServerLevel level, int cost) {
-        if (cost <= 0) {
-            return true;
-        }
-
-        BlockPos pos = this.getBlockPos();
-        BlockState state = level.getBlockState(pos);
-
-        if (!(state.getBlock() instanceof VocoTableBlock) || this.countLitReceptors(state) < cost) {
-            return false;
-        }
-
-        BlockState newState = state;
-        ReceptorPosition[] consumed = new ReceptorPosition[cost];
-        int consumedCount = 0;
-
-        for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            if (consumedCount >= cost) {
-                break;
-            }
-
-            if (!newState.getValue(VocoTableBlock.lightProperty(receptor))) {
-                continue;
-            }
-
-            newState = newState.setValue(VocoTableBlock.lightProperty(receptor), false);
-
-            if (newState.hasProperty(VocoTableBlock.portalProperty(receptor))) {
-                newState = newState.setValue(VocoTableBlock.portalProperty(receptor), false);
-            }
-
-            consumed[consumedCount] = receptor;
-            consumedCount++;
-        }
-
-        if (consumedCount < cost) {
-            return false;
-        }
-
-        level.setBlock(pos, newState, VocoReceptorLogic.UPDATE_FLAGS);
-
-        for (int i = 0; i < consumedCount; i++) {
-            this.removeEndpoint(consumed[i]);
-        }
-
-        this.refreshLatestHexFromLitCandles();
-        this.markChangedAndSync();
-
-        return true;
-    }
-
-    private int countLitReceptors(BlockState state) {
-        if (!(state.getBlock() instanceof VocoTableBlock)) {
-            return 0;
-        }
-
-        int count = 0;
-
-        for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            if (state.getValue(VocoTableBlock.lightProperty(receptor))) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
     public ItemStack removeOneCandle(ReceptorPosition receptor) {
         CandleSlot slot = this.slot(receptor);
-
-        if (!slot.hasCandle()) {
-            return ItemStack.EMPTY;
-        }
-
+        if (!slot.hasCandle()) return ItemStack.EMPTY;
         ItemStack removed = new ItemStack(slot.block.asItem());
-
         slot.count--;
-
         if (slot.count <= 0) {
             slot.clear();
             this.refreshLatestHexFromLitCandles();
         }
-
         this.markChangedAndSync();
         this.resyncEndpoint(receptor);
-
         return removed;
-    }
-
-    public boolean hasOtherLitCandleWithHex(ReceptorPosition ignoredReceptor, int hexColor) {
-        int normalized = MusavaccaTints.resolve(hexColor);
-
-        for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            if (receptor == ignoredReceptor) {
-                continue;
-            }
-
-            CandleSlot slot = this.slot(receptor);
-            if (slot.hasCandle()
-                    && slot.lit
-                    && slot.hasHexColor
-                    && MusavaccaTints.stored(slot.hexColor) == normalized) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean isBasukeVisible() {
-        return this.basukeVisible;
-    }
-
-    public void toggleBasuke(ServerLevel level) {
-        BlockState state = this.getBlockState();
-
-        if (!state.hasProperty(VocoTableBlock.ROTARY_DIALERS)) {
-            return;
-        }
-
-        boolean active = !state.getValue(VocoTableBlock.ROTARY_DIALERS);
-
-        level.setBlock(
-                this.getBlockPos(),
-                state.setValue(VocoTableBlock.ROTARY_DIALERS, active),
-                VocoReceptorLogic.UPDATE_FLAGS
-        );
-
-        if (active) {
-            this.activateBasukeFromRotaryDialers(level);
-        } else {
-            this.deactivateBasukeFromRotaryDialers(level);
-        }
     }
 
     public void activateBasukeFromRotaryDialers(ServerLevel level) {
         this.basukeVisible = true;
-
         if (!this.ensureBasukeExists(level)) {
             this.basukeVisible = false;
             this.forceRotaryDialers(level, false);
         }
-
         this.markChangedAndSync();
     }
 
@@ -873,18 +481,12 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     private void forceRotaryDialers(ServerLevel level, boolean active) {
         BlockState state = level.getBlockState(this.getBlockPos());
-
         if (!(state.getBlock() instanceof VocoTableBlock)
                 || !state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
                 || state.getValue(VocoTableBlock.ROTARY_DIALERS) == active) {
             return;
         }
-
-        level.setBlock(
-                this.getBlockPos(),
-                state.setValue(VocoTableBlock.ROTARY_DIALERS, active),
-                VocoReceptorLogic.UPDATE_FLAGS
-        );
+        level.setBlock(this.getBlockPos(), state.setValue(VocoTableBlock.ROTARY_DIALERS, active), VocoReceptorLogic.UPDATE_FLAGS);
     }
 
     private void setLatest(ReceptorPosition receptor, int hexColor) {
@@ -908,7 +510,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             int index = receptor.id();
             Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
-
             this.customTargetEnabled[index] = false;
             this.targetX[index] = fallback.x;
             this.targetY[index] = fallback.y;
@@ -918,78 +519,40 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     private void resyncEndpoint(ReceptorPosition receptor) {
         Level level = this.getLevel();
-
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
+        if (!(level instanceof ServerLevel serverLevel)) return;
         BlockState state = this.getBlockState();
-
-        boolean portalActive = state.hasProperty(VocoTableBlock.portalProperty(receptor))
-                && state.getValue(VocoTableBlock.portalProperty(receptor));
-
-        if (!portalActive) {
-            return;
-        }
-
+        boolean portalActive = state.hasProperty(VocoTableBlock.portalProperty(receptor)) && state.getValue(VocoTableBlock.portalProperty(receptor));
+        if (!portalActive) return;
         int hexColor = this.getPortalHexColorOrNoTint(receptor);
-
         if (hexColor == MusavaccaTints.NO_TINT) {
             this.removeEndpoint(receptor);
             return;
         }
-
-        VocoTeleportLogic.syncEndpointDetailed(
-                serverLevel,
-                this.getBlockPos(),
-                receptor,
-                true,
-                hexColor
-        );
+        VocoTeleportLogic.syncEndpointDetailed(serverLevel, this.getBlockPos(), receptor, true, hexColor);
     }
 
     private void removeEndpoint(ReceptorPosition receptor) {
         Level level = this.getLevel();
-
         if (level instanceof ServerLevel serverLevel) {
-            VocoTeleportLogic.syncEndpointDetailed(
-                    serverLevel,
-                    this.getBlockPos(),
-                    receptor,
-                    false,
-                    MusavaccaTints.NO_TINT
-            );
+            VocoTeleportLogic.syncEndpointDetailed(serverLevel, this.getBlockPos(), receptor, false, MusavaccaTints.NO_TINT);
         }
     }
 
     private void clearPortalPropertiesForUnlitCandles() {
         Level level = this.getLevel();
-
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
+        if (!(level instanceof ServerLevel serverLevel)) return;
         BlockPos pos = this.getBlockPos();
         BlockState state = serverLevel.getBlockState(pos);
-
-        if (!(state.getBlock() instanceof VocoTableBlock)) {
-            return;
-        }
-
+        if (!(state.getBlock() instanceof VocoTableBlock)) return;
         BlockState newState = state;
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             CandleSlot slot = this.slot(receptor);
-            if (slot.hasCandle() && slot.lit && slot.hasHexColor) {
-                continue;
-            }
-
+            if (slot.hasCandle() && slot.lit && slot.hasHexColor) continue;
             if (newState.hasProperty(VocoTableBlock.portalProperty(receptor))
                     && newState.getValue(VocoTableBlock.portalProperty(receptor))) {
                 newState = newState.setValue(VocoTableBlock.portalProperty(receptor), false);
             }
         }
-
         if (newState != state) {
             serverLevel.setBlock(pos, newState, VocoReceptorLogic.UPDATE_FLAGS);
         }
@@ -997,63 +560,40 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     private boolean ensureBasukeExists(ServerLevel level) {
         Basuke basuke = this.getBasuke(level);
-
-        if (basuke == null) {
-            return this.spawnBasuke(level);
-        }
-
+        if (basuke == null) return this.spawnBasuke(level);
         if (!basuke.isBoundToTable(this.getBlockPos())) {
             basuke.bindToVocoTable(this.getBlockPos());
         }
-
         return true;
     }
 
     @Nullable
     private Basuke getBasuke(ServerLevel level) {
-        if (this.basukeUuid == null) {
-            return null;
-        }
-
+        if (this.basukeUuid == null) return null;
         Entity entity = level.getEntity(this.basukeUuid);
-        if (entity instanceof Basuke basuke && basuke.isAlive()) {
-            return basuke;
-        }
-
+        if (entity instanceof Basuke basuke && basuke.isAlive()) return basuke;
         return null;
     }
 
     private boolean spawnBasuke(ServerLevel level) {
-
         //? if >=1.21.2 {
         Basuke basuke = ModEntities.BASUKE.get().create(level, EntitySpawnReason.TRIGGERED);
         //?} else {
         /*Basuke basuke = ModEntities.BASUKE.get().create(level);
         *///?}
-
         if (basuke == null) {
             this.basukeUuid = null;
             return false;
         }
-
         BlockPos pos = this.getBlockPos();
         float yaw = level.getRandom().nextFloat() * 360.0F;
-
         //? if >=1.21.5 {
-        basuke.snapTo(
+        basuke.snapTo(pos.getX() + 0.5D, pos.getY() + 1.42D, pos.getZ() + 0.5D, yaw, 0.0F);
         //?} else {
-        /*basuke.moveTo(
+        /*basuke.moveTo(pos.getX() + 0.5D, pos.getY() + 1.42D, pos.getZ() + 0.5D, yaw, 0.0F);
         *///?}
-                pos.getX() + 0.5D,
-                pos.getY() + 1.42D,
-                pos.getZ() + 0.5D,
-                yaw,
-                0.0F
-        );
-
         basuke.bindToVocoTable(pos);
         level.addFreshEntity(basuke);
-
         this.basukeUuid = basuke.getUUID();
         return true;
     }
@@ -1063,7 +603,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         if (basuke != null) {
             basuke.discard();
         }
-
         this.basukeUuid = null;
     }
 
@@ -1074,105 +613,64 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     private void syncToClientAndRerender() {
         Level level = this.getLevel();
-        if (level == null) {
-            return;
-        }
-
+        if (level == null) return;
         BlockPos pos = this.getBlockPos();
         BlockState state = this.getBlockState();
-
-        level.sendBlockUpdated(
-                pos,
-                state,
-                state,
-                Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
-        );
+        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
     private void rerenderClientNow() {
         Level level = this.getLevel();
-        if (level == null || !level.isClientSide()) {
-            return;
-        }
-
+        if (level == null || !level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();
         BlockState state = this.getBlockState();
-
-        level.sendBlockUpdated(
-                pos,
-                state,
-                state,
-                Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
-        );
+        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
     public void cleanupBeforeRemoval() {
         Level level = this.getLevel();
-
         if (level instanceof ServerLevel serverLevel) {
             BlockPos pos = this.getBlockPos();
-
             for (ReceptorPosition receptor : ReceptorPosition.values()) {
-                VocoTeleportLogic.removeOwnerAndPromote(
-                        serverLevel,
-                        pos,
-                        receptor
-                );
+                VocoTeleportLogic.removeOwnerAndPromote(serverLevel, pos, receptor);
             }
-
             this.removeBasuke(serverLevel);
         }
     }
 
+    //? if >=1.21.5 {
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        this.cleanupBeforeRemoval();
+        super.preRemoveSideEffects(pos, state);
+    }
+    //?}
+    @Override
     //? if >=1.21.6 {
-    @Override
-    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        this.cleanupBeforeRemoval();
-        super.preRemoveSideEffects(pos, state);
-    }
-
-    @Override
     protected void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
-    //?} else if >=1.21.5 <1.21.6 {
-    /*@Override
-    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        this.cleanupBeforeRemoval();
-        super.preRemoveSideEffects(pos, state);
-    }
-
-    @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-    *///?} else {
-    /*@Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    //?} else {
+    /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
     *///?}
-
+        //? if >=1.21.6 {
+        super.loadAdditional(input);
+        //?} else {
+        /*super.loadAdditional(tag, provider);
+        *///?}
         this.items.clear();
         //? if >=1.21.6 {
         ContainerHelper.loadAllItems(input, this.items);
         //?} else {
         /*ContainerHelper.loadAllItems(tag, this.items, provider);
         *///?}
-
-        int loadedDisplayedItemCount =
-                //? if >=1.21.6 {
-                input.getIntOr(
-                        TAG_DISPLAYED_ITEM_COUNT,
-                        this.items.get(0).getCount()
-                );
-                //?} else if >=1.21.5 <1.21.6 {
-                /*tag.getIntOr(TAG_DISPLAYED_ITEM_COUNT, this.items.get(0).getCount());
-                *///?} else {
-                /*(tag.contains(TAG_DISPLAYED_ITEM_COUNT, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_DISPLAYED_ITEM_COUNT) : this.items.get(0).getCount());
-                *///?}
-
-        this.normalizeDisplayedItem(
-                loadedDisplayedItemCount
-        );
-
+        //? if >=1.21.6 {
+        int loadedDisplayedItemCount = input.getIntOr(TAG_DISPLAYED_ITEM_COUNT, this.items.get(0).getCount());
+        //?} else if >=1.21.5 <1.21.6 {
+        /*int loadedDisplayedItemCount = tag.getIntOr(TAG_DISPLAYED_ITEM_COUNT, this.items.get(0).getCount());
+        *///?} else {
+        /*int loadedDisplayedItemCount =
+                (tag.contains(TAG_DISPLAYED_ITEM_COUNT, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_DISPLAYED_ITEM_COUNT) : this.items.get(0).getCount());
+        *///?}
+        this.normalizeDisplayedItem(loadedDisplayedItemCount);
         //? if >=1.21.6 {
         this.basukeVisible = input.getBooleanOr(TAG_BASUKE_VISIBLE, false);
         this.basukeUuid = readUuid(input.getStringOr(TAG_BASUKE_UUID, ""));
@@ -1183,36 +681,26 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         /*this.basukeVisible = (tag.contains(TAG_BASUKE_VISIBLE, Tag.TAG_ANY_NUMERIC) ? tag.getBoolean(TAG_BASUKE_VISIBLE) : false);
         this.basukeUuid = readUuid((tag.contains(TAG_BASUKE_UUID, Tag.TAG_STRING) ? tag.getString(TAG_BASUKE_UUID) : ""));
         *///?}
-
         this.resetFacingDefaults();
         this.resetTargetDefaults();
         this.clearAllCandleSlots();
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             int index = receptor.id();
-
-            this.yawDegrees[index] = VocoReceptorLogic.clampYaw(
-                    //? if >=1.21.6 {
-                    input.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees())
-                    //?} else if >=1.21.5 <1.21.6 {
-                    /*tag.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees())
-                    *///?} else {
-                    /*(tag.contains(TAG_YAW_DEGREES[index], Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_YAW_DEGREES[index]) : receptor.defaultYawDegrees())
-                    *///?}
+            //? if >=1.21.6 {
+            this.yawDegrees[index] = VocoReceptorLogic.clampYaw(input.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees()));
+            this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(input.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees()));
+            //?} else if >=1.21.5 <1.21.6 {
+            /*this.yawDegrees[index] = VocoReceptorLogic.clampYaw(tag.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees()));
+            this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(tag.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees()));
+            *///?} else {
+            /*this.yawDegrees[index] = VocoReceptorLogic.clampYaw(
+                    (tag.contains(TAG_YAW_DEGREES[index], Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_YAW_DEGREES[index]) : receptor.defaultYawDegrees())
             );
-
             this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(
-                    //? if >=1.21.6 {
-                    input.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees())
-                    //?} else if >=1.21.5 <1.21.6 {
-                    /*tag.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees())
-                    *///?} else {
-                    /*(tag.contains(TAG_PITCH_DEGREES[index], Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_PITCH_DEGREES[index]) : receptor.defaultPitchDegrees())
-                    *///?}
+                    (tag.contains(TAG_PITCH_DEGREES[index], Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_PITCH_DEGREES[index]) : receptor.defaultPitchDegrees())
             );
-
+            *///?}
             Vec3 fallbackTarget = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
-
             //? if >=1.21.6 {
             this.customTargetEnabled[index] = input.getBooleanOr(TAG_CUSTOM_TARGET[index], false);
             this.targetX[index] = input.getDoubleOr(TAG_TARGET_X[index], fallbackTarget.x);
@@ -1229,20 +717,21 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             this.targetY[index] = (tag.contains(TAG_TARGET_Y[index], Tag.TAG_ANY_NUMERIC) ? tag.getDouble(TAG_TARGET_Y[index]) : fallbackTarget.y);
             this.targetZ[index] = (tag.contains(TAG_TARGET_Z[index], Tag.TAG_ANY_NUMERIC) ? tag.getDouble(TAG_TARGET_Z[index]) : fallbackTarget.z);
             *///?}
-
             CandleSlot slot = this.slot(receptor);
-
             //? if >=1.21.6 {
             Block candleBlock = readCandleBlock(input.getStringOr(TAG_CANDLE_BLOCK_IDS[index], ""));
-            int candleCount = input.getIntOr(TAG_CANDLE_COUNTS[index], 0);
             //?} else if >=1.21.5 <1.21.6 {
             /*Block candleBlock = readCandleBlock(tag.getStringOr(TAG_CANDLE_BLOCK_IDS[index], ""));
-            int candleCount = tag.getIntOr(TAG_CANDLE_COUNTS[index], 0);
             *///?} else {
             /*Block candleBlock = readCandleBlock((tag.contains(TAG_CANDLE_BLOCK_IDS[index], Tag.TAG_STRING) ? tag.getString(TAG_CANDLE_BLOCK_IDS[index]) : ""));
-            int candleCount = (tag.contains(TAG_CANDLE_COUNTS[index], Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_CANDLE_COUNTS[index]) : 0);
             *///?}
-
+            //? if >=1.21.6 {
+            int candleCount = input.getIntOr(TAG_CANDLE_COUNTS[index], 0);
+            //?} else if >=1.21.5 <1.21.6 {
+            /*int candleCount = tag.getIntOr(TAG_CANDLE_COUNTS[index], 0);
+            *///?} else {
+            /*int candleCount = (tag.contains(TAG_CANDLE_COUNTS[index], Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_CANDLE_COUNTS[index]) : 0);
+            *///?}
             if (candleBlock != null && candleCount > 0) {
                 slot.block = candleBlock;
                 slot.count = Math.max(1, Math.min(CandleBlock.MAX_CANDLES, candleCount));
@@ -1253,40 +742,38 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
                 *///?} else {
                 /*slot.lit = (tag.contains(TAG_CANDLE_LIT[index], Tag.TAG_ANY_NUMERIC) ? tag.getBoolean(TAG_CANDLE_LIT[index]) : false);
                 *///?}
-
                 //? if >=1.21.6 {
                 slot.hasHexColor = input.getBooleanOr(TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
-                slot.hexColor = slot.hasHexColor
-                        ? MusavaccaTints.stored(input.getIntOr(TAG_CANDLE_HEX_COLORS[index], MusavaccaTints.DEFAULT_TINT))
                 //?} else if >=1.21.5 <1.21.6 {
                 /*slot.hasHexColor = tag.getBooleanOr(TAG_CANDLE_HAS_HEX_COLORS[index], slot.lit);
-                slot.hexColor = slot.hasHexColor
-                        ? MusavaccaTints.stored(tag.getIntOr(TAG_CANDLE_HEX_COLORS[index], MusavaccaTints.DEFAULT_TINT))
                 *///?} else {
                 /*slot.hasHexColor = (tag.contains(TAG_CANDLE_HAS_HEX_COLORS[index], Tag.TAG_ANY_NUMERIC) ? tag.getBoolean(TAG_CANDLE_HAS_HEX_COLORS[index]) : slot.lit);
-                slot.hexColor = slot.hasHexColor
-                        ? MusavaccaTints.stored((tag.contains(TAG_CANDLE_HEX_COLORS[index], Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_CANDLE_HEX_COLORS[index]) : MusavaccaTints.DEFAULT_TINT))
                 *///?}
+                slot.hexColor = slot.hasHexColor ?
+                        //? if >=1.21.6 {
+                        MusavaccaTints.stored(input.getIntOr(TAG_CANDLE_HEX_COLORS[index], MusavaccaTints.DEFAULT_TINT))
+                        //?} else if >=1.21.5 <1.21.6 {
+                        /*MusavaccaTints.stored(tag.getIntOr(TAG_CANDLE_HEX_COLORS[index], MusavaccaTints.DEFAULT_TINT))
+                        *///?} else {
+                        /*MusavaccaTints.stored((tag.contains(TAG_CANDLE_HEX_COLORS[index], Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_CANDLE_HEX_COLORS[index]) : MusavaccaTints.DEFAULT_TINT))
+                        *///?}
                         : MusavaccaTints.NO_TINT;
             }
         }
-
-        this.latestHexReceptorId = VocoReceptorLogic.clampReceptorId(
-                //? if >=1.21.6 {
-                input.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id())
-                //?} else if >=1.21.5 <1.21.6 {
-                /*tag.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id())
-                *///?} else {
-                /*(tag.contains(TAG_LATEST_HEX_RECEPTOR_ID, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_LATEST_HEX_RECEPTOR_ID) : ReceptorPosition.NORTH_EAST.id())
-                *///?}
+        //? if >=1.21.6 {
+        this.latestHexReceptorId = VocoReceptorLogic.clampReceptorId(input.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id()));
+        //?} else if >=1.21.5 <1.21.6 {
+        /*this.latestHexReceptorId = VocoReceptorLogic.clampReceptorId(tag.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id()));
+        *///?} else {
+        /*this.latestHexReceptorId = VocoReceptorLogic.clampReceptorId(
+                (tag.contains(TAG_LATEST_HEX_RECEPTOR_ID, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_LATEST_HEX_RECEPTOR_ID) : ReceptorPosition.NORTH_EAST.id())
         );
-
+        *///?}
         //? if >=1.21.6 {
         this.latestHexColor = readHexOrUnset(input, TAG_LATEST_HEX_COLOR);
         //?} else {
         /*this.latestHexColor = readHexOrUnset(tag, TAG_LATEST_HEX_COLOR);
         *///?}
-
         if (!this.hasLatestHexColor()) {
             this.refreshLatestHexFromLitCandles();
         }
@@ -1295,35 +782,28 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     @Override
     //? if >=1.21.6 {
     protected void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
     //?} else {
     /*protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
     *///?}
-
         //? if >=1.21.6 {
+        super.saveAdditional(output);
         ContainerHelper.saveAllItems(output, this.items, true);
         //?} else {
-        /*ContainerHelper.saveAllItems(tag, this.items, provider);
+        /*super.saveAdditional(tag, provider);
+        ContainerHelper.saveAllItems(tag, this.items, provider);
         *///?}
-
         if (this.hasDisplayedItem()) {
             //? if >=1.21.6 {
-            output.putInt(
+            output.putInt(TAG_DISPLAYED_ITEM_COUNT, this.displayedItemCount);
             //?} else {
-            /*tag.putInt(
+            /*tag.putInt(TAG_DISPLAYED_ITEM_COUNT, this.displayedItemCount);
             *///?}
-                    TAG_DISPLAYED_ITEM_COUNT,
-                    this.displayedItemCount
-            );
         }
-
         //? if >=1.21.6 {
         output.putBoolean(TAG_BASUKE_VISIBLE, this.basukeVisible);
         //?} else {
         /*tag.putBoolean(TAG_BASUKE_VISIBLE, this.basukeVisible);
         *///?}
-
         if (this.basukeUuid != null) {
             //? if >=1.21.6 {
             output.putString(TAG_BASUKE_UUID, this.basukeUuid.toString());
@@ -1331,7 +811,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             /*tag.putString(TAG_BASUKE_UUID, this.basukeUuid.toString());
             *///?}
         }
-
         if (this.hasLatestHexColor()) {
             //? if >=1.21.6 {
             output.putInt(TAG_LATEST_HEX_COLOR, this.latestHexColor);
@@ -1341,38 +820,30 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             tag.putInt(TAG_LATEST_HEX_RECEPTOR_ID, this.latestHexReceptorId);
             *///?}
         }
-
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             int index = receptor.id();
             CandleSlot slot = this.slot(receptor);
-
             //? if >=1.21.6 {
             output.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
             output.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
-            //?} else {
-            /*tag.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
-            tag.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
-            *///?}
-
-            //? if >=1.21.6 {
             output.putBoolean(TAG_CUSTOM_TARGET[index], this.customTargetEnabled[index]);
             output.putDouble(TAG_TARGET_X[index], this.targetX[index]);
             output.putDouble(TAG_TARGET_Y[index], this.targetY[index]);
             output.putDouble(TAG_TARGET_Z[index], this.targetZ[index]);
             //?} else {
-            /*tag.putBoolean(TAG_CUSTOM_TARGET[index], this.customTargetEnabled[index]);
+            /*tag.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
+            tag.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
+            tag.putBoolean(TAG_CUSTOM_TARGET[index], this.customTargetEnabled[index]);
             tag.putDouble(TAG_TARGET_X[index], this.targetX[index]);
             tag.putDouble(TAG_TARGET_Y[index], this.targetY[index]);
             tag.putDouble(TAG_TARGET_Z[index], this.targetZ[index]);
             *///?}
-
             if (slot.hasCandle()) {
                 //? if >=1.21.11 {
                 /*Identifier candleId = BuiltInRegistries.BLOCK.getKey(slot.block);
                 *///?} else {
                 ResourceLocation candleId = BuiltInRegistries.BLOCK.getKey(slot.block);
                 //?}
-
                 //? if >=1.21.6 {
                 output.putString(TAG_CANDLE_BLOCK_IDS[index], candleId.toString());
                 output.putInt(TAG_CANDLE_COUNTS[index], slot.count);
@@ -1384,7 +855,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
                 tag.putBoolean(TAG_CANDLE_LIT[index], slot.lit);
                 tag.putBoolean(TAG_CANDLE_HAS_HEX_COLORS[index], slot.hasHexColor);
                 *///?}
-
                 if (slot.hasHexColor) {
                     //? if >=1.21.6 {
                     output.putInt(TAG_CANDLE_HEX_COLORS[index], slot.hexColor);
@@ -1403,16 +873,8 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     /*protected void applyImplicitComponents(DataComponentInput input) {
     *///?}
         super.applyImplicitComponents(input);
-
-        input.getOrDefault(
-                DataComponents.CONTAINER,
-                ItemContainerContents.EMPTY
-        ).copyInto(this.items);
-
-        this.normalizeDisplayedItem(
-                this.items.get(0).getCount()
-        );
-
+        input.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY).copyInto(this.items);
+        this.normalizeDisplayedItem(this.items.get(0).getCount());
         Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
         this.latestHexColor = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
     }
@@ -1421,15 +883,10 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
         components.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.items));
-
         if (this.hasLatestHexColor()) {
             components.set(ModDataComponents.HEX_COLOR.get(), this.latestHexColor);
         }
-
-        components.set(
-                ModDataComponents.MULTI_HEX_COLOR.get(),
-                this.getMultiHexColors()
-        );
+        components.set(ModDataComponents.MULTI_HEX_COLOR.get(), this.getMultiHexColors());
     }
 
     @Override
@@ -1445,43 +902,40 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     @Override
     //? if >=1.21.6 {
     public void handleUpdateTag(ValueInput input) {
-        super.handleUpdateTag(input);
     //?} else {
     /*public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        super.handleUpdateTag(tag, provider);
     *///?}
+        //? if >=1.21.6 {
+        super.handleUpdateTag(input);
+        //?} else {
+        /*super.handleUpdateTag(tag, provider);
+        *///?}
         this.rerenderClientNow();
     }
 
     @Override
     //? if >=1.21.6 {
     public void onDataPacket(Connection connection, ValueInput input) {
-        super.onDataPacket(connection, input);
     //?} else {
     /*public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider provider) {
-        super.onDataPacket(connection, packet, provider);
     *///?}
+        //? if >=1.21.6 {
+        super.onDataPacket(connection, input);
+        //?} else {
+        /*super.onDataPacket(connection, packet, provider);
+        *///?}
         this.rerenderClientNow();
     }
 
-    private void normalizeDisplayedItem(
-            int requestedCount
-    ) {
-        ItemStack displayed =
-                this.items.get(0);
-
+    private void normalizeDisplayedItem(int requestedCount) {
+        ItemStack displayed = this.items.get(0);
         if (displayed.isEmpty() || requestedCount <= 0) {
             this.items.set(0, ItemStack.EMPTY);
             this.displayedItemCount = 0;
             return;
         }
-
         displayed.setCount(1);
-
-        this.displayedItemCount =
-                displayed.getMaxStackSize() <= 1
-                        ? 1
-                        : requestedCount;
+        this.displayedItemCount = displayed.getMaxStackSize() <= 1 ? 1 : requestedCount;
     }
 
     private void clearAllCandleSlots() {
@@ -1492,14 +946,14 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     //? if >=1.21.6 {
     private static int readHexOrUnset(ValueInput input, String tag) {
-        int loaded = input.getIntOr(tag, MusavaccaTints.NO_TINT);
-    //?} else if >=1.21.5 <1.21.6 {
+    //?} else {
     /*private static int readHexOrUnset(CompoundTag input, String tag) {
-        int loaded = input.getIntOr(tag, MusavaccaTints.NO_TINT);
-    *///?} else {
-    /*private static int readHexOrUnset(CompoundTag input, String tag) {
-        int loaded = (input.contains(tag, Tag.TAG_ANY_NUMERIC) ? input.getInt(tag) : MusavaccaTints.NO_TINT);
     *///?}
+        //? if >=1.21.5 {
+        int loaded = input.getIntOr(tag, MusavaccaTints.NO_TINT);
+        //?} else {
+        /*int loaded = (input.contains(tag, Tag.TAG_ANY_NUMERIC) ? input.getInt(tag) : MusavaccaTints.NO_TINT);
+        *///?}
         return loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
     }
 
@@ -1508,52 +962,40 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     }
 
     private static Block normalizeCandleBlock(Block block) {
-        if (block instanceof PearlCandleBlock pearlCandleBlock) {
-            return pearlCandleBlock.getVanillaCandleBlock();
-        }
-
+        if (block instanceof PearlCandleBlock pearlCandleBlock) return pearlCandleBlock.getVanillaCandleBlock();
         return block;
     }
 
     @Nullable
     private static Block readCandleBlock(String idString) {
-        if (idString.isEmpty()) {
-            return null;
-        }
-
+        if (idString.isEmpty()) return null;
         //? if >=1.21.11 {
         /*Identifier id;
-        try {
-            id = Identifier.parse(idString);
         *///?} else {
         ResourceLocation id;
-        try {
-            id = ResourceLocation.parse(idString);
         //?}
+        try {
+            //? if >=1.21.11 {
+            /*id = Identifier.parse(idString);
+            *///?} else {
+            id = ResourceLocation.parse(idString);
+            //?}
         } catch (Exception ignored) {
             return null;
         }
-
         //? if >=1.21.2 {
         Block block = BuiltInRegistries.BLOCK.getValue(id);
         //?} else {
         /*Block block = BuiltInRegistries.BLOCK.get(id);
         *///?}
-        if (block == null || block == Blocks.AIR) {
-            return null;
-        }
-
+        if (block == null || block == Blocks.AIR) return null;
         block = normalizeCandleBlock(block);
-
         return isValidCandleBlock(block) ? block : null;
     }
 
     @Nullable
     private static UUID readUuid(String uuidString) {
-        if (uuidString.isEmpty()) {
-            return null;
-        }
-
+        if (uuidString.isEmpty()) return null;
         try {
             return UUID.fromString(uuidString);
         } catch (IllegalArgumentException ignored) {
@@ -1562,13 +1004,11 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     }
 
     private static final class CandleSlot {
-        @Nullable
-        private Block block = null;
+        @Nullable private Block block = null;
         private int count = 0;
         private boolean lit = false;
         private boolean hasHexColor = false;
         private int hexColor = MusavaccaTints.NO_TINT;
-
         private boolean hasCandle() {
             return this.block != null && this.count > 0;
         }

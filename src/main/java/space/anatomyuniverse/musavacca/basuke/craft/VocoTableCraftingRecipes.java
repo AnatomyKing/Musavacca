@@ -8,136 +8,46 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
-
 import java.util.List;
 
 public final class VocoTableCraftingRecipes {
-    public static final int DEFAULT_EATING_TIME_TICKS =
-            VocoTableEatingLogic.DEFAULT_EATING_TIME_TICKS;
-
+    public static final int DEFAULT_EATING_TIME_TICKS = VocoTableEatingLogic.DEFAULT_EATING_TIME_TICKS;
     private static final List<VocoTableCraftingRecipe> RECIPES = List.of(
-            recipe(
-                    ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
-                    ModItems.POTASSIUM_INGOT.get(),
-                    ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()
-            ),
-
-            recipe(
-                    ModItems.MUSAVACCA_DOOR,
-                    ModBlocks.GILDED_MUSAVACCA_PLANKS.get(),
-                    ModItems.MUSAVACCA_IMBUED_DOOR.get(),
-                    true
-            ),
-            recipe(
-                    ModBlocks.MUSAVACCA_TRAPDOOR.get(),
-                    ModBlocks.GILDED_MUSAVACCA_PLANKS.get(),
-                    ModBlocks.MUSAVACCA_TRAPDOOR.get(),
-                    true
-            ),
-
-            recipe(
-                    Items.NAME_TAG,
-                    ModItems.SMALL_BANANA_PEARL.get(),
-                    ModItems.SIM_CARD.get()
-            ),
-            recipe(
-                    ModItems.SIM_CARD.get(),
-                    Items.IRON_NUGGET,
-                    ModItems.SIM_CARD.get(),
-                    true
-            ),
-            recipe(
-                    ModItems.SIM_CARD.get(),
-                    Items.GOLD_NUGGET,
-                    ModItems.SIM_CARD.get(),
-                    true
-            )
-    );
-
+            recipe(ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+            recipe(ModItems.MUSAVACCA_DOOR, ModBlocks.GILDED_MUSAVACCA_PLANKS.get(), ModItems.MUSAVACCA_IMBUED_DOOR.get(), true),
+            recipe(ModBlocks.MUSAVACCA_TRAPDOOR.get(), ModBlocks.GILDED_MUSAVACCA_PLANKS.get(), ModBlocks.MUSAVACCA_TRAPDOOR.get(), true),
+            recipe(Items.NAME_TAG, ModItems.SMALL_BANANA_PEARL.get(), ModItems.SIM_CARD.get()),
+            recipe(ModItems.SIM_CARD.get(), Items.IRON_NUGGET, ModItems.SIM_CARD.get(), true),
+            recipe(ModItems.SIM_CARD.get(), Items.GOLD_NUGGET, ModItems.SIM_CARD.get(), true));
     private VocoTableCraftingRecipes() {}
 
-    public static List<VocoTableCraftingRecipe> recipes() {
-        return RECIPES;
-    }
-
     @Nullable
-    public static VocoTableCraftingRecipe findMatchingRecipe(
-            ItemStack displayedStack,
-            ItemStack edibleStack
-    ) {
-        return findMatchingRecipe(
-                displayedStack,
-                edibleStack,
-                false
-        );
-    }
-
-    @Nullable
-    public static VocoTableCraftingRecipe findMatchingRecipe(
-            ItemStack displayedStack,
-            ItemStack edibleStack,
-            boolean matchingCandleColorAvailable
-    ) {
+    public static VocoTableCraftingRecipe findMatchingRecipe(ItemStack displayedStack, ItemStack edibleStack, boolean matchingCandleColorAvailable) {
         if (
-                displayedStack.is(
-                        ModBlocks.MUSAVACCA_TRAPDOOR.get().asItem()
-                )
-                        && displayedStack.get(
-                        ModDataComponents.HEX_COLOR.get()
-                ) != null
+                displayedStack.is(ModBlocks.MUSAVACCA_TRAPDOOR.get().asItem())
+                        && displayedStack.get(ModDataComponents.HEX_COLOR.get()) != null
         ) {
             return null;
         }
-
         VocoTableCraftingRecipe normalFallback = null;
-
         for (VocoTableCraftingRecipe recipe : RECIPES) {
-            if (!recipe.matches(displayedStack, edibleStack)) {
-                continue;
-            }
-
+            if (!recipe.matches(displayedStack, edibleStack)) continue;
             if (recipe.hexColorInject()) {
-                if (matchingCandleColorAvailable) {
-                    return recipe;
-                }
-
+                if (matchingCandleColorAvailable) return recipe;
                 continue;
             }
-
             if (normalFallback == null) {
                 normalFallback = recipe;
             }
         }
-
         return normalFallback;
     }
 
-    private static VocoTableCraftingRecipe recipe(
-            ItemLike display,
-            ItemLike edible,
-            ItemLike result
-    ) {
-        return recipe(
-                display,
-                edible,
-                result,
-                false
-        );
+    private static VocoTableCraftingRecipe recipe(ItemLike display, ItemLike edible, ItemLike result) {
+        return recipe(display, edible, result, false);
     }
 
-    private static VocoTableCraftingRecipe recipe(
-            ItemLike display,
-            ItemLike edible,
-            ItemLike result,
-            boolean hexColorInject
-    ) {
-        return new VocoTableCraftingRecipe(
-                display,
-                edible,
-                result,
-                DEFAULT_EATING_TIME_TICKS,
-                hexColorInject
-        );
+    private static VocoTableCraftingRecipe recipe(ItemLike display, ItemLike edible, ItemLike result, boolean hexColorInject) {
+        return new VocoTableCraftingRecipe(display, edible, result, DEFAULT_EATING_TIME_TICKS, hexColorInject);
     }
 }
-

@@ -8,8 +8,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class BalanceEvents {
-    private static final int BANANA_PEARL_BALANCE_REWARD = 1;
-
     private BalanceEvents() {
     }
 
@@ -29,15 +27,10 @@ public final class BalanceEvents {
 
     @SubscribeEvent
     public static void onFinishUsingItem(LivingEntityUseItemEvent.Finish event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) {
-            return;
-        }
-
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ItemStack stack = event.getItem();
-
         if (stack.is(ModItems.BANANA_PEARL.get())) {
-            BalanceApi.addBalance(player, BANANA_PEARL_BALANCE_REWARD);
+            BalanceApi.addBalance(player, 1);
         }
     }
 }
-

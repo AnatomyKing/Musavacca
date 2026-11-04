@@ -11,9 +11,7 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 
 public final class PlayerStatusEvents {
-
     private PlayerStatusEvents() {}
-
     @SubscribeEvent
     public static void onEffectApplicable(MobEffectEvent.Applicable event) {
         if (event.getEffectInstance().is(ModMobEffects.PLAYER_STATUS)
@@ -44,15 +42,9 @@ public final class PlayerStatusEvents {
 
     private static boolean hasBananaPhone(ServerPlayer player) {
         Inventory inventory = player.getInventory();
-
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            if (inventory.getItem(slot).is(ModItems.BANANA_PHONE.get())) {
-                return true;
-            }
+            if (inventory.getItem(slot).is(ModItems.BANANA_PHONE.get())) return true;
         }
-
         return false;
     }
 }
-
-

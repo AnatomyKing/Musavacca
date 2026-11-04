@@ -1,60 +1,44 @@
 package space.anatomyuniverse.musavacca.bar.hunger;
 
-//? if >=1.21.5 <1.21.6 {
-/*import net.minecraft.core.HolderLookup;
-*///?} else if <1.21.5 {
+//? if <1.21.5 {
 /*import net.minecraft.nbt.Tag;
-
-import net.minecraft.core.HolderLookup;
+*///?}
+//? if <1.21.6 {
+/*import net.minecraft.core.HolderLookup;
 *///?}
 import net.minecraft.nbt.CompoundTag;
-
 import net.minecraft.util.Mth;
-
 //? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
-
 import net.minecraft.world.level.storage.ValueOutput;
-
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 //?} else {
 /*import net.neoforged.neoforge.common.util.INBTSerializable;
 *///?}
 
 @SuppressWarnings({"unused", "CommentedOutCode", "NullableProblems"})
-
 //? if >=1.21.6 {
 public final class BonusHungerData implements ValueIOSerializable {
-
 //?} else {
     /*public final class BonusHungerData implements INBTSerializable<CompoundTag> {
-*///?}
+    *///?}
     public static final int MAX_FOOD = 20;
-
-    private static final float EXHAUSTION_STEP = 4.0F;
-    private static final float MAX_STORED_EXHAUSTION = 40.0F;
-
     private int food = MAX_FOOD;
     private float saturation = MAX_FOOD;
     private float exhaustion = 0.0F;
     private int tickTimer = 0;
-
     private int lastBaseFood = MAX_FOOD;
     private float lastBaseSaturation = 0.0F;
     private boolean baseSnapshotReady = false;
-
     private boolean forceBonusEating = false;
-
     private boolean hasPendingFinishedFood = false;
     private int pendingFoodNutrition = 0;
     private float pendingFoodSaturationModifier = 0.0F;
     private boolean pendingForceBonusFood = false;
     private boolean pendingCanAlwaysEat = false;
-
     private int lastSyncedFood = Integer.MIN_VALUE;
     private float lastSyncedSaturation = Float.NaN;
     private boolean lastSyncedActive = false;
-
     //? if >=1.21.6 {
     @Override
     public void serialize(ValueOutput output) {
@@ -63,7 +47,8 @@ public final class BonusHungerData implements ValueIOSerializable {
         output.putFloat("exhaustion", this.exhaustion);
         output.putInt("tick_timer", this.tickTimer);
     }
-    //?} else {
+    //?}
+    //? if <1.21.6 {
     /*@Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
@@ -74,54 +59,48 @@ public final class BonusHungerData implements ValueIOSerializable {
         return tag;
     }
     *///?}
-
     //? if >=1.21.6 {
     @Override
     public void deserialize(ValueInput input) {
         this.food = Mth.clamp(input.getIntOr("food", MAX_FOOD), 0, MAX_FOOD);
         this.saturation = Mth.clamp(input.getFloatOr("saturation", (float) MAX_FOOD), 0.0F, this.food);
-        this.exhaustion = Mth.clamp(input.getFloatOr("exhaustion", 0.0F), 0.0F, MAX_STORED_EXHAUSTION);
+        this.exhaustion = Mth.clamp(input.getFloatOr("exhaustion", 0.0F), 0.0F, 40.0F);
         this.tickTimer = Math.max(0, input.getIntOr("tick_timer", 0));
-
         resetTransientState();
         clampToValidState();
     }
-    //?} else if >=1.21.5 <1.21.6 {
+    //?}
+    //? if <1.21.6 {
     /*@Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+        //? if >=1.21.5 <1.21.6 {
         this.food = Mth.clamp(tag.getIntOr("food", MAX_FOOD), 0, MAX_FOOD);
         this.saturation = Mth.clamp(tag.getFloatOr("saturation", (float) MAX_FOOD), 0.0F, this.food);
-        this.exhaustion = Mth.clamp(tag.getFloatOr("exhaustion", 0.0F), 0.0F, MAX_STORED_EXHAUSTION);
-        this.tickTimer = Math.max(0, tag.getIntOr("tick_timer", 0));
-
-        resetTransientState();
-        clampToValidState();
-    }
-    *///?} else {
-    /*@Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
-        this.food = Mth.clamp((tag.contains("food", Tag.TAG_ANY_NUMERIC) ? tag.getInt("food") : MAX_FOOD), 0, MAX_FOOD);
+        this.exhaustion = Mth.clamp(tag.getFloatOr("exhaustion", 0.0F), 0.0F, 40.0F);
+        //?} else {
+        /^this.food = Mth.clamp((tag.contains("food", Tag.TAG_ANY_NUMERIC) ? tag.getInt("food") : MAX_FOOD), 0, MAX_FOOD);
         this.saturation = Mth.clamp((tag.contains("saturation", Tag.TAG_ANY_NUMERIC) ? tag.getFloat("saturation") : (float) MAX_FOOD), 0.0F, this.food);
-        this.exhaustion = Mth.clamp((tag.contains("exhaustion", Tag.TAG_ANY_NUMERIC) ? tag.getFloat("exhaustion") : 0.0F), 0.0F, MAX_STORED_EXHAUSTION);
-        this.tickTimer = Math.max(0, (tag.contains("tick_timer", Tag.TAG_ANY_NUMERIC) ? tag.getInt("tick_timer") : 0));
-
+        this.exhaustion = Mth.clamp((tag.contains("exhaustion", Tag.TAG_ANY_NUMERIC) ? tag.getFloat("exhaustion") : 0.0F), 0.0F, 40.0F);
+        ^///?}
+        //? if >=1.21.5 <1.21.6 {
+        this.tickTimer = Math.max(0, tag.getIntOr("tick_timer", 0));
+        //?} else {
+        /^this.tickTimer = Math.max(0, (tag.contains("tick_timer", Tag.TAG_ANY_NUMERIC) ? tag.getInt("tick_timer") : 0));
+        ^///?}
         resetTransientState();
         clampToValidState();
     }
     *///?}
-
     private void resetTransientState() {
         this.lastBaseFood = MAX_FOOD;
         this.lastBaseSaturation = 0.0F;
         this.baseSnapshotReady = false;
-
         this.forceBonusEating = false;
         this.hasPendingFinishedFood = false;
         this.pendingFoodNutrition = 0;
         this.pendingFoodSaturationModifier = 0.0F;
         this.pendingForceBonusFood = false;
         this.pendingCanAlwaysEat = false;
-
         this.lastSyncedFood = Integer.MIN_VALUE;
         this.lastSyncedSaturation = Float.NaN;
         this.lastSyncedActive = false;
@@ -133,10 +112,6 @@ public final class BonusHungerData implements ValueIOSerializable {
 
     public float getSaturation() {
         return this.saturation;
-    }
-
-    public float getExhaustion() {
-        return this.exhaustion;
     }
 
     public int getTickTimer() {
@@ -184,10 +159,7 @@ public final class BonusHungerData implements ValueIOSerializable {
     }
 
     public void queueFinishedFood(int nutrition, float saturationModifier, boolean forceBonusFood, boolean canAlwaysEat) {
-        if (nutrition <= 0) {
-            return;
-        }
-
+        if (nutrition <= 0) return;
         this.hasPendingFinishedFood = true;
         this.pendingFoodNutrition = nutrition;
         this.pendingFoodSaturationModifier = saturationModifier;
@@ -215,11 +187,6 @@ public final class BonusHungerData implements ValueIOSerializable {
         return this.food > 0 || this.saturation > 0.0F;
     }
 
-    public void setFood(int food) {
-        this.food = Mth.clamp(food, 0, MAX_FOOD);
-        clampToValidState();
-    }
-
     public void setSaturation(float saturation) {
         this.saturation = Mth.clamp(saturation, 0.0F, this.food);
     }
@@ -239,45 +206,28 @@ public final class BonusHungerData implements ValueIOSerializable {
     }
 
     public void eat(int nutrition, float saturationModifier) {
-        if (nutrition <= 0) {
-            return;
-        }
-
+        if (nutrition <= 0) return;
         this.food = Mth.clamp(this.food + nutrition, 0, MAX_FOOD);
-        this.saturation = Mth.clamp(
-                this.saturation + (float) nutrition * saturationModifier * 2.0F,
-                0.0F,
-                this.food
-        );
-
+        this.saturation = Mth.clamp(this.saturation + (float) nutrition * saturationModifier * 2.0F, 0.0F, this.food);
         clampToValidState();
     }
 
     public void addExhaustion(float amount, boolean canDrainFood) {
-        if (amount <= 0.0F) {
-            return;
-        }
-
-        this.exhaustion = Math.min(this.exhaustion + amount, MAX_STORED_EXHAUSTION);
-
-        while (this.exhaustion > EXHAUSTION_STEP) {
-            this.exhaustion -= EXHAUSTION_STEP;
-
+        if (amount <= 0.0F) return;
+        this.exhaustion = Math.min(this.exhaustion + amount, 40.0F);
+        while (this.exhaustion > 4.0F) {
+            this.exhaustion -= 4.0F;
             if (this.saturation > 0.0F) {
                 this.saturation = Math.max(this.saturation - 1.0F, 0.0F);
             } else if (canDrainFood && this.food > 0) {
                 this.food = Math.max(this.food - 1, 0);
             }
         }
-
         clampToValidState();
     }
 
     public float drainSaturation(float requested) {
-        if (requested <= 0.0F || this.saturation <= 0.0F) {
-            return 0.0F;
-        }
-
+        if (requested <= 0.0F || this.saturation <= 0.0F) return 0.0F;
         float drained = Math.min(this.saturation, requested);
         this.saturation -= drained;
         clampToValidState();
@@ -285,10 +235,7 @@ public final class BonusHungerData implements ValueIOSerializable {
     }
 
     public int drainFood(int requested) {
-        if (requested <= 0 || this.food <= 0) {
-            return 0;
-        }
-
+        if (requested <= 0 || this.food <= 0) return 0;
         int drained = Math.min(this.food, requested);
         this.food -= drained;
         clampToValidState();
@@ -296,9 +243,7 @@ public final class BonusHungerData implements ValueIOSerializable {
     }
 
     public boolean shouldSync(boolean active) {
-        return active != this.lastSyncedActive
-                || this.food != this.lastSyncedFood
-                || Float.compare(this.saturation, this.lastSyncedSaturation) != 0;
+        return active != this.lastSyncedActive || this.food != this.lastSyncedFood || Float.compare(this.saturation, this.lastSyncedSaturation) != 0;
     }
 
     public void markSynced(boolean active) {
@@ -310,7 +255,7 @@ public final class BonusHungerData implements ValueIOSerializable {
     private void clampToValidState() {
         this.food = Mth.clamp(this.food, 0, MAX_FOOD);
         this.saturation = Mth.clamp(this.saturation, 0.0F, this.food);
-        this.exhaustion = Mth.clamp(this.exhaustion, 0.0F, MAX_STORED_EXHAUSTION);
+        this.exhaustion = Mth.clamp(this.exhaustion, 0.0F, 40.0F);
         this.tickTimer = Math.max(0, this.tickTimer);
     }
 }

@@ -6,12 +6,10 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.block.Block;
-
 import java.util.Objects;
 
 public final class FireTextures {
     private FireTextures() {}
-
     //? if >=1.21.11 {
     /*public record Set(Identifier base) {
     *///?} else {
@@ -48,7 +46,6 @@ public final class FireTextures {
         int slash = path.lastIndexOf('/');
         String stem = slash >= 0 ? path.substring(slash + 1) : path;
         String frameStem = stem + "_" + frame;
-
         //? if >=1.21.11 {
         /*return Identifier.fromNamespaceAndPath(base.getNamespace(), path + "/" + frameStem + "/" + frameStem + "_" + layer);
         *///?} else {
@@ -63,7 +60,6 @@ public final class FireTextures {
         *///?} else {
         private ResourceLocation base;
         //?}
-
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
         }
@@ -79,10 +75,7 @@ public final class FireTextures {
         }
 
         public Set build() {
-            if (base == null) {
-                throw new IllegalStateException("No fire texture configured for " + block);
-            }
-
+            if (base == null) throw new IllegalStateException("No fire texture configured for " + block);
             return new Set(base);
         }
     }

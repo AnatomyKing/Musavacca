@@ -6,12 +6,10 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.block.Block;
-
 import java.util.Objects;
 
 public final class CrossTextures {
     private CrossTextures() {}
-
     //? if >=1.21.11 {
     /*public record Set(Identifier texture) {
     *///?} else {
@@ -29,7 +27,6 @@ public final class CrossTextures {
         *///?} else {
         private ResourceLocation texture;
         //?}
-
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
             this.texture = TextureTokens.block(block);
@@ -48,7 +45,6 @@ public final class CrossTextures {
         public Set build() {
             return new Set(texture);
         }
-
     }
 
     public static Builder of(Block block) {

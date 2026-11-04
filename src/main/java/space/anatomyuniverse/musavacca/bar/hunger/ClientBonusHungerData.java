@@ -1,13 +1,11 @@
 package space.anatomyuniverse.musavacca.bar.hunger;
 
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 
 public final class ClientBonusHungerData {
     private static int food = BonusHungerData.MAX_FOOD;
     private static float saturation = BonusHungerData.MAX_FOOD;
     private static boolean active = false;
-
     private ClientBonusHungerData() {
     }
 
@@ -32,18 +30,4 @@ public final class ClientBonusHungerData {
     public static boolean needsFood() {
         return active && food < BonusHungerData.MAX_FOOD;
     }
-
-    public static boolean shouldJitter(Player player) {
-        if (!active) {
-            return false;
-        }
-
-        if (saturation > 0.0F) {
-            return false;
-        }
-
-        int interval = food * 3 + 1;
-        return interval > 0 && player.tickCount % interval == 0;
-    }
 }
-

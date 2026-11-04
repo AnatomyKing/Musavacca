@@ -7,7 +7,6 @@ import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 
 public final class BananaCowBlessingEvents {
     private BananaCowBlessingEvents() {}
-
     @SubscribeEvent
     public static void onEffectApplicable(MobEffectEvent.Applicable event) {
         if (event.getEntity().hasEffect(ModMobEffects.BANANA_COW_BLESSING)
@@ -20,7 +19,6 @@ public final class BananaCowBlessingEvents {
     public static void onEffectAdded(MobEffectEvent.Added event) {
         LivingEntity entity = event.getEntity();
         MobEffectInstance added = event.getEffectInstance();
-
         if (added.is(ModMobEffects.BANANA_COW_BLESSING)) {
             removeOtherEffects(entity);
         } else if (entity.hasEffect(ModMobEffects.BANANA_COW_BLESSING) && !isExempt(added)) {
@@ -29,13 +27,11 @@ public final class BananaCowBlessingEvents {
     }
 
     private static boolean isExempt(MobEffectInstance effect) {
-        return effect.is(ModMobEffects.BANANA_COW_BLESSING)
-                || effect.getEffect().is(ModMobEffectTags.BYPASSES_COW_BLESSING);
+        return effect.is(ModMobEffects.BANANA_COW_BLESSING) || effect.getEffect().is(ModMobEffectTags.BYPASSES_COW_BLESSING);
     }
 
     private static void removeOtherEffects(LivingEntity entity) {
-        for (MobEffectInstance effect : entity.getActiveEffects().stream()
-                .filter(effect -> !isExempt(effect)).toList()) {
+        for (MobEffectInstance effect : entity.getActiveEffects().stream().filter(effect -> !isExempt(effect)).toList()) {
             entity.removeEffect(effect.getEffect());
         }
     }

@@ -4,41 +4,31 @@ import com.mojang.blaze3d.platform.InputConstants;
 //? if >=1.21.9 {
 /*import net.minecraft.client.input.MouseButtonEvent;
 *///?}
-
-//? if >=1.21.6 {
+//? if >=1.21.2 {
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-
+//?}
+//? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-//?} else if >=1.21.2 <1.21.6 {
-/*import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-
-import net.neoforged.neoforge.network.PacketDistributor;
-*///?} else {
+//?} else {
 /*import net.neoforged.neoforge.network.PacketDistributor;
 *///?}
-
 //? if >=1.21.11 {
-/*import net.minecraft.client.renderer.rendertype.RenderType;
-*///?} else {
+//?} else {
 import net.minecraft.client.renderer.RenderType;
 //?}
-
 //? if >=26.1 {
 /*import net.minecraft.client.gui.GuiGraphicsExtractor;
 *///?} else {
 import net.minecraft.client.gui.GuiGraphics;
 //?}
-
-//? if >=1.21.6 {
+//? if >=1.21.2 {
 import net.minecraft.client.gui.screens.inventory.EffectsInInventory;
-
+//?}
+//? if >=1.21.6 {
 import net.minecraft.client.renderer.RenderPipelines;
-//?} else if >=1.21.2 <1.21.6 {
-/*import net.minecraft.client.gui.screens.inventory.EffectsInInventory;
-*///?} else {
+//?} else if <1.21.2 {
 /*import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 *///?}
-
 import net.minecraft.network.chat.Component;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
@@ -53,456 +43,188 @@ import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
 import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 
 public final class VocoCallerFrontend
-
         //? if >=1.21.2 {
         extends AbstractContainerScreen<VocoCallerMenu> {
         //?} else {
         /*extends EffectRenderingInventoryScreen<VocoCallerMenu> {
         *///?}
-
-    private static final int GUI_WIDTH = 286;
-    private static final int GUI_HEIGHT = 206;
-
-    private static final int EFFECT_PANEL_WIDTH = 120;
-    private static final int EFFECT_PANEL_GAP = 2;
-    private static final int EFFECT_PANEL_Y_OFFSET = 34;
-
-    private static final int PHONE_X = 0;
-    private static final int PHONE_Y = 0;
-    private static final int PHONE_WIDTH = 126;
-    private static final int PHONE_HEIGHT = 206;
-
-    private static final int DIALER_X = 129;
-    private static final int DIALER_Y = 42;
-
-    private static final int BUTTON_BAR_X = 129;
-    private static final int BUTTON_BAR_Y = 0;
-    private static final int BUTTON_BAR_WIDTH = 157;
-    private static final int BUTTON_BAR_HEIGHT = 39;
-
-    private static final int BUTTON_Y = 8;
-    private static final int BUTTON_HEIGHT = 20;
-
-    private static final int CURRENT_DIALED_X = 52;
-    private static final int CURRENT_DIALED_Y = 22;
-
-    private static final int RECENT_X = 23;
-    private static final int SAVED_X = 76;
-    private static final int LIST_Y = 59;
-    private static final int ROW_HEIGHT = 9;
-
-    private static final int SYMBOL_WIDTH = 5;
-    private static final int SYMBOL_HEIGHT = 7;
-    private static final int SYMBOL_STEP = 4;
-    private static final int HEX_LENGTH = 6;
-
-    private static final int SELECTION_COUNT =
-            VocoCallerBackend.ROW_COUNT * 2;
-
-    private static final int RECENT_CARET_X = 19;
-    private static final int SAVED_CARET_X = 72;
-    private static final int CARET_WIDTH = 2;
-    private static final int CARET_HEIGHT = 7;
-    private static final int CARET_COLOR = 0xFFCFBF5F;
-
-    private static final long CARET_BLINK_NANOS =
-            500_000_000L;
-
-    private static final long ARROW_REPEAT_DELAY_NANOS =
-            280_000_000L;
-
-    private static final long ARROW_REPEAT_INTERVAL_NANOS =
-            35_000_000L;
-
-    private static final long DOUBLE_CLICK_NANOS =
-            300_000_000L;
-
-    private static final long LONG_PRESS_NANOS =
-            650_000_000L;
-
-    private static final long FLASH_PHASE_NANOS =
-            75_000_000L;
-
+    private static final int SELECTION_COUNT = VocoCallerBackend.ROW_COUNT * 2;
     //? if >=1.21.11 {
-    /*private static final Identifier PHONE_SCREEN_TEXTURE =
+    /*private static final Identifier PHONE_SCREEN_TEXTURE = texture("phone_screen");
+    private static final Identifier PHONE_SCREEN_FLASH_TEXTURE = texture("phone_screen_flash");
+    private static final Identifier BUTTON_BAR_TEXTURE = texture("button_bar");
+    private static final Identifier ARROW_LEFT_TEXTURE = texture("arrow_left");
+    private static final Identifier ARROW_LEFT_PRESSED_TEXTURE = texture("arrow_left_pressed");
+    private static final Identifier SPACE_BUTTON_TEXTURE = texture("space_button");
+    private static final Identifier SPACE_BUTTON_PRESSED_TEXTURE = texture("space_button_pressed");
+    private static final Identifier ARROW_RIGHT_TEXTURE = texture("arrow_right");
+    private static final Identifier ARROW_RIGHT_PRESSED_TEXTURE = texture("arrow_right_pressed");
+    private static final Identifier[] SYMBOL_TEXTURES = createSymbolTextures();
     *///?} else {
-    private static final ResourceLocation PHONE_SCREEN_TEXTURE =
+    private static final ResourceLocation PHONE_SCREEN_TEXTURE = texture("phone_screen");
+    private static final ResourceLocation PHONE_SCREEN_FLASH_TEXTURE = texture("phone_screen_flash");
+    private static final ResourceLocation BUTTON_BAR_TEXTURE = texture("button_bar");
+    private static final ResourceLocation ARROW_LEFT_TEXTURE = texture("arrow_left");
+    private static final ResourceLocation ARROW_LEFT_PRESSED_TEXTURE = texture("arrow_left_pressed");
+    private static final ResourceLocation SPACE_BUTTON_TEXTURE = texture("space_button");
+    private static final ResourceLocation SPACE_BUTTON_PRESSED_TEXTURE = texture("space_button_pressed");
+    private static final ResourceLocation ARROW_RIGHT_TEXTURE = texture("arrow_right");
+    private static final ResourceLocation ARROW_RIGHT_PRESSED_TEXTURE = texture("arrow_right_pressed");
+    private static final ResourceLocation[] SYMBOL_TEXTURES = createSymbolTextures();
     //?}
-            texture("phone_screen");
-
-    //? if >=1.21.11 {
-    /*private static final Identifier PHONE_SCREEN_FLASH_TEXTURE =
-    *///?} else {
-    private static final ResourceLocation PHONE_SCREEN_FLASH_TEXTURE =
-    //?}
-            texture("phone_screen_flash");
-
-    //? if >=1.21.11 {
-    /*private static final Identifier BUTTON_BAR_TEXTURE =
-    *///?} else {
-    private static final ResourceLocation BUTTON_BAR_TEXTURE =
-    //?}
-            texture("button_bar");
-
-    //? if >=1.21.11 {
-    /*private static final Identifier ARROW_LEFT_TEXTURE =
-    *///?} else {
-    private static final ResourceLocation ARROW_LEFT_TEXTURE =
-    //?}
-            texture("arrow_left");
-
-    //? if >=1.21.11 {
-    /*private static final Identifier ARROW_LEFT_PRESSED_TEXTURE =
-    *///?} else {
-    private static final ResourceLocation ARROW_LEFT_PRESSED_TEXTURE =
-    //?}
-            texture("arrow_left_pressed");
-
-    //? if >=1.21.11 {
-    /*private static final Identifier SPACE_BUTTON_TEXTURE =
-    *///?} else {
-    private static final ResourceLocation SPACE_BUTTON_TEXTURE =
-    //?}
-            texture("space_button");
-
-    //? if >=1.21.11 {
-    /*private static final Identifier SPACE_BUTTON_PRESSED_TEXTURE =
-    *///?} else {
-    private static final ResourceLocation SPACE_BUTTON_PRESSED_TEXTURE =
-    //?}
-            texture("space_button_pressed");
-
-    //? if >=1.21.11 {
-    /*private static final Identifier ARROW_RIGHT_TEXTURE =
-    *///?} else {
-    private static final ResourceLocation ARROW_RIGHT_TEXTURE =
-    //?}
-            texture("arrow_right");
-
-    //? if >=1.21.11 {
-    /*private static final Identifier ARROW_RIGHT_PRESSED_TEXTURE =
-    *///?} else {
-    private static final ResourceLocation ARROW_RIGHT_PRESSED_TEXTURE =
-    //?}
-            texture("arrow_right_pressed");
-
-    //? if >=1.21.11 {
-    /*private static final Identifier[] SYMBOL_TEXTURES =
-    *///?} else {
-    private static final ResourceLocation[] SYMBOL_TEXTURES =
-    //?}
-            createSymbolTextures();
-
-    private final VocoDialerControl dialer =
-            new VocoDialerControl(
-                    this::sendBackendButton
-            );
-
+    private final VocoDialerControl dialer = new VocoDialerControl(this::sendBackendButton);
     //? if >=1.21.2 {
     private final EffectsInInventory effects;
-
     //?}
     private int selectedPosition = 0;
-
     private boolean currentHexPressed = false;
     private long phoneScreenFlashStartNanos = 0L;
-
     private int lastNavigationDirection = 1;
-
-    private long caretBlinkStartNanos =
-            System.nanoTime();
-
+    private long caretBlinkStartNanos = System.nanoTime();
     private CallerButton pressedButton = null;
     private long buttonRepeatLastNanos = 0L;
     private boolean buttonRepeatMode = false;
-
     private int spacePressPosition = -1;
     private long spacePressStartNanos = 0L;
     private boolean spacePressConsumed = false;
     private boolean spaceDoubleClick = false;
-
     private int pendingSpacePosition = -1;
     private long pendingSpaceClickNanos = 0L;
-
-    public VocoCallerFrontend(
-            VocoCallerMenu menu,
-            Inventory playerInventory,
-            Component title
-    ) {
-
+    public VocoCallerFrontend(VocoCallerMenu menu, Inventory playerInventory, Component title) {
         //? if >=26.1 {
-        /*super(menu, playerInventory, title, GUI_WIDTH, GUI_HEIGHT);
+        /*super(menu, playerInventory, title, 286, 206);
         *///?} else {
         super(menu, playerInventory, title);
-        this.imageWidth = GUI_WIDTH;
-        this.imageHeight = GUI_HEIGHT;
+        this.imageWidth = 286;
+        this.imageHeight = 206;
         //?}
-
         this.titleLabelY = 10000;
         this.inventoryLabelY = 10000;
         //? if >=1.21.2 {
-
         this.effects = new EffectsInInventory(this);
         //?}
-
         this.ensureCaretOnFilledEntry();
     }
 
     public int getEffectPanelX() {
-        int right =
-                this.leftPos
-                        + this.imageWidth
-                        + EFFECT_PANEL_GAP;
-
-        if (this.width - right >= EFFECT_PANEL_WIDTH) {
-            return right;
-        }
-
-        int left =
-                this.leftPos
-                        - EFFECT_PANEL_WIDTH
-                        - EFFECT_PANEL_GAP;
-
-        if (left >= EFFECT_PANEL_GAP) {
-            return left;
-        }
-
-        return Math.max(
-                EFFECT_PANEL_GAP,
-                this.width
-                        - EFFECT_PANEL_WIDTH
-                        - EFFECT_PANEL_GAP
-        );
+        int right = this.leftPos + this.imageWidth + 2;
+        if (this.width - right >= 120) return right;
+        int left = this.leftPos - 120 - 2;
+        if (left >= 2) return left;
+        return Math.max(2, this.width - 120 - 2);
     }
 
-    @Override
     //? if >=26.1 {
-    /*public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    /*@Override
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
-    *///?} else {
-    protected void renderBg(
-            GuiGraphics graphics,
-            float partialTick,
-            int mouseX,
-            int mouseY
-    ) {
-    //?}
         this.tickHeldArrow();
         this.tickSpaceButton();
-
-        blit(
-                graphics,
-                this.isPhoneScreenFlashing()
-                        ? PHONE_SCREEN_FLASH_TEXTURE
-                        : PHONE_SCREEN_TEXTURE,
-                this.leftPos + PHONE_X,
-                this.topPos + PHONE_Y,
-                PHONE_WIDTH,
-                PHONE_HEIGHT
-        );
-
-        this.dialer.render(
-                graphics,
-                this.leftPos + DIALER_X,
-                this.topPos + DIALER_Y
-        );
-
+        blit(graphics, this.isPhoneScreenFlashing() ? PHONE_SCREEN_FLASH_TEXTURE : PHONE_SCREEN_TEXTURE, this.leftPos + 0, this.topPos + 0, 126, 206);
+        this.dialer.render(graphics, this.leftPos + 129, this.topPos + 42);
         nextLayer(graphics);
-
-        blit(
-                graphics,
-                BUTTON_BAR_TEXTURE,
-                this.leftPos + BUTTON_BAR_X,
-                this.topPos + BUTTON_BAR_Y,
-                BUTTON_BAR_WIDTH,
-                BUTTON_BAR_HEIGHT
-        );
-
+        blit(graphics, BUTTON_BAR_TEXTURE, this.leftPos + 129, this.topPos + 0, 157, 39);
         nextLayer(graphics);
-
         for (CallerButton button : CallerButton.values()) {
-            blit(
-                    graphics,
-                    button.texture(
-                            this.pressedButton == button
-                    ),
-                    this.leftPos + button.x,
-                    this.topPos + BUTTON_Y,
-                    button.width,
-                    BUTTON_HEIGHT
-            );
+            blit(graphics, button.texture(this.pressedButton == button), this.leftPos + button.x, this.topPos + 8, button.width, 20);
         }
     }
-
+    *///?}
+    //? if <26.1 {
     @Override
-    //? if >=26.1 {
-    /*protected void extractLabels(
-            GuiGraphicsExtractor graphics,
-    *///?} else {
-    protected void renderLabels(
-            GuiGraphics graphics,
+    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        this.tickHeldArrow();
+        this.tickSpaceButton();
+        blit(graphics, this.isPhoneScreenFlashing() ? PHONE_SCREEN_FLASH_TEXTURE : PHONE_SCREEN_TEXTURE, this.leftPos + 0, this.topPos + 0, 126, 206);
+        this.dialer.render(graphics, this.leftPos + 129, this.topPos + 42);
+        nextLayer(graphics);
+        blit(graphics, BUTTON_BAR_TEXTURE, this.leftPos + 129, this.topPos + 0, 157, 39);
+        nextLayer(graphics);
+        for (CallerButton button : CallerButton.values()) {
+            blit(graphics, button.texture(this.pressedButton == button), this.leftPos + button.x, this.topPos + 8, button.width, 20);
+        }
+    }
     //?}
-            int mouseX,
-            int mouseY
-    ) {
+    //? if >=26.1 {
+    /*@Override
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         this.renderCurrentDialed(graphics);
         this.renderCallLists(graphics);
         this.renderSelectionCaret(graphics);
     }
-
-    private void renderCurrentDialed(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics
-            *///?} else {
-            GuiGraphics graphics
-            //?}
-    ) {
-        this.drawHexCode(
-                graphics,
-                this.currentHexCode(),
-                CURRENT_DIALED_X,
-                CURRENT_DIALED_Y
-        );
+    *///?}
+    //? if <26.1 {
+    @Override
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        this.renderCurrentDialed(graphics);
+        this.renderCallLists(graphics);
+        this.renderSelectionCaret(graphics);
+    }
+    //?}
+    //? if >=26.1 {
+    /*private void renderCurrentDialed(GuiGraphicsExtractor graphics) {
+    *///?} else {
+    private void renderCurrentDialed(GuiGraphics graphics) {
+    //?}
+        this.drawHexCode(graphics, this.currentHexCode(), 52, 22);
     }
 
     private String currentHexCode() {
-        String hexCode =
-                this.backend().getCurrentDialed();
-
-        return hexCode == null
-                ? VocoCallerBackend.formatHex(this.menu.getPhoneHex())
-                : hexCode;
+        String hexCode = this.backend().getCurrentDialed();
+        return hexCode == null ? VocoCallerBackend.formatHex(this.menu.getPhoneHex()) : hexCode;
     }
 
     private boolean isPhoneScreenFlashing() {
-        if (this.phoneScreenFlashStartNanos == 0L) {
-            return false;
-        }
-
-        long phase =
-                (System.nanoTime() - this.phoneScreenFlashStartNanos)
-                        / FLASH_PHASE_NANOS;
-
+        if (this.phoneScreenFlashStartNanos == 0L) return false;
+        long phase = (System.nanoTime() - this.phoneScreenFlashStartNanos) / 75_000_000L;
         return phase < 4 && phase % 2 == 0;
     }
 
-    private void renderCallLists(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics
-            *///?} else {
-            GuiGraphics graphics
-            //?}
-    ) {
-        for (
-                int row = 0;
-                row < VocoCallerBackend.ROW_COUNT;
-                row++
-        ) {
-            int y =
-                    LIST_Y
-                            + row * ROW_HEIGHT;
-
-            this.drawHexCode(
-                    graphics,
-                    this.backend().getRecentCall(row),
-                    RECENT_X,
-                    y
-            );
-
-            this.drawHexCode(
-                    graphics,
-                    this.backend().getSavedNumber(row),
-                    SAVED_X,
-                    y
-            );
+    //? if >=26.1 {
+    /*private void renderCallLists(GuiGraphicsExtractor graphics) {
+    *///?} else {
+    private void renderCallLists(GuiGraphics graphics) {
+    //?}
+        for (int row = 0; row < VocoCallerBackend.ROW_COUNT; row++) {
+            int y = 59 + row * 9;
+            this.drawHexCode(graphics, this.backend().getRecentCall(row), 23, y);
+            this.drawHexCode(graphics, this.backend().getSavedNumber(row), 76, y);
         }
     }
 
-    private void drawHexCode(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics,
-            *///?} else {
-            GuiGraphics graphics,
-            //?}
-            String hexCode,
-            int x,
-            int y
-    ) {
-        if (hexCode == null) {
-            return;
-        }
-
-        for (
-                int index = 0;
-                index < Math.min(
-                        HEX_LENGTH,
-                        hexCode.length()
-                );
-                index++
-        ) {
-            int symbol =
-                    Character.digit(
-                            hexCode.charAt(index),
-                            16
-                    );
-
+    //? if >=26.1 {
+    /*private void drawHexCode(GuiGraphicsExtractor graphics, String hexCode, int x, int y) {
+    *///?} else {
+    private void drawHexCode(GuiGraphics graphics, String hexCode, int x, int y) {
+    //?}
+        if (hexCode == null) return;
+        for (int index = 0; index < Math.min(6, hexCode.length()); index++) {
+            int symbol = Character.digit(hexCode.charAt(index), 16);
             if (symbol >= 0) {
-                blit(
-                        graphics,
-                        SYMBOL_TEXTURES[symbol],
-                        x + index * SYMBOL_STEP,
-                        y,
-                        SYMBOL_WIDTH,
-                        SYMBOL_HEIGHT
-                );
+                blit(graphics, SYMBOL_TEXTURES[symbol], x + index * 4, y, 5, 7);
             }
         }
     }
 
-    private void renderSelectionCaret(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics
-            *///?} else {
-            GuiGraphics graphics
-            //?}
-    ) {
+    //? if >=26.1 {
+    /*private void renderSelectionCaret(GuiGraphicsExtractor graphics) {
+    *///?} else {
+    private void renderSelectionCaret(GuiGraphics graphics) {
+    //?}
         if (
                 !this.hasEntry(this.selectedPosition)
                         || !this.isCaretVisible()
         ) {
             return;
         }
-
-        int row =
-                rowOf(this.selectedPosition);
-
-        int x =
-                isSavedPosition(this.selectedPosition)
-                        ? SAVED_CARET_X
-                        : RECENT_CARET_X;
-
-        int y =
-                LIST_Y
-                        + row * ROW_HEIGHT;
-
-        graphics.fill(
-                x,
-                y,
-                x + CARET_WIDTH,
-                y + CARET_HEIGHT,
-                CARET_COLOR
-        );
+        int row = rowOf(this.selectedPosition);
+        int x = isSavedPosition(this.selectedPosition) ? 72 : 19;
+        int y = 59 + row * 9;
+        graphics.fill(x, y, x + 2, y + 7, 0xFFCFBF5F);
     }
 
     private boolean isCaretVisible() {
-        return (
-                (
-                        System.nanoTime()
-                                - this.caretBlinkStartNanos
-                )
-                        / CARET_BLINK_NANOS
-                        & 1L
-        ) == 0L;
+        return ((System.nanoTime() - this.caretBlinkStartNanos) / 500_000_000L & 1L) == 0L;
     }
 
     @Override
@@ -511,152 +233,73 @@ public final class VocoCallerFrontend
         double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
-            return super.mouseClicked(event, doubleClick);
     *///?} else {
-    public boolean mouseClicked(
-            double mouseX,
-            double mouseY,
-            int button
-    ) {
-        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
-            return super.mouseClicked(
-                    mouseX,
-                    mouseY,
-                    button
-            );
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
     //?}
-        }
-
-        if (this.contains(
-                mouseX,
-                mouseY,
-                CURRENT_DIALED_X,
-                CURRENT_DIALED_Y,
-                (HEX_LENGTH - 1) * SYMBOL_STEP + SYMBOL_WIDTH,
-                SYMBOL_HEIGHT
-        )) {
+        //? if >=1.21.9 {
+        /*if (button != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseClicked(event, doubleClick);
+        *///?} else {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseClicked(mouseX, mouseY, button);
+        //?}
+        if (this.contains(mouseX, mouseY, 52, 22, (6 - 1) * 4 + 5, 7)) {
             this.clearPendingSpaceClick();
             this.currentHexPressed = true;
             return true;
         }
-
-        for (
-                CallerButton callerButton
-                : CallerButton.values()
-        ) {
+        for (CallerButton callerButton : CallerButton.values()) {
             if (
-                    !this.contains(
-                            mouseX,
-                            mouseY,
-                            callerButton.x,
-                            BUTTON_Y,
-                            callerButton.width,
-                            BUTTON_HEIGHT
-                    )
+                    !this.contains(mouseX, mouseY, callerButton.x, 8, callerButton.width, 20)
             ) {
                 continue;
             }
-
-            this.startButtonPress(
-                    callerButton
-            );
-
+            this.startButtonPress(callerButton);
             return true;
         }
-
         this.clearPendingSpaceClick();
-
-        return this.dialer.mouseClicked(
-                mouseX,
-                mouseY,
-                button,
-                this.leftPos + DIALER_X,
-                this.topPos + DIALER_Y
-        )
         //? if >=1.21.9 {
-                /*|| super.mouseClicked(event, doubleClick);
+        /*return this.dialer.mouseClicked(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42) || super.mouseClicked(event, doubleClick);
         *///?} else {
-                || super.mouseClicked(
-                mouseX,
-                mouseY,
-                button
-        );
+        return this.dialer.mouseClicked(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42) || super.mouseClicked(mouseX, mouseY, button);
         //?}
     }
 
     @Override
     //? if >=1.21.9 {
     /*public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
-        double mouseX = event.x();
+    *///?} else {
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    //?}
+        //? if >=1.21.9 {
+        /*double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-    *///?} else {
-    public boolean mouseDragged(
-            double mouseX,
-            double mouseY,
-            int button,
-            double dragX,
-            double dragY
-    ) {
-    //?}
-        return this.dialer.mouseDragged(
-                mouseX,
-                mouseY,
-                button,
-                this.leftPos + DIALER_X,
-                this.topPos + DIALER_Y
-        )
-        //? if >=1.21.9 {
-                /*|| super.mouseDragged(event, dragX, dragY);
+        return this.dialer.mouseDragged(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42) || super.mouseDragged(event, dragX, dragY);
         *///?} else {
-                || super.mouseDragged(
-                mouseX,
-                mouseY,
-                button,
-                dragX,
-                dragY
-        );
+        return this.dialer.mouseDragged(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42)
+                || super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
         //?}
     }
 
     @Override
     //? if >=1.21.9 {
     /*public boolean mouseReleased(MouseButtonEvent event) {
-        double mouseX = event.x();
-        double mouseY = event.y();
-        int button = event.button();
-        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
-            return super.mouseReleased(event);
     *///?} else {
-    public boolean mouseReleased(
-            double mouseX,
-            double mouseY,
-            int button
-    ) {
-        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
-            return super.mouseReleased(
-                    mouseX,
-                    mouseY,
-                    button
-            );
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
     //?}
-        }
-
+        //? if >=1.21.9 {
+        /*int button = event.button();
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseReleased(event);
+        *///?} else {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseReleased(mouseX, mouseY, button);
+        //?}
         if (this.currentHexPressed) {
             this.currentHexPressed = false;
-
             if (this.minecraft != null) {
-                this.minecraft.keyboardHandler.setClipboard(
-                        "#" + this.currentHexCode()
-                );
-
+                this.minecraft.keyboardHandler.setClipboard("#" + this.currentHexCode());
                 this.phoneScreenFlashStartNanos = System.nanoTime();
             }
-
             return true;
         }
-
         if (this.pressedButton != null) {
             if (
                     this.pressedButton
@@ -664,33 +307,20 @@ public final class VocoCallerFrontend
             ) {
                 this.finishSpacePress();
             }
-
             this.clearButtonPress();
             return true;
         }
-
-        return this.dialer.mouseReleased(button)
         //? if >=1.21.9 {
-                /*|| super.mouseReleased(event);
+        /*return this.dialer.mouseReleased(button) || super.mouseReleased(event);
         *///?} else {
-                || super.mouseReleased(
-                mouseX,
-                mouseY,
-                button
-        );
+        return this.dialer.mouseReleased(button) || super.mouseReleased(mouseX, mouseY, button);
         //?}
     }
 
-    private void startButtonPress(
-            CallerButton button
-    ) {
+    private void startButtonPress(CallerButton button) {
         this.pressedButton = button;
-
-        this.buttonRepeatLastNanos =
-                System.nanoTime();
-
+        this.buttonRepeatLastNanos = System.nanoTime();
         this.buttonRepeatMode = false;
-
         if (button == CallerButton.SPACE) {
             this.beginSpacePress();
         } else {
@@ -699,55 +329,27 @@ public final class VocoCallerFrontend
         }
     }
 
-    private void activateButton(
-            CallerButton button
-    ) {
+    private void activateButton(CallerButton button) {
         switch (button) {
             case LEFT ->
                     this.moveSelection(-1);
-
             case SPACE -> {
             }
-
             case RIGHT ->
                     this.moveSelection(1);
         }
     }
 
-    private void dialEntry(
-            int position
-    ) {
-        String hexCode =
-                this.hexCodeAt(position);
-
-        if (hexCode == null) {
-            return;
-        }
-
-        this.sendBackendButton(
-                VocoDialerBackend.buttonForAddress(
-                        VocoCallerBackend.parseHex(
-                                hexCode
-                        )
-                )
-        );
+    private void dialEntry(int position) {
+        String hexCode = this.hexCodeAt(position);
+        if (hexCode == null) return;
+        this.sendBackendButton(VocoDialerBackend.buttonForAddress(VocoCallerBackend.parseHex(hexCode)));
     }
 
-    private String hexCodeAt(
-            int position
-    ) {
-        if (!this.hasEntry(position)) {
-            return null;
-        }
-
-        int row =
-                rowOf(position);
-
-        return isSavedPosition(position)
-                ? this.backend()
-                .getSavedNumber(row)
-                : this.backend()
-                .getRecentCall(row);
+    private String hexCodeAt(int position) {
+        if (!this.hasEntry(position)) return null;
+        int row = rowOf(position);
+        return isSavedPosition(position) ? this.backend().getSavedNumber(row) : this.backend().getRecentCall(row);
     }
 
     private void tickHeldArrow() {
@@ -759,15 +361,8 @@ public final class VocoCallerFrontend
         ) {
             return;
         }
-
-        long now =
-                System.nanoTime();
-
-        long wait =
-                this.buttonRepeatMode
-                        ? ARROW_REPEAT_INTERVAL_NANOS
-                        : ARROW_REPEAT_DELAY_NANOS;
-
+        long now = System.nanoTime();
+        long wait = this.buttonRepeatMode ? 35_000_000L : 280_000_000L;
         if (
                 now
                         - this.buttonRepeatLastNanos
@@ -775,19 +370,12 @@ public final class VocoCallerFrontend
         ) {
             return;
         }
-
         int guard = 0;
-
         do {
-            this.activateButton(
-                    this.pressedButton
-            );
-
-            this.buttonRepeatLastNanos +=
-                    wait;
-
+            this.activateButton(this.pressedButton);
+            this.buttonRepeatLastNanos += wait;
             this.buttonRepeatMode = true;
-            wait = ARROW_REPEAT_INTERVAL_NANOS;
+            wait = 35_000_000L;
             guard++;
         } while (
                 now
@@ -798,58 +386,32 @@ public final class VocoCallerFrontend
     }
 
     private void beginSpacePress() {
-        long now =
-                System.nanoTime();
-
-        this.spacePressPosition =
-                this.hasEntry(
-                        this.selectedPosition
-                )
-                        ? this.selectedPosition
-                        : -1;
-
+        long now = System.nanoTime();
+        this.spacePressPosition = this.hasEntry(this.selectedPosition) ? this.selectedPosition : -1;
         this.spacePressStartNanos = now;
         this.spacePressConsumed = false;
         this.spaceDoubleClick = false;
-
-        if (this.spacePressPosition < 0) {
-            return;
-        }
-
-        if (this.pendingSpacePosition < 0) {
-            return;
-        }
-
+        if (this.spacePressPosition < 0) return;
+        if (this.pendingSpacePosition < 0) return;
         if (
                 now
                         - this.pendingSpaceClickNanos
-                        > DOUBLE_CLICK_NANOS
+                        > 300_000_000L
         ) {
-            int pendingPosition =
-                    this.pendingSpacePosition;
-
+            int pendingPosition = this.pendingSpacePosition;
             this.clearPendingSpaceClick();
             this.spacePressPosition = -1;
             this.spacePressConsumed = true;
-
-            this.dialEntry(
-                    pendingPosition
-            );
-
+            this.dialEntry(pendingPosition);
             return;
         }
-
-        this.spacePressPosition =
-                this.pendingSpacePosition;
-
+        this.spacePressPosition = this.pendingSpacePosition;
         this.clearPendingSpaceClick();
         this.spaceDoubleClick = true;
     }
 
     private void tickSpaceButton() {
-        long now =
-                System.nanoTime();
-
+        long now = System.nanoTime();
         if (
                 this.pressedButton
                         == CallerButton.SPACE
@@ -857,28 +419,21 @@ public final class VocoCallerFrontend
                         && !this.spacePressConsumed
                         && now
                         - this.spacePressStartNanos
-                        >= LONG_PRESS_NANOS
+                        >= 650_000_000L
         ) {
             this.clearPendingSpaceClick();
             this.spaceDoubleClick = false;
             this.spacePressConsumed = true;
-
-            this.deleteEntry(
-                    this.spacePressPosition
-            );
+            this.deleteEntry(this.spacePressPosition);
         }
-
         if (
                 this.pendingSpacePosition >= 0
                         && now
                         - this.pendingSpaceClickNanos
-                        > DOUBLE_CLICK_NANOS
+                        > 300_000_000L
         ) {
-            int position =
-                    this.pendingSpacePosition;
-
+            int position = this.pendingSpacePosition;
             this.clearPendingSpaceClick();
-
             this.dialEntry(position);
         }
     }
@@ -888,49 +443,30 @@ public final class VocoCallerFrontend
                 this.spacePressPosition >= 0
                         && !this.spacePressConsumed
         ) {
-            long now =
-                    System.nanoTime();
-
+            long now = System.nanoTime();
             if (
                     now
                             - this.spacePressStartNanos
-                            >= LONG_PRESS_NANOS
+                            >= 650_000_000L
             ) {
                 this.clearPendingSpaceClick();
                 this.spaceDoubleClick = false;
-
-                this.deleteEntry(
-                        this.spacePressPosition
-                );
+                this.deleteEntry(this.spacePressPosition);
             } else if (this.spaceDoubleClick) {
                 this.clearPendingSpaceClick();
-
-                this.activateDoubleSpaceClick(
-                        this.spacePressPosition
-                );
+                this.activateDoubleSpaceClick(this.spacePressPosition);
             } else {
                 this.clearPendingSpaceClick();
-
-                this.pendingSpacePosition =
-                        this.spacePressPosition;
-
+                this.pendingSpacePosition = this.spacePressPosition;
                 this.pendingSpaceClickNanos = now;
             }
         }
-
         this.clearSpacePress();
     }
 
-    private void activateDoubleSpaceClick(
-            int position
-    ) {
-        if (!this.hasEntry(position)) {
-            return;
-        }
-
-        int row =
-                rowOf(position);
-
+    private void activateDoubleSpaceClick(int position) {
+        if (!this.hasEntry(position)) return;
+        int row = rowOf(position);
         if (isSavedPosition(position)) {
             this.moveSavedEntry(row);
         } else {
@@ -950,95 +486,52 @@ public final class VocoCallerFrontend
         this.spaceDoubleClick = false;
     }
 
-    private void moveRecentEntryToSaved(
-            int row
-    ) {
+    private void moveRecentEntryToSaved(int row) {
         if (
                 !this.backend()
                         .moveRecentCallToSavedTop(row)
         ) {
             return;
         }
-
-        this.selectedPosition =
-                positionOf(
-                        0,
-                        true
-                );
-
+        this.selectedPosition = positionOf(0, true);
         this.restartCaretBlink();
     }
 
-    private void moveSavedEntry(
-            int row
-    ) {
+    private void moveSavedEntry(int row) {
         if (
                 !this.backend()
                         .hasSavedNumber(row)
         ) {
             return;
         }
-
-        int newRow =
-                this.backend()
-                        .moveSavedNumber(
-                                row,
-                                this.lastNavigationDirection
-                        );
-
-        this.selectedPosition =
-                positionOf(
-                        newRow,
-                        true
-                );
-
+        int newRow = this.backend().moveSavedNumber(row, this.lastNavigationDirection);
+        this.selectedPosition = positionOf(newRow, true);
         this.restartCaretBlink();
     }
 
-    private void deleteEntry(
-            int position
-    ) {
-        int row =
-                rowOf(position);
-
+    private void deleteEntry(int position) {
+        int row = rowOf(position);
         if (isSavedPosition(position)) {
-            this.backend()
-                    .deleteSavedNumberToRecent(row);
+            this.backend().deleteSavedNumberToRecent(row);
         } else {
-            this.backend()
-                    .deleteRecentCall(row);
+            this.backend().deleteRecentCall(row);
         }
-
         this.ensureCaretOnFilledEntry();
         this.restartCaretBlink();
     }
 
     private void ensureCaretOnFilledEntry() {
         if (
-                this.hasEntry(
-                        this.selectedPosition
-                )
+                this.hasEntry(this.selectedPosition)
         ) {
             return;
         }
-
-        int nextPosition =
-                this.findNextFilledPosition(
-                        this.selectedPosition,
-                        this.lastNavigationDirection
-                );
-
+        int nextPosition = this.findNextFilledPosition(this.selectedPosition, this.lastNavigationDirection);
         if (nextPosition < 0) {
-            nextPosition =
-                    this.findNextFilledPosition(
-                            this.selectedPosition,
-                            -this.lastNavigationDirection
-                    );
+            nextPosition = this.findNextFilledPosition(this.selectedPosition, -this.lastNavigationDirection);
         }
-
         if (nextPosition >= 0) {
-            this.selectedPosition =
-                    nextPosition;
+            this.selectedPosition = nextPosition;
         }
     }
 
@@ -1048,138 +541,64 @@ public final class VocoCallerFrontend
         this.buttonRepeatMode = false;
     }
 
-    private void moveSelection(
-            int direction
-    ) {
-        int step =
-                Integer.compare(
-                        direction,
-                        0
-                );
-
-        if (step == 0) {
-            return;
-        }
-
-        this.lastNavigationDirection =
-                step;
-
-        int nextPosition =
-                this.findNextFilledPosition(
-                        this.selectedPosition,
-                        step
-                );
-
-        if (nextPosition < 0) {
-            return;
-        }
-
-        this.selectedPosition =
-                nextPosition;
-
+    private void moveSelection(int direction) {
+        int step = Integer.compare(direction, 0);
+        if (step == 0) return;
+        this.lastNavigationDirection = step;
+        int nextPosition = this.findNextFilledPosition(this.selectedPosition, step);
+        if (nextPosition < 0) return;
+        this.selectedPosition = nextPosition;
         this.restartCaretBlink();
     }
 
-    private int findNextFilledPosition(
-            int fromPosition,
-            int direction
-    ) {
-        int step =
-                Integer.compare(
-                        direction,
-                        0
-                );
-
-        if (step == 0) {
-            return -1;
+    private int findNextFilledPosition(int fromPosition, int direction) {
+        int step = Integer.compare(direction, 0);
+        if (step == 0) return -1;
+        int position = fromPosition;
+        for (int checked = 0; checked < SELECTION_COUNT; checked++) {
+            position = Math.floorMod(position + step, SELECTION_COUNT);
+            if (this.hasEntry(position)) return position;
         }
-
-        int position =
-                fromPosition;
-
-        for (
-                int checked = 0;
-                checked < SELECTION_COUNT;
-                checked++
-        ) {
-            position =
-                    Math.floorMod(
-                            position + step,
-                            SELECTION_COUNT
-                    );
-
-            if (this.hasEntry(position)) {
-                return position;
-            }
-        }
-
         return -1;
     }
 
     private void restartCaretBlink() {
-        this.caretBlinkStartNanos =
-                System.nanoTime();
+        this.caretBlinkStartNanos = System.nanoTime();
     }
 
-    private boolean hasEntry(
-            int position
-    ) {
+    private boolean hasEntry(int position) {
         if (
                 position < 0
                         || position >= SELECTION_COUNT
         ) {
             return false;
         }
-
-        int row =
-                rowOf(position);
-
-        return isSavedPosition(position)
-                ? this.backend()
-                .hasSavedNumber(row)
-                : this.backend()
-                .hasRecentCall(row);
+        int row = rowOf(position);
+        return isSavedPosition(position) ? this.backend().hasSavedNumber(row) : this.backend().hasRecentCall(row);
     }
 
-    private static int rowOf(
-            int position
-    ) {
+    private static int rowOf(int position) {
         return position / 2;
     }
 
-    private static boolean isSavedPosition(
-            int position
-    ) {
+    private static boolean isSavedPosition(int position) {
         return (position & 1) != 0;
     }
 
-    private static int positionOf(
-            int row,
-            boolean savedNumber
-    ) {
-        return row * 2
-                + (
-                savedNumber
-                        ? 1
-                        : 0
-        );
+    private static int positionOf(int row, boolean savedNumber) {
+        return row * 2 + (savedNumber ? 1 : 0);
     }
 
     private VocoCallerBackend backend() {
         return this.menu.getBackend();
     }
 
-    private void sendBackendButton(
-            int buttonId
-    ) {
+    private void sendBackendButton(int buttonId) {
         if (
-                !VocoDialerBackend.isKnownButton(
-                        buttonId
-                )
+                !VocoDialerBackend.isKnownButton(buttonId)
         ) {
             return;
         }
-
         if (
                 this.minecraft == null
                         || this.minecraft.player == null
@@ -1187,11 +606,7 @@ public final class VocoCallerFrontend
         ) {
             return;
         }
-
-        String before =
-                this.backend()
-                        .getCurrentDialed();
-
+        String before = this.backend().getCurrentDialed();
         boolean completesCall =
                 buttonId
                         > VocoDialerBackend.BUTTON_CLEAR
@@ -1201,113 +616,45 @@ public final class VocoCallerFrontend
                         <= VocoDialerBackend.BUTTON_HEX_F
                         && before != null
                         && before.length() == 5;
-
         if (
-                !this.menu.clickMenuButton(
-                        this.minecraft.player,
-                        buttonId
-                )
+                !this.menu.clickMenuButton(this.minecraft.player, buttonId)
         ) {
             return;
         }
-
         if (completesCall) {
             this.syncCallStateToServer();
         }
-
-        this.minecraft.gameMode
-                .handleInventoryButtonClick(
-                        this.menu.containerId,
-                        buttonId
-                );
+        this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, buttonId);
     }
 
     private void syncCallStateToServer() {
         VocoCallerStatePayload payload =
-                new VocoCallerStatePayload(
-                        this.menu.containerId,
-                        this.menu.getPhoneHex(),
-                        this.backend()
-                                .copyRecentAddresses(),
-                        this.backend()
-                                .copySavedAddresses()
-                );
+                new VocoCallerStatePayload(this.menu.containerId, this.menu.getPhoneHex(), this.backend().copyRecentAddresses(),
+                        this.backend().copySavedAddresses());
         //? if >=1.21.6 {
-        ClientPacketDistributor.sendToServer(
+        ClientPacketDistributor.sendToServer(payload);
         //?} else {
-        /*PacketDistributor.sendToServer(
+        /*PacketDistributor.sendToServer(payload);
         *///?}
-                payload
-        );
     }
 
-    public void setRecentCall(
-            int row,
-            String hexCode
-    ) {
-        this.backend()
-                .setRecentCall(
-                        row,
-                        hexCode
-                );
-
+    public void setRecentCall(int row, String hexCode) {
+        this.backend().setRecentCall(row, hexCode);
         this.ensureCaretOnFilledEntry();
     }
 
-    public void setRecentCall(
-            int row,
-            int hexColor
-    ) {
-        this.backend()
-                .setRecentCall(
-                        row,
-                        hexColor
-                );
-
+    public void setRecentCall(int row, int hexColor) {
+        this.backend().setRecentCall(row, hexColor);
         this.ensureCaretOnFilledEntry();
     }
 
-    public void clearRecentCall(
-            int row
-    ) {
-        this.backend()
-                .clearRecentCall(row);
-
+    public void setSavedNumber(int row, String hexCode) {
+        this.backend().setSavedNumber(row, hexCode);
         this.ensureCaretOnFilledEntry();
     }
 
-    public void setSavedNumber(
-            int row,
-            String hexCode
-    ) {
-        this.backend()
-                .setSavedNumber(
-                        row,
-                        hexCode
-                );
-
-        this.ensureCaretOnFilledEntry();
-    }
-
-    public void setSavedNumber(
-            int row,
-            int hexColor
-    ) {
-        this.backend()
-                .setSavedNumber(
-                        row,
-                        hexColor
-                );
-
-        this.ensureCaretOnFilledEntry();
-    }
-
-    public void clearSavedNumber(
-            int row
-    ) {
-        this.backend()
-                .clearSavedNumber(row);
-
+    public void setSavedNumber(int row, int hexColor) {
+        this.backend().setSavedNumber(row, hexColor);
         this.ensureCaretOnFilledEntry();
     }
 
@@ -1329,308 +676,124 @@ public final class VocoCallerFrontend
         super.removed();
     }
 
-    @Override
     //? if >=26.1 {
-    /*public void extractRenderState(
-            GuiGraphicsExtractor graphics,
-    *///?} else {
-    public void render(
-            GuiGraphics graphics,
-    //?}
-            int mouseX,
-            int mouseY,
-            float partialTick
-    ) {
-        //? if <26.1 {
-        this.renderBackground(
-                graphics,
-                mouseX,
-                mouseY,
-                partialTick
-        );
-        //?}
-
-        //? if >=26.1 {
-        /*super.extractRenderState(
-        *///?} else {
-        super.render(
-        //?}
-                graphics,
-                mouseX,
-                mouseY,
-                partialTick
-        );
-
-        //? if >=26.1 {
-        /*int originalTopPos = this.topPos;
-        this.topPos += EFFECT_PANEL_Y_OFFSET;
-
-        try {
-
-            this.effects.extractRenderState(
-                    graphics,
-                    mouseX,
-                    mouseY
-            );
-
-        } finally {
-            this.topPos = originalTopPos;
-        }
-        *///?} else if >=1.21.11 <26.1 {
-        /*int originalTopPos = this.topPos;
-        this.topPos += EFFECT_PANEL_Y_OFFSET;
-
-        try {
-
-            this.effects.render(
-                    graphics,
-                    mouseX,
-                    mouseY
-            );
-
-        } finally {
-            this.topPos = originalTopPos;
-        }
-
-        this.renderTooltip(
-                graphics,
-                mouseX,
-                mouseY
-        );
-        *///?} else if >=1.21.6 <1.21.11 {
+    /*@Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         int originalTopPos = this.topPos;
-        this.topPos += EFFECT_PANEL_Y_OFFSET;
-
+        this.topPos += 34;
         try {
-
-            this.effects.renderEffects(
-                    graphics,
-                    mouseX,
-                    mouseY
-            );
-            this.effects.renderTooltip(
-                    graphics,
-                    mouseX,
-                    mouseY
-            );
-
+            this.effects.extractRenderState(graphics, mouseX, mouseY);
         } finally {
             this.topPos = originalTopPos;
         }
-
-        this.renderTooltip(
-                graphics,
-                mouseX,
-                mouseY
-        );
-        //?} else if >=1.21.2 <1.21.6 {
-        /*int originalTopPos = this.topPos;
-        this.topPos += EFFECT_PANEL_Y_OFFSET;
-
-        try {
-
-            this.effects.render(
-                    graphics,
-                    mouseX,
-                    mouseY,
-                    partialTick
-            );
-
-        } finally {
-            this.topPos = originalTopPos;
-        }
-
-        this.renderTooltip(
-                graphics,
-                mouseX,
-                mouseY
-        );
-        *///?} else {
-        /*this.renderTooltip(
-                graphics,
-                mouseX,
-                mouseY
-        );
-        *///?}
     }
-
-    private boolean contains(
-            double mouseX,
-            double mouseY,
-            int localX,
-            int localY,
-            int width,
-            int height
-    ) {
-        int x =
-                this.leftPos
-                        + localX;
-
-        int y =
-                this.topPos
-                        + localY;
-
-        return mouseX >= x
-                && mouseX < x + width
-                && mouseY >= y
-                && mouseY < y + height;
+    *///?}
+    //? if <26.1 {
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
+        super.render(graphics, mouseX, mouseY, partialTick);
+        //? if >=1.21.2 <26.1 {
+        int originalTopPos = this.topPos;
+        this.topPos += 34;
+        try {
+            //? if >=1.21.11 <26.1 {
+            /*this.effects.render(graphics, mouseX, mouseY);
+            *///?} else if >=1.21.6 <1.21.11 {
+            this.effects.renderEffects(graphics, mouseX, mouseY);
+            this.effects.renderTooltip(graphics, mouseX, mouseY);
+            //?} else {
+            /*this.effects.render(graphics, mouseX, mouseY, partialTick);
+            *///?}
+        } finally {
+            this.topPos = originalTopPos;
+        }
+        //?}
+        this.renderTooltip(graphics, mouseX, mouseY);
+    }
+    //?}
+    private boolean contains(double mouseX, double mouseY, int localX, int localY, int width, int height) {
+        int x = this.leftPos + localX;
+        int y = this.topPos + localY;
+        return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
     //? if >=1.21.11 {
     /*private static Identifier[]
-    createSymbolTextures() {
-        Identifier[] textures =
-                new Identifier[16];
     *///?} else {
     private static ResourceLocation[]
-    createSymbolTextures() {
-        ResourceLocation[] textures =
-                new ResourceLocation[16];
     //?}
-
-        for (
-                int value = 0;
-                value < textures.length;
-                value++
-        ) {
-            textures[value] =
-                    texture(
-                            "symbols/"
-                                    + Character.forDigit(
-                                    value,
-                                    16
-                            )
-                    );
+    createSymbolTextures() {
+        //? if >=1.21.11 {
+        /*Identifier[] textures = new Identifier[16];
+        *///?} else {
+        ResourceLocation[] textures = new ResourceLocation[16];
+        //?}
+        for (int value = 0; value < textures.length; value++) {
+            textures[value] = texture("symbols/" + Character.forDigit(value, 16));
         }
-
         return textures;
     }
 
     //? if >=1.21.11 {
-    /*private static Identifier texture(
+    /*private static Identifier texture(String name) {
+        return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/" + name + ".png");
     *///?} else {
-    private static ResourceLocation texture(
+    private static ResourceLocation texture(String name) {
+        return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/" + name + ".png");
     //?}
-            String name
-    ) {
-        //? if >=1.21.11 {
-        /*return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/"
-        *///?} else {
-        return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/"
-        //?}
-                        + name
-                        + ".png");
     }
 
-    private static void blit(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics,
-            Identifier texture,
-            *///?} else if >=1.21.11 <26.1 {
-            /*GuiGraphics graphics,
-            Identifier texture,
-            *///?} else {
-            GuiGraphics graphics,
-            ResourceLocation texture,
-            //?}
-            int x,
-            int y,
-            int width,
-            int height
-    ) {
-
+    //? if >=26.1 {
+    /*private static void blit(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width, int height) {
+    *///?} else if >=1.21.11 <26.1 {
+    /*private static void blit(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height) {
+    *///?} else {
+    private static void blit(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height) {
+    //?}
         //? if >=1.21.6 {
-        graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
-                texture,
-                x,
-                y,
-                0.0F,
-                0.0F,
-                width,
-                height,
-                width,
-                height
-        );
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0F, 0.0F, width, height, width, height);
         //?} else if >=1.21.2 <1.21.6 {
-        /*graphics.blit(
-                RenderType::guiTextured,
-                texture,
-                x,
-                y,
-                0.0F,
-                0.0F,
-                width,
-                height,
-                width,
-                height
-        );
+        /*graphics.blit(RenderType::guiTextured, texture, x, y, 0.0F, 0.0F, width, height, width, height);
         *///?} else {
         /*graphics.blit(texture, x, y, 0.0F, 0.0F, width, height, width, height);
         *///?}
-
     }
 
-    private static void nextLayer(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics
-            *///?} else {
-            GuiGraphics graphics
-            //?}
-    ) {
-
+    //? if >=26.1 {
+    /*private static void nextLayer(GuiGraphicsExtractor graphics) {
+    *///?} else {
+    private static void nextLayer(GuiGraphics graphics) {
+    //?}
         //? if >=1.21.6 {
         graphics.nextStratum();
         //?}
     }
 
     private enum CallerButton {
-        LEFT(
-                155,
-                20
-        ),
-        SPACE(
-                183,
-                49
-        ),
-        RIGHT(
-                240,
-                20
-        );
-
+        LEFT(155, 20),
+        SPACE(183, 49),
+        RIGHT(240, 20);
         private final int x;
         private final int width;
-
-        CallerButton(
-                int x,
-                int width
-        ) {
+        CallerButton(int x, int width) {
             this.x = x;
             this.width = width;
         }
 
         //? if >=1.21.11 {
-        /*private Identifier texture(
+        /*private Identifier texture(boolean pressed) {
         *///?} else {
-        private ResourceLocation texture(
+        private ResourceLocation texture(boolean pressed) {
         //?}
-                boolean pressed
-        ) {
             return switch (this) {
                 case LEFT ->
-                        pressed
-                                ? ARROW_LEFT_PRESSED_TEXTURE
-                                : ARROW_LEFT_TEXTURE;
-
+                        pressed ? ARROW_LEFT_PRESSED_TEXTURE : ARROW_LEFT_TEXTURE;
                 case SPACE ->
-                        pressed
-                                ? SPACE_BUTTON_PRESSED_TEXTURE
-                                : SPACE_BUTTON_TEXTURE;
-
+                        pressed ? SPACE_BUTTON_PRESSED_TEXTURE : SPACE_BUTTON_TEXTURE;
                 case RIGHT ->
-                        pressed
-                                ? ARROW_RIGHT_PRESSED_TEXTURE
-                                : ARROW_RIGHT_TEXTURE;
+                        pressed ? ARROW_RIGHT_PRESSED_TEXTURE : ARROW_RIGHT_TEXTURE;
             };
         }
     }

@@ -1,9 +1,8 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvents;
+
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -23,7 +22,6 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class PearlCandleLogic {
     private PearlCandleLogic() {}
-
     public static boolean canPearlLight(BlockState state) {
         return state.hasProperty(CandleBlock.LIT)
                 && state.hasProperty(CandleBlock.WATERLOGGED)
@@ -31,83 +29,35 @@ public final class PearlCandleLogic {
                 && !state.getValue(CandleBlock.WATERLOGGED);
     }
 
-    public static void onPlace(
-            PearlCandleBlock block,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            BlockState oldState,
-            boolean movedByPiston
-    ) {
+    public static void onPlace(PearlCandleBlock block, BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!level.isClientSide() && !state.getValue(CandleBlock.LIT)) {
-            level.setBlock(
-                    pos,
-                    block.toVanillaCandleState(state, false),
-                    Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE
-            );
+            level.setBlock(pos, block.toVanillaCandleState(state, false), Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE);
         }
     }
 
-    public static InteractionResult useItemOn(
-            PearlCandleBlock block,
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hitResult
-    ) {
-        if (!canAddMatchingCandle(block, stack, state, player)) {
-            return InteractionResult.PASS;
-        }
-
+    public static InteractionResult useItemOn(PearlCandleBlock block, ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
+            InteractionHand hand, BlockHitResult hitResult) {
+        if (!canAddMatchingCandle(block, stack, state, player)) return InteractionResult.PASS;
         if (!level.isClientSide()) {
             BlockState newState = state.cycle(CandleBlock.CANDLES);
             level.setBlock(pos, newState, Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE);
-
             SoundType soundType = newState.getSoundType();
-            level.playSound(
-                    null,
-                    pos,
-                    soundType.getPlaceSound(),
-                    SoundSource.BLOCKS,
-                    (soundType.getVolume() + 1.0F) / 2.0F,
-                    soundType.getPitch() * 0.8F
-            );
-
+            level.playSound(null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
             if (!player.getAbilities().instabuild) {
                 stack.shrink(1);
             }
-
             level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         }
-
         return InteractionResult.SUCCESS;
     }
 
-    public static void animateTick(
-            PearlCandleBlock block,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            RandomSource random
-    ) {
-        if (!state.getValue(CandleBlock.LIT) || state.getValue(CandleBlock.WATERLOGGED)) {
-            return;
-        }
-
+    public static void animateTick(PearlCandleBlock block, BlockState state, Level level, BlockPos pos, RandomSource random) {
+        if (!state.getValue(CandleBlock.LIT) || state.getValue(CandleBlock.WATERLOGGED)) return;
         int hexColor = level.getBlockEntity(pos) instanceof PearlCandleBlockEntity pearlCandleBe
                 ? pearlCandleBe.getHexColorOrFallback()
                 : MusavaccaTints.DEFAULT_TINT;
-
         for (Vec3 offset : block.pearlParticleOffsets(state)) {
-            CandleParticleEffects.spawnPearlVanillaStyle(
-                    level,
-                    random,
-                    offset.add(pos.getX(), pos.getY(), pos.getZ()),
-                    hexColor
-            );
+            CandleParticleEffects.spawnPearlVanillaStyle(level, random, offset.add(pos.getX(), pos.getY(), pos.getZ()), hexColor);
         }
     }
 
@@ -115,12 +65,7 @@ public final class PearlCandleLogic {
         return state.getValue(CandleBlock.LIT) ? 3 * state.getValue(CandleBlock.CANDLES) : 0;
     }
 
-    private static boolean canAddMatchingCandle(
-            PearlCandleBlock block,
-            ItemStack stack,
-            BlockState state,
-            Player player
-    ) {
+    private static boolean canAddMatchingCandle(PearlCandleBlock block, ItemStack stack, BlockState state, Player player) {
         return stack.is(block.getVanillaCandleBlock().asItem())
                 && player.getAbilities().mayBuild
                 && !player.isSecondaryUseActive()
@@ -129,4 +74,3 @@ public final class PearlCandleLogic {
                 && state.getValue(CandleBlock.CANDLES) < CandleBlock.MAX_CANDLES;
     }
 }
-

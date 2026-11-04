@@ -15,14 +15,10 @@ public final class PressurePlateModels {
     private final ResourceLocation up;
     private final ResourceLocation down;
     //?}
-
     private PressurePlateModels(Builder builder) {
         up = builder.up;
         down = builder.down;
-
-        if (isEmpty()) {
-            throw new IllegalStateException("PressurePlateModels requires at least one model");
-        }
+        if (isEmpty()) throw new IllegalStateException("PressurePlateModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -67,9 +63,7 @@ public final class PressurePlateModels {
         private ResourceLocation up;
         private ResourceLocation down;
         //?}
-
         private Builder() {}
-
         public Builder up(String model) {
             up = parse(model, "up");
             return this;
@@ -90,9 +84,7 @@ public final class PressurePlateModels {
     *///?} else {
     private static ResourceLocation parse(String model, String name) {
     //?}
-        if (model == null || model.isBlank()) {
-            throw new IllegalArgumentException(name + " must not be blank");
-        }
+        if (model == null || model.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
         //? if >=1.21.11 {
         /*return Identifier.parse(model);
         *///?} else {

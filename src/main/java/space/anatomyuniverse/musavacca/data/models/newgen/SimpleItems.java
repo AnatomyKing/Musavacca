@@ -7,9 +7,8 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +16,10 @@ import java.util.Objects;
 
 public final class SimpleItems {
     private SimpleItems() {}
-
     public enum Style {
         FLAT,
         HANDHELD
     }
-
     enum Mode {
         GENERATED,
         EXISTING
@@ -52,7 +49,6 @@ public final class SimpleItems {
         private List<String> textureTokens;
         private Tints.Tint tint = Tints.none();
         private final Map<Integer, Tints.Tint> layerTints = new LinkedHashMap<>();
-
         private Model(Mode mode) {
             this.mode = Objects.requireNonNull(mode, "mode");
         }
@@ -73,10 +69,7 @@ public final class SimpleItems {
         }
 
         public static Model existing(String modelId) {
-            if (modelId == null || modelId.isBlank()) {
-                throw new IllegalArgumentException("item model id must not be blank");
-            }
-
+            if (modelId == null || modelId.isBlank()) throw new IllegalArgumentException("item model id must not be blank");
             Model model = new Model(Mode.EXISTING);
             //? if >=1.21.11 {
             /*model.existingModel = Identifier.parse(modelId);
@@ -127,21 +120,12 @@ public final class SimpleItems {
 
         public Model textures(String... textures) {
             requireGenerated("textures(...)");
-
-            if (textures == null || textures.length == 0) {
-                throw new IllegalArgumentException("item textures must not be empty");
-            }
-
+            if (textures == null || textures.length == 0) throw new IllegalArgumentException("item textures must not be empty");
             List<String> copy = new ArrayList<>(textures.length);
-
             for (String texture : textures) {
-                if (texture == null || texture.isBlank()) {
-                    throw new IllegalArgumentException("item texture must not be blank");
-                }
-
+                if (texture == null || texture.isBlank()) throw new IllegalArgumentException("item texture must not be blank");
                 copy.add(texture);
             }
-
             inferSingleTexture = false;
             textureTokens = List.copyOf(copy);
             return this;
@@ -154,15 +138,10 @@ public final class SimpleItems {
 
         public Model layerTint(int layer, Tints.Tint tint) {
             requireGenerated("layerTint(...)");
-
-            if (layer < 0) {
-                throw new IllegalArgumentException("layer must be >= 0");
-            }
-
+            if (layer < 0) throw new IllegalArgumentException("layer must be >= 0");
             layerTints.put(layer, Objects.requireNonNull(tint, "tint"));
             return this;
         }
-
         Mode mode() {
             return mode;
         }
@@ -187,16 +166,8 @@ public final class SimpleItems {
             return style;
         }
 
-        public boolean folderMode() {
-            return folder;
-        }
-
         public Tints.Tint tint() {
             return tint;
-        }
-
-        public Map<Integer, Tints.Tint> layerTints() {
-            return Collections.unmodifiableMap(layerTints);
         }
 
         public Tints.Tint tintForLogicalLayer(int layer) {
@@ -209,43 +180,23 @@ public final class SimpleItems {
         public List<ResourceLocation> logicalTextures(ItemLike item) {
         //?}
             Objects.requireNonNull(item, "item");
-
-            if (!isGenerated()) {
-                return List.of();
-            }
-
+            if (!isGenerated()) return List.of();
             if (textureTokens == null) {
-                throw new IllegalStateException(
-                        "No texture configured for item " + ModelLocations.itemId(item)
-                                + ". Call .texture() or .textures(...)."
-                );
+                throw new IllegalStateException("No texture configured for item " + ModelLocations.itemId(item) + ". Call .texture() or .textures(...).");
             }
-
-            if (inferSingleTexture) {
-                return List.of(folder ? TextureTokens.itemFolder(item) : TextureTokens.item(item));
-            }
-
-            return textureTokens.stream()
-                    .map(token -> resolveTexture(item, token))
-                    .toList();
+            if (inferSingleTexture) return List.of(folder ? TextureTokens.itemFolder(item) : TextureTokens.item(item));
+            return textureTokens.stream().map(token -> resolveTexture(item, token)).toList();
         }
 
         public List<PhysicalLayer> physicalLayers(ItemLike item) {
             validate(item);
-
-            if (isExisting()) {
-                return physicalTintList(tint).stream()
-                        .map(layerTint -> new PhysicalLayer(TextureTokens.item(item), layerTint))
-                        .toList();
-            }
-
+            if (isExisting()) return physicalTintList(tint).stream().map(layerTint -> new PhysicalLayer(TextureTokens.item(item), layerTint)).toList();
             //? if >=1.21.11 {
             /*List<Identifier> logical = logicalTextures(item);
             *///?} else {
             List<ResourceLocation> logical = logicalTextures(item);
             //?}
             List<PhysicalLayer> physical = new ArrayList<>();
-
             for (int logicalLayer = 0; logicalLayer < logical.size(); logicalLayer++) {
                 //? if >=1.21.11 {
                 /*Identifier base = logical.get(logicalLayer);
@@ -253,9 +204,7 @@ public final class SimpleItems {
                 ResourceLocation base = logical.get(logicalLayer);
                 //?}
                 Tints.Tint layerTint = tintForLogicalLayer(logicalLayer);
-
                 List<Tints.GeneratedLayer> generatedLayers = Tints.generatedLayers(layerTint);
-
                 for (Tints.GeneratedLayer generated : generatedLayers) {
                     //? if >=1.21.11 {
                     /*Identifier texture = generatedLayers.size() == 1 && generated.sourceLayer() == 0
@@ -264,33 +213,20 @@ public final class SimpleItems {
                     //?}
                             ? base
                             : TextureTokens.itemLayer(base, generated.sourceLayer());
-
-                    physical.add(new PhysicalLayer(
-                            texture,
-                            layerTint.physicalLayer(generated)
-                    ));
+                    physical.add(new PhysicalLayer(texture, layerTint.physicalLayer(generated)));
                 }
             }
-
             return List.copyOf(physical);
         }
 
         public List<Tints.Tint> existingTints() {
-            if (!isExisting()) {
-                throw new IllegalStateException("existingTints() requires an existing item model");
-            }
-
+            if (!isExisting()) throw new IllegalStateException("existingTints() requires an existing item model");
             return physicalTintList(tint);
         }
 
         public boolean hasAnyTint(ItemLike item) {
-            if (isExisting()) {
-                return existingTints().stream().anyMatch(Tints.Tint::tinted);
-            }
-
-            return physicalLayers(item).stream()
-                    .map(PhysicalLayer::tint)
-                    .anyMatch(Tints.Tint::tinted);
+            if (isExisting()) return existingTints().stream().anyMatch(Tints.Tint::tinted);
+            return physicalLayers(item).stream().map(PhysicalLayer::tint).anyMatch(Tints.Tint::tinted);
         }
 
         public Model copy() {
@@ -299,35 +235,18 @@ public final class SimpleItems {
 
         public void validate(ItemLike item) {
             Objects.requireNonNull(item, "item");
-
             if (isExisting()) {
-                if (existingModel == null) {
-                    throw new IllegalStateException("Existing item model is missing its model id");
-                }
-
+                if (existingModel == null) throw new IllegalStateException("Existing item model is missing its model id");
                 if (style != null || folder || textureTokens != null || !layerTints.isEmpty()) {
-                    throw new IllegalStateException(
-                            "Existing item models cannot use generated style/folder/texture/layerTint options"
-                    );
+                    throw new IllegalStateException("Existing item models cannot use generated style/folder/texture/layerTint options");
                 }
-
                 return;
             }
-
-            if (style == null) {
-                throw new IllegalStateException(
-                        "Generated item " + ModelLocations.itemId(item) + " requires .flat() or .handheld()"
-                );
-            }
-
+            if (style == null) throw new IllegalStateException("Generated item " + ModelLocations.itemId(item) + " requires .flat() or .handheld()");
             if (textureTokens == null) {
-                throw new IllegalStateException(
-                        "Generated item " + ModelLocations.itemId(item) + " requires .texture() or .textures(...)"
-                );
+                throw new IllegalStateException("Generated item " + ModelLocations.itemId(item) + " requires .texture() or .textures(...)");
             }
-
             int logicalCount = inferSingleTexture ? 1 : textureTokens.size();
-
             for (Integer layer : layerTints.keySet()) {
                 if (layer >= logicalCount) {
                     throw new IllegalStateException(
@@ -343,17 +262,13 @@ public final class SimpleItems {
         *///?} else {
         private ResourceLocation resolveTexture(ItemLike item, String token) {
         //?}
-            if (!folder || token.indexOf(':') >= 0 || token.startsWith("item/")) {
-                return TextureTokens.resolveItem(item, token);
-            }
-
+            if (!folder || token.indexOf(':') >= 0 || token.startsWith("item/")) return TextureTokens.resolveItem(item, token);
             //? if >=1.21.11 {
             /*Identifier itemId = ModelLocations.itemId(item);
             *///?} else {
             ResourceLocation itemId = ModelLocations.itemId(item);
             //?}
             String path = token.startsWith("_") ? itemId.getPath() + token : token;
-
             //? if >=1.21.11 {
             /*return Identifier.fromNamespaceAndPath(itemId.getNamespace(), "item/" + itemId.getPath() + "/" + path);
             *///?} else {
@@ -362,22 +277,17 @@ public final class SimpleItems {
         }
 
         private void requireGenerated(String operation) {
-            if (!isGenerated()) {
-                throw new IllegalStateException(operation + " requires SimpleItems.Model.generated()");
-            }
+            if (!isGenerated()) throw new IllegalStateException(operation + " requires SimpleItems.Model.generated()");
         }
 
         private static List<Tints.Tint> physicalTintList(Tints.Tint tint) {
-            return Tints.generatedLayers(tint).stream()
-                    .map(tint::physicalLayer)
-                    .toList();
+            return Tints.generatedLayers(tint).stream().map(tint::physicalLayer).toList();
         }
     }
 
     public static final class Entry {
         private final ItemLike item;
         private final Model model;
-
         private Entry(Builder builder) {
             item = builder.item;
             model = Objects.requireNonNull(builder.model, "model").copy();
@@ -400,7 +310,6 @@ public final class SimpleItems {
     public static final class Builder {
         private final ItemLike item;
         private Model model;
-
         private Builder(ItemLike item) {
             this.item = Objects.requireNonNull(item, "item");
         }
@@ -470,49 +379,24 @@ public final class SimpleItems {
         }
 
         public Entry build() {
-            if (model == null) {
-                throw new IllegalStateException(
-                        "Choose .generated() or .model(...) for " + ModelLocations.itemId(item)
-                );
-            }
-
+            if (model == null) throw new IllegalStateException("Choose .generated() or .model(...) for " + ModelLocations.itemId(item));
             return new Entry(this);
         }
 
         private void select(Model requested) {
-            if (model != null) {
-                throw new IllegalStateException("Item model source has already been selected");
-            }
-
+            if (model != null) throw new IllegalStateException("Item model source has already been selected");
             model = requested;
         }
 
         private Model requireModel() {
-            if (model == null) {
-                throw new IllegalStateException("Call .generated() or .model(...) first");
-            }
-
+            if (model == null) throw new IllegalStateException("Call .generated() or .model(...) first");
             return model;
         }
     }
 
-    public static int legacyTintColor(Entry entry, ItemStack stack, int tintIndex) {
-        Objects.requireNonNull(entry, "entry");
-        return legacyTintColor(entry.item(), entry.model(), stack, tintIndex);
-    }
-
     public static int legacyTintColor(ItemLike item, Model model, ItemStack stack, int tintIndex) {
-        if (tintIndex < 0) {
-            return Tints.NO_TINT;
-        }
-
-        List<Tints.Tint> tints = model.isExisting()
-                ? model.existingTints()
-                : model.physicalLayers(item).stream().map(PhysicalLayer::tint).toList();
-
-        return tintIndex < tints.size()
-                ? tints.get(tintIndex).itemColor(stack)
-                : Tints.NO_TINT;
+        if (tintIndex < 0) return Tints.NO_TINT;
+        List<Tints.Tint> tints = model.isExisting() ? model.existingTints() : model.physicalLayers(item).stream().map(PhysicalLayer::tint).toList();
+        return tintIndex < tints.size() ? tints.get(tintIndex).itemColor(stack) : Tints.NO_TINT;
     }
-
 }

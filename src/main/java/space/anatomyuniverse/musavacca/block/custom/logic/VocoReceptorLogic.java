@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraStartPayload;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoReceptorLogic {
     public static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
@@ -26,37 +25,25 @@ public final class VocoReceptorLogic {
     public static final int MAX_YAW_DEGREES = 180;
     public static final int MIN_PITCH_DEGREES = -90;
     public static final int MAX_PITCH_DEGREES = 90;
-
     private VocoReceptorLogic() {}
-
     public enum ReceptorPosition {
-        NORTH_EAST(0, "north-east", -135, 0),
-        NORTH_WEST(1, "north-west", 135, 0),
-        SOUTH_EAST(2, "south-east", -45, 0),
-        SOUTH_WEST(3, "south-west", 45, 0);
-
+        NORTH_EAST(0, -135, 0),
+        NORTH_WEST(1, 135, 0),
+        SOUTH_EAST(2, -45, 0),
+        SOUTH_WEST(3, 45, 0);
         public static final int COUNT = 4;
-
         private static final ReceptorPosition[] BY_ID = values();
-
         private final int id;
-        private final String displayName;
         private final int defaultYawDegrees;
         private final int defaultPitchDegrees;
-
-        ReceptorPosition(int id, String displayName, int defaultYawDegrees, int defaultPitchDegrees) {
+        ReceptorPosition(int id, int defaultYawDegrees, int defaultPitchDegrees) {
             this.id = id;
-            this.displayName = displayName;
             this.defaultYawDegrees = defaultYawDegrees;
             this.defaultPitchDegrees = defaultPitchDegrees;
         }
 
         public int id() {
             return this.id;
-        }
-
-        public String displayName() {
-            return this.displayName;
         }
 
         public int defaultYawDegrees() {
@@ -72,81 +59,38 @@ public final class VocoReceptorLogic {
         }
     }
 
-    public static boolean tryOpenCameraEditor(
-            Level level,
-            BlockPos pos,
-            Player player,
-            ReceptorPosition receptor
-    ) {
-        if (!player.isShiftKeyDown()) {
-            return false;
-        }
-
-        if (!isReceptorLit(level, pos, receptor)) {
-            return true;
-        }
-
+    public static boolean tryOpenCameraEditor(Level level, BlockPos pos, Player player, ReceptorPosition receptor) {
+        if (!player.isShiftKeyDown()) return false;
+        if (!isReceptorLit(level, pos, receptor)) return true;
         if (
                 !level.isClientSide()
                         && player instanceof ServerPlayer serverPlayer
         ) {
-            VocoCameraStartPayload.open(
-                    serverPlayer,
-                    pos,
-                    receptor
-            );
+            VocoCameraStartPayload.open(serverPlayer, pos, receptor);
         }
-
         return true;
     }
 
-    public static boolean isReceptorLit(
-            Level level,
-            BlockPos pos,
-            ReceptorPosition receptor
-    ) {
-        if (level == null || pos == null || receptor == null) {
-            return false;
-        }
-
+    public static boolean isReceptorLit(Level level, BlockPos pos, ReceptorPosition receptor) {
+        if (level == null || pos == null || receptor == null) return false;
         BlockState state = level.getBlockState(pos);
-
-        if (state.getBlock() instanceof VocoPostBlock) {
-            return state.hasProperty(VocoPostBlock.LIT)
-                    && state.getValue(VocoPostBlock.LIT);
-        }
-
+        if (state.getBlock() instanceof VocoPostBlock) return state.hasProperty(VocoPostBlock.LIT) && state.getValue(VocoPostBlock.LIT);
         if (state.getBlock() instanceof VocoTableBlock) {
             BooleanProperty litProperty = VocoTableBlock.lightProperty(receptor);
-            return state.hasProperty(litProperty)
-                    && state.getValue(litProperty);
+            return state.hasProperty(litProperty) && state.getValue(litProperty);
         }
-
         return false;
     }
 
     public static boolean isCompletelyEmptyHanded(Player player) {
-        return player != null
-                && player.getMainHandItem().isEmpty()
-                && player.getOffhandItem().isEmpty();
+        return player != null && player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty();
     }
 
-    public static PearlSlotIgnition.Slot pearlSlot(
-            BooleanProperty litProperty,
-            @Nullable BooleanProperty portalProperty,
-            ReceptorPosition receptor
-    ) {
-        return PearlSlotIgnition.Slot.of(
-                litProperty,
-                portalProperty,
-                pearlPopOffset(receptor),
-                pearlPopMotion(receptor)
-        );
+    public static PearlSlotIgnition.Slot pearlSlot(BooleanProperty litProperty, @Nullable BooleanProperty portalProperty, ReceptorPosition receptor) {
+        return PearlSlotIgnition.Slot.of(litProperty, portalProperty, pearlPopOffset(receptor), pearlPopMotion(receptor));
     }
 
-    private static Vec3 pearlPopOffset(
-            ReceptorPosition receptor
-    ) {
+    private static Vec3 pearlPopOffset(ReceptorPosition receptor) {
         return switch (receptor) {
             case NORTH_EAST ->
                     new Vec3(0.8125D, 1.05D, 0.1875D);
@@ -159,9 +103,7 @@ public final class VocoReceptorLogic {
         };
     }
 
-    private static Vec3 pearlPopMotion(
-            ReceptorPosition receptor
-    ) {
+    private static Vec3 pearlPopMotion(ReceptorPosition receptor) {
         return switch (receptor) {
             case NORTH_EAST ->
                     new Vec3(0.08D, 0.18D, -0.08D);
@@ -174,29 +116,13 @@ public final class VocoReceptorLogic {
         };
     }
 
-    public static boolean canTeleport(
-            BlockState state,
-            BooleanProperty litProperty,
-            @Nullable BooleanProperty portalProperty
-    ) {
-        return state.getValue(litProperty)
-                && (portalProperty == null || state.getValue(portalProperty));
-    }
-
     public static void playUiClick(Level level, BlockPos pos) {
         level.playSound(null, pos, SoundEvents.UI_BUTTON_CLICK.value(), SoundSource.BLOCKS, 0.35F, 1.25F);
     }
 
     public static void damageItem(ItemStack stack, Player player, InteractionHand hand) {
-        if (player.getAbilities().instabuild) {
-            return;
-        }
-
-        stack.hurtAndBreak(
-                1,
-                player,
-                hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND
-        );
+        if (player.getAbilities().instabuild) return;
+        stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
     }
 
     public static void showNeedsPortalMessage(Player player) {
@@ -205,31 +131,6 @@ public final class VocoReceptorLogic {
         *///?} else {
         player.displayClientMessage(Component.literal("This receptor needs a lit Pearl Candle."), false);
         //?}
-    }
-
-    public static void showLatestHexMessage(Player player, ReceptorPosition receptor, int hexColor) {
-        if (hexColor == MusavaccaTints.NO_TINT) {
-            //? if >=26.1 {
-            /*player.sendOverlayMessage(Component.literal("No lit Voco candle is active."));
-            *///?} else {
-            player.displayClientMessage(Component.literal("No lit Voco candle is active."), true);
-            //?}
-            return;
-        }
-
-        //? if >=26.1 {
-        /*player.sendOverlayMessage(Component.literal(String.format(
-        *///?} else {
-        player.displayClientMessage(Component.literal(String.format(
-        //?}
-                        "Latest Voco hex: %s %s",
-                        receptor.displayName(),
-                        MusavaccaTints.formatHex(hexColor)
-                //? if >=26.1 {
-                /*)));
-                *///?} else {
-                )), true);
-                //?}
     }
 
     public static int clampYaw(int yawDegrees) {

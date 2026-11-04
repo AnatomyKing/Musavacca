@@ -2,13 +2,11 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.StairBlock;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public final class StairBlocks {
     private StairBlocks() {}
-
     public static final class Part extends BlockFamily.ModelRule<StairModels, Part> {
         private Part(StairModels source, Conditions.Match conditions) {
             super(source, conditions);
@@ -30,7 +28,6 @@ public final class StairBlocks {
     public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
         private final StairTextures.Set textures;
         private final StairModels baseModels;
-
         private Entry(Builder builder) {
             super(builder);
             textures = builder.textures;
@@ -50,50 +47,26 @@ public final class StairBlocks {
         }
 
         public void validate() {
-            if (!(block() instanceof StairBlock)) {
-                throw new IllegalStateException(
-                        "StairBlocks requires a StairBlock: " + ModelLocations.blockId(block())
-                );
-            }
-
+            if (!(block() instanceof StairBlock)) throw new IllegalStateException("StairBlocks requires a StairBlock: " + ModelLocations.blockId(block()));
             BlockFamilyValidation.requireProperty(block(), StairBlock.FACING, "StairBlocks");
             BlockFamilyValidation.requireProperty(block(), StairBlock.HALF, "StairBlocks");
             BlockFamilyValidation.requireProperty(block(), StairBlock.SHAPE, "StairBlocks");
-
-            if (baseMode() == null) {
-                throw new IllegalStateException(
-                        "No base stair model selected for " + ModelLocations.blockId(block())
-                );
-            }
-
+            if (baseMode() == null) throw new IllegalStateException("No base stair model selected for " + ModelLocations.blockId(block()));
             if (baseMode() == BaseModelMode.GENERATED && textures == null) {
-                throw new IllegalStateException(
-                        "No generated stair textures configured for " + ModelLocations.blockId(block())
-                );
+                throw new IllegalStateException("No generated stair textures configured for " + ModelLocations.blockId(block()));
             }
-
             if (baseMode() == BaseModelMode.EXISTING) {
-                if (baseModels == null) {
-                    throw new IllegalStateException(
-                            "No existing StairModels configured for " + ModelLocations.blockId(block())
-                    );
-                }
-
+                if (baseModels == null) throw new IllegalStateException("No existing StairModels configured for " + ModelLocations.blockId(block()));
                 if (!baseModels.complete()) {
-                    throw new IllegalStateException(
-                            "Base StairModels must provide straight, inner, and outer models for "
-                                    + ModelLocations.blockId(block())
-                    );
+                    throw new IllegalStateException("Base StairModels must provide straight, inner, and outer models for " + ModelLocations.blockId(block()));
                 }
             }
-
             validatePartConditions();
         }
 
         public static final class Builder extends BlockFamily.ItemFamilyBuilder<Builder, Part> {
             private StairTextures.Set textures;
             private StairModels baseModels;
-
             private Builder(Block block) {
                 super(block);
             }
@@ -103,40 +76,27 @@ public final class StairBlocks {
                 return this;
             }
 
-            public Builder models(StairModels models) {
-                selectExisting();
-                baseModels = Objects.requireNonNull(models, "models");
-                return this;
-            }
-
             public Builder texture() {
                 requireGeneratedTextures();
-                textures = StairTextures.builder(block)
-                        .all()
-                        .build();
+                textures = StairTextures.builder(block).all().build();
                 return this;
             }
 
             public Builder texture(Block source) {
                 requireGeneratedTextures();
-                textures = StairTextures.builder(block)
-                        .all(source)
-                        .build();
+                textures = StairTextures.builder(block).all(source).build();
                 return this;
             }
 
             public Builder texture(String texture) {
                 requireGeneratedTextures();
-                textures = StairTextures.builder(block)
-                        .all(texture)
-                        .build();
+                textures = StairTextures.builder(block).all(texture).build();
                 return this;
             }
 
             public Builder textures(Consumer<StairTextures.Builder> textures) {
                 requireGeneratedTextures();
                 Objects.requireNonNull(textures, "textures");
-
                 StairTextures.Builder builder = StairTextures.builder(block);
                 textures.accept(builder);
                 this.textures = builder.build();
@@ -151,4 +111,3 @@ public final class StairBlocks {
         }
     }
 }
-

@@ -1,15 +1,14 @@
 package space.anatomyuniverse.musavacca.entity.mob.basuke;
+
 //? if >=26.1 {
 /*import net.minecraft.world.item.ItemStackTemplate;
 *///?} else if <1.21.5 {
 /*import net.minecraft.nbt.Tag;
 *///?}
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-
 //? if <1.21.6 {
 /*import net.minecraft.nbt.CompoundTag;
 *///?}
@@ -34,10 +33,8 @@ import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-
 //? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
-
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
 import net.minecraft.world.phys.AABB;
@@ -46,40 +43,18 @@ import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingAction;
 import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic;
-
 import java.util.EnumSet;
 
 public class Basuke extends Allay {
-
     private static final String TAG_VOCO_TABLE_POS = "voco_table_pos";
     private static final long NO_TABLE_POS = Long.MIN_VALUE;
-
-    private static final EntityDataAccessor<Integer> DATA_EATING_TICKS =
-            SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
-
-    private static final EntityDataAccessor<Integer> DATA_EATING_TOTAL_TICKS =
-            SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
-
+    private static final EntityDataAccessor<Integer> DATA_EATING_TICKS = SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_EATING_TOTAL_TICKS = SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
     public static final int EATING_CHEW_BEAT_TICKS = 4;
     public static final int MAX_EATING_TICKS = 20 * 60;
-
-    private static final double AREA_MIN_X = 0.32D;
-    private static final double AREA_MAX_X = 0.68D;
-    private static final double AREA_MIN_Y = 1.42D;
-    private static final double AREA_MAX_Y = 2.36D;
-    private static final double AREA_MIN_Z = 0.32D;
-    private static final double AREA_MAX_Z = 0.68D;
-
-    private static final double ORBIT_SPEED = 0.045D;
-    private static final double CONTAIN_SPEED = 0.055D;
-    private static final double CONTAIN_MIN_PUSH = 0.004D;
-    private static final double CONTAIN_MAX_PUSH = 0.020D;
-    private static final double CONTAIN_DAMPING = 0.70D;
-
     private BlockPos vocoTablePos;
     private int eatingTicks;
     private int eatingTotalTicks;
-
     public Basuke(EntityType<? extends Basuke> type, Level level) {
         super(type, level);
     }
@@ -126,31 +101,11 @@ public class Basuke extends Allay {
     }
 
     @Override
-    protected InteractionResult mobInteract(
-            Player player,
-            InteractionHand hand
-    ) {
-        VocoTableEatingLogic.beforeItemInteraction(
-                this,
-                player,
-                hand
-        );
-
-        boolean wasHoldingNothing =
-                this.getMainHandItem().isEmpty();
-
-        InteractionResult result =
-                super.mobInteract(
-                        player,
-                        hand
-                );
-
-        VocoTableEatingLogic.afterItemInteraction(
-                this,
-                player,
-                wasHoldingNothing
-        );
-
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        VocoTableEatingLogic.beforeItemInteraction(this, player, hand);
+        boolean wasHoldingNothing = this.getMainHandItem().isEmpty();
+        InteractionResult result = super.mobInteract(player, hand);
+        VocoTableEatingLogic.afterItemInteraction(this, player, wasHoldingNothing);
         return result;
     }
 
@@ -179,14 +134,13 @@ public class Basuke extends Allay {
     public boolean requiresCustomPersistence() {
         return true;
     }
-    //? if <1.21.9 {
 
+    //? if <1.21.9 {
     @Override
     public boolean shouldDespawnInPeaceful() {
         return false;
     }
     //?}
-
     @Override
     public boolean canBeLeashed() {
         return false;
@@ -207,121 +161,57 @@ public class Basuke extends Allay {
     @Override
     public void tick() {
         super.tick();
-
-        if (this.level().isClientSide() || !this.isBoundToVocoTable()) {
-            return;
-        }
-
-        if (!(this.level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
-
+        if (this.level().isClientSide() || !this.isBoundToVocoTable()) return;
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (!serverLevel.getBlockState(this.vocoTablePos).is(ModBlocks.VOCO_TABLE.get())) {
             this.discard();
             return;
         }
-
         AABB allowed = this.getAllowedArea();
         Vec3 pos = this.position();
-
         if (!allowed.contains(pos.x, pos.y, pos.z)) {
             this.confineTo(allowed, pos);
         }
-
         this.tickHeldItemEating(serverLevel);
     }
 
     private void tickHeldItemEating(@NotNull ServerLevel level) {
         ItemStack held = this.getMainHandItem();
-
         if (held.isEmpty()) {
             this.stopEatingHeldItem();
             return;
         }
-
-        VocoTableEatingAction action =
-                VocoTableEatingLogic.findActiveAction(
-                        this,
-                        level,
-                        held
-                );
-
+        VocoTableEatingAction action = VocoTableEatingLogic.findActiveAction(this, level, held);
         if (action == null) {
             this.stopEatingHeldItem();
             return;
         }
-
-        int actionEatingTime =
-                Mth.clamp(
-                        action.eatingTimeTicks(),
-                        1,
-                        MAX_EATING_TICKS
-                );
-
+        int actionEatingTime = Mth.clamp(action.eatingTimeTicks(), 1, MAX_EATING_TICKS);
         if (
                 this.eatingTicks <= 0
                         || this.eatingTotalTicks
                         != actionEatingTime
         ) {
-            this.startEatingHeldItem(
-                    actionEatingTime
-            );
+            this.startEatingHeldItem(actionEatingTime);
             return;
         }
-
         this.eatingTicks--;
-        this.setBasukeEatingTicks(
-                this.eatingTicks
-        );
-
-        int elapsedEatingTicks =
-                this.eatingTotalTicks
-                        - this.eatingTicks;
-
-        float eatingProgress =
-                Mth.clamp(
-                        elapsedEatingTicks
-                                / (float) Math.max(
-                                1,
-                                this.eatingTotalTicks
-                        ),
-                        0.0F,
-                        1.0F
-                );
-
-        ItemStack particleStack =
-                held.copyWithCount(1);
-
+        this.setBasukeEatingTicks(this.eatingTicks);
+        int elapsedEatingTicks = this.eatingTotalTicks - this.eatingTicks;
+        float eatingProgress = Mth.clamp(elapsedEatingTicks / (float) Math.max(1, this.eatingTotalTicks), 0.0F, 1.0F);
+        ItemStack particleStack = held.copyWithCount(1);
         if (isChewBeat(elapsedEatingTicks)) {
-            this.spawnEatingItemParticles(
-                    level,
-                    particleStack,
-                    particleCountForProgress(
-                            eatingProgress
-                    )
-            );
-
-            this.playChewBeatSound(
-                    level,
-                    elapsedEatingTicks,
-                    eatingProgress
-            );
+            this.spawnEatingItemParticles(level, particleStack, particleCountForProgress(eatingProgress));
+            this.playChewBeatSound(level, elapsedEatingTicks, eatingProgress);
         }
-
         if (this.eatingTicks <= 0) {
-            this.finishEatingHeldItem(
-                    level,
-                    held,
-                    particleStack,
-                    action
-            );
+            this.finishEatingHeldItem(level, held, particleStack, action);
         }
     }
 
     private void startEatingHeldItem(int totalTicks) {
         this.eatingTotalTicks = Mth.clamp(totalTicks, 1, MAX_EATING_TICKS);
         this.eatingTicks = this.eatingTotalTicks;
-
         this.setBasukeEatingTotalTicks(this.eatingTotalTicks);
         this.setBasukeEatingTicks(this.eatingTicks);
     }
@@ -329,11 +219,9 @@ public class Basuke extends Allay {
     private void stopEatingHeldItem() {
         this.eatingTicks = 0;
         this.eatingTotalTicks = 0;
-
         if (this.getBasukeEatingTicks() != 0) {
             this.setBasukeEatingTicks(0);
         }
-
         if (this.getBasukeEatingTotalTicks() != 0) {
             this.setBasukeEatingTotalTicks(0);
         }
@@ -344,141 +232,63 @@ public class Basuke extends Allay {
     }
 
     private static int particleCountForProgress(float eatingProgress) {
-        if (eatingProgress > 0.78F) {
-            return 6;
-        }
-
-        if (eatingProgress > 0.45F) {
-            return 4;
-        }
-
+        if (eatingProgress > 0.78F) return 6;
+        if (eatingProgress > 0.45F) return 4;
         return 3;
     }
 
     private void playChewBeatSound(@NotNull ServerLevel level, int elapsedEatingTicks, float eatingProgress) {
         float progress = Mth.clamp(eatingProgress, 0.0F, 1.0F);
         float beatIndex = elapsedEatingTicks / (float) EATING_CHEW_BEAT_TICKS;
-
         float beatTone = Mth.sin(beatIndex * 1.35F) * 0.025F;
         float volume = Mth.lerp(progress, 0.18F, 0.34F);
         float pitch = Mth.lerp(progress, 1.46F, 1.20F) + beatTone;
-
         this.playBasukeSound(level, SoundEvents.GENERIC_EAT, volume, pitch);
     }
 
-    private void finishEatingHeldItem(
-            @NotNull ServerLevel level,
-            @NotNull ItemStack held,
-            @NotNull ItemStack particleStack,
-            @NotNull VocoTableEatingAction action
-    ) {
-        boolean completed =
-                action.complete(
-                        this,
-                        level,
-                        held
-                );
-
+    private void finishEatingHeldItem(@NotNull ServerLevel level, @NotNull ItemStack held, @NotNull ItemStack particleStack,
+            @NotNull VocoTableEatingAction action) {
+        boolean completed = action.complete(this, level, held);
         if (completed) {
-            this.spawnEatingItemParticles(
-                    level,
-                    particleStack,
-                    8
-            );
-
-            this.playBasukeSound(
-                    level,
-                    SoundEvents.PLAYER_BURP,
-                    0.30F,
-                    1.58F
-            );
+            this.spawnEatingItemParticles(level, particleStack, 8);
+            this.playBasukeSound(level, SoundEvents.PLAYER_BURP, 0.30F, 1.58F);
         }
-
         this.stopEatingHeldItem();
     }
 
-    private void spawnEatingItemParticles(
-            @NotNull ServerLevel level,
-            @NotNull ItemStack particleStack,
-            int count
-    ) {
-        if (particleStack.isEmpty()) {
-            return;
-        }
-
+    private void spawnEatingItemParticles(@NotNull ServerLevel level, @NotNull ItemStack particleStack, int count) {
+        if (particleStack.isEmpty()) return;
         Vec3 particlePos = this.getEatingParticlePosition();
-
-        level.sendParticles(
+        //? if >=26.1 {
+        /*level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(particleStack)), particlePos.x, particlePos.y,
+        *///?} else {
+        level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, particleStack), particlePos.x, particlePos.y, particlePos.z, count, 0.035D, 0.025D,
+        //?}
                 //? if >=26.1 {
-                /*new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(particleStack)),
+                /*particlePos.z, count, 0.035D, 0.025D, 0.035D, 0.012D);
                 *///?} else {
-                new ItemParticleOption(ParticleTypes.ITEM, particleStack),
+                0.035D, 0.012D);
                 //?}
-                particlePos.x,
-                particlePos.y,
-                particlePos.z,
-                count,
-                0.035D,
-                0.025D,
-                0.035D,
-                0.012D
-        );
     }
 
     private Vec3 getEatingParticlePosition() {
         Vec3 forward = this.getLookAngle();
         Vec3 flatForward = new Vec3(forward.x, 0.0D, forward.z);
-
         if (flatForward.lengthSqr() < 1.0E-6D) {
             flatForward = Vec3.directionFromRotation(0.0F, this.getYRot());
         } else {
             flatForward = flatForward.normalize();
         }
-
         Vec3 right = new Vec3(-flatForward.z, 0.0D, flatForward.x);
-
-        return new Vec3(
-                this.getX(),
-                this.getY() + (this.getBbHeight() * 0.66D),
-                this.getZ()
-        ).add(flatForward.scale(0.16D)).add(right.scale(-0.035D));
+        return new Vec3(this.getX(), this.getY() + (this.getBbHeight() * 0.66D), this.getZ()).add(flatForward.scale(0.16D)).add(right.scale(-0.035D));
     }
 
-    private void playBasukeSound(
-            @NotNull ServerLevel level,
-            @NotNull SoundEvent sound,
-            float volume,
-            float pitch
-    ) {
-        level.playSound(
-                null,
-                this.getX(),
-                this.getY(),
-                this.getZ(),
-                sound,
-                SoundSource.NEUTRAL,
-                volume,
-                pitch
-        );
+    private void playBasukeSound(@NotNull ServerLevel level, @NotNull SoundEvent sound, float volume, float pitch) {
+        level.playSound(null, this.getX(), this.getY(), this.getZ(), sound, SoundSource.NEUTRAL, volume, pitch);
     }
 
-    private void playBasukeSound(
-            @NotNull ServerLevel level,
-            @NotNull Holder<SoundEvent> sound,
-            float volume,
-            float pitch
-    ) {
-        level.playSeededSound(
-                null,
-                this.getX(),
-                this.getY(),
-                this.getZ(),
-                sound,
-                SoundSource.NEUTRAL,
-                volume,
-                pitch,
-                this.getRandom().nextLong()
-        );
+    private void playBasukeSound(@NotNull ServerLevel level, @NotNull Holder<SoundEvent> sound, float volume, float pitch) {
+        level.playSeededSound(null, this.getX(), this.getY(), this.getZ(), sound, SoundSource.NEUTRAL, volume, pitch, this.getRandom().nextLong());
     }
 
     @Override
@@ -489,7 +299,6 @@ public class Basuke extends Allay {
     /*public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
     *///?}
-
         if (this.vocoTablePos != null) {
             //? if >=1.21.6 {
             output.putLong(TAG_VOCO_TABLE_POS, this.vocoTablePos.asLong());
@@ -507,7 +316,6 @@ public class Basuke extends Allay {
     /*public void readAdditionalSaveData(@NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
     *///?}
-
         //? if >=1.21.6 {
         long packed = input.getLongOr(TAG_VOCO_TABLE_POS, NO_TABLE_POS);
         //?} else if >=1.21.5 <1.21.6 {
@@ -516,9 +324,7 @@ public class Basuke extends Allay {
         /*long packed = (tag.contains(TAG_VOCO_TABLE_POS, Tag.TAG_ANY_NUMERIC) ? tag.getLong(TAG_VOCO_TABLE_POS) : NO_TABLE_POS);
         *///?}
         this.vocoTablePos = packed != NO_TABLE_POS ? BlockPos.of(packed) : null;
-
         this.stopEatingHeldItem();
-
         if (this.vocoTablePos != null) {
             this.setPersistenceRequired();
             //? if >=26.3 {
@@ -532,38 +338,16 @@ public class Basuke extends Allay {
     private void confineTo(AABB allowed, Vec3 pos) {
         Vec3 clamped = clampToBox(pos, allowed);
         Vec3 correction = clamped.subtract(pos);
-
-        if (correction.lengthSqr() <= 1.0E-6D) {
-            return;
-        }
-
+        if (correction.lengthSqr() <= 1.0E-6D) return;
         this.getNavigation().stop();
-        this.getMoveControl().setWantedPosition(clamped.x, clamped.y, clamped.z, CONTAIN_SPEED);
-
-        double push = Mth.clamp(
-                Math.sqrt(correction.lengthSqr()) * 0.12D,
-                CONTAIN_MIN_PUSH,
-                CONTAIN_MAX_PUSH
-        );
-
-        this.setDeltaMovement(
-                this.getDeltaMovement()
-                        .scale(CONTAIN_DAMPING)
-                        .add(correction.normalize().scale(push))
-        );
+        this.getMoveControl().setWantedPosition(clamped.x, clamped.y, clamped.z, 0.055D);
+        double push = Mth.clamp(Math.sqrt(correction.lengthSqr()) * 0.12D, 0.004D, 0.020D);
+        this.setDeltaMovement(this.getDeltaMovement().scale(0.70D).add(correction.normalize().scale(push)));
     }
 
     private AABB getAllowedArea() {
         BlockPos home = this.vocoTablePos;
-
-        return new AABB(
-                home.getX() + AREA_MIN_X,
-                home.getY() + AREA_MIN_Y,
-                home.getZ() + AREA_MIN_Z,
-                home.getX() + AREA_MAX_X,
-                home.getY() + AREA_MAX_Y,
-                home.getZ() + AREA_MAX_Z
-        );
+        return new AABB(home.getX() + 0.32D, home.getY() + 1.42D, home.getZ() + 0.32D, home.getX() + 0.68D, home.getY() + 2.36D, home.getZ() + 0.68D);
     }
 
     private Vec3 randomPointInsideAllowedArea() {
@@ -571,26 +355,18 @@ public class Basuke extends Allay {
     }
 
     private static Vec3 clampToBox(Vec3 pos, AABB box) {
-        return new Vec3(
-                Mth.clamp(pos.x, box.minX, box.maxX),
-                Mth.clamp(pos.y, box.minY, box.maxY),
-                Mth.clamp(pos.z, box.minZ, box.maxZ)
-        );
+        return new Vec3(Mth.clamp(pos.x, box.minX, box.maxX), Mth.clamp(pos.y, box.minY, box.maxY), Mth.clamp(pos.z, box.minZ, box.maxZ));
     }
 
     private Vec3 randomPointInBox(AABB box, double padXZ, double padY) {
-        return new Vec3(
-                Mth.lerp(this.random.nextDouble(), box.minX + padXZ, box.maxX - padXZ),
-                Mth.lerp(this.random.nextDouble(), box.minY + padY, box.maxY - padY),
-                Mth.lerp(this.random.nextDouble(), box.minZ + padXZ, box.maxZ - padXZ)
-        );
+        return new Vec3(Mth.lerp(this.random.nextDouble(), box.minX + padXZ, box.maxX - padXZ),
+                Mth.lerp(this.random.nextDouble(), box.minY + padY, box.maxY - padY), Mth.lerp(this.random.nextDouble(), box.minZ + padXZ, box.maxZ - padXZ));
     }
 
     private static final class OrbitVocoTableGoal extends Goal {
         private final Basuke basuke;
         private Vec3 targetPos = Vec3.ZERO;
         private int retargetIn;
-
         private OrbitVocoTableGoal(Basuke basuke) {
             this.basuke = basuke;
             this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -613,24 +389,14 @@ public class Basuke extends Allay {
 
         @Override
         public void tick() {
-            if (!this.basuke.isBoundToVocoTable()) {
-                return;
-            }
-
+            if (!this.basuke.isBoundToVocoTable()) return;
             AABB bounds = this.basuke.getAllowedArea();
-
             if (!bounds.contains(this.targetPos.x, this.targetPos.y, this.targetPos.z)
                     || this.retargetIn-- <= 0
                     || this.basuke.distanceToSqr(this.targetPos.x, this.targetPos.y, this.targetPos.z) < 0.01D) {
                 this.pickNewTarget();
             }
-
-            this.basuke.getMoveControl().setWantedPosition(
-                    this.targetPos.x,
-                    this.targetPos.y,
-                    this.targetPos.z,
-                    ORBIT_SPEED
-            );
+            this.basuke.getMoveControl().setWantedPosition(this.targetPos.x, this.targetPos.y, this.targetPos.z, 0.045D);
         }
 
         private void pickNewTarget() {

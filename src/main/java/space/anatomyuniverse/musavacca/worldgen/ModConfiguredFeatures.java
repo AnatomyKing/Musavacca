@@ -7,37 +7,25 @@ import net.minecraft.resources.ResourceKey;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-
 //? if >=26.3 {
 /*import net.minecraft.world.level.levelgen.feature.Feature;
 *///?} else {
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 //?}
-
 import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class ModConfiguredFeatures {
-
     //? if >=26.3 {
     /*public static final ResourceKey<Feature> MUSAVACCA_TREE =
     *///?} else {
     public static final ResourceKey<ConfiguredFeature<?, ?>> MUSAVACCA_TREE =
     //?}
-
-            ResourceKey.create(
-
-                    //? if >=26.3 {
-                    /*Registries.FEATURE,
-                    *///?} else {
-                    Registries.CONFIGURED_FEATURE,
-                    //?}
-
-                    //? if >=1.21.11 {
-                    /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "musavacca_tree")
-                    *///?} else {
-                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "musavacca_tree")
-                    //?}
-            );
-
+            //? if >=26.3 {
+            /*ResourceKey.create(Registries.FEATURE, Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "musavacca_tree"));
+            *///?} else if >=1.21.11 <26.3 {
+            /*ResourceKey.create(Registries.CONFIGURED_FEATURE, Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "musavacca_tree"));
+            *///?} else {
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "musavacca_tree"));
+            //?}
     private ModConfiguredFeatures() {}
 }

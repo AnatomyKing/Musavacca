@@ -15,22 +15,14 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
 public final class ModCreativeTabs {
-    public static final DeferredRegister<CreativeModeTab> TABS =
-            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MusaCore.MOD_ID);
-
-    private static final Set<String> BLACKLIST = Set.of(
-            "open_invo_test_item",
-            "open_teleport_test_item",
-            "basuke_spawn_egg"
-    );
-
+    public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MusaCore.MOD_ID);
+    private static final Set<String> BLACKLIST = Set.of("open_invo_test_item", "open_teleport_test_item", "basuke_spawn_egg");
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MUSAVACCA_TAB =
             TABS.register("musavacca_tab", () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup." + MusaCore.MOD_ID + ".musavacca_tab"))
@@ -54,7 +46,6 @@ public final class ModCreativeTabs {
                     })
                     .build()
             );
-
     public static void register(IEventBus bus) {
         TABS.register(bus);
     }

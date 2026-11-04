@@ -8,7 +8,6 @@ import net.minecraft.world.level.block.Block;
 
 final class BlockFamily {
     private BlockFamily() {}
-
     abstract static class ModelRule<S, SELF extends ModelRule<S, SELF>> {
         private final S source;
         private final Conditions.Match conditions;
@@ -16,7 +15,6 @@ final class BlockFamily {
         private int rotationY;
         private Tints.Tint tint;
         private Variants.Set variants = Variants.single();
-
         protected ModelRule(S source, Conditions.Match conditions) {
             this.source = Objects.requireNonNull(source, "source");
             this.conditions = Objects.requireNonNull(conditions, "conditions");
@@ -25,11 +23,9 @@ final class BlockFamily {
         @SuppressWarnings("unchecked")
         private SELF self() { return (SELF) this; }
 
-        public final SELF rotateX(int degrees) { rotationX = ModelTransforms.quarterTurn(degrees); return self(); }
         public final SELF rotateY(int degrees) { rotationY = ModelTransforms.quarterTurn(degrees); return self(); }
         public final SELF tint(Tints.Tint tint) { this.tint = Objects.requireNonNull(tint, "tint"); return self(); }
         public final SELF variants(Variants.Set variants) { this.variants = Objects.requireNonNull(variants, "variants"); return self(); }
-
         public final S source() { return source; }
         public final Conditions.Match conditions() { return conditions; }
         public final int rotationX() { return rotationX; }
@@ -37,7 +33,6 @@ final class BlockFamily {
         public final Tints.Tint tint() { return tint; }
         public final Variants.Set variants() { return variants; }
     }
-
     abstract static class ModelFamilyEntry<M extends ModelRule<?, ?>, P extends ModelRule<?, ?>> {
         private final Block block;
         private final ModelMode mode;
@@ -47,7 +42,6 @@ final class BlockFamily {
         private final Tints.Tint tint;
         private final FamilyItemMode itemMode;
         private final SimpleItems.Model item;
-
         protected ModelFamilyEntry(ModelFamilyBuilder<?, M, P> builder, List<M> models, List<P> parts) {
             block = builder.block;
             mode = builder.mode;
@@ -67,19 +61,16 @@ final class BlockFamily {
         public final Tints.Tint tint() { return tint; }
         FamilyItemMode familyItemMode() { return itemMode; }
         SimpleItems.Model item() { return item; }
-
         protected final void validateStructure(String family) {
             if (mode == null) throw new IllegalStateException("No model mode selected for " + block);
             if (mode == ModelMode.MODELS && models.isEmpty()) throw new IllegalStateException("No models for " + block);
             if (mode == ModelMode.MULTIPART && parts.isEmpty()) throw new IllegalStateException("No multipart parts for " + block);
-
             BlockFamilyValidation.rotation(block, rotations, family);
             for (M model : models) BlockFamilyValidation.conditions(block, model.conditions());
             for (P part : parts) BlockFamilyValidation.conditions(block, part.conditions());
             if (mode == ModelMode.MODELS) BlockFamilyValidation.exactlyOneModelPerState(block, models, family);
         }
     }
-
     abstract static class ModelFamilyBuilder<SELF extends ModelFamilyBuilder<SELF, M, P>, M extends ModelRule<?, ?>, P extends ModelRule<?, ?>> {
         protected final Block block;
         protected ModelMode mode;
@@ -91,29 +82,21 @@ final class BlockFamily {
         protected FamilyItemMode itemMode = FamilyItemMode.DEFAULT;
         protected SimpleItems.Model item;
         private boolean explicitItem;
-
         protected ModelFamilyBuilder(Block block) { this.block = Objects.requireNonNull(block, "block"); }
-
         @SuppressWarnings("unchecked")
         protected final SELF self() { return (SELF) this; }
-
         protected final void selectMode(ModelMode requested) {
             Objects.requireNonNull(requested, "requested");
-            if (mode != null && mode != requested) {
-                throw new IllegalStateException("Entry model mode is already " + mode + "; cannot switch to " + requested);
-            }
+            if (mode != null && mode != requested) throw new IllegalStateException("Entry model mode is already " + mode + "; cannot switch to " + requested);
             mode = requested;
         }
 
         protected final void requireNoModelSource() {
-            if (generated || !models.isEmpty() || !parts.isEmpty()) {
-                throw new IllegalStateException("A model source has already been selected for this entry");
-            }
+            if (generated || !models.isEmpty() || !parts.isEmpty()) throw new IllegalStateException("A model source has already been selected for this entry");
         }
 
         protected final void beginGenerated() { selectMode(ModelMode.MODELS); requireNoModelSource(); generated = true; }
         protected final void addModel(M model) { selectMode(ModelMode.MODELS); requireNoModelSource(); models.add(Objects.requireNonNull(model, "model")); }
-
         @SafeVarargs
         protected final void addModels(M... models) {
             selectMode(ModelMode.MODELS);
@@ -134,7 +117,6 @@ final class BlockFamily {
 
         public final SELF rotations(Rotations.Spec rotations) { this.rotations = Objects.requireNonNull(rotations, "rotations"); return self(); }
         public final SELF tint(Tints.Tint tint) { this.tint = Objects.requireNonNull(tint, "tint"); return self(); }
-
         public final SELF item() {
             requireItem();
             itemMode = FamilyItemMode.DEFAULT;
@@ -166,13 +148,10 @@ final class BlockFamily {
         }
 
         protected final void validateReadyToBuild(String generatedDescription) {
-            if (mode == null) {
-                throw new IllegalStateException("Choose .generated(), .model(...), .models(...), or .multipart(...) before .build()");
-            }
+            if (mode == null) throw new IllegalStateException("Choose .generated(), .model(...), .models(...), or .multipart(...) before .build()");
             if (generated && mode != ModelMode.MODELS) throw new IllegalStateException(generatedDescription + " must use MODELS mode");
         }
     }
-
     abstract static class StateFamilyEntry<P extends ModelRule<?, ?>> {
         private final Block block;
         private final BaseModelMode baseMode;
@@ -182,7 +161,6 @@ final class BlockFamily {
         private final Variants.Set variants;
         private final FamilyItemMode itemMode;
         private final SimpleItems.Model item;
-
         protected StateFamilyEntry(StateFamilyBuilder<?, P> builder) {
             block = builder.block;
             baseMode = builder.baseMode;
@@ -202,12 +180,10 @@ final class BlockFamily {
         public final Variants.Set variants() { return variants; }
         FamilyItemMode familyItemMode() { return itemMode; }
         SimpleItems.Model item() { return item; }
-
         protected final void validatePartConditions() {
             for (P part : parts) BlockFamilyValidation.conditions(block, part.conditions());
         }
     }
-
     abstract static class StateFamilyBuilder<SELF extends StateFamilyBuilder<SELF, P>, P extends ModelRule<?, ?>> {
         protected final Block block;
         protected BaseModelMode baseMode;
@@ -217,20 +193,12 @@ final class BlockFamily {
         protected Variants.Set variants = Variants.single();
         protected FamilyItemMode itemMode = FamilyItemMode.DEFAULT;
         protected SimpleItems.Model item;
-
         protected StateFamilyBuilder(Block block) { this.block = Objects.requireNonNull(block, "block"); }
-
         @SuppressWarnings("unchecked")
         protected final SELF self() { return (SELF) this; }
-
         protected final void selectGenerated() {
             if (baseMode == BaseModelMode.EXISTING) throw new IllegalStateException("Cannot use .generated() after .models(...)");
             baseMode = BaseModelMode.GENERATED;
-        }
-
-        protected final void selectExisting() {
-            if (baseMode == BaseModelMode.GENERATED) throw new IllegalStateException("Cannot use .models(...) after .generated()");
-            baseMode = BaseModelMode.EXISTING;
         }
 
         @SafeVarargs
@@ -240,21 +208,16 @@ final class BlockFamily {
             return self();
         }
 
-        public final SELF rotateX(int degrees) { rotationX = ModelTransforms.quarterTurn(degrees); return self(); }
         public final SELF rotateY(int degrees) { rotationY = ModelTransforms.quarterTurn(degrees); return self(); }
         public final SELF variants(Variants.Set variants) { this.variants = Objects.requireNonNull(variants, "variants"); return self(); }
-
         protected final void requireGeneratedTextures() {
             if (baseMode != BaseModelMode.GENERATED) throw new IllegalStateException("texture(s) requires .generated() first");
         }
     }
-
     abstract static class ItemFamilyBuilder<SELF extends ItemFamilyBuilder<SELF, P>, P extends ModelRule<?, ?>>
             extends StateFamilyBuilder<SELF, P> {
         private boolean explicitItem;
-
         protected ItemFamilyBuilder(Block block) { super(block); }
-
         public SELF item() {
             requireItem();
             itemMode = FamilyItemMode.DEFAULT;
@@ -263,7 +226,6 @@ final class BlockFamily {
         }
 
         public SELF item(String model) { return item(SimpleItems.Model.existing(model)); }
-
         public SELF item(SimpleItems.Model model) {
             requireItem();
             itemMode = FamilyItemMode.CUSTOM;
@@ -284,4 +246,3 @@ final class BlockFamily {
         }
     }
 }
-

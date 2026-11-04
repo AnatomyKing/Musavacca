@@ -7,15 +7,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.block.Block;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public record PortalModels(Models.Source northSouth, Models.Source eastWest, Models.Source upDown) {
     public PortalModels {
-        if (northSouth == null && eastWest == null && upDown == null) {
-            throw new IllegalArgumentException("PortalModels requires at least one orientation");
-        }
+        if (northSouth == null && eastWest == null && upDown == null) throw new IllegalArgumentException("PortalModels requires at least one orientation");
         validate(northSouth, Direction.Axis.X);
         validate(eastWest, Direction.Axis.Z);
         validate(upDown, Direction.Axis.Y);
@@ -28,18 +25,8 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
     }
 
     public Models.Source model(Direction.Axis axis) {
-        return switch (axis) {
-            case X -> northSouth;
-            case Z -> eastWest;
-            case Y -> upDown;
-        };
+        return switch (axis) { case X -> northSouth; case Z -> eastWest; case Y -> upDown; };
     }
-
-    public static PortalModels existing(String northSouth, String eastWest, String upDown) {
-        return new PortalModels(Models.existing(northSouth), Models.existing(eastWest), Models.existing(upDown));
-    }
-
-    public static PortalModels generated(Block block) { return generated(block, "", textures -> {}); }
 
     public static PortalModels generated(Block block, Consumer<PortalTextures.Builder> textures) {
         return generated(block, "", textures);
@@ -60,8 +47,8 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
         PortalTextures.Builder builder = PortalTextures.of(block);
         textures.accept(builder);
         PortalTextures.Set set = builder.build();
-        return new PortalModels(pane(modelStem, "_ns", Direction.Axis.X, set),
-                pane(modelStem, "_ew", Direction.Axis.Z, set), pane(modelStem, "_ud", Direction.Axis.Y, set));
+        return new PortalModels(pane(modelStem, "_ns", Direction.Axis.X, set), pane(modelStem, "_ew", Direction.Axis.Z, set),
+                pane(modelStem, "_ud", Direction.Axis.Y, set));
     }
 
     //? if >=1.21.11 {
@@ -72,7 +59,6 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
         return new Pane(ResourceLocation.fromNamespaceAndPath(stem.getNamespace(), stem.getPath() + suffix), axis, textures);
     //?}
     }
-
     //? if >=1.21.11 {
     /*record Pane(Identifier model, Direction.Axis axis, PortalTextures.Set textures) implements Models.Source {
     *///?} else {
@@ -83,23 +69,5 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
             Objects.requireNonNull(axis, "axis");
             Objects.requireNonNull(textures, "textures");
         }
-    }
-
-    public static Builder builder() { return new Builder(); }
-
-    public static final class Builder {
-        private Models.Source northSouth;
-        private Models.Source eastWest;
-        private Models.Source upDown;
-
-        private Builder() {}
-
-        public Builder northSouth(String model) { return northSouth(Models.existing(model)); }
-        public Builder eastWest(String model) { return eastWest(Models.existing(model)); }
-        public Builder upDown(String model) { return upDown(Models.existing(model)); }
-        public Builder northSouth(Models.Source model) { northSouth = Objects.requireNonNull(model, "model"); return this; }
-        public Builder eastWest(Models.Source model) { eastWest = Objects.requireNonNull(model, "model"); return this; }
-        public Builder upDown(Models.Source model) { upDown = Objects.requireNonNull(model, "model"); return this; }
-        public PortalModels build() { return new PortalModels(northSouth, eastWest, upDown); }
     }
 }

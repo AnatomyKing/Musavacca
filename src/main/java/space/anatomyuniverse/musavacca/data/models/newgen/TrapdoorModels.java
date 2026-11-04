@@ -18,31 +18,19 @@ public final class TrapdoorModels {
     private final ResourceLocation top;
     private final ResourceLocation open;
     //?}
-
     private TrapdoorModels(Builder builder) {
         this.bottom = builder.bottom;
         this.top = builder.top;
         this.open = builder.open;
-
-        if (isEmpty()) {
-            throw new IllegalStateException("TrapdoorModels requires at least one model");
-        }
+        if (isEmpty()) throw new IllegalStateException("TrapdoorModels requires at least one model");
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static TrapdoorModels full(
-            String bottom,
-            String top,
-            String open
-    ) {
-        return builder()
-                .bottom(bottom)
-                .top(top)
-                .open(open)
-                .build();
+    public static TrapdoorModels full(String bottom, String top, String open) {
+        return builder().bottom(bottom).top(top).open(open).build();
     }
 
     @Nullable
@@ -51,19 +39,12 @@ public final class TrapdoorModels {
     *///?} else {
     public ResourceLocation model(Half half, boolean open) {
     //?}
-        if (open) {
-            return this.open;
-        }
-
-        return half == Half.TOP
-                ? top
-                : bottom;
+        if (open) return this.open;
+        return half == Half.TOP ? top : bottom;
     }
 
     public boolean isEmpty() {
-        return bottom == null
-                && top == null
-                && open == null;
+        return bottom == null && top == null && open == null;
     }
 
     public static final class Builder {
@@ -76,9 +57,7 @@ public final class TrapdoorModels {
         private ResourceLocation top;
         private ResourceLocation open;
         //?}
-
         private Builder() {}
-
         public Builder bottom(String model) {
             this.bottom = parse(model, "bottom");
             return this;
@@ -103,10 +82,7 @@ public final class TrapdoorModels {
         *///?} else {
         private static ResourceLocation parse(String model, String name) {
         //?}
-            if (model == null || model.isBlank()) {
-                throw new IllegalArgumentException(name + " must not be blank");
-            }
-
+            if (model == null || model.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
             //? if >=1.21.11 {
             /*return Identifier.parse(model);
             *///?} else {

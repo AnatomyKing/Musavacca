@@ -14,42 +14,46 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.concurrent.CompletableFuture;
 
 public final class ModRecipeProvider extends RecipeProvider {
-
     public static final String MOD_ID = "musavacca";
-
-    //? if >=26.3 {
-    /*private final HolderLookup.Provider registries;
-    *///?} else if >=1.21.2 <26.3 {
+    //? if >=1.21.2 {
     private final HolderLookup.Provider registries;
-    private final RecipeOutput output;
-    //?} else {
-    /*private final CompletableFuture<HolderLookup.Provider> lookupFuture;
-    *///?}
-
     //? if >=26.3 {
     /*public ModRecipeProvider(net.minecraft.data.worldgen.BootstrapContext<net.minecraft.world.item.crafting.Recipe<?>> recipes,
-                             net.minecraft.data.worldgen.BootstrapContext<net.minecraft.advancements.Advancement> advancements,
-                             HolderLookup.Provider registries) {
+            net.minecraft.data.worldgen.BootstrapContext<net.minecraft.advancements.Advancement> advancements, HolderLookup.Provider registries) {
         super(recipes, advancements);
-        this.registries = registries;
-    *///?} else if >=1.21.2 <26.3 {
+    *///?}
+    //? if >=1.21.2 <26.3 {
+    private final RecipeOutput output;
+    //?}
+    //?}
+    //? if <26.3 {
+    
+    //? if <1.21.2 {
+    /*private final CompletableFuture<HolderLookup.Provider> lookupFuture;
+    *///?}
+    //? if >=1.21.2 <26.3 {
     public ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         super(registries, output);
-        this.registries = registries;
-        this.output = output;
     //?} else {
     /*public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries);
-        this.lookupFuture = registries;
     *///?}
+    //?}
+        //? if >=1.21.2 {
+        this.registries = registries;
+        //? if >=1.21.2 <26.3 {
+        this.output = output;
+        //?}
+        //?}
+        //? if <1.21.2 {
+        /*this.lookupFuture = registries;
+        *///?}
     }
 
     @Override
@@ -57,9 +61,20 @@ public final class ModRecipeProvider extends RecipeProvider {
     /*protected void buildRecipes() { buildAll(this.output, this.registries); }
     *///?} else if >=1.21.2 <26.3 {
     protected void buildRecipes() {
+    //?} else {
+    /*protected void buildRecipes(@NotNull RecipeOutput output) {
+        final HolderLookup.Provider registries = lookupFuture.join();
+    *///?}
+    //? if <26.3 {
+        
+        //? if >=1.21.2 <26.3 {
         buildAll(this.output, this.registries);
+        //?} else {
+        /*buildAll(output, registries);
+        *///?}
     }
 
+    //? if >=1.21.2 <26.3 {
     public static final class Runner extends RecipeProvider.Runner {
         public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
             super(output, registries);
@@ -75,13 +90,8 @@ public final class ModRecipeProvider extends RecipeProvider {
             return MOD_ID + " recipes";
         }
     }
-    //?} else {
-    /*protected void buildRecipes(@NotNull RecipeOutput output) {
-        final HolderLookup.Provider registries = lookupFuture.join();
-        buildAll(output, registries);
-    }
-    *///?}
-
+    //?}
+        //?}
     private void buildAll(RecipeOutput output, HolderLookup.Provider registries) {
         final RecipeDSL.Unlocker unlocker = new RecipeDSL.Unlocker() {
             @Override
@@ -94,40 +104,20 @@ public final class ModRecipeProvider extends RecipeProvider {
                 return has(t);
             }
         };
-
         final RecipeDSL dsl;
-
         dsl = new RecipeDSL(output, MOD_ID, unlocker, registries);
-
         dsl.shapelessCountFamily(RecipeCategory.MISC)
-                .step(
-                        ModItems.SMALL_BANANA_PEARL.get(), 4,
-                        ModItems.BANANA_PEARL.get(), 1
-                )
-                .step(
-                        ModItems.BANANA_PEARL.get(), 4,
-                        ModItems.BIG_BANANA_PEARL.get(), 1
-                )
+                .step(ModItems.SMALL_BANANA_PEARL.get(), 4, ModItems.BANANA_PEARL.get(), 1)
+                .step(ModItems.BANANA_PEARL.get(), 4, ModItems.BIG_BANANA_PEARL.get(), 1)
                 .reversible()
                 .unlockedByHas(ModItems.BANANA_PEARL.get())
                 .save("misc");
-
         dsl.stonecutFamily()
-                .of(
-                        ModItems.BIG_BANANA_PEARL.get(),
-                        RecipeCategory.BUILDING_BLOCKS,
-                        ModBlocks.BANANA_PEARL_BLOCK.get(),
-                        1
-                )
-                .variants(
-                        ModBlocks.BANANA_PEARL_BRICKS.get(),
-                        ModBlocks.BANANA_PEARL_CHAPITER.get(),
-                        ModBlocks.BANANA_PEARL_PILLAR.get()
-                )
+                .of(ModItems.BIG_BANANA_PEARL.get(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.BANANA_PEARL_BLOCK.get(), 1)
+                .variants(ModBlocks.BANANA_PEARL_BRICKS.get(), ModBlocks.BANANA_PEARL_CHAPITER.get(), ModBlocks.BANANA_PEARL_PILLAR.get())
                 .interchangeable()
                 .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
                 .save("stonecutting/banana_pearl_block");
-
         dsl.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
                 .pattern("aaa")
                 .pattern("ava")
@@ -136,7 +126,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('v', ModItems.VACACA.get())
                 .unlockedByHas(ModItems.VACACA.get(), Items.AMETHYST_SHARD)
                 .save("misc/banana_pearl_from_vacaca");
-
         dsl.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
                 .pattern("aaa")
                 .pattern("apa")
@@ -148,7 +137,6 @@ public final class ModRecipeProvider extends RecipeProvider {
         //? if <1.21.2 {
         /*dsl.compat("neapolitan", compat -> {
             Item banana = compat.item("banana");
-
             compat.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
                     .pattern("bab")
                     .pattern("ava")
@@ -158,7 +146,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                     .define('v', ModItems.VACACA.get())
                     .unlockedByHas(ModItems.VACACA.get(), Items.AMETHYST_SHARD, banana)
                     .save("misc/banana_pearl_from_vacaca");
-
             compat.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
                     .pattern("bab")
                     .pattern("apa")
@@ -170,24 +157,11 @@ public final class ModRecipeProvider extends RecipeProvider {
                     .save("misc/banana_pearl_from_banana_pellis");
         });
         *///?}
-
-        dsl.shapeless(
-                        RecipeCategory.BUILDING_BLOCKS,
-                        ModBlocks.MUSAVACCA_PLANKS.get(),
-                        4
-                )
-                .requires(Ingredient.of(
-                        ModBlocks.MUSAVACCA_STEM.get(),
-                        ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
-                        ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()
-                ))
-                .unlockedByHas(
-                        ModBlocks.MUSAVACCA_STEM.get(),
-                        ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
-                        ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()
-                )
+        dsl.shapeless(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_PLANKS.get(), 4)
+                .requires(Ingredient.of(ModBlocks.MUSAVACCA_STEM.get(), ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
+                        ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()))
+                .unlockedByHas(ModBlocks.MUSAVACCA_STEM.get(), ModBlocks.STRIPPED_MUSAVACCA_STEM.get(), ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get())
                 .save("blocks/musavacca_planks");
-
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_STAIRS.get(), 4)
                 .pattern("p  ")
                 .pattern("pp ")
@@ -195,7 +169,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_stairs");
-
         dsl.shaped(RecipeCategory.REDSTONE, ModItems.MUSAVACCA_DOOR.get(), 3)
                 .pattern("pp")
                 .pattern("pp")
@@ -203,7 +176,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_door");
-
         dsl.shaped(RecipeCategory.REDSTONE, ModBlocks.MUSAVACCA_FENCE_GATE.get(), 1)
                 .pattern("sps")
                 .pattern("sps")
@@ -211,28 +183,23 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get(), Items.STICK)
                 .save("blocks/musavacca_fence_gate");
-
         dsl.shaped(RecipeCategory.REDSTONE, ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(), 1)
                 .pattern("pp")
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_pressure_plate");
-
         dsl.shapeless(RecipeCategory.REDSTONE, ModBlocks.MUSAVACCA_BUTTON.get(), 1)
                 .requires(ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_button");
-
         dsl.shapeless(RecipeCategory.BUILDING_BLOCKS, ModBlocks.GILDED_MUSAVACCA_PLANKS.get(), 1)
                 .requires(ModItems.BIG_BANANA_PEARL, ModBlocks.MUSAVACCA_PLANKS)
                 .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
                 .save("blocks/gilded_musavacca_planks");
-
         dsl.shapeless(RecipeCategory.MISC, ModItems.FLINT_AND_PEARL.get(), 1)
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .save("misc/flint_and_pearl");
-
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.VOCO_POST.get(), 1)
                 .pattern("s")
                 .pattern("f")
@@ -241,7 +208,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('f', ModBlocks.MUSAVACCA_FENCE.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_SLAB.get(), ModBlocks.MUSAVACCA_FENCE.get())
                 .save("blocks/voco_post");
-
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.VOCO_TABLE.get(), 1)
                 .pattern("p p")
                 .pattern(" m ")
@@ -250,38 +216,23 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('m', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.VOCO_POST.get(), ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/voco_table");
-
-        dsl.shapelessCounts(
-                        RecipeCategory.MISC,
-                        ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), 1,
-                        ModItems.MUSAVACCA_EXUDATE.get(), 4,
-                        ModItems.BANANA_PELLIS.get(), 4
-                )
+        dsl.shapelessCounts(RecipeCategory.MISC, ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), 1, ModItems.MUSAVACCA_EXUDATE.get(), 4, ModItems.BANANA_PELLIS.get(), 4)
                 .unlockedByHas(ModItems.MUSAVACCA_EXUDATE.get(), ModItems.BANANA_PELLIS.get())
                 .save("misc/banazo_gusma_lumpa_goop");
-
-        dsl.shapelessCounts(
-                        RecipeCategory.MISC,
-                        ModItems.POTASSIUM_INGOT.get(), 1,
-                        ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), 4,
-                        ModItems.VACACA.get(), 4
-                )
+        dsl.shapelessCounts(RecipeCategory.MISC, ModItems.POTASSIUM_INGOT.get(), 1, ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), 4, ModItems.VACACA.get(), 4)
                 .unlockedByHas(ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), ModItems.VACACA.get())
                 .save("misc/potassium_ingot");
-
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_SLAB.get(), 6)
                 .pattern("ppp")
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_slab");
-
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_TRAPDOOR.get(), 2)
                 .pattern("ppp")
                 .pattern("ppp")
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_trapdoor");
-
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_FENCE.get(), 3)
                 .pattern("psp")
                 .pattern("psp")
@@ -289,124 +240,42 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('s', Items.STICK)
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get(), Items.STICK)
                 .save("blocks/musavacca_fence");
-
-        dsl.transform().of(
-                        Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-                        Ingredient.of(Items.DIAMOND_SWORD),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.POTASSIUM_SWORD.get()
-                )
-                .unlocksHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
+        dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_SWORD),
+                Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_SWORD.get())
+                .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_sword_upgrade");
-
-        dsl.transform().of(
-                        Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-                        Ingredient.of(Items.DIAMOND_PICKAXE),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.TOOLS,
-                        ModItems.POTASSIUM_PICKAXE.get()
-                )
-                .unlocksHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
+        dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_PICKAXE),
+                Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.TOOLS, ModItems.POTASSIUM_PICKAXE.get())
+                .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_pickaxe_upgrade");
-
-        dsl.transform().of(
-                        Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-                        Ingredient.of(Items.DIAMOND_AXE),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.TOOLS,
-                        ModItems.POTASSIUM_AXE.get()
-                )
-                .unlocksHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
+        dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_AXE),
+                Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.TOOLS, ModItems.POTASSIUM_AXE.get())
+                .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_axe_upgrade");
-
-        dsl.transform().of(
-                        Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-                        Ingredient.of(Items.DIAMOND_SHOVEL),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.TOOLS,
-                        ModItems.POTASSIUM_SHOVEL.get()
-                )
-                .unlocksHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
+        dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_SHOVEL),
+                Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.TOOLS, ModItems.POTASSIUM_SHOVEL.get())
+                .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_shovel_upgrade");
-
-        dsl.transform().of(
-                        Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-                        Ingredient.of(Items.DIAMOND_HOE),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.TOOLS,
-                        ModItems.POTASSIUM_HOE.get()
-                )
-                .unlocksHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
+        dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_HOE),
+                Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.TOOLS, ModItems.POTASSIUM_HOE.get())
+                .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_hoe_upgrade");
-
-        dsl.transform().of(
-                        Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-                        Ingredient.of(Items.DIAMOND_HELMET),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.POTASSIUM_HELMET.get()
-                )
-                .unlocksHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
+        dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_HELMET),
+                Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_HELMET.get())
+                .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_helmet_upgrade");
-
-        dsl.transform().of(
-                        Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-                        Ingredient.of(Items.DIAMOND_CHESTPLATE),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.POTASSIUM_CHESTPLATE.get()
-                )
-                .unlocksHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
+        dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_CHESTPLATE),
+                Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_CHESTPLATE.get())
+                .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_chestplate_upgrade");
-
-        dsl.transform().of(
-                        Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-                        Ingredient.of(Items.DIAMOND_LEGGINGS),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.POTASSIUM_LEGGINGS.get()
-                )
-                .unlocksHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
+        dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_LEGGINGS),
+                Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_LEGGINGS.get())
+                .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_leggings_upgrade");
-
-        dsl.transform().of(
-                        Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-                        Ingredient.of(Items.DIAMOND_BOOTS),
-                        Ingredient.of(ModItems.POTASSIUM_INGOT.get()),
-                        RecipeCategory.COMBAT,
-                        ModItems.POTASSIUM_BOOTS.get()
-                )
-                .unlocksHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        ModItems.POTASSIUM_INGOT.get()
-                )
+        dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_BOOTS),
+                Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_BOOTS.get())
+                .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_boots_upgrade");
-
         dsl.shaped(RecipeCategory.MISC, ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), 2)
                 .pattern("xAx")
                 .pattern("xPx")
@@ -414,13 +283,8 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('x', Items.DIAMOND)
                 .define('A', ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
                 .define('P', ModBlocks.MUSAVACCA_PLANKS.get())
-                .unlockedByHas(
-                        ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        Items.DIAMOND,
-                        ModBlocks.MUSAVACCA_PLANKS.get()
-                )
+                .unlockedByHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), Items.DIAMOND, ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("smithing/potassium_upgrade_smithing_template_duplication");
-
         dsl.shaped(RecipeCategory.MISC, ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), 2)
                 .pattern("xAx")
                 .pattern("xPx")
@@ -428,13 +292,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('x', Items.DIAMOND)
                 .define('A', ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
                 .define('P', ModBlocks.MUSAVACCA_PLANKS.get())
-                .unlockedByHas(
-                        ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(),
-                        Items.DIAMOND,
-                        ModBlocks.MUSAVACCA_PLANKS.get()
-                )
+                .unlockedByHas(ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), Items.DIAMOND, ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("smithing/fractured_potassium_upgrade_smithing_template_duplication");
-
     }
-
 }

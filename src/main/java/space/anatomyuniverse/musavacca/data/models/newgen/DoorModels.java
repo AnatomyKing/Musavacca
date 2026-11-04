@@ -29,7 +29,6 @@ public final class DoorModels {
     private final ResourceLocation topRight;
     private final ResourceLocation topRightOpen;
     //?}
-
     private DoorModels(Builder builder) {
         this.bottomLeft = builder.bottomLeft;
         this.bottomLeftOpen = builder.bottomLeftOpen;
@@ -39,40 +38,19 @@ public final class DoorModels {
         this.topLeftOpen = builder.topLeftOpen;
         this.topRight = builder.topRight;
         this.topRightOpen = builder.topRightOpen;
-
-        if (isEmpty()) {
-            throw new IllegalStateException("DoorModels requires at least one model");
-        }
+        if (isEmpty()) throw new IllegalStateException("DoorModels requires at least one model");
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static DoorModels lower(
-            String bottomLeft,
-            String bottomLeftOpen,
-            String bottomRight,
-            String bottomRightOpen
-    ) {
-        return builder()
-                .bottomLeft(bottomLeft)
-                .bottomLeftOpen(bottomLeftOpen)
-                .bottomRight(bottomRight)
-                .bottomRightOpen(bottomRightOpen)
-                .build();
+    public static DoorModels lower(String bottomLeft, String bottomLeftOpen, String bottomRight, String bottomRightOpen) {
+        return builder().bottomLeft(bottomLeft).bottomLeftOpen(bottomLeftOpen).bottomRight(bottomRight).bottomRightOpen(bottomRightOpen).build();
     }
 
-    public static DoorModels full(
-            String bottomLeft,
-            String bottomLeftOpen,
-            String bottomRight,
-            String bottomRightOpen,
-            String topLeft,
-            String topLeftOpen,
-            String topRight,
-            String topRightOpen
-    ) {
+    public static DoorModels full(String bottomLeft, String bottomLeftOpen, String bottomRight, String bottomRightOpen, String topLeft, String topLeftOpen,
+            String topRight, String topRightOpen) {
         return builder()
                 .bottomLeft(bottomLeft)
                 .bottomLeftOpen(bottomLeftOpen)
@@ -87,35 +65,16 @@ public final class DoorModels {
 
     @Nullable
     //? if >=1.21.11 {
-    /*public Identifier model(
+    /*public Identifier model(DoubleBlockHalf half, DoorHingeSide hinge, boolean open) {
     *///?} else {
-    public ResourceLocation model(
+    public ResourceLocation model(DoubleBlockHalf half, DoorHingeSide hinge, boolean open) {
     //?}
-            DoubleBlockHalf half,
-            DoorHingeSide hinge,
-            boolean open
-    ) {
         if (half == DoubleBlockHalf.LOWER) {
-            if (hinge == DoorHingeSide.LEFT) {
-                return open
-                        ? bottomLeftOpen
-                        : bottomLeft;
-            }
-
-            return open
-                    ? bottomRightOpen
-                    : bottomRight;
+            if (hinge == DoorHingeSide.LEFT) return open ? bottomLeftOpen : bottomLeft;
+            return open ? bottomRightOpen : bottomRight;
         }
-
-        if (hinge == DoorHingeSide.LEFT) {
-            return open
-                    ? topLeftOpen
-                    : topLeft;
-        }
-
-        return open
-                ? topRightOpen
-                : topRight;
+        if (hinge == DoorHingeSide.LEFT) return open ? topLeftOpen : topLeft;
+        return open ? topRightOpen : topRight;
     }
 
     public boolean isEmpty() {
@@ -149,9 +108,7 @@ public final class DoorModels {
         private ResourceLocation topRight;
         private ResourceLocation topRightOpen;
         //?}
-
         private Builder() {}
-
         public Builder bottomLeft(String model) {
             this.bottomLeft = parse(model, "bottomLeft");
             return this;
@@ -201,10 +158,7 @@ public final class DoorModels {
         *///?} else {
         private static ResourceLocation parse(String model, String name) {
         //?}
-            if (model == null || model.isBlank()) {
-                throw new IllegalArgumentException(name + " must not be blank");
-            }
-
+            if (model == null || model.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
             //? if >=1.21.11 {
             /*return Identifier.parse(model);
             *///?} else {

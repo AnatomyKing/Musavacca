@@ -5,55 +5,44 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 //?} else {
 /*import net.neoforged.neoforge.network.PacketDistributor;
 *///?}
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.gui.Gui;
 //? if >=26.1 {
 /*import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.PlayerFaceExtractor;
 *///?} else {
 import net.minecraft.client.gui.GuiGraphics;
+//?}
+//? if >=26.1 {
+/*import net.minecraft.client.gui.components.PlayerFaceExtractor;
+*///?} else {
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 //?}
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-
-//? if >=1.21.11 {
-/*import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-
-import net.minecraft.client.renderer.RenderPipelines;
-
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-*///?} else if >=1.21.6 <1.21.11 {
+//? if >=1.21.2 {
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-
+//?}
+//? if >=1.21.6 {
 import net.minecraft.client.renderer.RenderPipelines;
-
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-//?} else if >=1.21.2 <1.21.6 {
-/*import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-*///?} else {
+//?} else if <1.21.2 {
 /*import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
-
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 *///?}
+//? if >=1.21.11 {
+//?} else {
+import net.minecraft.client.renderer.RenderType;
+//?}
+import net.minecraft.network.chat.Component;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-
 //? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 //?}
@@ -61,39 +50,14 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientMobEffectExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
-
 import com.mojang.blaze3d.platform.InputConstants;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
 import space.anatomyuniverse.musavacca.gui.frontend.VocoCallerFrontend;
-
 import java.util.UUID;
 
 public final class PlayerStatusClient {
-
-    private static final int FACE_SIZE = 8;
-
-    private static final int HUD_ICON_X_OFFSET = 3;
-    private static final int HUD_ICON_Y_OFFSET = 3;
-    private static final int INVENTORY_ICON_Y_OFFSET = 7;
-
-    private static final int FIRST_FACE_X_OFFSET = 1;
-    private static final int FIRST_FACE_Y_OFFSET = 1;
-    private static final int SECOND_FACE_X_OFFSET = 9;
-    private static final int SECOND_FACE_Y_OFFSET = 9;
-
-    private static final int BUTTON_WIDTH = 25;
-    private static final int BUTTON_HEIGHT = 13;
-    private static final int BUTTON_GAP = 3;
-
-    private static final int ACCEPT_X_OFFSET = 56;
-    private static final int BUTTON_Y_OFFSET = 15;
-    private static final int EXPANDED_BUTTON_Y_OFFSET = 11;
-    private static final int BUTTON_ROW_WIDTH = BUTTON_WIDTH * 2 + BUTTON_GAP;
-
-    private static final int RING_INTERVAL_TICKS = 24;
-    private static final int SECOND_RING_TICK = 6;
-
+    private static final int BUTTON_ROW_WIDTH = 25 * 2 + 3;
     private static Screen buttonScreen;
     private static int buttonsLeftX;
     private static int buttonY;
@@ -103,139 +67,94 @@ public final class PlayerStatusClient {
     private static int ringTick;
     private static UUID callerId;
     private static String callerName = "";
-
     private static final IClientMobEffectExtensions EXTENSIONS = new IClientMobEffectExtensions() {
+        @Override
         //? if >=26.2 {
-        /*@Override
-        public boolean extractHudIcon(MobEffectInstance instance, net.minecraft.client.gui.Hud hud,
-                GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
-            return renderPlayerFaces(graphics, x + HUD_ICON_X_OFFSET, y + HUD_ICON_Y_OFFSET,
-                    ((color >>> 24) & 255) / 255.0F);
-        }
+        /*public boolean extractHudIcon(MobEffectInstance instance, net.minecraft.client.gui.Hud hud, GuiGraphicsExtractor graphics, int x, int y, int width,
+                int height, int color) {
         *///?} else if >=26.1 <26.2 {
-        /*@Override
-        public boolean extractGuiIcon(MobEffectInstance instance, Gui gui,
-                GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
-            return renderPlayerFaces(graphics, x + HUD_ICON_X_OFFSET, y + HUD_ICON_Y_OFFSET,
-                    ((color >>> 24) & 255) / 255.0F);
-        }
+        /*public boolean extractGuiIcon(MobEffectInstance instance, Gui gui, GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
         *///?} else {
-        @Override
-        public boolean renderGuiIcon(MobEffectInstance instance, Gui gui,
-                GuiGraphics graphics, int x, int y, float z, float alpha) {
-            return renderPlayerFaces(graphics, x + HUD_ICON_X_OFFSET, y + HUD_ICON_Y_OFFSET, alpha);
-        }
+        public boolean renderGuiIcon(MobEffectInstance instance, Gui gui, GuiGraphics graphics, int x, int y, float z, float alpha) {
         //?}
+            //? if >=26.1 {
+            /*return renderPlayerFaces(graphics, x + 3, y + 3, ((color >>> 24) & 255) / 255.0F);
+            *///?} else {
+            return renderPlayerFaces(graphics, x + 3, y + 3, alpha);
+            //?}
+        }
 
+        @Override
         //? if >=26.1 {
-        /*@Override
-        public boolean extractInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen,
-                GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
-            return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET,
-                    ((color >>> 24) & 255) / 255.0F);
-        }
-
-        @Override
-        public boolean extractInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen,
-                GuiGraphicsExtractor graphics, int x, int y, int canvasWidth, int color) {
-            return renderExpandedControls(instance, screen, graphics, x, y, canvasWidth, color);
-        }
-        *///?} else if >=1.21.11 <26.1 {
-        /*@Override
-        public boolean renderInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen,
-                GuiGraphics graphics, int x, int y, int blitOffset) {
-            return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET, 1.0F);
-        }
-
-        @Override
-        public boolean renderInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen,
-                GuiGraphics graphics, int x, int y, int blitOffset) {
-            // 1.21.11 has no canvasWidth parameter; use the width of the vanilla effect title.
-            int width = Minecraft.getInstance().font.width(instance.getEffect().value().getDisplayName());
-            return renderExpandedControls(instance, screen, graphics, x, y, width, 0xFFFFFFFF);
-        }
-        *///?} else if >=1.21.2 <1.21.11 {
-        @Override
-        public boolean renderInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen,
-                GuiGraphics graphics, int x, int y, int blitOffset) {
-            return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET, 1.0F);
-        }
-
-        @Override
-        public boolean renderInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen,
-                GuiGraphics graphics, int x, int y, int blitOffset) {
-            renderLegacyControls(screen, graphics, x, y);
-            return false;
-        }
+        /*public boolean extractInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphicsExtractor graphics, int x, int y,
+                int width, int height, int color) {
+        *///?} else if >=1.21.2 <26.1 {
+        public boolean renderInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphics graphics, int x, int y, int blitOffset) {
         //?} else {
-        /*@Override
-        public boolean renderInventoryIcon(MobEffectInstance instance, EffectRenderingInventoryScreen<?> screen,
-                GuiGraphics graphics, int x, int y, int blitOffset) {
-            return renderPlayerFaces(graphics, x, y + INVENTORY_ICON_Y_OFFSET, 1.0F);
+        /*public boolean renderInventoryIcon(MobEffectInstance instance, EffectRenderingInventoryScreen<?> screen, GuiGraphics graphics, int x, int y,
+                int blitOffset) {
+        *///?}
+            //? if >=26.1 {
+            /*return renderPlayerFaces(graphics, x, y + 7, ((color >>> 24) & 255) / 255.0F);
+            *///?} else {
+            return renderPlayerFaces(graphics, x, y + 7, 1.0F);
+            //?}
         }
 
         @Override
-        public boolean renderInventoryText(MobEffectInstance instance, EffectRenderingInventoryScreen<?> screen,
-                GuiGraphics graphics, int x, int y, int blitOffset) {
+        //? if >=26.1 {
+        /*public boolean extractInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphicsExtractor graphics, int x, int y,
+                int canvasWidth, int color) {
+        *///?} else if >=1.21.2 <26.1 {
+        public boolean renderInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphics graphics, int x, int y, int blitOffset) {
+        //?} else {
+        /*public boolean renderInventoryText(MobEffectInstance instance, EffectRenderingInventoryScreen<?> screen, GuiGraphics graphics, int x, int y,
+        *///?}
+            //? if <1.21.2 || >=1.21.11 {
+            /*//? if >=26.1 {
+            /^return renderExpandedControls(instance, screen, graphics, x, y, canvasWidth, color);
+            ^///?} else if >=1.21.11 <26.1 {
+            /^int width = Minecraft.getInstance().font.width(instance.getEffect().value().getDisplayName());
+            ^///?} else {
+                int blitOffset) {
+                //?}
+            //? if >=1.21.11 <26.1 {
+            /^return renderExpandedControls(instance, screen, graphics, x, y, width, 0xFFFFFFFF);
+            ^///?}
+            *///?}
+            //? if <1.21.11 {
             renderLegacyControls(screen, graphics, x, y);
             return false;
+            //?}
         }
-        *///?}
     };
-
     private PlayerStatusClient() {}
-
     public static void register(IEventBus modBus) {
         //? if >=1.21.6 {
-
         modBus.addListener(PlayerStatusClient::registerClientPayloads);
-
         //?}
         NeoForge.EVENT_BUS.addListener(PlayerStatusClient::onLoggingOut);
-
-        modBus.addListener(
-                PlayerStatusClient::registerExtensions
-        );
-
-        NeoForge.EVENT_BUS.addListener(
-                PlayerStatusClient::onScreenRenderPre
-        );
-
-        NeoForge.EVENT_BUS.addListener(
-                PlayerStatusClient::onRenderInventoryMobEffects
-        );
-
-        NeoForge.EVENT_BUS.addListener(
-                PlayerStatusClient::onMouseButtonPressed
-        );
-
-        NeoForge.EVENT_BUS.addListener(
-                PlayerStatusClient::onMouseButtonReleased
-        );
-
-        NeoForge.EVENT_BUS.addListener(
-                PlayerStatusClient::onClientTick
-        );
+        //? if >=1.21.6 {
+        modBus.addListener(PlayerStatusClient::registerExtensions);
+        //?} else {
+        /*modBus.addListener(PlayerStatusClient::registerExtensions);
+        *///?}
+        NeoForge.EVENT_BUS.addListener(PlayerStatusClient::onScreenRenderPre);
+        NeoForge.EVENT_BUS.addListener(PlayerStatusClient::onRenderInventoryMobEffects);
+        NeoForge.EVENT_BUS.addListener(PlayerStatusClient::onMouseButtonPressed);
+        NeoForge.EVENT_BUS.addListener(PlayerStatusClient::onMouseButtonReleased);
+        NeoForge.EVENT_BUS.addListener(PlayerStatusClient::onClientTick);
     }
 
-    private static void registerExtensions(
-            RegisterClientExtensionsEvent event
-    ) {
-        event.registerMobEffect(
-                EXTENSIONS,
-                ModMobEffects.PLAYER_STATUS
-        );
+    private static void registerExtensions(RegisterClientExtensionsEvent event) {
+        event.registerMobEffect(EXTENSIONS, ModMobEffects.PLAYER_STATUS);
     }
+
     //? if >=1.21.6 {
-
     private static void registerClientPayloads(RegisterClientPayloadHandlersEvent event) {
-        event.register(
-                PlayerStatusCallerPayload.TYPE,
-                (payload, context) -> setCaller(payload)
-        );
+        event.register(PlayerStatusCallerPayload.TYPE, (payload, context) -> setCaller(payload));
     }
     //?}
-
     public static void setCaller(PlayerStatusCallerPayload payload) {
         callerId = payload.callerName().isEmpty() ? null : payload.callerId();
         callerName = payload.callerName();
@@ -248,383 +167,190 @@ public final class PlayerStatusClient {
         buttonScreen = null;
     }
 
-    private static void onClientTick(
-            ClientTickEvent.Post event
-    ) {
+    private static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
-
         if (minecraft.player == null
-                || !minecraft.player.hasEffect(
-                        ModMobEffects.PLAYER_STATUS
-                )) {
+                || !minecraft.player.hasEffect(ModMobEffects.PLAYER_STATUS)) {
             ringTick = 0;
             return;
         }
-
-        if (minecraft.isPaused()) {
-            return;
+        if (minecraft.isPaused()) return;
+        if (ringTick == 0 || ringTick == 6) {
+            minecraft.player.playSound(SoundEvents.BELL_BLOCK, 1.0F, ringTick == 0 ? 1.6F : 1.4F);
         }
-
-        if (ringTick == 0 || ringTick == SECOND_RING_TICK) {
-            minecraft.player.playSound(
-                    SoundEvents.BELL_BLOCK,
-                    1.0F,
-                    ringTick == 0 ? 1.6F : 1.4F
-            );
-        }
-
-        ringTick = (ringTick + 1) % RING_INTERVAL_TICKS;
-    }
-
-    private static boolean renderPlayerFaces(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics,
-            *///?} else {
-            GuiGraphics graphics,
-            //?}
-            int iconX,
-            int iconY,
-            float alpha
-    ) {
-        Minecraft minecraft = Minecraft.getInstance();
-
-        if (minecraft.player == null) {
-            return false;
-        }
-
-        int firstX = iconX + FIRST_FACE_X_OFFSET;
-        int firstY = iconY + FIRST_FACE_Y_OFFSET;
-        int secondX = iconX + SECOND_FACE_X_OFFSET;
-        int secondY = iconY + SECOND_FACE_Y_OFFSET;
-
-        var connection = minecraft.getConnection();
-        var caller = callerId != null && connection != null
-                ? connection.getPlayerInfo(callerId)
-                : null;
-        var callerSkin = caller != null
-                ? caller.getSkin()
-                : DefaultPlayerSkin.get(
-                        callerId != null ? callerId : PlayerStatusCallerPayload.CLEAR.callerId()
-                );
-
-        //? if >=26.1 {
-        /*int alphaChannel = Math.max(
-                0,
-                Math.min(
-                        255,
-                        Math.round(alpha * 255.0F)
-                )
-        );
-
-        int color =
-                alphaChannel << 24
-                        | 0x00FFFFFF;
-
-        PlayerFaceExtractor.extractRenderState(
-                graphics,
-                callerSkin,
-                firstX,
-                firstY,
-                FACE_SIZE,
-                color
-        *///?} else if >=1.21.2 <26.1 {
-        int alphaChannel = Math.max(
-                0,
-                Math.min(
-                        255,
-                        Math.round(alpha * 255.0F)
-                )
-        );
-
-        int color =
-                alphaChannel << 24
-                        | 0x00FFFFFF;
-
-        PlayerFaceRenderer.draw(
-                graphics,
-                callerSkin,
-                firstX,
-                firstY,
-                FACE_SIZE,
-                color
-        //?} else {
-        /*graphics.setColor(
-                1.0F,
-                1.0F,
-                1.0F,
-                alpha
-        *///?}
-        );
-
-        //? if >=26.1 {
-        /*PlayerFaceExtractor.extractRenderState(
-                graphics,
-                minecraft.player.getSkin(),
-        *///?} else if >=1.21.2 <26.1 {
-        PlayerFaceRenderer.draw(
-                graphics,
-                minecraft.player.getSkin(),
-        //?} else {
-        /*PlayerFaceRenderer.draw(
-                graphics,
-                callerSkin.texture(),
-                firstX,
-                firstY,
-                FACE_SIZE,
-                true,
-                false
-        );
-
-        PlayerFaceRenderer.draw(
-                graphics,
-                minecraft.player.getSkin().texture(),
-        *///?}
-                secondX,
-                secondY,
-                FACE_SIZE,
-        //? if >=1.21.2 {
-                color
-        //?} else {
-                /*true,
-                false
-        );
-
-        graphics.setColor(
-                1.0F,
-                1.0F,
-                1.0F,
-                1.0F
-        *///?}
-        );
-
-        return true;
+        ringTick = (ringTick + 1) % 24;
     }
 
     //? if >=26.1 {
-    /*private static boolean renderExpandedControls(
-            MobEffectInstance instance, Screen screen, GuiGraphicsExtractor graphics,
-            int x, int y, int availableWidth, int textColor
-    ) {
-        if (!supportsControls(screen)) return false;
-        if (availableWidth < BUTTON_ROW_WIDTH) {
-            pressedButton = null;
-            return false;
-        }
-        graphics.text(Minecraft.getInstance().font,
-                instance.getEffect().value().getDisplayName(), x, y, textColor);
-        drawControls(screen, graphics, x + (availableWidth - BUTTON_ROW_WIDTH) / 2,
-                y + EXPANDED_BUTTON_Y_OFFSET);
-        return true;
-    }
-    *///?} else if >=1.21.11 <26.1 {
-    /*private static boolean renderExpandedControls(
-            MobEffectInstance instance, Screen screen, GuiGraphics graphics,
-            int x, int y, int availableWidth, int textColor
-    ) {
-        if (!supportsControls(screen)) return false;
-        if (availableWidth < BUTTON_ROW_WIDTH) {
-            pressedButton = null;
-            return false;
-        }
-        graphics.drawString(Minecraft.getInstance().font,
-                instance.getEffect().value().getDisplayName(), x, y, textColor);
-        drawControls(screen, graphics, x + (availableWidth - BUTTON_ROW_WIDTH) / 2,
-                y + EXPANDED_BUTTON_Y_OFFSET);
-        return true;
-    }
+    /*private static boolean renderPlayerFaces(GuiGraphicsExtractor graphics, int iconX, int iconY, float alpha) {
     *///?} else {
+    private static boolean renderPlayerFaces(GuiGraphics graphics, int iconX, int iconY, float alpha) {
+    //?}
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null) return false;
+        int firstX = iconX + 1;
+        int firstY = iconY + 1;
+        int secondX = iconX + 9;
+        int secondY = iconY + 9;
+        var connection = minecraft.getConnection();
+        var caller = callerId != null && connection != null ? connection.getPlayerInfo(callerId) : null;
+        var callerSkin = caller != null ? caller.getSkin() : DefaultPlayerSkin.get(callerId != null ? callerId : PlayerStatusCallerPayload.CLEAR.callerId());
+        //? if >=1.21.2 {
+        int alphaChannel = Math.max(0, Math.min(255, Math.round(alpha * 255.0F)));
+        int color = alphaChannel << 24 | 0x00FFFFFF;
+        //? if >=26.1 {
+        /*PlayerFaceExtractor.extractRenderState(graphics, callerSkin, firstX, firstY, 8, color);
+        PlayerFaceExtractor.extractRenderState(graphics, minecraft.player.getSkin(), secondX, secondY, 8, color);
+        *///?} else {
+        PlayerFaceRenderer.draw(graphics, callerSkin, firstX, firstY, 8, color);
+        //?}
+        //?}
+        //? if <26.1 {
+        
+        //? if >=1.21.2 <26.1 {
+        PlayerFaceRenderer.draw(graphics, minecraft.player.getSkin(), secondX, secondY, 8, color);
+        //?} else {
+        /*graphics.setColor(1.0F, 1.0F, 1.0F, alpha);
+        PlayerFaceRenderer.draw(graphics, callerSkin.texture(), firstX, firstY, 8, true, false);
+        *///?}
+        //? if <1.21.2 {
+        /*PlayerFaceRenderer.draw(graphics, minecraft.player.getSkin().texture(), secondX, secondY, 8, true, false);
+        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        *///?}
+        //?}
+        return true;
+    }
+    //? if >=1.21.11 {
+    /*//? if >=26.1 {
+    /^private static boolean renderExpandedControls(MobEffectInstance instance, Screen screen, GuiGraphicsExtractor graphics, int x, int y, int availableWidth,
+    ^///?} else {
+    private static boolean renderExpandedControls(MobEffectInstance instance, Screen screen, GuiGraphics graphics, int x, int y, int availableWidth,
+    //?}
+            int textColor) {
+        if (!supportsControls(screen)) return false;
+        if (availableWidth < BUTTON_ROW_WIDTH) {
+            pressedButton = null;
+            return false;
+        }
+        //? if >=26.1 {
+        /^graphics.text(Minecraft.getInstance().font, instance.getEffect().value().getDisplayName(), x, y, textColor);
+        ^///?} else {
+        graphics.drawString(Minecraft.getInstance().font, instance.getEffect().value().getDisplayName(), x, y, textColor);
+        //?}
+        drawControls(screen, graphics, x + (availableWidth - BUTTON_ROW_WIDTH) / 2, y + 11);
+        return true;
+    }
+    *///?}
+    //? if <1.21.11 || >=26.1 {
+    //? if <1.21.11 {
     private static void renderLegacyControls(Screen screen, GuiGraphics graphics, int x, int y) {
-        drawControls(screen, graphics, x + ACCEPT_X_OFFSET, y + BUTTON_Y_OFFSET);
+        drawControls(screen, graphics, x + 56, y + 15);
     }
     //?}
-
-    private static void drawControls(
-            Screen screen,
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics,
-            *///?} else {
-            GuiGraphics graphics,
-            //?}
-            int left, int top
-    ) {
+    //? if >=26.1 {
+    /*private static void drawControls(Screen screen, GuiGraphicsExtractor graphics, int left, int top) {
+    *///?}
+    //?}
+    //? if <26.1 {
+    private static void drawControls(Screen screen, GuiGraphics graphics, int left, int top) {
+    //?}
         buttonScreen = screen;
         buttonsLeftX = left;
         buttonY = top;
         for (StatusButton button : StatusButton.values()) {
-            blit(graphics, button.currentTexture(pressedButton == button),
-                    buttonX(button), buttonY, BUTTON_WIDTH, BUTTON_HEIGHT);
+            blit(graphics, button.currentTexture(pressedButton == button), buttonX(button), buttonY, 25, 13);
         }
         StatusButton hovered = buttonAt(mouseX, mouseY);
         if (hovered != null) renderButtonTooltip(graphics, hovered);
     }
 
-    private static void renderButtonTooltip(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics,
-            *///?} else {
-            GuiGraphics graphics,
-            //?}
-            StatusButton button
-    ) {
+    //? if >=26.1 {
+    /*private static void renderButtonTooltip(GuiGraphicsExtractor graphics, StatusButton button) {
+    *///?} else {
+    private static void renderButtonTooltip(GuiGraphics graphics, StatusButton button) {
+    //?}
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null) return;
-
-        String message = callerName.isEmpty()
-                ? "Incoming call"
-                : callerName + " is calling you";
-        var lines = java.util.List.of(
-                Component.literal(message).getVisualOrderText(),
-                Component.literal(button.tooltip).getVisualOrderText()
-        );
-
+        String message = callerName.isEmpty() ? "Incoming call" : callerName + " is calling you";
+        var lines = java.util.List.of(Component.literal(message).getVisualOrderText(), Component.literal(button.tooltip).getVisualOrderText());
         //? if >=1.21.6 {
-        graphics.setTooltipForNextFrame(
+        graphics.setTooltipForNextFrame(minecraft.font, lines, (int) mouseX, (int) mouseY);
         //?} else {
-        /*graphics.renderTooltip(
+        /*graphics.renderTooltip(minecraft.font, lines, (int) mouseX, (int) mouseY);
         *///?}
-                minecraft.font,
-                lines,
-                (int) mouseX,
-                (int) mouseY
-        );
-
     }
 
-    private static void onScreenRenderPre(
-            ScreenEvent.Render.Pre event
-    ) {
+    private static void onScreenRenderPre(ScreenEvent.Render.Pre event) {
         mouseX = event.getMouseX();
         mouseY = event.getMouseY();
         buttonScreen = null;
-
         Minecraft minecraft = Minecraft.getInstance();
-
         if (!supportsControls(event.getScreen())
                 || minecraft.player == null
-                || !minecraft.player.hasEffect(
-                        ModMobEffects.PLAYER_STATUS
-                )) {
+                || !minecraft.player.hasEffect(ModMobEffects.PLAYER_STATUS)) {
             pressedButton = null;
         }
     }
 
-    private static void onRenderInventoryMobEffects(
-            ScreenEvent.RenderInventoryMobEffects event
-    ) {
-        if (!(event.getScreen() instanceof VocoCallerFrontend screen)) {
-            return;
-        }
-
+    private static void onRenderInventoryMobEffects(ScreenEvent.RenderInventoryMobEffects event) {
+        if (!(event.getScreen() instanceof VocoCallerFrontend screen)) return;
         event.setCompact(false);
-        event.setHorizontalOffset(
-                screen.getEffectPanelX()
-        );
+        event.setHorizontalOffset(screen.getEffectPanelX());
     }
 
-    private static void onMouseButtonPressed(
-            ScreenEvent.MouseButtonPressed.Pre event
-    ) {
+    private static void onMouseButtonPressed(ScreenEvent.MouseButtonPressed.Pre event) {
         if (event.getButton()
                 != InputConstants.MOUSE_BUTTON_LEFT
-                || !hasActiveControls(
-                        event.getScreen()
-                )) {
+                || !hasActiveControls(event.getScreen())) {
             return;
         }
-
-        StatusButton button = buttonAt(
-                event.getMouseX(),
-                event.getMouseY()
-        );
-
-        if (button == null) {
-            return;
-        }
-
+        StatusButton button = buttonAt(event.getMouseX(), event.getMouseY());
+        if (button == null) return;
         pressedButton = button;
         event.setCanceled(true);
     }
 
-    private static void onMouseButtonReleased(
-            ScreenEvent.MouseButtonReleased.Pre event
-    ) {
+    private static void onMouseButtonReleased(ScreenEvent.MouseButtonReleased.Pre event) {
         if (event.getButton()
                 != InputConstants.MOUSE_BUTTON_LEFT
                 || pressedButton == null) {
             return;
         }
-
         StatusButton button = pressedButton;
         pressedButton = null;
-
-        if (!hasActiveControls(
-                event.getScreen()
-        )) {
-            return;
-        }
-
+        if (!hasActiveControls(event.getScreen())) return;
         event.setCanceled(true);
-
-        if (button != buttonAt(
-                event.getMouseX(),
-                event.getMouseY()
-        )) {
-            return;
-        }
-
-        send(
-                button.payload()
-        );
+        if (button != buttonAt(event.getMouseX(), event.getMouseY())) return;
+        send(button.payload());
     }
 
-    private static boolean supportsControls(
-            Screen screen
-    ) {
-        return screen instanceof InventoryScreen
-                || screen instanceof VocoCallerFrontend;
+    private static boolean supportsControls(Screen screen) {
+        return screen instanceof InventoryScreen || screen instanceof VocoCallerFrontend;
     }
 
-    private static boolean hasActiveControls(
-            Screen screen
-    ) {
+    private static boolean hasActiveControls(Screen screen) {
         Minecraft minecraft = Minecraft.getInstance();
-
-        return supportsControls(screen)
-                && buttonScreen == screen
-                && minecraft.player != null
-                && minecraft.player.hasEffect(
-                        ModMobEffects.PLAYER_STATUS
-                );
+        return supportsControls(screen) && buttonScreen == screen && minecraft.player != null && minecraft.player.hasEffect(ModMobEffects.PLAYER_STATUS);
     }
 
-    private static StatusButton buttonAt(
-            double mouseX,
-            double mouseY
-    ) {
+    private static StatusButton buttonAt(double mouseX, double mouseY) {
         for (StatusButton button : StatusButton.values()) {
             int x = buttonX(button);
-
             if (mouseX >= x
-                    && mouseX < x + BUTTON_WIDTH
+                    && mouseX < x + 25
                     && mouseY >= buttonY
-                    && mouseY < buttonY + BUTTON_HEIGHT) {
+                    && mouseY < buttonY + 13) {
                 return button;
             }
         }
-
         return null;
     }
 
-    private static int buttonX(
-            StatusButton button
-    ) {
-        return buttonsLeftX
-                + button.xOffset;
+    private static int buttonX(StatusButton button) {
+        return buttonsLeftX + button.xOffset;
     }
 
-    private static void send(
-            PlayerStatusActionPayload payload
-    ) {
+    private static void send(PlayerStatusActionPayload payload) {
         //? if >=1.21.6 {
         ClientPacketDistributor.sendToServer(payload);
         //?} else {
@@ -633,92 +359,44 @@ public final class PlayerStatusClient {
     }
 
     //? if >=1.21.11 {
-    /*private static Identifier buttonTexture(
+    /*private static Identifier buttonTexture(String name) {
+        return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/" + name + ".png");
     *///?} else {
-    private static ResourceLocation buttonTexture(
+    private static ResourceLocation buttonTexture(String name) {
+        return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/" + name + ".png");
     //?}
-            String name
-    ) {
-        //? if >=1.21.11 {
-        /*return Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/"
-        *///?} else {
-        return ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/gui/voco_caller/"
-        //?}
-                                + name
-                                + ".png");
     }
 
-    private static void blit(
-            //? if >=26.1 {
-            /*GuiGraphicsExtractor graphics,
-            Identifier texture,
-            *///?} else if >=1.21.11 <26.1 {
-            /*GuiGraphics graphics,
-            Identifier texture,
-            *///?} else {
-            GuiGraphics graphics,
-            ResourceLocation texture,
-            //?}
-            int x,
-            int y,
-            int width,
-            int height
-    ) {
-
-        graphics.blit(
-                //? if >=1.21.6 {
-                RenderPipelines.GUI_TEXTURED,
-                //?} else if >=1.21.2 <1.21.6 {
-                /*RenderType::guiTextured,
-                *///?}
-                texture,
-                x,
-                y,
-                0.0F,
-                0.0F,
-                width,
-                height,
-                width,
-                height
-        );
-
+    //? if >=26.1 {
+    /*private static void blit(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width, int height) {
+    *///?} else if >=1.21.11 <26.1 {
+    /*private static void blit(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height) {
+    *///?} else {
+    private static void blit(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height) {
+    //?}
+        //? if >=1.21.6 {
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0F, 0.0F, width, height, width, height);
+        //?} else if >=1.21.2 <1.21.6 {
+        /*graphics.blit(RenderType::guiTextured, texture, x, y, 0.0F, 0.0F, width, height, width, height);
+        *///?} else {
+        /*graphics.blit(texture, x, y, 0.0F, 0.0F, width, height, width, height);
+        *///?}
     }
 
     private enum StatusButton {
-        ACCEPT(
-                0,
-                "accept",
-                buttonTexture("accept"),
-                buttonTexture("accept_pressed")
-        ),
-        CANCEL(
-                BUTTON_WIDTH + BUTTON_GAP,
-                "cancel",
-                buttonTexture("cancel"),
-                buttonTexture("cancel_pressed")
-        );
-
+        ACCEPT(0, "accept", buttonTexture("accept"), buttonTexture("accept_pressed")),
+        CANCEL(25 + 3, "cancel", buttonTexture("cancel"), buttonTexture("cancel_pressed"));
         private final int xOffset;
         private final String tooltip;
         //? if >=1.21.11 {
         /*private final Identifier normalTexture;
         private final Identifier pressedTexture;
+        StatusButton(int xOffset, String tooltip, Identifier normalTexture, Identifier pressedTexture) {
         *///?} else {
         private final ResourceLocation normalTexture;
         private final ResourceLocation pressedTexture;
+        StatusButton(int xOffset, String tooltip, ResourceLocation normalTexture, ResourceLocation pressedTexture) {
         //?}
-
-        StatusButton(
-                int xOffset,
-                String tooltip,
-                //? if >=1.21.11 {
-                /*Identifier normalTexture,
-                Identifier pressedTexture
-                *///?} else {
-                ResourceLocation normalTexture,
-                ResourceLocation pressedTexture
-                //?}
-        ) {
             this.xOffset = xOffset;
             this.tooltip = tooltip;
             this.normalTexture = normalTexture;
@@ -726,21 +404,15 @@ public final class PlayerStatusClient {
         }
 
         //? if >=1.21.11 {
-        /*private Identifier currentTexture(
+        /*private Identifier currentTexture(boolean pressed) {
         *///?} else {
-        private ResourceLocation currentTexture(
+        private ResourceLocation currentTexture(boolean pressed) {
         //?}
-                boolean pressed
-        ) {
-            return pressed
-                    ? this.pressedTexture
-                    : this.normalTexture;
+            return pressed ? this.pressedTexture : this.normalTexture;
         }
 
         private PlayerStatusActionPayload payload() {
-            return this == ACCEPT
-                    ? PlayerStatusActionPayload.accept()
-                    : PlayerStatusActionPayload.cancel();
+            return this == ACCEPT ? PlayerStatusActionPayload.accept() : PlayerStatusActionPayload.cancel();
         }
     }
 }

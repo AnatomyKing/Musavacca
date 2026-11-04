@@ -14,21 +14,11 @@ public final class HexColorParticleType extends ParticleType<HexColorParticleOpt
 
     @Override
     public MapCodec<HexColorParticleOptions> codec() {
-        return Codec.INT
-                .fieldOf("color")
-                .xmap(
-                        color -> new HexColorParticleOptions(this, color),
-                        HexColorParticleOptions::color
-                );
+        return Codec.INT.fieldOf("color").xmap(color -> new HexColorParticleOptions(this, color), HexColorParticleOptions::color);
     }
 
     @Override
     public StreamCodec<? super RegistryFriendlyByteBuf, HexColorParticleOptions> streamCodec() {
-        return StreamCodec.composite(
-                ByteBufCodecs.INT,
-                HexColorParticleOptions::color,
-                color -> new HexColorParticleOptions(this, color)
-        );
+        return StreamCodec.composite(ByteBufCodecs.INT, HexColorParticleOptions::color, color -> new HexColorParticleOptions(this, color));
     }
 }
-

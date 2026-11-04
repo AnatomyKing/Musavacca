@@ -12,15 +12,12 @@ import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class ModMobEffectTags {
     public static final TagKey<MobEffect> BYPASSES_COW_BLESSING = create("bypasses_cow_blessing");
-
     private ModMobEffectTags() {}
-
     private static TagKey<MobEffect> create(String name) {
-        return TagKey.create(Registries.MOB_EFFECT,
-                //? if >=1.21.11 {
-                /*Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, name));
-                *///?} else {
-                ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, name));
-                //?}
+        //? if >=1.21.11 {
+        /*return TagKey.create(Registries.MOB_EFFECT, Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, name));
+        *///?} else {
+        return TagKey.create(Registries.MOB_EFFECT, ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, name));
+        //?}
     }
 }

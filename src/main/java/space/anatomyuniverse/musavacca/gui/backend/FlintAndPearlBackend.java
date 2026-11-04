@@ -9,9 +9,7 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class FlintAndPearlBackend {
     private final InteractionHand hand;
-
     private int hexColor;
-
     public FlintAndPearlBackend(InteractionHand hand, int hexColor) {
         this.hand = hand;
         this.hexColor = MusavaccaTints.resolve(hexColor);
@@ -31,22 +29,10 @@ public final class FlintAndPearlBackend {
 
     public boolean applyHexColor(Player player, int hexColor) {
         ItemStack stack = player.getItemInHand(this.hand);
-
-        if (!(stack.getItem() instanceof FlintAndPearlItem)) {
-            return false;
-        }
-
+        if (!(stack.getItem() instanceof FlintAndPearlItem)) return false;
         int color = MusavaccaTints.resolve(hexColor);
-
         stack.set(ModDataComponents.HEX_COLOR.get(), color);
         this.hexColor = color;
-
         return true;
     }
-
-    public static int getDefaultHexColor() {
-        return MusavaccaTints.DEFAULT_TINT;
-    }
-
 }
-

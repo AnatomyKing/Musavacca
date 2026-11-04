@@ -3,30 +3,25 @@ package space.anatomyuniverse.musavacca.block;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.DoubleHighBlockItem;
-import net.minecraft.world.item.Item;
+
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.BlockSetType;
+
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
-
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.custom.*;
-
 import java.util.List;
 import java.util.Set;
 
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MusaCore.MOD_ID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MusaCore.MOD_ID);
-
     public static final DeferredBlock<Block> BANANA_PEARL_BLOCK =
             BLOCKS.registerBlock("banana_pearl_block",
                     props -> new Block(props
@@ -39,7 +34,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<Block> BANANA_PEARL_BRICKS =
             BLOCKS.registerBlock("banana_pearl_bricks",
                     props -> new Block(props
@@ -52,7 +46,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<BreakBlock> MUSAVACCA_EGG =
             BLOCKS.registerBlock("musavacca_egg",
                     props -> new BreakBlock(props
@@ -66,28 +59,17 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     private static DeferredItem<BlockItem> MusavaccaEggItems(String name, int age) {
         return ITEMS.registerItem(
                 name,
-                props -> new BlockItem(
-                        MUSAVACCA_EGG.get(),
-                        props.component(
-                                DataComponents.BLOCK_STATE,
-                                BlockItemStateProperties.EMPTY.with(BreakBlock.AGE, age)
-                        )
-                )
+                props -> new BlockItem(MUSAVACCA_EGG.get(),
+                        props.component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(BreakBlock.AGE, age)))
         );
     }
-    public static final DeferredItem<BlockItem> UNRIPE_MUSAVACCA_EGG =
-            MusavaccaEggItems("unripe_musavacca_egg", 0);
 
-    public static final DeferredItem<BlockItem> RIPENING_MUSAVACCA_EGG =
-            MusavaccaEggItems("ripening_musavacca_egg", 1);
-
-    public static final DeferredItem<BlockItem> RIPE_MUSAVACCA_EGG =
-            MusavaccaEggItems("ripe_musavacca_egg", 2);
-
+    public static final DeferredItem<BlockItem> UNRIPE_MUSAVACCA_EGG = MusavaccaEggItems("unripe_musavacca_egg", 0);
+    public static final DeferredItem<BlockItem> RIPENING_MUSAVACCA_EGG = MusavaccaEggItems("ripening_musavacca_egg", 1);
+    public static final DeferredItem<BlockItem> RIPE_MUSAVACCA_EGG = MusavaccaEggItems("ripe_musavacca_egg", 2);
     public static final DeferredBlock<Block> BANANA_PEARL_CHAPITER =
             BLOCKS.registerBlock("banana_pearl_chapiter",
                     props -> new BananaPearlChapiter(props
@@ -100,7 +82,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<Block> BANANA_PEARL_MASCARON =
             BLOCKS.registerBlock("banana_pearl_mascaron",
                     props -> new BananaPearlMascaron(props
@@ -114,7 +95,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<RotatedPillarBlock> BANANA_PEARL_PILLAR =
             BLOCKS.registerBlock("banana_pearl_pillar",
                     props -> new RotatedPillarBlock(props
@@ -127,7 +107,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_MUSAVACCA_STEM =
             BLOCKS.registerBlock("stripped_musavacca_stem",
                     props -> new RotatedPillarBlock(props
@@ -139,38 +118,24 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<ExudatedStrippedMusavaccaStemBlock> EXUDATED_STRIPPED_MUSAVACCA_STEM =
             BLOCKS.registerBlock("exudated_stripped_musavacca_stem",
                     props -> new ExudatedStrippedMusavaccaStemBlock(
-                            props
-                                    .mapColor(MapColor.COLOR_BROWN)
-                                    .strength(2.0F, 2.0F)
-                                    .sound(SoundType.STEM)
-                                    //? if >=26.3 {
-                                    /*.pushReaction(PushReaction.PUSH_PULL),
-                                    *///?} else {
-                                    .pushReaction(PushReaction.NORMAL),
-                                    //?}
-                            STRIPPED_MUSAVACCA_STEM
-                    ));
-
+                            //? if >=26.3 {
+                            /*props.mapColor(MapColor.COLOR_BROWN).strength(2.0F, 2.0F).sound(SoundType.STEM).pushReaction(PushReaction.PUSH_PULL),
+                            *///?} else {
+                            props.mapColor(MapColor.COLOR_BROWN).strength(2.0F, 2.0F).sound(SoundType.STEM).pushReaction(PushReaction.NORMAL),
+                            //?}
+                            STRIPPED_MUSAVACCA_STEM));
     public static final DeferredBlock<StrippableMusavaccaStemBlock> MUSAVACCA_STEM =
             BLOCKS.registerBlock("musavacca_stem",
                     props -> new StrippableMusavaccaStemBlock(
-                            props
-                                    .mapColor(MapColor.COLOR_BROWN)
-                                    .strength(2.0F, 2.0F)
-                                    .sound(SoundType.STEM)
-                                    //? if >=26.3 {
-                                    /*.pushReaction(PushReaction.PUSH_PULL),
-                                    *///?} else {
-                                    .pushReaction(PushReaction.NORMAL),
-                                    //?}
-                            STRIPPED_MUSAVACCA_STEM,
-                            EXUDATED_STRIPPED_MUSAVACCA_STEM
-                    ));
-
+                            //? if >=26.3 {
+                            /*props.mapColor(MapColor.COLOR_BROWN).strength(2.0F, 2.0F).sound(SoundType.STEM).pushReaction(PushReaction.PUSH_PULL),
+                            *///?} else {
+                            props.mapColor(MapColor.COLOR_BROWN).strength(2.0F, 2.0F).sound(SoundType.STEM).pushReaction(PushReaction.NORMAL),
+                            //?}
+                            STRIPPED_MUSAVACCA_STEM, EXUDATED_STRIPPED_MUSAVACCA_STEM));
     public static final DeferredBlock<SmallBananaPearlBlock> SMALL_BANANA_PEARL_BLOCK =
             BLOCKS.registerBlock("small_banana_pearl_block",
                     props -> new SmallBananaPearlBlock(props
@@ -192,19 +157,16 @@ public final class ModBlocks {
                             .pushReaction(PushReaction.NORMAL)
                             //?}
                     ));
-
     public static final DeferredBlock<PearlFireBlock> PEARL_FIRE =
             BLOCKS.registerBlock("pearl_fire",
                     props -> new PearlFireBlock(props
                             .mapColor(MapColor.FIRE)
                             .replaceable()
-
                             //? if >=1.21.9 {
                             /*.noCollision()
                             *///?} else {
                             .noCollission()
                             //?}
-
                             .instabreak()
                             .lightLevel(state -> 15)
                             .sound(SoundType.WOOL)
@@ -214,18 +176,15 @@ public final class ModBlocks {
                             .pushReaction(PushReaction.DESTROY)
                             //?}
                             .noLootTable()));
-
     public static final DeferredBlock<PearlPortalBlock> PEARL_PORTAL =
             BLOCKS.registerBlock("pearl_portal",
                     props -> new PearlPortalBlock(props
                             .mapColor(MapColor.COLOR_PURPLE)
-
                             //? if >=1.21.9 {
                             /*.noCollision()
                             *///?} else {
                             .noCollission()
                             //?}
-
                             .noOcclusion()
                             .strength(-1.0F, 3600000.0F)
                             .lightLevel(state -> 11)
@@ -236,7 +195,6 @@ public final class ModBlocks {
                             .pushReaction(PushReaction.BLOCK)
                             //?}
                             .noLootTable()));
-
     public static final DeferredBlock<Block> MUSAVACCA_PLANKS =
             BLOCKS.registerBlock("musavacca_planks",
                     props -> new Block(props
@@ -248,7 +206,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<Block> GILDED_MUSAVACCA_PLANKS =
             BLOCKS.registerBlock("gilded_musavacca_planks",
                     props -> new Block(props
@@ -260,7 +217,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<StairBlock> MUSAVACCA_STAIRS =
             BLOCKS.registerBlock("musavacca_stairs",
                     props -> new StairBlock(
@@ -275,7 +231,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.NORMAL)
                                     //?}
                     ));
-
     public static final DeferredBlock<SlabBlock> MUSAVACCA_SLAB =
             BLOCKS.registerBlock("musavacca_slab",
                     props -> new SlabBlock(props
@@ -287,7 +242,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<FenceBlock> MUSAVACCA_FENCE =
             BLOCKS.registerBlock("musavacca_fence",
                     props -> new FenceBlock(props
@@ -300,7 +254,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<FenceGateBlock> MUSAVACCA_FENCE_GATE =
             BLOCKS.registerBlock("musavacca_fence_gate",
                     props -> new FenceGateBlock(
@@ -316,7 +269,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.NORMAL)
                                     //?}
                     ));
-
     public static final DeferredBlock<MusavaccaPortalDoorBlock> MUSAVACCA_DOOR =
             BLOCKS.registerBlock("musavacca_door",
                     props -> new MusavaccaPortalDoorBlock(
@@ -332,7 +284,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                                     //?}
                     ));
-
     public static final DeferredBlock<MusavaccaPortalTrapdoorBlock> MUSAVACCA_TRAPDOOR =
             BLOCKS.registerBlock("musavacca_trapdoor",
                     props -> new MusavaccaPortalTrapdoorBlock(
@@ -348,7 +299,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                                     //?}
                     ));
-
     public static final DeferredBlock<PressurePlateBlock> MUSAVACCA_PRESSURE_PLATE =
             BLOCKS.registerBlock("musavacca_pressure_plate",
                     props -> new PressurePlateBlock(
@@ -358,20 +308,17 @@ public final class ModBlocks {
                                     .strength(0.5F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
                                     .forceSolidOn()
-
                                     //? if >=1.21.9 {
                                     /*.noCollision()
                                     *///?} else {
                                     .noCollission()
                                     //?}
-
                                     //? if >=26.3 {
                                     /*.pushReaction(PushReaction.POPPED)
                                     *///?} else {
                                     .pushReaction(PushReaction.DESTROY)
                                     //?}
                     ));
-
     public static final DeferredBlock<ButtonBlock> MUSAVACCA_BUTTON =
             BLOCKS.registerBlock("musavacca_button",
                     props -> new ButtonBlock(
@@ -381,20 +328,17 @@ public final class ModBlocks {
                                     .mapColor(MapColor.COLOR_BROWN)
                                     .strength(0.5F)
                                     .sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType())
-
                                     //? if >=1.21.9 {
                                     /*.noCollision()
                                     *///?} else {
                                     .noCollission()
                                     //?}
-
                                     //? if >=26.3 {
                                     /*.pushReaction(PushReaction.POPPED)
                                     *///?} else {
                                     .pushReaction(PushReaction.DESTROY)
                                     //?}
                     ));
-
     public static final DeferredBlock<Block> MUSAVACCA_LEAVES =
             BLOCKS.registerBlock("musavacca_leaves", props -> {
                 var p = props
@@ -411,10 +355,8 @@ public final class ModBlocks {
                         .isViewBlocking((s, l, pos) -> false)
                         .pushReaction(PushReaction.DESTROY);
                         //?}
-
                 return new MusavaccaLeaves(0.0F, p);
             });
-
     private static DeferredBlock<MusavaccaCropBlock> musavaccaCropStage(String name, int age) {
         return BLOCKS.registerBlock(name,
                 props -> new MusavaccaCropBlock(
@@ -438,15 +380,9 @@ public final class ModBlocks {
         );
     }
 
-    public static final DeferredBlock<MusavaccaCropBlock> MUSAVACCA_SPROUT =
-            musavaccaCropStage("musavacca_sprout", 0);
-
-    public static final DeferredBlock<MusavaccaCropBlock> MUSAVACCA_SUCKER =
-            musavaccaCropStage("musavacca_sucker", 1);
-
-    public static final DeferredBlock<MusavaccaCropBlock> MUSAVACCA_PLANT =
-            musavaccaCropStage("musavacca_plant", 2);
-
+    public static final DeferredBlock<MusavaccaCropBlock> MUSAVACCA_SPROUT = musavaccaCropStage("musavacca_sprout", 0);
+    public static final DeferredBlock<MusavaccaCropBlock> MUSAVACCA_SUCKER = musavaccaCropStage("musavacca_sucker", 1);
+    public static final DeferredBlock<MusavaccaCropBlock> MUSAVACCA_PLANT = musavaccaCropStage("musavacca_plant", 2);
     public static final DeferredBlock<MusavaccaSaplingBlock> MUSAVACCA_PSEUDOSTEM =
             BLOCKS.registerBlock("musavacca_pseudostem",
                     props -> new MusavaccaSaplingBlock(
@@ -466,7 +402,6 @@ public final class ModBlocks {
                                     //?}
                                     .noLootTable()
                     ));
-
     public static final DeferredBlock<DecorationBlock> BANANA_PEARL_CHALICE =
             BLOCKS.registerBlock("banana_pearl_chalice",
                     props -> new DecorationBlock(
@@ -480,20 +415,14 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY),
                                     //?}
                             DecorationBlock.Options.builder()
-
                                     .floorRotating()
                                     .sneakRotating()
                                     .side()
-
-                                    .shapes(DecorationBlock.ShapeSet.of(
-                                            Block.box(4.0D, 0.0D, 4.0D, 12.0D, 12.0D, 12.0D),
-                                            Block.box(1.75D, 0.0D, 2.0D, 14.25D, 7.0D, 14.0D),
-                                            Block.box(4.5D, 0.5D, 2.25D, 11.5D, 12.5D, 9.25D),
-                                            Block.box(4.0D, 4.0D, 4.0D, 12.0D, 16.0D, 12.0D)
-                                    ))
+                                    .shapes(DecorationBlock.ShapeSet.of(Block.box(4.0D, 0.0D, 4.0D, 12.0D, 12.0D, 12.0D),
+                                            Block.box(1.75D, 0.0D, 2.0D, 14.25D, 7.0D, 14.0D), Block.box(4.5D, 0.5D, 2.25D, 11.5D, 12.5D, 9.25D),
+                                            Block.box(4.0D, 4.0D, 4.0D, 12.0D, 16.0D, 12.0D)))
                                     .build()
                     ));
-
     public static final DeferredBlock<VocoTableBlock> VOCO_TABLE =
             BLOCKS.registerBlock("voco_table",
                     props -> new VocoTableBlock(props
@@ -506,7 +435,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.DESTROY)));
                             //?}
-
     public static final DeferredBlock<VocoPostBlock> VOCO_POST =
             BLOCKS.registerBlock("voco_post",
                     props -> new VocoPostBlock(props
@@ -519,7 +447,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.DESTROY)));
                             //?}
-
     public static final DeferredBlock<HexBlock> HEX_BLOCK =
             BLOCKS.registerBlock("hex_block",
                     props -> new HexBlock(props
@@ -533,7 +460,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<HardHexBlock> HARD_HEX_BLOCK =
             BLOCKS.registerBlock("hard_hex_block",
                     props -> new HardHexBlock(props
@@ -546,7 +472,6 @@ public final class ModBlocks {
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
-
     public static final DeferredBlock<StairBlock> BANANA_PEARL_STAIRS =
             BLOCKS.registerBlock("banana_pearl_stairs",
                     props -> new StairBlock(
@@ -562,7 +487,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.NORMAL)
                                     //?}
                     ));
-
     public static final DeferredBlock<StairBlock> BANANA_PEARL_BRICK_STAIRS =
             BLOCKS.registerBlock("banana_pearl_brick_stairs",
                     props -> new StairBlock(
@@ -578,7 +502,6 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.NORMAL)
                                     //?}
                     ));
-
     private static DeferredBlock<PearlCandleBlock> pearlCandle(String name, Block vanillaCandleBlock) {
         return BLOCKS.registerBlock(name,
                 props -> new PearlCandleBlock(
@@ -598,141 +521,53 @@ public final class ModBlocks {
         );
     }
 
-    public static final DeferredBlock<PearlCandleBlock> PEARL_CANDLE =
-            pearlCandle("pearl_candle", Blocks.CANDLE);
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_WHITE_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_white_candle", Blocks.DYED_CANDLE.pick(DyeColor.WHITE));
-            *///?} else {
-            pearlCandle("pearl_white_candle", Blocks.WHITE_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_ORANGE_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_orange_candle", Blocks.DYED_CANDLE.pick(DyeColor.ORANGE));
-            *///?} else {
-            pearlCandle("pearl_orange_candle", Blocks.ORANGE_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_MAGENTA_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_magenta_candle", Blocks.DYED_CANDLE.pick(DyeColor.MAGENTA));
-            *///?} else {
-            pearlCandle("pearl_magenta_candle", Blocks.MAGENTA_CANDLE);
-            //?}
-
+    public static final DeferredBlock<PearlCandleBlock> PEARL_CANDLE = pearlCandle("pearl_candle", Blocks.CANDLE);
+    //? if >=26.2 {
+    /*public static final DeferredBlock<PearlCandleBlock> PEARL_WHITE_CANDLE = pearlCandle("pearl_white_candle", Blocks.DYED_CANDLE.pick(DyeColor.WHITE));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_ORANGE_CANDLE = pearlCandle("pearl_orange_candle", Blocks.DYED_CANDLE.pick(DyeColor.ORANGE));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_MAGENTA_CANDLE = pearlCandle("pearl_magenta_candle", Blocks.DYED_CANDLE.pick(DyeColor.MAGENTA));
     public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_BLUE_CANDLE =
-            //? if >=26.2 {
+    *///?} else {
+    public static final DeferredBlock<PearlCandleBlock> PEARL_WHITE_CANDLE = pearlCandle("pearl_white_candle", Blocks.WHITE_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_ORANGE_CANDLE = pearlCandle("pearl_orange_candle", Blocks.ORANGE_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_MAGENTA_CANDLE = pearlCandle("pearl_magenta_candle", Blocks.MAGENTA_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_BLUE_CANDLE = pearlCandle("pearl_light_blue_candle", Blocks.LIGHT_BLUE_CANDLE);
+    //?}
+    //? if >=26.2 {
             /*pearlCandle("pearl_light_blue_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIGHT_BLUE));
-            *///?} else {
-            pearlCandle("pearl_light_blue_candle", Blocks.LIGHT_BLUE_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_YELLOW_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_yellow_candle", Blocks.DYED_CANDLE.pick(DyeColor.YELLOW));
-            *///?} else {
-            pearlCandle("pearl_yellow_candle", Blocks.YELLOW_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_LIME_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_lime_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIME));
-            *///?} else {
-            pearlCandle("pearl_lime_candle", Blocks.LIME_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_PINK_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_pink_candle", Blocks.DYED_CANDLE.pick(DyeColor.PINK));
-            *///?} else {
-            pearlCandle("pearl_pink_candle", Blocks.PINK_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_GRAY_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_gray_candle", Blocks.DYED_CANDLE.pick(DyeColor.GRAY));
-            *///?} else {
-            pearlCandle("pearl_gray_candle", Blocks.GRAY_CANDLE);
-            //?}
-
+    public static final DeferredBlock<PearlCandleBlock> PEARL_YELLOW_CANDLE = pearlCandle("pearl_yellow_candle", Blocks.DYED_CANDLE.pick(DyeColor.YELLOW));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_LIME_CANDLE = pearlCandle("pearl_lime_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIME));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_PINK_CANDLE = pearlCandle("pearl_pink_candle", Blocks.DYED_CANDLE.pick(DyeColor.PINK));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_GRAY_CANDLE = pearlCandle("pearl_gray_candle", Blocks.DYED_CANDLE.pick(DyeColor.GRAY));
     public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_GRAY_CANDLE =
-            //? if >=26.2 {
+    *///?} else {
+    public static final DeferredBlock<PearlCandleBlock> PEARL_YELLOW_CANDLE = pearlCandle("pearl_yellow_candle", Blocks.YELLOW_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_LIME_CANDLE = pearlCandle("pearl_lime_candle", Blocks.LIME_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_PINK_CANDLE = pearlCandle("pearl_pink_candle", Blocks.PINK_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_GRAY_CANDLE = pearlCandle("pearl_gray_candle", Blocks.GRAY_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_GRAY_CANDLE = pearlCandle("pearl_light_gray_candle", Blocks.LIGHT_GRAY_CANDLE);
+    //?}
+    //? if >=26.2 {
             /*pearlCandle("pearl_light_gray_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIGHT_GRAY));
-            *///?} else {
-            pearlCandle("pearl_light_gray_candle", Blocks.LIGHT_GRAY_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_CYAN_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_cyan_candle", Blocks.DYED_CANDLE.pick(DyeColor.CYAN));
-            *///?} else {
-            pearlCandle("pearl_cyan_candle", Blocks.CYAN_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_PURPLE_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_purple_candle", Blocks.DYED_CANDLE.pick(DyeColor.PURPLE));
-            *///?} else {
-            pearlCandle("pearl_purple_candle", Blocks.PURPLE_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_BLUE_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_blue_candle", Blocks.DYED_CANDLE.pick(DyeColor.BLUE));
-            *///?} else {
-            pearlCandle("pearl_blue_candle", Blocks.BLUE_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_BROWN_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_brown_candle", Blocks.DYED_CANDLE.pick(DyeColor.BROWN));
-            *///?} else {
-            pearlCandle("pearl_brown_candle", Blocks.BROWN_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_GREEN_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_green_candle", Blocks.DYED_CANDLE.pick(DyeColor.GREEN));
-            *///?} else {
-            pearlCandle("pearl_green_candle", Blocks.GREEN_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_RED_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_red_candle", Blocks.DYED_CANDLE.pick(DyeColor.RED));
-            *///?} else {
-            pearlCandle("pearl_red_candle", Blocks.RED_CANDLE);
-            //?}
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_BLACK_CANDLE =
-            //? if >=26.2 {
-            /*pearlCandle("pearl_black_candle", Blocks.DYED_CANDLE.pick(DyeColor.BLACK));
-            *///?} else {
-            pearlCandle("pearl_black_candle", Blocks.BLACK_CANDLE);
-            //?}
-
-    public static final List<DeferredBlock<PearlCandleBlock>> PEARL_CANDLES = List.of(
-            PEARL_CANDLE,
-            PEARL_WHITE_CANDLE,
-            PEARL_ORANGE_CANDLE,
-            PEARL_MAGENTA_CANDLE,
-            PEARL_LIGHT_BLUE_CANDLE,
-            PEARL_YELLOW_CANDLE,
-            PEARL_LIME_CANDLE,
-            PEARL_PINK_CANDLE,
-            PEARL_GRAY_CANDLE,
-            PEARL_LIGHT_GRAY_CANDLE,
-            PEARL_CYAN_CANDLE,
-            PEARL_PURPLE_CANDLE,
-            PEARL_BLUE_CANDLE,
-            PEARL_BROWN_CANDLE,
-            PEARL_GREEN_CANDLE,
-            PEARL_RED_CANDLE,
-            PEARL_BLACK_CANDLE
-    );
-
+    public static final DeferredBlock<PearlCandleBlock> PEARL_CYAN_CANDLE = pearlCandle("pearl_cyan_candle", Blocks.DYED_CANDLE.pick(DyeColor.CYAN));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_PURPLE_CANDLE = pearlCandle("pearl_purple_candle", Blocks.DYED_CANDLE.pick(DyeColor.PURPLE));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_BLUE_CANDLE = pearlCandle("pearl_blue_candle", Blocks.DYED_CANDLE.pick(DyeColor.BLUE));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_BROWN_CANDLE = pearlCandle("pearl_brown_candle", Blocks.DYED_CANDLE.pick(DyeColor.BROWN));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_GREEN_CANDLE = pearlCandle("pearl_green_candle", Blocks.DYED_CANDLE.pick(DyeColor.GREEN));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_RED_CANDLE = pearlCandle("pearl_red_candle", Blocks.DYED_CANDLE.pick(DyeColor.RED));
+    public static final DeferredBlock<PearlCandleBlock> PEARL_BLACK_CANDLE = pearlCandle("pearl_black_candle", Blocks.DYED_CANDLE.pick(DyeColor.BLACK));
+    *///?} else {
+    public static final DeferredBlock<PearlCandleBlock> PEARL_CYAN_CANDLE = pearlCandle("pearl_cyan_candle", Blocks.CYAN_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_PURPLE_CANDLE = pearlCandle("pearl_purple_candle", Blocks.PURPLE_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_BLUE_CANDLE = pearlCandle("pearl_blue_candle", Blocks.BLUE_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_BROWN_CANDLE = pearlCandle("pearl_brown_candle", Blocks.BROWN_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_GREEN_CANDLE = pearlCandle("pearl_green_candle", Blocks.GREEN_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_RED_CANDLE = pearlCandle("pearl_red_candle", Blocks.RED_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_BLACK_CANDLE = pearlCandle("pearl_black_candle", Blocks.BLACK_CANDLE);
+    //?}
+    public static final List<DeferredBlock<PearlCandleBlock>> PEARL_CANDLES = List.of(PEARL_CANDLE, PEARL_WHITE_CANDLE, PEARL_ORANGE_CANDLE,
+            PEARL_MAGENTA_CANDLE, PEARL_LIGHT_BLUE_CANDLE, PEARL_YELLOW_CANDLE, PEARL_LIME_CANDLE, PEARL_PINK_CANDLE, PEARL_GRAY_CANDLE, PEARL_LIGHT_GRAY_CANDLE,
+            PEARL_CYAN_CANDLE, PEARL_PURPLE_CANDLE, PEARL_BLUE_CANDLE, PEARL_BROWN_CANDLE, PEARL_GREEN_CANDLE, PEARL_RED_CANDLE, PEARL_BLACK_CANDLE);
     public static final DeferredBlock<CaroteneGrassBlock> CAROTENE_GRASS =
             BLOCKS.registerBlock("carotene_grass",
                     props -> new CaroteneGrassBlock(
@@ -746,19 +581,16 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.NORMAL)
                                     //?}
                     ));
-
     public static final DeferredBlock<CaroteneShortGrassBlock> CAROTENE_SHORT_GRASS =
             BLOCKS.registerBlock("carotene_short_grass",
                     props -> new CaroteneShortGrassBlock(
                             props.mapColor(MapColor.COLOR_ORANGE)
                                     .replaceable()
-
                                     //? if >=1.21.9 {
                                     /*.noCollision()
                                     *///?} else {
                                     .noCollission()
                                     //?}
-
                                     .instabreak()
                                     .sound(SoundType.GRASS)
                                     .offsetType(BlockBehaviour.OffsetType.XZ)
@@ -768,19 +600,16 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                                     //?}
                     ));
-
     public static final DeferredBlock<DoublePlantBlock> CAROTENE_TALL_GRASS =
             BLOCKS.registerBlock("carotene_tall_grass",
                     props -> new DoublePlantBlock(
                             props.mapColor(MapColor.COLOR_ORANGE)
                                     .replaceable()
-
                                     //? if >=1.21.9 {
                                     /*.noCollision()
                                     *///?} else {
                                     .noCollission()
                                     //?}
-
                                     .instabreak()
                                     .sound(SoundType.GRASS)
                                     .offsetType(BlockBehaviour.OffsetType.XZ)
@@ -790,19 +619,8 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.DESTROY)
                                     //?}
                     ));
-
-    private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(
-
-            PEARL_FIRE,
-            MUSAVACCA_EGG,
-            MUSAVACCA_SPROUT,
-            MUSAVACCA_SUCKER,
-            MUSAVACCA_PLANT,
-            MUSAVACCA_PSEUDOSTEM,
-            PEARL_PORTAL,
-            MUSAVACCA_DOOR
-    );
-
+    private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(PEARL_FIRE, MUSAVACCA_EGG, MUSAVACCA_SPROUT, MUSAVACCA_SUCKER,
+            MUSAVACCA_PLANT, MUSAVACCA_PSEUDOSTEM, PEARL_PORTAL, MUSAVACCA_DOOR);
     static {
         BLOCKS.getEntries().forEach(entry -> {
             if (!SKIP_BLOCK_ITEMS.contains(entry) && !PEARL_CANDLES.contains(entry)) {

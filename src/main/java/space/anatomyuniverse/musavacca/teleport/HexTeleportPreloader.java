@@ -12,21 +12,10 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 
 public final class HexTeleportPreloader {
-
-    public static final int PRELOAD_RADIUS =
-            2;
-
-    private static final int PORTAL_TICKET_RADIUS =
-            PRELOAD_RADIUS
-                    + 1;
-
+    public static final int PRELOAD_RADIUS = 2;
+    private static final int PORTAL_TICKET_RADIUS = PRELOAD_RADIUS + 1;
     private HexTeleportPreloader() {}
-
-    public static void prepare(
-            Entity entity,
-            ServerLevel targetLevel,
-            Vec3 targetPosition
-    ) {
+    public static void prepare(Entity entity, ServerLevel targetLevel, Vec3 targetPosition) {
         if (
                 entity == null
                         || targetLevel == null
@@ -34,160 +23,60 @@ public final class HexTeleportPreloader {
         ) {
             return;
         }
-
-        BlockPos targetBlockPos =
-                BlockPos.containing(
-                        targetPosition
-                );
-
-        ChunkPos targetChunk =
-                //? if >=26.1 {
-                /*ChunkPos.containing(targetBlockPos);
-                *///?} else {
-                new ChunkPos(targetBlockPos);
-                //?}
-
-        boolean sameDimension =
-                entity.level()
-                        == targetLevel;
-
+        BlockPos targetBlockPos = BlockPos.containing(targetPosition);
+        //? if >=26.1 {
+        /*ChunkPos targetChunk = ChunkPos.containing(targetBlockPos);
+        *///?} else {
+        ChunkPos targetChunk = new ChunkPos(targetBlockPos);
+        //?}
+        boolean sameDimension = entity.level() == targetLevel;
         if (
                 sameDimension
-                        && isAlreadyNearby(
-                        entity,
-                        targetChunk
-                )
+                        && isAlreadyNearby(entity, targetChunk)
         ) {
             return;
         }
-
-        targetLevel.getChunkSource()
-                //? if >=1.21.5 {
-                .addTicketWithRadius(
-                //?} else {
-                /*.addRegionTicket(
-                *///?}
-                        TicketType.PORTAL,
-                        targetChunk,
-                        //? if >=1.21.5 {
-                        PORTAL_TICKET_RADIUS
-                        //?} else {
-                        /*PORTAL_TICKET_RADIUS,
-                        targetBlockPos
-                        *///?}
-                );
-
-        ServerPlayer clientPlayer =
-                sameDimension
-                        && entity
-                        instanceof ServerPlayer player
-                        ? player
-                        : null;
-
+        //? if >=1.21.5 {
+        targetLevel.getChunkSource().addTicketWithRadius(TicketType.PORTAL, targetChunk, PORTAL_TICKET_RADIUS);
+        //?} else {
+        /*targetLevel.getChunkSource().addRegionTicket(TicketType.PORTAL, targetChunk, PORTAL_TICKET_RADIUS, targetBlockPos);
+        *///?}
+        ServerPlayer clientPlayer = sameDimension && entity instanceof ServerPlayer player ? player : null;
         if (clientPlayer != null) {
-            clientPlayer.connection.send(
-                    new ClientboundSetChunkCacheCenterPacket(
-                            //? if >=26.1 {
-                            /*targetChunk.x(),
-                            targetChunk.z()
-                            *///?} else {
-                            targetChunk.x,
-                            targetChunk.z
-                            //?}
-                    )
-            );
+            //? if >=26.1 {
+            /*clientPlayer.connection.send(new ClientboundSetChunkCacheCenterPacket(targetChunk.x(), targetChunk.z()));
+            *///?} else {
+            clientPlayer.connection.send(new ClientboundSetChunkCacheCenterPacket(targetChunk.x, targetChunk.z));
+            //?}
         }
-
-        for (
-                int radius = 0;
-                radius <= PRELOAD_RADIUS;
-                radius++
-        ) {
-            for (
-                    int offsetX = -radius;
-                    offsetX <= radius;
-                    offsetX++
-            ) {
-                for (
-                        int offsetZ = -radius;
-                        offsetZ <= radius;
-                        offsetZ++
-                ) {
+        for (int radius = 0; radius <= PRELOAD_RADIUS; radius++) {
+            for (int offsetX = -radius; offsetX <= radius; offsetX++) {
+                for (int offsetZ = -radius; offsetZ <= radius; offsetZ++) {
                     if (
-                            Math.max(
-                                    Math.abs(
-                                            offsetX
-                                    ),
-                                    Math.abs(
-                                            offsetZ
-                                    )
-                            )
+                            Math.max(Math.abs(offsetX), Math.abs(offsetZ))
                                     != radius
                     ) {
                         continue;
                     }
-
-                    LevelChunk chunk =
-                            targetLevel.getChunk(
-                                    //? if >=26.1 {
-                                    /*targetChunk.x()
-                                            + offsetX,
-                                    targetChunk.z()
-                                    *///?} else {
-                                    targetChunk.x
-                                            + offsetX,
-                                    targetChunk.z
-                                    //?}
-                                            + offsetZ
-                            );
-
-                    if (clientPlayer == null) {
-                        continue;
-                    }
-
-                    clientPlayer.connection.send(
-                            new ClientboundLevelChunkWithLightPacket(
-                                    chunk,
-                                    targetLevel.getLightEngine(),
-                                    null,
-                                    null
-                            )
-                    );
+                    //? if >=26.1 {
+                    /*LevelChunk chunk = targetLevel.getChunk(targetChunk.x() + offsetX, targetChunk.z() + offsetZ);
+                    *///?} else {
+                    LevelChunk chunk = targetLevel.getChunk(targetChunk.x + offsetX, targetChunk.z + offsetZ);
+                    //?}
+                    if (clientPlayer == null) continue;
+                    clientPlayer.connection.send(new ClientboundLevelChunkWithLightPacket(chunk, targetLevel.getLightEngine(), null, null));
                 }
             }
         }
     }
 
-    private static boolean isAlreadyNearby(
-            Entity entity,
-            ChunkPos targetChunk
-    ) {
-        ChunkPos sourceChunk =
-                //? if >=26.1 {
-                /*ChunkPos.containing(entity.blockPosition());
-                *///?} else {
-                new ChunkPos(entity.blockPosition());
-                //?}
-
-        return Math.abs(
-                //? if >=26.1 {
-                /*sourceChunk.x()
-                        - targetChunk.x()
-                *///?} else {
-                sourceChunk.x
-                        - targetChunk.x
-                //?}
-        )
-                <= PRELOAD_RADIUS
-                && Math.abs(
-                //? if >=26.1 {
-                /*sourceChunk.z()
-                        - targetChunk.z()
-                *///?} else {
-                sourceChunk.z
-                        - targetChunk.z
-                //?}
-        )
-                <= PRELOAD_RADIUS;
+    private static boolean isAlreadyNearby(Entity entity, ChunkPos targetChunk) {
+        //? if >=26.1 {
+        /*ChunkPos sourceChunk = ChunkPos.containing(entity.blockPosition());
+        return Math.abs(sourceChunk.x() - targetChunk.x()) <= PRELOAD_RADIUS && Math.abs(sourceChunk.z() - targetChunk.z()) <= PRELOAD_RADIUS;
+        *///?} else {
+        ChunkPos sourceChunk = new ChunkPos(entity.blockPosition());
+        return Math.abs(sourceChunk.x - targetChunk.x) <= PRELOAD_RADIUS && Math.abs(sourceChunk.z - targetChunk.z) <= PRELOAD_RADIUS;
+        //?}
     }
 }

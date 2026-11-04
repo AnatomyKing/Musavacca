@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
@@ -18,22 +18,8 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 public final class VocoPostCandleLogic {
     private VocoPostCandleLogic() {}
 
-    public static void onPlace(Level level, BlockPos pos) {
-        if (!level.isClientSide()) {
-            refreshPortalAt(level, pos);
-        }
-    }
-
-    public static BlockState updateShape(
-            BlockState state,
-            LevelReader levelReader,
-            BlockPos pos,
-            Direction direction
-    ) {
-        if (direction == Direction.UP && levelReader instanceof Level level && !level.isClientSide()) {
-            return updatePortalStateFromTop(level, pos, state);
-        }
-
+    public static BlockState updateShape(BlockState state, LevelReader levelReader, BlockPos pos, Direction direction) {
+        if (direction == Direction.UP && levelReader instanceof Level level && !level.isClientSide()) return updatePortalStateFromTop(level, pos, state);
         return state;
     }
 
@@ -44,48 +30,29 @@ public final class VocoPostCandleLogic {
     }
 
     public static void refreshPortalAt(Level level, BlockPos postPos) {
-        if (level == null || level.isClientSide()) {
-            return;
-        }
-
+        if (level == null || level.isClientSide()) return;
         BlockState state = level.getBlockState(postPos);
-        if (!(state.getBlock() instanceof VocoPostBlock)) {
-            return;
-        }
-
+        if (!(state.getBlock() instanceof VocoPostBlock)) return;
         BlockState updated = updatePortalStateFromTop(level, postPos, state);
         if (updated != state) {
             level.setBlock(postPos, updated, VocoReceptorLogic.UPDATE_FLAGS);
         }
     }
 
-    public static BlockState updatePortalStateFromTop(
-            Level level,
-            BlockPos postPos,
-            BlockState postState
-    ) {
+    public static BlockState updatePortalStateFromTop(Level level, BlockPos postPos, BlockState postState) {
         PortalInfo info = readPortalInfo(level, postPos, postState);
         boolean shouldBePortal = false;
         boolean queued = false;
-
         BlockEntity be = level.getBlockEntity(postPos);
         if (be instanceof VocoPostBlockEntity postBe) {
             if (info.active()) {
                 shouldBePortal = postBe.setHexColor(info.hexColor());
-
                 if (shouldBePortal && level instanceof ServerLevel serverLevel) {
-                    VocoTeleportLogic.SyncResult result = VocoTeleportLogic.syncEndpointDetailed(
-                            serverLevel,
-                            postPos,
-                            VocoPostBlock.receptorPosition(postState),
-                            true,
-                            info.hexColor()
-                    );
-
+                    VocoTeleportLogic.SyncResult result = VocoTeleportLogic.syncEndpointDetailed(serverLevel, postPos, VocoPostBlock.receptorPosition(postState),
+                            true, info.hexColor());
                     shouldBePortal = result == VocoTeleportLogic.SyncResult.ACTIVE;
                     queued = result == VocoTeleportLogic.SyncResult.QUEUED;
                 }
-
                 if (!shouldBePortal && !queued) {
                     postBe.clearHexColor();
                 }
@@ -93,62 +60,23 @@ public final class VocoPostCandleLogic {
                 postBe.clearHexColor();
             }
         }
-
         return applyPortalState(level, postPos, postState, shouldBePortal);
     }
 
-    private static void removeEndpoint(Level level, BlockPos postPos, BlockState postState) {
-        if (level instanceof ServerLevel serverLevel) {
-            VocoTeleportLogic.syncEndpointDetailed(
-                    serverLevel,
-                    postPos,
-                    VocoPostBlock.receptorPosition(postState),
-                    false,
-                    MusavaccaTints.NO_TINT
-            );
-        }
+    private static BlockState applyPortalState(Level level, BlockPos pos, BlockState state, boolean portal) {
+        if (!state.hasProperty(VocoPostBlock.PORTAL)) return state;
+        boolean wasPortal = state.getValue(VocoPostBlock.PORTAL);
+        PearlSlotIgnition.playPortalStateChangeSound(level, pos, wasPortal, portal);
+        return state.setValue(VocoPostBlock.PORTAL, portal);
     }
 
-    private static BlockState applyPortalState(
-            Level level,
-            BlockPos pos,
-            BlockState state,
-            boolean portal
-    ) {
-        if (!state.hasProperty(VocoPostBlock.PORTAL)) {
-            return state;
-        }
-
-        boolean wasPortal =
-                state.getValue(VocoPostBlock.PORTAL);
-
-        PearlSlotIgnition
-                .playPortalStateChangeSound(
-                        level,
-                        pos,
-                        wasPortal,
-                        portal
-                );
-
-        return state.setValue(
-                VocoPostBlock.PORTAL,
-                portal
-        );
-    }
-
-    private static PortalInfo readPortalInfo(
-            Level level,
-            BlockPos postPos,
-            BlockState postState
-    ) {
+    private static PortalInfo readPortalInfo(Level level, BlockPos postPos, BlockState postState) {
         if (!postState.hasProperty(VocoPostBlock.LIT)
                 || !postState.getValue(VocoPostBlock.LIT)) {
             return PortalInfo.INACTIVE;
         }
-
         BlockPos candlePos = postPos.above();
         BlockState candleState = level.getBlockState(candlePos);
-
         if (!(candleState.getBlock() instanceof PearlCandleBlock)
                 || !candleState.hasProperty(BlockStateProperties.LIT)
                 || !candleState.getValue(BlockStateProperties.LIT)
@@ -158,13 +86,10 @@ public final class VocoPostCandleLogic {
                 || !pearlCandleBe.hasHexColor()) {
             return PortalInfo.INACTIVE;
         }
-
         return new PortalInfo(true, pearlCandleBe.getHexColor());
     }
 
     private record PortalInfo(boolean active, int hexColor) {
-        private static final PortalInfo INACTIVE =
-                new PortalInfo(false, MusavaccaTints.NO_TINT);
+        private static final PortalInfo INACTIVE = new PortalInfo(false, MusavaccaTints.NO_TINT);
     }
 }
-

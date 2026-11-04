@@ -14,7 +14,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-
 //? if <1.21.2 {
 /*import net.minecraft.world.InteractionResultHolder;
 *///?}
@@ -47,7 +46,6 @@ import space.anatomyuniverse.musavacca.tint.PearlPlacementColorMemory;
 
 public class FlintAndPearlItem extends FlintAndSteelItem {
     private static final Component TITLE = Component.literal("Pearl Fire Hex");
-
     public FlintAndPearlItem(Properties properties) {
         super(properties);
     }
@@ -57,9 +55,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     }
 
     private static EquipmentSlot slotForHand(InteractionHand hand) {
-        return hand == InteractionHand.MAIN_HAND
-                ? EquipmentSlot.MAINHAND
-                : EquipmentSlot.OFFHAND;
+        return hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
     }
 
     private static boolean shouldOpenGui(Level level, Player player) {
@@ -68,7 +64,6 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
 
     private static void openGui(ServerPlayer serverPlayer, InteractionHand hand, ItemStack stack) {
         int initialHex = getStoredHexOrDefault(stack);
-
         serverPlayer.openMenu(
                 new SimpleMenuProvider(
                         (containerId, playerInventory, openingPlayer) ->
@@ -84,9 +79,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
 
     public static int getStoredHexOrDefault(ItemStack stack) {
         Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-        int stored = savedHex == null
-                ? MusavaccaTints.NO_TINT
-                : MusavaccaTints.stored(savedHex);
+        int stored = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
         return MusavaccaTints.orDefault(stored);
     }
 
@@ -99,41 +92,23 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     @Override
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
         InteractionResult pickResult = tryPickBlockColor(stack, context);
-        if (pickResult != InteractionResult.PASS) {
-            return pickResult;
-        }
-
+        if (pickResult != InteractionResult.PASS) return pickResult;
         ensureDefaultColorComponent(stack);
-
         int hexColor = getStoredHexOrDefault(stack);
         InteractionResult candleResult = tryUseOnCandleBeforeVanilla(context, hexColor);
-
-        if (candleResult != InteractionResult.PASS) {
-            return candleResult;
-        }
-
+        if (candleResult != InteractionResult.PASS) return candleResult;
         return InteractionResult.PASS;
     }
 
     private static InteractionResult tryPickBlockColor(ItemStack stack, UseOnContext context) {
         Player player = context.getPlayer();
-        if (player == null || !player.isShiftKeyDown()) {
-            return InteractionResult.PASS;
-        }
-
+        if (player == null || !player.isShiftKeyDown()) return InteractionResult.PASS;
         Level level = context.getLevel();
-        int hexColor = MusavaccaTints.blockEntityHexColor(
-                level.getBlockEntity(context.getClickedPos())
-        );
-
-        if (!MusavaccaTints.hasTint(hexColor)) {
-            return InteractionResult.PASS;
-        }
-
+        int hexColor = MusavaccaTints.blockEntityHexColor(level.getBlockEntity(context.getClickedPos()));
+        if (!MusavaccaTints.hasTint(hexColor)) return InteractionResult.PASS;
         if (!level.isClientSide()) {
             stack.set(ModDataComponents.HEX_COLOR.get(), hexColor);
         }
-
         return successResult(level);
     }
 
@@ -142,92 +117,42 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
-
-        if (block instanceof PearlCandleBlock pearlCandleBlock) {
-            return useOnPearlCandle(context, pearlCandleBlock, state, pos, hexColor);
-        }
-
+        if (block instanceof PearlCandleBlock pearlCandleBlock) return useOnPearlCandle(context, pearlCandleBlock, state, pos, hexColor);
         PearlCandleBlock matchingPearlCandle = pearlCandleForVanillaCandle(block);
-        if (matchingPearlCandle == null) {
-            return InteractionResult.PASS;
-        }
-
-        if (!PearlCandleBlock.canPearlLight(state)) {
-            return InteractionResult.PASS;
-        }
-
-        if (level.isClientSide()) {
-            return successResult(level);
-        }
-
+        if (matchingPearlCandle == null) return InteractionResult.PASS;
+        if (!PearlCandleBlock.canPearlLight(state)) return InteractionResult.PASS;
+        if (level.isClientSide()) return successResult(level);
         BlockState pearlState = matchingPearlCandle.copyStateFromVanillaCandle(state, true);
-
-        boolean changed = level.setBlock(
-                pos,
-                pearlState,
-                Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
-        );
-
-        if (!changed) {
-            return InteractionResult.FAIL;
-        }
-
+        boolean changed = level.setBlock(pos, pearlState, Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
+        if (!changed) return InteractionResult.FAIL;
         setPearlCandleHex(level, pos, hexColor);
-
         Player player = context.getPlayer();
         ItemStack stack = context.getItemInHand();
-
         playUseEffects(level, player, pos, GameEvent.BLOCK_CHANGE);
         triggerPlacedBlockCriterion(player, pos, stack);
         damageStack(stack, player, context.getHand());
-
         return successResult(level);
     }
 
-    private static InteractionResult useOnPearlCandle(
-            UseOnContext context,
-            PearlCandleBlock pearlCandleBlock,
-            BlockState state,
-            BlockPos pos,
-            int hexColor
-    ) {
-        if (!PearlCandleBlock.canPearlLight(state)) {
-            return InteractionResult.PASS;
-        }
-
+    private static InteractionResult useOnPearlCandle(UseOnContext context, PearlCandleBlock pearlCandleBlock, BlockState state, BlockPos pos, int hexColor) {
+        if (!PearlCandleBlock.canPearlLight(state)) return InteractionResult.PASS;
         Level level = context.getLevel();
-
-        if (level.isClientSide()) {
-            return successResult(level);
-        }
-
+        if (level.isClientSide()) return successResult(level);
         BlockState finalState = state;
         if (state.hasProperty(CandleBlock.LIT) && !state.getValue(CandleBlock.LIT)) {
             finalState = state.setValue(CandleBlock.LIT, true);
-
-            level.setBlock(
-                    pos,
-                    finalState,
-                    Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
-            );
+            level.setBlock(pos, finalState, Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
         }
-
         setPearlCandleHex(level, pos, hexColor);
-
         Player player = context.getPlayer();
         ItemStack stack = context.getItemInHand();
-
         playUseEffects(level, player, pos, GameEvent.BLOCK_CHANGE);
         damageStack(stack, player, context.getHand());
-
         return successResult(level);
     }
 
     private static void setPearlCandleHex(Level level, BlockPos pos, int hexColor) {
-        if (level.isClientSide()) {
-            return;
-        }
-
+        if (level.isClientSide()) return;
         if (level.getBlockEntity(pos) instanceof PearlCandleBlockEntity pearlCandleBe) {
             pearlCandleBe.setHexColor(hexColor);
         }
@@ -235,10 +160,7 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
 
     @Nullable
     private static PearlCandleBlock pearlCandleForVanillaCandle(Block block) {
-        if (!(block instanceof CandleBlock)) {
-            return null;
-        }
-
+        if (!(block instanceof CandleBlock)) return null;
         if (block == Blocks.CANDLE) return ModBlocks.PEARL_CANDLE.get();
         //? if >=26.2 {
         /*if (block == Blocks.DYED_CANDLE.pick(DyeColor.WHITE)) return ModBlocks.PEARL_WHITE_CANDLE.get();
@@ -275,12 +197,10 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         if (block == Blocks.RED_CANDLE) return ModBlocks.PEARL_RED_CANDLE.get();
         if (block == Blocks.BLACK_CANDLE) return ModBlocks.PEARL_BLACK_CANDLE.get();
         //?}
-
         return null;
     }
 
     @Override
-
     //? if >=1.21.2 {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
     //?} else {
@@ -288,19 +208,16 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     *///?}
         ItemStack stack = player.getItemInHand(hand);
         ensureDefaultColorComponent(stack);
-
         if (shouldOpenGui(level, player)) {
             if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
                 openGui(serverPlayer, hand, stack);
             }
-
             //? if >=1.21.2 {
             return InteractionResult.SUCCESS_SERVER;
             //?} else {
             /*return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
             *///?}
         }
-
         //? if >=1.21.2 {
         return InteractionResult.PASS;
         //?} else {
@@ -315,55 +232,30 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = level.getBlockState(clickedPos);
         ItemStack stack = context.getItemInHand();
-
         ensureDefaultColorComponent(stack);
-
-        BlockState modifiedState = clickedState.getToolModifiedState(
-                context,
-                ItemAbilities.FIRESTARTER_LIGHT,
-                false
-        );
-
-        if (modifiedState != null) {
-            return useVanillaFirestarterBehavior(context, modifiedState);
-        }
-
+        BlockState modifiedState = clickedState.getToolModifiedState(context, ItemAbilities.FIRESTARTER_LIGHT, false);
+        if (modifiedState != null) return useVanillaFirestarterBehavior(context, modifiedState);
         BlockPos placePos = clickedPos.relative(context.getClickedFace());
         int hexColor = getStoredHexOrDefault(stack);
-
-        if (level.isClientSide()) {
-            return previewClientPlacement(level, placePos, hexColor);
-        }
-
+        if (level.isClientSide()) return previewClientPlacement(level, placePos, hexColor);
         if (PearlPortalCreator.tryCreatePortal(level, placePos, hexColor, player, context.getClickedFace())) {
             playUseEffects(level, player, placePos, GameEvent.BLOCK_PLACE);
             triggerPlacedBlockCriterion(player, placePos, stack);
             damageStack(stack, player, context.getHand());
             return successResult(level);
         }
-
         return placePearlFire(context, placePos, hexColor);
     }
 
     private InteractionResult previewClientPlacement(Level level, BlockPos placePos, int hexColor) {
         var portalShape = PearlPortalFrame.findIgnitableShape(level, placePos);
-
         if (portalShape.isPresent()) {
-            portalShape.get().forEachInteriorBlock(pos ->
-                    PearlPlacementColorMemory.remember(level, pos, hexColor)
-            );
+            portalShape.get().forEachInteriorBlock(pos -> PearlPlacementColorMemory.remember(level, pos, hexColor));
             return successResult(level);
         }
-
-        if (!level.getBlockState(placePos).canBeReplaced()) {
-            return InteractionResult.FAIL;
-        }
-
+        if (!level.getBlockState(placePos).canBeReplaced()) return InteractionResult.FAIL;
         BlockState fireState = getCustomFireState(level, placePos);
-        if (!fireState.canSurvive(level, placePos)) {
-            return InteractionResult.FAIL;
-        }
-
+        if (!fireState.canSurvive(level, placePos)) return InteractionResult.FAIL;
         PearlPlacementColorMemory.remember(level, placePos, hexColor);
         return successResult(level);
     }
@@ -372,42 +264,21 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         Level level = context.getLevel();
         Player player = context.getPlayer();
         ItemStack stack = context.getItemInHand();
-
-        if (!level.getBlockState(placePos).canBeReplaced()) {
-            return InteractionResult.FAIL;
-        }
-
+        if (!level.getBlockState(placePos).canBeReplaced()) return InteractionResult.FAIL;
         BlockState fireState = getCustomFireState(level, placePos);
-        if (!fireState.canSurvive(level, placePos)) {
-            return InteractionResult.FAIL;
-        }
-
-        boolean placed = level.setBlock(
-                placePos,
-                fireState,
-                Block.UPDATE_NEIGHBORS
-        );
-
-        if (!placed) {
-            return InteractionResult.FAIL;
-        }
-
+        if (!fireState.canSurvive(level, placePos)) return InteractionResult.FAIL;
+        boolean placed = level.setBlock(placePos, fireState, Block.UPDATE_NEIGHBORS);
+        if (!placed) return InteractionResult.FAIL;
         setFreshlyPlacedPearlFireHex(level, placePos, hexColor);
-
         fireState.getBlock().setPlacedBy(level, placePos, fireState, player, stack);
-
         playUseEffects(level, player, placePos, GameEvent.BLOCK_PLACE);
         triggerPlacedBlockCriterion(player, placePos, stack);
         damageStack(stack, player, context.getHand());
-
         return successResult(level);
     }
 
     private static void setFreshlyPlacedPearlFireHex(Level level, BlockPos pos, int hexColor) {
-        if (level.isClientSide()) {
-            return;
-        }
-
+        if (level.isClientSide()) return;
         if (level.getBlockEntity(pos) instanceof PearlFireBlockEntity pearlFireBe) {
             pearlFireBe.setHexColor(hexColor);
         }
@@ -418,36 +289,16 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
         Player player = context.getPlayer();
         BlockPos clickedPos = context.getClickedPos();
         ItemStack stack = context.getItemInHand();
-
         if (!level.isClientSide()) {
-            level.setBlock(
-                    clickedPos,
-                    modifiedState,
-                    Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE
-            );
-
+            level.setBlock(clickedPos, modifiedState, Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
             playUseEffects(level, player, clickedPos, GameEvent.BLOCK_CHANGE);
             damageStack(stack, player, context.getHand());
         }
-
         return successResult(level);
     }
 
-    private static void playUseEffects(
-            Level level,
-            @Nullable Player player,
-            BlockPos pos,
-            Holder<GameEvent> gameEvent
-    ) {
-        level.playSound(
-                null,
-                pos,
-                SoundEvents.FLINTANDSTEEL_USE,
-                SoundSource.BLOCKS,
-                1.0F,
-                level.getRandom().nextFloat() * 0.4F + 0.8F
-        );
-
+    private static void playUseEffects(Level level, @Nullable Player player, BlockPos pos, Holder<GameEvent> gameEvent) {
+        level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
         level.gameEvent(player, gameEvent, pos);
     }
 
@@ -458,13 +309,11 @@ public class FlintAndPearlItem extends FlintAndSteelItem {
     }
 
     private static InteractionResult successResult(Level level) {
-
         //? if >=1.21.2 {
         return InteractionResult.SUCCESS_SERVER;
         //?} else {
         /*return InteractionResult.sidedSuccess(level.isClientSide());
         *///?}
-
     }
 
     private static void damageStack(ItemStack stack, @Nullable Player player, InteractionHand hand) {

@@ -1,14 +1,12 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.level.block.Block;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public final class CrossBlocks {
     private CrossBlocks() {}
-
     public static final class Model extends BlockFamily.ModelRule<Models.Source, Model> {
         private Model(Models.Source source, Conditions.Match conditions) {
             super(source, conditions);
@@ -55,13 +53,8 @@ public final class CrossBlocks {
 
     public static final class Entry extends BlockFamily.ModelFamilyEntry<Model, Part> {
         private Entry(Builder builder) {
-            super(
-                    builder,
-                    builder.generated
-                            ? List.of(Model.always(CrossModels.generated(builder.block, builder.generatedTextureConfig)))
-                            : builder.models,
-                    builder.generated ? List.of() : builder.parts
-            );
+            super(builder, builder.generated ? List.of(Model.always(CrossModels.generated(builder.block, builder.generatedTextureConfig))) : builder.models,
+                    builder.generated ? List.of() : builder.parts);
         }
 
         public static Builder builder(Block block) {
@@ -70,11 +63,9 @@ public final class CrossBlocks {
 
         public void validate() {
             validateStructure("CrossBlocks");
-
             for (Model model : models()) {
                 validateSource(model.source());
             }
-
             for (Part part : parts()) {
                 validateSource(part.source());
             }
@@ -83,15 +74,12 @@ public final class CrossBlocks {
         private static void validateSource(Models.Source source) {
             if (!(source instanceof Models.Existing)
                     && !(source instanceof CrossModels.Generated)) {
-                throw new IllegalStateException(
-                        "CrossBlocks only accepts existing models or CrossModels.generated(...): " + source
-                );
+                throw new IllegalStateException("CrossBlocks only accepts existing models or CrossModels.generated(...): " + source);
             }
         }
 
         public static final class Builder extends BlockFamily.ModelFamilyBuilder<Builder, Model, Part> {
             private Consumer<CrossTextures.Builder> generatedTextureConfig = textures -> {};
-
             private Builder(Block block) {
                 super(block);
             }
@@ -129,24 +117,18 @@ public final class CrossBlocks {
             }
 
             private Builder textureConfig(Consumer<CrossTextures.Builder> config) {
-                if (!generated) {
-                    throw new IllegalStateException("texture(...) requires .generated() first");
-                }
-
+                if (!generated) throw new IllegalStateException("texture(...) requires .generated() first");
                 Objects.requireNonNull(config, "config");
                 Consumer<CrossTextures.Builder> previous = generatedTextureConfig;
-
                 generatedTextureConfig = textures -> {
                     previous.accept(textures);
                     config.accept(textures);
                 };
-
                 return this;
             }
 
             public Entry build() {
                 validateReadyToBuild("Generated cross model");
-
                 Entry entry = new Entry(this);
                 entry.validate();
                 return entry;
@@ -154,4 +136,3 @@ public final class CrossBlocks {
         }
     }
 }
-

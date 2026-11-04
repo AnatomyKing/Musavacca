@@ -4,8 +4,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2
-//import net.minecraft.world.ItemInteractionResult;
+//? if <1.21.2 {
+/*import net.minecraft.world.ItemInteractionResult;
+*///?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -35,17 +36,13 @@ public final class VocoTableBlock extends Block implements EntityBlock {
     public static final BooleanProperty LIT_NORTH_WEST = VocoTableLogic.LIT_NORTH_WEST;
     public static final BooleanProperty LIT_SOUTH_EAST = VocoTableLogic.LIT_SOUTH_EAST;
     public static final BooleanProperty LIT_SOUTH_WEST = VocoTableLogic.LIT_SOUTH_WEST;
-
     public static final BooleanProperty PORTAL_NORTH_EAST = VocoTableLogic.PORTAL_NORTH_EAST;
     public static final BooleanProperty PORTAL_NORTH_WEST = VocoTableLogic.PORTAL_NORTH_WEST;
     public static final BooleanProperty PORTAL_SOUTH_EAST = VocoTableLogic.PORTAL_SOUTH_EAST;
     public static final BooleanProperty PORTAL_SOUTH_WEST = VocoTableLogic.PORTAL_SOUTH_WEST;
-
     public static final BooleanProperty ROTARY_DIALERS = VocoTableLogic.ROTARY_DIALERS;
-
     public static final BooleanProperty[] RECEPTOR_LIGHTS = VocoTableLogic.RECEPTOR_LIGHTS;
     public static final BooleanProperty[] RECEPTOR_PORTALS = VocoTableLogic.RECEPTOR_PORTALS;
-
     public VocoTableBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(VocoTableLogic.defaultState(this.stateDefinition.any()));
@@ -54,11 +51,9 @@ public final class VocoTableBlock extends Block implements EntityBlock {
     //? if >=1.21.11 {
     /*@Override
     protected RenderShape getRenderShape(BlockState state) {
-        // The nearest-sampling BER draws this block's existing baked model.
         return RenderShape.INVISIBLE;
     }
     *///?}
-
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -69,10 +64,6 @@ public final class VocoTableBlock extends Block implements EntityBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         VocoTableLogic.addProperties(builder);
-    }
-
-    public static boolean hasAnyReceptorLit(BlockState state) {
-        return VocoTableLogic.hasAnyReceptorLit(state);
     }
 
     public static BooleanProperty lightProperty(ReceptorPosition receptor) {
@@ -89,44 +80,28 @@ public final class VocoTableBlock extends Block implements EntityBlock {
 
     @Override
     protected void attack(BlockState state, Level level, BlockPos pos, Player player) {
-        if (!level.isClientSide() && VocoTableCandleLogic.breakLookedAtCandle(level, pos, player)) {
-            return;
-        }
-
+        if (!level.isClientSide() && VocoTableCandleLogic.breakLookedAtCandle(level, pos, player)) return;
         super.attack(state, level, pos, player);
     }
 
     @Override
-    protected InteractionResult useWithoutItem(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            BlockHitResult hit
-    ) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         return VocoTableLogic.useWithoutItem(state, level, pos, player, hit);
     }
 
     @Override
-    //? if <1.21.2 {
-    /*protected ItemInteractionResult useItemOn(
-    *///?} else {
-    protected InteractionResult useItemOn(
-    //?}
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit
-    ) {
+    //? if >=1.21.2 {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    //?} else {
+    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+    *///?}
         InteractionResult result = VocoTableLogic.useItemOn(stack, state, level, pos, player, hand, hit);
-        //? if <1.21.2 {
-        /*return InteractionResultCompat.forItemUse(result);
-        *///?} else {
+        //? if >=1.21.2 {
         return result;
-        //?}
+        //?} else {
+        /*return InteractionResultCompat.forItemUse(result);
+        *///?}
     }
 
     @Override
@@ -135,22 +110,12 @@ public final class VocoTableBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected VoxelShape getShape(
-            BlockState state,
-            BlockGetter level,
-            BlockPos pos,
-            CollisionContext context
-    ) {
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return VocoTableVoxelShapes.shape(state, level, pos);
     }
 
     @Override
-    protected VoxelShape getCollisionShape(
-            BlockState state,
-            BlockGetter level,
-            BlockPos pos,
-            CollisionContext context
-    ) {
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return VocoTableVoxelShapes.collisionShape(state, level, pos);
     }
 }

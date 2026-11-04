@@ -18,15 +18,11 @@ public final class SlabModels {
     private final ResourceLocation top;
     private final ResourceLocation doubleModel;
     //?}
-
     private SlabModels(Builder builder) {
         bottom = builder.bottom;
         top = builder.top;
         doubleModel = builder.doubleModel;
-
-        if (isEmpty()) {
-            throw new IllegalStateException("SlabModels requires at least one model");
-        }
+        if (isEmpty()) throw new IllegalStateException("SlabModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -34,11 +30,7 @@ public final class SlabModels {
     }
 
     public static SlabModels full(String bottom, String top, String doubleModel) {
-        return builder()
-                .bottom(bottom)
-                .top(top)
-                .doubleModel(doubleModel)
-                .build();
+        return builder().bottom(bottom).top(top).doubleModel(doubleModel).build();
     }
 
     @Nullable
@@ -47,11 +39,7 @@ public final class SlabModels {
     *///?} else {
     public ResourceLocation model(SlabType type) {
     //?}
-        return switch (type) {
-            case BOTTOM -> bottom;
-            case TOP -> top;
-            case DOUBLE -> doubleModel;
-        };
+        return switch (type) { case BOTTOM -> bottom; case TOP -> top; case DOUBLE -> doubleModel; };
     }
 
     public boolean complete() {
@@ -72,9 +60,7 @@ public final class SlabModels {
         private ResourceLocation top;
         private ResourceLocation doubleModel;
         //?}
-
         private Builder() {}
-
         public Builder bottom(String model) {
             bottom = parse(model, "bottom");
             return this;
@@ -100,10 +86,7 @@ public final class SlabModels {
     *///?} else {
     private static ResourceLocation parse(String model, String name) {
     //?}
-        if (model == null || model.isBlank()) {
-            throw new IllegalArgumentException(name + " must not be blank");
-        }
-
+        if (model == null || model.isBlank()) throw new IllegalArgumentException(name + " must not be blank");
         //? if >=1.21.11 {
         /*return Identifier.parse(model);
         *///?} else {

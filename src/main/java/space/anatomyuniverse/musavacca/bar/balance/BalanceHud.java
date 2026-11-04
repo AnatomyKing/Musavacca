@@ -5,19 +5,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 //? if >=26.1 {
 /*import net.minecraft.client.gui.GuiGraphicsExtractor;
-
-import net.minecraft.client.renderer.RenderPipelines;
-*///?} else if >=1.21.6 <26.1 {
+*///?} else {
 import net.minecraft.client.gui.GuiGraphics;
-
+//?}
+//? if >=1.21.6 {
 import net.minecraft.client.renderer.RenderPipelines;
-//?} else {
-/*import net.minecraft.client.gui.GuiGraphics;
-*///?}
-
+//?}
 //? if >=1.21.11 {
-/*import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.resources.Identifier;
+/*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -29,17 +24,6 @@ import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
 
 public final class BalanceHud {
-    private static final int ICON_SIZE = 9;
-    private static final int ICON_SPACING = 1;
-    private static final int TEXT_Y_OFFSET = 1;
-
-    private static final int VANILLA_FOOD_RIGHT = 91;
-    private static final int BALANCE_BASE_Y_OFFSET = 49;
-    private static final int ROW_SPACING = 10;
-
-    private static final int TEXT_COLOR = 0xFFD5C349;
-    private static final int SHADOW_COLOR = 0xFF000000;
-
     //? if >=1.21.11 {
     /*private static final Identifier[] PEARL_ICON_LAYERS = {
     *///?} else {
@@ -48,7 +32,6 @@ public final class BalanceHud {
             sprite("hud/pearl_husk"),
             sprite("hud/pearl")
     };
-
     private BalanceHud() {
     }
 
@@ -59,24 +42,16 @@ public final class BalanceHud {
     //?}
         Minecraft minecraft = Minecraft.getInstance();
         Player player = minecraft.player;
-
-        if (!shouldRender(minecraft, player)) {
-            return;
-        }
-
+        if (!shouldRender(minecraft, player)) return;
         Font font = minecraft.font;
         String text = Integer.toString(ClientBalanceData.getBalance());
-
         int textWidth = font.width(text);
-        int totalWidth = textWidth + ICON_SPACING + ICON_SIZE;
-
-        int right = graphics.guiWidth() / 2 + VANILLA_FOOD_RIGHT;
+        int totalWidth = textWidth + 1 + 9;
+        int right = graphics.guiWidth() / 2 + 91;
         int y = getY(graphics, player);
-
         int textX = right - totalWidth;
-        int iconX = textX + textWidth + ICON_SPACING;
-
-        drawOutlinedString(graphics, font, text, textX, y + TEXT_Y_OFFSET);
+        int iconX = textX + textWidth + 1;
+        drawOutlinedString(graphics, font, text, textX, y + 1);
         drawSpriteLayers(graphics, PEARL_ICON_LAYERS, iconX, y);
     }
 
@@ -98,35 +73,32 @@ public final class BalanceHud {
     *///?} else {
     private static int getY(GuiGraphics graphics, Player player) {
     //?}
-        int y = graphics.guiHeight() - BALANCE_BASE_Y_OFFSET;
-
+        int y = graphics.guiHeight() - 49;
         if (player.isEyeInFluid(FluidTags.WATER) || player.getAirSupply() < player.getMaxAirSupply()) {
-            y -= ROW_SPACING;
+            y -= 10;
         }
-
         if (ClientBonusHungerData.isActive()) {
-            y -= ROW_SPACING;
+            y -= 10;
         }
-
         return y;
     }
 
     private static boolean hasVisibleMountHealth(Player player) {
-        return player.getVehicle() instanceof LivingEntity vehicle
-                && vehicle.isAlive()
-                && vehicle.getMaxHealth() > 0.0F;
+        return player.getVehicle() instanceof LivingEntity vehicle && vehicle.isAlive() && vehicle.getMaxHealth() > 0.0F;
     }
 
     //? if >=26.1 {
     /*private static void drawSpriteLayers(GuiGraphicsExtractor graphics, Identifier[] sprites, int x, int y) {
-        for (Identifier sprite : sprites) {
     *///?} else if >=1.21.11 <26.1 {
     /*private static void drawSpriteLayers(GuiGraphics graphics, Identifier[] sprites, int x, int y) {
-        for (Identifier sprite : sprites) {
     *///?} else {
     private static void drawSpriteLayers(GuiGraphics graphics, ResourceLocation[] sprites, int x, int y) {
-        for (ResourceLocation sprite : sprites) {
     //?}
+        //? if >=1.21.11 {
+        /*for (Identifier sprite : sprites) {
+        *///?} else {
+        for (ResourceLocation sprite : sprites) {
+        //?}
             drawSprite(graphics, sprite, x, y);
         }
     }
@@ -138,31 +110,29 @@ public final class BalanceHud {
     *///?} else {
     private static void drawSprite(GuiGraphics graphics, ResourceLocation sprite, int x, int y) {
     //?}
-
         //? if >=1.21.6 {
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, ICON_SIZE, ICON_SIZE);
-
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, 9, 9);
         //?} else if >=1.21.2 <1.21.6 {
-        /*graphics.blitSprite(RenderType::guiTextured, sprite, x, y, ICON_SIZE, ICON_SIZE);
+        /*graphics.blitSprite(RenderType::guiTextured, sprite, x, y, 9, 9);
         *///?} else {
-        /*graphics.blitSprite(sprite, x, y, ICON_SIZE, ICON_SIZE);
+        /*graphics.blitSprite(sprite, x, y, 9, 9);
         *///?}
     }
 
     //? if >=26.1 {
     /*private static void drawOutlinedString(GuiGraphicsExtractor graphics, Font font, String text, int x, int y) {
-        graphics.text(font, text, x + 1, y, SHADOW_COLOR, false);
-        graphics.text(font, text, x - 1, y, SHADOW_COLOR, false);
-        graphics.text(font, text, x, y + 1, SHADOW_COLOR, false);
-        graphics.text(font, text, x, y - 1, SHADOW_COLOR, false);
-        graphics.text(font, text, x, y, TEXT_COLOR, false);
+        graphics.text(font, text, x + 1, y, 0xFF000000, false);
+        graphics.text(font, text, x - 1, y, 0xFF000000, false);
+        graphics.text(font, text, x, y + 1, 0xFF000000, false);
+        graphics.text(font, text, x, y - 1, 0xFF000000, false);
+        graphics.text(font, text, x, y, 0xFFD5C349, false);
     *///?} else {
     private static void drawOutlinedString(GuiGraphics graphics, Font font, String text, int x, int y) {
-        graphics.drawString(font, text, x + 1, y, SHADOW_COLOR, false);
-        graphics.drawString(font, text, x - 1, y, SHADOW_COLOR, false);
-        graphics.drawString(font, text, x, y + 1, SHADOW_COLOR, false);
-        graphics.drawString(font, text, x, y - 1, SHADOW_COLOR, false);
-        graphics.drawString(font, text, x, y, TEXT_COLOR, false);
+        graphics.drawString(font, text, x + 1, y, 0xFF000000, false);
+        graphics.drawString(font, text, x - 1, y, 0xFF000000, false);
+        graphics.drawString(font, text, x, y + 1, 0xFF000000, false);
+        graphics.drawString(font, text, x, y - 1, 0xFF000000, false);
+        graphics.drawString(font, text, x, y, 0xFFD5C349, false);
     //?}
     }
 

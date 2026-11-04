@@ -5,7 +5,6 @@ package space.anatomyuniverse.musavacca.bar.hunger;
 *///?} else {
 import net.minecraft.world.level.GameRules;
 //?}
-
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
@@ -26,17 +25,6 @@ import space.anatomyuniverse.musavacca.bar.ModAttachments;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class BonusHungerEvents {
-    private static final int VANILLA_FULL_FOOD = 20;
-    private static final int VANILLA_NATURAL_REGEN_MIN_FOOD = 18;
-
-    private static final int SATURATED_REGEN_TICKS = 10;
-    private static final int UNSATURATED_REGEN_TICKS = 80;
-
-    private static final float FAST_REGEN_SATURATION_SLICE = 6.0F;
-    private static final float UNSATURATED_REGEN_EXHAUSTION = 6.0F;
-
-    private static final float EPSILON = 0.0001F;
-
     private BonusHungerEvents() {
     }
 
@@ -44,10 +32,7 @@ public final class BonusHungerEvents {
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
-            data.rememberBaseSnapshot(
-                    player.getFoodData().getFoodLevel(),
-                    player.getFoodData().getSaturationLevel()
-            );
+            data.rememberBaseSnapshot(player.getFoodData().getFoodLevel(), player.getFoodData().getSaturationLevel());
             sendSync(player, data, hasBonusHunger(player));
         }
     }
@@ -56,10 +41,7 @@ public final class BonusHungerEvents {
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
-            data.rememberBaseSnapshot(
-                    player.getFoodData().getFoodLevel(),
-                    player.getFoodData().getSaturationLevel()
-            );
+            data.rememberBaseSnapshot(player.getFoodData().getFoodLevel(), player.getFoodData().getSaturationLevel());
             sendSync(player, data, hasBonusHunger(player));
         }
     }
@@ -67,82 +49,38 @@ public final class BonusHungerEvents {
     @SubscribeEvent
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         Player player = event.getEntity();
-
-        if (!hasBonusHunger(player)) {
-            return;
-        }
-
+        if (!hasBonusHunger(player)) return;
         ItemStack stack = event.getItemStack();
         FoodProperties food = getFoodProperties(stack);
-
-        if (food == null) {
-            return;
-        }
-
-        if (player.getFoodData().needsFood()) {
-            return;
-        }
-
-        if (food.canAlwaysEat()) {
-            return;
-        }
-
+        if (food == null) return;
+        if (player.getFoodData().needsFood()) return;
+        if (food.canAlwaysEat()) return;
         if (player.level().isClientSide()) {
-            if (!ClientBonusHungerData.needsFood()) {
-                return;
-            }
-
+            if (!ClientBonusHungerData.needsFood()) return;
             player.startUsingItem(event.getHand());
             event.setCancellationResult(InteractionResult.CONSUME);
             event.setCanceled(true);
             return;
         }
-
-        if (!(player instanceof ServerPlayer serverPlayer)) {
-            return;
-        }
-
+        if (!(player instanceof ServerPlayer serverPlayer)) return;
         BonusHungerData data = serverPlayer.getData(ModAttachments.BONUS_HUNGER);
-
-        if (!data.needsFood()) {
-            return;
-        }
-
+        if (!data.needsFood()) return;
         data.setForceBonusEating(true);
         serverPlayer.startUsingItem(event.getHand());
-
         event.setCancellationResult(InteractionResult.CONSUME);
         event.setCanceled(true);
-
         sendSync(serverPlayer, data, true);
     }
 
     @SubscribeEvent
     public static void onFinishUsingItem(LivingEntityUseItemEvent.Finish event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) {
-            return;
-        }
-
-        if (!hasBonusHunger(player)) {
-            return;
-        }
-
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!hasBonusHunger(player)) return;
         ItemStack stack = event.getItem();
         FoodProperties food = getFoodProperties(stack);
-
-        if (food == null) {
-            return;
-        }
-
+        if (food == null) return;
         BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
-
-        data.queueFinishedFood(
-                food.nutrition(),
-                food.saturation(),
-                data.isForceBonusEating(),
-                food.canAlwaysEat()
-        );
-
+        data.queueFinishedFood(food.nutrition(), food.saturation(), data.isForceBonusEating(), food.canAlwaysEat());
         data.setForceBonusEating(false);
         player.setData(ModAttachments.BONUS_HUNGER, data);
     }
@@ -157,24 +95,15 @@ public final class BonusHungerEvents {
 
     @SubscribeEvent
     public static void onPlayerTickPost(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) {
-            return;
-        }
-
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
         BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
         boolean active = hasBonusHunger(player);
-
         if (!data.isBaseSnapshotReady()) {
-            data.rememberBaseSnapshot(
-                    player.getFoodData().getFoodLevel(),
-                    player.getFoodData().getSaturationLevel()
-            );
+            data.rememberBaseSnapshot(player.getFoodData().getFoodLevel(), player.getFoodData().getSaturationLevel());
             sendSync(player, data, active);
             return;
         }
-
         boolean changed = false;
-
         if (active) {
             changed |= applyPendingFinishedFood(player, data);
             changed |= absorbVanillaFoodDrainIntoBonus(player, data);
@@ -184,110 +113,71 @@ public final class BonusHungerEvents {
             data.setForceBonusEating(false);
             data.clearPendingFinishedFood();
         }
-
-        data.rememberBaseSnapshot(
-                player.getFoodData().getFoodLevel(),
-                player.getFoodData().getSaturationLevel()
-        );
-
+        data.rememberBaseSnapshot(player.getFoodData().getFoodLevel(), player.getFoodData().getSaturationLevel());
         if (changed) {
             player.setData(ModAttachments.BONUS_HUNGER, data);
         }
-
         if (changed || data.shouldSync(active) || player.tickCount % 20 == 0) {
             sendSync(player, data, active);
         }
     }
 
     private static FoodProperties getFoodProperties(ItemStack stack) {
-
         //? if >=1.21.2 {
-        if (!stack.has(DataComponents.CONSUMABLE)) {
+        if (!stack.has(DataComponents.CONSUMABLE)) return null;
         //?} else {
-        /*if (!stack.has(DataComponents.FOOD)) {
+        /*if (!stack.has(DataComponents.FOOD)) return null;
         *///?}
-            return null;
-        }
-
         return stack.get(DataComponents.FOOD);
     }
 
     private static boolean applyPendingFinishedFood(ServerPlayer player, BonusHungerData data) {
-        if (!data.hasPendingFinishedFood()) {
-            return false;
-        }
-
+        if (!data.hasPendingFinishedFood()) return false;
         int nutrition = data.getPendingFoodNutrition();
         float saturationModifier = data.getPendingFoodSaturationModifier();
         boolean forceBonusFood = data.isPendingForceBonusFood();
         boolean canAlwaysEat = data.isPendingCanAlwaysEat();
-
         data.clearPendingFinishedFood();
-
-        if (nutrition <= 0) {
-            return true;
-        }
-
+        if (nutrition <= 0) return true;
         int nutritionForBonus = nutrition;
-
         if (!forceBonusFood) {
             int vanillaFoodBeforeEating = data.getLastBaseFood();
             int vanillaFoodAfterEating = player.getFoodData().getFoodLevel();
             int vanillaFoodGain = Math.max(0, vanillaFoodAfterEating - vanillaFoodBeforeEating);
-
             nutritionForBonus = Math.max(0, nutrition - vanillaFoodGain);
         }
-
-        if (nutritionForBonus <= 0) {
-            return true;
-        }
-
-        if (!data.needsFood() && !data.needsSaturation() && !canAlwaysEat) {
-            return true;
-        }
-
-        if (!data.needsFood() && !canAlwaysEat && player.getFoodData().needsFood()) {
-            return true;
-        }
-
+        if (nutritionForBonus <= 0) return true;
+        if (!data.needsFood() && !data.needsSaturation() && !canAlwaysEat) return true;
+        if (!data.needsFood() && !canAlwaysEat && player.getFoodData().needsFood()) return true;
         data.eat(nutritionForBonus, saturationModifier);
         return true;
     }
 
     private static boolean absorbVanillaFoodDrainIntoBonus(ServerPlayer player, BonusHungerData data) {
         FoodData vanillaFood = player.getFoodData();
-
         int currentBaseFood = vanillaFood.getFoodLevel();
         float currentBaseSaturation = vanillaFood.getSaturationLevel();
-
         int previousBaseFood = data.getLastBaseFood();
         float previousBaseSaturation = data.getLastBaseSaturation();
-
         boolean changed = false;
-
-        if (currentBaseSaturation + EPSILON < previousBaseSaturation && data.hasUsableEnergy()) {
+        if (currentBaseSaturation + 0.0001F < previousBaseSaturation && data.hasUsableEnergy()) {
             float missingSaturation = previousBaseSaturation - currentBaseSaturation;
             float restoredSaturation = data.drainSaturation(missingSaturation);
-
             if (restoredSaturation > 0.0F) {
                 vanillaFood.setSaturation(Math.min(previousBaseSaturation, currentBaseSaturation + restoredSaturation));
                 changed = true;
             }
         }
-
         currentBaseFood = vanillaFood.getFoodLevel();
-
         if (currentBaseFood < previousBaseFood && data.hasUsableEnergy()) {
             int missingFood = previousBaseFood - currentBaseFood;
             int restoredFood = data.drainFood(missingFood);
-
             if (restoredFood > 0) {
                 vanillaFood.setFoodLevel(Math.min(previousBaseFood, currentBaseFood + restoredFood));
                 vanillaFood.setSaturation(Math.min(vanillaFood.getSaturationLevel(), vanillaFood.getFoodLevel()));
                 changed = true;
             }
         }
-
         return changed;
     }
 
@@ -300,46 +190,35 @@ public final class BonusHungerEvents {
             data.resetTickTimer();
             return false;
         }
-
         if (player.getHealth() >= player.getMaxHealth()) {
             data.resetTickTimer();
             return false;
         }
-
         boolean canDrainFood = player.level().getDifficulty() != Difficulty.PEACEFUL;
-
-        if (data.getFood() >= VANILLA_FULL_FOOD && data.getSaturation() > 0.0F) {
+        if (data.getFood() >= 20 && data.getSaturation() > 0.0F) {
             data.increaseTickTimer();
-
-            if (data.getTickTimer() >= SATURATED_REGEN_TICKS) {
-                float saturationSlice = Math.min(data.getSaturation(), FAST_REGEN_SATURATION_SLICE);
-                float healAmount = saturationSlice / FAST_REGEN_SATURATION_SLICE;
-
+            if (data.getTickTimer() >= 10) {
+                float saturationSlice = Math.min(data.getSaturation(), 6.0F);
+                float healAmount = saturationSlice / 6.0F;
                 if (healAmount > 0.0F) {
                     player.heal(healAmount);
                     data.addExhaustion(saturationSlice, canDrainFood);
                 }
-
                 data.resetTickTimer();
                 return true;
             }
-
             return false;
         }
-
-        if (data.getFood() >= VANILLA_NATURAL_REGEN_MIN_FOOD) {
+        if (data.getFood() >= 18) {
             data.increaseTickTimer();
-
-            if (data.getTickTimer() >= UNSATURATED_REGEN_TICKS) {
+            if (data.getTickTimer() >= 80) {
                 player.heal(1.0F);
-                data.addExhaustion(UNSATURATED_REGEN_EXHAUSTION, canDrainFood);
+                data.addExhaustion(6.0F, canDrainFood);
                 data.resetTickTimer();
                 return true;
             }
-
             return false;
         }
-
         data.resetTickTimer();
         return false;
     }
@@ -352,10 +231,7 @@ public final class BonusHungerEvents {
     }
 
     private static void sendSync(ServerPlayer player, BonusHungerData data, boolean active) {
-        PacketDistributor.sendToPlayer(
-                player,
-                new BonusHungerSyncPayload(data.getFood(), data.getSaturation(), active)
-        );
+        PacketDistributor.sendToPlayer(player, new BonusHungerSyncPayload(data.getFood(), data.getSaturation(), active));
         data.markSynced(active);
     }
 }

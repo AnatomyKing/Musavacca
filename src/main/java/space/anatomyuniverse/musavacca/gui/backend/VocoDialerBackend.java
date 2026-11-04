@@ -5,37 +5,30 @@ import net.minecraft.world.entity.player.Player;
 import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
-
 import java.util.Arrays;
 
 public class VocoDialerBackend {
     public static final int BUTTON_HEX_0 = 0;
     public static final int BUTTON_HEX_F = 15;
     public static final int BUTTON_CLEAR = 100;
-
-    private static final int BUTTON_CALL_BASE = 0x100;
-    private static final int CODE_LENGTH = 6;
-    private static final int MAX_ADDRESS = 0xFFFFFF;
-
-    private final int[] nibbles = new int[CODE_LENGTH];
+    private final int[] nibbles = new int[6];
     private int cursor = 0;
-
     public static boolean isKnownButton(int id) {
         return id >= BUTTON_HEX_0 && id <= BUTTON_HEX_F || id == BUTTON_CLEAR || isCallButton(id);
     }
 
     public static int buttonForAddress(int address) {
-        return BUTTON_CALL_BASE + HexTeleportDirectory.normalizeHex(address);
+        return 0x100 + HexTeleportDirectory.normalizeHex(address);
     }
 
     private static boolean isCallButton(int id) {
-        return id >= BUTTON_CALL_BASE && id <= BUTTON_CALL_BASE + MAX_ADDRESS;
+        return id >= 0x100 && id <= 0x100 + 0xFFFFFF;
     }
 
     public boolean handleButton(Player player, int id) {
         if (!isKnownButton(id)) return false;
         if (id == BUTTON_CLEAR) clear();
-        else if (isCallButton(id)) callAddress(player, id - BUTTON_CALL_BASE);
+        else if (isCallButton(id)) callAddress(player, id - 0x100);
         else dial(player, id);
         return true;
     }
@@ -48,9 +41,9 @@ public class VocoDialerBackend {
     }
 
     private void dial(Player player, int nibble) {
-        if (this.cursor >= CODE_LENGTH) return;
+        if (this.cursor >= 6) return;
         this.nibbles[this.cursor++] = clampNibble(nibble);
-        if (this.cursor < CODE_LENGTH) return;
+        if (this.cursor < 6) return;
         int address = this.packNibbles();
         if (this.shouldClearDialedBeforeCall(player)) this.clear();
         this.onAddressDialed(player, address);
@@ -67,12 +60,7 @@ public class VocoDialerBackend {
 
     protected void onAddressDialed(Player player, int address) {
         if (player.level().isClientSide() || !(player instanceof ServerPlayer serverPlayer)) return;
-
-        HexTeleportResolver.teleportToHex(
-                serverPlayer,
-                address,
-                this.teleportCost()
-        );
+        HexTeleportResolver.teleportToHex(serverPlayer, address, this.teleportCost());
         serverPlayer.closeContainer();
     }
 

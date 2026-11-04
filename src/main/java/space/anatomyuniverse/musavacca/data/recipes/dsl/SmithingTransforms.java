@@ -7,51 +7,28 @@ import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
-
 
 public final class SmithingTransforms {
     private final RecipeDSL dsl;
     private SmithingTransformRecipeBuilder builder;
-
     public SmithingTransforms(RecipeDSL dsl) {
         this.dsl = dsl;
     }
 
-    public SmithingTransforms of(
-            Object template,
-            Object base,
-            Object addition,
-            RecipeCategory category,
-            ItemLike result
-    ) {
-        this.builder = SmithingTransformRecipeBuilder.smithing(
-                this.dsl.ingredient(template),
-                this.dsl.ingredient(base),
-                this.dsl.ingredient(addition),
-                category,
-                result.asItem()
-        );
-
+    public SmithingTransforms of(Object template, Object base, Object addition, RecipeCategory category, ItemLike result) {
+        this.builder = SmithingTransformRecipeBuilder.smithing(this.dsl.ingredient(template), this.dsl.ingredient(base), this.dsl.ingredient(addition), category,
+                result.asItem());
         return this;
     }
 
     public SmithingTransforms unlocksHas(ItemLike... items) {
         requireBuilder();
-
         for (ItemLike item : items) {
             this.builder.unlocks(RecipeDSL.hasName(item), this.dsl.unlocker().item(item));
         }
-
-        return this;
-    }
-
-    public SmithingTransforms unlocksHas(TagKey<Item> tag) {
-        requireBuilder();
-        this.builder.unlocks("has_" + tag.location().getPath(), this.dsl.unlocker().tag(tag));
         return this;
     }
 
@@ -69,8 +46,6 @@ public final class SmithingTransforms {
     }
 
     private void requireBuilder() {
-        if (this.builder == null) {
-            throw new IllegalStateException("No smithing transform configured");
-        }
+        if (this.builder == null) throw new IllegalStateException("No smithing transform configured");
     }
 }

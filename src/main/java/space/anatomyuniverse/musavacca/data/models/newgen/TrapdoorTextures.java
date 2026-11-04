@@ -6,12 +6,10 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.block.Block;
-
 import java.util.Objects;
 
 public final class TrapdoorTextures {
     private TrapdoorTextures() {}
-
     //? if >=1.21.11 {
     /*public record Set(Identifier texture) {
     *///?} else {
@@ -33,7 +31,6 @@ public final class TrapdoorTextures {
         *///?} else {
         private ResourceLocation texture;
         //?}
-
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
         }
@@ -52,9 +49,7 @@ public final class TrapdoorTextures {
             if (texture == null) {
                 texture();
             }
-
             return new Set(texture);
         }
-
     }
 }

@@ -15,78 +15,42 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
-
 public final class ShapelessCrafting {
     private final RecipeDSL dsl;
     private final ShapelessRecipeBuilder builder;
-
-    public ShapelessCrafting(
-            RecipeDSL dsl,
-            RecipeCategory category,
-            ItemLike result,
-            int count
-    ) {
+    public ShapelessCrafting(RecipeDSL dsl, RecipeCategory category, ItemLike result, int count) {
         this.dsl = dsl;
-
         //? if >=26.1 {
-        /*this.builder = ShapelessRecipeBuilder.shapeless(
-                dsl.items(),
-                category,
-
-                new net.minecraft.world.item.ItemStackTemplate(result.asItem(), count)
-
-        );
+        /*this.builder = ShapelessRecipeBuilder.shapeless(dsl.items(), category, new net.minecraft.world.item.ItemStackTemplate(result.asItem(), count));
         *///?} else if >=1.21.2 <26.1 {
-        this.builder = ShapelessRecipeBuilder.shapeless(
-                dsl.items(),
-                category,
-
-                new ItemStack(result.asItem(), count)
-
-        );
+        this.builder = ShapelessRecipeBuilder.shapeless(dsl.items(), category, new ItemStack(result.asItem(), count));
         //?} else {
         /*this.builder = ShapelessRecipeBuilder.shapeless(category, result, count);
         *///?}
-
     }
 
     public ShapelessCrafting requires(Object... ingredients) {
         for (Object ingredient : ingredients) {
             addOnce(ingredient);
         }
-
         return this;
     }
 
     public ShapelessCrafting requiresCount(Object ingredient, int count) {
-        if (count <= 0) {
-            throw new IllegalArgumentException("count must be >= 1");
-        }
-
-        if (count > 9) {
-            throw new IllegalArgumentException("shapeless max grid size is 9 (got " + count + ")");
-        }
-
+        if (count <= 0) throw new IllegalArgumentException("count must be >= 1");
+        if (count > 9) throw new IllegalArgumentException("shapeless max grid size is 9 (got " + count + ")");
         for (int i = 0; i < count; ++i) {
             addOnce(ingredient);
         }
-
         return this;
     }
 
     public ShapelessCrafting requiresPairs(Object... pairs) {
-        if ((pairs.length & 1) != 0) {
-            throw new IllegalArgumentException("requiresPairs expects even number of args: (ingredient, count)*");
-        }
-
+        if ((pairs.length & 1) != 0) throw new IllegalArgumentException("requiresPairs expects even number of args: (ingredient, count)*");
         for (int i = 0; i < pairs.length; i += 2) {
-            if (!(pairs[i + 1] instanceof Number count)) {
-                throw new IllegalArgumentException("Count must be a Number at index " + (i + 1));
-            }
-
+            if (!(pairs[i + 1] instanceof Number count)) throw new IllegalArgumentException("Count must be a Number at index " + (i + 1));
             requiresCount(pairs[i], count.intValue());
         }
-
         return this;
     }
 
@@ -112,7 +76,6 @@ public final class ShapelessCrafting {
         for (ItemLike item : items) {
             this.builder.unlockedBy(RecipeDSL.hasName(item), this.dsl.unlocker().item(item));
         }
-
         return this;
     }
 

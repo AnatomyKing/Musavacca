@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class BananaPearlChapiter extends Block {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
-
     public BananaPearlChapiter(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP));
@@ -40,4 +39,3 @@ public class BananaPearlChapiter extends Block {
         builder.add(FACING);
     }
 }
-

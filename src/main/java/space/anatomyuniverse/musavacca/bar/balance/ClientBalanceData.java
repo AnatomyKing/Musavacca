@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.bar.balance;
 public final class ClientBalanceData {
     private static int balance = 0;
     private static boolean active = false;
-
     private ClientBalanceData() {
     }
 
@@ -20,4 +19,3 @@ public final class ClientBalanceData {
         return active;
     }
 }
-

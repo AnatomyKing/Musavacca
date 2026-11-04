@@ -3,24 +3,14 @@ package space.anatomyuniverse.musavacca.gui.backend;
 import net.minecraft.world.entity.player.Player;
 import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
-
 import java.util.Locale;
 
 public final class VocoCallerBackend extends VocoDialerBackend {
     public static final int ROW_COUNT = VocoCallerPhonebook.ROW_COUNT;
-
     private final CallState state = new CallState();
-
     public VocoCallerBackend(VocoCallerPhonebook phonebook) {
-        VocoCallerPhonebook initial =
-                phonebook == null
-                        ? VocoCallerPhonebook.EMPTY_PHONEBOOK
-                        : phonebook;
-
-        this.replaceCallState(
-                initial.recentArray(),
-                initial.savedArray()
-        );
+        VocoCallerPhonebook initial = phonebook == null ? VocoCallerPhonebook.EMPTY_PHONEBOOK : phonebook;
+        this.replaceCallState(initial.recentArray(), initial.savedArray());
     }
 
     @Override
@@ -30,7 +20,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
             super.onAddressDialed(player, address);
             return;
         }
-
         this.pushRecentCallToTop(address);
         super.onAddressDialed(player, address);
     }
@@ -51,38 +40,21 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         if (pending != null) this.pushRecentCallToTop(pending);
     }
 
-    public void replaceCallState(
-            int[] recent,
-            int[] saved
-    ) {
-        fillFromAddresses(
-                this.state.recentCalls,
-                recent
-        );
-
-        fillFromAddresses(
-                this.state.savedNumbers,
-                saved
-        );
+    public void replaceCallState(int[] recent, int[] saved) {
+        fillFromAddresses(this.state.recentCalls, recent);
+        fillFromAddresses(this.state.savedNumbers, saved);
     }
 
     public VocoCallerPhonebook toPhonebook() {
-        return VocoCallerPhonebook.of(
-                this.copyRecentAddresses(),
-                this.copySavedAddresses()
-        );
+        return VocoCallerPhonebook.of(this.copyRecentAddresses(), this.copySavedAddresses());
     }
 
     public int[] copyRecentAddresses() {
-        return copyAddresses(
-                this.state.recentCalls
-        );
+        return copyAddresses(this.state.recentCalls);
     }
 
     public int[] copySavedAddresses() {
-        return copyAddresses(
-                this.state.savedNumbers
-        );
+        return copyAddresses(this.state.savedNumbers);
     }
 
     public String getRecentCall(int row) {
@@ -101,11 +73,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
 
     public void setRecentCall(int row, int hexColor) {
         this.setRecentCall(row, formatHex(hexColor));
-    }
-
-    public void clearRecentCall(int row) {
-        checkRow(row);
-        this.state.recentCalls[row] = null;
     }
 
     public void deleteRecentCall(int row) {
@@ -160,16 +127,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         this.setSavedNumber(row, formatHex(hexColor));
     }
 
-    public void clearSavedNumber(int row) {
-        checkRow(row);
-        this.state.savedNumbers[row] = null;
-    }
-
-    public void deleteSavedNumber(int row) {
-        checkRow(row);
-        removeAndCompact(this.state.savedNumbers, row);
-    }
-
     public boolean deleteSavedNumberToRecent(int row) {
         checkRow(row);
         String removed = this.state.savedNumbers[row];
@@ -186,14 +143,6 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         String displacedSaved = this.insertSavedNumberAtTop(moving);
         if (displacedSaved != null) this.appendRecentCallIfSpace(displacedSaved);
         return true;
-    }
-
-    public void pushSavedNumberToTop(String hexCode) {
-        this.insertSavedNumberAtTop(hexCode);
-    }
-
-    public void pushSavedNumberToTop(int hexColor) {
-        this.pushSavedNumberToTop(formatHex(hexColor));
     }
 
     private String insertSavedNumberAtTop(String hexCode) {
@@ -244,34 +193,18 @@ public final class VocoCallerBackend extends VocoDialerBackend {
         return targetRow;
     }
 
-    private static int[] copyAddresses(
-            String[] values
-    ) {
+    private static int[] copyAddresses(String[] values) {
         int[] result = new int[ROW_COUNT];
-
         for (int row = 0; row < ROW_COUNT; row++) {
-            result[row] =
-                    values[row] == null
-                            ? VocoCallerPhonebook.EMPTY
-                            : parseHex(values[row]);
+            result[row] = values[row] == null ? VocoCallerPhonebook.EMPTY : parseHex(values[row]);
         }
-
         return result;
     }
 
-    private static void fillFromAddresses(
-            String[] target,
-            int[] values
-    ) {
+    private static void fillFromAddresses(String[] target, int[] values) {
         for (int row = 0; row < ROW_COUNT; row++) {
-            target[row] =
-                    values != null
-                            && row < values.length
-                            && values[row] >= 0
-                            ? formatHex(values[row])
-                            : null;
+            target[row] = values != null && row < values.length && values[row] >= 0 ? formatHex(values[row]) : null;
         }
-
         compact(target);
     }
 

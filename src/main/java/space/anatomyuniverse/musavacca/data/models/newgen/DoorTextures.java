@@ -6,21 +6,15 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.level.block.Block;
-
 import java.util.Objects;
 
 public final class DoorTextures {
     private DoorTextures() {}
-
-    public record Set(
-            //? if >=1.21.11 {
-            /*Identifier bottom,
-            Identifier top
-            *///?} else {
-            ResourceLocation bottom,
-            ResourceLocation top
-            //?}
-    ) {
+    //? if >=1.21.11 {
+    /*public record Set(Identifier bottom, Identifier top) {
+    *///?} else {
+    public record Set(ResourceLocation bottom, ResourceLocation top) {
+    //?}
         public Set {
             Objects.requireNonNull(bottom, "bottom");
             Objects.requireNonNull(top, "top");
@@ -33,7 +27,6 @@ public final class DoorTextures {
 
     public static final class Builder {
         private final Block block;
-
         //? if >=1.21.11 {
         /*private Identifier bottom;
         private Identifier top;
@@ -41,7 +34,6 @@ public final class DoorTextures {
         private ResourceLocation bottom;
         private ResourceLocation top;
         //?}
-
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
         }
@@ -70,13 +62,10 @@ public final class DoorTextures {
             if (bottom == null) {
                 bottom();
             }
-
             if (top == null) {
                 top();
             }
-
             return new Set(bottom, top);
         }
-
     }
 }

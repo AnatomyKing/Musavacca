@@ -37,33 +37,25 @@ import space.anatomyuniverse.musavacca.portal.PearlPortalServerEvents;
 import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.tint.ModTints;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerTooltipClient;
-
-//? if >=1.21.9 {
-/*import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
-
-import net.neoforged.fml.loading.FMLEnvironment;
-*///?} else {
+//? if <1.21.9 {
 import net.neoforged.fml.loading.FMLLoader;
-import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
 //?}
+import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
+//? if >=1.21.9 {
+/*import net.neoforged.fml.loading.FMLEnvironment;
+*///?}
 
 @Mod(MusaCore.MOD_ID)
 public final class MusaCore {
     public static final String MOD_ID = "musavacca";
     public static final Logger LOGGER = LogUtils.getLogger();
-
     public static final String VERSION =
             //$ mod_version
             "0.0.1";
-
     public static final String MINECRAFT =
             //$ minecraft
             "1.21.8";
-
-    public MusaCore(
-            IEventBus modBus,
-            ModContainer container
-    ) {
+    public MusaCore(IEventBus modBus, ModContainer container) {
         ModItems.register(modBus);
         ModBlocks.register(modBus);
         ModCreativeTabs.register(modBus);
@@ -81,81 +73,45 @@ public final class MusaCore {
         /*NeoForge.EVENT_BUS.addListener(space.anatomyuniverse.musavacca.block.custom.StrippableLogBlock::onUseItemOnBlock);
         NeoForge.EVENT_BUS.addListener(space.anatomyuniverse.musavacca.block.custom.StrippableMusavaccaStemBlock::onUseItemOnBlock);
         *///?}
-
-        modBus.addListener(
-                ModDataGenerators::gatherData
-        );
-
-        NeoForge.EVENT_BUS.addListener(
-                PearlPortalServerEvents::onServerStopping
-        );
-
-        NeoForge.EVENT_BUS.register(
-                BonusHungerEvents.class
-        );
-
-        NeoForge.EVENT_BUS.register(
-                BalanceEvents.class
-        );
-
-        NeoForge.EVENT_BUS.register(
-                BananaCowBlessingEvents.class
-        );
-
-        NeoForge.EVENT_BUS.register(
-                PlayerStatusEvents.class
-        );
-
-        NeoForge.EVENT_BUS.addListener(
-                VocoTableItemDisplayLogic
-                        ::onRightClickBlock
-        );
-
+        modBus.addListener(ModDataGenerators::gatherData);
+        //? if >=26.3 {
+        /*NeoForge.EVENT_BUS.addListener(PearlPortalServerEvents::onServerStopping);
+        *///?} else {
+        NeoForge.EVENT_BUS.addListener(PearlPortalServerEvents::onServerStopping);
+        //?}
+        NeoForge.EVENT_BUS.register(BonusHungerEvents.class);
+        NeoForge.EVENT_BUS.register(BalanceEvents.class);
+        NeoForge.EVENT_BUS.register(BananaCowBlessingEvents.class);
+        NeoForge.EVENT_BUS.register(PlayerStatusEvents.class);
+        //? if >=26.3 {
+        /*NeoForge.EVENT_BUS.addListener(VocoTableItemDisplayLogic ::onRightClickBlock);
+        *///?} else {
+        NeoForge.EVENT_BUS.addListener(VocoTableItemDisplayLogic ::onRightClickBlock);
+        //?}
         if (
              //? if >=1.21.9 {
              /*FMLEnvironment
              *///?} else {
              FMLLoader
-
              //?}
                 .getDist() == Dist.CLIENT
         ) {
             ModTints.register(modBus);
-
-            modBus.addListener(
-                    VocoCallerTooltipClient::register
-            );
-
-            modBus.addListener(
-                    MusaRenderLayers::onModifyBakingResult
-            );
-
-            modBus.addListener(
-            //? if <1.21.4 {
-                    /*CustomHelmetModels::registerAdditionalModels
-            );
-
-            modBus.addListener(
+            modBus.addListener(VocoCallerTooltipClient::register);
+            modBus.addListener(MusaRenderLayers::onModifyBakingResult);
+            //? if >=1.21.4 {
+            modBus.addListener(ModMenuEvents::register);
+            modBus.addListener(ModEntityRenderers::registerRenderers);
+            modBus.addListener(ModEntityRenderers ::registerLayerDefinitions);
+            modBus.addListener(ModBlockEntityRenderers ::registerRenderers);
+            //?} else {
+            /*modBus.addListener(CustomHelmetModels::registerAdditionalModels);
+            modBus.addListener(ModMenuEvents::register);
+            modBus.addListener(ModEntityRenderers::registerRenderers);
+            modBus.addListener(ModEntityRenderers ::registerLayerDefinitions);
+            modBus.addListener(ModBlockEntityRenderers ::registerRenderers);
             *///?}
-                    ModMenuEvents::register
-            );
-
-            modBus.addListener(
-                    ModEntityRenderers::registerRenderers
-            );
-
-            modBus.addListener(
-                    ModEntityRenderers
-                            ::registerLayerDefinitions
-            );
-
-            modBus.addListener(
-                    ModBlockEntityRenderers
-                            ::registerRenderers
-            );
-
             ModParticleProviders.register(modBus);
-
             BonusHungerClientModEvents.register(modBus);
             BalanceClientModEvents.register(modBus);
             VocoCameraClientModEvents.register(modBus);
