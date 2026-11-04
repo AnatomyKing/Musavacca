@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
-public class BananaPearlChapiter extends Block {
+public class BananaPearlChapiter extends BananaPearlBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public BananaPearlChapiter(Properties properties) {
         super(properties);

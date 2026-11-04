@@ -17,8 +17,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic;
-import space.anatomyuniverse.musavacca.basuke.particle.VocoTableParticles;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.GlinsterLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -110,11 +110,10 @@ public final class BasukeVocoCalling {
         *///?} else {
         recoveredPhone.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(List.of(recoveredSim)));
         //?}
-        BlockState stateBeforeCalling = level.getBlockState(tablePos);
         tableBe.setDisplayedItem(recoveredPhone, 1);
         simCardStack.shrink(1);
         basuke.setItemInHand(InteractionHand.MAIN_HAND, simCardStack.isEmpty() ? ItemStack.EMPTY : simCardStack);
-        VocoTableParticles.spawnCraftingParticles(level, tablePos, recoveredPhone, activeCalling.hexColor(), stateBeforeCalling, level.getBlockState(tablePos));
+        GlinsterLogic.burst(level, tablePos);
         playCallingSounds(level, tablePos);
         return true;
     }
@@ -202,7 +201,7 @@ public final class BasukeVocoCalling {
     }
 
     private static void playCallingSounds(@NotNull ServerLevel level, @NotNull BlockPos tablePos) {
-        Vec3 itemDisplayCenter = VocoTableParticles.itemDisplayCenter(tablePos);
+        Vec3 itemDisplayCenter = new Vec3(tablePos.getX() + 0.5D, tablePos.getY() + 1.20D, tablePos.getZ() + 0.5D);
         level.playSound(null, itemDisplayCenter.x, itemDisplayCenter.y, itemDisplayCenter.z, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 0.85F, 1.35F);
         level.playSound(null, itemDisplayCenter.x, itemDisplayCenter.y, itemDisplayCenter.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 0.65F, 1.65F);
     }

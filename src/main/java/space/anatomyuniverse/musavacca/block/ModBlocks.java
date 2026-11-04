@@ -24,7 +24,7 @@ public final class ModBlocks {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MusaCore.MOD_ID);
     public static final DeferredBlock<Block> BANANA_PEARL_BLOCK =
             BLOCKS.registerBlock("banana_pearl_block",
-                    props -> new Block(props
+                    props -> new BananaPearlBlock(props
                             .mapColor(MapColor.COLOR_YELLOW)
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
@@ -36,7 +36,7 @@ public final class ModBlocks {
                             //?}
     public static final DeferredBlock<Block> BANANA_PEARL_BRICKS =
             BLOCKS.registerBlock("banana_pearl_bricks",
-                    props -> new Block(props
+                    props -> new BananaPearlBlock(props
                             .mapColor(MapColor.COLOR_YELLOW)
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
@@ -97,7 +97,7 @@ public final class ModBlocks {
                             //?}
     public static final DeferredBlock<RotatedPillarBlock> BANANA_PEARL_PILLAR =
             BLOCKS.registerBlock("banana_pearl_pillar",
-                    props -> new RotatedPillarBlock(props
+                    props -> new BananaPearlPillarBlock(props
                             .mapColor(MapColor.COLOR_YELLOW)
                             .strength(3.0F, 6.0F)
                             .sound(SoundType.COPPER)
@@ -475,7 +475,7 @@ public final class ModBlocks {
                             //?}
     public static final DeferredBlock<StairBlock> BANANA_PEARL_STAIRS =
             BLOCKS.registerBlock("banana_pearl_stairs",
-                    props -> new StairBlock(
+                    props -> new BananaPearlStairBlock(
                             BANANA_PEARL_BLOCK.get().defaultBlockState(),
                             props
                                     .mapColor(MapColor.COLOR_YELLOW)
@@ -490,7 +490,7 @@ public final class ModBlocks {
                     ));
     public static final DeferredBlock<StairBlock> BANANA_PEARL_BRICK_STAIRS =
             BLOCKS.registerBlock("banana_pearl_brick_stairs",
-                    props -> new StairBlock(
+                    props -> new BananaPearlStairBlock(
                             BANANA_PEARL_BRICKS.get().defaultBlockState(),
                             props
                                     .mapColor(MapColor.COLOR_YELLOW)
@@ -637,5 +637,3 @@ public final class ModBlocks {
 
     private ModBlocks() {}
 }
-
-

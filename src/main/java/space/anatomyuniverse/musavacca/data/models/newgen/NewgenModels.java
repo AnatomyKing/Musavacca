@@ -8,10 +8,8 @@ import com.google.gson.JsonObject;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Block;
 import java.math.BigDecimal;
@@ -234,9 +232,7 @@ final class NewgenModels {
                 throw new IllegalStateException(".blockState() requires a BlockItem: " + item);
             if (blockDefinition == null)
                 throw new IllegalStateException("No NewGen block definition for " + blockItem.getBlock() + " used by " + item);
-            BlockState state = blockItem.getBlock().defaultBlockState();
-            BlockItemStateProperties preset = item.getDefaultInstance().get(DataComponents.BLOCK_STATE);
-            if (preset != null) state = preset.apply(state);
+            BlockState state = SimpleItems.blockState(item);
             List<? extends BlockFamily.ModelRule<?, ?>> rules = blockDefinition.mode() == ModelMode.MODELS
                     ? blockDefinition.models() : blockDefinition.parts();
             for (BlockFamily.ModelRule<?, ?> part : rules) {
@@ -439,11 +435,24 @@ final class NewgenModels {
     DoorModels door(DoorBlocks.Entry e) {
         if (e.baseMode() == BaseModelMode.EXISTING) return e.baseModels();
         var textures = Map.of("bottom", e.textures().bottom(), "top", e.textures().top());
-        return DoorModels.full(template(e.block(), "_bottom_left", "door_bottom_left", textures),
-                template(e.block(), "_bottom_left_open", "door_bottom_left_open", textures), template(e.block(), "_bottom_right", "door_bottom_right", textures),
-                template(e.block(), "_bottom_right_open", "door_bottom_right_open", textures), template(e.block(), "_top_left", "door_top_left", textures),
-                template(e.block(), "_top_left_open", "door_top_left_open", textures), template(e.block(), "_top_right", "door_top_right", textures),
-                template(e.block(), "_top_right_open", "door_top_right_open", textures));
+        return DoorModels.full(doorTemplate(e.block(), "_bottom_left", "door_bottom_left", textures),
+                doorTemplate(e.block(), "_bottom_left_open", "door_bottom_left_open", textures), doorTemplate(e.block(), "_bottom_right", "door_bottom_right", textures),
+                doorTemplate(e.block(), "_bottom_right_open", "door_bottom_right_open", textures), doorTemplate(e.block(), "_top_left", "door_top_left", textures),
+                doorTemplate(e.block(), "_top_left_open", "door_top_left_open", textures), doorTemplate(e.block(), "_top_right", "door_top_right", textures),
+                doorTemplate(e.block(), "_top_right_open", "door_top_right_open", textures));
+    }
+
+    //? if >=1.21.11 {
+    /*private String doorTemplate(Block block, String suffix, String parent, Map<String, Identifier> textures) {
+    *///?} else {
+    private String doorTemplate(Block block, String suffix, String parent, Map<String, ResourceLocation> textures) {
+    //?}
+        var id = ModelLocations.blockModel(block, suffix);
+        JsonObject root = parentJson("minecraft:block/" + parent, textures);
+        //? if <26.1 {
+        root.addProperty("render_type", "minecraft:cutout");
+        //?}
+        return output.model(id, root).toString();
     }
 
     //? if >=1.21.11 {

@@ -235,10 +235,14 @@ public final class MusaRenderLayers {
         @Override public ChunkSectionLayer getRenderType(BlockState state) {
         //?} else {
         /*@Override public RenderType getRenderType(BlockState state) {
-            return properties.cutout() ? RenderType.cutout() : properties.translucent() ? RenderType.translucent() : original.getRenderType(state);
+            RenderType layer = original.getRenderType(state);
+            if (layer != RenderType.solid()) return layer;
+            return properties.cutout() ? RenderType.cutout() : properties.translucent() ? RenderType.translucent() : layer;
         *///?}
             //? if >=1.21.6 <26.1 {
-            return properties.cutout() ? ChunkSectionLayer.CUTOUT : properties.translucent() ? ChunkSectionLayer.TRANSLUCENT : original.getRenderType(state);
+            ChunkSectionLayer layer = original.getRenderType(state);
+            if (layer != ChunkSectionLayer.SOLID) return layer;
+            return properties.cutout() ? ChunkSectionLayer.CUTOUT : properties.translucent() ? ChunkSectionLayer.TRANSLUCENT : layer;
             //?}
         }
         //?}
@@ -259,6 +263,7 @@ public final class MusaRenderLayers {
     //? if >=1.21.4 <1.21.5 || >=26.1 {
     /^//? if >=26.1 {
     /^¹private static ChunkSectionLayer forcedLayer(Properties p, ChunkSectionLayer original) {
+        if (original != ChunkSectionLayer.SOLID) return original;
         return p.cutout() ? ChunkSectionLayer.CUTOUT : p.translucent() ? ChunkSectionLayer.TRANSLUCENT : original;
     }
     ¹^///?}
@@ -277,19 +282,22 @@ public final class MusaRenderLayers {
             this.properties = properties;
         }
 
-        private RenderType forcedRenderType() {
+        private RenderType forcedRenderType(BlockState state, RandomSource random, ModelData data) {
+            for (RenderType layer : super.getRenderTypes(state, random, data)) {
+                if (layer != RenderType.solid()) return null;
+            }
             return properties.cutout() ? RenderType.cutout() : properties.translucent() ? RenderType.translucent() : null;
         }
 
         @Override
         public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource random, ModelData data) {
-            RenderType renderType = forcedRenderType();
+            RenderType renderType = forcedRenderType(state, random, data);
             return renderType != null ? ChunkRenderTypeSet.of(renderType) : super.getRenderTypes(state, random, data);
         }
 
         @Override
         public List<BakedQuad> getQuads(BlockState state, Direction face, RandomSource random, ModelData data, RenderType renderType) {
-            RenderType forced = forcedRenderType();
+            RenderType forced = forcedRenderType(state, random, data);
             if (forced != null && renderType != null && !forced.equals(renderType)) return List.of();
             List<BakedQuad> quads = super.getQuads(state, face, random, data, forced != null ? null : renderType);
             return properties.noShade() ? withoutDirectionalShade(quads) : quads;
@@ -303,9 +311,7 @@ public final class MusaRenderLayers {
     ^///?}
     //? if >=26.1 {
     /^private static int forceFlags(int flags, Properties p) {
-        if (p.translucent()) return flags | BakedQuad.FLAG_TRANSLUCENT;
-        if (p.cutout()) return flags & ~BakedQuad.FLAG_TRANSLUCENT;
-        return flags;
+        return p.translucent() ? flags | BakedQuad.FLAG_TRANSLUCENT : flags;
     }
 
     private static BakedQuad.MaterialInfo adjustMaterial(BakedQuad.MaterialInfo info, Properties p) {

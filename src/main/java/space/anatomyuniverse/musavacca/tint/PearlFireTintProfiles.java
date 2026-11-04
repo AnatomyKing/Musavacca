@@ -33,13 +33,6 @@ public final class PearlFireTintProfiles {
             0.36F),
             244, 228, 202, 186);
 
-    public static final Profile GLITHER_PARTICLE = of(settings(
-            0.80F,
-            0.5F,
-            0.0F,
-            1.21F),
-            255, 240, 199, 184);
-
     public static final Profile PEARL_FLAME = of(settings(
             0.80F,
             0.5F,

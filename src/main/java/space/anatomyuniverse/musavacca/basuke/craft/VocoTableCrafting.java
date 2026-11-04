@@ -11,9 +11,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.GlinsterLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
-import space.anatomyuniverse.musavacca.basuke.particle.VocoTableParticles;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
@@ -90,13 +90,11 @@ public final class VocoTableCrafting {
         ) {
             return false;
         }
-        int glitherColor = matchingCandleColor == null ? VocoTableParticles.DEFAULT_GLITHER_COLOR : matchingCandleColor;
-        BlockState stateBeforeCrafting = level.getBlockState(tablePos);
         injectHexColorIfAllowed(resultStack, recipe, matchingCandleColor);
         tableBe.setDisplayedItem(resultStack, displayedItemCount);
         edibleStack.shrink(1);
         basuke.setItemInHand(InteractionHand.MAIN_HAND, edibleStack.isEmpty() ? ItemStack.EMPTY : edibleStack);
-        VocoTableParticles.spawnCraftingParticles(level, tablePos, resultStack, glitherColor, stateBeforeCrafting, level.getBlockState(tablePos));
+        GlinsterLogic.burst(level, tablePos);
         playCraftingSounds(level, tablePos);
         return true;
     }
@@ -108,7 +106,7 @@ public final class VocoTableCrafting {
     }
 
     private static void playCraftingSounds(@NotNull ServerLevel level, @NotNull BlockPos tablePos) {
-        Vec3 itemDisplayCenter = VocoTableParticles.itemDisplayCenter(tablePos);
+        Vec3 itemDisplayCenter = new Vec3(tablePos.getX() + 0.5D, tablePos.getY() + 1.20D, tablePos.getZ() + 0.5D);
         level.playSound(null, itemDisplayCenter.x, itemDisplayCenter.y, itemDisplayCenter.z, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 0.85F, 1.35F);
         level.playSound(null, itemDisplayCenter.x, itemDisplayCenter.y, itemDisplayCenter.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 0.65F, 1.65F);
     }

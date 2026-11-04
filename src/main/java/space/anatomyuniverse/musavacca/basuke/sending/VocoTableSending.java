@@ -14,7 +14,6 @@ import space.anatomyuniverse.musavacca.bar.balance.BalanceStore;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic;
-import space.anatomyuniverse.musavacca.basuke.particle.VocoTableParticles;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import java.util.ArrayList;
@@ -89,20 +88,9 @@ public final class VocoTableSending {
                             completeBalanceToPhysical(server, tableBe, activeSending);
                 };
         if (!completed) return false;
-        spawnSendingParticles(level, tablePos, activeSending.command().direction());
         paperStack.shrink(1);
         basuke.setItemInHand(InteractionHand.MAIN_HAND, paperStack.isEmpty() ? ItemStack.EMPTY : paperStack);
         return true;
-    }
-
-    private static void spawnSendingParticles(@NotNull ServerLevel level, @NotNull BlockPos tablePos, @NotNull VocoTableSendingCommand.Direction direction) {
-        ItemStack bananaPearlStack = new ItemStack(ModItems.BANANA_PEARL.get());
-        switch (direction) {
-            case PHYSICAL_TO_BALANCE ->
-                    VocoTableParticles.spawnPhysicalToBalanceParticles(level, tablePos, bananaPearlStack);
-            case BALANCE_TO_PHYSICAL ->
-                    VocoTableParticles.spawnBalanceToPhysicalParticles(level, tablePos, bananaPearlStack);
-        }
     }
 
     private static void rememberSendingPlayerIfOnline(MinecraftServer server, UUID sendingPlayerUuid) {

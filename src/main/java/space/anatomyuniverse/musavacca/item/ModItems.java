@@ -58,6 +58,7 @@ import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumHoeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumPickaxeItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumShovelItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumSwordItem;
+import space.anatomyuniverse.musavacca.item.custom.BananaMilkBucketItem;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 //? if <1.21.2 {
 /*import java.util.EnumMap;
@@ -144,12 +145,12 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> MUSAVACCA_CHARGED_DOOR = MusavaccaDoorItems("musavacca_charged_door", true, false, false);
     public static final DeferredItem<BlockItem> MUSAVACCA_IMBUED_DOOR = MusavaccaDoorItems("musavacca_imbued_door", false, true, false);
     private static DeferredItem<BlockItem> VocoTableItems(String name, int corners) {
-        return ITEMS.registerItem(name, props -> new BlockItem(ModBlocks.VOCO_TABLE.get(),
-                props.component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY
+        return ITEMS.registerItem(name, props -> new BlockStateItem(ModBlocks.VOCO_TABLE.get(), props,
+                BlockItemStateProperties.EMPTY
                         .with(VocoTableBlock.LIT_NORTH_EAST, (corners & 1) != 0)
                         .with(VocoTableBlock.LIT_NORTH_WEST, (corners & 2) != 0)
                         .with(VocoTableBlock.LIT_SOUTH_EAST, (corners & 4) != 0)
-                        .with(VocoTableBlock.LIT_SOUTH_WEST, (corners & 8) != 0))));
+                        .with(VocoTableBlock.LIT_SOUTH_WEST, (corners & 8) != 0)));
     }
 
     public static final DeferredItem<BlockItem> VOCO_TABLE = VocoTableItems("voco_table", 0);

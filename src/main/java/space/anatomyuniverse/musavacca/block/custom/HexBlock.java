@@ -37,6 +37,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import space.anatomyuniverse.musavacca.block.custom.logic.BreakHexLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.GlinsterLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
@@ -185,12 +186,7 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
         int j = pos.getY();
         int k = pos.getZ();
         int rgb = getParticleRgb(level, pos);
-        if (random.nextInt(4) == 0) {
-            double d0 = (double) i + 0.35 + random.nextDouble() * 0.30;
-            double d1 = (double) j + 0.72;
-            double d2 = (double) k + 0.35 + random.nextDouble() * 0.30;
-            level.addParticle(new HexColorParticleOptions(ModParticleTypes.HEX_FALLING_SPORE_BLOSSOM.get(), 0xFFFFFF), d0, d1, d2, 0.0, 0.0, 0.0);
-        }
+        GlinsterLogic.animateTick(level, pos, random);
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
         for (int l = 0; l < 10; ++l) {
             mutablePos.set(i + Mth.nextInt(random, -10, 10), j - random.nextInt(10), k + Mth.nextInt(random, -10, 10));

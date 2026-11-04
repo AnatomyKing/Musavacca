@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
-public class BananaPearlMascaron extends Block {
+public class BananaPearlMascaron extends BananaPearlBlock {
     public static final EnumProperty<FrontAndTop> ORIENTATION = BlockStateProperties.ORIENTATION;
     public BananaPearlMascaron(Properties properties) {
         super(properties);

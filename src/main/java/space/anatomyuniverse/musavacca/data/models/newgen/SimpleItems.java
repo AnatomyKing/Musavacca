@@ -6,7 +6,14 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.state.BlockState;
+//? if >=26.1 {
+/*import space.anatomyuniverse.musavacca.item.custom.BlockStateItem;
+*///?}
 import java.util.ArrayList;
 
 import java.util.LinkedHashMap;
@@ -16,6 +23,28 @@ import java.util.Objects;
 
 public final class SimpleItems {
     private SimpleItems() {}
+
+    static BlockState blockState(ItemLike item) {
+        if (!(item.asItem() instanceof BlockItem blockItem))
+            throw new IllegalArgumentException(".blockState() requires a BlockItem: " + item);
+        BlockItemStateProperties preset;
+        //? if >=26.1 {
+        /*var holder = blockItem.builtInRegistryHolder();
+        if (holder.areComponentsBound()) {
+            preset = holder.components().get(DataComponents.BLOCK_STATE);
+        } else if (blockItem instanceof BlockStateItem stateItem) {
+            preset = stateItem.blockState();
+        } else {
+            throw new IllegalStateException("Cannot read the block-state preset before components are bound for "
+                    + ModelLocations.itemId(item) + ". Use BlockStateItem for .blockState() item definitions on 26.1+.");
+        }
+        *///?} else {
+        preset = blockItem.getDefaultInstance().get(DataComponents.BLOCK_STATE);
+        //?}
+        BlockState state = blockItem.getBlock().defaultBlockState();
+        return preset == null ? state : preset.apply(state);
+    }
+
     public enum Style {
         FLAT,
         HANDHELD
@@ -246,7 +275,7 @@ public final class SimpleItems {
 
         public boolean hasAnyTint(ItemLike item) {
             if (isExisting()) return existingTints().stream().anyMatch(Tints.Tint::tinted);
-            if (isMultipart() || isBlockState()) return NewgenItemCatalog.itemTints(item, this).stream().anyMatch(Tints.Tint::tinted);
+            if (isMultipart() || isBlockState()) return NewgenItemCatalog.declaredItemTints(item, this).stream().anyMatch(Tints.Tint::tinted);
             return physicalLayers(item).stream().map(PhysicalLayer::tint).anyMatch(Tints.Tint::tinted);
         }
 
