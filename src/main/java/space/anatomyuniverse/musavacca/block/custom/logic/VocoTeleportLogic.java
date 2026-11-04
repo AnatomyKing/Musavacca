@@ -32,27 +32,32 @@ public final class VocoTeleportLogic {
         MinecraftServer server = level.getServer();
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
         ReceptorPosition actualReceptor = actualReceptor(level, pos, receptor);
-        String ownerKey = ownerKey(level, pos, actualReceptor);
+        BlockEntity owner = level.getBlockEntity(pos);
         if (!active) {
-            HexTeleportAddressNetwork.releaseOwner(server, ownerKey);
+            HexTeleportAddressNetwork.releaseOwner(server, ownerKey(level, pos, actualReceptor));
             return SyncResult.INACTIVE;
         }
-        EndpointTarget target = getEndpointTarget(level, pos, actualReceptor);
         HexTeleportDirectory.Kind kind =
-                level.getBlockEntity(pos)
-                        instanceof VocoTableBlockEntity
+                owner instanceof VocoTableBlockEntity
                         ? HexTeleportDirectory.Kind
                         .VOCO_TABLE_RECEPTOR_CORNER
                         : HexTeleportDirectory.Kind
                         .VOCO_POST_RECEPTOR_CORNER;
+        if (owner instanceof VocoTableBlockEntity table) {
+            table.setDeviceId(space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.unique(level, pos, table.getDeviceId()));
+        } else if (owner instanceof VocoPostBlockEntity post) {
+            post.setDeviceId(space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.unique(level, pos, post.getDeviceId()));
+        }
         int normalizedHex = HexTeleportDirectory.normalizeHex(hexColor);
+        java.util.UUID deviceId = owner instanceof VocoTableBlockEntity table ? table.getDeviceId()
+                : owner instanceof VocoPostBlockEntity post ? post.getDeviceId() : null;
         HexTeleportDirectory.VocoRegistration registration =
                 //? if >=1.21.11 {
-                /*directory.registerOrQueueVocoEndpoint(ownerKey, kind, normalizedHex, level.dimension().identifier(), pos, target.pos(),
+                /*directory.registerOrQueueVocoEndpoint(deviceId, kind, normalizedHex, level.dimension().identifier(), pos,
                 *///?} else {
-                directory.registerOrQueueVocoEndpoint(ownerKey, kind, normalizedHex, level.dimension().location(), pos, target.pos(),
+                directory.registerOrQueueVocoEndpoint(deviceId, kind, normalizedHex, level.dimension().location(), pos,
                 //?}
-                        target.facing().yawDegrees(), target.facing().pitchDegrees(), target.custom(), actualReceptor.id());
+                        actualReceptor.id());
         HexTeleportDirectory.Endpoint removed = registration.removedActiveEndpoint();
         if (
                 removed != null
@@ -71,21 +76,14 @@ public final class VocoTeleportLogic {
     }
 
     public static String ownerKey(Level level, BlockPos pos, ReceptorPosition receptor) {
-        if (
-                level.getBlockEntity(pos)
-                        instanceof VocoTableBlockEntity
-        ) {
-            //? if >=1.21.11 {
-            /*return HexTeleportDirectory.vocoTableReceptorCornerOwnerKey(level.dimension().identifier(), pos, receptor);
-            *///?} else {
-            return HexTeleportDirectory.vocoTableReceptorCornerOwnerKey(level.dimension().location(), pos, receptor);
-            //?}
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof VocoTableBlockEntity table) {
+            return HexTeleportDirectory.vocoTableReceptorCornerOwnerKey(table.getDeviceId(), receptor);
         }
-        //? if >=1.21.11 {
-        /*return HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(level.dimension().identifier(), pos);
-        *///?} else {
-        return HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(level.dimension().location(), pos);
-        //?}
+        if (be instanceof VocoPostBlockEntity post) {
+            return HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(post.getDeviceId());
+        }
+        return "";
     }
 
     public static EndpointTarget getEndpointTarget(Level level, BlockPos pos, ReceptorPosition receptor) {
@@ -93,14 +91,14 @@ public final class VocoTeleportLogic {
         if (be instanceof VocoTableBlockEntity tableBe) {
             if (tableBe.isCustomTargetEnabled(receptor)) {
                 return new EndpointTarget(tableBe.getCustomTarget(receptor), new Facing(tableBe.getYawDegrees(receptor), tableBe.getPitchDegrees(receptor)),
-                        true);
+                        true, tableBe.getCustomTargetDimension(receptor));
             }
             return defaultEndpointTarget(pos, receptor);
         }
         if (be instanceof VocoPostBlockEntity postBe) {
             ReceptorPosition postReceptor = actualReceptor(level, pos, receptor);
             if (postBe.isCustomTargetEnabled()) {
-                return new EndpointTarget(postBe.getCustomTarget(), new Facing(postBe.getYawDegrees(), postBe.getPitchDegrees()), true);
+                return new EndpointTarget(postBe.getCustomTarget(), new Facing(postBe.getYawDegrees(), postBe.getPitchDegrees()), true, postBe.getCustomTargetDimension());
             }
             return defaultEndpointTarget(pos, postReceptor);
         }
@@ -112,7 +110,7 @@ public final class VocoTeleportLogic {
     }
 
     private static EndpointTarget defaultEndpointTarget(BlockPos pos, ReceptorPosition receptor) {
-        return new EndpointTarget(getDefaultTeleportPosition(pos, receptor), defaultFacing(receptor), false);
+        return new EndpointTarget(getDefaultTeleportPosition(pos, receptor), defaultFacing(receptor), false, null);
     }
 
     private static Facing defaultFacing(ReceptorPosition receptor) {
@@ -138,5 +136,5 @@ public final class VocoTeleportLogic {
     }
 
     public record Facing(int yawDegrees, int pitchDegrees) {}
-    public record EndpointTarget(Vec3 pos, Facing facing, boolean custom) {}
+    public record EndpointTarget(Vec3 pos, Facing facing, boolean custom, String dimension) {}
 }

@@ -18,7 +18,7 @@ public final class PearlPlacementColorMemory {
         long key = pos.asLong();
         Entry previous = ENTRIES.get(key);
         if (previous != null && previous.level() == level && previous.rgb() == color
-                && previous.expiresAtMs() - now > 1500L - 250L) {
+                && previous.expiresAtMs() - now > 3000L - 250L) {
             return;
         }
         if (ENTRIES.size() >= 1024 && previous == null) {
@@ -27,7 +27,7 @@ public final class PearlPlacementColorMemory {
                 ENTRIES.clear();
             }
         }
-        ENTRIES.put(key, new Entry(level, color, now + 1500L));
+        ENTRIES.put(key, new Entry(level, color, now + 3000L));
     }
 
     public static Integer get(Level level, BlockPos pos) {

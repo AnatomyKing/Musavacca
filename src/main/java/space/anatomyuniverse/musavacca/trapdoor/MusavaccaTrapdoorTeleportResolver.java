@@ -34,11 +34,7 @@ public final class MusavaccaTrapdoorTeleportResolver {
             return Optional.empty();
         }
         MusavaccaTrapdoorTeleportNetwork.refresh(trapdoorBe);
-        //? if >=1.21.11 {
-        /*String ownerKey = HexTeleportDirectory.trapdoorOwnerKey(level.dimension().identifier(), entryPos);
-        *///?} else {
-        String ownerKey = HexTeleportDirectory.trapdoorOwnerKey(level.dimension().location(), entryPos);
-        //?}
+        String ownerKey = HexTeleportDirectory.trapdoorOwnerKey(trapdoorBe.getDeviceId());
         HexTeleportDirectory directory = HexTeleportDirectory.get(level.getServer());
         HexTeleportDirectory.DoorEndpoint registered = directory.getTrapdoorEndpointByOwner(ownerKey).orElse(null);
         if (

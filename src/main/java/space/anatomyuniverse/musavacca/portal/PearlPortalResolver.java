@@ -6,6 +6,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
+import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,9 +21,11 @@ public final class PearlPortalResolver {
     public static Optional<ResolvedPortal> resolveLinkedPortal(ServerLevel sourceLevel, UUID sourcePortalId) {
         return HexTeleportResolver
                 .resolveLinkedPortal(sourceLevel, sourcePortalId)
-                .map(resolved -> {
+                .flatMap(resolved -> {
                     HexTeleportDirectory.Endpoint endpoint = resolved.endpoint();
-                    return new ResolvedPortal(endpoint.endpointId(), resolved.level(), endpoint.portalShape(), endpoint.hexColor());
+                    if (!(resolved.level().getBlockEntity(endpoint.ownerPos()) instanceof PearlPortalBlockEntity portal))
+                        return Optional.empty();
+                    return Optional.of(new ResolvedPortal(endpoint.endpointId(), resolved.level(), portal.getPortalShape(), endpoint.hexColor()));
                 });
     }
 

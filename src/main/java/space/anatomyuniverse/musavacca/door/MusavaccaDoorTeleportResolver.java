@@ -42,11 +42,7 @@ public final class MusavaccaDoorTeleportResolver {
             return Optional.empty();
         }
         MusavaccaDoorTeleportNetwork.refresh(doorBe);
-        //? if >=1.21.11 {
-        /*String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().identifier(), lowerPos);
-        *///?} else {
-        String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().location(), lowerPos);
-        //?}
+        String ownerKey = HexTeleportDirectory.doorOwnerKey(doorBe.getDeviceId());
         HexTeleportDirectory directory = HexTeleportDirectory.get(level.getServer());
         HexTeleportDirectory.DoorEndpoint registered = directory.getDoorEndpointByOwner(ownerKey).orElse(null);
         if (

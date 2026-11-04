@@ -1,5 +1,7 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
+import java.util.UUID;
+
 //? if <1.21.5 {
 /*import net.minecraft.nbt.Tag;
 *///?}
@@ -32,6 +34,14 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class MusavaccaPortalDoorBlockEntity
         extends BlockEntity implements HexSource {
+    private UUID deviceId = UUID.randomUUID();
+    public UUID getDeviceId() { return this.deviceId; }
+    public void setDeviceId(UUID deviceId) {
+        if (deviceId == null || deviceId.equals(this.deviceId)) return;
+        this.deviceId = deviceId;
+        this.setChanged();
+    }
+
     private int hexColor = MusavaccaTints.NO_TINT;
     public MusavaccaPortalDoorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MUSAVACCA_DOOR_BLOCK_ENTITY.get(), pos, state);
@@ -69,7 +79,7 @@ public final class MusavaccaPortalDoorBlockEntity
                 this.level
                         instanceof ServerLevel serverLevel
         ) {
-            MusavaccaDoorTeleportNetwork.removeDoor(serverLevel, this.getBlockPos());
+            MusavaccaDoorTeleportNetwork.removeDoor(serverLevel, this.getDeviceId());
         }
     }
 
@@ -125,6 +135,13 @@ public final class MusavaccaPortalDoorBlockEntity
         /*super.loadAdditional(tag, registries);
         *///?}
         //? if >=1.21.6 {
+        this.deviceId = space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.read(input.getStringOr("musavacca_device_id", ""));
+        //?} else if >=1.21.5 <1.21.6 {
+        /*this.deviceId = space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.read(tag.getStringOr("musavacca_device_id", ""));
+        *///?} else {
+        /*this.deviceId = space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.read(tag.contains("musavacca_device_id", Tag.TAG_STRING) ? tag.getString("musavacca_device_id") : "");
+        *///?}
+        //? if >=1.21.6 {
         int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
         //?} else if >=1.21.5 <1.21.6 {
         /*int loaded = tag.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
@@ -144,6 +161,11 @@ public final class MusavaccaPortalDoorBlockEntity
         super.saveAdditional(output);
         //?} else {
         /*super.saveAdditional(tag, registries);
+        *///?}
+        //? if >=1.21.6 {
+        output.putString("musavacca_device_id", this.deviceId.toString());
+        //?} else {
+        /*tag.putString("musavacca_device_id", this.deviceId.toString());
         *///?}
         if (this.hasHexColor()) {
             //? if >=1.21.6 {

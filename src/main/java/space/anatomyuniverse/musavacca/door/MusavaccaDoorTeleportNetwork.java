@@ -31,44 +31,36 @@ public final class MusavaccaDoorTeleportNetwork {
                         || !state.getValue(MusavaccaPortalDoorBlock.LIT_PORTAL)
                         || !state.getValue(MusavaccaPortalDoorBlock.PORTAL)
         ) {
-            removeDoor(level, lowerPos);
+            removeDoor(level, door.getDeviceId());
             return;
         }
+        door.setDeviceId(space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.unique(level, lowerPos, door.getDeviceId()));
         MinecraftServer server = level.getServer();
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
-        //? if >=1.21.11 {
-        /*String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().identifier(), lowerPos);
-        *///?} else {
-        String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().location(), lowerPos);
-        //?}
+        String ownerKey = HexTeleportDirectory.doorOwnerKey(door.getDeviceId());
         HexTeleportDirectory.DoorEndpoint previous = directory.getDoorEndpointByOwner(ownerKey).orElse(null);
         int previousHex = previous == null ? -1 : previous.hexColor();
         int resolvedHex = HexTeleportDirectory.normalizeHex(door.getHexColor());
         //? if >=1.21.11 {
-        /*directory.registerDoorEndpoint(ownerKey, resolvedHex, level.dimension().identifier(), lowerPos);
+        /*HexTeleportDirectory.Result result = directory.registerDoorEndpoint(door.getDeviceId(), resolvedHex, level.dimension().identifier(), lowerPos);
         *///?} else {
-        directory.registerDoorEndpoint(ownerKey, resolvedHex, level.dimension().location(), lowerPos);
+        HexTeleportDirectory.Result result = directory.registerDoorEndpoint(door.getDeviceId(), resolvedHex, level.dimension().location(), lowerPos);
         //?}
+        if (!result.success() && previousHex >= 0 && previousHex != resolvedHex) {
+            door.setHexColor(previousHex);
+            return;
+        }
         if (
-                previousHex >= 0
+                result.success()
+                        && previousHex >= 0
                         && previousHex != resolvedHex
         ) {
             HexTeleportAddressNetwork.addressChanged(server, previousHex, resolvedHex);
         }
     }
 
-    public static void removeDoor(ServerLevel level, BlockPos lowerPos) {
-        if (
-                level == null
-                        || lowerPos == null
-        ) {
-            return;
-        }
-        //? if >=1.21.11 {
-        /*String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().identifier(), lowerPos);
-        *///?} else {
-        String ownerKey = HexTeleportDirectory.doorOwnerKey(level.dimension().location(), lowerPos);
-        //?}
-        HexTeleportAddressNetwork.releaseOwner(level.getServer(), ownerKey);
+    public static void removeDoor(ServerLevel level, java.util.UUID deviceId) {
+        if (level == null || deviceId == null) return;
+        HexTeleportAddressNetwork.releaseOwner(level.getServer(), HexTeleportDirectory.doorOwnerKey(deviceId));
     }
 }

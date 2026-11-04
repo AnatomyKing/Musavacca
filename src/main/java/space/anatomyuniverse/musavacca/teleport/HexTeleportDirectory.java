@@ -1,18 +1,9 @@
 package space.anatomyuniverse.musavacca.teleport;
 
-//? if >=26.1 {
-/*import java.nio.file.StandardCopyOption;
-import java.nio.file.Path;
-import java.nio.file.Files;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.io.IOException;
-import space.anatomyuniverse.musavacca.MusaCore;
-*///?}
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
@@ -28,1029 +19,490 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 *///?}
-import net.minecraft.world.phys.Vec3;
+import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public final class HexTeleportDirectory extends SavedData {
-    public static final String STORAGE_ID = "musavacca_hex_teleport_directory";
-    private static final Codec<UUID> UUID_CODEC = Codec.STRING.comapFlatMap(
-            text -> {
-                try {
-                    return DataResult.success(UUID.fromString(text));
-                } catch (IllegalArgumentException exception) {
-                    return DataResult.error(() -> "Invalid UUID: " + text);
-                }
-            },
-            UUID::toString
-    );
-    private static final Codec<Kind> KIND_CODEC = Codec.STRING.xmap(Kind::fromSerializedName, Kind::serializedName);
+    public static final String STORAGE_ID = "musavacca_unified_teleports";
+    private static final Codec<UUID> UUID_CODEC = Codec.STRING.comapFlatMap(text -> {
+        try { return DataResult.success(UUID.fromString(text)); }
+        catch (IllegalArgumentException error) { return DataResult.error(() -> "Invalid UUID: " + text); }
+    }, UUID::toString);
+
     public enum Kind {
         PEARL_PORTAL("pearl_portal"),
         VOCO_TABLE_RECEPTOR_CORNER("voco_table_receptor_corner"),
-        VOCO_POST_RECEPTOR_CORNER("voco_post_receptor_corner");
-        private final String serializedName;
-        Kind(String serializedName) {
-            this.serializedName = serializedName;
-        }
+        VOCO_POST_RECEPTOR_CORNER("voco_post_receptor_corner"),
+        PORTAL_DOOR("portal_door"),
+        PORTAL_TRAPDOOR("portal_trapdoor"),
+        VOCO_CALLER("voco_caller");
 
-        public String serializedName() {
-            return this.serializedName;
-        }
-
-        public boolean isPortal() {
-            return this == PEARL_PORTAL;
-        }
-
-        public boolean isVoco() {
-            return this == VOCO_TABLE_RECEPTOR_CORNER || this == VOCO_POST_RECEPTOR_CORNER;
-        }
-
-        public boolean canQueueForAddress() {
-            return this.isVoco();
-        }
-
+        private final String name;
+        Kind(String name) { this.name = name; }
+        public String serializedName() { return this.name; }
+        public boolean isPortal() { return this == PEARL_PORTAL; }
+        public boolean isVoco() { return this == VOCO_TABLE_RECEPTOR_CORNER || this == VOCO_POST_RECEPTOR_CORNER; }
+        public boolean isDoor() { return this == PORTAL_DOOR || this == PORTAL_TRAPDOOR; }
+        public boolean canQueueForAddress() { return this.isVoco(); }
         public static Kind fromSerializedName(String name) {
-            String normalized = name == null ? "" : name.toLowerCase(Locale.ROOT);
-            for (Kind kind : values()) {
-                if (kind.serializedName.equals(normalized)) return kind;
-            }
-            return VOCO_POST_RECEPTOR_CORNER;
+            for (Kind kind : values()) if (kind.name.equals(name)) return kind;
+            throw new IllegalArgumentException("Unknown endpoint kind " + name);
         }
     }
+    private static final Codec<Kind> KIND_CODEC = Codec.STRING.comapFlatMap(name -> {
+        try { return DataResult.success(Kind.fromSerializedName(name)); }
+        catch (IllegalArgumentException error) { return DataResult.error(error::getMessage); }
+    }, Kind::serializedName);
 
     public enum Result {
-        REGISTERED,
-        UPDATED,
-        WAITING_FOR_SECOND_PORTAL,
-        LINKED_TO_EXISTING_PORTAL,
-        WAITING_FOR_SECOND_DOOR,
-        LINKED_TO_EXISTING_DOOR,
-        WAITING_FOR_SECOND_TRAPDOOR,
-        LINKED_TO_EXISTING_TRAPDOOR,
-        ALREADY_REGISTERED,
-        HEX_OCCUPIED,
-        INVALID_OWNER;
+        REGISTERED, UPDATED, WAITING_FOR_SECOND_PORTAL, LINKED_TO_EXISTING_PORTAL,
+        WAITING_FOR_SECOND_DOOR, LINKED_TO_EXISTING_DOOR,
+        WAITING_FOR_SECOND_TRAPDOOR, LINKED_TO_EXISTING_TRAPDOOR,
+        ALREADY_REGISTERED, HEX_OCCUPIED, INVALID_OWNER;
         public boolean success() {
-            return this == REGISTERED
-                    || this == UPDATED
-                    || this == WAITING_FOR_SECOND_PORTAL
-                    || this == LINKED_TO_EXISTING_PORTAL
-                    || this == WAITING_FOR_SECOND_DOOR
-                    || this == LINKED_TO_EXISTING_DOOR
-                    || this == WAITING_FOR_SECOND_TRAPDOOR
-                    || this == LINKED_TO_EXISTING_TRAPDOOR
-                    || this == ALREADY_REGISTERED;
+            return this != HEX_OCCUPIED && this != INVALID_OWNER;
         }
     }
 
-    public record Target(double x, double y, double z) {
-        public static final Codec<Target> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.DOUBLE.fieldOf("x").forGetter(Target::x),
-                Codec.DOUBLE.fieldOf("y").forGetter(Target::y), Codec.DOUBLE.fieldOf("z").forGetter(Target::z)).apply(instance, Target::new));
-        public static Target of(Vec3 vec3) {
-            return new Target(vec3.x, vec3.y, vec3.z);
-        }
+    public record EndpointKey(UUID deviceId, int slotId) {}
 
-        public Vec3 vec3() {
-            return new Vec3(this.x, this.y, this.z);
-        }
-    }
+    public record Endpoint(UUID deviceId, int slotId, Kind kind, int hexColor, String dimension, BlockPos ownerPos,
+                           boolean pending) {
+        public static final Codec<Endpoint> CODEC = RecordCodecBuilder.create(i -> i.group(
+                UUID_CODEC.fieldOf("device").forGetter(Endpoint::deviceId),
+                Codec.INT.fieldOf("slot").forGetter(Endpoint::slotId),
+                KIND_CODEC.fieldOf("kind").forGetter(Endpoint::kind),
+                Codec.INT.fieldOf("hex").forGetter(Endpoint::hexColor),
+                Codec.STRING.fieldOf("dimension").forGetter(Endpoint::dimension),
+                BlockPos.CODEC.fieldOf("pos").forGetter(Endpoint::ownerPos),
+                Codec.BOOL.optionalFieldOf("pending", false).forGetter(Endpoint::pending)
+        ).apply(i, Endpoint::new));
 
-    public record PortalData(String axis, String front, String up, int width, int height, int exitAnchorX, int exitAnchorY, int exitAnchorZ) {
-        public static final PortalData EMPTY = new PortalData("x", "south", "up", PearlPortalFrame.MIN_WIDTH, PearlPortalFrame.MIN_HEIGHT, 0, 0, 0);
-        public static final Codec<PortalData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.STRING.fieldOf("axis").forGetter(PortalData::axis), Codec.STRING.fieldOf("front").forGetter(PortalData::front),
-                Codec.STRING.fieldOf("up").forGetter(PortalData::up), Codec.INT.fieldOf("width").forGetter(PortalData::width),
-                Codec.INT.fieldOf("height").forGetter(PortalData::height), Codec.INT.fieldOf("exit_anchor_x").forGetter(PortalData::exitAnchorX),
-                Codec.INT.fieldOf("exit_anchor_y").forGetter(PortalData::exitAnchorY), Codec.INT.fieldOf("exit_anchor_z").forGetter(PortalData::exitAnchorZ)).apply(instance, PortalData::new));
-        public static PortalData of(PearlPortalFrame.Shape shape) {
-            BlockPos anchor = shape.exitAnchorPos();
-            return new PortalData(axisToString(shape.axis()), directionToString(shape.frontDirection()), directionToString(shape.upDirection()), shape.width(),
-                    shape.height(), anchor.getX(), anchor.getY(), anchor.getZ());
+        public EndpointKey key() { return new EndpointKey(this.deviceId, this.slotId); }
+        public UUID endpointId() {
+            if (this.slotId == 0) return this.deviceId;
+            return UUID.nameUUIDFromBytes((this.deviceId + ":" + this.slotId).getBytes(StandardCharsets.UTF_8));
         }
-
-        public PearlPortalFrame.Shape toPortalShape(BlockPos origin) {
-            Direction.Axis axis = axisFromString(this.axis);
-            Direction.Axis safeAxis = PearlPortalFrame.normalizeAxis(axis);
-            Direction front = PearlPortalFrame.normalizeFrontDirection(safeAxis, directionFromString(this.front));
-            Direction up = PearlPortalFrame.normalizeUpDirection(safeAxis, front, directionFromString(this.up));
-            return new PearlPortalFrame.Shape(safeAxis, origin, clamp(this.width, PearlPortalFrame.MIN_WIDTH, PearlPortalFrame.MAX_WIDTH),
-                    clamp(this.height, PearlPortalFrame.MIN_HEIGHT, PearlPortalFrame.MAX_HEIGHT), front, up,
-                    new BlockPos(this.exitAnchorX, this.exitAnchorY, this.exitAnchorZ));
+        public String ownerKey() { return HexTeleportDirectory.ownerKey(this.kind, this.deviceId, this.slotId); }
+        public boolean hasValidOwner() { return this.deviceId != null && (this.kind == Kind.VOCO_CALLER || !this.dimension.isEmpty()); }
+        //? if >=1.21.11 {
+        /*public Identifier dimensionId() { return this.dimension.isEmpty() ? null : Identifier.parse(this.dimension); }
+        *///?} else {
+        public ResourceLocation dimensionId() { return this.dimension.isEmpty() ? null : ResourceLocation.parse(this.dimension); }
+        //?}
+        public Endpoint moved(String newDimension, BlockPos newPos) {
+            return new Endpoint(this.deviceId, this.slotId, this.kind, this.hexColor, newDimension, newPos.immutable(), this.pending);
+        }
+        public Endpoint queued(boolean value) {
+            return new Endpoint(this.deviceId, this.slotId, this.kind, this.hexColor, this.dimension, this.ownerPos, value);
         }
     }
 
-    //? if >=1.21.11 {
-    /*public record Endpoint(UUID endpointId, String ownerKey, Kind kind, int hexColor, Identifier dimensionId, BlockPos ownerPos, Target target, float yaw,
-    *///?} else {
-    public record Endpoint(UUID endpointId, String ownerKey, Kind kind, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos, Target target, float yaw,
-    //?}
-            float pitch, boolean customTarget, int slotId, PortalData portalData) {
-        public static final Codec<Endpoint> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                UUID_CODEC.fieldOf("endpoint_id").forGetter(Endpoint::endpointId), Codec.STRING.fieldOf("owner_key").forGetter(Endpoint::ownerKey),
-                KIND_CODEC.fieldOf("kind").forGetter(Endpoint::kind), Codec.INT.fieldOf("hex_color").forGetter(Endpoint::hexColor),
-                //? if >=1.21.11 {
-                /*Identifier.CODEC.fieldOf("dimension").forGetter(Endpoint::dimensionId), BlockPos.CODEC.fieldOf("owner_pos").forGetter(Endpoint::ownerPos),
-                *///?} else {
-                ResourceLocation.CODEC.fieldOf("dimension").forGetter(Endpoint::dimensionId), BlockPos.CODEC.fieldOf("owner_pos").forGetter(Endpoint::ownerPos),
-                //?}
-                Target.CODEC.fieldOf("target").forGetter(Endpoint::target), Codec.FLOAT.fieldOf("yaw").forGetter(Endpoint::yaw),
-                Codec.FLOAT.fieldOf("pitch").forGetter(Endpoint::pitch), Codec.BOOL.fieldOf("custom_target").forGetter(Endpoint::customTarget),
-                Codec.INT.fieldOf("slot_id").forGetter(Endpoint::slotId), PortalData.CODEC.fieldOf("portal").forGetter(Endpoint::portalData)).apply(instance, Endpoint::new));
-        public Endpoint normalized() {
-            BlockPos safeOwnerPos = this.ownerPos == null ? BlockPos.ZERO : this.ownerPos.immutable();
-            Kind safeKind = this.kind == null ? Kind.VOCO_POST_RECEPTOR_CORNER : this.kind;
-            return new Endpoint(this.endpointId == null ? UUID.randomUUID() : this.endpointId, normalizeOwnerKey(this.ownerKey), safeKind,
-                    normalizeHex(this.hexColor), this.dimensionId, safeOwnerPos,
-                    this.target == null ? new Target(safeOwnerPos.getX() + 0.5D, safeOwnerPos.getY(), safeOwnerPos.getZ() + 0.5D) : this.target,
-                    clampFloat(this.yaw, -180.0F, 180.0F), clampFloat(this.pitch, -90.0F, 90.0F), this.customTarget,
-                    clamp(this.slotId, 0, ReceptorPosition.COUNT - 1), this.portalData == null ? PortalData.EMPTY : this.portalData);
-        }
-
-        public boolean hasValidOwner() {
-            return this.kind == Kind.PEARL_PORTAL || !normalizeOwnerKey(this.ownerKey).isEmpty();
-        }
-
-        public PearlPortalFrame.Shape portalShape() {
-            return this.portalData.toPortalShape(this.ownerPos);
+    public record DoorEndpoint(UUID deviceId, Kind kind, int hexColor, String dimension, BlockPos ownerPos) {
+        public String ownerKey() { return HexTeleportDirectory.ownerKey(this.kind, this.deviceId, 0); }
+        //? if >=1.21.11 {
+        /*public Identifier dimensionId() { return Identifier.parse(this.dimension); }
+        *///?} else {
+        public ResourceLocation dimensionId() { return ResourceLocation.parse(this.dimension); }
+        //?}
+        public static DoorEndpoint of(Endpoint endpoint) {
+            return new DoorEndpoint(endpoint.deviceId(), endpoint.kind(), endpoint.hexColor(), endpoint.dimension(), endpoint.ownerPos());
         }
     }
 
-    //? if >=1.21.11 {
-    /*public record DoorEndpoint(String ownerKey, int hexColor, Identifier dimensionId, BlockPos ownerPos) {
-    *///?} else {
-    public record DoorEndpoint(String ownerKey, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos) {
-    //?}
-        public static final Codec<DoorEndpoint> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.STRING.fieldOf("owner_key").forGetter(DoorEndpoint::ownerKey), Codec.INT.fieldOf("hex_color").forGetter(DoorEndpoint::hexColor),
-                //? if >=1.21.11 {
-                /*Identifier.CODEC.fieldOf("dimension").forGetter(DoorEndpoint::dimensionId),
-                *///?} else {
-                ResourceLocation.CODEC.fieldOf("dimension").forGetter(DoorEndpoint::dimensionId),
-                //?}
-                BlockPos.CODEC.fieldOf("owner_pos").forGetter(DoorEndpoint::ownerPos)).apply(instance, DoorEndpoint::new));
-        public DoorEndpoint normalized() {
-            return new DoorEndpoint(normalizeOwnerKey(this.ownerKey), normalizeHex(this.hexColor), this.dimensionId,
-                    this.ownerPos == null ? BlockPos.ZERO : this.ownerPos.immutable());
-        }
-
-        public boolean hasValidOwner() {
-            return this.dimensionId != null && !normalizeOwnerKey(this.ownerKey).isEmpty();
-        }
-    }
-
-    public record PhoneRegistration(int hexColor, UUID ownerUuid) {
-        public static final Codec<PhoneRegistration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.INT.fieldOf("hex_color").forGetter(PhoneRegistration::hexColor), UUID_CODEC.fieldOf("owner_uuid").forGetter(PhoneRegistration::ownerUuid)).apply(instance, PhoneRegistration::new));
-        public PhoneRegistration normalized() {
-            return new PhoneRegistration(normalizeHex(this.hexColor), this.ownerUuid);
-        }
-    }
-
+    public record PhoneRegistration(int hexColor, UUID ownerUuid) {}
     public record VocoRegistration(Result result, Endpoint removedActiveEndpoint) {}
-    public static final Codec<HexTeleportDirectory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Endpoint.CODEC.listOf().fieldOf("endpoints").forGetter(data -> data.active.entries),
-            Endpoint.CODEC.listOf().fieldOf("pending_endpoints").forGetter(data -> data.pending.entries),
-            DoorEndpoint.CODEC.listOf().fieldOf("door_endpoints").forGetter(data -> data.doors.entries),
-            DoorEndpoint.CODEC.listOf().fieldOf("pending_door_endpoints").forGetter(data -> data.pendingDoors.entries),
-            PhoneRegistration.CODEC.listOf().optionalFieldOf("phone_registrations", List.of()).forGetter(data -> data.phoneRegistrations)
-    ).apply(instance, HexTeleportDirectory::new));
+
+    public static final Codec<HexTeleportDirectory> CODEC = RecordCodecBuilder.create(i -> i.group(
+            Endpoint.CODEC.listOf().fieldOf("claims").forGetter(d -> d.savedClaims())
+    ).apply(i, HexTeleportDirectory::new));
     //? if >=26.1 {
-    /*public static final SavedDataType<HexTeleportDirectory> TYPE =
-            new SavedDataType<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID), HexTeleportDirectory::new, CODEC);
+    /*public static final SavedDataType<HexTeleportDirectory> TYPE = new SavedDataType<>(
+            Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID), HexTeleportDirectory::new, CODEC);
     *///?} else if >=1.21.5 <26.1 {
     public static final SavedDataType<HexTeleportDirectory> TYPE = new SavedDataType<>(STORAGE_ID, HexTeleportDirectory::new, CODEC);
     //?} else {
     /*private static final SavedData.Factory<HexTeleportDirectory> FACTORY = new SavedData.Factory<>(HexTeleportDirectory::new, HexTeleportDirectory::load);
     *///?}
-    private final EndpointStore active = new EndpointStore();
-    private final EndpointStore pending = new EndpointStore();
-    private final DoorEndpointStore doors = new DoorEndpointStore();
-    private final DoorEndpointStore pendingDoors = new DoorEndpointStore();
-    private final ArrayList<PhoneRegistration> phoneRegistrations = new ArrayList<>();
+
+    private final Map<EndpointKey, Endpoint> claims = new LinkedHashMap<>();
+    private final Map<UUID, EndpointKey> keysByEndpointId = new HashMap<>();
+    private final Map<UUID, ArrayList<EndpointKey>> keysByDevice = new HashMap<>();
+    private final Map<Integer, ArrayList<EndpointKey>> activeByHex = new HashMap<>();
+    private final Map<Integer, ArrayList<EndpointKey>> pendingByHex = new HashMap<>();
+
     public HexTeleportDirectory() {}
-    private HexTeleportDirectory(List<Endpoint> endpoints, List<Endpoint> pendingEndpoints, List<DoorEndpoint> doorEndpoints,
-            List<DoorEndpoint> pendingDoorEndpoints, List<PhoneRegistration> phoneRegistrations) {
-        this.active.entries.addAll(endpoints);
-        this.pending.entries.addAll(pendingEndpoints);
-        this.doors.entries.addAll(doorEndpoints);
-        this.pendingDoors.entries.addAll(pendingDoorEndpoints);
-        if (phoneRegistrations != null) {
-            for (PhoneRegistration registration : phoneRegistrations) {
-                if (registration != null
-                        && registration.ownerUuid() != null) {
-                    this.phoneRegistrations.add(registration.normalized());
-                }
-            }
+    private HexTeleportDirectory(List<Endpoint> loaded) {
+        for (Endpoint endpoint : loaded) {
+            if (endpoint == null || !endpoint.hasValidOwner() || this.claims.containsKey(endpoint.key())) continue;
+            if (endpoint.kind() == Kind.VOCO_CALLER && endpoint.slotId() != endpoint.hexColor()) continue;
+            if (!endpoint.pending() && !this.canClaim(endpoint, endpoint.key())) continue;
+            if (endpoint.pending() && !endpoint.kind().canQueueForAddress()) continue;
+            this.putRaw(endpoint);
         }
-        this.rebuildIndex();
-        this.normalizeLoadedPhoneRegistrations();
     }
+
+    private List<Endpoint> savedClaims() { return List.copyOf(this.claims.values()); }
 
     //? if <1.21.5 {
     /*private static HexTeleportDirectory load(CompoundTag tag, HolderLookup.Provider registries) {
-        return CODEC.parse(NbtOps.INSTANCE, tag).result().orElseThrow(() -> new IllegalStateException("Failed to decode " + STORAGE_ID));
+        return CODEC.parse(NbtOps.INSTANCE, tag).result().orElseThrow(() -> new IllegalStateException("Invalid Musavacca teleport directory"));
     }
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        Tag encoded = CODEC.encodeStart(NbtOps.INSTANCE, this).result().orElseThrow(() -> new IllegalStateException("Failed to encode " + STORAGE_ID));
-        if (encoded instanceof CompoundTag compound) return compound;
-        throw new IllegalStateException("Codec for " + STORAGE_ID + " did not produce a CompoundTag");
+        Tag saved = CODEC.encodeStart(NbtOps.INSTANCE, this).result().orElseThrow(() -> new IllegalStateException("Cannot save Musavacca teleport directory"));
+        if (saved instanceof CompoundTag compound) return compound;
+        throw new IllegalStateException("Teleport directory codec returned an invalid tag");
     }
     *///?}
+
     public static HexTeleportDirectory get(MinecraftServer server) {
         //? if >=1.21.5 {
-        //? if >=26.1 {
-        /*migrateLegacyData(server, STORAGE_ID);
-        *///?}
         return server.overworld().getDataStorage().computeIfAbsent(TYPE);
-        //?}
-        //? if <1.21.5 {
+        //?} else {
         /*return server.overworld().getDataStorage().computeIfAbsent(FACTORY, STORAGE_ID);
         *///?}
     }
 
-    public boolean isHexReserved(int hexColor) {
-        int hex = normalizeHex(hexColor);
-        return this.active.hasHex(hex) || this.isDoorHexReserved(hex) || this.hasPhoneHex(hex);
+    public static int normalizeHex(int hexColor) { return hexColor & 0xFFFFFF; }
+    public static String toHex(int hexColor) { return String.format(Locale.ROOT, "%06X", normalizeHex(hexColor)); }
+    public static String ownerKey(Kind kind, UUID deviceId, int slot) {
+        return kind.serializedName() + "|" + deviceId + "|" + slot;
+    }
+    public static String portalOwnerKey(UUID portalId) { return ownerKey(Kind.PEARL_PORTAL, portalId, 0); }
+    public static String doorOwnerKey(UUID deviceId) { return ownerKey(Kind.PORTAL_DOOR, deviceId, 0); }
+    public static String trapdoorOwnerKey(UUID deviceId) { return ownerKey(Kind.PORTAL_TRAPDOOR, deviceId, 0); }
+    public static String vocoTableReceptorCornerOwnerKey(UUID deviceId, ReceptorPosition receptor) {
+        return ownerKey(Kind.VOCO_TABLE_RECEPTOR_CORNER, deviceId, receptor.id());
+    }
+    public static String vocoPostReceptorCornerOwnerKey(UUID deviceId) {
+        return ownerKey(Kind.VOCO_POST_RECEPTOR_CORNER, deviceId, 0);
     }
 
-    private boolean isHexReservedByOther(int hexColor, Endpoint self) {
-        int hex = normalizeHex(hexColor);
-        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) return true;
-        for (Endpoint endpoint : this.active.byHex(hex)) {
-            if (self == null || !endpoint.endpointId.equals(self.endpointId)) return true;
+    private static EndpointKey parseOwner(String ownerKey, Kind expected) {
+        if (ownerKey == null) return null;
+        String[] parts = ownerKey.split("\\|", -1);
+        if (parts.length != 3 || !expected.serializedName().equals(parts[0])) return null;
+        try { return new EndpointKey(UUID.fromString(parts[1]), Integer.parseInt(parts[2])); }
+        catch (IllegalArgumentException error) { return null; }
+    }
+    private static EndpointKey parseOwner(String ownerKey) {
+        if (ownerKey == null) return null;
+        String[] parts = ownerKey.split("\\|", -1);
+        if (parts.length != 3) return null;
+        try { return parseOwner(ownerKey, Kind.fromSerializedName(parts[0])); }
+        catch (IllegalArgumentException error) { return null; }
+    }
+    private Endpoint byOwner(String ownerKey) {
+        EndpointKey key = parseOwner(ownerKey);
+        Endpoint endpoint = key == null ? null : this.claims.get(key);
+        return endpoint != null && endpoint.ownerKey().equals(ownerKey) ? endpoint : null;
+    }
+
+    private List<Endpoint> byHex(int hex, boolean pending) {
+        ArrayList<EndpointKey> keys = (pending ? this.pendingByHex : this.activeByHex).get(normalizeHex(hex));
+        if (keys == null) return List.of();
+        ArrayList<Endpoint> result = new ArrayList<>(keys.size());
+        for (EndpointKey key : keys) {
+            Endpoint endpoint = this.claims.get(key);
+            if (endpoint != null) result.add(endpoint);
+        }
+        return result;
+    }
+    private void putRaw(Endpoint endpoint) {
+        this.claims.put(endpoint.key(), endpoint);
+        this.keysByEndpointId.put(endpoint.endpointId(), endpoint.key());
+        this.keysByDevice.computeIfAbsent(endpoint.deviceId(), ignored -> new ArrayList<>()).add(endpoint.key());
+        (endpoint.pending() ? this.pendingByHex : this.activeByHex)
+                .computeIfAbsent(endpoint.hexColor(), ignored -> new ArrayList<>()).add(endpoint.key());
+    }
+    private Endpoint removeRaw(EndpointKey key) {
+        Endpoint old = this.claims.remove(key);
+        if (old == null) return null;
+        this.keysByEndpointId.remove(old.endpointId());
+        ArrayList<EndpointKey> deviceKeys = this.keysByDevice.get(old.deviceId());
+        if (deviceKeys != null) {
+            deviceKeys.remove(key);
+            if (deviceKeys.isEmpty()) this.keysByDevice.remove(old.deviceId());
+        }
+        Map<Integer, ArrayList<EndpointKey>> index = old.pending() ? this.pendingByHex : this.activeByHex;
+        ArrayList<EndpointKey> keys = index.get(old.hexColor());
+        if (keys != null) {
+            keys.remove(key);
+            if (keys.isEmpty()) index.remove(old.hexColor());
+        }
+        return old;
+    }
+    private void replace(Endpoint endpoint) {
+        Endpoint old = this.claims.get(endpoint.key());
+        if (endpoint.equals(old)) return;
+        if (old != null) this.removeRaw(old.key());
+        this.putRaw(endpoint);
+        this.setDirty();
+    }
+    private boolean canClaim(Endpoint candidate, EndpointKey self) {
+        ArrayList<EndpointKey> keys = this.activeByHex.get(candidate.hexColor());
+        if (keys == null) return true;
+        int peers = 0;
+        for (EndpointKey key : keys) {
+            if (key.equals(self)) continue;
+            Endpoint other = this.claims.get(key);
+            if (other == null) continue;
+            if (candidate.kind().isPortal() && other.kind().isPortal()
+                    || candidate.kind().isDoor() && other.kind() == candidate.kind()) {
+                peers++;
+                continue;
+            }
+            return false;
+        }
+        return (candidate.kind().isPortal() || candidate.kind().isDoor()) ? peers < 2 : peers == 0;
+    }
+    public boolean isHexReserved(int hex) {
+        ArrayList<EndpointKey> keys = this.activeByHex.get(normalizeHex(hex));
+        return keys != null && !keys.isEmpty();
+    }
+    public boolean isDoorHexReserved(int hex) {
+        ArrayList<EndpointKey> keys = this.activeByHex.get(normalizeHex(hex));
+        if (keys == null) return false;
+        for (EndpointKey key : keys) {
+            Endpoint endpoint = this.claims.get(key);
+            if (endpoint != null && endpoint.kind().isDoor()) return true;
         }
         return false;
     }
 
     //? if >=1.21.11 {
-    /*public VocoRegistration registerOrQueueVocoEndpoint(String ownerKey, Kind kind, int hexColor, Identifier dimensionId, BlockPos ownerPos, Vec3 targetPos,
+    /*public VocoRegistration registerOrQueueVocoEndpoint(UUID deviceId, Kind kind, int hex, Identifier dimension, BlockPos pos,
     *///?} else {
-    public VocoRegistration registerOrQueueVocoEndpoint(String ownerKey, Kind kind, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos,
+    public VocoRegistration registerOrQueueVocoEndpoint(UUID deviceId, Kind kind, int hex, ResourceLocation dimension, BlockPos pos,
     //?}
-            //? if >=1.21.11 {
-            /*float yaw, float pitch, boolean customTarget, int slotId) {
-            *///?} else {
-            Vec3 targetPos, float yaw, float pitch, boolean customTarget, int slotId) {
-            //?}
-        ownerKey = normalizeOwnerKey(ownerKey);
-        if (ownerKey.isEmpty()
-                || kind == null
-                || !kind.isVoco()
-                || dimensionId == null
-                || ownerPos == null
-                || targetPos == null) {
+                                                       int slot) {
+        if (deviceId == null || kind == null || !kind.isVoco() || dimension == null || pos == null) {
             return new VocoRegistration(Result.INVALID_OWNER, null);
         }
-        int hex = normalizeHex(hexColor);
-        Endpoint existingActive = this.active.byOwner(ownerKey).orElse(null);
-        Endpoint existingPending = this.pending.byOwner(ownerKey).orElse(null);
-        boolean occupiedByOther = this.isHexReservedByOther(hex, existingActive);
-        UUID endpointId = existingActive != null ? existingActive.endpointId : existingPending != null ? existingPending.endpointId : UUID.randomUUID();
-        Endpoint endpoint = new Endpoint(endpointId, ownerKey, kind, hex, dimensionId, ownerPos.immutable(), Target.of(targetPos), yaw, pitch, customTarget,
-                slotId, PortalData.EMPTY).normalized();
-        Endpoint removedActive = existingActive == null ? null : this.active.remove(existingActive.endpointId);
-        if (existingPending != null) {
-            this.pending.remove(existingPending.endpointId);
-        }
-        if (occupiedByOther) {
-            this.pending.add(endpoint);
-            this.setDirty();
-            return new VocoRegistration(Result.HEX_OCCUPIED, removedActive);
-        }
-        this.active.add(endpoint);
-        this.setDirty();
-        return new VocoRegistration(existingActive == null ? Result.REGISTERED : Result.UPDATED, removedActive);
+        int normalized = normalizeHex(hex);
+        Endpoint candidate = new Endpoint(deviceId, kind == Kind.VOCO_POST_RECEPTOR_CORNER ? 0 : slot,
+                kind, normalized, dimension.toString(), pos.immutable(), false);
+        Endpoint previous = this.claims.get(candidate.key());
+        if (previous != null && previous.kind() != kind) return new VocoRegistration(Result.INVALID_OWNER, null);
+        boolean occupied = !this.canClaim(candidate, candidate.key());
+        Endpoint saved = candidate.queued(occupied);
+        this.replace(saved);
+        Endpoint removedActive = previous != null && !previous.pending() && previous.hexColor() != normalized ? previous : null;
+        return new VocoRegistration(occupied ? Result.HEX_OCCUPIED : previous == null ? Result.REGISTERED : Result.UPDATED, removedActive);
     }
 
     public Result checkPortalEndpoint(UUID portalId, int hexColor) {
         if (portalId == null) return Result.INVALID_OWNER;
-        int hex = normalizeHex(hexColor);
-        if (this.isDoorHexReserved(hex) || this.hasPhoneHex(hex)) return Result.HEX_OCCUPIED;
-        int otherPortals = 0;
-        for (Endpoint endpoint : this.active.byHex(hex)) {
-            if (endpoint.endpointId.equals(portalId)) continue;
-            if (!endpoint.kind.isPortal()) return Result.HEX_OCCUPIED;
-            otherPortals++;
+        int others = 0;
+        ArrayList<EndpointKey> keys = this.activeByHex.get(normalizeHex(hexColor));
+        if (keys != null) for (EndpointKey key : keys) {
+            Endpoint endpoint = this.claims.get(key);
+            if (endpoint == null) continue;
+            if (endpoint.kind() != Kind.PEARL_PORTAL) return Result.HEX_OCCUPIED;
+            if (!endpoint.deviceId().equals(portalId)) others++;
         }
-        if (otherPortals >= 2) return Result.HEX_OCCUPIED;
-        return otherPortals == 1 ? Result.LINKED_TO_EXISTING_PORTAL : Result.WAITING_FOR_SECOND_PORTAL;
+        if (others >= 2) return Result.HEX_OCCUPIED;
+        return others == 0 ? Result.WAITING_FOR_SECOND_PORTAL : Result.LINKED_TO_EXISTING_PORTAL;
+    }
+    //? if >=1.21.11 {
+    /*public Result registerPortalEndpoint(UUID portalId, int hexColor, Identifier dimension, PearlPortalFrame.Shape shape) {
+    *///?} else {
+    public Result registerPortalEndpoint(UUID portalId, int hexColor, ResourceLocation dimension, PearlPortalFrame.Shape shape) {
+    //?}
+        if (portalId == null || dimension == null || shape == null) return Result.INVALID_OWNER;
+        Result check = this.checkPortalEndpoint(portalId, hexColor);
+        if (!check.success()) return check;
+        this.replace(new Endpoint(portalId, 0, Kind.PEARL_PORTAL, normalizeHex(hexColor), dimension.toString(),
+                shape.minCorner().immutable(), false));
+        return check;
     }
 
     //? if >=1.21.11 {
-    /*public Result registerPortalEndpoint(UUID portalId, int hexColor, Identifier dimensionId, PearlPortalFrame.Shape shape) {
+    /*public Result registerDoorEndpoint(UUID deviceId, int hex, Identifier dimension, BlockPos pos) {
     *///?} else {
-    public Result registerPortalEndpoint(UUID portalId, int hexColor, ResourceLocation dimensionId, PearlPortalFrame.Shape shape) {
+    public Result registerDoorEndpoint(UUID deviceId, int hex, ResourceLocation dimension, BlockPos pos) {
     //?}
-        if (portalId == null || dimensionId == null || shape == null) return Result.INVALID_OWNER;
-        Result checkBefore = this.checkPortalEndpoint(portalId, hexColor);
-        if (!checkBefore.success()) return checkBefore;
-        this.active.remove(portalId);
-        this.active.add(new Endpoint(portalId, portalOwnerKey(portalId), Kind.PEARL_PORTAL, normalizeHex(hexColor), dimensionId, shape.minCorner().immutable(),
-                Target.of(shape.center()), 0.0F, 0.0F, false, 0, PortalData.of(shape)).normalized());
-        this.setDirty();
-        return this.checkPortalEndpoint(portalId, hexColor);
+        return this.registerPhysicalDoor(deviceId, hex, dimension == null ? null : dimension.toString(), pos, Kind.PORTAL_DOOR);
     }
-
     //? if >=1.21.11 {
-    /*public Result registerDoorEndpoint(String ownerKey, int hexColor, Identifier dimensionId, BlockPos ownerPos) {
+    /*public Result registerTrapdoorEndpoint(UUID deviceId, int hex, Identifier dimension, BlockPos pos) {
     *///?} else {
-    public Result registerDoorEndpoint(String ownerKey, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos) {
+    public Result registerTrapdoorEndpoint(UUID deviceId, int hex, ResourceLocation dimension, BlockPos pos) {
     //?}
-        ownerKey = normalizeOwnerKey(ownerKey);
-        if (ownerKey.isEmpty()
-                || dimensionId == null
-                || ownerPos == null) {
-            return Result.INVALID_OWNER;
-        }
-        int hex = normalizeHex(hexColor);
-        DoorEndpoint existingActive = this.doors.byOwner(ownerKey).orElse(null);
-        DoorEndpoint existingPending = this.pendingDoors.byOwner(ownerKey).orElse(null);
-        if (matchesDoorEndpoint(existingActive, hex, dimensionId, ownerPos)) return Result.LINKED_TO_EXISTING_DOOR;
-        if (matchesDoorEndpoint(existingPending, hex, dimensionId, ownerPos)) return Result.WAITING_FOR_SECOND_DOOR;
-        if (existingActive != null || existingPending != null) {
-            this.removeDoorOwner(ownerKey);
-        }
-        if (this.active.hasHex(hex)
-                || this.hasPhoneHex(hex)
-                || this.doors.countByHex(hex) >= 2) {
-            return Result.HEX_OCCUPIED;
-        }
-        DoorEndpoint candidate = new DoorEndpoint(ownerKey, hex, dimensionId, ownerPos.immutable()).normalized();
-        DoorEndpoint partner = this.pendingDoors.firstByHex(hex).orElse(null);
-        if (
-                partner != null
-                        && !isDoorOwnerKey(partner.ownerKey())
-        ) {
-            return Result.HEX_OCCUPIED;
-        }
-        if (partner != null && !partner.ownerKey.equals(ownerKey)) {
-            this.pendingDoors.removeOwner(partner.ownerKey);
-            this.doors.add(partner);
-            this.doors.add(candidate);
-            this.setDirty();
-            return Result.LINKED_TO_EXISTING_DOOR;
-        }
-        this.pendingDoors.add(candidate);
-        this.setDirty();
-        return Result.WAITING_FOR_SECOND_DOOR;
+        return this.registerPhysicalDoor(deviceId, hex, dimension == null ? null : dimension.toString(), pos, Kind.PORTAL_TRAPDOOR);
     }
-
-    //? if >=1.21.11 {
-    /*public Result registerTrapdoorEndpoint(String ownerKey, int hexColor, Identifier dimensionId, BlockPos ownerPos) {
-    *///?} else {
-    public Result registerTrapdoorEndpoint(String ownerKey, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos) {
-    //?}
-        ownerKey = normalizeOwnerKey(ownerKey);
-        if (ownerKey.isEmpty()
-                || dimensionId == null
-                || ownerPos == null
-                || !isTrapdoorOwnerKey(ownerKey)) {
-            return Result.INVALID_OWNER;
+    private Result registerPhysicalDoor(UUID deviceId, int hex, String dimension, BlockPos pos, Kind kind) {
+        if (deviceId == null || dimension == null || pos == null) return Result.INVALID_OWNER;
+        Endpoint candidate = new Endpoint(deviceId, 0, kind, normalizeHex(hex), dimension, pos.immutable(), false);
+        Endpoint previous = this.claims.get(candidate.key());
+        if (previous != null && previous.kind() != kind) return Result.INVALID_OWNER;
+        if (!this.canClaim(candidate, candidate.key())) return Result.HEX_OCCUPIED;
+        int peers = 0;
+        ArrayList<EndpointKey> keys = this.activeByHex.get(candidate.hexColor());
+        if (keys != null) for (EndpointKey key : keys) {
+            Endpoint other = this.claims.get(key);
+            if (other != null && other.kind() == kind && !key.equals(candidate.key())) peers++;
         }
-        int hex = normalizeHex(hexColor);
-        DoorEndpoint existingActive = this.doors.byOwner(ownerKey).orElse(null);
-        DoorEndpoint existingPending = this.pendingDoors.byOwner(ownerKey).orElse(null);
-        if (matchesDoorEndpoint(existingActive, hex, dimensionId, ownerPos)) return Result.LINKED_TO_EXISTING_TRAPDOOR;
-        if (matchesDoorEndpoint(existingPending, hex, dimensionId, ownerPos)) return Result.WAITING_FOR_SECOND_TRAPDOOR;
-        if (existingActive != null || existingPending != null) {
-            this.removeDoorOwner(ownerKey);
-        }
-        if (this.active.hasHex(hex)
-                || this.hasPhoneHex(hex)
-                || this.doors.countByHex(hex) >= 2) {
-            return Result.HEX_OCCUPIED;
-        }
-        DoorEndpoint candidate = new DoorEndpoint(ownerKey, hex, dimensionId, ownerPos.immutable()).normalized();
-        DoorEndpoint partner = this.pendingDoors.firstByHex(hex).orElse(null);
-        if (
-                partner != null
-                        && !isTrapdoorOwnerKey(partner.ownerKey())
-        ) {
-            return Result.HEX_OCCUPIED;
-        }
-        if (partner != null && !partner.ownerKey.equals(ownerKey)) {
-            this.pendingDoors.removeOwner(partner.ownerKey);
-            this.doors.add(partner);
-            this.doors.add(candidate);
-            this.setDirty();
-            return Result.LINKED_TO_EXISTING_TRAPDOOR;
-        }
-        this.pendingDoors.add(candidate);
-        this.setDirty();
-        return Result.WAITING_FOR_SECOND_TRAPDOOR;
-    }
-
-    public Result registerPhone(int hexColor, UUID ownerUuid) {
-        if (ownerUuid == null) return Result.INVALID_OWNER;
-        int hex = normalizeHex(hexColor);
-        if (this.isHexReserved(hex)) return Result.HEX_OCCUPIED;
-        this.phoneRegistrations.add(new PhoneRegistration(hex, ownerUuid));
-        this.setDirty();
-        return Result.REGISTERED;
-    }
-
-    public Optional<PhoneRegistration> getPhoneRegistrationByHex(int hexColor) {
-        int hex = normalizeHex(hexColor);
-        for (PhoneRegistration registration : this.phoneRegistrations) {
-            if (registration.hexColor() == hex) return Optional.of(registration);
-        }
-        return Optional.empty();
-    }
-
-    public Optional<PhoneRegistration> removePhoneRegistration(int hexColor, UUID ownerUuid) {
-        int hex = normalizeHex(hexColor);
-        for (int index = 0; index < this.phoneRegistrations.size(); index++) {
-            PhoneRegistration registration = this.phoneRegistrations.get(index);
-            if (registration.hexColor() == hex
-                    && registration.ownerUuid().equals(ownerUuid)) {
-                this.phoneRegistrations.remove(index);
-                this.setDirty();
-                return Optional.of(registration);
-            }
-        }
-        return Optional.empty();
-    }
-
-    private boolean hasPhoneHex(int hexColor) {
-        return this.getPhoneRegistrationByHex(hexColor).isPresent();
-    }
-
-    private void normalizeLoadedPhoneRegistrations() {
-        ArrayList<PhoneRegistration> raw = new ArrayList<>(this.phoneRegistrations);
-        this.phoneRegistrations.clear();
-        for (PhoneRegistration registration : raw) {
-            if (!this.active.hasHex(registration.hexColor())
-                    && !this.isDoorHexReserved(registration.hexColor())
-                    && !this.hasPhoneHex(registration.hexColor())) {
-                this.phoneRegistrations.add(registration);
-            }
-        }
-    }
-
-    public Optional<Endpoint> getEndpoint(UUID endpointId) {
-        return this.active.byId(endpointId);
-    }
-
-    public Optional<Endpoint> getEndpointByOwner(String ownerKey) {
-        return this.active.byOwner(ownerKey);
-    }
-
-    public Optional<Endpoint> getFirstPendingEndpointByHex(int hexColor) {
-        return this.pending.firstByHex(normalizeHex(hexColor));
-    }
-
-    public List<Endpoint> getEndpointsByHex(int hexColor) {
-        ArrayList<Endpoint> result = new ArrayList<>(this.active.byHex(normalizeHex(hexColor)));
-        result.sort(Comparator.comparingInt(endpoint -> switch (endpoint.kind()) {
-            case VOCO_POST_RECEPTOR_CORNER -> 0;
-            case VOCO_TABLE_RECEPTOR_CORNER -> 1;
-            case PEARL_PORTAL -> 2;
-        }));
+        Result result = kind == Kind.PORTAL_DOOR
+                ? (peers == 0 ? Result.WAITING_FOR_SECOND_DOOR : Result.LINKED_TO_EXISTING_DOOR)
+                : (peers == 0 ? Result.WAITING_FOR_SECOND_TRAPDOOR : Result.LINKED_TO_EXISTING_TRAPDOOR);
+        this.replace(candidate);
         return result;
     }
 
-    public Optional<Endpoint> getLinkedPortalEndpoint(UUID sourcePortalId) {
-        Endpoint source = this.active.byId(sourcePortalId).orElse(null);
-        if (source == null || source.kind != Kind.PEARL_PORTAL) return Optional.empty();
-        for (Endpoint endpoint : this.active.byHex(source.hexColor)) {
-            if (endpoint.kind == Kind.PEARL_PORTAL
-                    && !endpoint.endpointId.equals(sourcePortalId)) {
-                return Optional.of(endpoint);
-            }
+    public Result registerPhone(int hex, UUID playerId) {
+        if (playerId == null) return Result.INVALID_OWNER;
+        int normalized = normalizeHex(hex);
+        Endpoint phone = new Endpoint(playerId, normalized, Kind.VOCO_CALLER, normalized, "", BlockPos.ZERO, false);
+        if (this.claims.containsKey(phone.key())) return Result.ALREADY_REGISTERED;
+        if (!this.canClaim(phone, phone.key())) return Result.HEX_OCCUPIED;
+        this.replace(phone);
+        return Result.REGISTERED;
+    }
+    public Optional<PhoneRegistration> getPhoneRegistrationByHex(int hex) {
+        ArrayList<EndpointKey> keys = this.activeByHex.get(normalizeHex(hex));
+        if (keys == null) return Optional.empty();
+        for (EndpointKey key : keys) {
+            Endpoint endpoint = this.claims.get(key);
+            if (endpoint != null && endpoint.kind() == Kind.VOCO_CALLER)
+                return Optional.of(new PhoneRegistration(endpoint.hexColor(), endpoint.deviceId()));
+        }
+        return Optional.empty();
+    }
+    public Optional<PhoneRegistration> removePhoneRegistration(int hex, UUID playerId) {
+        if (playerId == null) return Optional.empty();
+        EndpointKey key = new EndpointKey(playerId, normalizeHex(hex));
+        Endpoint old = this.claims.get(key);
+        if (old == null || old.kind() != Kind.VOCO_CALLER || old.hexColor() != normalizeHex(hex)) return Optional.empty();
+        this.removeRaw(key);
+        this.setDirty();
+        return Optional.of(new PhoneRegistration(old.hexColor(), old.deviceId()));
+    }
+
+    public Optional<Endpoint> getPhysicalDevice(UUID deviceId) {
+        ArrayList<EndpointKey> keys = this.keysByDevice.get(deviceId);
+        if (keys == null) return Optional.empty();
+        for (EndpointKey key : keys) {
+            Endpoint endpoint = this.claims.get(key);
+            if (endpoint != null && endpoint.kind() != Kind.VOCO_CALLER) return Optional.of(endpoint);
         }
         return Optional.empty();
     }
 
+    public Optional<Endpoint> getEndpoint(UUID endpointId) {
+        EndpointKey key = this.keysByEndpointId.get(endpointId);
+        Endpoint endpoint = key == null ? null : this.claims.get(key);
+        return endpoint != null && !endpoint.pending() && !endpoint.kind().isDoor() && endpoint.kind() != Kind.VOCO_CALLER
+                ? Optional.of(endpoint) : Optional.empty();
+    }
+    public Optional<Endpoint> getEndpointByOwner(String ownerKey) {
+        Endpoint found = this.byOwner(ownerKey);
+        return found != null && found.kind().isVoco() && !found.pending() ? Optional.of(found) : Optional.empty();
+    }
+    public Optional<Endpoint> getFirstPendingEndpointByHex(int hex) {
+        ArrayList<EndpointKey> keys = this.pendingByHex.get(normalizeHex(hex));
+        if (keys == null) return Optional.empty();
+        for (EndpointKey key : keys) {
+            Endpoint endpoint = this.claims.get(key);
+            if (endpoint != null && endpoint.kind().isVoco()) return Optional.of(endpoint);
+        }
+        return Optional.empty();
+    }
+    public List<Endpoint> getEndpointsByHex(int hex) {
+        return this.byHex(hex, false).stream().filter(e -> e.kind().isVoco() || e.kind().isPortal())
+                .sorted(Comparator.comparingInt(e -> switch (e.kind()) {
+                    case VOCO_POST_RECEPTOR_CORNER -> 0;
+                    case VOCO_TABLE_RECEPTOR_CORNER -> 1;
+                    default -> 2;
+                })).toList();
+    }
+    public Optional<Endpoint> getLinkedPortalEndpoint(UUID portalId) {
+        Endpoint source = this.claims.get(new EndpointKey(portalId, 0));
+        if (source == null || !source.kind().isPortal()) return Optional.empty();
+        ArrayList<EndpointKey> keys = this.activeByHex.get(source.hexColor());
+        if (keys == null) return Optional.empty();
+        for (EndpointKey key : keys) {
+            Endpoint endpoint = this.claims.get(key);
+            if (endpoint != null && endpoint.kind().isPortal() && !endpoint.deviceId().equals(portalId))
+                return Optional.of(endpoint);
+        }
+        return Optional.empty();
+    }
     public Optional<DoorEndpoint> getDoorEndpointByOwner(String ownerKey) {
-        DoorEndpoint activeDoor = this.doors.byOwner(ownerKey).orElse(null);
-        if (activeDoor != null) return Optional.of(activeDoor);
-        return this.pendingDoors.byOwner(ownerKey);
+        Endpoint source = this.byOwner(ownerKey);
+        return source != null && source.kind() == Kind.PORTAL_DOOR ? Optional.of(DoorEndpoint.of(source)) : Optional.empty();
     }
-
-    public Optional<DoorEndpoint> getLinkedDoorEndpoint(String sourceOwnerKey) {
-        DoorEndpoint source = this.doors.byOwner(sourceOwnerKey).orElse(null);
-        if (
-                source == null
-                        || !isDoorOwnerKey(source.ownerKey())
-        ) {
-            return Optional.empty();
-        }
-        for (DoorEndpoint endpoint : this.doors.byHex(source.hexColor)) {
-            if (
-                    !endpoint.ownerKey.equals(source.ownerKey)
-                            && isDoorOwnerKey(endpoint.ownerKey())
-            ) {
-                return Optional.of(endpoint);
-            }
-        }
-        return Optional.empty();
-    }
-
     public Optional<DoorEndpoint> getTrapdoorEndpointByOwner(String ownerKey) {
-        DoorEndpoint endpoint = this.doors.byOwner(ownerKey).orElse(null);
-        if (endpoint == null) {
-            endpoint = this.pendingDoors.byOwner(ownerKey).orElse(null);
-        }
-        return endpoint != null && isTrapdoorOwnerKey(endpoint.ownerKey()) ? Optional.of(endpoint) : Optional.empty();
+        Endpoint source = this.byOwner(ownerKey);
+        return source != null && source.kind() == Kind.PORTAL_TRAPDOOR ? Optional.of(DoorEndpoint.of(source)) : Optional.empty();
     }
-
-    public Optional<DoorEndpoint> getLinkedTrapdoorEndpoint(String sourceOwnerKey) {
-        DoorEndpoint source = this.doors.byOwner(sourceOwnerKey).orElse(null);
-        if (
-                source == null
-                        || !isTrapdoorOwnerKey(source.ownerKey())
-        ) {
-            return Optional.empty();
-        }
-        for (DoorEndpoint endpoint : this.doors.byHex(source.hexColor)) {
-            if (
-                    !endpoint.ownerKey.equals(source.ownerKey)
-                            && isTrapdoorOwnerKey(endpoint.ownerKey())
-            ) {
-                return Optional.of(endpoint);
-            }
+    private Optional<DoorEndpoint> linkedDoor(String ownerKey, Kind kind) {
+        Endpoint source = this.byOwner(ownerKey);
+        if (source == null || source.kind() != kind) return Optional.empty();
+        ArrayList<EndpointKey> keys = this.activeByHex.get(source.hexColor());
+        if (keys == null) return Optional.empty();
+        for (EndpointKey key : keys) {
+            Endpoint endpoint = this.claims.get(key);
+            if (endpoint != null && endpoint.kind() == kind && !key.equals(source.key()))
+                return Optional.of(DoorEndpoint.of(endpoint));
         }
         return Optional.empty();
     }
-
-    public boolean isDoorHexReserved(int hexColor) {
-        int hex = normalizeHex(hexColor);
-        return this.doors.hasHex(hex) || this.pendingDoors.hasHex(hex);
+    public Optional<DoorEndpoint> getLinkedDoorEndpoint(String sourceOwnerKey) {
+        return this.linkedDoor(sourceOwnerKey, Kind.PORTAL_DOOR);
+    }
+    public Optional<DoorEndpoint> getLinkedTrapdoorEndpoint(String sourceOwnerKey) {
+        return this.linkedDoor(sourceOwnerKey, Kind.PORTAL_TRAPDOOR);
     }
 
     public Optional<Endpoint> removeEndpoint(UUID endpointId) {
-        Endpoint removedActive = this.active.remove(endpointId);
-        Endpoint removedPending = removedActive == null ? this.pending.remove(endpointId) : null;
-        if (removedActive != null || removedPending != null) {
-            this.setDirty();
-        }
-        return Optional.ofNullable(removedActive);
+        Endpoint old = this.getEndpoint(endpointId).orElse(null);
+        if (old == null) return Optional.empty();
+        this.removeRaw(old.key());
+        this.setDirty();
+        return Optional.of(old);
     }
-
     public Optional<Endpoint> removeOwner(String ownerKey) {
-        Endpoint removedActive = this.active.removeOwner(ownerKey);
-        Endpoint removedPending = this.pending.removeOwner(ownerKey);
-        if (removedActive != null || removedPending != null) {
-            this.setDirty();
-        }
-        return Optional.ofNullable(removedActive);
+        Endpoint old = this.byOwner(ownerKey);
+        if (old == null || !old.kind().isVoco()) return Optional.empty();
+        this.removeRaw(old.key());
+        this.setDirty();
+        return old.pending() ? Optional.empty() : Optional.of(old);
     }
-
     public Optional<DoorEndpoint> removeDoorOwner(String ownerKey) {
-        ownerKey = normalizeOwnerKey(ownerKey);
-        DoorEndpoint removedActive = this.doors.removeOwner(ownerKey);
-        DoorEndpoint removedPending = this.pendingDoors.removeOwner(ownerKey);
-        DoorEndpoint removed = removedActive != null ? removedActive : removedPending;
-        if (removedActive != null) {
-            this.demoteRemainingDoorAtHex(removedActive.hexColor);
-        }
-        if (removed != null) {
-            this.setDirty();
-        }
-        return Optional.ofNullable(removed);
+        Endpoint old = this.byOwner(ownerKey);
+        if (old == null || !old.kind().isDoor()) return Optional.empty();
+        this.removeRaw(old.key());
+        this.setDirty();
+        return Optional.of(DoorEndpoint.of(old));
     }
-
     public boolean removePendingEndpoint(UUID endpointId) {
-        Endpoint removed = this.pending.remove(endpointId);
-        if (removed != null) {
-            this.setDirty();
-        }
-        return removed != null;
-    }
-
-    private void demoteRemainingDoorAtHex(int hexColor) {
-        List<DoorEndpoint> remaining = this.doors.byHex(hexColor);
-        if (remaining.size() != 1) return;
-        DoorEndpoint partner = remaining.get(0);
-        this.doors.removeOwner(partner.ownerKey);
-        this.pendingDoors.removeOwner(partner.ownerKey);
-        this.pendingDoors.add(partner);
-    }
-
-    //? if >=1.21.11 {
-    /*private static boolean matchesDoorEndpoint(DoorEndpoint endpoint, int hexColor, Identifier dimensionId, BlockPos ownerPos) {
-    *///?} else {
-    private static boolean matchesDoorEndpoint(DoorEndpoint endpoint, int hexColor, ResourceLocation dimensionId, BlockPos ownerPos) {
-    //?}
-        return endpoint != null
-                && endpoint.hexColor == normalizeHex(hexColor)
-                && endpoint.dimensionId.equals(dimensionId)
-                && endpoint.ownerPos.equals(ownerPos);
-    }
-
-    private void rebuildIndex() {
-        this.active.rebuild(this::canIndexActive);
-        this.doors.rebuild(this::canIndexActiveDoor);
-        this.normalizeLoadedDoorPairs();
-        this.pendingDoors.rebuild(this::canIndexPendingDoor);
-        this.pending.rebuild(this::canIndexPending);
-    }
-
-    private void normalizeLoadedDoorPairs() {
-        ArrayList<Integer> hexes = new ArrayList<>();
-        for (DoorEndpoint endpoint : this.doors.entries) {
-            if (!hexes.contains(endpoint.hexColor)) {
-                hexes.add(endpoint.hexColor);
-            }
-        }
-        for (int hex : hexes) {
-            List<DoorEndpoint> endpoints = this.doors.byHex(hex);
-            if (endpoints.size() != 1) continue;
-            DoorEndpoint endpoint = endpoints.get(0);
-            this.doors.removeOwner(endpoint.ownerKey);
-            this.pendingDoors.entries.add(endpoint);
-        }
-    }
-
-    private boolean canIndexActive(Endpoint endpoint) {
-        if (endpoint.dimensionId == null
-                || !endpoint.hasValidOwner()
-                || this.active.hasId(endpoint.endpointId)
-                || !endpoint.ownerKey.isEmpty() && this.active.hasOwner(endpoint.ownerKey)) {
-            return false;
-        }
-        List<Endpoint> existingAtHex = this.active.byHex(endpoint.hexColor);
-        if (!endpoint.kind.isPortal()) return existingAtHex.isEmpty() && !this.isDoorHexReserved(endpoint.hexColor);
-        if (this.isDoorHexReserved(endpoint.hexColor)) return false;
-        int portals = 0;
-        for (Endpoint existing : existingAtHex) {
-            if (!existing.kind.isPortal()) return false;
-            portals++;
-        }
-        return portals < 2;
-    }
-
-    private boolean canIndexActiveDoor(DoorEndpoint endpoint) {
-        if (!endpoint.hasValidOwner()
-                || this.doors.hasOwner(endpoint.ownerKey)
-                || this.active.hasHex(endpoint.hexColor)) {
-            return false;
-        }
-        List<DoorEndpoint> sameHex = this.doors.byHex(endpoint.hexColor);
-        if (sameHex.size() >= 2) return false;
-        if (!sameHex.isEmpty()) {
-            boolean endpointTrapdoor = isTrapdoorOwnerKey(endpoint.ownerKey());
-            boolean existingTrapdoor = isTrapdoorOwnerKey(sameHex.get(0).ownerKey());
-            if (endpointTrapdoor != existingTrapdoor) return false;
-        }
+        EndpointKey key = this.keysByEndpointId.get(endpointId);
+        Endpoint old = key == null ? null : this.claims.get(key);
+        if (old == null || !old.pending()) return false;
+        this.removeRaw(key);
+        this.setDirty();
         return true;
     }
-
-    private boolean canIndexPendingDoor(DoorEndpoint endpoint) {
-        return endpoint.hasValidOwner()
-                && !this.active.hasHex(endpoint.hexColor)
-                && !this.doors.hasHex(endpoint.hexColor)
-                && !this.pendingDoors.hasHex(endpoint.hexColor)
-                && !this.doors.hasOwner(endpoint.ownerKey)
-                && !this.pendingDoors.hasOwner(endpoint.ownerKey);
+    public Optional<Endpoint> promotePendingForHex(int hex) {
+        if (this.isHexReserved(hex)) return Optional.empty();
+        Endpoint first = this.getFirstPendingEndpointByHex(hex).orElse(null);
+        if (first == null) return Optional.empty();
+        this.replace(first.queued(false));
+        return Optional.of(first.queued(false));
     }
 
-    private boolean canIndexPending(Endpoint endpoint) {
-        return endpoint.dimensionId != null
-                && endpoint.kind.canQueueForAddress()
-                && endpoint.hasValidOwner()
-                && this.isHexReserved(endpoint.hexColor)
-                && !this.active.hasOwner(endpoint.ownerKey)
-                && !this.pending.hasId(endpoint.endpointId)
-                && !this.pending.hasOwner(endpoint.ownerKey);
-    }
-
-    //? if >=1.21.11 {
-    /*public static String vocoTableReceptorCornerOwnerKey(Identifier dimensionId, BlockPos pos, ReceptorPosition receptor) {
-    *///?} else {
-    public static String vocoTableReceptorCornerOwnerKey(ResourceLocation dimensionId, BlockPos pos, ReceptorPosition receptor) {
-    //?}
-        return ownerKey(Kind.VOCO_TABLE_RECEPTOR_CORNER, dimensionId, pos, receptor.id());
-    }
-
-    //? if >=1.21.11 {
-    /*public static String vocoPostReceptorCornerOwnerKey(Identifier dimensionId, BlockPos pos) {
-    *///?} else {
-    public static String vocoPostReceptorCornerOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
-    //?}
-        return ownerKey(Kind.VOCO_POST_RECEPTOR_CORNER, dimensionId, pos, 0);
-    }
-
-    //? if >=1.21.11 {
-    /*public static String doorOwnerKey(Identifier dimensionId, BlockPos pos) {
-    *///?} else {
-    public static String doorOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
-    //?}
-        return "musavacca_door" + "|" + dimensionId + "|" + pos.getX() + "," + pos.getY() + "," + pos.getZ();
-    }
-
-    //? if >=1.21.11 {
-    /*public static String trapdoorOwnerKey(Identifier dimensionId, BlockPos pos) {
-    *///?} else {
-    public static String trapdoorOwnerKey(ResourceLocation dimensionId, BlockPos pos) {
-    //?}
-        return "musavacca_trapdoor" + "|" + dimensionId + "|" + pos.getX() + "," + pos.getY() + "," + pos.getZ();
-    }
-
-    private static boolean isDoorOwnerKey(String ownerKey) {
-        return normalizeOwnerKey(ownerKey).startsWith("musavacca_door|");
-    }
-
-    private static boolean isTrapdoorOwnerKey(String ownerKey) {
-        return normalizeOwnerKey(ownerKey).startsWith("musavacca_trapdoor|");
-    }
-
-    //? if >=1.21.11 {
-    /*public static String ownerKey(Kind kind, Identifier dimensionId, BlockPos pos, int slotId) {
-    *///?} else {
-    public static String ownerKey(Kind kind, ResourceLocation dimensionId, BlockPos pos, int slotId) {
-    //?}
-        return kind.serializedName() + "|" + dimensionId + "|" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + "|" + slotId;
-    }
-
-    public static String portalOwnerKey(UUID portalId) {
-        return "pearl_portal|" + portalId;
-    }
-
-    public static int normalizeHex(int hexColor) {
-        return hexColor & 0xFFFFFF;
-    }
-
-    public static String toHex(int hexColor) {
-        return String.format(Locale.ROOT, "%06X", normalizeHex(hexColor));
-    }
-
-    private static String normalizeOwnerKey(String ownerKey) {
-        return ownerKey == null ? "" : ownerKey.trim();
-    }
-
-    private static Direction.Axis axisFromString(String text) {
-        return switch ((text == null ? "" : text).toLowerCase(Locale.ROOT)) {
-            case "y" -> Direction.Axis.Y;
-            case "z" -> Direction.Axis.Z;
-            default -> Direction.Axis.X;
-        };
-    }
-
-    private static String axisToString(Direction.Axis axis) {
-        return switch (PearlPortalFrame.normalizeAxis(axis)) { case X -> "x"; case Y -> "y"; case Z -> "z"; };
-    }
-
-    private static Direction directionFromString(String text) {
-        return switch ((text == null ? "" : text).toLowerCase(Locale.ROOT)) {
-            case "north" -> Direction.NORTH;
-            case "south" -> Direction.SOUTH;
-            case "west" -> Direction.WEST;
-            case "east" -> Direction.EAST;
-            case "up" -> Direction.UP;
-            case "down" -> Direction.DOWN;
-            default -> null;
-        };
-    }
-
-    private static String directionToString(Direction direction) {
-        if (direction == null) return "south";
-        return switch (direction) {
-            case NORTH -> "north";
-            case SOUTH -> "south";
-            case WEST -> "west";
-            case EAST -> "east";
-            case UP -> "up";
-            case DOWN -> "down";
-        };
-    }
-
-    private static float clampFloat(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
-    private static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
-    private static final class EndpointStore {
-        private final ArrayList<Endpoint> entries = new ArrayList<>();
-        private final HashMap<UUID, Endpoint> byId = new HashMap<>();
-        private final HashMap<String, UUID> idByOwner = new HashMap<>();
-        private final HashMap<Integer, ArrayList<UUID>> idsByHex = new HashMap<>();
-        private void rebuild(Predicate<Endpoint> validator) {
-            ArrayList<Endpoint> raw = new ArrayList<>(this.entries);
-            this.clear();
-            for (Endpoint endpoint : raw) {
-                if (endpoint == null) continue;
-                Endpoint normalized = endpoint.normalized();
-                if (validator.test(normalized)) {
-                    this.add(normalized);
-                }
-            }
-        }
-
-        private void clear() {
-            this.entries.clear();
-            this.byId.clear();
-            this.idByOwner.clear();
-            this.idsByHex.clear();
-        }
-
-        private void add(Endpoint endpoint) {
-            endpoint = endpoint.normalized();
-            this.entries.add(endpoint);
-            this.byId.put(endpoint.endpointId, endpoint);
-            if (!endpoint.ownerKey.isEmpty()) {
-                this.idByOwner.put(endpoint.ownerKey, endpoint.endpointId);
-            }
-            this.idsByHex.computeIfAbsent(endpoint.hexColor, ignored -> new ArrayList<>()).add(endpoint.endpointId);
-        }
-
-        private Endpoint remove(UUID endpointId) {
-            Endpoint endpoint = this.byId.remove(endpointId);
-            if (endpoint == null) return null;
-            if (!endpoint.ownerKey.isEmpty()) {
-                this.idByOwner.remove(endpoint.ownerKey);
-            }
-            ArrayList<UUID> ids = this.idsByHex.get(endpoint.hexColor);
-            if (ids != null) {
-                ids.remove(endpointId);
-                if (ids.isEmpty()) {
-                    this.idsByHex.remove(endpoint.hexColor);
-                }
-            }
-            this.entries.removeIf(entry -> entry.endpointId.equals(endpointId));
-            return endpoint;
-        }
-
-        private Endpoint removeOwner(String ownerKey) {
-            UUID endpointId = this.idByOwner.get(normalizeOwnerKey(ownerKey));
-            return endpointId == null ? null : this.remove(endpointId);
-        }
-
-        private Optional<Endpoint> byId(UUID endpointId) {
-            return Optional.ofNullable(this.byId.get(endpointId));
-        }
-
-        private Optional<Endpoint> byOwner(String ownerKey) {
-            UUID endpointId = this.idByOwner.get(normalizeOwnerKey(ownerKey));
-            return endpointId == null ? Optional.empty() : this.byId(endpointId);
-        }
-
-        private List<Endpoint> byHex(int hexColor) {
-            ArrayList<UUID> ids = this.idsByHex.get(normalizeHex(hexColor));
-            if (ids == null || ids.isEmpty()) return List.of();
-            ArrayList<Endpoint> result = new ArrayList<>(ids.size());
-            for (UUID id : ids) {
-                Endpoint endpoint = this.byId.get(id);
-                if (endpoint != null) {
-                    result.add(endpoint);
-                }
-            }
-            return result;
-        }
-
-        private Optional<Endpoint> firstByHex(int hexColor) {
-            ArrayList<UUID> ids = this.idsByHex.get(normalizeHex(hexColor));
-            if (ids == null || ids.isEmpty()) return Optional.empty();
-            for (UUID id : ids) {
-                Endpoint endpoint = this.byId.get(id);
-                if (endpoint != null) return Optional.of(endpoint);
-            }
-            return Optional.empty();
-        }
-
-        private boolean hasHex(int hexColor) {
-            ArrayList<UUID> ids = this.idsByHex.get(normalizeHex(hexColor));
-            return ids != null && !ids.isEmpty();
-        }
-
-        private boolean hasId(UUID endpointId) {
-            return this.byId.containsKey(endpointId);
-        }
-
-        private boolean hasOwner(String ownerKey) {
-            return this.idByOwner.containsKey(normalizeOwnerKey(ownerKey));
-        }
-    }
-
-    private static final class DoorEndpointStore {
-        private final ArrayList<DoorEndpoint> entries = new ArrayList<>();
-        private final HashMap<String, DoorEndpoint> byOwner = new HashMap<>();
-        private final HashMap<Integer, ArrayList<String>> ownersByHex = new HashMap<>();
-        private void rebuild(Predicate<DoorEndpoint> validator) {
-            ArrayList<DoorEndpoint> raw = new ArrayList<>(this.entries);
-            this.clear();
-            for (DoorEndpoint endpoint : raw) {
-                if (endpoint == null) continue;
-                DoorEndpoint normalized = endpoint.normalized();
-                if (validator.test(normalized)) {
-                    this.add(normalized);
-                }
-            }
-        }
-
-        private void clear() {
-            this.entries.clear();
-            this.byOwner.clear();
-            this.ownersByHex.clear();
-        }
-
-        private void add(DoorEndpoint endpoint) {
-            endpoint = endpoint.normalized();
-            this.entries.add(endpoint);
-            this.byOwner.put(endpoint.ownerKey, endpoint);
-            this.ownersByHex.computeIfAbsent(endpoint.hexColor, ignored -> new ArrayList<>()).add(endpoint.ownerKey);
-        }
-
-        private DoorEndpoint removeOwner(String ownerKey) {
-            ownerKey = normalizeOwnerKey(ownerKey);
-            DoorEndpoint endpoint = this.byOwner.remove(ownerKey);
-            if (endpoint == null) return null;
-            ArrayList<String> owners = this.ownersByHex.get(endpoint.hexColor);
-            if (owners != null) {
-                owners.remove(ownerKey);
-                if (owners.isEmpty()) {
-                    this.ownersByHex.remove(endpoint.hexColor);
-                }
-            }
-            String finalOwnerKey = ownerKey;
-            this.entries.removeIf(entry -> entry.ownerKey.equals(finalOwnerKey));
-            return endpoint;
-        }
-
-        private Optional<DoorEndpoint> byOwner(String ownerKey) {
-            return Optional.ofNullable(this.byOwner.get(normalizeOwnerKey(ownerKey)));
-        }
-
-        private List<DoorEndpoint> byHex(int hexColor) {
-            ArrayList<String> owners = this.ownersByHex.get(normalizeHex(hexColor));
-            if (owners == null || owners.isEmpty()) return List.of();
-            ArrayList<DoorEndpoint> result = new ArrayList<>(owners.size());
-            for (String ownerKey : owners) {
-                DoorEndpoint endpoint = this.byOwner.get(ownerKey);
-                if (endpoint != null) {
-                    result.add(endpoint);
-                }
-            }
-            return result;
-        }
-
-        private Optional<DoorEndpoint> firstByHex(int hexColor) {
-            List<DoorEndpoint> endpoints = this.byHex(hexColor);
-            return endpoints.isEmpty() ? Optional.empty() : Optional.of(endpoints.get(0));
-        }
-
-        private boolean hasHex(int hexColor) {
-            ArrayList<String> owners = this.ownersByHex.get(normalizeHex(hexColor));
-            return owners != null && !owners.isEmpty();
-        }
-
-        private int countByHex(int hexColor) {
-            ArrayList<String> owners = this.ownersByHex.get(normalizeHex(hexColor));
-            return owners == null ? 0 : owners.size();
-        }
-
-        private boolean hasOwner(String ownerKey) {
-            return this.byOwner.containsKey(normalizeOwnerKey(ownerKey));
-        }
-    }
-
-    //? if >=26.1 {
-    /*private static final java.util.Map<Object, java.util.Set<String>> CHECKED = new java.util.WeakHashMap<>();
-    private static synchronized void migrateLegacyData(MinecraftServer server, String name) {
-        var storage = server.overworld().getDataStorage();
-        var checked = CHECKED.computeIfAbsent(storage, ignored -> new java.util.HashSet<>());
-        if (checked.contains(name)) return;
-        var directory = ((space.anatomyuniverse.musavacca.mixin.SavedDataStorageAccessor) storage).musavacca$dataFolder();
-        var target = net.minecraft.resources.Identifier.fromNamespaceAndPath("musavacca", name + ".dat").resolveAgainst(directory);
-        try {
-            copyLegacyData(directory.resolve(name + ".dat"), target);
-            copyLegacyData(server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("data").resolve(name + ".dat"), target);
-        } catch (java.io.IOException error) {
-            throw new java.io.UncheckedIOException("Cannot migrate Musavacca saved data " + name + "; original retained", error);
-        }
-        checked.add(name);
-    }
-
-    private static void copyLegacyData(Path legacy, Path target) throws IOException {
-        if (Files.exists(target) || !Files.isRegularFile(legacy)) return;
-        Files.createDirectories(target.getParent());
-        Path temporary = Files.createTempFile(target.getParent(), target.getFileName().toString(), ".migrating");
-        try {
-            Files.copy(legacy, temporary, StandardCopyOption.REPLACE_EXISTING);
-            if (!Files.exists(target)) {
-                try {
-                    Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
-                } catch (AtomicMoveNotSupportedException ignored) {
-                    Files.move(temporary, target);
-                }
-            }
-        } finally {
-            Files.deleteIfExists(temporary);
-        }
-    }
-    *///?}
 }

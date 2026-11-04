@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.teleport;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -37,7 +38,8 @@ public final class HexTeleportAddressNetwork {
         }
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
         HexTeleportDirectory.Endpoint activeEndpoint = directory.getEndpointByOwner(ownerKey).orElse(null);
-        HexTeleportDirectory.DoorEndpoint doorEndpoint = directory.getDoorEndpointByOwner(ownerKey).orElse(null);
+        HexTeleportDirectory.DoorEndpoint doorEndpoint = directory.getDoorEndpointByOwner(ownerKey)
+                .or(() -> directory.getTrapdoorEndpointByOwner(ownerKey)).orElse(null);
         directory.removeOwner(ownerKey);
         directory.removeDoorOwner(ownerKey);
         if (activeEndpoint != null) {
@@ -59,18 +61,13 @@ public final class HexTeleportAddressNetwork {
     public static void promotePendingForHex(MinecraftServer server, int hexColor) {
         if (server == null) return;
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
-        int hex = HexTeleportDirectory.normalizeHex(hexColor);
-        if (directory.isHexReserved(hex)) return;
-        while (true) {
-            HexTeleportDirectory.Endpoint pending = directory.getFirstPendingEndpointByHex(hex).orElse(null);
-            if (pending == null) return;
-            directory.removePendingEndpoint(pending.endpointId());
-            ServerLevel level = levelFor(server, pending);
-            if (level == null) continue;
-            HexTeleportResolver.keepChunkLoaded(level, pending.ownerPos());
-            refreshPendingCandidate(level, pending);
-            if (directory.isHexReserved(hex)) return;
-        }
+        HexTeleportDirectory.Endpoint promoted = directory.promotePendingForHex(hexColor).orElse(null);
+        if (promoted == null) return;
+        ServerLevel level = levelFor(server, promoted);
+        if (level == null) return;
+        BlockPos pos = promoted.ownerPos();
+        if (!level.getChunkSource().hasChunk(pos.getX() >> 4, pos.getZ() >> 4)) return;
+        refreshPendingCandidate(level, promoted);
     }
 
     private static ServerLevel levelFor(MinecraftServer server, HexTeleportDirectory.Endpoint endpoint) {
@@ -89,7 +86,7 @@ public final class HexTeleportAddressNetwork {
                     VocoTableCandleLogic.syncPortalStateFromCandles(level, endpoint.ownerPos(), ReceptorPosition.byId(endpoint.slotId()));
             case VOCO_POST_RECEPTOR_CORNER ->
                     VocoPostCandleLogic.refreshPortalAt(level, endpoint.ownerPos());
-            case PEARL_PORTAL -> {
+            default -> {
             }
         }
     }

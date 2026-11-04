@@ -28,44 +28,36 @@ public final class MusavaccaTrapdoorTeleportNetwork {
                         || !state.getValue(MusavaccaPortalTrapdoorBlock.LIT_PORTAL)
                         || !state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
         ) {
-            removeTrapdoor(level, trapdoorPos);
+            removeTrapdoor(level, trapdoor.getDeviceId());
             return;
         }
+        trapdoor.setDeviceId(space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.unique(level, trapdoorPos, trapdoor.getDeviceId()));
         MinecraftServer server = level.getServer();
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
-        //? if >=1.21.11 {
-        /*String ownerKey = HexTeleportDirectory.trapdoorOwnerKey(level.dimension().identifier(), trapdoorPos);
-        *///?} else {
-        String ownerKey = HexTeleportDirectory.trapdoorOwnerKey(level.dimension().location(), trapdoorPos);
-        //?}
+        String ownerKey = HexTeleportDirectory.trapdoorOwnerKey(trapdoor.getDeviceId());
         HexTeleportDirectory.DoorEndpoint previous = directory.getTrapdoorEndpointByOwner(ownerKey).orElse(null);
         int previousHex = previous == null ? -1 : previous.hexColor();
         int resolvedHex = HexTeleportDirectory.normalizeHex(trapdoor.getHexColor());
         //? if >=1.21.11 {
-        /*directory.registerTrapdoorEndpoint(ownerKey, resolvedHex, level.dimension().identifier(), trapdoorPos);
+        /*HexTeleportDirectory.Result result = directory.registerTrapdoorEndpoint(trapdoor.getDeviceId(), resolvedHex, level.dimension().identifier(), trapdoorPos);
         *///?} else {
-        directory.registerTrapdoorEndpoint(ownerKey, resolvedHex, level.dimension().location(), trapdoorPos);
+        HexTeleportDirectory.Result result = directory.registerTrapdoorEndpoint(trapdoor.getDeviceId(), resolvedHex, level.dimension().location(), trapdoorPos);
         //?}
+        if (!result.success() && previousHex >= 0 && previousHex != resolvedHex) {
+            trapdoor.setHexColor(previousHex);
+            return;
+        }
         if (
-                previousHex >= 0
+                result.success()
+                        && previousHex >= 0
                         && previousHex != resolvedHex
         ) {
             HexTeleportAddressNetwork.addressChanged(server, previousHex, resolvedHex);
         }
     }
 
-    public static void removeTrapdoor(ServerLevel level, BlockPos trapdoorPos) {
-        if (
-                level == null
-                        || trapdoorPos == null
-        ) {
-            return;
-        }
-        //? if >=1.21.11 {
-        /*String ownerKey = HexTeleportDirectory.trapdoorOwnerKey(level.dimension().identifier(), trapdoorPos);
-        *///?} else {
-        String ownerKey = HexTeleportDirectory.trapdoorOwnerKey(level.dimension().location(), trapdoorPos);
-        //?}
-        HexTeleportAddressNetwork.releaseOwner(level.getServer(), ownerKey);
+    public static void removeTrapdoor(ServerLevel level, java.util.UUID deviceId) {
+        if (level == null || deviceId == null) return;
+        HexTeleportAddressNetwork.releaseOwner(level.getServer(), HexTeleportDirectory.trapdoorOwnerKey(deviceId));
     }
 }

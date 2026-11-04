@@ -58,6 +58,14 @@ import java.util.List;
 import java.util.UUID;
 
 public class VocoTableBlockEntity extends BlockEntity implements HexSource, MultiHexSource {
+    private UUID deviceId = UUID.randomUUID();
+    public UUID getDeviceId() { return this.deviceId; }
+    public void setDeviceId(UUID deviceId) {
+        if (deviceId == null || deviceId.equals(this.deviceId)) return;
+        this.deviceId = deviceId;
+        this.setChanged();
+    }
+
     private static final String TAG_BASUKE_VISIBLE = "basuke_visible";
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
     private static final String TAG_DISPLAYED_ITEM_COUNT = "displayed_item_count";
@@ -140,6 +148,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     private final int[] yawDegrees = new int[ReceptorPosition.COUNT];
     private final int[] pitchDegrees = new int[ReceptorPosition.COUNT];
     private final boolean[] customTargetEnabled = new boolean[ReceptorPosition.COUNT];
+    private final String[] customTargetDimension = new String[ReceptorPosition.COUNT];
     private final double[] targetX = new double[ReceptorPosition.COUNT];
     private final double[] targetY = new double[ReceptorPosition.COUNT];
     private final double[] targetZ = new double[ReceptorPosition.COUNT];
@@ -256,6 +265,17 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         return this.customTargetEnabled[receptor.id()];
     }
 
+    public String getCustomTargetDimension(ReceptorPosition receptor) {
+        String dimension = this.customTargetDimension[receptor.id()];
+        if (dimension != null && !dimension.isEmpty()) return dimension;
+        if (this.level == null) return "minecraft:overworld";
+        //? if >=1.21.11 {
+        /*return this.level.dimension().identifier().toString();
+        *///?} else {
+        return this.level.dimension().location().toString();
+        //?}
+    }
+
     public Vec3 getCustomTarget(ReceptorPosition receptor) {
         int index = receptor.id();
         if (!this.customTargetEnabled[index]) return VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
@@ -264,7 +284,9 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     public void setCustomTarget(ReceptorPosition receptor, Vec3 target, int yawDegrees, int pitchDegrees) {
         int index = receptor.id();
+        this.customTargetDimension[index] = "";
         this.customTargetEnabled[index] = true;
+        this.customTargetDimension[index] = this.getCustomTargetDimension(receptor);
         this.targetX[index] = target.x;
         this.targetY[index] = target.y;
         this.targetZ[index] = target.z;
@@ -278,6 +300,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         int index = receptor.id();
         Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
         this.customTargetEnabled[index] = false;
+        this.customTargetDimension[index] = "";
         this.targetX[index] = fallback.x;
         this.targetY[index] = fallback.y;
         this.targetZ[index] = fallback.z;
@@ -627,12 +650,22 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (!(this.level instanceof ServerLevel serverLevel)) return;
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic.syncPortalStateFromCandles(serverLevel, this.getBlockPos(), receptor);
+        }
+    }
+
     public void cleanupBeforeRemoval() {
         Level level = this.getLevel();
         if (level instanceof ServerLevel serverLevel) {
             BlockPos pos = this.getBlockPos();
             for (ReceptorPosition receptor : ReceptorPosition.values()) {
-                VocoTeleportLogic.removeOwnerAndPromote(serverLevel, pos, receptor);
+                space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork.releaseOwner(serverLevel.getServer(),
+                        space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory.vocoTableReceptorCornerOwnerKey(this.deviceId, receptor));
             }
             this.removeBasuke(serverLevel);
         }
@@ -655,6 +688,13 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         super.loadAdditional(input);
         //?} else {
         /*super.loadAdditional(tag, provider);
+        *///?}
+        //? if >=1.21.6 {
+        this.deviceId = space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.read(input.getStringOr("musavacca_device_id", ""));
+        //?} else if >=1.21.5 <1.21.6 {
+        /*this.deviceId = space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.read(tag.getStringOr("musavacca_device_id", ""));
+        *///?} else {
+        /*this.deviceId = space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.read(tag.contains("musavacca_device_id", Tag.TAG_STRING) ? tag.getString("musavacca_device_id") : "");
         *///?}
         this.items.clear();
         //? if >=1.21.6 {
@@ -716,6 +756,13 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             this.targetX[index] = (tag.contains(TAG_TARGET_X[index], Tag.TAG_ANY_NUMERIC) ? tag.getDouble(TAG_TARGET_X[index]) : fallbackTarget.x);
             this.targetY[index] = (tag.contains(TAG_TARGET_Y[index], Tag.TAG_ANY_NUMERIC) ? tag.getDouble(TAG_TARGET_Y[index]) : fallbackTarget.y);
             this.targetZ[index] = (tag.contains(TAG_TARGET_Z[index], Tag.TAG_ANY_NUMERIC) ? tag.getDouble(TAG_TARGET_Z[index]) : fallbackTarget.z);
+            *///?}
+            //? if >=1.21.6 {
+            this.customTargetDimension[index] = input.getStringOr("custom_target_dimension_" + index, "");
+            //?} else if >=1.21.5 <1.21.6 {
+            /*this.customTargetDimension[index] = tag.getStringOr("custom_target_dimension_" + index, "");
+            *///?} else {
+            /*this.customTargetDimension[index] = tag.contains("custom_target_dimension_" + index, Tag.TAG_STRING) ? tag.getString("custom_target_dimension_" + index) : "";
             *///?}
             CandleSlot slot = this.slot(receptor);
             //? if >=1.21.6 {
@@ -792,6 +839,11 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         /*super.saveAdditional(tag, provider);
         ContainerHelper.saveAllItems(tag, this.items, provider);
         *///?}
+        //? if >=1.21.6 {
+        output.putString("musavacca_device_id", this.deviceId.toString());
+        //?} else {
+        /*tag.putString("musavacca_device_id", this.deviceId.toString());
+        *///?}
         if (this.hasDisplayedItem()) {
             //? if >=1.21.6 {
             output.putInt(TAG_DISPLAYED_ITEM_COUNT, this.displayedItemCount);
@@ -823,21 +875,30 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             int index = receptor.id();
             CandleSlot slot = this.slot(receptor);
-            //? if >=1.21.6 {
-            output.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
-            output.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
-            output.putBoolean(TAG_CUSTOM_TARGET[index], this.customTargetEnabled[index]);
-            output.putDouble(TAG_TARGET_X[index], this.targetX[index]);
-            output.putDouble(TAG_TARGET_Y[index], this.targetY[index]);
-            output.putDouble(TAG_TARGET_Z[index], this.targetZ[index]);
-            //?} else {
-            /*tag.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
-            tag.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
-            tag.putBoolean(TAG_CUSTOM_TARGET[index], this.customTargetEnabled[index]);
-            tag.putDouble(TAG_TARGET_X[index], this.targetX[index]);
-            tag.putDouble(TAG_TARGET_Y[index], this.targetY[index]);
-            tag.putDouble(TAG_TARGET_Z[index], this.targetZ[index]);
-            *///?}
+            if (this.customTargetEnabled[index]) {
+                //? if >=1.21.6 {
+                output.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
+                output.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
+                output.putBoolean(TAG_CUSTOM_TARGET[index], true);
+                output.putDouble(TAG_TARGET_X[index], this.targetX[index]);
+                output.putDouble(TAG_TARGET_Y[index], this.targetY[index]);
+                output.putDouble(TAG_TARGET_Z[index], this.targetZ[index]);
+                //?} else {
+                /*tag.putInt(TAG_YAW_DEGREES[index], this.yawDegrees[index]);
+                tag.putInt(TAG_PITCH_DEGREES[index], this.pitchDegrees[index]);
+                tag.putBoolean(TAG_CUSTOM_TARGET[index], true);
+                tag.putDouble(TAG_TARGET_X[index], this.targetX[index]);
+                tag.putDouble(TAG_TARGET_Y[index], this.targetY[index]);
+                tag.putDouble(TAG_TARGET_Z[index], this.targetZ[index]);
+                *///?}
+            }
+            if (this.customTargetEnabled[index]) {
+                //? if >=1.21.6 {
+                output.putString("custom_target_dimension_" + index, this.getCustomTargetDimension(receptor));
+                //?} else {
+                /*tag.putString("custom_target_dimension_" + index, this.getCustomTargetDimension(receptor));
+                *///?}
+            }
             if (slot.hasCandle()) {
                 //? if >=1.21.11 {
                 /*Identifier candleId = BuiltInRegistries.BLOCK.getKey(slot.block);
