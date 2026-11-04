@@ -3,19 +3,15 @@ package space.anatomyuniverse.musavacca.particle.particles;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
+//? if <1.21.9 {
 import net.minecraft.client.particle.ParticleRenderType;
+//?}
 import net.minecraft.client.particle.SimpleAnimatedParticle;
 import net.minecraft.client.particle.SpriteSet;
-//? if >=1.21.9 {
-/*import net.minecraft.util.RandomSource;
-*///?}
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticleOptions;
-import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticleType;
-import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
-import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintSprite;
 
 public final class GlitherParticle extends SimpleAnimatedParticle {
     private final SpriteSet sprites;
@@ -25,10 +21,10 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
             ProfileTintParticleOptions options) {
         super(level, x, y, z, sprites, 0.0125F);
         this.sprites = sprites;
-        PearlFireTintProfiles.Profile profile = profile(options);
-        RandomSource random = RandomSource.create(options.seed());
-        this.spriteLayerCount = Math.max(1, options.layerCount());
-        this.spriteLayer = clamp(options.layer(), 0, this.spriteLayerCount - 1);
+        ProfileTintSprite.Layer layer = ProfileTintSprite.prepare(options);
+        RandomSource random = layer.random();
+        this.spriteLayerCount = layer.spriteLayerCount();
+        this.spriteLayer = layer.spriteLayer();
         this.setPos(x, y, z);
         this.xo = x;
         this.yo = y;
@@ -36,9 +32,7 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
         this.setParticleSpeed(xd, yd, zd);
         this.quadSize = 0.095F * (0.92F + random.nextFloat() * 0.16F);
         this.lifetime = 60 + random.nextInt(12);
-        int profileLayer = remapLayer(this.spriteLayer, this.spriteLayerCount, Math.max(1, profile.layerCount()));
-        int tint = PearlFireTintSource.profileTint(options.color(), profileLayer, profile);
-        applyTint(this, tint);
+        layer.applyColor(this);
         this.setGlitherSpriteFromAge();
     }
 
@@ -74,38 +68,13 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
     private int animationFrame() {
         if (this.lifetime <= 0) return 0;
         int frame = (this.age * 8) / this.lifetime;
-        return clamp(frame, 0, 8 - 1);
-    }
-
-    private static PearlFireTintProfiles.Profile profile(ProfileTintParticleOptions options) {
-        if (options.getType() instanceof ProfileTintParticleType profileType) return profileType.profile();
-        throw new IllegalArgumentException("Glither particle type is not a ProfileTintParticleType: " + options.getType());
-    }
-
-    private static int remapLayer(int sourceLayer, int sourceCount, int targetCount) {
-        if (sourceCount <= 1 || targetCount <= 1) return 0;
-        float t = sourceLayer / (float) (sourceCount - 1);
-        return clamp(Math.round(t * (targetCount - 1)), 0, targetCount - 1);
-    }
-
-    private static void applyTint(net.minecraft.client.particle.SingleQuadParticle particle, int tint) {
-        int rgb = MusavaccaTints.rgb(tint);
-        particle.setColor(((rgb >> 16) & 0xFF) / 255.0F, ((rgb >> 8) & 0xFF) / 255.0F, (rgb & 0xFF) / 255.0F);
-    }
-
-    private static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
+        return Math.max(0, Math.min(7, frame));
     }
 
     public static final class Provider implements ParticleProvider<ProfileTintParticleOptions> {
         private final SpriteSet sprites;
         public Provider(SpriteSet sprites) {
             this.sprites = sprites;
-        }
-
-        private Particle createInternal(ProfileTintParticleOptions options, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed,
-                double zSpeed) {
-            return new GlitherParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, this.sprites, options);
         }
 
         @Override
@@ -115,7 +84,7 @@ public final class GlitherParticle extends SimpleAnimatedParticle {
                 *///?} else {
                 double ySpeed, double zSpeed) {
                 //?}
-            return this.createInternal(options, level, x, y, z, xSpeed, ySpeed, zSpeed);
+            return new GlitherParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites, options);
         }
     }
 }

@@ -3,17 +3,8 @@ package space.anatomyuniverse.musavacca.tint;
 public final class PearlFireTintSource {
     private static final float PALETTE_ANCHOR_LIGHTNESS = perceptualGrayLightness(0.80F);
     private PearlFireTintSource() {}
-    public static boolean supportsLayer(PearlFireTintProfiles.Profile profile, int tintIndex) {
-        return profile != null && profile.supports(tintIndex);
-    }
-
-    public static int profileTint(int baseRgb, int layerIndex, PearlFireTintProfiles.Profile profile) {
-        return blockTint(baseRgb, layerIndex, profile);
-    }
-
-    public static int blockTint(int baseRgb, int tintIndex, PearlFireTintProfiles.Profile profile) {
-        if (!supportsLayer(profile, tintIndex) || !MusavaccaTints.hasTint(baseRgb)) return MusavaccaTints.NO_TINT;
-        baseRgb = MusavaccaTints.resolve(baseRgb);
+    public static int profileTint(int baseRgb, int tintIndex, PearlFireTintProfiles.Profile profile) {
+        if (profile == null || !profile.supports(tintIndex) || !MusavaccaTints.hasTint(baseRgb)) return MusavaccaTints.NO_TINT;
         float gray = profile.grayFactor(tintIndex);
         int layerCount = profile.layerCount();
         float proceduralT = layerCount <= 1 ? 0.0F : tintIndex / (float) (layerCount - 1);
@@ -193,6 +184,7 @@ public final class PearlFireTintSource {
                 + (0.065F * ink * (0.42F + (0.58F * tail)))
                 + (0.030F * glow * (0.30F + (0.70F * core)));
         h = angleMix(h, baseH, anchor);
+        if (paletteActivation == 0.0F && Float.isFinite(layerContrast)) return oklchToRgb(l, c, h);
         float carrierL = perceptualGrayLightness(grayFactor);
         float structuredL;
         if (carrierL >= PALETTE_ANCHOR_LIGHTNESS) {
@@ -320,7 +312,7 @@ public final class PearlFireTintSource {
         c = Math.max(0.0F, c);
         h = wrap360(h);
         float[] direct = oklchToLinearRgb(l, c, h);
-        if (inGamut(direct)) return linearRgbToInt(direct[0], direct[1], direct[2]);
+        if (inGamut(direct[0], direct[1], direct[2])) return linearRgbToInt(direct[0], direct[1], direct[2]);
         float bestL = l;
         float bestC = maxChroma(l, c, h);
         float bestScore = c <= 0.0005F ? 1.0F : bestC / c;
@@ -372,15 +364,7 @@ public final class PearlFireTintSource {
         float r = 4.0767416621F * ll - 3.3077115913F * mm + 0.2309699292F * ss;
         float g = -1.2684380046F * ll + 2.6097574011F * mm - 0.3413193965F * ss;
         float blue = -0.0041960863F * ll - 0.7034186147F * mm + 1.7076147010F * ss;
-        return Float.isFinite(r)
-                && Float.isFinite(g)
-                && Float.isFinite(blue)
-                && r >= -0.00001F
-                && r <= 1.0F + 0.00001F
-                && g >= -0.00001F
-                && g <= 1.0F + 0.00001F
-                && blue >= -0.00001F
-                && blue <= 1.0F + 0.00001F;
+        return inGamut(r, g, blue);
     }
 
     private static float[] oklchToLinearRgb(float l, float c, float hDegrees) {
@@ -400,18 +384,11 @@ public final class PearlFireTintSource {
         };
     }
 
-    private static boolean inGamut(float[] rgb) {
-        return rgb != null
-                && rgb.length == 3
-                && Float.isFinite(rgb[0])
-                && Float.isFinite(rgb[1])
-                && Float.isFinite(rgb[2])
-                && rgb[0] >= -0.00001F
-                && rgb[0] <= 1.0F + 0.00001F
-                && rgb[1] >= -0.00001F
-                && rgb[1] <= 1.0F + 0.00001F
-                && rgb[2] >= -0.00001F
-                && rgb[2] <= 1.0F + 0.00001F;
+    private static boolean inGamut(float r, float g, float b) {
+        return Float.isFinite(r) && Float.isFinite(g) && Float.isFinite(b)
+                && r >= -0.00001F && r <= 1.0F + 0.00001F
+                && g >= -0.00001F && g <= 1.0F + 0.00001F
+                && b >= -0.00001F && b <= 1.0F + 0.00001F;
     }
 
     private static int linearRgbToInt(float r, float g, float b) {

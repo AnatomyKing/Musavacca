@@ -25,7 +25,7 @@ public final class ProfileTintParticleType extends ParticleType<ProfileTintParti
     }
 
     public int layerCount() {
-        return Math.max(1, this.profile().layerCount());
+        return this.profile().layerCount();
     }
 
     @Override

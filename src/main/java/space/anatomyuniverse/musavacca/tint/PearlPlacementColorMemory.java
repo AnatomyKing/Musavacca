@@ -9,23 +9,16 @@ public final class PearlPlacementColorMemory {
     private static final Map<Long, Entry> ENTRIES = new ConcurrentHashMap<>();
     private PearlPlacementColorMemory() {}
     public static void remember(Level level, BlockPos pos, int rgb) {
-        if (level == null || pos == null || !level.isClientSide()
-                || !MusavaccaTints.hasTint(rgb)) {
-            return;
-        }
+        if (level == null || pos == null || !level.isClientSide() || !MusavaccaTints.hasTint(rgb)) return;
         long now = System.currentTimeMillis();
         int color = MusavaccaTints.rgb(rgb);
         long key = pos.asLong();
         Entry previous = ENTRIES.get(key);
         if (previous != null && previous.level() == level && previous.rgb() == color
-                && previous.expiresAtMs() - now > 3000L - 250L) {
-            return;
-        }
+                && previous.expiresAtMs() - now > 2750L) return;
         if (ENTRIES.size() >= 1024 && previous == null) {
             ENTRIES.entrySet().removeIf(entry -> now > entry.getValue().expiresAtMs());
-            if (ENTRIES.size() >= 1024) {
-                ENTRIES.clear();
-            }
+            if (ENTRIES.size() >= 1024) ENTRIES.clear();
         }
         ENTRIES.put(key, new Entry(level, color, now + 3000L));
     }
@@ -39,12 +32,6 @@ public final class PearlPlacementColorMemory {
             return null;
         }
         return entry.rgb();
-    }
-
-    public static void clear(BlockPos pos) {
-        if (pos != null) {
-            ENTRIES.remove(pos.asLong());
-        }
     }
 
     private record Entry(Level level, int rgb, long expiresAtMs) {}

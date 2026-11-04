@@ -2,11 +2,6 @@ package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentMap;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
 import net.minecraft.world.item.ItemStack;
 //? if >=26.1 {
 /*import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -17,7 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
@@ -26,8 +20,14 @@ import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 //? if >=1.21.4 {
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+import space.anatomyuniverse.musavacca.MusaCore;
+import java.util.Optional;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -112,19 +112,13 @@ public final class MusavaccaModelTints {
 
         @Override
         public int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
-            return blockColor(sourceColor(state, level, pos, multiIndex), tintIndex);
-        }
-
-        public int blockColor(int color, int tintIndex) {
-            int layer = tintIndex - tintOffset(multiIndex);
-            return MusavaccaTints.hasTint(color) && profile.supports(layer) ? PearlFireTintSource.blockTint(color, layer, profile) : MusavaccaTints.NO_TINT;
+            int color = sourceColor(state, level, pos, multiIndex);
+            return PearlFireTintSource.profileTint(color, tintIndex - tintOffset(multiIndex), profile);
         }
 
         @Override
         public int itemColor(ItemStack stack) {
-            int layer = Math.max(physicalLayer, 0);
-            int color = itemSourceColor(stack, multiIndex);
-            return MusavaccaTints.hasTint(color) && profile.supports(layer) ? PearlFireTintSource.profileTint(color, layer, profile) : MusavaccaTints.NO_TINT;
+            return PearlFireTintSource.profileTint(itemSourceColor(stack, multiIndex), Math.max(physicalLayer, 0), profile);
         }
 
         //? if >=1.21.4 {
@@ -196,7 +190,7 @@ public final class MusavaccaModelTints {
             *///?} else {
             new Tints.ItemTintType(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, MusavaccaTints.HEX_COLOR_KEY), ItemTint.MAP_CODEC);
             //?}
-    public static final class ItemTint implements ItemTintSource {
+    public record ItemTint(PearlFireTintProfiles.Profile profile, int layer, int multiIndex) implements ItemTintSource {
         public static final ItemTint INSTANCE = new ItemTint(null, 0, -1);
         private static final Codec<PearlFireTintProfiles.Profile> PROFILE_CODEC =
                 RecordCodecBuilder.create(instance -> instance.group(
@@ -211,7 +205,7 @@ public final class MusavaccaModelTints {
                         Codec.FLOAT.fieldOf("layer_contrast")
                                 .forGetter(PearlFireTintProfiles.Profile::layerContrast),
                         Codec.FLOAT.listOf().fieldOf("gray_factors")
-                                .forGetter(profile -> boxed(profile.grayFactors()))
+                                .forGetter(ItemTint::grayFactors)
                 ).apply(instance, ItemTint::decodeProfile));
         public static final MapCodec<ItemTint> MAP_CODEC =
                 RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -222,16 +216,10 @@ public final class MusavaccaModelTints {
                         Codec.INT.optionalFieldOf("multi_index", -1)
                                 .forGetter(source -> source.multiIndex)
                 ).apply(instance, ItemTint::decode));
-        private final PearlFireTintProfiles.Profile profile;
-        private final int layer;
-        private final int multiIndex;
-        private ItemTint(PearlFireTintProfiles.Profile profile, int layer, int multiIndex) {
+        public ItemTint {
             if (layer < 0) throw new IllegalArgumentException("layer must be >= 0");
             if (multiIndex < -1) throw new IllegalArgumentException("multiIndex must be >= -1");
             if (profile != null && !profile.supports(layer)) throw new IllegalArgumentException("layer is outside the profile");
-            this.profile = profile;
-            this.layer = layer;
-            this.multiIndex = multiIndex;
         }
 
         static ItemTint multi(int index) {
@@ -245,7 +233,6 @@ public final class MusavaccaModelTints {
         @Override
         public int calculate(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity) {
             int color = itemSourceColor(stack, multiIndex);
-            if (!MusavaccaTints.hasTint(color)) return MusavaccaTints.NO_TINT;
             return profile == null ? MusavaccaTints.opaqueRgb(color) : PearlFireTintSource.profileTint(color, layer, profile);
         }
 
@@ -269,12 +256,12 @@ public final class MusavaccaModelTints {
                     new PearlFireTintProfiles.Settings(coreToTailLightness, colorJumpiness, colorAmountTakeOver, vibrancyDarkening, layerContrast), grays);
         }
 
-        private static List<Float> boxed(float[] values) {
-            List<Float> result = new ArrayList<>(values.length);
-            for (float value : values) {
-                result.add(value);
+        private static List<Float> grayFactors(PearlFireTintProfiles.Profile profile) {
+            List<Float> result = new ArrayList<>(profile.layerCount());
+            for (int layer = 0; layer < profile.layerCount(); layer++) {
+                result.add(profile.grayFactor(layer));
             }
-            return List.copyOf(result);
+            return result;
         }
     }
     //?}
