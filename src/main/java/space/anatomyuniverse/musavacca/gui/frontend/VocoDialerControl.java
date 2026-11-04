@@ -105,8 +105,8 @@ public final class VocoDialerControl {
         this.nextLayer(graphics);
         this.blitStopper(graphics, STOPPER_FRONT_TEXTURE, guiX, guiY);
         //? if <1.21.6 {
-        /*
-        //? if <1.21.2 {
+        
+        /*//? if <1.21.2 {
         /^RenderSystem.disableBlend();
         ^///?}
         graphics.pose().popPose();

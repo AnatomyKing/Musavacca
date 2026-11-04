@@ -22,7 +22,9 @@ public final class SimpleItems {
     }
     enum Mode {
         GENERATED,
-        EXISTING
+        EXISTING,
+        MULTIPART,
+        BLOCK_STATE
     }
 
     //? if >=1.21.11 {
@@ -43,6 +45,7 @@ public final class SimpleItems {
         *///?} else {
         private ResourceLocation existingModel;
         //?}
+        private List<SimpleBlocks.Part> parts = List.of();
         private Style style;
         private boolean folder;
         private boolean inferSingleTexture;
@@ -56,6 +59,7 @@ public final class SimpleItems {
         private Model(Model other) {
             mode = other.mode;
             existingModel = other.existingModel;
+            parts = other.parts;
             style = other.style;
             folder = other.folder;
             inferSingleTexture = other.inferSingleTexture;
@@ -88,6 +92,21 @@ public final class SimpleItems {
             model.existingModel = Objects.requireNonNull(modelId, "modelId");
             return model;
         }
+
+        public static Model multipart(SimpleBlocks.Part... parts) {
+            if (parts == null || parts.length == 0) throw new IllegalArgumentException("Multipart item needs at least one part");
+            Model model = new Model(Mode.MULTIPART);
+            model.parts = List.of(parts);
+            return model;
+        }
+
+        public static Model blockState() {
+            return new Model(Mode.BLOCK_STATE);
+        }
+
+        public boolean isMultipart() { return mode == Mode.MULTIPART; }
+        public boolean isBlockState() { return mode == Mode.BLOCK_STATE; }
+        public List<SimpleBlocks.Part> parts() { return parts; }
 
         public Model flat() {
             requireGenerated("flat()");
@@ -191,6 +210,7 @@ public final class SimpleItems {
         public List<PhysicalLayer> physicalLayers(ItemLike item) {
             validate(item);
             if (isExisting()) return physicalTintList(tint).stream().map(layerTint -> new PhysicalLayer(TextureTokens.item(item), layerTint)).toList();
+            if (isMultipart() || isBlockState()) return List.of();
             //? if >=1.21.11 {
             /*List<Identifier> logical = logicalTextures(item);
             *///?} else {
@@ -226,6 +246,7 @@ public final class SimpleItems {
 
         public boolean hasAnyTint(ItemLike item) {
             if (isExisting()) return existingTints().stream().anyMatch(Tints.Tint::tinted);
+            if (isMultipart() || isBlockState()) return NewgenItemCatalog.itemTints(item, this).stream().anyMatch(Tints.Tint::tinted);
             return physicalLayers(item).stream().map(PhysicalLayer::tint).anyMatch(Tints.Tint::tinted);
         }
 
@@ -235,6 +256,19 @@ public final class SimpleItems {
 
         public void validate(ItemLike item) {
             Objects.requireNonNull(item, "item");
+            if (isMultipart() || isBlockState()) {
+                if (tint.tinted() || !layerTints.isEmpty() || style != null || folder || textureTokens != null)
+                    throw new IllegalStateException("Composite items use per-part tinting and cannot use generated item options");
+                if (isMultipart()) {
+                    for (SimpleBlocks.Part part : parts) {
+                        if (part == null || !part.conditions().isAlways())
+                            throw new IllegalStateException("Manual multipart items require unconditional parts; use .blockState() for conditional parts");
+                        if (part.variants().options().size() != 1)
+                            throw new IllegalStateException("Item multipart cannot randomize variants");
+                    }
+                }
+                return;
+            }
             if (isExisting()) {
                 if (existingModel == null) throw new IllegalStateException("Existing item model is missing its model id");
                 if (style != null || folder || textureTokens != null || !layerTints.isEmpty()) {
@@ -314,6 +348,16 @@ public final class SimpleItems {
             this.item = Objects.requireNonNull(item, "item");
         }
 
+        public Builder multipart(SimpleBlocks.Part... parts) {
+            select(Model.multipart(parts));
+            return this;
+        }
+
+        public Builder blockState() {
+            select(Model.blockState());
+            return this;
+        }
+
         public Builder generated() {
             select(Model.generated());
             return this;
@@ -379,7 +423,7 @@ public final class SimpleItems {
         }
 
         public Entry build() {
-            if (model == null) throw new IllegalStateException("Choose .generated() or .model(...) for " + ModelLocations.itemId(item));
+            if (model == null) throw new IllegalStateException("Choose .generated(), .model(...), .multipart(...) or .blockState() for " + ModelLocations.itemId(item));
             return new Entry(this);
         }
 
@@ -389,14 +433,16 @@ public final class SimpleItems {
         }
 
         private Model requireModel() {
-            if (model == null) throw new IllegalStateException("Call .generated() or .model(...) first");
+            if (model == null) throw new IllegalStateException("Call .generated(), .model(...), .multipart(...) or .blockState() first");
             return model;
         }
     }
 
     public static int legacyTintColor(ItemLike item, Model model, ItemStack stack, int tintIndex) {
         if (tintIndex < 0) return Tints.NO_TINT;
-        List<Tints.Tint> tints = model.isExisting() ? model.existingTints() : model.physicalLayers(item).stream().map(PhysicalLayer::tint).toList();
+        List<Tints.Tint> tints = NewgenItemCatalog.itemTints(item, model);
         return tintIndex < tints.size() ? tints.get(tintIndex).itemColor(stack) : Tints.NO_TINT;
     }
 }
+
+

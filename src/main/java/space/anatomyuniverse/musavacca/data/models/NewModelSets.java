@@ -13,6 +13,7 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.tint.MusavaccaModelTints;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class NewModelSets {
@@ -597,6 +598,7 @@ public final class NewModelSets {
                                 SimpleBlocks.Part.when("musavacca:block/voco_table_portal_south_west", Conditions.when(VocoTableBlock.PORTAL_SOUTH_WEST, true)).tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(2)),
                                 SimpleBlocks.Part.when("musavacca:block/voco_table_portal_north_west", Conditions.when(VocoTableBlock.PORTAL_NORTH_WEST, true)).tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(3))
                         )
+                        .noItem()
                         .build()
         );
     }
@@ -769,7 +771,7 @@ public final class NewModelSets {
     }
 
     public static List<SimpleItems.Entry> simpleItems() {
-        return List.of(
+        List<SimpleItems.Entry> items = new ArrayList<>(List.of(
                 SimpleItems.Entry.builder(ModItems.BANANA_PEARL.get())
                         .generated()
                         .flat()
@@ -893,7 +895,11 @@ public final class NewModelSets {
                         .textures("sim_card", "sim_card")
                         .layerTint(1, MusavaccaModelTints.pearlFire(PearlFireTintProfiles.SIM_CARD_TINT))
                         .build()
-        );
+        ));
+        for (var item : ModItems.VOCO_TABLE_ITEMS) {
+            items.add(SimpleItems.Entry.builder(item.get()).blockState().build());
+        }
+        return List.copyOf(items);
     }
 
     public static List<SpawnEggItems.Entry> spawnEggItems() {
@@ -923,3 +929,5 @@ public final class NewModelSets {
         );
     }
 }
+
+

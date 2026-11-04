@@ -430,6 +430,7 @@ public final class ModBlocks {
                             .strength(2.0F, 3.0F)
                             .sound(SoundType.WOOD)
                             .noOcclusion()
+                            .lightLevel(state -> state.getValue(VocoTableBlock.CANDLE_LIGHT) * 3)
                             //? if >=26.3 {
                             /*.pushReaction(PushReaction.POPPED)));
                             *///?} else {
@@ -620,7 +621,7 @@ public final class ModBlocks {
                                     //?}
                     ));
     private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(PEARL_FIRE, MUSAVACCA_EGG, MUSAVACCA_SPROUT, MUSAVACCA_SUCKER,
-            MUSAVACCA_PLANT, MUSAVACCA_PSEUDOSTEM, PEARL_PORTAL, MUSAVACCA_DOOR);
+            MUSAVACCA_PLANT, MUSAVACCA_PSEUDOSTEM, PEARL_PORTAL, MUSAVACCA_DOOR, VOCO_TABLE);
     static {
         BLOCKS.getEntries().forEach(entry -> {
             if (!SKIP_BLOCK_ITEMS.contains(entry) && !PEARL_CANDLES.contains(entry)) {
@@ -636,3 +637,5 @@ public final class ModBlocks {
 
     private ModBlocks() {}
 }
+
+

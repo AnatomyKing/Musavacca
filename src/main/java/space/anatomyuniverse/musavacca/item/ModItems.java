@@ -47,6 +47,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
+import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
+import java.util.List;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.*;
@@ -59,7 +61,6 @@ import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumSwordItem;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 //? if <1.21.2 {
 /*import java.util.EnumMap;
-import java.util.List;
 *///?}
 
 public final class ModItems {
@@ -142,6 +143,51 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> MUSAVACCA_DOOR = MusavaccaDoorItems("musavacca_door", false, false, false);
     public static final DeferredItem<BlockItem> MUSAVACCA_CHARGED_DOOR = MusavaccaDoorItems("musavacca_charged_door", true, false, false);
     public static final DeferredItem<BlockItem> MUSAVACCA_IMBUED_DOOR = MusavaccaDoorItems("musavacca_imbued_door", false, true, false);
+    private static DeferredItem<BlockItem> VocoTableItems(String name, int corners) {
+        return ITEMS.registerItem(name, props -> new BlockItem(ModBlocks.VOCO_TABLE.get(),
+                props.component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY
+                        .with(VocoTableBlock.LIT_NORTH_EAST, (corners & 1) != 0)
+                        .with(VocoTableBlock.LIT_NORTH_WEST, (corners & 2) != 0)
+                        .with(VocoTableBlock.LIT_SOUTH_EAST, (corners & 4) != 0)
+                        .with(VocoTableBlock.LIT_SOUTH_WEST, (corners & 8) != 0))));
+    }
+
+    public static final DeferredItem<BlockItem> VOCO_TABLE = VocoTableItems("voco_table", 0);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_NORTH_EAST = VocoTableItems("voco_charged_table_north_east", 1);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_NORTH_WEST = VocoTableItems("voco_charged_table_north_west", 2);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_NORTH = VocoTableItems("voco_charged_table_north", 3);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_SOUTH_EAST = VocoTableItems("voco_charged_table_south_east", 4);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_EAST = VocoTableItems("voco_charged_table_east", 5);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_NORTH_WEST_AND_SOUTH_EAST = VocoTableItems("voco_charged_table_north_west_and_south_east", 6);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_NORTH_AND_SOUTH_EAST = VocoTableItems("voco_charged_table_north_and_south_east", 7);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_SOUTH_WEST = VocoTableItems("voco_charged_table_south_west", 8);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_NORTH_EAST_AND_SOUTH_WEST = VocoTableItems("voco_charged_table_north_east_and_south_west", 9);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_WEST = VocoTableItems("voco_charged_table_west", 10);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_NORTH_AND_SOUTH_WEST = VocoTableItems("voco_charged_table_north_and_south_west", 11);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_SOUTH = VocoTableItems("voco_charged_table_south", 12);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_SOUTH_AND_NORTH_EAST = VocoTableItems("voco_charged_table_south_and_north_east", 13);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE_SOUTH_AND_NORTH_WEST = VocoTableItems("voco_charged_table_south_and_north_west", 14);
+    public static final DeferredItem<BlockItem> VOCO_CHARGED_TABLE = VocoTableItems("voco_charged_table", 15);
+
+    public static final List<DeferredItem<BlockItem>> VOCO_TABLE_ITEMS = List.of(
+            VOCO_TABLE,
+            VOCO_CHARGED_TABLE_NORTH_EAST,
+            VOCO_CHARGED_TABLE_NORTH_WEST,
+            VOCO_CHARGED_TABLE_NORTH,
+            VOCO_CHARGED_TABLE_SOUTH_EAST,
+            VOCO_CHARGED_TABLE_EAST,
+            VOCO_CHARGED_TABLE_NORTH_WEST_AND_SOUTH_EAST,
+            VOCO_CHARGED_TABLE_NORTH_AND_SOUTH_EAST,
+            VOCO_CHARGED_TABLE_SOUTH_WEST,
+            VOCO_CHARGED_TABLE_NORTH_EAST_AND_SOUTH_WEST,
+            VOCO_CHARGED_TABLE_WEST,
+            VOCO_CHARGED_TABLE_NORTH_AND_SOUTH_WEST,
+            VOCO_CHARGED_TABLE_SOUTH,
+            VOCO_CHARGED_TABLE_SOUTH_AND_NORTH_EAST,
+            VOCO_CHARGED_TABLE_SOUTH_AND_NORTH_WEST,
+            VOCO_CHARGED_TABLE
+    );
+
     public static final DeferredItem<BlockItem> MUSAVACCA_PUP =
             ITEMS.registerItem(
                     "musavacca_pup",
@@ -465,3 +511,5 @@ public final class ModItems {
     private ModItems() {
     }
 }
+
+

@@ -44,10 +44,10 @@ public final class BalanceData implements ValueIOSerializable {
     /*@Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         //? if >=1.21.5 <1.21.6 {
-        this.balance = sanitizeBalance(tag.getIntOr("balance", 0));
-        //?} else {
-        /^this.balance = sanitizeBalance(tag.contains("balance") ? tag.getInt("balance") : 0);
-        ^///?}
+        /^this.balance = sanitizeBalance(tag.getIntOr("balance", 0));
+        ^///?} else {
+        this.balance = sanitizeBalance(tag.contains("balance") ? tag.getInt("balance") : 0);
+        //?}
     }
     *///?}
     public int getBalance() {

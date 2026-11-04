@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -41,6 +42,7 @@ public final class VocoTableBlock extends Block implements EntityBlock {
     public static final BooleanProperty PORTAL_SOUTH_EAST = VocoTableLogic.PORTAL_SOUTH_EAST;
     public static final BooleanProperty PORTAL_SOUTH_WEST = VocoTableLogic.PORTAL_SOUTH_WEST;
     public static final BooleanProperty ROTARY_DIALERS = VocoTableLogic.ROTARY_DIALERS;
+    public static final IntegerProperty CANDLE_LIGHT = VocoTableLogic.CANDLE_LIGHT;
     public static final BooleanProperty[] RECEPTOR_LIGHTS = VocoTableLogic.RECEPTOR_LIGHTS;
     public static final BooleanProperty[] RECEPTOR_PORTALS = VocoTableLogic.RECEPTOR_PORTALS;
     public VocoTableBlock(Properties properties) {

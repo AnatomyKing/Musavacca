@@ -40,6 +40,7 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock;
+import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
@@ -75,7 +76,6 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(),
                 ModBlocks.MUSAVACCA_BUTTON.get(),
                 ModBlocks.HARD_HEX_BLOCK.get(),
-                ModBlocks.VOCO_TABLE.get(),
                 ModBlocks.VOCO_POST.get()
         );
 
@@ -84,6 +84,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                          ModBlocks.MUSAVACCA_LEAVES.get(), EmptyLootItem.emptyItem()));
         this.add(ModBlocks.MUSAVACCA_SLAB.get(), this.createSlabItemTable(ModBlocks.MUSAVACCA_SLAB.get()));
         musavaccaDoorDrops(ModBlocks.MUSAVACCA_DOOR.get());
+        vocoTableDrops(ModBlocks.VOCO_TABLE.get());
         musavaccaTrapdoorDrops(ModBlocks.MUSAVACCA_TRAPDOOR.get());
         pearlCandleDrops();
         silkTouchMusavaccaEggByAge(ModBlocks.MUSAVACCA_EGG.get());
@@ -104,6 +105,58 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         for (Block block : blocks) {
             dropSelf(block);
         }
+    }
+
+    private void vocoTableDrops(Block block) {
+        LootPool.Builder items = LootPool.lootPool()
+                //? if >=26.3 {
+                /*.setRolls(Holder.direct(new ConstantValue(1)))
+                *///?} else {
+                .setRolls(ConstantValue.exactly(1.0F))
+                //?}
+                .add(this.applyExplosionCondition(block,
+                        LootItem.lootTableItem(ModItems.VOCO_TABLE.get()).when(this.doesNotHaveSilkTouch())));
+
+        LootPool.Builder pearls = LootPool.lootPool()
+                //? if >=26.3 {
+                /*.setRolls(Holder.direct(new ConstantValue(1)));
+                *///?} else {
+                .setRolls(ConstantValue.exactly(1.0F));
+                //?}
+
+        for (int corners = 0; corners < ModItems.VOCO_TABLE_ITEMS.size(); corners++) {
+            items.add(this.applyExplosionCondition(block,
+                    LootItem.lootTableItem(ModItems.VOCO_TABLE_ITEMS.get(corners).get())
+                            .when(this.hasSilkTouch())
+                            .when(vocoTableState(block, corners))));
+
+            if (corners == 0) continue;
+            pearls.add(this.applyExplosionCondition(block,
+                    LootItem.lootTableItem(ModItems.BANANA_PEARL.get())
+                            .when(this.doesNotHaveSilkTouch())
+                            .when(vocoTableState(block, corners))
+                            //? if >=26.3 {
+                            /*.apply(SetItemCountFunction.setCount(Holder.direct(new ConstantValue(Integer.bitCount(corners)))))
+                            *///?} else {
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(Integer.bitCount(corners))))
+                            //?}
+            ));
+        }
+
+        this.add(block, LootTable.lootTable().withPool(items).withPool(pearls));
+    }
+
+    private static LootItemCondition.Builder vocoTableState(Block block, int corners) {
+        //? if >=26.3 {
+        /*return MatchBlock.blockMatches(BuiltInRegistries.BLOCK, block, StatePropertiesPredicate.Builder
+        *///?} else {
+        return LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder
+        //?}
+                        .properties()
+                        .hasProperty(VocoTableBlock.LIT_NORTH_EAST, (corners & 1) != 0)
+                        .hasProperty(VocoTableBlock.LIT_NORTH_WEST, (corners & 2) != 0)
+                        .hasProperty(VocoTableBlock.LIT_SOUTH_EAST, (corners & 4) != 0)
+                        .hasProperty(VocoTableBlock.LIT_SOUTH_WEST, (corners & 8) != 0));
     }
 
     private void musavaccaDoorDrops(Block block) {
@@ -445,3 +498,5 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         return ModBlocks.BLOCKS.getEntries().stream().map(holder -> (Block) holder.get()).toList();
     }
 }
+
+

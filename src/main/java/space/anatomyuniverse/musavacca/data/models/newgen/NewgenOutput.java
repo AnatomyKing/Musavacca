@@ -90,7 +90,7 @@ final class NewgenOutput {
     //?}
     private final Set<Block> generatedBlocks = new HashSet<>();
     private final Map<Item, ItemRequest> generatedItems = new HashMap<>();
-    private record ItemRequest(List<NewgenModels.ItemPart> parts, String kind) {
+    private record ItemRequest(List<NewgenModels.ItemPart> parts, String kind, boolean blockPerspective) {
         ItemRequest {
             parts = List.copyOf(parts);
         }
@@ -134,7 +134,7 @@ final class NewgenOutput {
     }
     void item(Item item, NewgenModels.ItemRender render) {
         if (item == Items.AIR) throw new IllegalStateException("Cannot generate an item model for air. Use .noItem() for itemless blocks.");
-        ItemRequest request = new ItemRequest(render.parts(), "simple");
+        ItemRequest request = new ItemRequest(render.parts(), "simple", render.blockPerspective());
         ItemRequest previous = generatedItems.putIfAbsent(item, request);
         if (previous != null) {
             if (!previous.equals(request)) throw new IllegalStateException("Conflicting item models for " + item);
@@ -157,7 +157,24 @@ final class NewgenOutput {
         //? if >=1.21.4 {
         items.itemModelOutput.accept(item, model);
         //?} else {
-        /*if (render.parts().size() != 1) throw new IllegalStateException("Legacy item output must be represented by one model JSON");
+        /*if (render.parts().size() > 1) {
+            List<List<Tints.Tint>> tinted = render.parts().stream().map(NewgenModels.ItemPart::tints)
+                    .filter(tints -> tints.stream().anyMatch(Tints.Tint::tinted)).distinct().toList();
+            if (tinted.size() > 1)
+                throw new IllegalStateException("Legacy composite items require compatible tint indices across all parts: " + item);
+            JsonObject json = new JsonObject();
+            json.addProperty("loader", "neoforge:composite");
+            if (render.blockPerspective()) applyLegacyBlockItemDisplay(json);
+            JsonObject children = new JsonObject();
+            for (int i = 0; i < render.parts().size(); i++) {
+                JsonObject child = new JsonObject();
+                child.addProperty("parent", render.parts().get(i).model().toString());
+                children.add("part_" + i, child);
+            }
+            json.add("children", children);
+            model(ModelLocations.itemModel(item), json);
+            return;
+        }
         *///?}
         //? if <1.21.4 {
         /*NewgenModels.ItemPart part = render.parts().get(0);
@@ -165,17 +182,49 @@ final class NewgenOutput {
         if (!id.equals(part.model())) {
             JsonObject json = new JsonObject();
             json.addProperty("parent", part.model().toString());
+            if (render.blockPerspective()) applyLegacyBlockItemDisplay(json);
             model(id, json);
         }
         *///?}
     }
+    //? if <1.21.4 {
+    /*private static com.google.gson.JsonArray vec(float x, float y, float z) {
+        com.google.gson.JsonArray array = new com.google.gson.JsonArray();
+        array.add(x);
+        array.add(y);
+        array.add(z);
+        return array;
+    }
+
+    private static JsonObject display(float rx, float ry, float rz, float tx, float ty, float tz, float scale) {
+        JsonObject json = new JsonObject();
+        json.add("rotation", vec(rx, ry, rz));
+        json.add("translation", vec(tx, ty, tz));
+        json.add("scale", vec(scale, scale, scale));
+        return json;
+    }
+
+    private static void applyLegacyBlockItemDisplay(JsonObject json) {
+        json.addProperty("gui_light", "side");
+        JsonObject transforms = new JsonObject();
+        transforms.add("gui", display(30, 225, 0, 0, 0, 0, 0.625F));
+        transforms.add("ground", display(0, 0, 0, 0, 3, 0, 0.25F));
+        transforms.add("fixed", display(0, 0, 0, 0, 0, 0, 0.5F));
+        transforms.add("thirdperson_righthand", display(75, 45, 0, 0, 2.5F, 0, 0.375F));
+        transforms.add("thirdperson_lefthand", display(75, 45, 0, 0, 2.5F, 0, 0.375F));
+        transforms.add("firstperson_righthand", display(0, 45, 0, 0, 0, 0, 0.4F));
+        transforms.add("firstperson_lefthand", display(0, 225, 0, 0, 0, 0, 0.4F));
+        json.add("display", transforms);
+    }
+    *///?}
+
     //? if >=1.21.11 {
     /*void armorItem(Item item, Identifier baseModel, Identifier trimmedModel, Identifier headModel) {
     *///?} else {
     void armorItem(Item item, ResourceLocation baseModel, ResourceLocation trimmedModel, ResourceLocation headModel) {
     //?}
         if (item == Items.AIR) throw new IllegalStateException("Cannot generate armor model for air");
-        ItemRequest request = new ItemRequest(List.of(new NewgenModels.ItemPart(baseModel, List.of())), "armor:" + trimmedModel + ":" + headModel);
+        ItemRequest request = new ItemRequest(List.of(new NewgenModels.ItemPart(baseModel, List.of())), "armor:" + trimmedModel + ":" + headModel, false);
         ItemRequest previous = generatedItems.putIfAbsent(item, request);
         if (previous != null) {
             if (!previous.equals(request)) throw new IllegalStateException("Conflicting item models for " + item);
@@ -403,3 +452,5 @@ final class NewgenOutput {
     }
     *///?}
 }
+
+

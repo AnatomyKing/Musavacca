@@ -8,7 +8,11 @@ import com.google.gson.JsonObject;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.component.BlockItemStateProperties;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Block;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -25,6 +29,8 @@ final class NewgenModels {
     private final Map<RootYKey, ResourceLocation> rootYModels = new HashMap<>();
     //?}
     private record Key(Models.Source source, Tints.ModelKey tint) {}
+    private record ItemRootKey(Item item, String source, int x, int y) {}
+    private final Map<ItemRootKey, Boolean> itemRoots = new HashMap<>();
     //? if >=1.21.11 {
     /*private record RootYKey(Block owner, Identifier parent, float yDegrees) {}
     *///?} else {
@@ -40,11 +46,12 @@ final class NewgenModels {
             tints = List.copyOf(tints);
         }
     }
-    record ItemRender(List<ItemPart> parts) {
+    record ItemRender(List<ItemPart> parts, boolean blockPerspective) {
         ItemRender {
             if (parts == null || parts.isEmpty()) throw new IllegalArgumentException("ItemRender requires at least one model part");
             parts = List.copyOf(parts);
         }
+        ItemRender(List<ItemPart> parts) { this(parts, false); }
     }
     NewgenModels(NewgenOutput output) {
         this.output = output;
@@ -211,6 +218,78 @@ final class NewgenModels {
         root.add("elements", elements);
         return output.model(pane.model(), root);
     }
+    ItemRender item(Item item, SimpleItems.Model spec, BlockFamily.ModelFamilyEntry<?, ?> blockDefinition) {
+        if (!spec.isBlockState() && !spec.isMultipart()) return item(item, spec);
+        spec.validate(item);
+        List<ItemPart> parts = new java.util.ArrayList<>();
+        if (spec.isMultipart()) {
+            for (SimpleBlocks.Part part : spec.parts()) {
+                Variants.Option variant = part.variants().options().get(0);
+                parts.add(itemPart(item, part.source(), part.tint() == null ? Tints.none() : part.tint(),
+                        ModelTransforms.combine(part.rotationX(), variant.rotationX()),
+                        ModelTransforms.combine(part.rotationY(), variant.rotationY())));
+            }
+        } else {
+            if (!(item instanceof BlockItem blockItem))
+                throw new IllegalStateException(".blockState() requires a BlockItem: " + item);
+            if (blockDefinition == null)
+                throw new IllegalStateException("No NewGen block definition for " + blockItem.getBlock() + " used by " + item);
+            BlockState state = blockItem.getBlock().defaultBlockState();
+            BlockItemStateProperties preset = item.getDefaultInstance().get(DataComponents.BLOCK_STATE);
+            if (preset != null) state = preset.apply(state);
+            List<? extends BlockFamily.ModelRule<?, ?>> rules = blockDefinition.mode() == ModelMode.MODELS
+                    ? blockDefinition.models() : blockDefinition.parts();
+            for (BlockFamily.ModelRule<?, ?> part : rules) {
+                if (!part.conditions().matches(state)) continue;
+                if (!(part.source() instanceof Models.Source source))
+                    throw new IllegalStateException("Unsupported blockstate item model source " + part.source() + " for " + item);
+                if (part.variants().options().size() != 1)
+                    throw new IllegalStateException("Blockstate-derived item cannot randomize model variants for " + item);
+                Rotations.Resolved rotation = blockDefinition.rotations().resolve(state);
+                Variants.Option variant = part.variants().options().get(0);
+                parts.add(itemPart(item, source, Tints.effective(blockDefinition.tint(), part.tint()),
+                        ModelTransforms.combine(ModelTransforms.combine(part.rotationX(), rotation.x()), variant.rotationX()),
+                        ModelTransforms.combine(ModelTransforms.combine(part.rotationY(), rotation.y()), variant.rotationY())));
+            }
+        }
+        if (parts.isEmpty()) throw new IllegalStateException("No item parts selected for " + item);
+        return new ItemRender(parts, true);
+    }
+
+    private ItemPart itemPart(Item item, Models.Source source, Tints.Tint tint, int x, int y) {
+        //? if >=1.21.11 {
+        /*Identifier model = resolve(source, tint);
+        *///?} else {
+        ResourceLocation model = resolve(source, tint);
+        //?}
+        if (x != 0 || y != 0) model = itemRotation(item, model, x, y);
+        return new ItemPart(model, Tints.generatedLayers(tint).stream().map(tint::physicalLayer).toList());
+    }
+
+    //? if >=1.21.11 {
+    /*private Identifier itemRotation(Item item, Identifier parent, int x, int y) {
+    *///?} else {
+    private ResourceLocation itemRotation(Item item, ResourceLocation parent, int x, int y) {
+    //?}
+        String source = parent.getNamespace() + "_" + parent.getPath().replace('/', '_');
+        //? if >=1.21.11 {
+        /*Identifier id = ModelLocations.itemModel(item, "part_" + source + "_x" + x + "_y" + y);
+        *///?} else {
+        ResourceLocation id = ModelLocations.itemModel(item, "part_" + source + "_x" + x + "_y" + y);
+        //?}
+        if (itemRoots.putIfAbsent(new ItemRootKey(item, source, x, y), true) != null) return id;
+        JsonObject root = new JsonObject();
+        root.addProperty("parent", parent.toString());
+        JsonObject transform = new JsonObject();
+        transform.addProperty("origin", "center");
+        JsonObject rotation = new JsonObject();
+        if (x != 0) rotation.addProperty("x", x);
+        if (y != 0) rotation.addProperty("y", y);
+        transform.add("rotation", rotation);
+        root.add("transform", transform);
+        return output.model(id, root);
+    }
+
     ItemRender item(Item item, SimpleItems.Model spec) {
         java.util.Objects.requireNonNull(item, "item");
         java.util.Objects.requireNonNull(spec, "spec");
@@ -533,3 +612,5 @@ final class NewgenModels {
         return "fire_" + layer.sourceLayer();
     }
 }
+
+

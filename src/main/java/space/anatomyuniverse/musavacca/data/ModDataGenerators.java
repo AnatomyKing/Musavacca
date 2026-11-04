@@ -136,23 +136,23 @@ public final class ModDataGenerators {
         }
         if (event.includeServer()) {
             //? if >=1.21.3 <1.21.4 {
-            event.getGenerator().addProvider(true, new ModRecipeProvider.Runner(output, event.getLookupProvider()));
-            //?} else {
-            /^event.getGenerator().addProvider(true, new ModRecipeProvider(output, event.getLookupProvider()));
-            ^///?}
+            /^event.getGenerator().addProvider(true, new ModRecipeProvider.Runner(output, event.getLookupProvider()));
+            ^///?} else {
+            event.getGenerator().addProvider(true, new ModRecipeProvider(output, event.getLookupProvider()));
+            //?}
             final ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(output, event.getLookupProvider(), efh);
             event.getGenerator().addProvider(true, blockTagsProvider);
             event.getGenerator().addProvider(true, new ModMobEffectTagsProvider(output, event.getLookupProvider(), efh));
             event.getGenerator().addProvider(true, new ModItemTagsProvider(output, event.getLookupProvider(), blockTagsProvider.contentsGetter()));
             //? if >=1.21.2 <1.21.4 {
-            event.getGenerator().addProvider(true, new ArmorItems.Provider(output, NewModelSets.armorItems()));
+            /^event.getGenerator().addProvider(true, new ArmorItems.Provider(output, NewModelSets.armorItems()));
             event.getGenerator().addProvider(true, new MusavaccaTreeFeatureProvider(output));
-            //?} else {
-            /^event.getGenerator().addProvider(true, new MusavaccaTreeFeatureProvider(output));
+            ^///?} else {
+            event.getGenerator().addProvider(true, new MusavaccaTreeFeatureProvider(output));
             event.getGenerator().addProvider(true, new ModGlobalLootModifierProvider(output, event.getLookupProvider()));
-            ^///?}
+            //?}
             //? if >=1.21.2 <1.21.4 {
-            event.getGenerator().addProvider(true, new ModGlobalLootModifierProvider(output, event.getLookupProvider()));
+            /^event.getGenerator().addProvider(true, new ModGlobalLootModifierProvider(output, event.getLookupProvider()));
             event.getGenerator().addProvider(
                     true,
                     new LootTableProvider(
@@ -165,8 +165,8 @@ public final class ModDataGenerators {
                             event.getLookupProvider()
                     )
             );
-            //?} else {
-            /^event.getGenerator().addProvider(
+            ^///?} else {
+            event.getGenerator().addProvider(
                     true,
                     new LootTableProvider(
                             output,
@@ -178,7 +178,7 @@ public final class ModDataGenerators {
                             event.getLookupProvider()
                     )
             );
-            ^///?}
+            //?}
         }
             *///?}
     }

@@ -8,6 +8,10 @@ import net.minecraft.resources.ResourceLocation;
 
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.block.Block;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.FireBlock;
@@ -35,6 +39,7 @@ public final class Newgen {
     private static final float[] DECORATION_EXTRA_Y_ROT = {0.0F, -22.5F, -45.0F, 22.5F};
     private final NewgenOutput output;
     private final NewgenModels models;
+    private final Map<Block, BlockFamily.ModelFamilyEntry<?, ?>> blockDefinitions = new HashMap<>();
     Newgen(NewgenOutput output) {
         this.output = output;
         this.models = new NewgenModels(output);
@@ -131,6 +136,7 @@ public final class Newgen {
     }
 
     private void modelFamily(BlockFamily.ModelFamilyEntry<?, ?> entry) {
+        blockDefinitions.put(entry.block(), entry);
         NewgenOutput.State state = output.state(entry.block());
         List<? extends BlockFamily.ModelRule<?, ?>> rules = entry.mode() == ModelMode.MODELS ? entry.models() : entry.parts();
         for (var rule : rules) {
@@ -340,7 +346,8 @@ public final class Newgen {
     }
 
     private void emitItem(ItemLike item, SimpleItems.Model spec) {
-        NewgenModels.ItemRender render = models.item(item.asItem(), spec);
+        Block block = item.asItem() instanceof BlockItem blockItem ? blockItem.getBlock() : null;
+        NewgenModels.ItemRender render = models.item(item.asItem(), spec, block == null ? null : blockDefinitions.get(block));
         output.item(item.asItem(), render);
     }
     void spawnEgg(SpawnEggItems.Entry entry) {
@@ -439,3 +446,5 @@ public final class Newgen {
         *///?}
     }
 }
+
+

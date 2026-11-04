@@ -1,0 +1,9 @@
+{
+  "parent": "musavacca:block/voco_table_lit_receptor_corner",
+  "transform": {
+    "origin": "center",
+    "rotation": {
+      "y": 90
+    }
+  }
+}

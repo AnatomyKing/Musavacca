@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
@@ -36,6 +37,7 @@ public final class VocoTableLogic {
     public static final BooleanProperty PORTAL_SOUTH_EAST = BooleanProperty.create("portal_south_east");
     public static final BooleanProperty PORTAL_SOUTH_WEST = BooleanProperty.create("portal_south_west");
     public static final BooleanProperty ROTARY_DIALERS = BooleanProperty.create("rotary_dialers");
+    public static final IntegerProperty CANDLE_LIGHT = IntegerProperty.create("candle_light", 0, 5);
     public static final BooleanProperty[] RECEPTOR_LIGHTS = {
             LIT_NORTH_EAST,
             LIT_NORTH_WEST,
@@ -56,13 +58,13 @@ public final class VocoTableLogic {
         for (BooleanProperty property : RECEPTOR_PORTALS) {
             state = state.setValue(property, false);
         }
-        return state.setValue(ROTARY_DIALERS, false);
+        return state.setValue(ROTARY_DIALERS, false).setValue(CANDLE_LIGHT, 0);
     }
 
     public static void addProperties(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(RECEPTOR_LIGHTS);
         builder.add(RECEPTOR_PORTALS);
-        builder.add(ROTARY_DIALERS);
+        builder.add(ROTARY_DIALERS, CANDLE_LIGHT);
     }
 
     public static BooleanProperty lightProperty(ReceptorPosition receptor) {

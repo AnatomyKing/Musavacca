@@ -1,0 +1,15 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:block/voco_table"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:block/voco_table_lit_receptor_corner"
+      }
+    ]
+  }
+}

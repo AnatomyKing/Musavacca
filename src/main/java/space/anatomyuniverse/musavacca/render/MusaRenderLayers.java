@@ -168,10 +168,10 @@ public final class MusaRenderLayers {
     /*//? if <1.21.5 {
     /^private static void onModifyBakingResultLegacy(ModelEvent.ModifyBakingResult event) {
         //? if >=1.21.4 <1.21.5 {
-        replaceLegacy(event.getBakingResult().blockStateModels());
-        //?} else {
-        /^¹replaceLegacy(event.getModels());
-        ¹^///?}
+        /^¹replaceLegacy(event.getBakingResult().blockStateModels());
+        ¹^///?} else {
+        replaceLegacy(event.getModels());
+        //?}
     }
     ^///?}
     //? if >=26.1 {
@@ -267,8 +267,8 @@ public final class MusaRenderLayers {
     ¹^///?}
     ^///?}
     //? if <1.21.5 {
-    /^
-    //? if <1.21.4 {
+    
+    /^//? if <1.21.4 {
     /^¹private static final class ForcedBakedModel extends BakedModelWrapper<BakedModel> {
     ¹^///?}
         private final Properties properties;

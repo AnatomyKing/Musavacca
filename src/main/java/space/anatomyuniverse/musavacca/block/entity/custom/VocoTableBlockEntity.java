@@ -372,6 +372,14 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         this.latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
     }
 
+    public int candleLightLevel() {
+        int count = 0;
+        for (ReceptorPosition receptor : ReceptorPosition.values()) {
+            if (this.isCandleLit(receptor)) count += this.getCandleCount(receptor);
+        }
+        return Math.min(5, count);
+    }
+
     public boolean hasCandle(ReceptorPosition receptor) {
         return this.slot(receptor).hasCandle();
     }
@@ -420,7 +428,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         } else {
             slot.count = Math.min(CandleBlock.MAX_CANDLES, slot.count + 1);
         }
-        this.markChangedAndSync();
+        this.markCandleChanged();
         return true;
     }
 
@@ -430,7 +438,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         slot.lit = true;
         slot.hasHexColor = true;
         slot.hexColor = MusavaccaTints.resolve(hexColor);
-        this.markChangedAndSync();
+        this.markCandleChanged();
         return true;
     }
 
@@ -440,7 +448,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         slot.lit = true;
         slot.hasHexColor = false;
         slot.hexColor = MusavaccaTints.NO_TINT;
-        this.markChangedAndSync();
+        this.markCandleChanged();
         return true;
     }
 
@@ -451,7 +459,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         slot.hasHexColor = false;
         slot.hexColor = MusavaccaTints.NO_TINT;
         this.refreshLatestHexFromLitCandles();
-        this.markChangedAndSync();
+        this.markCandleChanged();
         this.resyncEndpoint(receptor);
         return true;
     }
@@ -470,7 +478,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         if (!changed) return;
         this.clearPortalPropertiesForUnlitCandles();
         this.refreshLatestHexFromLitCandles();
-        this.markChangedAndSync();
+        this.markCandleChanged();
     }
 
     public ItemStack removeOneCandle(ReceptorPosition receptor) {
@@ -482,7 +490,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             slot.clear();
             this.refreshLatestHexFromLitCandles();
         }
-        this.markChangedAndSync();
+        this.markCandleChanged();
         this.resyncEndpoint(receptor);
         return removed;
     }
@@ -629,6 +637,21 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         this.basukeUuid = null;
     }
 
+    private void markCandleChanged() {
+        this.syncCandleLight();
+        this.markChangedAndSync();
+    }
+
+    private void syncCandleLight() {
+        if (!(this.level instanceof ServerLevel serverLevel)) return;
+        BlockPos pos = this.getBlockPos();
+        BlockState state = serverLevel.getBlockState(pos);
+        if (!(state.getBlock() instanceof VocoTableBlock)) return;
+        int light = this.candleLightLevel();
+        if (state.getValue(VocoTableBlock.CANDLE_LIGHT) == light) return;
+        serverLevel.setBlock(pos, state.setValue(VocoTableBlock.CANDLE_LIGHT, light), Block.UPDATE_ALL);
+    }
+
     private void markChangedAndSync() {
         this.setChanged();
         this.syncToClientAndRerender();
@@ -654,6 +677,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     public void onLoad() {
         super.onLoad();
         if (!(this.level instanceof ServerLevel serverLevel)) return;
+        this.syncCandleLight();
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic.syncPortalStateFromCandles(serverLevel, this.getBlockPos(), receptor);
         }

@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:block/voco_table"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:block/voco_table_lit_receptor_corner"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/voco_charged_table_part_musavacca_block_voco_table_lit_receptor_corner_x0_y90"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/voco_charged_table_part_musavacca_block_voco_table_lit_receptor_corner_x0_y180"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "musavacca:item/voco_charged_table_part_musavacca_block_voco_table_lit_receptor_corner_x0_y270"
+      }
+    ]
+  }
+}
