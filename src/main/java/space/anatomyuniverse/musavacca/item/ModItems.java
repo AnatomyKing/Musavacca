@@ -49,7 +49,6 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import java.util.List;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.item.custom.*;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumArmorItem;
@@ -59,7 +58,6 @@ import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumPickaxeIte
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumShovelItem;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumSwordItem;
 import space.anatomyuniverse.musavacca.item.custom.BananaMilkBucketItem;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 //? if <1.21.2 {
 /*import java.util.EnumMap;
 *///?}
@@ -279,11 +277,6 @@ public final class ModItems {
                             *///?}
             );
     public static final DeferredItem<Item> VACACA = ITEMS.registerItem("vacaca", props -> new Item(props.food(Foods.APPLE)));
-    public static final DeferredItem<Item> FLINT_AND_PEARL =
-            ITEMS.registerItem(
-                    "flint_and_pearl",
-                    props -> new FlintAndPearlItem(props.durability(64).component(ModDataComponents.HEX_COLOR.get(), MusavaccaTints.DEFAULT_TINT))
-            );
     public static final DeferredItem<BananaMilkBucketItem>
             BANANA_MILK_BUCKET =
             ITEMS.registerItem(

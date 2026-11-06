@@ -1,10 +1,8 @@
 package space.anatomyuniverse.musavacca.block.entity;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
@@ -89,11 +87,11 @@ public final class ModBlockEntities {
                     "pearl_candle_block_entity",
                     () ->
                             //? if >=1.21.4 {
-                            new BlockEntityType<>(PearlCandleBlockEntity::new, false, pearlCandleBlocks())
+                            new BlockEntityType<>(PearlCandleBlockEntity::new, false, ModBlocks.PEARL_CANDLE.get())
                             //?} else if >=1.21.2 <1.21.4 {
-                            /*new BlockEntityType<>(PearlCandleBlockEntity::new, pearlCandleBlocks())
+                            /*new BlockEntityType<>(PearlCandleBlockEntity::new, ModBlocks.PEARL_CANDLE.get())
                             *///?} else {
-                            /*BlockEntityType.Builder.of(PearlCandleBlockEntity::new, pearlCandleBlocks()).build(null)
+                            /*BlockEntityType.Builder.of(PearlCandleBlockEntity::new, ModBlocks.PEARL_CANDLE.get()).build(null)
                             *///?}
             );
     public static final Supplier<BlockEntityType<VocoPostBlockEntity>> VOCO_POST_BLOCK_ENTITY =
@@ -132,10 +130,6 @@ public final class ModBlockEntities {
                             /*BlockEntityType.Builder.of(PearlPortalBlockEntity::new, ModBlocks.PEARL_PORTAL.get()).build(null)
                             *///?}
             );
-    private static Block[] pearlCandleBlocks() {
-        return ModBlocks.PEARL_CANDLES.stream().map(DeferredHolder::get).toArray(Block[]::new);
-    }
-
     public static void register(IEventBus modBus) {
         BLOCK_ENTITY_TYPES.register(modBus);
     }

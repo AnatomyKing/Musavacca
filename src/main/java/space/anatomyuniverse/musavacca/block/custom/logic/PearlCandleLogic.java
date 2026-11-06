@@ -22,30 +22,31 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class PearlCandleLogic {
     private PearlCandleLogic() {}
-    public static boolean canPearlLight(BlockState state) {
-        return state.hasProperty(CandleBlock.LIT)
-                && state.hasProperty(CandleBlock.WATERLOGGED)
-                && !state.getValue(CandleBlock.LIT)
-                && !state.getValue(CandleBlock.WATERLOGGED);
-    }
-
-    public static void onPlace(PearlCandleBlock block, BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        if (!level.isClientSide() && !state.getValue(CandleBlock.LIT)) {
-            level.setBlock(pos, block.toVanillaCandleState(state, false), Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE);
-        }
-    }
-
     public static InteractionResult useItemOn(PearlCandleBlock block, ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
             InteractionHand hand, BlockHitResult hitResult) {
-        if (!canAddMatchingCandle(block, stack, state, player)) return InteractionResult.PASS;
-        if (!level.isClientSide()) {
-            BlockState newState = state.cycle(CandleBlock.CANDLES);
-            level.setBlock(pos, newState, Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE);
-            SoundType soundType = newState.getSoundType();
-            level.playSound(null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
-            if (!player.getAbilities().instabuild) {
-                stack.shrink(1);
+        if (!player.getAbilities().mayBuild || player.isSecondaryUseActive()) return InteractionResult.PASS;
+        if (stack.isEmpty() && state.getValue(CandleBlock.LIT)) {
+            if (!level.isClientSide()) {
+                BlockState original = PearlCandleConversion.withFlag(block.originalState(state, level, pos), "lit", false);
+                level.setBlock(pos, original, Block.UPDATE_ALL);
+                level.playSound(null, pos, net.minecraft.sounds.SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1, 1);
+                level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+                VocoPostCandleLogic.refreshPostBelowCandle(level, pos);
             }
+            return InteractionResult.SUCCESS;
+        }
+        BlockState original = block.originalState(state, level, pos);
+        if (!stack.is(original.getBlock().asItem()) || !state.getValue(CandleBlock.LIT) || state.getValue(CandleBlock.WATERLOGGED)) return InteractionResult.PASS;
+        if (!(original.getBlock().getStateDefinition().getProperty("candles") instanceof net.minecraft.world.level.block.state.properties.IntegerProperty count)) return InteractionResult.PASS;
+        int next = original.getValue(count) + 1;
+        if (!count.getPossibleValues().contains(next)) return InteractionResult.PASS;
+        if (!level.isClientSide()) {
+            BlockState updated = original.setValue(count, next);
+            level.setBlock(pos, state.setValue(CandleBlock.CANDLES, Math.min(4, next)), Block.UPDATE_ALL);
+            if (level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle) candle.setOriginalState(updated);
+            SoundType sound = original.getSoundType();
+            level.playSound(null, pos, sound.getPlaceSound(), SoundSource.BLOCKS, (sound.getVolume() + 1) / 2, sound.getPitch() * 0.8F);
+            if (!player.getAbilities().instabuild) stack.shrink(1);
             level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         }
         return InteractionResult.SUCCESS;
@@ -65,12 +66,4 @@ public final class PearlCandleLogic {
         return state.getValue(CandleBlock.LIT) ? 3 * state.getValue(CandleBlock.CANDLES) : 0;
     }
 
-    private static boolean canAddMatchingCandle(PearlCandleBlock block, ItemStack stack, BlockState state, Player player) {
-        return stack.is(block.getVanillaCandleBlock().asItem())
-                && player.getAbilities().mayBuild
-                && !player.isSecondaryUseActive()
-                && state.getValue(CandleBlock.LIT)
-                && !state.getValue(CandleBlock.WATERLOGGED)
-                && state.getValue(CandleBlock.CANDLES) < CandleBlock.MAX_CANDLES;
-    }
 }

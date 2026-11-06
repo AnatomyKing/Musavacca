@@ -13,6 +13,14 @@ import net.minecraft.world.level.block.Block;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
+//? if >=1.21.4 {
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
+//?}
+import com.google.gson.JsonObject;
+//? if >=1.21.4 {
+import java.util.concurrent.CompletableFuture;
+//?}
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -45,10 +53,12 @@ public final class Newgen {
         this.models = new NewgenModels(output);
     }
 
-    //? if >=1.21.4 {
-    public static void generate(BlockModelGenerators blocks, ItemModelGenerators items) {
+    //? if >=1.21.11 {
+    /*public static Map<Identifier, JsonObject> generate(BlockModelGenerators blocks, ItemModelGenerators items) {
+    *///?} else if >=1.21.4 {
+    public static Map<ResourceLocation, JsonObject> generate(BlockModelGenerators blocks, ItemModelGenerators items) {
     //?} else {
-    /*public static void generate(BlockStateProvider blocks, ItemModelProvider items) {
+    /*public static Map<ResourceLocation, JsonObject> generate(BlockStateProvider blocks, ItemModelProvider items) {
     *///?}
         Newgen gen = new Newgen(new NewgenOutput(blocks, items));
         NewModelSets.simpleBlocks().forEach(gen::simple);
@@ -67,8 +77,10 @@ public final class Newgen {
         NewModelSets.buttonBlocks().forEach(gen::button);
         NewModelSets.wallBlocks().forEach(gen::wall);
         NewModelSets.simpleItems().forEach(gen::simpleItem);
+        NewModelSets.namedItemModels().forEach(gen::namedItem);
         NewModelSets.spawnEggItems().forEach(gen::spawnEgg);
         NewModelSets.armorItems().forEach(gen::armor);
+        return gen.output.namedDefinitions();
     }
     void simple(SimpleBlocks.Entry entry) { modelFamily(entry); }
     void cross(CrossBlocks.Entry entry) { modelFamily(entry); }
@@ -341,6 +353,16 @@ public final class Newgen {
         if (defaultModel == null) throw new IllegalStateException("Missing default item model for " + entry.block());
         emitItem(entry.block().asItem(), SimpleItems.Model.existing(defaultModel));
     }
+    void namedItem(String name, SimpleItems.Model spec) {
+        //? if >=1.21.11 {
+        /*Identifier id = Identifier.parse(name);
+        *///?} else {
+        ResourceLocation id = ResourceLocation.parse(name);
+        //?}
+        if (spec.isMultipart() || spec.isBlockState()) throw new IllegalArgumentException("Named item models must be generated or existing: " + id);
+        output.namedItem(id, models.item(id, spec));
+    }
+
     void simpleItem(SimpleItems.Entry entry) {
         emitItem(entry.item(), entry.model());
     }
@@ -420,6 +442,15 @@ public final class Newgen {
             /*extends BlockStateProvider
             *///?}
     {
+        //? if >=1.21.11 {
+        /*private Map<Identifier, JsonObject> namedDefinitions = Map.of();
+        *///?} else {
+        private Map<ResourceLocation, JsonObject> namedDefinitions = Map.of();
+        //?}
+        //? if >=1.21.4 {
+        private final PackOutput.PathProvider namedPaths;
+        //?}
+
         //? if >=1.21.4 {
         public Provider(PackOutput output) {
         //?} else {
@@ -430,12 +461,22 @@ public final class Newgen {
             //?} else {
             /*super(output, MusaCore.MOD_ID, existingFileHelper);
             *///?}
+            //? if >=1.21.4 {
+            namedPaths = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "items");
+            //?}
         }
 
         //? if >=1.21.4 {
         @Override
+        public CompletableFuture<?> run(CachedOutput cache) {
+            return super.run(cache).thenCompose(ignored -> CompletableFuture.allOf(namedDefinitions.entrySet().stream()
+                    .map(entry -> DataProvider.saveStable(cache, entry.getValue(), namedPaths.json(entry.getKey())))
+                    .toArray(CompletableFuture[]::new)));
+        }
+
+        @Override
         protected void registerModels(BlockModelGenerators blocks, ItemModelGenerators items) {
-            Newgen.generate(blocks, items);
+            namedDefinitions = Newgen.generate(blocks, items);
         }
         //?}
         //? if <1.21.4 {

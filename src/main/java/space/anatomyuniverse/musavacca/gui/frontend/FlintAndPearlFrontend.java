@@ -35,7 +35,7 @@ import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.gui.menu.payloads.FlintAndPearlColorPayload;
 import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlMenu;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
@@ -1034,7 +1034,7 @@ public class FlintAndPearlFrontend extends AbstractContainerScreen<FlintAndPearl
     private void updateLocalHeldStack(int rgb) {
         ItemStack stack = this.getHeldStack();
         if (!stack.isEmpty()
-                && stack.getItem() instanceof FlintAndPearlItem) {
+                && PearlIgniter.is(stack)) {
             stack.set(ModDataComponents.HEX_COLOR.get(), MusavaccaTints.rgb(rgb));
         }
     }

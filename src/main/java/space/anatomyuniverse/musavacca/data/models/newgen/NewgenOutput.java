@@ -2,6 +2,10 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 import com.google.gson.JsonObject;
+//? if >=1.21.4 {
+import com.mojang.serialization.JsonOps;
+import net.minecraft.client.renderer.item.ItemModels;
+//?}
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
@@ -88,6 +92,11 @@ final class NewgenOutput {
     *///?} else {
     private final Map<ResourceLocation, JsonObject> models = new HashMap<>();
     //?}
+    //? if >=1.21.11 {
+    /*private final Map<Identifier, JsonObject> namedDefinitions = new LinkedHashMap<>();
+    *///?} else {
+    private final Map<ResourceLocation, JsonObject> namedDefinitions = new LinkedHashMap<>();
+    //?}
     private final Set<Block> generatedBlocks = new HashSet<>();
     private final Map<Item, ItemRequest> generatedItems = new HashMap<>();
     private record ItemRequest(List<NewgenModels.ItemPart> parts, String kind, boolean blockPerspective) {
@@ -141,27 +150,12 @@ final class NewgenOutput {
             return;
         }
         //? if >=1.21.4 {
-        List<ItemModel.Unbaked> children = render.parts().stream()
-                //? if >=26.1 {
-                /*.map(part -> (ItemModel.Unbaked) new CuboidItemModelWrapper.Unbaked(part.model(), java.util.Optional.empty(), itemTints(part.tints())))
-                *///?} else {
-                .map(part -> (ItemModel.Unbaked) new BlockModelWrapper.Unbaked(part.model(), itemTints(part.tints())))
-                //?}
-                .toList();
-        //? if >=26.1 {
-        /*ItemModel.Unbaked model = children.size() == 1 ? children.get(0) : new CompositeModel.Unbaked(children, java.util.Optional.empty());
-        *///?} else {
-        ItemModel.Unbaked model = children.size() == 1 ? children.get(0) : new CompositeModel.Unbaked(children);
-        //?}
-        //?}
-        //? if >=1.21.4 {
-        items.itemModelOutput.accept(item, model);
+        items.itemModelOutput.accept(item, itemModel(render));
         //?} else {
         /*if (render.parts().size() > 1) {
             List<List<Tints.Tint>> tinted = render.parts().stream().map(NewgenModels.ItemPart::tints)
                     .filter(tints -> tints.stream().anyMatch(Tints.Tint::tinted)).distinct().toList();
-            if (tinted.size() > 1)
-                throw new IllegalStateException("Legacy composite items require compatible tint indices across all parts: " + item);
+            if (tinted.size() > 1) throw new IllegalStateException("Legacy composite items require compatible tint indices: " + item);
             JsonObject json = new JsonObject();
             json.addProperty("loader", "neoforge:composite");
             if (render.blockPerspective()) applyLegacyBlockItemDisplay(json);
@@ -187,6 +181,39 @@ final class NewgenOutput {
         }
         *///?}
     }
+    //? if >=1.21.11 {
+    /*Map<Identifier, JsonObject> namedDefinitions() { return Map.copyOf(namedDefinitions); }
+
+    void namedItem(Identifier id, NewgenModels.ItemRender render) {
+    *///?} else {
+    Map<ResourceLocation, JsonObject> namedDefinitions() { return Map.copyOf(namedDefinitions); }
+
+    void namedItem(ResourceLocation id, NewgenModels.ItemRender render) {
+    //?}
+        if (!id.getNamespace().equals("musavacca")) throw new IllegalArgumentException("Named item model must use the musavacca namespace: " + id);
+        //? if >=1.21.4 {
+        JsonObject definition = new JsonObject();
+        definition.add("model", ItemModels.CODEC.encodeStart(JsonOps.INSTANCE, itemModel(render)).getOrThrow());
+        if (namedDefinitions.putIfAbsent(id, definition) != null) throw new IllegalStateException("Duplicate named item: " + id);
+        //?}
+    }
+
+    //? if >=1.21.4 {
+    private static ItemModel.Unbaked itemModel(NewgenModels.ItemRender render) {
+        List<ItemModel.Unbaked> children = render.parts().stream()
+                //? if >=26.1 {
+                /*.map(part -> (ItemModel.Unbaked) new CuboidItemModelWrapper.Unbaked(part.model(), java.util.Optional.empty(), itemTints(part.tints())))
+                *///?} else {
+                .map(part -> (ItemModel.Unbaked) new BlockModelWrapper.Unbaked(part.model(), itemTints(part.tints())))
+                //?}
+                .toList();
+        //? if >=26.1 {
+        /*return children.size() == 1 ? children.get(0) : new CompositeModel.Unbaked(children, java.util.Optional.empty());
+        *///?} else {
+        return children.size() == 1 ? children.get(0) : new CompositeModel.Unbaked(children);
+        //?}
+    }
+    //?}
     //? if <1.21.4 {
     /*private static com.google.gson.JsonArray vec(float x, float y, float z) {
         com.google.gson.JsonArray array = new com.google.gson.JsonArray();

@@ -15,6 +15,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -62,6 +64,7 @@ public final class ModCreativeTabs {
                         }
                         mine.sort(Comparator.comparing(i -> BuiltInRegistries.ITEM.getKey(i).getPath()));
                         mine.forEach(output::accept);
+                        output.accept(PearlIgniter.create());
                     })
                     .build()
             );

@@ -287,11 +287,19 @@ final class NewgenModels {
     }
 
     ItemRender item(Item item, SimpleItems.Model spec) {
-        java.util.Objects.requireNonNull(item, "item");
+        return item(ModelLocations.itemId(item), spec);
+    }
+
+    //? if >=1.21.11 {
+    /*ItemRender item(Identifier id, SimpleItems.Model spec) {
+    *///?} else {
+    ItemRender item(ResourceLocation id, SimpleItems.Model spec) {
+    //?}
         java.util.Objects.requireNonNull(spec, "spec");
-        spec.validate(item);
+        if (spec.isBlockState() || spec.isMultipart()) throw new IllegalArgumentException("Named models cannot reference block-state or multipart items: " + id);
+        spec.validate(id);
         if (spec.isExisting()) return new ItemRender(List.of(new ItemPart(spec.existingModel(), spec.existingTints())));
-        List<SimpleItems.PhysicalLayer> layers = spec.physicalLayers(item);
+        List<SimpleItems.PhysicalLayer> layers = spec.physicalLayers(id);
         //? if >=1.21.4 {
         List<ItemPart> parts = new java.util.ArrayList<>();
         int groupCount = (layers.size() + 4) / 5;
@@ -300,26 +308,26 @@ final class NewgenModels {
             int to = Math.min(layers.size(), from + 5);
             List<SimpleItems.PhysicalLayer> chunk = layers.subList(from, to);
             //? if >=1.21.11 {
-            /*Identifier id = groupCount == 1 ? ModelLocations.itemModel(item) : ModelLocations.itemModel(item, "layers_" + group);
+            /*Identifier modelId = groupCount == 1 ? ModelLocations.itemModel(id) : ModelLocations.itemModel(id, "layers_" + group);
             *///?} else {
-            ResourceLocation id = groupCount == 1 ? ModelLocations.itemModel(item) : ModelLocations.itemModel(item, "layers_" + group);
+            ResourceLocation modelId = groupCount == 1 ? ModelLocations.itemModel(id) : ModelLocations.itemModel(id, "layers_" + group);
             //?}
         //?}
         //? if >=1.21.4 {
-            generatedItemModel(id, spec.style(), chunk.stream().map(SimpleItems.PhysicalLayer::texture).toList(), false);
-            parts.add(new ItemPart(id, chunk.stream().map(SimpleItems.PhysicalLayer::tint).toList()));
+            generatedItemModel(modelId, spec.style(), chunk.stream().map(SimpleItems.PhysicalLayer::texture).toList(), false);
+            parts.add(new ItemPart(modelId, chunk.stream().map(SimpleItems.PhysicalLayer::tint).toList()));
         //?} else {
-        /*ResourceLocation id = ModelLocations.itemModel(item);
+        /*ResourceLocation modelId = ModelLocations.itemModel(id);
         if (layers.size() <= 5) {
-            generatedItemModel(id, spec.style(), layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(), false);
+            generatedItemModel(modelId, spec.style(), layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(), false);
         } else {
-            generatedItemModel(id, spec.style(), layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(), true);
+            generatedItemModel(modelId, spec.style(), layers.stream().map(SimpleItems.PhysicalLayer::texture).toList(), true);
         *///?}
         }
         //? if >=1.21.4 {
         return new ItemRender(parts);
         //?} else {
-        /*return new ItemRender(List.of(new ItemPart(id, layers.stream().map(SimpleItems.PhysicalLayer::tint).toList())));
+        /*return new ItemRender(List.of(new ItemPart(modelId, layers.stream().map(SimpleItems.PhysicalLayer::tint).toList())));
         *///?}
     }
 

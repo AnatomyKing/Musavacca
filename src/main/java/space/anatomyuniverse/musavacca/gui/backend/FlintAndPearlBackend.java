@@ -4,7 +4,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class FlintAndPearlBackend {
@@ -29,7 +29,7 @@ public final class FlintAndPearlBackend {
 
     public boolean applyHexColor(Player player, int hexColor) {
         ItemStack stack = player.getItemInHand(this.hand);
-        if (!(stack.getItem() instanceof FlintAndPearlItem)) return false;
+        if (!PearlIgniter.is(stack)) return false;
         int color = MusavaccaTints.resolve(hexColor);
         stack.set(ModDataComponents.HEX_COLOR.get(), color);
         this.hexColor = color;

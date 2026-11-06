@@ -409,18 +409,16 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     }
 
     public boolean canAddCandle(ReceptorPosition receptor, Block candleBlock) {
-        Block normalized = normalizeCandleBlock(candleBlock);
-        if (!isValidCandleBlock(normalized)) return false;
+        if (!isValidCandleBlock(candleBlock)) return false;
         CandleSlot slot = this.slot(receptor);
-        return !slot.hasCandle() || slot.block == normalized && slot.count < CandleBlock.MAX_CANDLES;
+        return !slot.hasCandle() || slot.block == candleBlock && slot.count < CandleBlock.MAX_CANDLES;
     }
 
     public boolean addCandle(ReceptorPosition receptor, Block candleBlock) {
-        Block normalized = normalizeCandleBlock(candleBlock);
-        if (!this.canAddCandle(receptor, normalized)) return false;
+        if (!this.canAddCandle(receptor, candleBlock)) return false;
         CandleSlot slot = this.slot(receptor);
         if (!slot.hasCandle()) {
-            slot.block = normalized;
+            slot.block = candleBlock;
             slot.count = 1;
             slot.lit = false;
             slot.hasHexColor = false;
@@ -1043,12 +1041,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     }
 
     private static boolean isValidCandleBlock(@Nullable Block block) {
-        return block instanceof CandleBlock;
-    }
-
-    private static Block normalizeCandleBlock(Block block) {
-        if (block instanceof PearlCandleBlock pearlCandleBlock) return pearlCandleBlock.getVanillaCandleBlock();
-        return block;
+        return block instanceof CandleBlock && !(block instanceof PearlCandleBlock);
     }
 
     @Nullable
@@ -1074,7 +1067,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         /*Block block = BuiltInRegistries.BLOCK.get(id);
         *///?}
         if (block == null || block == Blocks.AIR) return null;
-        block = normalizeCandleBlock(block);
         return isValidCandleBlock(block) ? block : null;
     }
 

@@ -68,6 +68,28 @@ public final class ModelLocations {
     }
 
     //? if >=1.21.11 {
+    /*public static Identifier itemModel(Identifier id) {
+        return Identifier.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
+    *///?} else {
+    public static ResourceLocation itemModel(ResourceLocation id) {
+        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
+    //?}
+    }
+
+    //? if >=1.21.11 {
+    /*public static Identifier itemModel(Identifier id, String suffix) {
+    *///?} else {
+    public static ResourceLocation itemModel(ResourceLocation id, String suffix) {
+    //?}
+        String path = "item/" + id.getPath() + (suffix == null || suffix.isBlank() ? "" : suffix.startsWith("_") ? suffix : "_" + suffix);
+        //? if >=1.21.11 {
+        /*return Identifier.fromNamespaceAndPath(id.getNamespace(), path);
+        *///?} else {
+        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), path);
+        //?}
+    }
+
+    //? if >=1.21.11 {
     /*public static Identifier itemModel(ItemLike item) {
         Identifier id = itemId(item);
         return Identifier.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());

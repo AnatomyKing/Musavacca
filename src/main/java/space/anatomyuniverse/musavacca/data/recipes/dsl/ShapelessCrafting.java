@@ -29,6 +29,17 @@ public final class ShapelessCrafting {
         *///?}
     }
 
+    public ShapelessCrafting(RecipeDSL dsl, RecipeCategory category, ItemStack result) {
+        this.dsl = dsl;
+        //? if >=26.1 {
+        /*this.builder = ShapelessRecipeBuilder.shapeless(dsl.items(), category, net.minecraft.world.item.ItemStackTemplate.fromNonEmptyStack(result));
+        *///?} else if >=1.21.2 {
+        this.builder = ShapelessRecipeBuilder.shapeless(dsl.items(), category, result);
+        //?} else {
+        /*this.builder = ShapelessRecipeBuilder.shapeless(category, result);
+        *///?}
+    }
+
     public ShapelessCrafting requires(Object... ingredients) {
         for (Object ingredient : ingredients) {
             addOnce(ingredient);

@@ -25,7 +25,7 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableDialerHitboxe
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.basuke.summon.BasukeSummon;
 import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
 
 public final class VocoTableLogic {
     public static final BooleanProperty LIT_NORTH_EAST = BooleanProperty.create("lit_north_east");
@@ -166,7 +166,7 @@ public final class VocoTableLogic {
                 }
                 return InteractionResult.SUCCESS;
             }
-            if (stack.getItem() instanceof FlintAndPearlItem) {
+            if (PearlIgniter.is(stack)) {
                 if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) return InteractionResult.PASS;
                 if (!tableBe.hasCandle(candleHit)) return InteractionResult.PASS;
                 if (!level.isClientSide()) {
@@ -238,9 +238,6 @@ public final class VocoTableLogic {
     private static Block candleBlockFromStack(ItemStack stack) {
         if (!(stack.getItem() instanceof BlockItem blockItem)) return null;
         Block block = blockItem.getBlock();
-        if (block instanceof PearlCandleBlock pearlCandleBlock) {
-            block = pearlCandleBlock.getVanillaCandleBlock();
-        }
-        return block instanceof CandleBlock ? block : null;
+        return block instanceof CandleBlock && !(block instanceof PearlCandleBlock) ? block : null;
     }
 }

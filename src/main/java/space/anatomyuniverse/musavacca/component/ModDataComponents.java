@@ -16,6 +16,8 @@ public final class ModDataComponents {
     private ModDataComponents() {}
     public static final DeferredRegister.DataComponents DATA_COMPONENT_TYPES =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MusaCore.MOD_ID);
+    public static final Supplier<DataComponentType<Boolean>> PEARL_IGNITER =
+            DATA_COMPONENT_TYPES.registerComponentType("pearl_igniter", builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
     public static final Supplier<DataComponentType<Integer>> HEX_COLOR =
             DATA_COMPONENT_TYPES.registerComponentType(
                     MusavaccaTints.HEX_COLOR_KEY,

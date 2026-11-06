@@ -84,6 +84,10 @@ public class RecipeDSL {
         return new ShapelessCrafting(this, category, result, count);
     }
 
+    public ShapelessCrafting shapeless(RecipeCategory category, net.minecraft.world.item.ItemStack result) {
+        return new ShapelessCrafting(this, category, result);
+    }
+
     public ShapelessCountFamily shapelessCountFamily(RecipeCategory category) {
         return new ShapelessCountFamily(this, category);
     }

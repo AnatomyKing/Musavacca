@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.block;
 
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;
 
@@ -16,7 +15,6 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.custom.*;
-import java.util.List;
 import java.util.Set;
 
 public final class ModBlocks {
@@ -506,72 +504,15 @@ public final class ModBlocks {
                                     .pushReaction(PushReaction.NORMAL)
                                     //?}
                     ));
-    private static DeferredBlock<PearlCandleBlock> pearlCandle(String name, Block vanillaCandleBlock) {
-        return BLOCKS.registerBlock(name,
-                props -> new PearlCandleBlock(
-                        vanillaCandleBlock,
-                        props
-                                .mapColor(MapColor.WOOL)
-                                .strength(0.1F)
-                                .sound(SoundType.CANDLE)
-                                .noOcclusion()
-                                .lightLevel(PearlCandleBlock::candleLightLevel)
-                                //? if >=26.3 {
-                                /*.pushReaction(PushReaction.POPPED)
-                                *///?} else {
-                                .pushReaction(PushReaction.DESTROY)
-                                //?}
-                )
-        );
-    }
-
-    public static final DeferredBlock<PearlCandleBlock> PEARL_CANDLE = pearlCandle("pearl_candle", Blocks.CANDLE);
-    //? if >=26.2 {
-    /*public static final DeferredBlock<PearlCandleBlock> PEARL_WHITE_CANDLE = pearlCandle("pearl_white_candle", Blocks.DYED_CANDLE.pick(DyeColor.WHITE));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_ORANGE_CANDLE = pearlCandle("pearl_orange_candle", Blocks.DYED_CANDLE.pick(DyeColor.ORANGE));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_MAGENTA_CANDLE = pearlCandle("pearl_magenta_candle", Blocks.DYED_CANDLE.pick(DyeColor.MAGENTA));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_BLUE_CANDLE =
-    *///?} else {
-    public static final DeferredBlock<PearlCandleBlock> PEARL_WHITE_CANDLE = pearlCandle("pearl_white_candle", Blocks.WHITE_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_ORANGE_CANDLE = pearlCandle("pearl_orange_candle", Blocks.ORANGE_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_MAGENTA_CANDLE = pearlCandle("pearl_magenta_candle", Blocks.MAGENTA_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_BLUE_CANDLE = pearlCandle("pearl_light_blue_candle", Blocks.LIGHT_BLUE_CANDLE);
-    //?}
-    //? if >=26.2 {
-            /*pearlCandle("pearl_light_blue_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIGHT_BLUE));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_YELLOW_CANDLE = pearlCandle("pearl_yellow_candle", Blocks.DYED_CANDLE.pick(DyeColor.YELLOW));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_LIME_CANDLE = pearlCandle("pearl_lime_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIME));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_PINK_CANDLE = pearlCandle("pearl_pink_candle", Blocks.DYED_CANDLE.pick(DyeColor.PINK));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_GRAY_CANDLE = pearlCandle("pearl_gray_candle", Blocks.DYED_CANDLE.pick(DyeColor.GRAY));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_GRAY_CANDLE =
-    *///?} else {
-    public static final DeferredBlock<PearlCandleBlock> PEARL_YELLOW_CANDLE = pearlCandle("pearl_yellow_candle", Blocks.YELLOW_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_LIME_CANDLE = pearlCandle("pearl_lime_candle", Blocks.LIME_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_PINK_CANDLE = pearlCandle("pearl_pink_candle", Blocks.PINK_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_GRAY_CANDLE = pearlCandle("pearl_gray_candle", Blocks.GRAY_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_LIGHT_GRAY_CANDLE = pearlCandle("pearl_light_gray_candle", Blocks.LIGHT_GRAY_CANDLE);
-    //?}
-    //? if >=26.2 {
-            /*pearlCandle("pearl_light_gray_candle", Blocks.DYED_CANDLE.pick(DyeColor.LIGHT_GRAY));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_CYAN_CANDLE = pearlCandle("pearl_cyan_candle", Blocks.DYED_CANDLE.pick(DyeColor.CYAN));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_PURPLE_CANDLE = pearlCandle("pearl_purple_candle", Blocks.DYED_CANDLE.pick(DyeColor.PURPLE));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_BLUE_CANDLE = pearlCandle("pearl_blue_candle", Blocks.DYED_CANDLE.pick(DyeColor.BLUE));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_BROWN_CANDLE = pearlCandle("pearl_brown_candle", Blocks.DYED_CANDLE.pick(DyeColor.BROWN));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_GREEN_CANDLE = pearlCandle("pearl_green_candle", Blocks.DYED_CANDLE.pick(DyeColor.GREEN));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_RED_CANDLE = pearlCandle("pearl_red_candle", Blocks.DYED_CANDLE.pick(DyeColor.RED));
-    public static final DeferredBlock<PearlCandleBlock> PEARL_BLACK_CANDLE = pearlCandle("pearl_black_candle", Blocks.DYED_CANDLE.pick(DyeColor.BLACK));
-    *///?} else {
-    public static final DeferredBlock<PearlCandleBlock> PEARL_CYAN_CANDLE = pearlCandle("pearl_cyan_candle", Blocks.CYAN_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_PURPLE_CANDLE = pearlCandle("pearl_purple_candle", Blocks.PURPLE_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_BLUE_CANDLE = pearlCandle("pearl_blue_candle", Blocks.BLUE_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_BROWN_CANDLE = pearlCandle("pearl_brown_candle", Blocks.BROWN_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_GREEN_CANDLE = pearlCandle("pearl_green_candle", Blocks.GREEN_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_RED_CANDLE = pearlCandle("pearl_red_candle", Blocks.RED_CANDLE);
-    public static final DeferredBlock<PearlCandleBlock> PEARL_BLACK_CANDLE = pearlCandle("pearl_black_candle", Blocks.BLACK_CANDLE);
-    //?}
-    public static final List<DeferredBlock<PearlCandleBlock>> PEARL_CANDLES = List.of(PEARL_CANDLE, PEARL_WHITE_CANDLE, PEARL_ORANGE_CANDLE,
-            PEARL_MAGENTA_CANDLE, PEARL_LIGHT_BLUE_CANDLE, PEARL_YELLOW_CANDLE, PEARL_LIME_CANDLE, PEARL_PINK_CANDLE, PEARL_GRAY_CANDLE, PEARL_LIGHT_GRAY_CANDLE,
-            PEARL_CYAN_CANDLE, PEARL_PURPLE_CANDLE, PEARL_BLUE_CANDLE, PEARL_BROWN_CANDLE, PEARL_GREEN_CANDLE, PEARL_RED_CANDLE, PEARL_BLACK_CANDLE);
+    public static final DeferredBlock<PearlCandleBlock> PEARL_CANDLE = BLOCKS.registerBlock("pearl_candle",
+            props -> new PearlCandleBlock(props.mapColor(MapColor.WOOL).strength(0.1F).sound(SoundType.CANDLE)
+                    .noOcclusion().dynamicShape().lightLevel(PearlCandleBlock::candleLightLevel)
+                    //? if >=26.3 {
+                    /*.pushReaction(PushReaction.POPPED)
+                    *///?} else {
+                    .pushReaction(PushReaction.DESTROY)
+                    //?}
+            ));
     public static final DeferredBlock<CaroteneGrassBlock> CAROTENE_GRASS =
             BLOCKS.registerBlock("carotene_grass",
                     props -> new CaroteneGrassBlock(
@@ -627,7 +568,7 @@ public final class ModBlocks {
             MUSAVACCA_PLANT, MUSAVACCA_PSEUDOSTEM, PEARL_PORTAL, MUSAVACCA_DOOR, VOCO_TABLE);
     static {
         BLOCKS.getEntries().forEach(entry -> {
-            if (!SKIP_BLOCK_ITEMS.contains(entry) && !PEARL_CANDLES.contains(entry)) {
+            if (!SKIP_BLOCK_ITEMS.contains(entry) && entry != PEARL_CANDLE) {
                 ITEMS.registerSimpleBlockItem(entry);
             }
         });

@@ -102,6 +102,7 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         tag(BlockTags.MINEABLE_WITH_SHOVEL).add(BuiltInRegistries.BLOCK.getResourceKey(ModBlocks.CAROTENE_GRASS.get()).orElseThrow());
         tag(Tags.Blocks.VILLAGER_FARMLANDS).add(BuiltInRegistries.BLOCK.getResourceKey(ModBlocks.CAROTENE_GRASS.get()).orElseThrow());
         tag(BlockTags.FIRE).add(BuiltInRegistries.BLOCK.getResourceKey(ModBlocks.PEARL_FIRE.get()).orElseThrow());
+        tag(BlockTags.CANDLES).add(BuiltInRegistries.BLOCK.getResourceKey(ModBlocks.PEARL_CANDLE.get()).orElseThrow());
         *///?} else {
         tag(BlockTags.LOGS).add(ModBlocks.MUSAVACCA_STEM.get(), ModBlocks.STRIPPED_MUSAVACCA_STEM.get(), ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get());
         tag(BlockTags.LOGS_THAT_BURN).add(ModBlocks.MUSAVACCA_STEM.get(), ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
@@ -122,6 +123,7 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         tag(BlockTags.MINEABLE_WITH_SHOVEL).add(ModBlocks.CAROTENE_GRASS.get());
         tag(Tags.Blocks.VILLAGER_FARMLANDS).add(ModBlocks.CAROTENE_GRASS.get());
         tag(BlockTags.FIRE).add(ModBlocks.PEARL_FIRE.get());
+        tag(BlockTags.CANDLES).add(ModBlocks.PEARL_CANDLE.get());
         //?}
     }
 }

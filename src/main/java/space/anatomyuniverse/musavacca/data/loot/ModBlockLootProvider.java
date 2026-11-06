@@ -25,7 +25,6 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -41,7 +40,6 @@ import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
-import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import java.util.Set;
@@ -86,7 +84,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         musavaccaDoorDrops(ModBlocks.MUSAVACCA_DOOR.get());
         vocoTableDrops(ModBlocks.VOCO_TABLE.get());
         musavaccaTrapdoorDrops(ModBlocks.MUSAVACCA_TRAPDOOR.get());
-        pearlCandleDrops();
+        this.add(ModBlocks.PEARL_CANDLE.get(), LootTable.lootTable());
         silkTouchMusavaccaEggByAge(ModBlocks.MUSAVACCA_EGG.get());
         silkTouchHexBlockWithAssignedHexColor(ModBlocks.HEX_BLOCK.get(), 0xFFFFFF);
         //? if >=26.3 {
@@ -442,54 +440,6 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                                                 )
                                         )
                         )
-        );
-    }
-
-    private void pearlCandleDrops() {
-        for (var holder : ModBlocks.PEARL_CANDLES) {
-            PearlCandleBlock pearlCandle = holder.get();
-            vanillaCandleDrops(pearlCandle, pearlCandle.getVanillaCandleBlock());
-        }
-    }
-
-    private void vanillaCandleDrops(PearlCandleBlock pearlCandle, Block vanillaCandle) {
-        this.add(
-                pearlCandle,
-                LootTable.lootTable()
-                        .withPool(
-                                LootPool.lootPool()
-                                        //? if >=26.3 {
-                                        /*.setRolls(Holder.direct(new ConstantValue(1)))
-                                        *///?} else {
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        //?}
-                                        .add(candleDropEntry(pearlCandle, vanillaCandle, 1))
-                                        .add(candleDropEntry(pearlCandle, vanillaCandle, 2))
-                                        .add(candleDropEntry(pearlCandle, vanillaCandle, 3))
-                                        .add(candleDropEntry(pearlCandle, vanillaCandle, 4))
-                        )
-        );
-    }
-
-    private LootItem.Builder<?> candleDropEntry(PearlCandleBlock pearlCandle, Block vanillaCandle, int candles) {
-        return this.applyExplosionCondition(
-                pearlCandle,
-                LootItem.lootTableItem(vanillaCandle)
-                        .when(
-                                //? if >=26.3 {
-                                /*MatchBlock.blockMatches(BuiltInRegistries.BLOCK, pearlCandle,
-                                        StatePropertiesPredicate.Builder.properties().hasProperty(CandleBlock.CANDLES, candles))
-                                *///?} else {
-                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(pearlCandle).setProperties(StatePropertiesPredicate.Builder
-                                                        .properties()
-                                                        .hasProperty(CandleBlock.CANDLES, candles))
-                                //?}
-                        )
-                        //? if >=26.3 {
-                        /*.apply(SetItemCountFunction.setCount(Holder.direct(new ConstantValue(candles))))
-                        *///?} else {
-                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(candles)))
-                        //?}
         );
     }
 

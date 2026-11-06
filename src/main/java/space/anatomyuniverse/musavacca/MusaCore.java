@@ -16,6 +16,7 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableItemDisplayLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
+import space.anatomyuniverse.musavacca.client.PearlIgniterModels;
 import space.anatomyuniverse.musavacca.client.helmet.CustomHelmetModels;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
@@ -31,6 +32,7 @@ import space.anatomyuniverse.musavacca.gui.ModMenuRegistries;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraClientModEvents;
 import space.anatomyuniverse.musavacca.item.ModCreativeTabs;
 import space.anatomyuniverse.musavacca.item.ModItems;
+import space.anatomyuniverse.musavacca.item.PearlIgniterEvents;
 import space.anatomyuniverse.musavacca.particle.ModParticleProviders;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.portal.PearlPortalServerEvents;
@@ -83,6 +85,7 @@ public final class MusaCore {
         NeoForge.EVENT_BUS.register(BalanceEvents.class);
         NeoForge.EVENT_BUS.register(BananaCowBlessingEvents.class);
         NeoForge.EVENT_BUS.register(PlayerStatusEvents.class);
+        NeoForge.EVENT_BUS.register(PearlIgniterEvents.class);
         //? if >=26.3 {
         /*NeoForge.EVENT_BUS.addListener(VocoTableItemDisplayLogic ::onRightClickBlock);
         *///?} else {
@@ -109,6 +112,10 @@ public final class MusaCore {
             modBus.addListener(ModBlockEntityRenderers ::registerRenderers);
             //?} else {
             /*modBus.addListener(CustomHelmetModels::registerAdditionalModels);
+            //? if <1.21.2 {
+            /^modBus.addListener(PearlIgniterModels::registerAdditional);
+            modBus.addListener(PearlIgniterModels::modifyModels);
+            ^///?}
             modBus.addListener(ModMenuEvents::register);
             modBus.addListener(ModEntityRenderers::registerRenderers);
             modBus.addListener(ModEntityRenderers ::registerLayerDefinitions);

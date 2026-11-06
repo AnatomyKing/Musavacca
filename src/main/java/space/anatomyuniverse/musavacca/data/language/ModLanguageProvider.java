@@ -25,6 +25,7 @@ public final class ModLanguageProvider extends LanguageProvider {
         OVERRIDES.put("itemGroup." + MusaCore.MOD_ID + ".musavacca_tab", "Musavacca");
         OVERRIDES.put("block.musavacca.hex_block", "Lopha Flower");
         OVERRIDES.put("item.musavacca.musavacca_pup", "Musavacca Pup");
+        OVERRIDES.put("item.musavacca.flint_and_pearl", "Flint and Pearl");
         OVERRIDES.put("item.musavacca.banana_phone.empty.description", "Can hold one valid SIM card");
     }
 

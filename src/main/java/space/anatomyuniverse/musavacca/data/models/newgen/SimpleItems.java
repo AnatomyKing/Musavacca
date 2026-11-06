@@ -223,45 +223,56 @@ public final class SimpleItems {
         }
 
         //? if >=1.21.11 {
-        /*public List<Identifier> logicalTextures(ItemLike item) {
+        /*public List<Identifier> logicalTextures(ItemLike item) { return logicalTextures(ModelLocations.itemId(item)); }
+
+        public List<Identifier> logicalTextures(Identifier id) {
         *///?} else {
-        public List<ResourceLocation> logicalTextures(ItemLike item) {
+        public List<ResourceLocation> logicalTextures(ItemLike item) { return logicalTextures(ModelLocations.itemId(item)); }
+
+        public List<ResourceLocation> logicalTextures(ResourceLocation id) {
         //?}
-            Objects.requireNonNull(item, "item");
             if (!isGenerated()) return List.of();
-            if (textureTokens == null) {
-                throw new IllegalStateException("No texture configured for item " + ModelLocations.itemId(item) + ". Call .texture() or .textures(...).");
+            if (textureTokens == null) throw new IllegalStateException("No texture configured for item " + id);
+            if (inferSingleTexture) {
+                //? if >=1.21.11 {
+                /*return List.of(Identifier.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath() + (folder ? "/" + id.getPath() : "")));
+                *///?} else {
+                return List.of(ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath() + (folder ? "/" + id.getPath() : "")));
+                //?}
             }
-            if (inferSingleTexture) return List.of(folder ? TextureTokens.itemFolder(item) : TextureTokens.item(item));
-            return textureTokens.stream().map(token -> resolveTexture(item, token)).toList();
+            return textureTokens.stream().map(token -> resolveTexture(id, token)).toList();
         }
 
-        public List<PhysicalLayer> physicalLayers(ItemLike item) {
-            validate(item);
-            if (isExisting()) return physicalTintList(tint).stream().map(layerTint -> new PhysicalLayer(TextureTokens.item(item), layerTint)).toList();
+        public List<PhysicalLayer> physicalLayers(ItemLike item) { return physicalLayers(ModelLocations.itemId(item)); }
+
+        //? if >=1.21.11 {
+        /*public List<PhysicalLayer> physicalLayers(Identifier id) {
+        *///?} else {
+        public List<PhysicalLayer> physicalLayers(ResourceLocation id) {
+        //?}
+            validate(id);
+            if (isExisting()) {
+                //? if >=1.21.11 {
+                /*Identifier texture = Identifier.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
+                *///?} else {
+                ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
+                //?}
+                return physicalTintList(tint).stream().map(layerTint -> new PhysicalLayer(texture, layerTint)).toList();
+            }
             if (isMultipart() || isBlockState()) return List.of();
             //? if >=1.21.11 {
-            /*List<Identifier> logical = logicalTextures(item);
+            /*List<Identifier> logical = logicalTextures(id);
             *///?} else {
-            List<ResourceLocation> logical = logicalTextures(item);
+            List<ResourceLocation> logical = logicalTextures(id);
             //?}
             List<PhysicalLayer> physical = new ArrayList<>();
-            for (int logicalLayer = 0; logicalLayer < logical.size(); logicalLayer++) {
-                //? if >=1.21.11 {
-                /*Identifier base = logical.get(logicalLayer);
-                *///?} else {
-                ResourceLocation base = logical.get(logicalLayer);
-                //?}
-                Tints.Tint layerTint = tintForLogicalLayer(logicalLayer);
+            for (int i = 0; i < logical.size(); i++) {
+                var base = logical.get(i);
+                Tints.Tint layerTint = tintForLogicalLayer(i);
                 List<Tints.GeneratedLayer> generatedLayers = Tints.generatedLayers(layerTint);
                 for (Tints.GeneratedLayer generated : generatedLayers) {
-                    //? if >=1.21.11 {
-                    /*Identifier texture = generatedLayers.size() == 1 && generated.sourceLayer() == 0
-                    *///?} else {
-                    ResourceLocation texture = generatedLayers.size() == 1 && generated.sourceLayer() == 0
-                    //?}
-                            ? base
-                            : TextureTokens.itemLayer(base, generated.sourceLayer());
+                    var texture = generatedLayers.size() == 1 && generated.sourceLayer() == 0
+                            ? base : TextureTokens.itemLayer(base, generated.sourceLayer());
                     physical.add(new PhysicalLayer(texture, layerTint.physicalLayer(generated)));
                 }
             }
@@ -283,8 +294,14 @@ public final class SimpleItems {
             return new Model(this);
         }
 
-        public void validate(ItemLike item) {
-            Objects.requireNonNull(item, "item");
+        public void validate(ItemLike item) { validate(ModelLocations.itemId(item)); }
+
+        //? if >=1.21.11 {
+        /*public void validate(Identifier id) {
+        *///?} else {
+        public void validate(ResourceLocation id) {
+        //?}
+            Objects.requireNonNull(id, "id");
             if (isMultipart() || isBlockState()) {
                 if (tint.tinted() || !layerTints.isEmpty() || style != null || folder || textureTokens != null)
                     throw new IllegalStateException("Composite items use per-part tinting and cannot use generated item options");
@@ -305,31 +322,31 @@ public final class SimpleItems {
                 }
                 return;
             }
-            if (style == null) throw new IllegalStateException("Generated item " + ModelLocations.itemId(item) + " requires .flat() or .handheld()");
+            if (style == null) throw new IllegalStateException("Generated item " + id + " requires .flat() or .handheld()");
             if (textureTokens == null) {
-                throw new IllegalStateException("Generated item " + ModelLocations.itemId(item) + " requires .texture() or .textures(...)");
+                throw new IllegalStateException("Generated item " + id + " requires .texture() or .textures(...)");
             }
             int logicalCount = inferSingleTexture ? 1 : textureTokens.size();
             for (Integer layer : layerTints.keySet()) {
                 if (layer >= logicalCount) {
                     throw new IllegalStateException(
                             "Logical tint layer " + layer + " is outside the " + logicalCount
-                                    + " texture layers for " + ModelLocations.itemId(item)
+                                    + " texture layers for " + id
                     );
                 }
             }
         }
 
         //? if >=1.21.11 {
-        /*private Identifier resolveTexture(ItemLike item, String token) {
+        /*private Identifier resolveTexture(Identifier id, String token) {
         *///?} else {
-        private ResourceLocation resolveTexture(ItemLike item, String token) {
+        private ResourceLocation resolveTexture(ResourceLocation id, String token) {
         //?}
-            if (!folder || token.indexOf(':') >= 0 || token.startsWith("item/")) return TextureTokens.resolveItem(item, token);
+            if (!folder || token.indexOf(':') >= 0 || token.startsWith("item/")) return TextureTokens.resolveItem(id, token);
             //? if >=1.21.11 {
-            /*Identifier itemId = ModelLocations.itemId(item);
+            /*Identifier itemId = id;
             *///?} else {
-            ResourceLocation itemId = ModelLocations.itemId(item);
+            ResourceLocation itemId = id;
             //?}
             String path = token.startsWith("_") ? itemId.getPath() + token : token;
             //? if >=1.21.11 {

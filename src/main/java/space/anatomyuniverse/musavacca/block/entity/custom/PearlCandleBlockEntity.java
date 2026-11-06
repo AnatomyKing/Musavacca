@@ -4,6 +4,9 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 /*import net.minecraft.nbt.Tag;
 *///?}
 import net.minecraft.core.BlockPos;
+import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
+import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
@@ -29,9 +32,29 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
+    private BlockState originalState;
     private int hexColor = MusavaccaTints.NO_TINT;
     public PearlCandleBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.PEARL_CANDLE_BLOCK_ENTITY.get(), pos, state);
+    }
+
+    public BlockState originalState() {
+        BlockState state = originalState != null ? originalState
+                : PearlCandleBlock.fallbackState(getBlockState());
+        state = PearlCandleConversion.withFlag(state, "lit", getBlockState().getValue(CandleBlock.LIT));
+        return PearlCandleConversion.withFlag(state, "waterlogged", getBlockState().getValue(CandleBlock.WATERLOGGED));
+    }
+
+    public void setOriginalState(BlockState state) {
+        if (state.getBlock() instanceof PearlCandleBlock || state.hasBlockEntity()) return;
+        this.originalState = state;
+        if (getLevel() != null) getLevel().getChunkSource().getLightEngine().checkBlock(getBlockPos());
+        this.markChangedAndSync();
+    }
+
+    private void loadOriginal(BlockState state) {
+        this.originalState = state != null && !(state.getBlock() instanceof PearlCandleBlock)
+                && !state.hasBlockEntity() ? state : null;
     }
 
     public boolean hasHexColor() {
@@ -75,6 +98,7 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
         if (level == null || !level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();
         BlockState state = this.getBlockState();
+        level.getChunkSource().getLightEngine().checkBlock(pos);
         level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
@@ -87,9 +111,11 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
         //? if >=1.21.6 {
         super.loadAdditional(input);
         this.hexColor = readHexOrUnset(input);
+        loadOriginal(input.read("OriginalCandle", BlockState.CODEC).orElse(null));
         //?} else {
         /*super.loadAdditional(tag, provider);
         this.hexColor = readHexOrUnset(tag);
+        loadOriginal(tag.get("OriginalCandle") == null ? null : BlockState.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, tag.get("OriginalCandle")).result().orElse(null));
         *///?}
     }
 
@@ -104,6 +130,13 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
         //?} else {
         /*super.saveAdditional(tag, provider);
         *///?}
+        if (originalState != null) {
+            //? if >=1.21.6 {
+            output.store("OriginalCandle", BlockState.CODEC, originalState);
+            //?} else {
+            /*BlockState.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, originalState).result().ifPresent(value -> tag.put("OriginalCandle", value));
+            *///?}
+        }
         if (this.hasHexColor()) {
             //? if >=1.21.6 {
             output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);

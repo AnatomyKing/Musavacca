@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
-import space.anatomyuniverse.musavacca.item.custom.FlintAndPearlItem;
+import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoTableCandleLogic {
@@ -45,7 +45,7 @@ public final class VocoTableCandleLogic {
 
     public static void lightCandleSlot(ItemStack stack, Level level, BlockPos pos, Player player, InteractionHand hand, VocoTableBlockEntity tableBe,
             ReceptorPosition receptor) {
-        if (!tableBe.lightPearlCandle(receptor, FlintAndPearlItem.getStoredHexOrDefault(stack))) return;
+        if (!tableBe.lightPearlCandle(receptor, PearlIgniter.getStoredHexOrDefault(stack))) return;
         playFlintAndSteelEffects(level, player, pos);
         VocoReceptorLogic.damageItem(stack, player, hand);
         syncPortalStateFromCandles(level, pos, receptor);
