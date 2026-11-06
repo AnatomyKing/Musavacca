@@ -15,10 +15,9 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles;
 
 public final class PearlCandleLogic {
     private PearlCandleLogic() {}
@@ -54,12 +53,10 @@ public final class PearlCandleLogic {
 
     public static void animateTick(PearlCandleBlock block, BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (!state.getValue(CandleBlock.LIT) || state.getValue(CandleBlock.WATERLOGGED)) return;
-        int hexColor = level.getBlockEntity(pos) instanceof PearlCandleBlockEntity pearlCandleBe
-                ? pearlCandleBe.getHexColorOrFallback()
-                : MusavaccaTints.DEFAULT_TINT;
-        for (Vec3 offset : block.pearlParticleOffsets(state)) {
-            CandleParticleEffects.spawnPearlVanillaStyle(level, random, offset.add(pos.getX(), pos.getY(), pos.getZ()), hexColor);
-        }
+        if (!(level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle)) return;
+        BlockState original = candle.originalState();
+        if (!PearlCandleConversion.isCandle(original)) return;
+        OriginalCandleParticles.animate(original, level, pos, random);
     }
 
     public static int candleLightLevel(BlockState state) {

@@ -196,7 +196,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .requires(ModItems.BIG_BANANA_PEARL, ModBlocks.MUSAVACCA_PLANKS)
                 .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
                 .save("blocks/gilded_musavacca_planks");
-        dsl.shapeless(RecipeCategory.MISC, space.anatomyuniverse.musavacca.item.custom.PearlIgniter.create())
+        dsl.shapeless(RecipeCategory.MISC, space.anatomyuniverse.musavacca.item.custom.PearlIgniter.recipeResult())
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .save("misc/flint_and_pearl");

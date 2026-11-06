@@ -84,7 +84,11 @@ public class RecipeDSL {
         return new ShapelessCrafting(this, category, result, count);
     }
 
+    //? if >=26.1 {
+    /*public ShapelessCrafting shapeless(RecipeCategory category, net.minecraft.world.item.ItemStackTemplate result) {
+    *///?} else {
     public ShapelessCrafting shapeless(RecipeCategory category, net.minecraft.world.item.ItemStack result) {
+    //?}
         return new ShapelessCrafting(this, category, result);
     }
 

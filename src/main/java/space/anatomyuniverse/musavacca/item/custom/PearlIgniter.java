@@ -17,6 +17,7 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -51,14 +52,31 @@ public final class PearlIgniter {
         return stack;
     }
 
+    //? if >=26.1 {
+    /*public static net.minecraft.world.item.ItemStackTemplate recipeResult() {
+        return new net.minecraft.world.item.ItemStackTemplate(Items.FLINT_AND_STEEL.builtInRegistryHolder(), 1,
+                configuration().set(ModDataComponents.HEX_COLOR.get(), MusavaccaTints.DEFAULT_TINT).build());
+    }
+    *///?} else {
+    public static ItemStack recipeResult() {
+        return create();
+    }
+    //?}
+
     public static void configure(ItemStack stack) {
-        stack.set(ModDataComponents.PEARL_IGNITER.get(), true);
-        stack.set(DataComponents.ITEM_NAME, Component.translatable("item.musavacca.flint_and_pearl"));
+        stack.applyComponents(configuration().build());
+    }
+
+    private static DataComponentPatch.Builder configuration() {
+        var components = DataComponentPatch.builder()
+                .set(ModDataComponents.PEARL_IGNITER.get(), true)
+                .set(DataComponents.ITEM_NAME, Component.translatable("item.musavacca.flint_and_pearl"));
         //? if >=1.21.11 {
-        /*stack.set(DataComponents.ITEM_MODEL, net.minecraft.resources.Identifier.fromNamespaceAndPath("musavacca", "flint_and_pearl"));
+        /*components.set(DataComponents.ITEM_MODEL, net.minecraft.resources.Identifier.fromNamespaceAndPath("musavacca", "flint_and_pearl"));
         *///?} else if >=1.21.2 {
-        stack.set(DataComponents.ITEM_MODEL, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("musavacca", "flint_and_pearl"));
+        components.set(DataComponents.ITEM_MODEL, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("musavacca", "flint_and_pearl"));
         //?}
+        return components;
     }
 
     private static BlockState getCustomFireState(Level level, BlockPos pos) {
