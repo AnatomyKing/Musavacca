@@ -39,6 +39,12 @@ public final class PearlFireTintProfiles {
             0.0F,
             1.21F),
             255, 228, 196, 167);
+
+    public static final Profile PEARL_CANDLE = of(settings(
+            0.80F,
+            0.5F,
+            0.0F,
+            1.21F), 255, 183, 135, 102, 79, 61);
     
     public static final Profile SIM_CARD_TINT = of(settings(
             1.25F,

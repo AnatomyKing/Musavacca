@@ -56,7 +56,7 @@ public final class PearlCandleLogic {
         if (!(level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle)) return;
         BlockState original = candle.originalState();
         if (!PearlCandleConversion.isCandle(original)) return;
-        OriginalCandleParticles.animate(original, level, pos, random);
+        OriginalCandleParticles.animate(original, level, pos, random, candle.getHexColorOrFallback());
     }
 
     public static int candleLightLevel(BlockState state) {

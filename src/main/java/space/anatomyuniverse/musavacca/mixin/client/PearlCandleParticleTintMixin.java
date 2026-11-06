@@ -3,22 +3,26 @@ package space.anatomyuniverse.musavacca.mixin.client;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.SingleQuadParticle;
-//? if >=1.21.9 {
-/*import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-*///?}
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+//? if <1.21.9 {
+import net.minecraft.client.particle.TextureSheetParticle;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import space.anatomyuniverse.musavacca.particle.tinted.CandleParticleSource;
 import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticle;
 
-@Mixin(SingleQuadParticle.class)
-public abstract class PearlCandleParticleTintMixin extends Particle implements CandleParticleSource {
+//? if >=1.21.9 {
+/*@Mixin(SingleQuadParticle.class)
+*///?} else {
+@Mixin(TextureSheetParticle.class)
+//?}
+public abstract class PearlCandleParticleTintMixin extends Particle implements OriginalCandleParticle.Source {
     //? if >=1.21.9 {
     /*@Shadow protected float alpha;
     @Shadow protected float roll;
     @Shadow protected float oRoll;
-    @Shadow protected TextureAtlasSprite sprite;
     *///?}
+    @Shadow protected TextureAtlasSprite sprite;
     @Shadow protected abstract float getU0();
     @Shadow protected abstract float getU1();
     @Shadow protected abstract float getV0();
@@ -29,21 +33,14 @@ public abstract class PearlCandleParticleTintMixin extends Particle implements C
     }
 
     @Override
-    public OriginalCandleParticle musavacca$wrap() {
-        return new OriginalCandleParticle(this.level, (SingleQuadParticle) (Object) this
-                //? if >=1.21.9 {
-                /*, this.sprite
-                *///?}
-        );
+    public Particle musavacca$wrap(int color) {
+        return this.sprite == null ? this
+                : new OriginalCandleParticle(this.level, (SingleQuadParticle) (Object) this, this.sprite, color);
     }
 
     @Override
     public void musavacca$copyTo(OriginalCandleParticle target) {
-        target.copyState(this.x, this.y, this.z, this.xo, this.yo, this.zo, this.roll, this.oRoll, this.alpha, this.age, this.lifetime
-                //? if >=1.21.9 {
-                /*, this.sprite
-                *///?}
-        );
+        target.copyState(this.x, this.y, this.z, this.xo, this.yo, this.zo, this.roll, this.oRoll, this.alpha, this.age, this.lifetime, this.sprite);
         target.setBoundingBox(this.getBoundingBox());
     }
 

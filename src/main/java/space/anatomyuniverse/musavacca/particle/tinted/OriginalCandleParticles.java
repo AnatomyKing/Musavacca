@@ -6,21 +6,20 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class OriginalCandleParticles {
-    private static final ThreadLocal<Boolean> ACTIVE = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Integer> COLOR = new ThreadLocal<>();
     private OriginalCandleParticles() {}
 
-    public static void animate(BlockState state, Level level, BlockPos pos, RandomSource random) {
+    public static void animate(BlockState state, Level level, BlockPos pos, RandomSource random, int color) {
         if (!level.isClientSide()) return;
-        boolean previous = ACTIVE.get();
-        ACTIVE.set(true);
+        Integer previous = COLOR.get();
+        COLOR.set(color);
         try {
             state.getBlock().animateTick(state, level, pos, random);
         } finally {
-            ACTIVE.set(previous);
+            if (previous == null) COLOR.remove();
+            else COLOR.set(previous);
         }
     }
 
-    public static boolean isActive() {
-        return ACTIVE.get();
-    }
+    public static Integer color() { return COLOR.get(); }
 }

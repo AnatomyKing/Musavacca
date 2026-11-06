@@ -7,7 +7,6 @@ import net.minecraft.client.particle.SmokeParticle;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import space.anatomyuniverse.musavacca.particle.tinted.CandleParticleSource;
 import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticle;
 import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles;
 
@@ -15,8 +14,9 @@ import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles;
 public abstract class PearlCandleParticleCaptureMixin {
     @ModifyVariable(method = "add(Lnet/minecraft/client/particle/Particle;)V", at = @At("HEAD"), argsOnly = true, ordinal = 0, require = 1)
     private Particle musavacca$wrapCandleParticle(Particle particle) {
-        if (!OriginalCandleParticles.isActive() || !particle.isAlive() || particle instanceof OriginalCandleParticle
+        Integer color = OriginalCandleParticles.color();
+        if (color == null || !particle.isAlive() || particle instanceof OriginalCandleParticle
                 || particle instanceof SmokeParticle || particle instanceof CampfireSmokeParticle) return particle;
-        return particle instanceof CandleParticleSource source ? source.musavacca$wrap() : particle;
+        return particle instanceof OriginalCandleParticle.Source source ? source.musavacca$wrap(color) : particle;
     }
 }

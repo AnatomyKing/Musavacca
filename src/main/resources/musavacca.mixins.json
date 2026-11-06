@@ -14,7 +14,9 @@
     "compat.gleam.GleamVanillaMixin",
     "compat.gleam.GleamSodiumMixin",
     "client.PearlCandleParticleCaptureMixin",
-    "client.PearlCandleParticleTintMixin"
+    "client.PearlCandleParticleTintMixin",
+    "client.PearlCandleSpriteContentsMixin",
+    "client.PearlCandleSpriteLoaderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

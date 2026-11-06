@@ -20,6 +20,17 @@ public final class ProfileTintSprite {
         return new Layer(layer, layerCount, tint, options.seed());
     }
 
+    public static int[] colors(int color, PearlFireTintProfiles.Profile profile) {
+        int[] colors = new int[profile.layerCount()];
+        for (int i = 0; i < colors.length; i++) colors[i] = PearlFireTintSource.profileTint(color, i, profile);
+        return colors;
+    }
+
+    public static void applyColor(SingleQuadParticle particle, int tint) {
+        int rgb = MusavaccaTints.rgb(tint);
+        particle.setColor(((rgb >> 16) & 255) / 255.0F, ((rgb >> 8) & 255) / 255.0F, (rgb & 255) / 255.0F);
+    }
+
     public record Layer(int spriteLayer, int spriteLayerCount, int tint, int seed) {
         public TextureAtlasSprite sprite(SpriteSet sprites) {
             return sprites.get(spriteLayer, Math.max(1, spriteLayerCount - 1));
@@ -30,8 +41,7 @@ public final class ProfileTintSprite {
         }
 
         public void applyColor(SingleQuadParticle particle) {
-            int rgb = MusavaccaTints.rgb(tint);
-            particle.setColor(((rgb >> 16) & 0xFF) / 255.0F, ((rgb >> 8) & 0xFF) / 255.0F, (rgb & 0xFF) / 255.0F);
+            ProfileTintSprite.applyColor(particle, this.tint);
         }
     }
 }
