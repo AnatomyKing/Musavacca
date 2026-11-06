@@ -1,7 +1,6 @@
 {
 	"format_version": "1.21.11",
 	"credit": "AnatomyKing(𝕏🐦@LuukMus,ᵈᶦˢᶜᵒʳᵈ@anatomyking)",
-	"ambientocclusion": false,
 	"textures": {
 		"particle": "#torch"
 	},
@@ -9,8 +8,6 @@
 		{
 			"from": [7, 8, 7],
 			"to": [9, 10, 9],
-			"shade": false,
-			"shade_direction_override": "up",
 			"faces": {
 				"north": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 0},
 				"east": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 0},
@@ -23,8 +20,6 @@
 		{
 			"from": [7, 8, 7],
 			"to": [9, 10, 9],
-			"shade": false,
-			"shade_direction_override": "up",
 			"faces": {
 				"north": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 1},
 				"east": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 1},
@@ -37,8 +32,6 @@
 		{
 			"from": [7, 8, 7],
 			"to": [9, 10, 9],
-			"shade": false,
-			"shade_direction_override": "up",
 			"faces": {
 				"north": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 2},
 				"east": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 2},
@@ -51,8 +44,6 @@
 		{
 			"from": [7, 8, 7],
 			"to": [9, 10, 9],
-			"shade": false,
-			"shade_direction_override": "up",
 			"faces": {
 				"north": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 3},
 				"east": {"uv": [7, 6, 9, 8], "texture": "#torch", "tintindex": 3},
@@ -65,8 +56,6 @@
 		{
 			"from": [7, 0, 7],
 			"to": [9, 8, 9],
-			"shade": false,
-			"shade_direction_override": "up",
 			"faces": {
 				"north": {"uv": [7, 8, 9, 16], "texture": "#torch"},
 				"east": {"uv": [7, 8, 9, 16], "texture": "#torch"},

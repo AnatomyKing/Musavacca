@@ -64,6 +64,9 @@ public final class ModBlocks {
                 name,
                 props -> new BlockItem(MUSAVACCA_EGG.get(),
                         props.component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(BreakBlock.AGE, age)))
+                //? if <1.21.2 {
+                /*{ @Override public String getDescriptionId() { return getOrCreateDescriptionId(); } }
+                *///?}
         );
     }
 

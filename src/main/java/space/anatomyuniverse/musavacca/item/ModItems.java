@@ -138,6 +138,9 @@ public final class ModItems {
                                         .with(MusavaccaPortalDoorBlock.PORTAL, portal)
                         )
                 )
+                //? if <1.21.2 {
+                /*{ @Override public String getDescriptionId() { return getOrCreateDescriptionId(); } }
+                *///?}
         );
     }
 

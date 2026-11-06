@@ -98,6 +98,9 @@ public final class MusaCore {
         ) {
             ModTints.register(modBus);
             modBus.addListener(VocoCallerTooltipClient::register);
+            //? if <26.1 {
+            modBus.addListener(MusaRenderLayers::onClientSetup);
+            //?}
             modBus.addListener(MusaRenderLayers::onModifyBakingResult);
             //? if >=1.21.4 {
             modBus.addListener(ModMenuEvents::register);

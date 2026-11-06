@@ -1,12 +1,8 @@
 {
 	"format_version": "1.21.11",
 	"credit": "AnatomyKing(𝕏🐦@LuukMus,ᵈᶦˢᶜᵒʳᵈ@anatomyking)",
-	"ambientocclusion": false,
 	"elements": [
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -16,9 +12,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -28,9 +21,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -40,9 +30,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -52,9 +39,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -64,9 +48,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -76,9 +57,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -88,9 +66,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -100,9 +75,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -112,9 +84,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -124,9 +93,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -136,9 +102,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -148,9 +111,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -160,9 +120,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},
@@ -172,9 +129,6 @@
 			}
 		},
 		{
-			"shade": false,
-			"shade_direction_override": "up",
-			"neoforge_data": {"ambient_occlusion": false},
 			"from": [0.02, 5, 1],
 			"to": [2.98, 13, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [1, 5, 0]},

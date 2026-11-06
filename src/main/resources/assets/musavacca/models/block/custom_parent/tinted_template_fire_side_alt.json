@@ -2,7 +2,6 @@
     "textures": {
         "particle": "#fire_0"
     },
-    "ambientocclusion": false,
     "elements": [
         {
             "from": [
@@ -15,8 +14,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -51,8 +48,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -87,8 +82,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -123,8 +116,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -159,8 +150,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -195,8 +184,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -231,8 +218,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -267,8 +252,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -303,8 +286,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -339,8 +320,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -375,8 +354,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -411,8 +388,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -447,8 +422,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -483,8 +456,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -519,8 +490,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -555,8 +524,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -591,8 +558,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -627,8 +592,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -663,8 +626,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -699,8 +660,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -735,8 +694,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -771,8 +728,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -807,8 +762,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -843,8 +796,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -879,8 +830,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -915,8 +864,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -951,8 +898,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -987,8 +932,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -1023,8 +966,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -1059,8 +1000,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -1095,8 +1034,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
@@ -1131,8 +1068,6 @@
                 22.4,
                 0.01
             ],
-            "shade": false,
-            "shade_direction_override": "up",
             "faces": {
                 "south": {
                     "uv": [
