@@ -6,9 +6,9 @@ import net.minecraft.core.Direction;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.level.block.Block;
 import java.util.Objects;
 import java.util.function.Consumer;
+import net.minecraft.world.level.block.Block;
 
 public record PortalModels(Models.Source northSouth, Models.Source eastWest, Models.Source upDown) {
     public PortalModels {
@@ -25,7 +25,11 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
     }
 
     public Models.Source model(Direction.Axis axis) {
-        return switch (axis) { case X -> northSouth; case Z -> eastWest; case Y -> upDown; };
+        return switch (axis) {
+        case X -> northSouth;
+        case Z -> eastWest;
+        case Y -> upDown;
+        };
     }
 
     public static PortalModels generated(Block block, Consumer<PortalTextures.Builder> textures) {
@@ -59,6 +63,7 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
         return new Pane(ResourceLocation.fromNamespaceAndPath(stem.getNamespace(), stem.getPath() + suffix), axis, textures);
     //?}
     }
+
     //? if >=1.21.11 {
     /*record Pane(Identifier model, Direction.Axis axis, PortalTextures.Set textures) implements Models.Source {
     *///?} else {

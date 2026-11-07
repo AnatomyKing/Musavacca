@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
+import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -16,7 +17,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import java.util.function.Supplier;
 //? if >=1.21.2 {
 import net.minecraft.world.InteractionResult;
 //?} else {
@@ -26,6 +26,7 @@ import net.minecraft.world.InteractionResult;
 public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
     public static final IntegerProperty STAGE = IntegerProperty.create("stage", 0, 2);
     private final Supplier<? extends Block> strippedStem;
+
     public ExudatedStrippedMusavaccaStemBlock(Properties properties, Supplier<? extends Block> strippedStem) {
         super(properties);
         this.strippedStem = strippedStem;
@@ -58,12 +59,7 @@ public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
         ItemStack filledResult = ItemUtils.createFilledResult(glassBottles, player, new ItemStack(ModItems.MUSAVACCA_EXUDATE.get()));
         player.setItemInHand(hand, filledResult);
         int currentStage = state.getValue(STAGE);
-        BlockState nextState;
-        if (currentStage < 2) {
-            nextState = state.setValue(STAGE, currentStage + 1);
-        } else {
-            nextState = strippedStem.get().withPropertiesOf(state);
-        }
+        BlockState nextState = currentStage < 2 ? state.setValue(STAGE, currentStage + 1) : strippedStem.get().withPropertiesOf(state);
         level.setBlock(pos, nextState, Block.UPDATE_ALL);
         level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
     }

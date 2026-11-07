@@ -48,8 +48,8 @@ public final class VocoPostCandleLogic {
             if (info.active()) {
                 shouldBePortal = postBe.setHexColor(info.hexColor());
                 if (shouldBePortal && level instanceof ServerLevel serverLevel) {
-                    VocoTeleportLogic.SyncResult result = VocoTeleportLogic.syncEndpointDetailed(serverLevel, postPos, VocoPostBlock.receptorPosition(postState),
-                            true, info.hexColor());
+                    VocoTeleportLogic.SyncResult result = VocoTeleportLogic.syncEndpointDetailed(serverLevel, postPos,
+                            VocoPostBlock.receptorPosition(postState), true, info.hexColor());
                     shouldBePortal = result == VocoTeleportLogic.SyncResult.ACTIVE;
                     queued = result == VocoTeleportLogic.SyncResult.QUEUED;
                 }
@@ -71,19 +71,15 @@ public final class VocoPostCandleLogic {
     }
 
     private static PortalInfo readPortalInfo(Level level, BlockPos postPos, BlockState postState) {
-        if (!postState.hasProperty(VocoPostBlock.LIT)
-                || !postState.getValue(VocoPostBlock.LIT)) {
+        if (!postState.hasProperty(VocoPostBlock.LIT) || !postState.getValue(VocoPostBlock.LIT)) {
             return PortalInfo.INACTIVE;
         }
         BlockPos candlePos = postPos.above();
         BlockState candleState = level.getBlockState(candlePos);
-        if (!(candleState.getBlock() instanceof PearlCandleBlock)
-                || !candleState.hasProperty(BlockStateProperties.LIT)
+        if (!(candleState.getBlock() instanceof PearlCandleBlock) || !candleState.hasProperty(BlockStateProperties.LIT)
                 || !candleState.getValue(BlockStateProperties.LIT)
-                || candleState.hasProperty(BlockStateProperties.WATERLOGGED)
-                && candleState.getValue(BlockStateProperties.WATERLOGGED)
-                || !(level.getBlockEntity(candlePos) instanceof PearlCandleBlockEntity pearlCandleBe)
-                || !pearlCandleBe.hasHexColor()) {
+                || candleState.hasProperty(BlockStateProperties.WATERLOGGED) && candleState.getValue(BlockStateProperties.WATERLOGGED)
+                || !(level.getBlockEntity(candlePos) instanceof PearlCandleBlockEntity pearlCandleBe) || !pearlCandleBe.hasHexColor()) {
             return PortalInfo.INACTIVE;
         }
         return new PortalInfo(true, pearlCandleBe.getHexColor());

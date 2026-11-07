@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.portal;
 
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -14,10 +15,10 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
-import java.util.UUID;
 
 public final class PearlPortalCreator {
     private PearlPortalCreator() {}
+
     private static final int PORTAL_SET_FLAGS = Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS;
 
     public static boolean tryCreatePortal(Level level, BlockPos insidePos, int hexColor, @Nullable Player player, @Nullable Direction ignitionFace) {
@@ -95,7 +96,7 @@ public final class PearlPortalCreator {
     }
 
     private static boolean initializePortalBlockEntities(ServerLevel level, PearlPortalFrame.Shape shape, UUID portalId, int hexColor) {
-        boolean[] missingBlockEntity = {false};
+        boolean[] missingBlockEntity = { false };
         shape.forEachInteriorBlock(pos -> {
             if (level.getBlockEntity(pos) instanceof PearlPortalBlockEntity portalBlockEntity) {
                 portalBlockEntity.initializePortal(portalId, hexColor, shape);
@@ -107,7 +108,7 @@ public final class PearlPortalCreator {
     }
 
     private static boolean containsExistingPortalBlock(ServerLevel level, PearlPortalFrame.Shape shape) {
-        boolean[] foundExistingPortal = {false};
+        boolean[] foundExistingPortal = { false };
         shape.forEachInteriorBlock(pos -> {
             if (level.getBlockState(pos).is(ModBlocks.PEARL_PORTAL.get())) {
                 foundExistingPortal[0] = true;
@@ -117,7 +118,7 @@ public final class PearlPortalCreator {
     }
 
     private static void rollbackPlacedPortal(ServerLevel level, PearlPortalFrame.Shape shape, UUID portalId) {
-        boolean[] triggeredPhysicalCollapse = {false};
+        boolean[] triggeredPhysicalCollapse = { false };
         shape.forEachInteriorBlock(pos -> {
             if (triggeredPhysicalCollapse[0]) return;
             if (level.getBlockState(pos).is(ModBlocks.PEARL_PORTAL.get())) {

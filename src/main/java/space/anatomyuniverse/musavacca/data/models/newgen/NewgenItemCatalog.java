@@ -1,18 +1,22 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.level.block.state.BlockState;
-import space.anatomyuniverse.musavacca.data.models.NewModelSets;
-import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.state.BlockState;
+import space.anatomyuniverse.musavacca.data.models.NewModelSets;
+import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.FamilyItemMode;
+import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.ModelMode;
+import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 
 public final class NewgenItemCatalog {
     private NewgenItemCatalog() {}
+
     public record Binding(ItemLike item, SimpleItems.Model model) {}
+
     public static List<Binding> tintBindings() {
         List<Binding> result = new ArrayList<>();
         for (SimpleItems.Entry entry : NewModelSets.simpleItems()) {
@@ -79,6 +83,7 @@ public final class NewgenItemCatalog {
         }
         return List.copyOf(types.values());
     }
+
     //?}
     private static void addModelFamilyItems(List<Binding> result, List<? extends BlockFamily.ModelFamilyEntry<?, ?>> entries) {
         for (BlockFamily.ModelFamilyEntry<?, ?> entry : entries) {
@@ -88,12 +93,8 @@ public final class NewgenItemCatalog {
                 continue;
             }
             List<? extends BlockFamily.ModelRule<?, ?>> rules = entry.mode() == ModelMode.MODELS ? entry.models() : entry.parts();
-            BlockFamily.ModelRule<?, ?> first = entry.mode() == ModelMode.MODELS
-                    ? rules.get(0)
-                    : rules.stream()
-                    .filter(rule -> rule.conditions().isAlways())
-                    .findFirst()
-                    .orElse(null);
+            BlockFamily.ModelRule<?, ?> first = entry.mode() == ModelMode.MODELS ? rules.get(0)
+                    : rules.stream().filter(rule -> rule.conditions().isAlways()).findFirst().orElse(null);
             if (first == null) continue;
             Tints.Tint tint = Tints.effective(entry.tint(), first.tint());
             if (tint.tinted()) {
@@ -128,8 +129,8 @@ public final class NewgenItemCatalog {
             }
         } else if (model.isBlockState() && item.asItem() instanceof BlockItem blockItem) {
             BlockState state = declarations ? null : SimpleItems.blockState(item);
-            SimpleBlocks.Entry entry = NewModelSets.simpleBlocks().stream()
-                    .filter(candidate -> candidate.block() == blockItem.getBlock()).findFirst().orElse(null);
+            SimpleBlocks.Entry entry = NewModelSets.simpleBlocks().stream().filter(candidate -> candidate.block() == blockItem.getBlock()).findFirst()
+                    .orElse(null);
             if (entry != null) {
                 List<? extends BlockFamily.ModelRule<?, ?>> rules = entry.mode() == ModelMode.MODELS ? entry.models() : entry.parts();
                 for (BlockFamily.ModelRule<?, ?> part : rules) {
@@ -139,8 +140,7 @@ public final class NewgenItemCatalog {
                 }
             }
         }
-        List<List<Tints.Tint>> tinted = palettes.stream()
-                .filter(palette -> palette.stream().anyMatch(Tints.Tint::tinted)).toList();
+        List<List<Tints.Tint>> tinted = palettes.stream().filter(palette -> palette.stream().anyMatch(Tints.Tint::tinted)).toList();
         //? if <1.21.4 {
         /*if (declarations) return tinted.stream().flatMap(List::stream).toList();
         if (tinted.size() > 1 && tinted.stream().distinct().count() > 1)
@@ -161,5 +161,3 @@ public final class NewgenItemCatalog {
         result.add(new Binding(item, model));
     }
 }
-
-

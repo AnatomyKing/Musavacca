@@ -20,13 +20,7 @@ import space.anatomyuniverse.musavacca.entity.boat.musavacca.MusavaccaBoat;
         *///?}
 )
 public abstract class AbstractBoatFloatMixin {
-    @ModifyConstant(
-            method = "floatBoat()V",
-            constant = @Constant(
-                    doubleValue = 0.65D
-            ),
-            require = 1
-    )
+    @ModifyConstant(method = "floatBoat()V", constant = @Constant(doubleValue = 0.65D), require = 1)
     private double musavacca$modifyWaterlineFraction(double original) {
         return (Object) this instanceof MusavaccaBoat ? 0.29D : original;
     }

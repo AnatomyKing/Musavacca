@@ -45,32 +45,30 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalTrapdoorHitboxes;
-import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalTrapdoorVoxelShapes;
 import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
+import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalTrapdoorHitboxes;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalTrapdoorBlockEntity;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import space.anatomyuniverse.musavacca.trapdoor.MusavaccaTrapdoorTeleportEvent;
+import space.anatomyuniverse.musavacca.trapdoor.MusavaccaTrapdoorTeleport;
 import space.anatomyuniverse.musavacca.trapdoor.MusavaccaTrapdoorTeleportNetwork;
 import space.anatomyuniverse.musavacca.trapdoor.MusavaccaTrapdoorTeleportTransform;
 
-public final class MusavaccaPortalTrapdoorBlock
-        extends TrapDoorBlock
-        implements EntityBlock, Portal {
+public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements EntityBlock, Portal {
     public static final BooleanProperty LIT = BooleanProperty.create("lit");
     public static final BooleanProperty LIT_PORTAL = BooleanProperty.create("lit_portal");
     public static final BooleanProperty PORTAL = BooleanProperty.create("portal");
     private static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
     private static final double PORTAL_TRIGGER_EPSILON = 1.0D / 1024.0D;
     private static final PearlSlotIgnition.Slot PEARL_SLOT = PearlSlotIgnition.Slot.of(LIT, PORTAL, new Vec3(0.5D, 0.5D, 0.5D), new Vec3(0.0D, 0.18D, 0.0D));
+
     public MusavaccaPortalTrapdoorBlock(BlockSetType blockSetType, Properties properties) {
         super(blockSetType, properties);
         this.registerDefaultState(this.defaultBlockState().setValue(LIT, false).setValue(LIT_PORTAL, false).setValue(PORTAL, false));
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder< Block, BlockState > builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(LIT, LIT_PORTAL, PORTAL);
     }
@@ -78,13 +76,12 @@ public final class MusavaccaPortalTrapdoorBlock
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         VoxelShape trapdoorShape = super.getShape(state, level, pos, context);
-        return MusavaccaPortalTrapdoorVoxelShapes.outlineShape(state, trapdoorShape);
+        return MusavaccaPortalTrapdoorHitboxes.hasOpenPortal(state) ? Shapes.or(trapdoorShape, MusavaccaPortalTrapdoorHitboxes.portalPanel(state)) : trapdoorShape;
     }
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        VoxelShape trapdoorShape = super.getShape(state, level, pos, context);
-        return MusavaccaPortalTrapdoorVoxelShapes.collisionShape(trapdoorShape);
+        return super.getShape(state, level, pos, context);
     }
 
     //? if >=1.21.2 {
@@ -94,16 +91,11 @@ public final class MusavaccaPortalTrapdoorBlock
     //?} else {
     /*protected VoxelShape getEntityInsideCollisionShape(BlockState state, Level level, BlockPos pos) {
     *///?}
+        if (MusavaccaPortalTrapdoorHitboxes.hasOpenPortal(state)) return entranceTriggerShape(state);
         //? if >=1.21.5 {
-        if (
-                !MusavaccaPortalTrapdoorHitboxes
-                        .hasOpenPortal(state)
-        ) {
-            return super.getEntityInsideCollisionShape(state, level, pos, entity);
-        }
-        return entranceTriggerShape(state);
+        return super.getEntityInsideCollisionShape(state, level, pos, entity);
         //?} else {
-        /*return MusavaccaPortalTrapdoorHitboxes.hasOpenPortal(state) ? entranceTriggerShape(state) : super.getEntityInsideCollisionShape(state, level, pos);
+        /*return super.getEntityInsideCollisionShape(state, level, pos);
         *///?}
     }
 
@@ -112,6 +104,7 @@ public final class MusavaccaPortalTrapdoorBlock
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.INVISIBLE;
     }
+
     *///?}
     //?}
     @Nullable
@@ -122,21 +115,10 @@ public final class MusavaccaPortalTrapdoorBlock
 
     @Nullable
     @Override
-    public <T extends BlockEntity>
-    BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         if (level.isClientSide()) return null;
-        return (
-                tickLevel,
-                tickPos,
-                tickState,
-                blockEntity
-        ) -> {
-            if (
-                    tickLevel
-                            instanceof ServerLevel serverLevel
-                            && blockEntity
-                            instanceof MusavaccaPortalTrapdoorBlockEntity
-            ) {
+        return (tickLevel, tickPos, tickState, blockEntity) -> {
+            if (tickLevel instanceof ServerLevel serverLevel && blockEntity instanceof MusavaccaPortalTrapdoorBlockEntity) {
                 tickEntranceNudge(serverLevel, tickPos, tickState);
             }
         };
@@ -150,15 +132,7 @@ public final class MusavaccaPortalTrapdoorBlock
     //?} else {
     /*protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
     *///?}
-        this.handleEntityInside(state, level, pos, entity);
-    }
-
-    private void handleEntityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (
-                !entity.canUsePortal(false)
-                        || !MusavaccaPortalTrapdoorHitboxes
-                        .hasOpenPortal(state)
-        ) {
+        if (!entity.canUsePortal(false) || !MusavaccaPortalTrapdoorHitboxes.hasOpenPortal(state)) {
             return;
         }
         VoxelShape entranceShape = entranceTriggerShape(state);
@@ -166,10 +140,7 @@ public final class MusavaccaPortalTrapdoorBlock
         AABB entranceBox = entranceShape.bounds().move(pos.getX(), pos.getY(), pos.getZ());
         Vec3 movement = entity.getDeltaMovement();
         AABB sweptEntityBox = entity.getBoundingBox().expandTowards(-movement.x, -movement.y, -movement.z);
-        if (
-                !entranceBox.intersects(sweptEntityBox)
-                        || !isApproachingPortalPlane(entity, state, pos)
-        ) {
+        if (!entranceBox.intersects(sweptEntityBox) || !isApproachingPortalPlane(entity, state, pos)) {
             return;
         }
         entity.setAsInsidePortal(this, pos);
@@ -178,27 +149,21 @@ public final class MusavaccaPortalTrapdoorBlock
     //? if <1.21.5 {
     /*@Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.getBlock() != newState.getBlock()
-                && level.getBlockEntity(pos) instanceof MusavaccaPortalTrapdoorBlockEntity blockEntity) {
+        if (state.getBlock() != newState.getBlock() && level.getBlockEntity(pos) instanceof MusavaccaPortalTrapdoorBlockEntity blockEntity) {
             blockEntity.cleanupBeforeRemoval();
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
+
     *///?}
     private void tickEntranceNudge(ServerLevel level, BlockPos pos, BlockState state) {
-        if (
-                !state.is(this)
-                        || !MusavaccaPortalTrapdoorHitboxes
-                        .hasOpenPortal(state)
-        ) {
+        if (!state.is(this) || !MusavaccaPortalTrapdoorHitboxes.hasOpenPortal(state)) {
             return;
         }
         AABB entranceBox = entranceTriggerWorldBox(state, pos);
         if (entranceBox == null) return;
         for (Entity entity : level.getEntities((Entity) null, entranceBox, entity -> entity.canUsePortal(false))) {
-            if (
-                    !isApproachingPortalPlane(entity, state, pos)
-            ) {
+            if (!isApproachingPortalPlane(entity, state, pos)) {
                 continue;
             }
             entity.setAsInsidePortal(this, pos);
@@ -220,8 +185,7 @@ public final class MusavaccaPortalTrapdoorBlock
         double centerY = (portalBox.minY + portalBox.maxY) * 0.5D;
         return Shapes.create(
                 new AABB(portalBox.minX - PORTAL_TRIGGER_EPSILON, centerY - entranceNudge - PORTAL_TRIGGER_EPSILON, portalBox.minZ - PORTAL_TRIGGER_EPSILON,
-                        portalBox.maxX + PORTAL_TRIGGER_EPSILON, centerY + entranceNudge + PORTAL_TRIGGER_EPSILON, portalBox.maxZ + PORTAL_TRIGGER_EPSILON)
-        );
+                        portalBox.maxX + PORTAL_TRIGGER_EPSILON, centerY + entranceNudge + PORTAL_TRIGGER_EPSILON, portalBox.maxZ + PORTAL_TRIGGER_EPSILON));
     }
 
     private static boolean isApproachingPortalPlane(Entity entity, BlockState state, BlockPos pos) {
@@ -231,18 +195,10 @@ public final class MusavaccaPortalTrapdoorBlock
         double planeY = (portalBox.minY + portalBox.maxY) * 0.5D;
         AABB entityBox = entity.getBoundingBox();
         double verticalMovement = entity.getDeltaMovement().y;
-        if (
-                entityBox.maxY
-                        < planeY
-                        - PORTAL_TRIGGER_EPSILON
-        ) {
+        if (entityBox.maxY < planeY - PORTAL_TRIGGER_EPSILON) {
             return verticalMovement > PORTAL_TRIGGER_EPSILON;
         }
-        if (
-                entityBox.minY
-                        > planeY
-                        + PORTAL_TRIGGER_EPSILON
-        ) {
+        if (entityBox.minY > planeY + PORTAL_TRIGGER_EPSILON) {
             return verticalMovement < -PORTAL_TRIGGER_EPSILON;
         }
         return true;
@@ -256,13 +212,13 @@ public final class MusavaccaPortalTrapdoorBlock
     @Nullable
     @Override
     public
-    //? if >=1.21.2 {
-    TeleportTransition
-    //?} else {
-    /*DimensionTransition
-    *///?}
-    getPortalDestination(ServerLevel currentLevel, Entity entity, BlockPos entryPos) {
-        return MusavaccaTrapdoorTeleportEvent.getPortalDestination(currentLevel, entity, entryPos);
+            //? if >=1.21.2 {
+            TeleportTransition
+            //?} else {
+            /*DimensionTransition
+            *///?}
+            getPortalDestination(ServerLevel currentLevel, Entity entity, BlockPos entryPos) {
+        return MusavaccaTrapdoorTeleport.getPortalDestination(currentLevel, entity, entryPos);
     }
 
     @Override
@@ -282,7 +238,8 @@ public final class MusavaccaPortalTrapdoorBlock
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
     //?} else {
     /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
@@ -301,11 +258,7 @@ public final class MusavaccaPortalTrapdoorBlock
 
     private InteractionResult handlePearlSlotItem(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand) {
         InteractionResult result = PearlSlotIgnition.handleHeldItemUse(stack, state, level, pos, player, hand, PEARL_SLOT);
-        if (
-                result
-                        == InteractionResult.SUCCESS
-                        && !level.isClientSide()
-        ) {
+        if (result == InteractionResult.SUCCESS && !level.isClientSide()) {
             synchronizePearlState(level, pos);
         }
         return result;
@@ -318,45 +271,29 @@ public final class MusavaccaPortalTrapdoorBlock
     public static void synchronizePearlState(Level level, BlockPos pos, boolean playPortalSound) {
         if (level.isClientSide()) return;
         BlockState state = level.getBlockState(pos);
-        if (
-                !(state.getBlock()
-                        instanceof MusavaccaPortalTrapdoorBlock)
-        ) {
+        if (!(state.getBlock() instanceof MusavaccaPortalTrapdoorBlock)) {
             return;
         }
         boolean wasPortal = state.getValue(PORTAL);
         boolean lit = state.getValue(LIT);
         boolean litPortal = hasAssignedHexColor(level, pos);
         boolean portal = lit && litPortal;
-        setVisualState(level, pos, lit, litPortal, portal);
+        setVisualState(level, pos, lit, litPortal);
         if (playPortalSound) {
             PearlSlotIgnition.playPortalStateChangeSound(level, pos, wasPortal, portal);
         }
-        if (
-                level.getBlockEntity(pos)
-                        instanceof MusavaccaPortalTrapdoorBlockEntity trapdoorBe
-        ) {
+        if (level.getBlockEntity(pos) instanceof MusavaccaPortalTrapdoorBlockEntity trapdoorBe) {
             MusavaccaTrapdoorTeleportNetwork.refresh(trapdoorBe);
         }
     }
 
-    private static void setVisualState(Level level, BlockPos pos, boolean lit, boolean litPortal, boolean portal) {
+    private static void setVisualState(Level level, BlockPos pos, boolean lit, boolean litPortal) {
         BlockState state = level.getBlockState(pos);
-        if (
-                !(state.getBlock()
-                        instanceof MusavaccaPortalTrapdoorBlock)
-        ) {
+        if (!(state.getBlock() instanceof MusavaccaPortalTrapdoorBlock)) {
             return;
         }
-        boolean resolvedPortal = lit && litPortal && portal;
-        if (
-                state.getValue(LIT)
-                        == lit
-                        && state.getValue(LIT_PORTAL)
-                        == litPortal
-                        && state.getValue(PORTAL)
-                        == resolvedPortal
-        ) {
+        boolean resolvedPortal = lit && litPortal;
+        if (state.getValue(LIT) == lit && state.getValue(LIT_PORTAL) == litPortal && state.getValue(PORTAL) == resolvedPortal) {
             return;
         }
         level.setBlock(pos, state.setValue(LIT, lit).setValue(LIT_PORTAL, litPortal).setValue(PORTAL, resolvedPortal), UPDATE_FLAGS);

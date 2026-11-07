@@ -8,7 +8,8 @@ import net.minecraft.world.entity.EntityType;
 *///?} else if >=1.21.2 <1.21.11 {
 import net.minecraft.world.entity.vehicle.AbstractBoat;
 //?} else {
-/*import net.minecraft.stats.Stats;
+/*import java.util.List;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +20,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.entity.boat.musavacca.MusavaccaBoat;
-import java.util.List;
 *///?}
 //? if >=1.21.2 {
 import net.minecraft.world.item.BoatItem;
@@ -34,6 +34,7 @@ public final class MusavaccaBoatItem extends
 {
     //? if <1.21.2 {
     /*private final EntityType<? extends MusavaccaBoat> entityType;
+
     *///?}
     //? if >=1.21.2 {
     public MusavaccaBoatItem(EntityType<? extends AbstractBoat> entityType, Properties properties) {

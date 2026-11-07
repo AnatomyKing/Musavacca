@@ -1,23 +1,18 @@
 package space.anatomyuniverse.musavacca.data.language;
 
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.item.ModSmithingTemplates;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 public final class ModLanguageProvider extends LanguageProvider {
     private static final Map<String, String> OVERRIDES = new LinkedHashMap<>();
@@ -35,37 +30,25 @@ public final class ModLanguageProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
-        final String modid = MusaCore.MOD_ID;
+        final String modId = MusaCore.MOD_ID;
         final Set<String> generatedKeys = new HashSet<>();
-        for (Block b : BuiltInRegistries.BLOCK) {
-            //? if >=1.21.11 {
-            /*Identifier id = BuiltInRegistries.BLOCK.getKey(b);
-            *///?} else {
-            ResourceLocation id = BuiltInRegistries.BLOCK.getKey(b);
-            //?}
-            if (id == null || !modid.equals(id.getNamespace())) continue;
-            addGenerated(generatedKeys, b.getDescriptionId(), humanize(id.getPath()));
+        for (Block block : BuiltInRegistries.BLOCK) {
+            var id = BuiltInRegistries.BLOCK.getKey(block);
+            if (id == null || !modId.equals(id.getNamespace())) continue;
+            addGenerated(generatedKeys, block.getDescriptionId(), humanize(id.getPath()));
         }
-        for (Item it : BuiltInRegistries.ITEM) {
-            //? if >=1.21.11 {
-            /*Identifier id = BuiltInRegistries.ITEM.getKey(it);
-            *///?} else {
-            ResourceLocation id = BuiltInRegistries.ITEM.getKey(it);
-            //?}
-            if (id == null || !modid.equals(id.getNamespace())) continue;
-            addGenerated(generatedKeys, it.getDescriptionId(), humanize(id.getPath()));
+        for (Item item : BuiltInRegistries.ITEM) {
+            var id = BuiltInRegistries.ITEM.getKey(item);
+            if (id == null || !modId.equals(id.getNamespace())) continue;
+            addGenerated(generatedKeys, item.getDescriptionId(), humanize(id.getPath()));
         }
         for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
-            //? if >=1.21.11 {
-            /*Identifier id = BuiltInRegistries.MOB_EFFECT.getKey(effect);
-            *///?} else {
-            ResourceLocation id = BuiltInRegistries.MOB_EFFECT.getKey(effect);
-            //?}
-            if (id == null || !modid.equals(id.getNamespace())) continue;
+            var id = BuiltInRegistries.MOB_EFFECT.getKey(effect);
+            if (id == null || !modId.equals(id.getNamespace())) continue;
             addGenerated(generatedKeys, effect.getDescriptionId(), humanize(id.getPath()));
         }
         addSmithingTemplateTranslations(generatedKeys);
-        String tabKey = "itemGroup." + modid + ".musavacca_tab";
+        String tabKey = "itemGroup." + modId + ".musavacca_tab";
         addGenerated(generatedKeys, tabKey, "Musavacca");
         OVERRIDES.forEach(this::add);
     }
@@ -90,12 +73,11 @@ public final class ModLanguageProvider extends LanguageProvider {
 
     private static String humanize(String registryPath) {
         String[] parts = registryPath.toLowerCase(Locale.ROOT).split("[_\\-]+");
-        StringBuilder out = new StringBuilder(parts.length * 6);
-        for (String p : parts) {
-            if (p.isEmpty()) continue;
-            out.append(Character.toUpperCase(p.charAt(0))).append(p.length() > 1 ? p.substring(1) : "").append(' ');
+        StringBuilder name = new StringBuilder(parts.length * 6);
+        for (String part : parts) {
+            if (part.isEmpty()) continue;
+            name.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1)).append(' ');
         }
-        String s = out.toString().trim();
-        return s.replace("Tnt", "TNT").replace("Tv", "TV").replace("Gps", "GPS");
+        return name.toString().trim().replace("Tnt", "TNT").replace("Tv", "TV").replace("Gps", "GPS");
     }
 }

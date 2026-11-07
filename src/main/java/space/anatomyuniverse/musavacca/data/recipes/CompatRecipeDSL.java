@@ -8,13 +8,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 //?}
 
+import java.util.Objects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
-import java.util.Objects;
 
 public final class CompatRecipeDSL extends RecipeDSL {
     private final String compatModId;
+
     CompatRecipeDSL(RecipeDSL parent, String compatModId) {
         super(parent.output().withConditions(new ModLoadedCondition(requireModId(compatModId))), parent.modId(), parent.unlocker(), parent.registries(),
                 joinFolder(parent.recipePathPrefix(), "compat/" + requireModId(compatModId)));
@@ -36,20 +37,12 @@ public final class CompatRecipeDSL extends RecipeDSL {
     }
 
     public Item item(String path) {
-        //? if >=1.21.11 {
-        /*Identifier id = compatId(path);
-        *///?} else {
-        ResourceLocation id = compatId(path);
-        //?}
+        var id = compatId(path);
         return BuiltInRegistries.ITEM.getOptional(id).orElseThrow(() -> missing("item", id));
     }
 
     public Block block(String path) {
-        //? if >=1.21.11 {
-        /*Identifier id = compatId(path);
-        *///?} else {
-        ResourceLocation id = compatId(path);
-        //?}
+        var id = compatId(path);
         return BuiltInRegistries.BLOCK.getOptional(id).orElseThrow(() -> missing("block", id));
     }
 

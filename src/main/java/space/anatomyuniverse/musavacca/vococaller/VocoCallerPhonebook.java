@@ -3,33 +3,34 @@ package space.anatomyuniverse.musavacca.vococaller;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 public record VocoCallerPhonebook(List<Integer> recent, List<Integer> saved) {
     public static final int ROW_COUNT = 13;
     public static final int EMPTY = -1;
     public static final VocoCallerPhonebook EMPTY_PHONEBOOK = new VocoCallerPhonebook(List.of(), List.of());
-    public static final Codec<VocoCallerPhonebook> CODEC =
-            RecordCodecBuilder.create(instance -> instance.group(Codec.INT.listOf().optionalFieldOf("recent", List.of()).forGetter(VocoCallerPhonebook::recent),
-                    Codec.INT.listOf().optionalFieldOf("saved", List.of()).forGetter(VocoCallerPhonebook::saved)).apply(instance, VocoCallerPhonebook::new));
-    public static final StreamCodec<ByteBuf, VocoCallerPhonebook> STREAM_CODEC =
-            new StreamCodec<>() {
-                @Override
-                public VocoCallerPhonebook decode(ByteBuf buffer) {
-                    int[] recent = readAddresses(buffer);
-                    int[] saved = readAddresses(buffer);
-                    return VocoCallerPhonebook.of(recent, saved);
-                }
+    public static final Codec<VocoCallerPhonebook> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.listOf().optionalFieldOf("recent", List.of()).forGetter(VocoCallerPhonebook::recent),
+            Codec.INT.listOf().optionalFieldOf("saved", List.of()).forGetter(VocoCallerPhonebook::saved)
+    ).apply(instance, VocoCallerPhonebook::new));
+    public static final StreamCodec<ByteBuf, VocoCallerPhonebook> STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public VocoCallerPhonebook decode(ByteBuf buffer) {
+            int[] recent = readAddresses(buffer);
+            int[] saved = readAddresses(buffer);
+            return VocoCallerPhonebook.of(recent, saved);
+        }
 
-                @Override
-                public void encode(ByteBuf buffer, VocoCallerPhonebook phonebook) {
-                    writeAddresses(buffer, phonebook.recent);
-                    writeAddresses(buffer, phonebook.saved);
-                }
-            };
+        @Override
+        public void encode(ByteBuf buffer, VocoCallerPhonebook phonebook) {
+            writeAddresses(buffer, phonebook.recent);
+            writeAddresses(buffer, phonebook.saved);
+        }
+    };
+
     public VocoCallerPhonebook {
         recent = normalize(recent);
         saved = normalize(saved);

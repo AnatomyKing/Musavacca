@@ -16,6 +16,7 @@ import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 
 public final class BreakHexLogic {
     private BreakHexLogic() {}
+
     public static boolean canBreakBlockSurvive(BlockState state, LevelReader level, BlockPos pos) {
         if (!state.getValue(BreakBlock.ATTACHED)) return true;
         BlockState aboveState = level.getBlockState(pos.above());
@@ -52,12 +53,8 @@ public final class BreakHexLogic {
     public static boolean canGrowHexIntoEggPair(LevelReader level, BlockPos pos, BlockState state) {
         BlockState aboveState = level.getBlockState(pos.above());
         BlockPos belowPos = pos.below();
-        return state.hasProperty(HexBlock.CLIPPED)
-                && !state.getValue(HexBlock.CLIPPED)
-                && !BreakBlock.isAttachedStem(aboveState, ModBlocks.MUSAVACCA_EGG.get())
-                && isMusavaccaStem(aboveState)
-                && level.getBlockState(belowPos).isAir()
-                && !level.isWaterAt(belowPos);
+        return state.hasProperty(HexBlock.CLIPPED) && !state.getValue(HexBlock.CLIPPED) && !BreakBlock.isAttachedStem(aboveState, ModBlocks.MUSAVACCA_EGG.get())
+                && isMusavaccaStem(aboveState) && level.getBlockState(belowPos).isAir() && !level.isWaterAt(belowPos);
     }
 
     public static void growHexIntoEggPair(ServerLevel level, BlockPos pos, BlockState hexState) {

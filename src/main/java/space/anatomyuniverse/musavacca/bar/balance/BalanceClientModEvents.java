@@ -19,18 +19,14 @@ public final class BalanceClientModEvents {
     *///?} else {
     private static final ResourceLocation BALANCE_LAYER = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "balance_layer");
     //?}
-    private BalanceClientModEvents() {
-    }
+
+    private BalanceClientModEvents() {}
 
     public static void register(IEventBus modBus) {
         //? if >=1.21.6 {
         modBus.addListener(BalanceClientModEvents::registerClientPayloads);
-        //?} else {
-        /*modBus.addListener(BalanceClientModEvents::registerGuiLayers);
-        *///?}
-        //? if >=1.21.6 {
-        modBus.addListener(BalanceClientModEvents::registerGuiLayers);
         //?}
+        modBus.addListener(BalanceClientModEvents::registerGuiLayers);
     }
 
     //? if >=1.21.6 {
@@ -38,6 +34,7 @@ public final class BalanceClientModEvents {
         event.register(BalanceSyncPayload.TYPE, (payload, context) -> ClientBalanceData.set(payload.balance(), payload.active()));
     }
     //?}
+
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.FOOD_LEVEL, BALANCE_LAYER, BalanceHud::render);
     }

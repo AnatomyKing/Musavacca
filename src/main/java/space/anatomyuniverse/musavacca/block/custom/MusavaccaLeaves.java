@@ -1,5 +1,9 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
+//? if >=26.3 {
+/*import net.minecraft.world.level.block.BonemealSource;
+*///?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -47,6 +51,7 @@ public class MusavaccaLeaves
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 2);
     public static final int MAX_AGE = 2;
+
     public MusavaccaLeaves(float leafParticleChance, Properties properties) {
         //? if >=1.21.5 {
         super(leafParticleChance, properties);
@@ -80,23 +85,29 @@ public class MusavaccaLeaves
         builder.add(FACING, AGE);
     }
 
+    @Override
     //? if >=1.21.2 {
-    private static InteractionResult passToDefault() {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
     //?} else {
-    /*private static ItemInteractionResult passToDefault() {
+    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
     *///?}
-        //? if >=1.21.2 {
-        return InteractionResult.TRY_WITH_EMPTY_HAND;
-        //?} else {
-        /*return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        *///?}
-    }
-
-    //? if >=1.21.2 {
-    private static InteractionResult successResult() {
-    //?} else {
-    /*private static ItemInteractionResult successResult() {
-    *///?}
+        if (!stack.is(Items.SHEARS) || state.getValue(AGE) <= 0) {
+            //? if >=1.21.2 {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+            //?} else {
+            /*return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            *///?}
+        }
+        int age = state.getValue(AGE);
+        if (!level.isClientSide()) {
+            level.setBlock(pos, state.setValue(AGE, age - 1), Block.UPDATE_ALL);
+            stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+            SoundType soundType = state.getSoundType(level, pos, player);
+            level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.playSound(null, pos, soundType.getBreakSound(), SoundSource.BLOCKS, soundType.getVolume(), soundType.getPitch());
+        }
         //? if >=1.21.2 {
         return InteractionResult.SUCCESS;
         //?} else {
@@ -105,28 +116,8 @@ public class MusavaccaLeaves
     }
 
     @Override
-    //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-    //?} else {
-    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
-    *///?}
-        if (!stack.is(Items.SHEARS)) return passToDefault();
-        int age = state.getValue(AGE);
-        if (age <= 0) return passToDefault();
-        if (!level.isClientSide()) {
-            level.setBlock(pos, state.setValue(AGE, age - 1), Block.UPDATE_ALL);
-            stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-            SoundType soundType = state.getSoundType(level, pos, player);
-            level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
-            level.playSound(null, pos, soundType.getBreakSound(), SoundSource.BLOCKS, soundType.getVolume(), soundType.getPitch());
-        }
-        return successResult();
-    }
-
-    @Override
     //? if >=26.3 {
-    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
     //?}
@@ -135,7 +126,7 @@ public class MusavaccaLeaves
 
     @Override
     //? if >=26.3 {
-    /*public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
     //?}
@@ -144,7 +135,7 @@ public class MusavaccaLeaves
 
     @Override
     //? if >=26.3 {
-    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
     //?}

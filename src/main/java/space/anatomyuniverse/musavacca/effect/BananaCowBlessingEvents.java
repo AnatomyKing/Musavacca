@@ -7,10 +7,10 @@ import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 
 public final class BananaCowBlessingEvents {
     private BananaCowBlessingEvents() {}
+
     @SubscribeEvent
     public static void onEffectApplicable(MobEffectEvent.Applicable event) {
-        if (event.getEntity().hasEffect(ModMobEffects.BANANA_COW_BLESSING)
-                && !isExempt(event.getEffectInstance())) {
+        if (event.getEntity().hasEffect(ModMobEffects.BANANA_COW_BLESSING) && !isExempt(event.getEffectInstance())) {
             event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
         }
     }

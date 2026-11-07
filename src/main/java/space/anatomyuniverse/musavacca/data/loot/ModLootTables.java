@@ -15,8 +15,9 @@ public final class ModLootTables {
     public static final ResourceKey<LootTable> VANILLA_SNIFFER_DIGGING = create("minecraft", "gameplay/sniffer_digging");
     public static final ResourceKey<LootTable> VANILLA_JUNGLE_TEMPLE = create("minecraft", "chests/jungle_temple");
     public static final ResourceKey<LootTable> SNIFFER_DIGGING_MUSAVACCA_PUP = create(MusaCore.MOD_ID, "inject/sniffer_digging_musavacca_pup");
-    public static final ResourceKey<LootTable>
-            JUNGLE_TEMPLE_FRACTURED_POTASSIUM_TEMPLATE = create(MusaCore.MOD_ID, "inject/jungle_temple_fractured_potassium_template");
+    public static final ResourceKey<LootTable> JUNGLE_TEMPLE_FRACTURED_POTASSIUM_TEMPLATE = create(MusaCore.MOD_ID,
+            "inject/jungle_temple_fractured_potassium_template");
+
     private ModLootTables() {
     }
 

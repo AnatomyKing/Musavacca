@@ -12,20 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 
-public final class BananaCowRenderer
-        extends MobRenderer<
-        //? if >=1.21.2 {
-        BananaCow,
-        //?} else {
-                /*BananaCow,
-                *///?}
+public final class BananaCowRenderer extends MobRenderer<BananaCow,
         //? if >=1.21.2 {
         BananaCowModel.State,
-        BananaCowModel
-        //?} else {
-                /*BananaCowModel
-                *///?}
-        > {
+        //?}
+        BananaCowModel> {
     //? if >=1.21.11 {
     /*private static final Identifier DEFAULT = texture("banana_cow");
     private static final Identifier SHEARED = texture("banana_cow_sheared");
@@ -34,6 +25,7 @@ public final class BananaCowRenderer
     private static final Identifier PEELD = texture("banana_cow_peeld");
     private static final Identifier PEELD_EATEN_1 = texture("banana_cow_peeld_eaten_1");
     private static final Identifier PEELD_EATEN_2 = texture("banana_cow_peeld_eaten_2");
+
     *///?} else {
     private static final ResourceLocation DEFAULT = texture("banana_cow");
     private static final ResourceLocation SHEARED = texture("banana_cow_sheared");
@@ -42,6 +34,7 @@ public final class BananaCowRenderer
     private static final ResourceLocation PEELD = texture("banana_cow_peeld");
     private static final ResourceLocation PEELD_EATEN_1 = texture("banana_cow_peeld_eaten_1");
     private static final ResourceLocation PEELD_EATEN_2 = texture("banana_cow_peeld_eaten_2");
+
     //?}
     public BananaCowRenderer(EntityRendererProvider.Context context) {
         super(context, new BananaCowModel(context.bakeLayer(BananaCowModel.LAYER_LOCATION)), 0.7F);
@@ -61,25 +54,19 @@ public final class BananaCowRenderer
     *///?} else {
     private static ResourceLocation selectTexture(int peelStage, int eatenBites) {
     //?}
-        int safePeelStage = clampInt(peelStage, BananaCow.PEEL_STAGE_DEFAULT, BananaCow.PEEL_STAGE_PEELD);
-        int safeEatenBites = clampInt(eatenBites, 0, BananaCow.MAX_VISIBLE_EATEN_BITES);
-        if (safePeelStage
-                == BananaCow.PEEL_STAGE_PEELD) {
+        int safePeelStage = Mth.clamp(peelStage, BananaCow.PEEL_STAGE_DEFAULT, BananaCow.PEEL_STAGE_PEELD);
+        int safeEatenBites = Mth.clamp(eatenBites, 0, BananaCow.MAX_VISIBLE_EATEN_BITES);
+        if (safePeelStage == BananaCow.PEEL_STAGE_PEELD) {
             if (safeEatenBites >= 2) return PEELD_EATEN_2;
             if (safeEatenBites == 1) return PEELD_EATEN_1;
             return PEELD;
         }
-        if (safePeelStage
-                == BananaCow.PEEL_STAGE_SHEARED) {
+        if (safePeelStage == BananaCow.PEEL_STAGE_SHEARED) {
             if (safeEatenBites >= 2) return SHEARED_EATEN_2;
             if (safeEatenBites == 1) return SHEARED_EATEN_1;
             return SHEARED;
         }
         return DEFAULT;
-    }
-
-    private static int clampInt(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
     }
 
     //? if >=1.21.2 {
@@ -107,6 +94,7 @@ public final class BananaCowRenderer
         state.peelStage = entity.getPeelStage();
         state.eatenBites = entity.getEatenBites();
     }
+
     //?}
     @Override
     //? if >=1.21.11 {

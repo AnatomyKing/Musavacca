@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 //? if >=1.21.11 {
@@ -11,13 +10,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
 public final class ShapelessCrafting {
     private final RecipeDSL dsl;
     private final ShapelessRecipeBuilder builder;
+
     public ShapelessCrafting(RecipeDSL dsl, RecipeCategory category, ItemLike result, int count) {
         this.dsl = dsl;
         //? if >=26.1 {
@@ -44,7 +43,7 @@ public final class ShapelessCrafting {
 
     public ShapelessCrafting requires(Object... ingredients) {
         for (Object ingredient : ingredients) {
-            addOnce(ingredient);
+            this.builder.requires(this.dsl.ingredient(ingredient));
         }
         return this;
     }
@@ -53,7 +52,7 @@ public final class ShapelessCrafting {
         if (count <= 0) throw new IllegalArgumentException("count must be >= 1");
         if (count > 9) throw new IllegalArgumentException("shapeless max grid size is 9 (got " + count + ")");
         for (int i = 0; i < count; ++i) {
-            addOnce(ingredient);
+            this.builder.requires(this.dsl.ingredient(ingredient));
         }
         return this;
     }
@@ -65,19 +64,6 @@ public final class ShapelessCrafting {
             requiresCount(pairs[i], count.intValue());
         }
         return this;
-    }
-
-    private void addOnce(Object ingredient) {
-        if (ingredient instanceof ItemLike itemLike) {
-            this.builder.requires(itemLike);
-        } else if (ingredient instanceof TagKey<?> tagKey && tagKey.registry().equals(Registries.ITEM)) {
-            @SuppressWarnings("unchecked") TagKey<Item> tag = (TagKey<Item>) tagKey;
-            this.builder.requires(this.dsl.ingredientFromTag(tag));
-        } else if (ingredient instanceof Ingredient value) {
-            this.builder.requires(value);
-        } else {
-            throw new IllegalArgumentException("Unsupported ingredient: " + ingredient);
-        }
     }
 
     public ShapelessCrafting group(String group) {

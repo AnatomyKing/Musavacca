@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.particle;
 
 import net.neoforged.bus.api.IEventBus;
@@ -12,10 +11,10 @@ public final class ModParticleProviders {
     private ModParticleProviders() {}
 
     public static void register(IEventBus modBus) {
-        modBus.addListener(ModParticleProviders::registerParticleProviders);
+        modBus.addListener(ModParticleProviders::registerParticles);
     }
 
-    private static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+    private static void registerParticles(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(ModParticleTypes.GLINSTER.get(), sprites -> new GlinsterParticle.Provider(sprites, false));
         event.registerSpriteSet(ModParticleTypes.GLINSTER_BURST.get(), sprites -> new GlinsterParticle.Provider(sprites, true));
         event.registerSpriteSet(ModParticleTypes.HEX_SPORE_BLOSSOM_AIR.get(), HexSporeBlossomAirParticle.Provider::new);

@@ -1,9 +1,9 @@
 package space.anatomyuniverse.musavacca.tint;
 
-import net.minecraft.world.level.block.entity.BlockEntity;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
 
 public final class MusavaccaTints {
     public static final int NO_TINT = -1;
@@ -11,9 +11,12 @@ public final class MusavaccaTints {
     public static final int DEFAULT_TINT = 0xD5CD49;
     public static final String HEX_COLOR_KEY = "hex_color";
     public static final String MULTI_HEX_COLOR_KEY = "multi_hex_color";
+
     private MusavaccaTints() {}
+
     public interface HexSource {
         int getHexColor();
+
         default boolean hasHexColor() {
             return hasTint(getHexColor());
         }

@@ -7,18 +7,13 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import org.jetbrains.annotations.Nullable;
 
-public final class PressurePlateModels {
-    //? if >=1.21.11 {
-    /*private final Identifier up;
-    private final Identifier down;
-    *///?} else {
-    private final ResourceLocation up;
-    private final ResourceLocation down;
-    //?}
-    private PressurePlateModels(Builder builder) {
-        up = builder.up;
-        down = builder.down;
-        if (isEmpty()) throw new IllegalStateException("PressurePlateModels requires at least one model");
+//? if >=1.21.11 {
+/*public record PressurePlateModels(Identifier up, Identifier down) {
+*///?} else {
+public record PressurePlateModels(ResourceLocation up, ResourceLocation down) {
+//?}
+    public PressurePlateModels {
+        if (up == null && down == null) throw new IllegalStateException("PressurePlateModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -38,32 +33,18 @@ public final class PressurePlateModels {
         return powered ? down : up;
     }
 
-    @Nullable
-    //? if >=1.21.11 {
-    /*public Identifier up() {
-    *///?} else {
-    public ResourceLocation up() {
-    //?}
-        return up;
-    }
-
-    public boolean complete() {
-        return up != null && down != null;
-    }
-
-    public boolean isEmpty() {
-        return up == null && down == null;
-    }
-
     public static final class Builder {
         //? if >=1.21.11 {
         /*private Identifier up;
         private Identifier down;
+
         *///?} else {
         private ResourceLocation up;
         private ResourceLocation down;
+
         //?}
         private Builder() {}
+
         public Builder up(String model) {
             up = parse(model, "up");
             return this;
@@ -75,7 +56,7 @@ public final class PressurePlateModels {
         }
 
         public PressurePlateModels build() {
-            return new PressurePlateModels(this);
+            return new PressurePlateModels(up, down);
         }
     }
 

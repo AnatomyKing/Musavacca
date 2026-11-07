@@ -30,6 +30,7 @@ public final class EconomyConfig {
     }
 
     private EconomyConfig() {}
+
     public static void register(ModContainer container) {
         //? if >=26.3 {
         /*container.registerConfig(ModConfig.Type.SYNCED, SPEC, FILE_NAME);

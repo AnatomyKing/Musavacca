@@ -8,21 +8,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import org.jetbrains.annotations.Nullable;
 
-public final class SlabModels {
-    //? if >=1.21.11 {
-    /*private final Identifier bottom;
-    private final Identifier top;
-    private final Identifier doubleModel;
-    *///?} else {
-    private final ResourceLocation bottom;
-    private final ResourceLocation top;
-    private final ResourceLocation doubleModel;
-    //?}
-    private SlabModels(Builder builder) {
-        bottom = builder.bottom;
-        top = builder.top;
-        doubleModel = builder.doubleModel;
-        if (isEmpty()) throw new IllegalStateException("SlabModels requires at least one model");
+//? if >=1.21.11 {
+/*public record SlabModels(Identifier bottom, Identifier top, Identifier doubleModel) {
+*///?} else {
+public record SlabModels(ResourceLocation bottom, ResourceLocation top, ResourceLocation doubleModel) {
+//?}
+    public SlabModels {
+        if (bottom == null && top == null && doubleModel == null) throw new IllegalStateException("SlabModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -39,15 +31,11 @@ public final class SlabModels {
     *///?} else {
     public ResourceLocation model(SlabType type) {
     //?}
-        return switch (type) { case BOTTOM -> bottom; case TOP -> top; case DOUBLE -> doubleModel; };
-    }
-
-    public boolean complete() {
-        return bottom != null && top != null && doubleModel != null;
-    }
-
-    public boolean isEmpty() {
-        return bottom == null && top == null && doubleModel == null;
+        return switch (type) {
+        case BOTTOM -> bottom;
+        case TOP -> top;
+        case DOUBLE -> doubleModel;
+        };
     }
 
     public static final class Builder {
@@ -55,12 +43,15 @@ public final class SlabModels {
         /*private Identifier bottom;
         private Identifier top;
         private Identifier doubleModel;
+
         *///?} else {
         private ResourceLocation bottom;
         private ResourceLocation top;
         private ResourceLocation doubleModel;
+
         //?}
         private Builder() {}
+
         public Builder bottom(String model) {
             bottom = parse(model, "bottom");
             return this;
@@ -77,7 +68,7 @@ public final class SlabModels {
         }
 
         public SlabModels build() {
-            return new SlabModels(this);
+            return new SlabModels(bottom, top, doubleModel);
         }
     }
 

@@ -53,25 +53,23 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalDoorHitboxes;
-import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalDoorVoxelShapes;
 import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
+import space.anatomyuniverse.musavacca.block.custom.logic.MusavaccaPortalDoorHitboxes;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBlockEntity;
-import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportEvent;
+import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleport;
 import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportNetwork;
 import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportTransform;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
-public final class MusavaccaPortalDoorBlock
-        extends DoorBlock
-        implements EntityBlock, Portal {
+public final class MusavaccaPortalDoorBlock extends DoorBlock implements EntityBlock, Portal {
     public static final BooleanProperty LIT = BooleanProperty.create("lit");
     public static final BooleanProperty LIT_PORTAL = BooleanProperty.create("lit_portal");
     public static final BooleanProperty PORTAL = BooleanProperty.create("portal");
     private static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
     private static final double PORTAL_TRIGGER_EPSILON = 1.0D / 1024.0D;
     private static final PearlSlotIgnition.Slot PEARL_SLOT = PearlSlotIgnition.Slot.of(LIT, PORTAL, new Vec3(0.5D, 1.0D, 0.5D), new Vec3(0.0D, 0.18D, 0.0D));
+
     public MusavaccaPortalDoorBlock(BlockSetType blockSetType, Properties properties) {
         super(blockSetType, properties);
         this.registerDefaultState(this.defaultBlockState().setValue(LIT, false).setValue(LIT_PORTAL, false).setValue(PORTAL, false));
@@ -82,14 +80,12 @@ public final class MusavaccaPortalDoorBlock
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.INVISIBLE;
     }
+
     *///?}
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        if (
-                state.getValue(HALF)
-                        != DoubleBlockHalf.LOWER
-        ) {
+        if (state.getValue(HALF) != DoubleBlockHalf.LOWER) {
             return null;
         }
         return new MusavaccaPortalDoorBlockEntity(pos, state);
@@ -97,34 +93,19 @@ public final class MusavaccaPortalDoorBlock
 
     @Nullable
     @Override
-    public <T extends BlockEntity>
-    BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        if (
-                level.isClientSide()
-                        || state.getValue(HALF)
-                        != DoubleBlockHalf.LOWER
-        ) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        if (level.isClientSide() || state.getValue(HALF) != DoubleBlockHalf.LOWER) {
             return null;
         }
-        return (
-                tickLevel,
-                tickPos,
-                tickState,
-                blockEntity
-        ) -> {
-            if (
-                    tickLevel
-                            instanceof ServerLevel serverLevel
-                            && blockEntity
-                            instanceof MusavaccaPortalDoorBlockEntity
-            ) {
+        return (tickLevel, tickPos, tickState, blockEntity) -> {
+            if (tickLevel instanceof ServerLevel serverLevel && blockEntity instanceof MusavaccaPortalDoorBlockEntity) {
                 tickEntranceNudge(serverLevel, tickPos, tickState);
             }
         };
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder< Block, BlockState > builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(LIT, LIT_PORTAL, PORTAL);
     }
@@ -132,13 +113,12 @@ public final class MusavaccaPortalDoorBlock
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         VoxelShape doorShape = super.getShape(state, level, pos, context);
-        return MusavaccaPortalDoorVoxelShapes.outlineShape(state, doorShape);
+        return MusavaccaPortalDoorHitboxes.hasOpenPortal(state) ? Shapes.or(doorShape, MusavaccaPortalDoorHitboxes.portalPanel(state)) : doorShape;
     }
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        VoxelShape doorShape = super.getShape(state, level, pos, context);
-        return MusavaccaPortalDoorVoxelShapes.collisionShape(doorShape);
+        return super.getShape(state, level, pos, context);
     }
 
     //? if >=1.21.2 {
@@ -148,18 +128,14 @@ public final class MusavaccaPortalDoorBlock
     //?} else {
     /*protected VoxelShape getEntityInsideCollisionShape(BlockState state, Level level, BlockPos pos) {
     *///?}
+        if (MusavaccaPortalDoorHitboxes.hasOpenPortal(state)) return entranceTriggerShape(state);
         //? if >=1.21.5 {
-        if (
-                !MusavaccaPortalDoorHitboxes
-                        .hasOpenPortal(state)
-        ) {
-            return super.getEntityInsideCollisionShape(state, level, pos, entity);
-        }
-        return entranceTriggerShape(state);
+        return super.getEntityInsideCollisionShape(state, level, pos, entity);
         //?} else {
-        /*return MusavaccaPortalDoorHitboxes.hasOpenPortal(state) ? entranceTriggerShape(state) : super.getEntityInsideCollisionShape(state, level, pos);
+        /*return super.getEntityInsideCollisionShape(state, level, pos);
         *///?}
     }
+
     //?}
     @Override
     //? if >=1.21.9 {
@@ -169,15 +145,7 @@ public final class MusavaccaPortalDoorBlock
     //?} else {
     /*protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
     *///?}
-        this.handleEntityInside(state, level, pos, entity);
-    }
-
-    private void handleEntityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (
-                !entity.canUsePortal(false)
-                        || !MusavaccaPortalDoorHitboxes
-                        .hasOpenPortal(state)
-        ) {
+        if (!entity.canUsePortal(false) || !MusavaccaPortalDoorHitboxes.hasOpenPortal(state)) {
             return;
         }
         VoxelShape entranceShape = entranceTriggerShape(state);
@@ -185,9 +153,7 @@ public final class MusavaccaPortalDoorBlock
         AABB entranceBox = entranceShape.bounds().move(pos.getX(), pos.getY(), pos.getZ());
         Vec3 movement = entity.getDeltaMovement();
         AABB sweptEntityBox = entity.getBoundingBox().expandTowards(-movement.x, -movement.y, -movement.z);
-        if (
-                !entranceBox.intersects(sweptEntityBox)
-        ) {
+        if (!entranceBox.intersects(sweptEntityBox)) {
             return;
         }
         entity.setAsInsidePortal(this, lowerDoorPos(state, pos));
@@ -196,34 +162,22 @@ public final class MusavaccaPortalDoorBlock
     //? if <1.21.5 {
     /*@Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.getBlock() != newState.getBlock()
-                && level.getBlockEntity(pos) instanceof MusavaccaPortalDoorBlockEntity blockEntity) {
+        if (state.getBlock() != newState.getBlock() && level.getBlockEntity(pos) instanceof MusavaccaPortalDoorBlockEntity blockEntity) {
             blockEntity.cleanupBeforeRemoval();
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
+
     *///?}
     private void tickEntranceNudge(ServerLevel level, BlockPos lowerPos, BlockState lowerState) {
-        if (
-                !lowerState.is(this)
-                        || lowerState.getValue(HALF)
-                        != DoubleBlockHalf.LOWER
-                        || !MusavaccaPortalDoorHitboxes
-                        .hasOpenPortal(lowerState)
-        ) {
+        if (!lowerState.is(this) || lowerState.getValue(HALF) != DoubleBlockHalf.LOWER || !MusavaccaPortalDoorHitboxes.hasOpenPortal(lowerState)) {
             return;
         }
         AABB lowerEntranceBox = entranceTriggerWorldBox(lowerState, lowerPos);
         BlockPos upperPos = lowerPos.above();
         BlockState upperState = level.getBlockState(upperPos);
         AABB upperEntranceBox = null;
-        if (
-                upperState.is(this)
-                        && upperState.getValue(HALF)
-                        == DoubleBlockHalf.UPPER
-                        && MusavaccaPortalDoorHitboxes
-                        .hasOpenPortal(upperState)
-        ) {
+        if (upperState.is(this) && upperState.getValue(HALF) == DoubleBlockHalf.UPPER && MusavaccaPortalDoorHitboxes.hasOpenPortal(upperState)) {
             upperEntranceBox = entranceTriggerWorldBox(upperState, upperPos);
         }
         AABB entranceBox = combineEntranceBoxes(lowerEntranceBox, upperEntranceBox);
@@ -256,19 +210,14 @@ public final class MusavaccaPortalDoorBlock
         double entranceNudge = Math.max(0.0D, MusavaccaDoorTeleportTransform.PORTAL_ENTRANCE_NUDGE);
         double centerX = (portalBox.minX + portalBox.maxX) * 0.5D;
         double centerZ = (portalBox.minZ + portalBox.maxZ) * 0.5D;
-        if (
-                facing.getAxis()
-                        == Direction.Axis.X
-        ) {
-            return Shapes.create(
-                    new AABB(centerX - entranceNudge - PORTAL_TRIGGER_EPSILON, portalBox.minY - PORTAL_TRIGGER_EPSILON, portalBox.minZ - PORTAL_TRIGGER_EPSILON,
-                            centerX + entranceNudge + PORTAL_TRIGGER_EPSILON, portalBox.maxY + PORTAL_TRIGGER_EPSILON, portalBox.maxZ + PORTAL_TRIGGER_EPSILON)
-            );
+        if (facing.getAxis() == Direction.Axis.X) {
+            return Shapes.create(new AABB(centerX - entranceNudge - PORTAL_TRIGGER_EPSILON, portalBox.minY - PORTAL_TRIGGER_EPSILON,
+                    portalBox.minZ - PORTAL_TRIGGER_EPSILON, centerX + entranceNudge + PORTAL_TRIGGER_EPSILON, portalBox.maxY + PORTAL_TRIGGER_EPSILON,
+                    portalBox.maxZ + PORTAL_TRIGGER_EPSILON));
         }
         return Shapes.create(
                 new AABB(portalBox.minX - PORTAL_TRIGGER_EPSILON, portalBox.minY - PORTAL_TRIGGER_EPSILON, centerZ - entranceNudge - PORTAL_TRIGGER_EPSILON,
-                        portalBox.maxX + PORTAL_TRIGGER_EPSILON, portalBox.maxY + PORTAL_TRIGGER_EPSILON, centerZ + entranceNudge + PORTAL_TRIGGER_EPSILON)
-        );
+                        portalBox.maxX + PORTAL_TRIGGER_EPSILON, portalBox.maxY + PORTAL_TRIGGER_EPSILON, centerZ + entranceNudge + PORTAL_TRIGGER_EPSILON));
     }
 
     @Override
@@ -279,13 +228,13 @@ public final class MusavaccaPortalDoorBlock
     @Nullable
     @Override
     public
-    //? if >=1.21.2 {
-    TeleportTransition
-    //?} else {
-    /*DimensionTransition
-    *///?}
-    getPortalDestination(ServerLevel currentLevel, Entity entity, BlockPos entryPos) {
-        return MusavaccaDoorTeleportEvent.getPortalDestination(currentLevel, entity, entryPos);
+            //? if >=1.21.2 {
+            TeleportTransition
+            //?} else {
+            /*DimensionTransition
+            *///?}
+            getPortalDestination(ServerLevel currentLevel, Entity entity, BlockPos entryPos) {
+        return MusavaccaDoorTeleport.getPortalDestination(currentLevel, entity, entryPos);
     }
 
     @Override
@@ -306,7 +255,8 @@ public final class MusavaccaPortalDoorBlock
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
     //?} else {
     /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
@@ -328,11 +278,7 @@ public final class MusavaccaPortalDoorBlock
         BlockState lowerState = level.getBlockState(lowerPos);
         if (!lowerState.is(this)) return InteractionResult.PASS;
         InteractionResult result = PearlSlotIgnition.handleHeldItemUse(stack, lowerState, level, lowerPos, player, hand, PEARL_SLOT);
-        if (
-                result
-                        == InteractionResult.SUCCESS
-                        && !level.isClientSide()
-        ) {
+        if (result == InteractionResult.SUCCESS && !level.isClientSide()) {
             synchronizePearlState(level, lowerPos);
         }
         return result;
@@ -345,51 +291,30 @@ public final class MusavaccaPortalDoorBlock
     public static void synchronizePearlState(Level level, BlockPos lowerPos, boolean playPortalSound) {
         if (level.isClientSide()) return;
         BlockState lowerState = level.getBlockState(lowerPos);
-        if (
-                !(lowerState.getBlock()
-                        instanceof
-                        MusavaccaPortalDoorBlock)
-                        || lowerState.getValue(HALF)
-                        != DoubleBlockHalf.LOWER
-        ) {
+        if (!(lowerState.getBlock() instanceof MusavaccaPortalDoorBlock) || lowerState.getValue(HALF) != DoubleBlockHalf.LOWER) {
             return;
         }
         boolean wasPortal = lowerState.getValue(PORTAL);
         boolean lit = lowerState.getValue(LIT);
         boolean litPortal = hasAssignedHexColor(level, lowerPos);
         boolean portal = lit && litPortal;
-        setVisualState(level, lowerPos, lit, litPortal, portal);
-        setVisualState(level, lowerPos.above(), lit, litPortal, portal);
+        setVisualState(level, lowerPos, lit, litPortal);
+        setVisualState(level, lowerPos.above(), lit, litPortal);
         if (playPortalSound) {
             PearlSlotIgnition.playPortalStateChangeSound(level, lowerPos, wasPortal, portal);
         }
-        if (
-                level.getBlockEntity(lowerPos)
-                        instanceof
-                        MusavaccaPortalDoorBlockEntity doorBe
-        ) {
+        if (level.getBlockEntity(lowerPos) instanceof MusavaccaPortalDoorBlockEntity doorBe) {
             MusavaccaDoorTeleportNetwork.refresh(doorBe);
         }
     }
 
-    private static void setVisualState(Level level, BlockPos pos, boolean lit, boolean litPortal, boolean portal) {
+    private static void setVisualState(Level level, BlockPos pos, boolean lit, boolean litPortal) {
         BlockState state = level.getBlockState(pos);
-        if (
-                !(state.getBlock()
-                        instanceof
-                        MusavaccaPortalDoorBlock)
-        ) {
+        if (!(state.getBlock() instanceof MusavaccaPortalDoorBlock)) {
             return;
         }
-        boolean resolvedPortal = lit && litPortal && portal;
-        if (
-                state.getValue(LIT)
-                        == lit
-                        && state.getValue(LIT_PORTAL)
-                        == litPortal
-                        && state.getValue(PORTAL)
-                        == resolvedPortal
-        ) {
+        boolean resolvedPortal = lit && litPortal;
+        if (state.getValue(LIT) == lit && state.getValue(LIT_PORTAL) == litPortal && state.getValue(PORTAL) == resolvedPortal) {
             return;
         }
         level.setBlock(pos, state.setValue(LIT, lit).setValue(LIT_PORTAL, litPortal).setValue(PORTAL, resolvedPortal), UPDATE_FLAGS);
@@ -408,30 +333,22 @@ public final class MusavaccaPortalDoorBlock
     protected BlockState updateShape(BlockState state, LevelReader levelReader, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction,
             BlockPos neighborPos, BlockState neighborState, RandomSource random) {
     //?} else {
-    /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor levelReader, BlockPos pos,
+            BlockPos neighborPos) {
     *///?}
         //? if >=1.21.2 {
         BlockState updatedState = super.updateShape(state, levelReader, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
-        return this.synchronizeOtherHalf(updatedState, levelReader, pos, direction, neighborState);
         //?} else {
-        /*BlockState updatedState = super.updateShape(state, direction, neighborState, level, pos, neighborPos);
-        return this.synchronizeOtherHalf(updatedState, level, pos, direction, neighborState);
+        /*BlockState updatedState = super.updateShape(state, direction, neighborState, levelReader, pos, neighborPos);
         *///?}
+        return this.synchronizeOtherHalf(updatedState, levelReader, pos, direction, neighborState);
     }
 
     private BlockState synchronizeOtherHalf(BlockState updatedState, LevelReader levelReader, BlockPos pos, Direction direction, BlockState neighborState) {
-        if (
-                !updatedState.is(this)
-                        || direction.getAxis()
-                        != Direction.Axis.Y
-                        || !neighborState.is(this)
-        ) {
+        if (!updatedState.is(this) || direction.getAxis() != Direction.Axis.Y || !neighborState.is(this)) {
             return updatedState;
         }
-        if (
-                updatedState.getValue(HALF)
-                        == neighborState.getValue(HALF)
-        ) {
+        if (updatedState.getValue(HALF) == neighborState.getValue(HALF)) {
             return updatedState;
         }
         boolean lit = neighborState.getValue(LIT);

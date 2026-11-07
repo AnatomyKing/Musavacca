@@ -37,13 +37,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
+import java.util.EnumSet;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingAction;
+import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic.Action;
 import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic;
-import java.util.EnumSet;
+import space.anatomyuniverse.musavacca.block.ModBlocks;
 
 public class Basuke extends Allay {
     private static final String TAG_VOCO_TABLE_POS = "voco_table_pos";
@@ -55,6 +55,7 @@ public class Basuke extends Allay {
     private BlockPos vocoTablePos;
     private int eatingTicks;
     private int eatingTotalTicks;
+
     public Basuke(EntityType<? extends Basuke> type, Level level) {
         super(type, level);
     }
@@ -140,6 +141,7 @@ public class Basuke extends Allay {
     public boolean shouldDespawnInPeaceful() {
         return false;
     }
+
     //?}
     @Override
     public boolean canBeLeashed() {
@@ -181,17 +183,13 @@ public class Basuke extends Allay {
             this.stopEatingHeldItem();
             return;
         }
-        VocoTableEatingAction action = VocoTableEatingLogic.findActiveAction(this, level, held);
+        Action action = VocoTableEatingLogic.findActiveAction(this, level, held);
         if (action == null) {
             this.stopEatingHeldItem();
             return;
         }
         int actionEatingTime = Mth.clamp(action.eatingTimeTicks(), 1, MAX_EATING_TICKS);
-        if (
-                this.eatingTicks <= 0
-                        || this.eatingTotalTicks
-                        != actionEatingTime
-        ) {
+        if (this.eatingTicks <= 0 || this.eatingTotalTicks != actionEatingTime) {
             this.startEatingHeldItem(actionEatingTime);
             return;
         }
@@ -247,7 +245,7 @@ public class Basuke extends Allay {
     }
 
     private void finishEatingHeldItem(@NotNull ServerLevel level, @NotNull ItemStack held, @NotNull ItemStack particleStack,
-            @NotNull VocoTableEatingAction action) {
+            @NotNull Action action) {
         boolean completed = action.complete(this, level, held);
         if (completed) {
             this.spawnEatingItemParticles(level, particleStack, 8);
@@ -260,15 +258,11 @@ public class Basuke extends Allay {
         if (particleStack.isEmpty()) return;
         Vec3 particlePos = this.getEatingParticlePosition();
         //? if >=26.1 {
-        /*level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(particleStack)), particlePos.x, particlePos.y,
+        /*ItemParticleOption options = new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(particleStack));
         *///?} else {
-        level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, particleStack), particlePos.x, particlePos.y, particlePos.z, count, 0.035D, 0.025D,
+        ItemParticleOption options = new ItemParticleOption(ParticleTypes.ITEM, particleStack);
         //?}
-                //? if >=26.1 {
-                /*particlePos.z, count, 0.035D, 0.025D, 0.035D, 0.012D);
-                *///?} else {
-                0.035D, 0.012D);
-                //?}
+        level.sendParticles(options, particlePos.x, particlePos.y, particlePos.z, count, 0.035D, 0.025D, 0.035D, 0.012D);
     }
 
     private Vec3 getEatingParticlePosition() {
@@ -294,45 +288,30 @@ public class Basuke extends Allay {
     @Override
     //? if >=1.21.6 {
     protected void addAdditionalSaveData(@NotNull ValueOutput output) {
-        super.addAdditionalSaveData(output);
     //?} else {
-    /*public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    /*public void addAdditionalSaveData(@NotNull CompoundTag output) {
     *///?}
+        super.addAdditionalSaveData(output);
         if (this.vocoTablePos != null) {
-            //? if >=1.21.6 {
             output.putLong(TAG_VOCO_TABLE_POS, this.vocoTablePos.asLong());
-            //?} else {
-            /*tag.putLong(TAG_VOCO_TABLE_POS, this.vocoTablePos.asLong());
-            *///?}
         }
     }
 
     @Override
     //? if >=1.21.6 {
     protected void readAdditionalSaveData(@NotNull ValueInput input) {
-        super.readAdditionalSaveData(input);
     //?} else {
-    /*public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    /*public void readAdditionalSaveData(@NotNull CompoundTag input) {
     *///?}
-        //? if >=1.21.6 {
+        super.readAdditionalSaveData(input);
+        //? if >=1.21.5 {
         long packed = input.getLongOr(TAG_VOCO_TABLE_POS, NO_TABLE_POS);
-        //?} else if >=1.21.5 <1.21.6 {
-        /*long packed = tag.getLongOr(TAG_VOCO_TABLE_POS, NO_TABLE_POS);
-        *///?} else {
-        /*long packed = (tag.contains(TAG_VOCO_TABLE_POS, Tag.TAG_ANY_NUMERIC) ? tag.getLong(TAG_VOCO_TABLE_POS) : NO_TABLE_POS);
+        //?} else {
+        /*long packed = input.contains(TAG_VOCO_TABLE_POS, Tag.TAG_ANY_NUMERIC) ? input.getLong(TAG_VOCO_TABLE_POS) : NO_TABLE_POS;
         *///?}
         this.vocoTablePos = packed != NO_TABLE_POS ? BlockPos.of(packed) : null;
         this.stopEatingHeldItem();
-        if (this.vocoTablePos != null) {
-            this.setPersistenceRequired();
-            //? if >=26.3 {
-            /*this.setPermanentlyInvulnerable(true);
-            *///?} else {
-            this.setInvulnerable(true);
-            //?}
-        }
+        if (this.vocoTablePos != null) this.bindToVocoTable(this.vocoTablePos);
     }
 
     private void confineTo(AABB allowed, Vec3 pos) {
@@ -351,22 +330,20 @@ public class Basuke extends Allay {
     }
 
     private Vec3 randomPointInsideAllowedArea() {
-        return randomPointInBox(this.getAllowedArea(), 0.01D, 0.05D);
+        AABB box = this.getAllowedArea();
+        return new Vec3(Mth.lerp(this.random.nextDouble(), box.minX + 0.01D, box.maxX - 0.01D),
+                Mth.lerp(this.random.nextDouble(), box.minY + 0.05D, box.maxY - 0.05D), Mth.lerp(this.random.nextDouble(), box.minZ + 0.01D, box.maxZ - 0.01D));
     }
 
     private static Vec3 clampToBox(Vec3 pos, AABB box) {
         return new Vec3(Mth.clamp(pos.x, box.minX, box.maxX), Mth.clamp(pos.y, box.minY, box.maxY), Mth.clamp(pos.z, box.minZ, box.maxZ));
     }
 
-    private Vec3 randomPointInBox(AABB box, double padXZ, double padY) {
-        return new Vec3(Mth.lerp(this.random.nextDouble(), box.minX + padXZ, box.maxX - padXZ),
-                Mth.lerp(this.random.nextDouble(), box.minY + padY, box.maxY - padY), Mth.lerp(this.random.nextDouble(), box.minZ + padXZ, box.maxZ - padXZ));
-    }
-
     private static final class OrbitVocoTableGoal extends Goal {
         private final Basuke basuke;
         private Vec3 targetPos = Vec3.ZERO;
         private int retargetIn;
+
         private OrbitVocoTableGoal(Basuke basuke) {
             this.basuke = basuke;
             this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -391,8 +368,7 @@ public class Basuke extends Allay {
         public void tick() {
             if (!this.basuke.isBoundToVocoTable()) return;
             AABB bounds = this.basuke.getAllowedArea();
-            if (!bounds.contains(this.targetPos.x, this.targetPos.y, this.targetPos.z)
-                    || this.retargetIn-- <= 0
+            if (!bounds.contains(this.targetPos.x, this.targetPos.y, this.targetPos.z) || this.retargetIn-- <= 0
                     || this.basuke.distanceToSqr(this.targetPos.x, this.targetPos.y, this.targetPos.z) < 0.01D) {
                 this.pickNewTarget();
             }

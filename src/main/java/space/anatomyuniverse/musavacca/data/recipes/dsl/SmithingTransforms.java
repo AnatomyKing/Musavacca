@@ -14,13 +14,14 @@ import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 public final class SmithingTransforms {
     private final RecipeDSL dsl;
     private SmithingTransformRecipeBuilder builder;
+
     public SmithingTransforms(RecipeDSL dsl) {
         this.dsl = dsl;
     }
 
     public SmithingTransforms of(Object template, Object base, Object addition, RecipeCategory category, ItemLike result) {
-        this.builder = SmithingTransformRecipeBuilder.smithing(this.dsl.ingredient(template), this.dsl.ingredient(base), this.dsl.ingredient(addition), category,
-                result.asItem());
+        this.builder = SmithingTransformRecipeBuilder.smithing(this.dsl.ingredient(template), this.dsl.ingredient(base), this.dsl.ingredient(addition),
+                category, result.asItem());
         return this;
     }
 

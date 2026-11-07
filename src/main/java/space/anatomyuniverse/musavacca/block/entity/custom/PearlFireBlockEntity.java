@@ -30,6 +30,7 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public class PearlFireBlockEntity extends BlockEntity implements HexSource {
     private int hexColor = MusavaccaTints.NO_TINT;
+
     public PearlFireBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.PEARL_FIRE_BLOCK_ENTITY.get(), pos, state);
     }
@@ -54,10 +55,6 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
     private void syncToClientAndRerender() {
         Level level = this.getLevel();
         if (level == null) return;
-        if (level.isClientSide()) {
-            this.rerenderClientNow();
-            return;
-        }
         BlockPos pos = this.getBlockPos();
         BlockState state = this.getBlockState();
         level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
@@ -65,50 +62,41 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
 
     private void rerenderClientNow() {
         Level level = this.getLevel();
-        if (level == null || !level.isClientSide()) return;
-        BlockPos pos = this.getBlockPos();
-        BlockState state = this.getBlockState();
-        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
+        if (level != null && level.isClientSide()) this.syncToClientAndRerender();
     }
 
     @Override
     //? if >=1.21.6 {
     protected void loadAdditional(ValueInput input) {
     //?} else {
-    /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+    /*protected void loadAdditional(CompoundTag input, HolderLookup.Provider provider) {
     *///?}
         //? if >=1.21.6 {
         super.loadAdditional(input);
         //?} else {
-        /*super.loadAdditional(tag, provider);
+        /*super.loadAdditional(input, provider);
         *///?}
-        //? if >=1.21.6 {
+        //? if >=1.21.5 {
         int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
-        //?} else if >=1.21.5 <1.21.6 {
-        /*int loaded = tag.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
-        *///?} else {
-        /*int loaded = (tag.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? tag.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
+        //?} else {
+        /*int loaded = (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? input.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
         *///?}
-        this.hexColor = loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
+        this.hexColor = MusavaccaTints.stored(loaded);
     }
 
     @Override
     //? if >=1.21.6 {
     protected void saveAdditional(ValueOutput output) {
     //?} else {
-    /*protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+    /*protected void saveAdditional(CompoundTag output, HolderLookup.Provider provider) {
     *///?}
         //? if >=1.21.6 {
         super.saveAdditional(output);
         //?} else {
-        /*super.saveAdditional(tag, provider);
+        /*super.saveAdditional(output, provider);
         *///?}
         if (this.hasHexColor()) {
-            //? if >=1.21.6 {
             output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
-            //?} else {
-            /*tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
-            *///?}
         }
     }
 
@@ -147,12 +135,12 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
     //? if >=1.21.6 {
     public void handleUpdateTag(ValueInput input) {
     //?} else {
-    /*public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
+    /*public void handleUpdateTag(CompoundTag input, HolderLookup.Provider provider) {
     *///?}
         //? if >=1.21.6 {
         super.handleUpdateTag(input);
         //?} else {
-        /*super.handleUpdateTag(tag, provider);
+        /*super.handleUpdateTag(input, provider);
         *///?}
         this.rerenderClientNow();
     }

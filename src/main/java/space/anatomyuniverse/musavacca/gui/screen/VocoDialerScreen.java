@@ -1,4 +1,4 @@
-package space.anatomyuniverse.musavacca.gui.frontend;
+package space.anatomyuniverse.musavacca.gui.screen;
 
 //? if >=1.21.9 {
 /*import net.minecraft.client.input.MouseButtonEvent;
@@ -11,12 +11,12 @@ import net.minecraft.client.gui.GuiGraphics;
 //?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import space.anatomyuniverse.musavacca.gui.backend.VocoDialerBackend;
 import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
 
-public class VocoDialerFrontend extends AbstractContainerScreen<VocoDialerMenu> {
-    private final VocoDialerControl dialer = new VocoDialerControl(this::sendBackendButton);
-    public VocoDialerFrontend(VocoDialerMenu menu, Inventory playerInventory, Component title) {
+public class VocoDialerScreen extends AbstractContainerScreen<VocoDialerMenu> {
+    private final VocoDialerControl dialer = new VocoDialerControl(this::sendMenuButton);
+
+    public VocoDialerScreen(VocoDialerMenu menu, Inventory playerInventory, Component title) {
         //? if >=26.1 {
         /*super(menu, playerInventory, title, 157, 164);
         *///?} else {
@@ -28,19 +28,16 @@ public class VocoDialerFrontend extends AbstractContainerScreen<VocoDialerMenu> 
         this.inventoryLabelY = 10000;
     }
 
-    //? if >=26.1 {
-    /*@Override
-    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        super.extractBackground(graphics, mouseX, mouseY, partialTick);
-        this.dialer.render(graphics, this.leftPos, this.topPos);
-    }
-    *///?}
-    //? if <26.1 {
     @Override
+    //? if >=26.1 {
+    /*public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
+    *///?} else {
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    //?}
         this.dialer.render(graphics, this.leftPos, this.topPos);
     }
-    //?}
+
     @Override
     //? if >=1.21.9 {
     /*public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
@@ -87,8 +84,8 @@ public class VocoDialerFrontend extends AbstractContainerScreen<VocoDialerMenu> 
         //?}
     }
 
-    private void sendBackendButton(int buttonId) {
-        if (!VocoDialerBackend.isKnownButton(buttonId)) return;
+    private void sendMenuButton(int buttonId) {
+        if (!VocoDialerMenu.isKnownButton(buttonId)) return;
         if (this.minecraft == null || this.minecraft.player == null || this.minecraft.gameMode == null) return;
         if (!this.menu.clickMenuButton(this.minecraft.player, buttonId)) return;
         this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, buttonId);
@@ -100,22 +97,14 @@ public class VocoDialerFrontend extends AbstractContainerScreen<VocoDialerMenu> 
         super.removed();
     }
 
-    //? if >=26.1 {
-    /*@Override
-    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-    }
-    *///?}
-    //? if <26.1 {
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-    }
-    //?}
     //? if >=26.1 {
-    /*@Override
-    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+    /*protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    *///?} else {
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    //?}
     }
-    *///?}
+
     //? if <26.1 {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {

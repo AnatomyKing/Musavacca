@@ -12,12 +12,12 @@ public final class MusavaccaPortalDoorHitboxes {
     private static final VoxelShape EAST = Block.box(0.0D, 0.0D, 0.0D, 2.0D, 16.0D, 16.0D);
     private static final VoxelShape SOUTH = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 2.0D);
     private static final VoxelShape WEST = Block.box(14.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+
     private MusavaccaPortalDoorHitboxes() {}
+
     public static boolean hasOpenPortal(BlockState state) {
-        return state.hasProperty(MusavaccaPortalDoorBlock.PORTAL)
-                && state.getValue(MusavaccaPortalDoorBlock.PORTAL)
-                && state.hasProperty(MusavaccaPortalDoorBlock.OPEN)
-                && state.getValue(MusavaccaPortalDoorBlock.OPEN);
+        return state.hasProperty(MusavaccaPortalDoorBlock.PORTAL) && state.getValue(MusavaccaPortalDoorBlock.PORTAL)
+                && state.hasProperty(MusavaccaPortalDoorBlock.OPEN) && state.getValue(MusavaccaPortalDoorBlock.OPEN);
     }
 
     public static Direction portalFacing(BlockState state) {
@@ -27,6 +27,12 @@ public final class MusavaccaPortalDoorHitboxes {
     public static VoxelShape portalPanel(BlockState state) {
         if (!hasOpenPortal(state)) return Shapes.empty();
         Direction facing = portalFacing(state);
-        return switch (facing) { case NORTH -> NORTH; case EAST -> EAST; case SOUTH -> SOUTH; case WEST -> WEST; default -> Shapes.empty(); };
+        return switch (facing) {
+        case NORTH -> NORTH;
+        case EAST -> EAST;
+        case SOUTH -> SOUTH;
+        case WEST -> WEST;
+        default -> Shapes.empty();
+        };
     }
 }

@@ -13,28 +13,24 @@ import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 
 public final class ModParticleTypes {
     private ModParticleTypes() {}
+
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, MusaCore.MOD_ID);
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> GLINSTER =
-            PARTICLE_TYPES.register("glinster", () -> new SimpleParticleType(false));
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> GLINSTER_BURST =
-            PARTICLE_TYPES.register("glinster_burst", () -> new SimpleParticleType(false));
-    public static final DeferredHolder<ParticleType<?>, HexColorParticleType> HEX_SPORE_BLOSSOM_AIR =
-            PARTICLE_TYPES.register("hex_spore_blossom_air", () -> new HexColorParticleType(false));
-    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_FLAME =
-            PARTICLE_TYPES.register("pearl_flame",
-                    () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PEARL_FLAME));
-    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_G_TINTED =
-            PARTICLE_TYPES.register("pearl_g_tinted",
-                    () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PORTAL_GLYPH_PARTICLE));
-    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_2_TINTED =
-            PARTICLE_TYPES.register("pearl_2_tinted",
-                    () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PORTAL_GLYPH_PARTICLE));
-    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_C_TINTED =
-            PARTICLE_TYPES.register("pearl_c_tinted",
-                    () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PORTAL_GLYPH_PARTICLE));
-    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_H_TINTED =
-            PARTICLE_TYPES.register("pearl_h_tinted",
-                    () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PORTAL_GLYPH_PARTICLE));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> GLINSTER = PARTICLE_TYPES.register("glinster", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> GLINSTER_BURST = PARTICLE_TYPES.register("glinster_burst",
+            () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, HexColorParticleType> HEX_SPORE_BLOSSOM_AIR = PARTICLE_TYPES.register("hex_spore_blossom_air",
+            () -> new HexColorParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_FLAME = PARTICLE_TYPES.register("pearl_flame",
+            () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PEARL_FLAME));
+    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_G_TINTED = PARTICLE_TYPES.register("pearl_g_tinted",
+            () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PORTAL_GLYPH_PARTICLE));
+    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_2_TINTED = PARTICLE_TYPES.register("pearl_2_tinted",
+            () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PORTAL_GLYPH_PARTICLE));
+    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_C_TINTED = PARTICLE_TYPES.register("pearl_c_tinted",
+            () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PORTAL_GLYPH_PARTICLE));
+    public static final DeferredHolder<ParticleType<?>, ProfileTintParticleType> PEARL_H_TINTED = PARTICLE_TYPES.register("pearl_h_tinted",
+            () -> new ProfileTintParticleType(false, () -> PearlFireTintProfiles.PORTAL_GLYPH_PARTICLE));
+
     public static void register(IEventBus modBus) {
         PARTICLE_TYPES.register(modBus);
     }

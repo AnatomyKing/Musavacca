@@ -13,10 +13,10 @@ import net.minecraft.world.item.ItemStack;
 *///?} else {
 import net.minecraft.world.level.BlockAndTintGetter;
 //?}
-import net.minecraft.world.level.FoliageColor;
-import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 import java.util.Objects;
+import net.minecraft.world.level.FoliageColor;
+import net.minecraft.world.level.block.state.BlockState;
 //? if >=1.21.4 {
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.color.item.ItemTintSource;
@@ -24,28 +24,37 @@ import net.minecraft.client.color.item.ItemTintSource;
 
 public final class Tints {
     public static final int NO_TINT = 0xFFFFFFFF;
+
     private Tints() {}
+
     public interface Tint {
         int tintIndex();
+
         default boolean tinted() {
             return tintIndex() >= 0;
         }
+
         default List<GeneratedLayer> generatedLayers() {
             return List.of(new GeneratedLayer(0, tintIndex()));
         }
+
         default Tint physicalLayer(GeneratedLayer layer) {
             return this;
         }
+
         default int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
             return NO_TINT;
         }
+
         default int itemColor(ItemStack stack) {
             return NO_TINT;
         }
+
         //? if >=1.21.4 {
         default ItemTintSource itemTintSource() {
             return new net.minecraft.client.color.item.Constant(NO_TINT);
         }
+
         default ItemTintType itemTintType() {
             return null;
         }
@@ -142,6 +151,7 @@ public final class Tints {
             layers = List.copyOf(layers);
         }
     }
+
     //? if >=1.21.4 {
     //? if >=1.21.11 {
     /*public record ItemTintType(Identifier id, MapCodec<? extends ItemTintSource> codec) {
@@ -153,9 +163,11 @@ public final class Tints {
             Objects.requireNonNull(codec, "codec");
         }
     }
+
     //?}
     private static final None NONE = new None();
     private static final BiomeFoliage FOLIAGE = new BiomeFoliage();
+
     public static Tint none() {
         return NONE;
     }

@@ -17,8 +17,6 @@ import net.minecraft.nbt.NbtIo;
 //? if <1.21.11 {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.worldgen.ModConfiguredFeatures;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,6 +25,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
 
 public final class MusavaccaTreeFeatureProvider implements DataProvider {
     private static final String INPUT_FILE_NAME = "musavaccatree.nbt";
@@ -37,6 +37,7 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
     private static final Path VERSION_TEMPLATE_PATH_PLURAL = Path.of("versions", MusaCore.MINECRAFT, "src", "main", "resources", "data", MusaCore.MOD_ID,
             "structures", INPUT_FILE_NAME);
     private final PackOutput.PathProvider configuredFeaturePathProvider;
+
     public MusavaccaTreeFeatureProvider(PackOutput output) {
         //? if >=26.3 {
         /*this.configuredFeaturePathProvider = output.createPathProvider(PackOutput.Target.DATA_PACK, "worldgen/feature");
@@ -52,9 +53,9 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
             MusaCore.LOGGER.info("Using Musavacca tree template NBT: {}", toFriendlyProjectPath(inputPath));
             JsonObject configuredFeature = createConfiguredFeatureJson(inputPath);
             //? if >=1.21.11 {
-            /*Path outputPath = this.configuredFeaturePathProvider.json(ModConfiguredFeatures.MUSAVACCA_TREE.identifier());
+            /*Path outputPath = this.configuredFeaturePathProvider.json(ModFeatures.MUSAVACCA_TREE.identifier());
             *///?} else {
-            Path outputPath = this.configuredFeaturePathProvider.json(ModConfiguredFeatures.MUSAVACCA_TREE.location());
+            Path outputPath = this.configuredFeaturePathProvider.json(ModFeatures.MUSAVACCA_TREE.location());
             //?}
             return DataProvider.saveStable(output, configuredFeature, outputPath);
         } catch (Exception exception) {
@@ -123,7 +124,6 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
         int sizeX = getRequiredInt(size, 0, "size[0]");
         int sizeZ = getRequiredInt(size, 2, "size[2]");
         int anchorX = sizeX / 2;
-        int anchorY = 0;
         int anchorZ = sizeZ / 2;
         JsonObject configuredFeature = new JsonObject();
         //? if >=1.21.11 {
@@ -139,16 +139,13 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
             int stateIndex = getRequiredInt(blockTag, "state", "blocks[" + i + "].state");
             if (stateIndex < 0 || stateIndex >= palette.size()) {
                 throw new IOException(
-                        "Invalid structure NBT: state index " + stateIndex
-                                + " is outside palette size " + palette.size()
-                                + " at blocks[" + i + "]."
-                );
+                        "Invalid structure NBT: state index " + stateIndex + " is outside palette size " + palette.size() + " at blocks[" + i + "].");
             }
             CompoundTag stateTag = getRequiredCompound(palette, stateIndex, "palette[" + stateIndex + "]");
             String blockName = getRequiredString(stateTag, "Name", "palette[" + stateIndex + "].Name");
             if ("minecraft:air".equals(blockName)) continue;
             int x = getRequiredInt(pos, 0, "blocks[" + i + "].pos[0]") - anchorX;
-            int y = getRequiredInt(pos, 1, "blocks[" + i + "].pos[1]") - anchorY;
+            int y = getRequiredInt(pos, 1, "blocks[" + i + "].pos[1]");
             int z = getRequiredInt(pos, 2, "blocks[" + i + "].pos[2]") - anchorZ;
             JsonObject outputBlock = new JsonObject();
             JsonArray offset = new JsonArray();
@@ -177,12 +174,7 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
         CompoundTag propertiesTag = getOptionalCompound(stateTag, "Properties");
         if (propertiesTag != null) {
             JsonObject properties = new JsonObject();
-            tagKeys(propertiesTag).stream()
-                    .sorted()
-                    .forEach(key -> {
-                        String value = getRequiredPropertyString(propertiesTag, key);
-                        properties.addProperty(key, value);
-                    });
+            tagKeys(propertiesTag).stream().sorted().forEach(key -> properties.addProperty(key, getRequiredPropertyString(propertiesTag, key)));
             json.add("Properties", properties);
         }
         return json;

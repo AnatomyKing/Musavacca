@@ -41,6 +41,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.INVISIBLE;
     }
+
     *///?}
     public BlockState getPlacementState(BlockGetter level, BlockPos pos) {
         return this.getStateForPlacement(level, pos);
@@ -81,7 +82,8 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         //? if >=1.21.11 {
         /*if (!level.canSpreadFireAround(pos)) return;
         *///?} else if >=1.21.5 <1.21.11 {
-        if (!(level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK) && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS) || level.anyPlayerCloseEnoughForSpawning(pos)))) {
+        if (!(level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)
+                && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS) || level.anyPlayerCloseEnoughForSpawning(pos)))) {
             return;
         }
         //?} else {
@@ -95,8 +97,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         BlockState belowState = level.getBlockState(pos.below());
         boolean eternalSource = belowState.isFireSource(level, pos.below(), Direction.UP);
         int age = state.getValue(AGE);
-        if (!eternalSource && level.isRaining() && this.isNearRain(level, pos)
-                && random.nextFloat() < 0.2F + (float) age * 0.03F) {
+        if (!eternalSource && level.isRaining() && this.isNearRain(level, pos) && random.nextFloat() < 0.2F + (float) age * 0.03F) {
             level.removeBlock(pos, false);
             return;
         }
@@ -147,9 +148,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                     if (burnoutBiome) {
                         spreadChance /= 2;
                     }
-                    if (spreadChance <= 0
-                            || random.nextInt(chanceDivisor) > spreadChance
-                            || (level.isRaining() && this.isNearRain(level, mutable))) {
+                    if (spreadChance <= 0 || random.nextInt(chanceDivisor) > spreadChance || (level.isRaining() && this.isNearRain(level, mutable))) {
                         continue;
                     }
                     int spreadAge = Math.min(15, age + random.nextInt(5) / 4);
@@ -227,9 +226,7 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     protected boolean canBurn(BlockState state) {
         var waterlogged = net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
         if (state.hasProperty(waterlogged) && state.getValue(waterlogged)) return false;
-        return state.is(ModBlocks.MUSAVACCA_PLANKS.get())
-                || state.is(ModBlocks.MUSAVACCA_STEM.get())
-                || state.is(ModBlocks.STRIPPED_MUSAVACCA_STEM.get())
+        return state.is(ModBlocks.MUSAVACCA_PLANKS.get()) || state.is(ModBlocks.MUSAVACCA_STEM.get()) || state.is(ModBlocks.STRIPPED_MUSAVACCA_STEM.get())
                 || state.is(ModBlocks.MUSAVACCA_LEAVES.get());
     }
 }

@@ -1,5 +1,8 @@
 package space.anatomyuniverse.musavacca.portal;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -7,17 +10,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.ModBlockTags;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public final class PearlPortalFrame {
     private PearlPortalFrame() {}
+
     public static final int MIN_WIDTH = 2;
     public static final int MAX_WIDTH = 21;
     public static final int MIN_HEIGHT = 3;
     public static final int MAX_HEIGHT = 21;
-    public record Shape(Direction.Axis axis, BlockPos minCorner, int width, int height, Direction frontDirection, Direction upDirection, BlockPos exitAnchorPos) {
+
+    public record Shape(Direction.Axis axis, BlockPos minCorner, int width, int height, Direction frontDirection, Direction upDirection,
+            BlockPos exitAnchorPos) {
         public Shape(Direction.Axis axis, BlockPos minCorner, int width, int height) {
             this(axis, minCorner, width, height, PearlPortalFrame.defaultFrontDirection(axis), PearlPortalFrame.defaultUpDirection(axis), null);
         }
@@ -37,7 +40,7 @@ public final class PearlPortalFrame {
             height = clamp(height, MIN_HEIGHT, MAX_HEIGHT);
             frontDirection = normalizeFrontDirection(axis, frontDirection);
             upDirection = normalizeUpDirection(axis, frontDirection, upDirection);
-            exitAnchorPos = exitAnchorPos == null ? defaultExitAnchor(axis, minCorner, width, height) : exitAnchorPos.immutable();
+            exitAnchorPos = exitAnchorPos == null ? defaultExitAnchor(axis, minCorner, width) : exitAnchorPos.immutable();
         }
 
         public Shape withFrontDirection(Direction frontDirection) {
@@ -71,10 +74,8 @@ public final class PearlPortalFrame {
         }
 
         public Vec3 center() {
-            return Vec3.atLowerCornerOf(this.minCorner)
-                    .add(directionVector(this.widthDirection()).scale(this.width / 2.0D))
-                    .add(directionVector(this.heightDirection()).scale(this.height / 2.0D))
-                    .add(planeCenterOffset(this.axis));
+            return Vec3.atLowerCornerOf(this.minCorner).add(directionVector(this.widthDirection()).scale(this.width / 2.0D))
+                    .add(directionVector(this.heightDirection()).scale(this.height / 2.0D)).add(planeCenterOffset(this.axis));
         }
 
         public Vec3 exitAnchorLandingPos() {
@@ -84,9 +85,9 @@ public final class PearlPortalFrame {
         public Direction frontDirectionFromPosition(Vec3 position) {
             Vec3 center = this.center();
             return switch (this.axis) {
-                case X -> position.z < center.z ? Direction.NORTH : Direction.SOUTH;
-                case Z -> position.x < center.x ? Direction.WEST : Direction.EAST;
-                case Y -> position.y < center.y ? Direction.DOWN : Direction.UP;
+            case X -> position.z < center.z ? Direction.NORTH : Direction.SOUTH;
+            case Z -> position.x < center.x ? Direction.WEST : Direction.EAST;
+            case Y -> position.y < center.y ? Direction.DOWN : Direction.UP;
             };
         }
 
@@ -101,10 +102,8 @@ public final class PearlPortalFrame {
         }
 
         public BlockPos closestFrameAnchor(Vec3 reference) {
-            final BlockPos[] bestPos = {
-                    defaultExitAnchor(this.axis, this.minCorner, this.width, this.height)
-            };
-            final double[] bestDistance = {Double.POSITIVE_INFINITY};
+            final BlockPos[] bestPos = { defaultExitAnchor(this.axis, this.minCorner, this.width) };
+            final double[] bestDistance = { Double.POSITIVE_INFINITY };
             this.forEachFrameBlock(pos -> {
                 double distance = Vec3.atCenterOf(pos).distanceToSqr(reference);
                 if (distance < bestDistance[0]) {
@@ -152,15 +151,26 @@ public final class PearlPortalFrame {
     }
 
     public static Direction widthDirection(Direction.Axis axis) {
-        return switch (normalizeAxis(axis)) { case X -> Direction.EAST; case Z -> Direction.SOUTH; case Y -> Direction.EAST; };
+        return switch (normalizeAxis(axis)) {
+        case X -> Direction.EAST;
+        case Z -> Direction.SOUTH;
+        case Y -> Direction.EAST;
+        };
     }
 
     public static Direction heightDirection(Direction.Axis axis) {
-        return switch (normalizeAxis(axis)) { case X, Z -> Direction.UP; case Y -> Direction.SOUTH; };
+        return switch (normalizeAxis(axis)) {
+        case X, Z -> Direction.UP;
+        case Y -> Direction.SOUTH;
+        };
     }
 
     public static Direction defaultFrontDirection(Direction.Axis axis) {
-        return switch (normalizeAxis(axis)) { case X -> Direction.SOUTH; case Z -> Direction.EAST; case Y -> Direction.UP; };
+        return switch (normalizeAxis(axis)) {
+        case X -> Direction.SOUTH;
+        case Z -> Direction.EAST;
+        case Y -> Direction.UP;
+        };
     }
 
     public static Direction defaultUpDirection(Direction.Axis axis) {
@@ -191,7 +201,11 @@ public final class PearlPortalFrame {
     }
 
     public static Direction.Axis normalAxis(Direction.Axis axis) {
-        return switch (normalizeAxis(axis)) { case X -> Direction.Axis.Z; case Z -> Direction.Axis.X; case Y -> Direction.Axis.Y; };
+        return switch (normalizeAxis(axis)) {
+        case X -> Direction.Axis.Z;
+        case Z -> Direction.Axis.X;
+        case Y -> Direction.Axis.Y;
+        };
     }
 
     public static Direction.Axis normalizeAxis(Direction.Axis axis) {
@@ -221,7 +235,8 @@ public final class PearlPortalFrame {
         return isValidFrame(level, shape, interiorPredicate) ? Optional.of(shape) : Optional.empty();
     }
 
-    private static BlockPos scanToMin(BlockGetter level, BlockPos start, Direction positiveDirection, Predicate<BlockState> interiorPredicate, int maxDistance) {
+    private static BlockPos scanToMin(BlockGetter level, BlockPos start, Direction positiveDirection, Predicate<BlockState> interiorPredicate,
+            int maxDistance) {
         BlockPos current = start.immutable();
         for (int i = 1; i < maxDistance; i++) {
             BlockPos next = current.relative(positiveDirection, -1);
@@ -272,7 +287,7 @@ public final class PearlPortalFrame {
         return state.canBeReplaced() || state.is(ModBlocks.PEARL_FIRE.get()) || state.is(ModBlocks.PEARL_PORTAL.get());
     }
 
-    private static BlockPos defaultExitAnchor(Direction.Axis axis, BlockPos minCorner, int width, int height) {
+    private static BlockPos defaultExitAnchor(Direction.Axis axis, BlockPos minCorner, int width) {
         Direction widthDir = widthDirection(axis);
         Direction heightDir = heightDirection(axis);
         return minCorner.relative(widthDir, Math.max(0, width / 2)).relative(heightDir, -1).immutable();
@@ -280,9 +295,9 @@ public final class PearlPortalFrame {
 
     private static Vec3 planeCenterOffset(Direction.Axis axis) {
         return switch (normalizeAxis(axis)) {
-            case X -> new Vec3(0.0D, 0.0D, 0.5D);
-            case Z -> new Vec3(0.5D, 0.0D, 0.0D);
-            case Y -> new Vec3(0.0D, 0.5D, 0.0D);
+        case X -> new Vec3(0.0D, 0.0D, 0.5D);
+        case Z -> new Vec3(0.5D, 0.0D, 0.0D);
+        case Y -> new Vec3(0.0D, 0.5D, 0.0D);
         };
     }
 

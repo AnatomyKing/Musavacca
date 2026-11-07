@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
-import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
+import space.anatomyuniverse.musavacca.item.PearlIgniter;
 import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles;
 
 public final class PearlCandleConversion {
@@ -39,13 +39,12 @@ public final class PearlCandleConversion {
     }
 
     public static int count(BlockState state) {
-        return state.getBlock().getStateDefinition().getProperty("candles") instanceof IntegerProperty property
-                ? state.getValue(property) : 1;
+        return state.getBlock().getStateDefinition().getProperty("candles") instanceof IntegerProperty property ? state.getValue(property) : 1;
     }
 
     public static boolean canLight(BlockState state) {
-        return isCandle(state) && !(state.getBlock() instanceof PearlCandleBlock)
-                && !value(state, "lit") && !value(state, "waterlogged") && !state.hasBlockEntity();
+        return isCandle(state) && !(state.getBlock() instanceof PearlCandleBlock) && !value(state, "lit") && !value(state, "waterlogged")
+                && !state.hasBlockEntity();
     }
 
     public static InteractionResult useOn(Level level, Player player, ItemStack stack, BlockPos pos, Supplier<InteractionResult> interaction) {
@@ -66,14 +65,14 @@ public final class PearlCandleConversion {
 
     private static void convert(Level level, BlockPos pos, int hex) {
         BlockState state = level.getBlockState(pos);
-        if (!isCandle(state) || state.getBlock() instanceof PearlCandleBlock || !value(state, "lit")
-                || value(state, "waterlogged") || state.hasBlockEntity() || level.getBlockEntity(pos) != null) return;
+        if (!isCandle(state) || state.getBlock() instanceof PearlCandleBlock || !value(state, "lit") || value(state, "waterlogged") || state.hasBlockEntity()
+                || level.getBlockEntity(pos) != null)
+            return;
 
         var block = ModBlocks.PEARL_CANDLE.get();
         if (!level.setBlock(pos, block.wrapState(state), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) return;
         if (level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle) {
-            candle.setOriginalState(state);
-            candle.setHexColor(hex);
+            candle.setCandle(state, hex);
             if (!level.isClientSide()) {
                 level.updateNeighborsAt(pos, block);
                 VocoPostCandleLogic.refreshPostBelowCandle(level, pos);

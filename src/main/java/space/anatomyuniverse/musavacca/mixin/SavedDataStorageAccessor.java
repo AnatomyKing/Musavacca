@@ -14,8 +14,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
         *///?} else {
         targets = "space.anatomyuniverse.musavacca.mixin.DisabledSavedDataStorageTarget",
         //?}
-        remap = false
-)
+        remap = false)
 public interface SavedDataStorageAccessor {
     //? if >=26.1 {
     /*@Accessor("dataFolder")

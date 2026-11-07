@@ -5,6 +5,7 @@ package space.anatomyuniverse.musavacca.data.recipes;
 *///?} else {
 import net.minecraft.advancements.Criterion;
 //?}
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -14,64 +15,50 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import org.jetbrains.annotations.NotNull;
-import java.util.concurrent.CompletableFuture;
 
 public final class ModRecipeProvider extends RecipeProvider {
     public static final String MOD_ID = "musavacca";
     //? if >=1.21.2 {
     private final HolderLookup.Provider registries;
-    //? if >=26.3 {
-    /*public ModRecipeProvider(net.minecraft.data.worldgen.BootstrapContext<net.minecraft.world.item.crafting.Recipe<?>> recipes,
-            net.minecraft.data.worldgen.BootstrapContext<net.minecraft.advancements.Advancement> advancements, HolderLookup.Provider registries) {
-        super(recipes, advancements);
+    //?} else {
+    /*private final CompletableFuture<HolderLookup.Provider> lookupFuture;
     *///?}
     //? if >=1.21.2 <26.3 {
     private final RecipeOutput output;
     //?}
-    //?}
-    //? if <26.3 {
-    
-    //? if <1.21.2 {
-    /*private final CompletableFuture<HolderLookup.Provider> lookupFuture;
-    *///?}
-    //? if >=1.21.2 <26.3 {
+
+    //? if >=26.3 {
+    /*public ModRecipeProvider(net.minecraft.data.worldgen.BootstrapContext<net.minecraft.world.item.crafting.Recipe<?>> recipes,
+            net.minecraft.data.worldgen.BootstrapContext<net.minecraft.advancements.Advancement> advancements, HolderLookup.Provider registries) {
+        super(recipes, advancements);
+    *///?} else if >=1.21.2 {
     public ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         super(registries, output);
     //?} else {
     /*public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries);
     *///?}
-    //?}
         //? if >=1.21.2 {
         this.registries = registries;
+        //?} else {
+        /*this.lookupFuture = registries;
+        *///?}
         //? if >=1.21.2 <26.3 {
         this.output = output;
         //?}
-        //?}
-        //? if <1.21.2 {
-        /*this.lookupFuture = registries;
-        *///?}
     }
 
     @Override
-    //? if >=26.3 {
-    /*protected void buildRecipes() { buildAll(this.output, this.registries); }
-    *///?} else if >=1.21.2 <26.3 {
+    //? if >=1.21.2 {
     protected void buildRecipes() {
+        buildAll(this.output, this.registries);
     //?} else {
     /*protected void buildRecipes(@NotNull RecipeOutput output) {
-        final HolderLookup.Provider registries = lookupFuture.join();
+        buildAll(output, this.lookupFuture.join());
     *///?}
-    //? if <26.3 {
-        
-        //? if >=1.21.2 <26.3 {
-        buildAll(this.output, this.registries);
-        //?} else {
-        /*buildAll(output, registries);
-        *///?}
     }
 
     //? if >=1.21.2 <26.3 {
@@ -91,21 +78,20 @@ public final class ModRecipeProvider extends RecipeProvider {
         }
     }
     //?}
-        //?}
+
     private void buildAll(RecipeOutput output, HolderLookup.Provider registries) {
         final RecipeDSL.Unlocker unlocker = new RecipeDSL.Unlocker() {
             @Override
-            public Criterion<?> item(net.minecraft.world.level.ItemLike i) {
-                return has(i);
+            public Criterion<?> item(net.minecraft.world.level.ItemLike item) {
+                return has(item);
             }
 
             @Override
-            public Criterion<?> tag(TagKey<Item> t) {
-                return has(t);
+            public Criterion<?> tag(TagKey<Item> tag) {
+                return has(tag);
             }
         };
-        final RecipeDSL dsl;
-        dsl = new RecipeDSL(output, MOD_ID, unlocker, registries);
+        final RecipeDSL dsl = new RecipeDSL(output, MOD_ID, unlocker, registries);
         dsl.shapelessCountFamily(RecipeCategory.MISC)
                 .step(ModItems.SMALL_BANANA_PEARL.get(), 4, ModItems.BANANA_PEARL.get(), 1)
                 .step(ModItems.BANANA_PEARL.get(), 4, ModItems.BIG_BANANA_PEARL.get(), 1)
@@ -196,7 +182,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .requires(ModItems.BIG_BANANA_PEARL, ModBlocks.MUSAVACCA_PLANKS)
                 .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
                 .save("blocks/gilded_musavacca_planks");
-        dsl.shapeless(RecipeCategory.MISC, space.anatomyuniverse.musavacca.item.custom.PearlIgniter.recipeResult())
+        dsl.shapeless(RecipeCategory.MISC, space.anatomyuniverse.musavacca.item.PearlIgniter.recipeResult())
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .save("misc/flint_and_pearl");

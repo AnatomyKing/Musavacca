@@ -9,9 +9,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-//? if >=26.3 {
-/*import net.minecraft.world.item.Item;
-*///?} else {
+//? if <26.3 {
 import net.minecraft.world.item.ShovelItem;
 //?}
 //? if >=1.21.2 {
@@ -20,9 +18,9 @@ import net.minecraft.world.item.ToolMaterial;
 /*import net.minecraft.world.item.Tier;
 *///?}
 import net.minecraft.world.level.Level;
-//? if >=26.3 {
 
-/*public class PotassiumShovelItem extends Item {
+//? if >=26.3 {
+/*public class PotassiumShovelItem extends PotassiumItem {
 *///?} else {
 public class PotassiumShovelItem extends ShovelItem {
 //?}
@@ -40,6 +38,7 @@ public class PotassiumShovelItem extends ShovelItem {
         *///?}
     }
 
+    //? if <26.3 {
     @Override
     //? if >=1.21.2 {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
@@ -47,22 +46,22 @@ public class PotassiumShovelItem extends ShovelItem {
     /*public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
     *///?}
         //? if >=1.21.2 {
-        if (PotassiumItemBehavior.isLookingAtBlock(player)) return InteractionResult.PASS;
+        if (PotassiumItem.isLookingAtBlock(player)) return InteractionResult.PASS;
         //?}
         ItemStack stack = player.getItemInHand(hand);
         //? if >=1.21.2 {
-        if (!PotassiumItemBehavior.canStartEating(stack, player)) return InteractionResult.FAIL;
+        if (!PotassiumItem.canStartEating(stack, player)) return InteractionResult.FAIL;
         //?} else {
-        /*if (PotassiumItemBehavior.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
-        *///?}
-        //? if <1.21.2 {
-        /*if (!PotassiumItemBehavior.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
+        /*if (PotassiumItem.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
+        if (!PotassiumItem.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
         *///?}
         return super.use(level, player, hand);
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
+        return PotassiumItem.finishEating(stack, level, entity);
     }
+    //?}
+
 }

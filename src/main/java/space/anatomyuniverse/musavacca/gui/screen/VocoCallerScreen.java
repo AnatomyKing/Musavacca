@@ -1,4 +1,4 @@
-package space.anatomyuniverse.musavacca.gui.frontend;
+package space.anatomyuniverse.musavacca.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 //? if >=1.21.9 {
@@ -12,10 +12,9 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 //?} else {
 /*import net.neoforged.neoforge.network.PacketDistributor;
 *///?}
-//? if >=1.21.11 {
-//?} else {
-import net.minecraft.client.renderer.RenderType;
-//?}
+//? if >=1.21.2 <1.21.6 {
+/*import net.minecraft.client.renderer.RenderType;
+*///?}
 //? if >=26.1 {
 /*import net.minecraft.client.gui.GuiGraphicsExtractor;
 *///?} else {
@@ -37,18 +36,17 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.entity.player.Inventory;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.gui.backend.VocoCallerBackend;
-import space.anatomyuniverse.musavacca.gui.backend.VocoDialerBackend;
 import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
+import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
 import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 
-public final class VocoCallerFrontend
+public final class VocoCallerScreen
         //? if >=1.21.2 {
         extends AbstractContainerScreen<VocoCallerMenu> {
         //?} else {
         /*extends EffectRenderingInventoryScreen<VocoCallerMenu> {
         *///?}
-    private static final int SELECTION_COUNT = VocoCallerBackend.ROW_COUNT * 2;
+    private static final int SELECTION_COUNT = VocoCallerMenu.ROW_COUNT * 2;
     //? if >=1.21.11 {
     /*private static final Identifier PHONE_SCREEN_TEXTURE = texture("phone_screen");
     private static final Identifier PHONE_SCREEN_FLASH_TEXTURE = texture("phone_screen_flash");
@@ -72,7 +70,7 @@ public final class VocoCallerFrontend
     private static final ResourceLocation ARROW_RIGHT_PRESSED_TEXTURE = texture("arrow_right_pressed");
     private static final ResourceLocation[] SYMBOL_TEXTURES = createSymbolTextures();
     //?}
-    private final VocoDialerControl dialer = new VocoDialerControl(this::sendBackendButton);
+    private final VocoDialerControl dialer = new VocoDialerControl(this::sendMenuButton);
     //? if >=1.21.2 {
     private final EffectsInInventory effects;
     //?}
@@ -90,7 +88,8 @@ public final class VocoCallerFrontend
     private boolean spaceDoubleClick = false;
     private int pendingSpacePosition = -1;
     private long pendingSpaceClickNanos = 0L;
-    public VocoCallerFrontend(VocoCallerMenu menu, Inventory playerInventory, Component title) {
+
+    public VocoCallerScreen(VocoCallerMenu menu, Inventory playerInventory, Component title) {
         //? if >=26.1 {
         /*super(menu, playerInventory, title, 286, 206);
         *///?} else {
@@ -114,53 +113,36 @@ public final class VocoCallerFrontend
         return Math.max(2, this.width - 120 - 2);
     }
 
+    @Override
     //? if >=26.1 {
-    /*@Override
-    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    /*public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
-        this.tickHeldArrow();
-        this.tickSpaceButton();
-        blit(graphics, this.isPhoneScreenFlashing() ? PHONE_SCREEN_FLASH_TEXTURE : PHONE_SCREEN_TEXTURE, this.leftPos + 0, this.topPos + 0, 126, 206);
-        this.dialer.render(graphics, this.leftPos + 129, this.topPos + 42);
-        nextLayer(graphics);
-        blit(graphics, BUTTON_BAR_TEXTURE, this.leftPos + 129, this.topPos + 0, 157, 39);
-        nextLayer(graphics);
-        for (CallerButton button : CallerButton.values()) {
-            blit(graphics, button.texture(this.pressedButton == button), this.leftPos + button.x, this.topPos + 8, button.width, 20);
-        }
-    }
-    *///?}
-    //? if <26.1 {
-    @Override
+    *///?} else {
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    //?}
         this.tickHeldArrow();
         this.tickSpaceButton();
-        blit(graphics, this.isPhoneScreenFlashing() ? PHONE_SCREEN_FLASH_TEXTURE : PHONE_SCREEN_TEXTURE, this.leftPos + 0, this.topPos + 0, 126, 206);
+        blit(graphics, this.isPhoneScreenFlashing() ? PHONE_SCREEN_FLASH_TEXTURE : PHONE_SCREEN_TEXTURE, this.leftPos, this.topPos, 126, 206);
         this.dialer.render(graphics, this.leftPos + 129, this.topPos + 42);
         nextLayer(graphics);
-        blit(graphics, BUTTON_BAR_TEXTURE, this.leftPos + 129, this.topPos + 0, 157, 39);
+        blit(graphics, BUTTON_BAR_TEXTURE, this.leftPos + 129, this.topPos, 157, 39);
         nextLayer(graphics);
         for (CallerButton button : CallerButton.values()) {
             blit(graphics, button.texture(this.pressedButton == button), this.leftPos + button.x, this.topPos + 8, button.width, 20);
         }
     }
-    //?}
-    //? if >=26.1 {
-    /*@Override
-    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        this.renderCurrentDialed(graphics);
-        this.renderCallLists(graphics);
-        this.renderSelectionCaret(graphics);
-    }
-    *///?}
-    //? if <26.1 {
+
     @Override
+    //? if >=26.1 {
+    /*protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    *///?} else {
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    //?}
         this.renderCurrentDialed(graphics);
         this.renderCallLists(graphics);
         this.renderSelectionCaret(graphics);
     }
-    //?}
+
     //? if >=26.1 {
     /*private void renderCurrentDialed(GuiGraphicsExtractor graphics) {
     *///?} else {
@@ -170,8 +152,8 @@ public final class VocoCallerFrontend
     }
 
     private String currentHexCode() {
-        String hexCode = this.backend().getCurrentDialed();
-        return hexCode == null ? VocoCallerBackend.formatHex(this.menu.getPhoneHex()) : hexCode;
+        String hexCode = this.menu.getCurrentDialed();
+        return hexCode == null ? VocoCallerMenu.formatHex(this.menu.getPhoneHex()) : hexCode;
     }
 
     private boolean isPhoneScreenFlashing() {
@@ -185,10 +167,10 @@ public final class VocoCallerFrontend
     *///?} else {
     private void renderCallLists(GuiGraphics graphics) {
     //?}
-        for (int row = 0; row < VocoCallerBackend.ROW_COUNT; row++) {
+        for (int row = 0; row < VocoCallerMenu.ROW_COUNT; row++) {
             int y = 59 + row * 9;
-            this.drawHexCode(graphics, this.backend().getRecentCall(row), 23, y);
-            this.drawHexCode(graphics, this.backend().getSavedNumber(row), 76, y);
+            this.drawHexCode(graphics, this.menu.getRecentCall(row), 23, y);
+            this.drawHexCode(graphics, this.menu.getSavedNumber(row), 76, y);
         }
     }
 
@@ -211,10 +193,7 @@ public final class VocoCallerFrontend
     *///?} else {
     private void renderSelectionCaret(GuiGraphics graphics) {
     //?}
-        if (
-                !this.hasEntry(this.selectedPosition)
-                        || !this.isCaretVisible()
-        ) {
+        if (!this.hasEntry(this.selectedPosition) || !this.isCaretVisible()) {
             return;
         }
         int row = rowOf(this.selectedPosition);
@@ -247,9 +226,7 @@ public final class VocoCallerFrontend
             return true;
         }
         for (CallerButton callerButton : CallerButton.values()) {
-            if (
-                    !this.contains(mouseX, mouseY, callerButton.x, 8, callerButton.width, 20)
-            ) {
+            if (!this.contains(mouseX, mouseY, callerButton.x, 8, callerButton.width, 20)) {
                 continue;
             }
             this.startButtonPress(callerButton);
@@ -301,10 +278,7 @@ public final class VocoCallerFrontend
             return true;
         }
         if (this.pressedButton != null) {
-            if (
-                    this.pressedButton
-                            == CallerButton.SPACE
-            ) {
+            if (this.pressedButton == CallerButton.SPACE) {
                 this.finishSpacePress();
             }
             this.clearButtonPress();
@@ -331,43 +305,32 @@ public final class VocoCallerFrontend
 
     private void activateButton(CallerButton button) {
         switch (button) {
-            case LEFT ->
-                    this.moveSelection(-1);
-            case SPACE -> {
-            }
-            case RIGHT ->
-                    this.moveSelection(1);
+        case LEFT -> this.moveSelection(-1);
+        case SPACE -> {
+        }
+        case RIGHT -> this.moveSelection(1);
         }
     }
 
     private void dialEntry(int position) {
         String hexCode = this.hexCodeAt(position);
         if (hexCode == null) return;
-        this.sendBackendButton(VocoDialerBackend.buttonForAddress(VocoCallerBackend.parseHex(hexCode)));
+        this.sendMenuButton(VocoDialerMenu.buttonForAddress(VocoCallerMenu.parseHex(hexCode)));
     }
 
     private String hexCodeAt(int position) {
         if (!this.hasEntry(position)) return null;
         int row = rowOf(position);
-        return isSavedPosition(position) ? this.backend().getSavedNumber(row) : this.backend().getRecentCall(row);
+        return isSavedPosition(position) ? this.menu.getSavedNumber(row) : this.menu.getRecentCall(row);
     }
 
     private void tickHeldArrow() {
-        if (
-                this.pressedButton
-                        != CallerButton.LEFT
-                        && this.pressedButton
-                        != CallerButton.RIGHT
-        ) {
+        if (this.pressedButton != CallerButton.LEFT && this.pressedButton != CallerButton.RIGHT) {
             return;
         }
         long now = System.nanoTime();
         long wait = this.buttonRepeatMode ? 35_000_000L : 280_000_000L;
-        if (
-                now
-                        - this.buttonRepeatLastNanos
-                        < wait
-        ) {
+        if (now - this.buttonRepeatLastNanos < wait) {
             return;
         }
         int guard = 0;
@@ -377,12 +340,7 @@ public final class VocoCallerFrontend
             this.buttonRepeatMode = true;
             wait = 35_000_000L;
             guard++;
-        } while (
-                now
-                        - this.buttonRepeatLastNanos
-                        >= wait
-                        && guard < 20
-        );
+        } while (now - this.buttonRepeatLastNanos >= wait && guard < 20);
     }
 
     private void beginSpacePress() {
@@ -393,11 +351,7 @@ public final class VocoCallerFrontend
         this.spaceDoubleClick = false;
         if (this.spacePressPosition < 0) return;
         if (this.pendingSpacePosition < 0) return;
-        if (
-                now
-                        - this.pendingSpaceClickNanos
-                        > 300_000_000L
-        ) {
+        if (now - this.pendingSpaceClickNanos > 300_000_000L) {
             int pendingPosition = this.pendingSpacePosition;
             this.clearPendingSpaceClick();
             this.spacePressPosition = -1;
@@ -412,26 +366,14 @@ public final class VocoCallerFrontend
 
     private void tickSpaceButton() {
         long now = System.nanoTime();
-        if (
-                this.pressedButton
-                        == CallerButton.SPACE
-                        && this.spacePressPosition >= 0
-                        && !this.spacePressConsumed
-                        && now
-                        - this.spacePressStartNanos
-                        >= 650_000_000L
-        ) {
+        if (this.pressedButton == CallerButton.SPACE && this.spacePressPosition >= 0 && !this.spacePressConsumed
+                && now - this.spacePressStartNanos >= 650_000_000L) {
             this.clearPendingSpaceClick();
             this.spaceDoubleClick = false;
             this.spacePressConsumed = true;
             this.deleteEntry(this.spacePressPosition);
         }
-        if (
-                this.pendingSpacePosition >= 0
-                        && now
-                        - this.pendingSpaceClickNanos
-                        > 300_000_000L
-        ) {
+        if (this.pendingSpacePosition >= 0 && now - this.pendingSpaceClickNanos > 300_000_000L) {
             int position = this.pendingSpacePosition;
             this.clearPendingSpaceClick();
             this.dialEntry(position);
@@ -439,16 +381,9 @@ public final class VocoCallerFrontend
     }
 
     private void finishSpacePress() {
-        if (
-                this.spacePressPosition >= 0
-                        && !this.spacePressConsumed
-        ) {
+        if (this.spacePressPosition >= 0 && !this.spacePressConsumed) {
             long now = System.nanoTime();
-            if (
-                    now
-                            - this.spacePressStartNanos
-                            >= 650_000_000L
-            ) {
+            if (now - this.spacePressStartNanos >= 650_000_000L) {
                 this.clearPendingSpaceClick();
                 this.spaceDoubleClick = false;
                 this.deleteEntry(this.spacePressPosition);
@@ -487,10 +422,7 @@ public final class VocoCallerFrontend
     }
 
     private void moveRecentEntryToSaved(int row) {
-        if (
-                !this.backend()
-                        .moveRecentCallToSavedTop(row)
-        ) {
+        if (!this.menu.moveRecentCallToSavedTop(row)) {
             return;
         }
         this.selectedPosition = positionOf(0, true);
@@ -498,13 +430,10 @@ public final class VocoCallerFrontend
     }
 
     private void moveSavedEntry(int row) {
-        if (
-                !this.backend()
-                        .hasSavedNumber(row)
-        ) {
+        if (!this.menu.hasSavedNumber(row)) {
             return;
         }
-        int newRow = this.backend().moveSavedNumber(row, this.lastNavigationDirection);
+        int newRow = this.menu.moveSavedNumber(row, this.lastNavigationDirection);
         this.selectedPosition = positionOf(newRow, true);
         this.restartCaretBlink();
     }
@@ -512,18 +441,16 @@ public final class VocoCallerFrontend
     private void deleteEntry(int position) {
         int row = rowOf(position);
         if (isSavedPosition(position)) {
-            this.backend().deleteSavedNumberToRecent(row);
+            this.menu.deleteSavedNumberToRecent(row);
         } else {
-            this.backend().deleteRecentCall(row);
+            this.menu.deleteRecentCall(row);
         }
         this.ensureCaretOnFilledEntry();
         this.restartCaretBlink();
     }
 
     private void ensureCaretOnFilledEntry() {
-        if (
-                this.hasEntry(this.selectedPosition)
-        ) {
+        if (this.hasEntry(this.selectedPosition)) {
             return;
         }
         int nextPosition = this.findNextFilledPosition(this.selectedPosition, this.lastNavigationDirection);
@@ -567,14 +494,11 @@ public final class VocoCallerFrontend
     }
 
     private boolean hasEntry(int position) {
-        if (
-                position < 0
-                        || position >= SELECTION_COUNT
-        ) {
+        if (position < 0 || position >= SELECTION_COUNT) {
             return false;
         }
         int row = rowOf(position);
-        return isSavedPosition(position) ? this.backend().hasSavedNumber(row) : this.backend().hasRecentCall(row);
+        return isSavedPosition(position) ? this.menu.hasSavedNumber(row) : this.menu.hasRecentCall(row);
     }
 
     private static int rowOf(int position) {
@@ -589,36 +513,17 @@ public final class VocoCallerFrontend
         return row * 2 + (savedNumber ? 1 : 0);
     }
 
-    private VocoCallerBackend backend() {
-        return this.menu.getBackend();
-    }
-
-    private void sendBackendButton(int buttonId) {
-        if (
-                !VocoDialerBackend.isKnownButton(buttonId)
-        ) {
+    private void sendMenuButton(int buttonId) {
+        if (!VocoDialerMenu.isKnownButton(buttonId)) {
             return;
         }
-        if (
-                this.minecraft == null
-                        || this.minecraft.player == null
-                        || this.minecraft.gameMode == null
-        ) {
+        if (this.minecraft == null || this.minecraft.player == null || this.minecraft.gameMode == null) {
             return;
         }
-        String before = this.backend().getCurrentDialed();
-        boolean completesCall =
-                buttonId
-                        > VocoDialerBackend.BUTTON_CLEAR
-                        || buttonId
-                        >= VocoDialerBackend.BUTTON_HEX_0
-                        && buttonId
-                        <= VocoDialerBackend.BUTTON_HEX_F
-                        && before != null
-                        && before.length() == 5;
-        if (
-                !this.menu.clickMenuButton(this.minecraft.player, buttonId)
-        ) {
+        String before = this.menu.getCurrentDialed();
+        boolean completesCall = buttonId > VocoDialerMenu.BUTTON_CLEAR
+                || buttonId >= VocoDialerMenu.BUTTON_HEX_0 && buttonId <= VocoDialerMenu.BUTTON_HEX_F && before != null && before.length() == 5;
+        if (!this.menu.clickMenuButton(this.minecraft.player, buttonId)) {
             return;
         }
         if (completesCall) {
@@ -628,34 +533,13 @@ public final class VocoCallerFrontend
     }
 
     private void syncCallStateToServer() {
-        VocoCallerStatePayload payload =
-                new VocoCallerStatePayload(this.menu.containerId, this.menu.getPhoneHex(), this.backend().copyRecentAddresses(),
-                        this.backend().copySavedAddresses());
+        VocoCallerStatePayload payload = new VocoCallerStatePayload(this.menu.containerId, this.menu.getPhoneHex(), this.menu.copyRecentAddresses(),
+                this.menu.copySavedAddresses());
         //? if >=1.21.6 {
         ClientPacketDistributor.sendToServer(payload);
         //?} else {
         /*PacketDistributor.sendToServer(payload);
         *///?}
-    }
-
-    public void setRecentCall(int row, String hexCode) {
-        this.backend().setRecentCall(row, hexCode);
-        this.ensureCaretOnFilledEntry();
-    }
-
-    public void setRecentCall(int row, int hexColor) {
-        this.backend().setRecentCall(row, hexColor);
-        this.ensureCaretOnFilledEntry();
-    }
-
-    public void setSavedNumber(int row, String hexCode) {
-        this.backend().setSavedNumber(row, hexCode);
-        this.ensureCaretOnFilledEntry();
-    }
-
-    public void setSavedNumber(int row, int hexColor) {
-        this.backend().setSavedNumber(row, hexColor);
-        this.ensureCaretOnFilledEntry();
     }
 
     @Override
@@ -672,35 +556,28 @@ public final class VocoCallerFrontend
         this.clearPendingSpaceClick();
         this.clearButtonPress();
         this.dialer.cancel();
-        this.backend().commitPendingRecentCall();
+        this.menu.commitPendingRecentCall();
         super.removed();
     }
 
-    //? if >=26.1 {
-    /*@Override
-    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-        int originalTopPos = this.topPos;
-        this.topPos += 34;
-        try {
-            this.effects.extractRenderState(graphics, mouseX, mouseY);
-        } finally {
-            this.topPos = originalTopPos;
-        }
-    }
-    *///?}
-    //? if <26.1 {
     @Override
+    //? if >=26.1 {
+    /*public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+    *///?} else {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         super.render(graphics, mouseX, mouseY, partialTick);
-        //? if >=1.21.2 <26.1 {
+    //?}
+        //? if >=1.21.2 {
         int originalTopPos = this.topPos;
         this.topPos += 34;
         try {
-            //? if >=1.21.11 <26.1 {
+            //? if >=26.1 {
+            /*this.effects.extractRenderState(graphics, mouseX, mouseY);
+            *///?} else if >=1.21.11 {
             /*this.effects.render(graphics, mouseX, mouseY);
-            *///?} else if >=1.21.6 <1.21.11 {
+            *///?} else if >=1.21.6 {
             this.effects.renderEffects(graphics, mouseX, mouseY);
             this.effects.renderTooltip(graphics, mouseX, mouseY);
             //?} else {
@@ -710,9 +587,11 @@ public final class VocoCallerFrontend
             this.topPos = originalTopPos;
         }
         //?}
+        //? if <26.1 {
         this.renderTooltip(graphics, mouseX, mouseY);
+        //?}
     }
-    //?}
+
     private boolean contains(double mouseX, double mouseY, int localX, int localY, int width, int height) {
         int x = this.leftPos + localX;
         int y = this.topPos + localY;
@@ -724,7 +603,7 @@ public final class VocoCallerFrontend
     *///?} else {
     private static ResourceLocation[]
     //?}
-    createSymbolTextures() {
+            createSymbolTextures() {
         //? if >=1.21.11 {
         /*Identifier[] textures = new Identifier[16];
         *///?} else {
@@ -772,11 +651,11 @@ public final class VocoCallerFrontend
     }
 
     private enum CallerButton {
-        LEFT(155, 20),
-        SPACE(183, 49),
-        RIGHT(240, 20);
+        LEFT(155, 20), SPACE(183, 49), RIGHT(240, 20);
+
         private final int x;
         private final int width;
+
         CallerButton(int x, int width) {
             this.x = x;
             this.width = width;
@@ -788,12 +667,9 @@ public final class VocoCallerFrontend
         private ResourceLocation texture(boolean pressed) {
         //?}
             return switch (this) {
-                case LEFT ->
-                        pressed ? ARROW_LEFT_PRESSED_TEXTURE : ARROW_LEFT_TEXTURE;
-                case SPACE ->
-                        pressed ? SPACE_BUTTON_PRESSED_TEXTURE : SPACE_BUTTON_TEXTURE;
-                case RIGHT ->
-                        pressed ? ARROW_RIGHT_PRESSED_TEXTURE : ARROW_RIGHT_TEXTURE;
+            case LEFT -> pressed ? ARROW_LEFT_PRESSED_TEXTURE : ARROW_LEFT_TEXTURE;
+            case SPACE -> pressed ? SPACE_BUTTON_PRESSED_TEXTURE : SPACE_BUTTON_TEXTURE;
+            case RIGHT -> pressed ? ARROW_RIGHT_PRESSED_TEXTURE : ARROW_RIGHT_TEXTURE;
             };
         }
     }

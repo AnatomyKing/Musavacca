@@ -1,5 +1,10 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
+import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
+
 import java.util.UUID;
 
 //? if <1.21.5 {
@@ -27,8 +32,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 //?}
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -47,7 +52,9 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     private int yawDegrees = DEFAULT_YAW_DEGREES;
     private int pitchDegrees = DEFAULT_PITCH_DEGREES;
     private UUID deviceId = UUID.randomUUID();
+
     public UUID getDeviceId() { return this.deviceId; }
+
     public void setDeviceId(UUID deviceId) {
         if (deviceId == null || deviceId.equals(this.deviceId)) return;
         this.deviceId = deviceId;
@@ -60,6 +67,7 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     private double targetX;
     private double targetY;
     private double targetZ;
+
     public VocoPostBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.VOCO_POST_BLOCK_ENTITY.get(), pos, state);
         this.resetDefaults(pos, VocoPostBlock.receptorPosition(state));
@@ -138,8 +146,7 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     public void releaseHexClaim() {
         Level level = this.getLevel();
         if (level instanceof ServerLevel serverLevel) {
-            space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork.releaseOwner(serverLevel.getServer(),
-                    space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(this.deviceId));
+            HexTeleportAddressNetwork.releaseOwner(serverLevel.getServer(), HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(this.deviceId));
         }
     }
 
@@ -197,17 +204,14 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
 
     private void rerenderClientNow() {
         Level level = this.getLevel();
-        if (level == null || !level.isClientSide()) return;
-        BlockPos pos = this.getBlockPos();
-        BlockState state = this.getBlockState();
-        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
+        if (level != null && level.isClientSide()) this.syncToClientAndRerender();
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
         if (this.level instanceof ServerLevel serverLevel) {
-            space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic.refreshPortalAt(serverLevel, this.getBlockPos());
+            VocoPostCandleLogic.refreshPortalAt(serverLevel, this.getBlockPos());
         }
     }
 
@@ -221,64 +225,50 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
         this.cleanupBeforeRemoval();
         super.preRemoveSideEffects(pos, state);
     }
+
     //?}
     @Override
     //? if >=1.21.6 {
     protected void loadAdditional(ValueInput input) {
     //?} else {
-    /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+    /*protected void loadAdditional(CompoundTag input, HolderLookup.Provider provider) {
     *///?}
         //? if >=1.21.6 {
         super.loadAdditional(input);
         //?} else {
-        /*super.loadAdditional(tag, provider);
+        /*super.loadAdditional(input, provider);
         *///?}
-        //? if >=1.21.6 {
-        this.deviceId = space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.read(input.getStringOr("musavacca_device_id", ""));
-        //?} else if >=1.21.5 <1.21.6 {
-        /*this.deviceId = space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.read(tag.getStringOr("musavacca_device_id", ""));
-        *///?} else {
-        /*this.deviceId = space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.read(tag.contains("musavacca_device_id", Tag.TAG_STRING) ? tag.getString("musavacca_device_id") : "");
+        //? if >=1.21.5 {
+        this.deviceId = TeleportDeviceIdentity.read(input.getStringOr("musavacca_device_id", ""));
+        //?} else {
+        /*this.deviceId = TeleportDeviceIdentity.read(input.contains("musavacca_device_id", Tag.TAG_STRING) ? input.getString("musavacca_device_id") : "");
         *///?}
         ReceptorPosition receptor = this.getPostReceptor();
         Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
-        //? if >=1.21.6 {
+        //? if >=1.21.5 {
         this.yawDegrees = clampYaw(input.getIntOr(TAG_YAW_DEGREES, receptor.defaultYawDegrees()));
         this.pitchDegrees = clampPitch(input.getIntOr(TAG_PITCH_DEGREES, receptor.defaultPitchDegrees()));
-        //?} else if >=1.21.5 <1.21.6 {
-        /*this.yawDegrees = clampYaw(tag.getIntOr(TAG_YAW_DEGREES, receptor.defaultYawDegrees()));
-        this.pitchDegrees = clampPitch(tag.getIntOr(TAG_PITCH_DEGREES, receptor.defaultPitchDegrees()));
-        *///?} else {
-        /*this.yawDegrees = clampYaw((tag.contains(TAG_YAW_DEGREES, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_YAW_DEGREES) : receptor.defaultYawDegrees()));
-        this.pitchDegrees = clampPitch((tag.contains(TAG_PITCH_DEGREES, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_PITCH_DEGREES) : receptor.defaultPitchDegrees()));
-        *///?}
-        //? if >=1.21.6 {
-        this.hexColor = readHexOrUnset(input);
         //?} else {
-        /*this.hexColor = readHexOrUnset(tag);
+        /*this.yawDegrees = clampYaw((input.contains(TAG_YAW_DEGREES, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_YAW_DEGREES) : receptor.defaultYawDegrees()));
+        this.pitchDegrees = clampPitch(
+                (input.contains(TAG_PITCH_DEGREES, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_PITCH_DEGREES) : receptor.defaultPitchDegrees()));
         *///?}
-        //? if >=1.21.6 {
+        this.hexColor = readHexOrUnset(input);
+        //? if >=1.21.5 {
         this.customTargetEnabled = input.getBooleanOr(TAG_CUSTOM_TARGET, false);
         this.targetX = input.getDoubleOr(TAG_TARGET_X, fallback.x);
         this.targetY = input.getDoubleOr(TAG_TARGET_Y, fallback.y);
         this.targetZ = input.getDoubleOr(TAG_TARGET_Z, fallback.z);
-        //?} else if >=1.21.5 <1.21.6 {
-        /*this.customTargetEnabled = tag.getBooleanOr(TAG_CUSTOM_TARGET, false);
-        this.targetX = tag.getDoubleOr(TAG_TARGET_X, fallback.x);
-        this.targetY = tag.getDoubleOr(TAG_TARGET_Y, fallback.y);
-        this.targetZ = tag.getDoubleOr(TAG_TARGET_Z, fallback.z);
-        *///?} else {
-        /*this.customTargetEnabled = (tag.contains(TAG_CUSTOM_TARGET, Tag.TAG_ANY_NUMERIC) ? tag.getBoolean(TAG_CUSTOM_TARGET) : false);
-        this.targetX = (tag.contains(TAG_TARGET_X, Tag.TAG_ANY_NUMERIC) ? tag.getDouble(TAG_TARGET_X) : fallback.x);
-        this.targetY = (tag.contains(TAG_TARGET_Y, Tag.TAG_ANY_NUMERIC) ? tag.getDouble(TAG_TARGET_Y) : fallback.y);
-        this.targetZ = (tag.contains(TAG_TARGET_Z, Tag.TAG_ANY_NUMERIC) ? tag.getDouble(TAG_TARGET_Z) : fallback.z);
+        //?} else {
+        /*this.customTargetEnabled = (input.contains(TAG_CUSTOM_TARGET, Tag.TAG_ANY_NUMERIC) ? input.getBoolean(TAG_CUSTOM_TARGET) : false);
+        this.targetX = (input.contains(TAG_TARGET_X, Tag.TAG_ANY_NUMERIC) ? input.getDouble(TAG_TARGET_X) : fallback.x);
+        this.targetY = (input.contains(TAG_TARGET_Y, Tag.TAG_ANY_NUMERIC) ? input.getDouble(TAG_TARGET_Y) : fallback.y);
+        this.targetZ = (input.contains(TAG_TARGET_Z, Tag.TAG_ANY_NUMERIC) ? input.getDouble(TAG_TARGET_Z) : fallback.z);
         *///?}
-        //? if >=1.21.6 {
+        //? if >=1.21.5 {
         this.customTargetDimension = input.getStringOr("custom_target_dimension", "");
-        //?} else if >=1.21.5 <1.21.6 {
-        /*this.customTargetDimension = tag.getStringOr("custom_target_dimension", "");
-        *///?} else {
-        /*this.customTargetDimension = tag.contains("custom_target_dimension", Tag.TAG_STRING) ? tag.getString("custom_target_dimension") : "";
+        //?} else {
+        /*this.customTargetDimension = input.contains("custom_target_dimension", Tag.TAG_STRING) ? input.getString("custom_target_dimension") : "";
         *///?}
     }
 
@@ -286,48 +276,25 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     //? if >=1.21.6 {
     protected void saveAdditional(ValueOutput output) {
     //?} else {
-    /*protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+    /*protected void saveAdditional(CompoundTag output, HolderLookup.Provider provider) {
     *///?}
         //? if >=1.21.6 {
         super.saveAdditional(output);
         //?} else {
-        /*super.saveAdditional(tag, provider);
+        /*super.saveAdditional(output, provider);
         *///?}
-        //? if >=1.21.6 {
         output.putString("musavacca_device_id", this.deviceId.toString());
-        //?} else {
-        /*tag.putString("musavacca_device_id", this.deviceId.toString());
-        *///?}
         if (this.hasHexColor()) {
-            //? if >=1.21.6 {
             output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
-            //?} else {
-            /*tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
-            *///?}
         }
         if (this.customTargetEnabled) {
-            //? if >=1.21.6 {
             output.putInt(TAG_YAW_DEGREES, this.yawDegrees);
             output.putInt(TAG_PITCH_DEGREES, this.pitchDegrees);
             output.putBoolean(TAG_CUSTOM_TARGET, true);
             output.putDouble(TAG_TARGET_X, this.targetX);
             output.putDouble(TAG_TARGET_Y, this.targetY);
             output.putDouble(TAG_TARGET_Z, this.targetZ);
-            //?} else {
-            /*tag.putInt(TAG_YAW_DEGREES, this.yawDegrees);
-            tag.putInt(TAG_PITCH_DEGREES, this.pitchDegrees);
-            tag.putBoolean(TAG_CUSTOM_TARGET, true);
-            tag.putDouble(TAG_TARGET_X, this.targetX);
-            tag.putDouble(TAG_TARGET_Y, this.targetY);
-            tag.putDouble(TAG_TARGET_Z, this.targetZ);
-            *///?}
-        }
-        if (this.customTargetEnabled) {
-            //? if >=1.21.6 {
             output.putString("custom_target_dimension", this.getCustomTargetDimension());
-            //?} else {
-            /*tag.putString("custom_target_dimension", this.getCustomTargetDimension());
-            *///?}
         }
     }
 
@@ -364,12 +331,12 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     //? if >=1.21.6 {
     public void handleUpdateTag(ValueInput input) {
     //?} else {
-    /*public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
+    /*public void handleUpdateTag(CompoundTag input, HolderLookup.Provider provider) {
     *///?}
         //? if >=1.21.6 {
         super.handleUpdateTag(input);
         //?} else {
-        /*super.handleUpdateTag(tag, provider);
+        /*super.handleUpdateTag(input, provider);
         *///?}
         this.rerenderClientNow();
     }
@@ -399,15 +366,13 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     //? if >=1.21.6 {
     private static int readHexOrUnset(ValueInput input) {
     //?} else {
-    /*private static int readHexOrUnset(CompoundTag tag) {
+    /*private static int readHexOrUnset(CompoundTag input) {
     *///?}
-        //? if >=1.21.6 {
+        //? if >=1.21.5 {
         int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
-        //?} else if >=1.21.5 <1.21.6 {
-        /*int loaded = tag.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
-        *///?} else {
-        /*int loaded = (tag.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? tag.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
+        //?} else {
+        /*int loaded = (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? input.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
         *///?}
-        return loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
+        return MusavaccaTints.stored(loaded);
     }
 }

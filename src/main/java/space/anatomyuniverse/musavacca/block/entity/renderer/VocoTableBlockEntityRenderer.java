@@ -36,10 +36,13 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
     private final VocoTableBlockEntityCandleRenderer candleRenderer;
     //?}
     private final VocoTableBlockEntityItemDisplayRenderer itemRenderer;
+
     //? if >=1.21.9 {
     /*private final BlockEntityRendererProvider.Context context;
+
     //? if >=1.21.11 {
     /^private final NearestBlockEntityRenderer<VocoTableBlockEntity> nearest;
+
     ^///?}
     *///?}
     public VocoTableBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -48,12 +51,11 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
         //? if >=1.21.11 {
         /^this.nearest = new NearestBlockEntityRenderer<>(context, 0.5D);
         ^///?}
-        itemRenderer = new VocoTableBlockEntityItemDisplayRenderer(context);
         *///?}
         //? if <1.21.9 {
         this.candleRenderer = new VocoTableBlockEntityCandleRenderer(context);
-        this.itemRenderer = new VocoTableBlockEntityItemDisplayRenderer(context);
         //?}
+        this.itemRenderer = new VocoTableBlockEntityItemDisplayRenderer(context);
     }
 
     //? if >=1.21.9 {
@@ -68,6 +70,7 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
         public final List<VocoTableBlockEntityCandleRenderer.Candle> candles = new ArrayList<>();
         public float itemRotation;
     }
+
     *///?}
     //? if <1.21.9 {
     @Override
@@ -83,9 +86,12 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
         /*this.renderContents(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay, Vec3.ZERO);
         *///?}
     }
+
     //?}
     //? if >=1.21.9 {
-    /*@Override public State createRenderState() { return new State(); }
+    /*@Override
+    public State createRenderState() { return new State(); }
+
     @Override
     public void extractRenderState(VocoTableBlockEntity entity, State state, float partialTick, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
         //? if >=1.21.11 {
@@ -96,6 +102,7 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
         VocoTableBlockEntityCandleRenderer.extract(entity, state, context);
         itemRenderer.extract(entity, state, partialTick);
     }
+
     *///?}
     //? if <1.21.9 {
     private void renderContents(VocoTableBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,

@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.data.tags;
 
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -8,7 +9,6 @@ import net.minecraft.world.effect.MobEffect;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.effect.ModMobEffectTags;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
-import java.util.concurrent.CompletableFuture;
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.common.data.ExistingFileHelper;
 *///?}

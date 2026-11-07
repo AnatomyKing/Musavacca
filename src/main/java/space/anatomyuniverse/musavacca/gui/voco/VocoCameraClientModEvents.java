@@ -20,18 +20,14 @@ public final class VocoCameraClientModEvents {
     *///?} else {
     private static final ResourceLocation CAMERA_HUD_LAYER = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_hud");
     //?}
-    private VocoCameraClientModEvents() {
-    }
+
+    private VocoCameraClientModEvents() {}
 
     public static void register(IEventBus modBus) {
         //? if >=1.21.6 {
         modBus.addListener(VocoCameraClientModEvents::registerClientPayloads);
-        //?} else {
-        /*modBus.addListener(VocoCameraClientModEvents::registerGuiLayers);
-        *///?}
-        //? if >=1.21.6 {
-        modBus.addListener(VocoCameraClientModEvents::registerGuiLayers);
         //?}
+        modBus.addListener(VocoCameraClientModEvents::registerGuiLayers);
         NeoForge.EVENT_BUS.addListener(VocoCameraClient::onClientTickPre);
         NeoForge.EVENT_BUS.addListener(VocoCameraClient::onClientTickPost);
         NeoForge.EVENT_BUS.addListener(VocoCameraClient::onMouseButton);
@@ -45,6 +41,7 @@ public final class VocoCameraClientModEvents {
         event.register(VocoCameraStartPayload.TYPE, (payload, context) -> VocoCameraClient.start(payload));
     }
     //?}
+
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, CAMERA_HUD_LAYER, VocoCameraClient::renderHud);
     }

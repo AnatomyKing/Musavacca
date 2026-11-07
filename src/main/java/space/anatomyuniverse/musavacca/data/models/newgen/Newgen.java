@@ -6,13 +6,13 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.resources.ResourceLocation;
 //?}
 
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.level.block.Block;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 //? if >=1.21.4 {
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 //? if >=1.21.4 {
 import java.util.concurrent.CompletableFuture;
 //?}
+import java.util.List;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -29,10 +30,9 @@ import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.block.state.properties.StairsShape;
+import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.custom.DecorationBlock;
 import space.anatomyuniverse.musavacca.data.models.NewModelSets;
-import space.anatomyuniverse.musavacca.MusaCore;
-import java.util.List;
 //? if >=1.21.4 {
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -42,12 +42,15 @@ import net.minecraft.client.data.models.ModelProvider;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 *///?}
+import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.FamilyItemMode;
+import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.ModelMode;
 
 public final class Newgen {
-    private static final float[] DECORATION_EXTRA_Y_ROT = {0.0F, -22.5F, -45.0F, 22.5F};
+    private static final float[] DECORATION_EXTRA_Y_ROT = { 0.0F, -22.5F, -45.0F, 22.5F };
     private final NewgenOutput output;
     private final NewgenModels models;
     private final Map<Block, BlockFamily.ModelFamilyEntry<?, ?>> blockDefinitions = new HashMap<>();
+
     Newgen(NewgenOutput output) {
         this.output = output;
         this.models = new NewgenModels(output);
@@ -82,61 +85,53 @@ public final class Newgen {
         NewModelSets.armorItems().forEach(gen::armor);
         return gen.output.namedDefinitions();
     }
+
     void simple(SimpleBlocks.Entry entry) { modelFamily(entry); }
+
     void cross(CrossBlocks.Entry entry) { modelFamily(entry); }
+
     void tallCross(TallCrossBlocks.Entry entry) { modelFamily(entry); }
+
     void portal(PortalBlocks.Entry entry) { modelFamily(entry); }
+
     void decoration(DecorationBlocks.Entry entry) {
         NewgenOutput.State state = output.state(entry.block());
         for (DecorationBlocks.Model rule : entry.models()) {
-            //? if >=1.21.11 {
-            /*Identifier baseModel = models.resolve(rule.source(), Tints.effective(entry.tint(), rule.tint()));
-            *///?} else {
-            ResourceLocation baseModel = models.resolve(rule.source(), Tints.effective(entry.tint(), rule.tint()));
-            //?}
+            var baseModel = models.resolve(rule.source(), Tints.effective(entry.tint(), rule.tint()));
             Conditions.Match placementMatch = rule.conditions().and(DecorationBlock.PLACEMENT, rule.placement());
             switch (rule.orientation()) {
-                case FIXED -> state.add(baseModel, placementMatch, rule.rotationX(), rule.rotationY(), rule.variants(), false);
-                case FACING -> {
-                    for (var facing : ModelDirections.horizontal()) {
-                        state.add(baseModel, placementMatch.and(DecorationBlock.FACING, facing), rule.rotationX(),
-                                ModelTransforms.combine(NewgenStates.northY(facing), rule.rotationY()), rule.variants(), false);
-                    }
+            case FIXED -> state.add(baseModel, placementMatch, rule.rotationX(), rule.rotationY(), rule.variants(), false);
+            case FACING -> {
+                for (var facing : Rotations.HORIZONTAL) {
+                    state.add(baseModel, placementMatch.and(DecorationBlock.FACING, facing), rule.rotationX(),
+                            Rotations.combine(NewgenStates.northY(facing), rule.rotationY()), rule.variants(), false);
                 }
-                case ROTATION -> {
-                    for (int rotation = 0; rotation < 16; rotation++) {
-                        DecorationRotation step = decorationRotation(rotation);
-                        //? if >=1.21.11 {
-                        /*Identifier model = step.rootY() == 0.0F ? baseModel : models.rootRotateY(entry.block(), baseModel, step.rootY());
-                        *///?} else {
-                        ResourceLocation model = step.rootY() == 0.0F ? baseModel : models.rootRotateY(entry.block(), baseModel, step.rootY());
-                        //?}
-                        state.add(model, placementMatch.and(DecorationBlock.ROTATION, rotation), rule.rotationX(),
-                                ModelTransforms.combine(step.y(), rule.rotationY()), rule.variants(), false);
-                    }
+            }
+            case ROTATION -> {
+                for (int rotation = 0; rotation < 16; rotation++) {
+                    DecorationRotation step = decorationRotation(rotation);
+                    var model = step.rootY() == 0.0F ? baseModel : models.rootRotateY(entry.block(), baseModel, step.rootY());
+                    state.add(model, placementMatch.and(DecorationBlock.ROTATION, rotation), rule.rotationX(),
+                            Rotations.combine(step.y(), rule.rotationY()), rule.variants(), false);
                 }
+            }
             }
         }
         state.finish();
         switch (entry.itemMode()) {
-            case NONE -> {
-            }
-            case CUSTOM -> emitItem(entry.block().asItem(), entry.itemModel());
-            case PLACEMENT -> {
-                DecorationBlocks.Model itemRule = entry.itemRule();
-                //? if >=1.21.11 {
-                /*Identifier itemModel = models.resolve(itemRule.source(), Tints.effective(entry.tint(), itemRule.tint()));
-                *///?} else {
-                ResourceLocation itemModel = models.resolve(itemRule.source(), Tints.effective(entry.tint(), itemRule.tint()));
-                //?}
-                emitItem(entry.block().asItem(), SimpleItems.Model.existing(itemModel).tint(Tints.effective(entry.tint(), itemRule.tint())));
-            }
-            case UNSET -> throw new IllegalStateException("Decoration item handling was not configured for " + entry.block());
+        case NONE -> {
+        }
+        case CUSTOM -> emitItem(entry.block().asItem(), entry.itemModel());
+        case PLACEMENT -> {
+            DecorationBlocks.Model itemRule = entry.itemRule();
+            var itemModel = models.resolve(itemRule.source(), Tints.effective(entry.tint(), itemRule.tint()));
+            emitItem(entry.block().asItem(), SimpleItems.Model.existing(itemModel).tint(Tints.effective(entry.tint(), itemRule.tint())));
+        }
+        case UNSET -> throw new IllegalStateException("Decoration item handling was not configured for " + entry.block());
         }
     }
 
-    private record DecorationRotation(int y, float rootY) {
-    }
+    private record DecorationRotation(int y, float rootY) {}
 
     private static DecorationRotation decorationRotation(int rotation) {
         int normalized = Math.floorMod(rotation, 16);
@@ -144,7 +139,7 @@ public final class Newgen {
         int quadrant = normalized >> 2;
         int y = (part == 3 ? quadrant + 1 : quadrant) * 90;
         float rootY = DECORATION_EXTRA_Y_ROT[part];
-        return new DecorationRotation(ModelTransforms.quarterTurn(y), rootY);
+        return new DecorationRotation(Rotations.quarterTurn(y), rootY);
     }
 
     private void modelFamily(BlockFamily.ModelFamilyEntry<?, ?> entry) {
@@ -173,26 +168,16 @@ public final class Newgen {
             emitItem(entry.block().asItem(), entry.item());
             return;
         }
-        var first = entry.mode() == ModelMode.MODELS
-                ? rules.get(0)
-                : rules.stream()
-                .filter(rule -> rule.conditions().isAlways())
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(
-                        "Multipart block " + entry.block()
-                                + " needs Part.always(...), an explicit .item(...), or .noItem()."
-                ));
+        var first = entry.mode() == ModelMode.MODELS ? rules.get(0)
+                : rules.stream().filter(rule -> rule.conditions().isAlways()).findFirst().orElseThrow(
+                        () -> new IllegalStateException("Multipart block " + entry.block() + " needs Part.always(...), an explicit .item(...), or .noItem()."));
         Models.Source source;
         if (first.source() instanceof TallCrossModels.Source tall) {
             source = tall.upper();
         } else if (first.source() instanceof PortalModels portal) {
             var axis = ((PortalBlocks.Entry) entry).axis();
-            source = axis.getPossibleValues().stream()
-                    .filter(value -> first.conditions().allows(axis, value))
-                    .map(portal::model)
-                    .filter(java.util.Objects::nonNull)
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("No portal item source for " + entry.block()));
+            source = axis.getPossibleValues().stream().filter(value -> first.conditions().allows(axis, value)).map(portal::model)
+                    .filter(java.util.Objects::nonNull).findFirst().orElseThrow(() -> new IllegalStateException("No portal item source for " + entry.block()));
         } else {
             source = (Models.Source) first.source();
         }
@@ -201,21 +186,13 @@ public final class Newgen {
             emitItem(entry.block().asItem(), SimpleItems.Model.generated().flat().texture(cross.textures().texture().toString()).tint(effectiveTint));
             return;
         }
-        //? if >=1.21.11 {
-        /*Identifier model = models.resolve(source, effectiveTint);
-        *///?} else {
-        ResourceLocation model = models.resolve(source, effectiveTint);
-        //?}
+        var model = models.resolve(source, effectiveTint);
         emitItem(entry.block().asItem(), SimpleItems.Model.existing(model).tint(effectiveTint));
     }
 
     private void modelRule(NewgenOutput.State state, BlockFamily.ModelFamilyEntry<?, ?> entry, BlockFamily.ModelRule<?, ?> rule, Models.Source source,
             Conditions.Match when) {
-        //? if >=1.21.11 {
-        /*Identifier model = models.resolve(source, Tints.effective(entry.tint(), rule.tint()));
-        *///?} else {
-        ResourceLocation model = models.resolve(source, Tints.effective(entry.tint(), rule.tint()));
-        //?}
+        var model = models.resolve(source, Tints.effective(entry.tint(), rule.tint()));
         for (Rotations.Case rotation : entry.rotations().cases()) {
             Conditions.Match match = when;
             if (rotation.value() != null) {
@@ -223,7 +200,7 @@ public final class Newgen {
                 if (!property.getPossibleValues().contains(rotation.value()) || !match.allows(property, rotation.value())) continue;
                 match = with(match, property, rotation.value());
             }
-            state.add(model, match, ModelTransforms.combine(rotation.x(), rule.rotationX()), ModelTransforms.combine(rotation.y(), rule.rotationY()),
+            state.add(model, match, Rotations.combine(rotation.x(), rule.rotationX()), Rotations.combine(rotation.y(), rule.rotationY()),
                     rule.variants(), false);
         }
     }
@@ -231,91 +208,84 @@ public final class Newgen {
     private <M, P extends BlockFamily.ModelRule<M, ?>> void family(BlockFamily.StateFamilyEntry<P> entry, M base, List<NewgenStates.Pose<M>> poses) {
         NewgenOutput.State state = output.state(entry.block());
         for (var pose : poses) {
-            //? if >=1.21.11 {
-            /*Identifier model = pose.model().apply(base);
-            *///?} else {
-            ResourceLocation model = pose.model().apply(base);
-            //?}
+            var model = pose.model().apply(base);
             if (model == null) throw new IllegalStateException("Incomplete base model family for " + entry.block() + ": " + pose.when().terms());
-            state.add(model, pose.when(), ModelTransforms.combine(pose.x(), entry.rotationX()), ModelTransforms.combine(pose.y(), entry.rotationY()),
+            state.add(model, pose.when(), Rotations.combine(pose.x(), entry.rotationX()), Rotations.combine(pose.y(), entry.rotationY()),
                     entry.variants(), pose.uvLock());
             for (P part : entry.parts()) {
                 if (!compatible(pose.when(), part.conditions())) continue;
-                //? if >=1.21.11 {
-                /*Identifier partModel = pose.model().apply(part.source());
-                *///?} else {
-                ResourceLocation partModel = pose.model().apply(part.source());
-                //?}
+                var partModel = pose.model().apply(part.source());
                 if (partModel == null) continue;
                 partModel = models.resolve(new Models.Existing(partModel), Tints.effective(Tints.none(), part.tint()));
-                state.add(partModel, pose.when().and(part.conditions()), ModelTransforms.combine(pose.x(), part.rotationX()),
-                        ModelTransforms.combine(pose.y(), part.rotationY()), part.variants(), pose.uvLock());
+                state.add(partModel, pose.when().and(part.conditions()), Rotations.combine(pose.x(), part.rotationX()),
+                        Rotations.combine(pose.y(), part.rotationY()), part.variants(), pose.uvLock());
             }
         }
         state.finish();
     }
+
     void slab(SlabBlocks.Entry entry) {
         SlabModels base = models.slab(entry);
         family(entry, base, NewgenStates.SLABS);
         familyItem(entry, base.model(SlabType.BOTTOM));
     }
+
     void stair(StairBlocks.Entry entry) {
         StairModels base = models.stair(entry);
         family(entry, base, NewgenStates.STAIRS);
         familyItem(entry, base.model(StairsShape.STRAIGHT));
     }
+
     void fence(FenceBlocks.Entry entry) {
         FenceModels base = models.fence(entry);
         family(entry, base, NewgenStates.FENCES);
         familyItem(entry, base.inventory());
     }
+
     void fenceGate(FenceGateBlocks.Entry entry) {
         FenceGateModels base = models.fenceGate(entry);
         family(entry, base, NewgenStates.FENCE_GATES);
         familyItem(entry, base.closed());
     }
+
     void pressurePlate(PressurePlateBlocks.Entry entry) {
         PressurePlateModels base = models.pressurePlate(entry);
         family(entry, base, NewgenStates.pressurePlates(entry.block()));
         familyItem(entry, base.up());
     }
+
     void button(ButtonBlocks.Entry entry) {
         ButtonModels base = models.button(entry);
         family(entry, base, NewgenStates.BUTTONS);
         familyItem(entry, base.inventory());
     }
+
     void wall(WallBlocks.Entry entry) {
         WallModels base = models.wall(entry);
         family(entry, base, NewgenStates.WALLS);
         familyItem(entry, base.inventory());
     }
+
     void trapdoor(TrapdoorBlocks.Entry entry) {
         TrapdoorModels base = models.trapdoor(entry);
         family(entry, base, NewgenStates.trapdoors(entry.orientation()));
         familyItem(entry, base.model(Half.BOTTOM, false));
     }
+
     void door(DoorBlocks.Entry entry) {
         family(entry, models.door(entry), NewgenStates.DOORS);
         for (SimpleItems.Entry item : entry.items()) simpleItem(item);
     }
+
     void fire(FireBlocks.Entry entry) {
         List<Tints.GeneratedLayer> layers = Tints.generatedLayers(entry.tint());
-        //? if >=1.21.11 {
-        /*List<Identifier> floor = fireModels(entry, layers, NewgenModels.Shape.FLOOR, "floor");
-        List<Identifier> sides = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.SIDE, "side"));
-        *///?} else {
-        List<ResourceLocation> floor = fireModels(entry, layers, NewgenModels.Shape.FLOOR, "floor");
-        List<ResourceLocation> sides = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.SIDE, "side"));
-        //?}
+        var floor = fireModels(entry, layers, NewgenModels.Shape.FLOOR, "floor");
+        var sides = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.SIDE, "side"));
         sides.addAll(fireModels(entry, layers, NewgenModels.Shape.SIDE_ALT, "side_alt"));
-        //? if >=1.21.11 {
-        /*List<Identifier> up = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.UP, "up"));
-        *///?} else {
-        List<ResourceLocation> up = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.UP, "up"));
-        //?}
+        var up = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.UP, "up"));
         up.addAll(fireModels(entry, layers, NewgenModels.Shape.UP_ALT, "up_alt"));
-        Conditions.Match noFaces = Conditions.when(FireBlock.NORTH, false).and(FireBlock.EAST, false)
-                .and(FireBlock.SOUTH, false).and(FireBlock.WEST, false).and(FireBlock.UP, false);
+        Conditions.Match noFaces = Conditions.when(FireBlock.NORTH, false).and(FireBlock.EAST, false).and(FireBlock.SOUTH, false).and(FireBlock.WEST, false)
+                .and(FireBlock.UP, false);
         NewgenOutput.State state = output.state(entry.block());
         state.add(floor, noFaces, 0, 0, entry.variants(), false);
         List<BooleanProperty> directions = List.of(FireBlock.NORTH, FireBlock.EAST, FireBlock.SOUTH, FireBlock.WEST);
@@ -353,6 +323,7 @@ public final class Newgen {
         if (defaultModel == null) throw new IllegalStateException("Missing default item model for " + entry.block());
         emitItem(entry.block().asItem(), SimpleItems.Model.existing(defaultModel));
     }
+
     void namedItem(String name, SimpleItems.Model spec) {
         //? if >=1.21.11 {
         /*Identifier id = Identifier.parse(name);
@@ -372,6 +343,7 @@ public final class Newgen {
         NewgenModels.ItemRender render = models.item(item.asItem(), spec, block == null ? null : blockDefinitions.get(block));
         output.item(item.asItem(), render);
     }
+
     void spawnEgg(SpawnEggItems.Entry entry) {
         //? if >=1.21.5 {
         emitItem(entry.item(), entry.modernModel());
@@ -382,32 +354,12 @@ public final class Newgen {
         /*emitItem(entry.item(), SimpleItems.Model.existing("minecraft:item/template_spawn_egg"));
         *///?}
     }
+
     void armor(ArmorItems.Entry entry) {
         for (ArmorItems.Piece piece : ArmorItems.Piece.values()) {
             Item item = entry.item(piece).asItem();
-            //? if >=1.21.11 {
-            /*Identifier head = piece == ArmorItems.Piece.HELMET ? entry.helmetHeadModel() : null;
-            *///?} else {
-            ResourceLocation head = piece == ArmorItems.Piece.HELMET ? entry.helmetHeadModel() : null;
-            //?}
-            if (entry.inventory().existing()) {
-                //? if >=1.21.11 {
-                /*Identifier model = entry.existingInventoryModel(piece);
-                *///?} else {
-                ResourceLocation model = entry.existingInventoryModel(piece);
-                //?}
-                if (head == null) {
-                    emitItem(item, SimpleItems.Model.existing(model));
-                } else {
-                    output.armorItem(item, model, null, head);
-                }
-                continue;
-            }
-            //? if >=1.21.11 {
-            /*Identifier texture = entry.inventoryTexture(piece);
-            *///?} else {
-            ResourceLocation texture = entry.inventoryTexture(piece);
-            //?}
+            var head = piece == ArmorItems.Piece.HELMET ? entry.helmetHeadModel() : null;
+            var texture = entry.inventoryTexture(piece);
             if (entry.inventory().trims()) {
                 NewgenModels.ArmorItemModels armorModels = models.armorItemModels(item, texture, ArmorItems.trimTexture(piece));
                 output.armorItem(item, armorModels.base(), armorModels.trimmed(), head);
@@ -430,7 +382,7 @@ public final class Newgen {
         return true;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static Conditions.Match with(Conditions.Match match, Property property, Comparable value) {
         return match.and(property, value);
     }
@@ -444,7 +396,7 @@ public final class Newgen {
     {
         //? if >=1.21.11 {
         /*private Map<Identifier, JsonObject> namedDefinitions = Map.of();
-        *///?} else {
+        *///?} else if >=1.21.4 {
         private Map<ResourceLocation, JsonObject> namedDefinitions = Map.of();
         //?}
         //? if >=1.21.4 {
@@ -453,25 +405,19 @@ public final class Newgen {
 
         //? if >=1.21.4 {
         public Provider(PackOutput output) {
+            super(output, MusaCore.MOD_ID);
+            namedPaths = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "items");
         //?} else {
         /*public Provider(PackOutput output, ExistingFileHelper existingFileHelper) {
+            super(output, MusaCore.MOD_ID, existingFileHelper);
         *///?}
-            //? if >=1.21.4 {
-            super(output, MusaCore.MOD_ID);
-            //?} else {
-            /*super(output, MusaCore.MOD_ID, existingFileHelper);
-            *///?}
-            //? if >=1.21.4 {
-            namedPaths = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "items");
-            //?}
         }
 
         //? if >=1.21.4 {
         @Override
         public CompletableFuture<?> run(CachedOutput cache) {
             return super.run(cache).thenCompose(ignored -> CompletableFuture.allOf(namedDefinitions.entrySet().stream()
-                    .map(entry -> DataProvider.saveStable(cache, entry.getValue(), namedPaths.json(entry.getKey())))
-                    .toArray(CompletableFuture[]::new)));
+                    .map(entry -> DataProvider.saveStable(cache, entry.getValue(), namedPaths.json(entry.getKey()))).toArray(CompletableFuture[]::new)));
         }
 
         @Override
@@ -487,5 +433,3 @@ public final class Newgen {
         *///?}
     }
 }
-
-

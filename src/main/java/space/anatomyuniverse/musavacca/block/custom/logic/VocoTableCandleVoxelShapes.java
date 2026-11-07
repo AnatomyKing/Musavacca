@@ -9,10 +9,7 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 
 public final class VocoTableCandleVoxelShapes {
     private static final double SHIFT = 5.0D / 16.0D;
-    private static final Vec3[] CORNERS = {
-            new Vec3(SHIFT, 1, -SHIFT), new Vec3(-SHIFT, 1, -SHIFT),
-            new Vec3(SHIFT, 1, SHIFT), new Vec3(-SHIFT, 1, SHIFT)
-    };
+    private static final Vec3[] CORNERS = { new Vec3(SHIFT, 1, -SHIFT), new Vec3(-SHIFT, 1, -SHIFT), new Vec3(SHIFT, 1, SHIFT), new Vec3(-SHIFT, 1, SHIFT) };
 
     private VocoTableCandleVoxelShapes() {}
 
@@ -20,8 +17,8 @@ public final class VocoTableCandleVoxelShapes {
         return CORNERS[receptor.id()];
     }
 
-    public static VoxelShape shape(VocoTableCandle candle, BlockGetter level, BlockPos pos, ReceptorPosition receptor,
-                                   CollisionContext context, boolean collision) {
+    public static VoxelShape shape(VocoTableCandle candle, BlockGetter level, BlockPos pos, ReceptorPosition receptor, CollisionContext context,
+            boolean collision) {
         BlockPos ground = pos.above();
         var state = candle.state();
         VoxelShape shape = collision ? state.getCollisionShape(level, ground, context) : state.getShape(level, ground, context);

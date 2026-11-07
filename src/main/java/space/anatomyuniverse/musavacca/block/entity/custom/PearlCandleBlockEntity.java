@@ -1,13 +1,15 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
+import net.minecraft.nbt.NbtOps;
+
 //? if <1.21.5 {
 /*import net.minecraft.nbt.Tag;
 *///?}
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.block.CandleBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
-import net.minecraft.world.level.block.CandleBlock;
-import net.minecraft.core.HolderLookup;
 //? if >=1.21.5 {
 import net.minecraft.core.component.DataComponentGetter;
 //?}
@@ -34,27 +36,31 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
     private BlockState originalState;
     private int hexColor = MusavaccaTints.NO_TINT;
+
     public PearlCandleBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.PEARL_CANDLE_BLOCK_ENTITY.get(), pos, state);
     }
 
     public BlockState originalState() {
-        BlockState state = originalState != null ? originalState
-                : PearlCandleBlock.fallbackState(getBlockState());
+        BlockState state = originalState != null ? originalState : PearlCandleBlock.fallbackState(getBlockState());
         state = PearlCandleConversion.withFlag(state, "lit", getBlockState().getValue(CandleBlock.LIT));
         return PearlCandleConversion.withFlag(state, "waterlogged", getBlockState().getValue(CandleBlock.WATERLOGGED));
     }
 
     public void setOriginalState(BlockState state) {
+        this.setCandle(state, this.hexColor);
+    }
+
+    public void setCandle(BlockState state, int hexColor) {
         if (state.getBlock() instanceof PearlCandleBlock || state.hasBlockEntity()) return;
         this.originalState = state;
+        this.hexColor = MusavaccaTints.resolve(hexColor);
         if (getLevel() != null) getLevel().getChunkSource().getLightEngine().checkBlock(getBlockPos());
         this.markChangedAndSync();
     }
 
     private void loadOriginal(BlockState state) {
-        this.originalState = state != null && !(state.getBlock() instanceof PearlCandleBlock)
-                && !state.hasBlockEntity() ? state : null;
+        this.originalState = state != null && !(state.getBlock() instanceof PearlCandleBlock) && !state.hasBlockEntity() ? state : null;
     }
 
     public boolean hasHexColor() {
@@ -64,10 +70,6 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
     @Override
     public int getHexColor() {
         return this.hexColor;
-    }
-
-    public int getHexColorOrFallback() {
-        return this.hasHexColor() ? this.hexColor : MusavaccaTints.DEFAULT_TINT;
     }
 
     public void setHexColor(int hexColor) {
@@ -106,16 +108,16 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
     //? if >=1.21.6 {
     protected void loadAdditional(ValueInput input) {
     //?} else {
-    /*protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+    /*protected void loadAdditional(CompoundTag input, HolderLookup.Provider provider) {
     *///?}
         //? if >=1.21.6 {
         super.loadAdditional(input);
         this.hexColor = readHexOrUnset(input);
         loadOriginal(input.read("OriginalCandle", BlockState.CODEC).orElse(null));
         //?} else {
-        /*super.loadAdditional(tag, provider);
-        this.hexColor = readHexOrUnset(tag);
-        loadOriginal(tag.get("OriginalCandle") == null ? null : BlockState.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, tag.get("OriginalCandle")).result().orElse(null));
+        /*super.loadAdditional(input, provider);
+        this.hexColor = readHexOrUnset(input);
+        loadOriginal(input.get("OriginalCandle") == null ? null : BlockState.CODEC.parse(NbtOps.INSTANCE, input.get("OriginalCandle")).result().orElse(null));
         *///?}
     }
 
@@ -123,26 +125,22 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
     //? if >=1.21.6 {
     protected void saveAdditional(ValueOutput output) {
     //?} else {
-    /*protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+    /*protected void saveAdditional(CompoundTag output, HolderLookup.Provider provider) {
     *///?}
         //? if >=1.21.6 {
         super.saveAdditional(output);
         //?} else {
-        /*super.saveAdditional(tag, provider);
+        /*super.saveAdditional(output, provider);
         *///?}
         if (originalState != null) {
             //? if >=1.21.6 {
             output.store("OriginalCandle", BlockState.CODEC, originalState);
             //?} else {
-            /*BlockState.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, originalState).result().ifPresent(value -> tag.put("OriginalCandle", value));
+            /*BlockState.CODEC.encodeStart(NbtOps.INSTANCE, originalState).result().ifPresent(value -> output.put("OriginalCandle", value));
             *///?}
         }
         if (this.hasHexColor()) {
-            //? if >=1.21.6 {
             output.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
-            //?} else {
-            /*tag.putInt(MusavaccaTints.HEX_COLOR_KEY, this.hexColor);
-            *///?}
         }
     }
 
@@ -179,12 +177,12 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
     //? if >=1.21.6 {
     public void handleUpdateTag(ValueInput input) {
     //?} else {
-    /*public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
+    /*public void handleUpdateTag(CompoundTag input, HolderLookup.Provider provider) {
     *///?}
         //? if >=1.21.6 {
         super.handleUpdateTag(input);
         //?} else {
-        /*super.handleUpdateTag(tag, provider);
+        /*super.handleUpdateTag(input, provider);
         *///?}
         this.rerenderClientNow();
     }
@@ -206,15 +204,13 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
     //? if >=1.21.6 {
     private static int readHexOrUnset(ValueInput input) {
     //?} else {
-    /*private static int readHexOrUnset(CompoundTag tag) {
+    /*private static int readHexOrUnset(CompoundTag input) {
     *///?}
-        //? if >=1.21.6 {
+        //? if >=1.21.5 {
         int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
-        //?} else if >=1.21.5 <1.21.6 {
-        /*int loaded = tag.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
-        *///?} else {
-        /*int loaded = (tag.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? tag.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
+        //?} else {
+        /*int loaded = (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? input.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
         *///?}
-        return loaded == MusavaccaTints.NO_TINT ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(loaded);
+        return MusavaccaTints.stored(loaded);
     }
 }

@@ -8,8 +8,6 @@ import net.minecraft.data.PackOutput;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.level.ItemLike;
-import space.anatomyuniverse.musavacca.item.CustomHelmetArmorTrims;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +16,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import net.minecraft.world.level.ItemLike;
+import space.anatomyuniverse.musavacca.item.CustomHelmetArmorTrims;
 //? if >=1.21.4 {
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 //?} else if >=1.21.2 <1.21.4 {
@@ -26,16 +26,19 @@ import net.minecraft.client.resources.model.EquipmentClientInfo;
 
 public final class ArmorItems {
     private ArmorItems() {}
+
     //? if >=1.21.11 {
     /*private static final Identifier TRIM_ICON_HELMET = minecraft("trims/items/helmet_trim_quartz");
     private static final Identifier TRIM_ICON_CHESTPLATE = minecraft("trims/items/chestplate_trim_quartz");
     private static final Identifier TRIM_ICON_LEGGINGS = minecraft("trims/items/leggings_trim_quartz");
     private static final Identifier TRIM_ICON_BOOTS = minecraft("trims/items/boots_trim_quartz");
+
     *///?} else {
     private static final ResourceLocation TRIM_ICON_HELMET = minecraft("trims/items/helmet_trim_quartz");
     private static final ResourceLocation TRIM_ICON_CHESTPLATE = minecraft("trims/items/chestplate_trim_quartz");
     private static final ResourceLocation TRIM_ICON_LEGGINGS = minecraft("trims/items/leggings_trim_quartz");
     private static final ResourceLocation TRIM_ICON_BOOTS = minecraft("trims/items/boots_trim_quartz");
+
     //?}
     //? if >=1.21.11 {
     /*static Identifier trimTexture(Piece piece) {
@@ -43,10 +46,10 @@ public final class ArmorItems {
     static ResourceLocation trimTexture(Piece piece) {
     //?}
         return switch (piece) {
-            case HELMET -> TRIM_ICON_HELMET;
-            case CHESTPLATE -> TRIM_ICON_CHESTPLATE;
-            case LEGGINGS -> TRIM_ICON_LEGGINGS;
-            case BOOTS -> TRIM_ICON_BOOTS;
+        case HELMET -> TRIM_ICON_HELMET;
+        case CHESTPLATE -> TRIM_ICON_CHESTPLATE;
+        case LEGGINGS -> TRIM_ICON_LEGGINGS;
+        case BOOTS -> TRIM_ICON_BOOTS;
         };
     }
 
@@ -60,14 +63,7 @@ public final class ArmorItems {
     }
 
     public enum Piece {
-        HELMET,
-        CHESTPLATE,
-        LEGGINGS,
-        BOOTS
-    }
-    enum InventoryMode {
-        GENERATED,
-        EXISTING
+        HELMET, CHESTPLATE, LEGGINGS, BOOTS
     }
 
     public static final class Entry {
@@ -76,15 +72,16 @@ public final class ArmorItems {
         private final Equipment equipment;
         //? if >=1.21.11 {
         /*private final Identifier helmetHeadModel;
+
         *///?} else {
         private final ResourceLocation helmetHeadModel;
+
         //?}
         private Entry(Builder builder) {
             items = Objects.requireNonNull(builder.items, "items");
             inventory = Objects.requireNonNull(builder.inventory, "inventory");
             equipment = Objects.requireNonNull(builder.equipment, "equipment");
             helmetHeadModel = builder.helmetHeadModel;
-            validate();
         }
 
         public static Builder builder() {
@@ -92,18 +89,28 @@ public final class ArmorItems {
         }
 
         public ItemLike helmet() { return items.helmet(); }
+
         public ItemLike chestplate() { return items.chestplate(); }
+
         public ItemLike leggings() { return items.leggings(); }
+
         public ItemLike boots() { return items.boots(); }
+
         public ItemSet items() { return items; }
+
         public Inventory inventory() { return inventory; }
+
         public Equipment equipment() { return equipment; }
+
         //? if >=1.21.11 {
         /*public Identifier helmetHeadModel() { return helmetHeadModel; }
+
         *///?} else {
         public ResourceLocation helmetHeadModel() { return helmetHeadModel; }
+
         //?}
         public boolean hasHelmetHeadModel() { return helmetHeadModel != null; }
+
         public ItemLike item(Piece piece) {
             return items.item(piece);
         }
@@ -117,28 +124,6 @@ public final class ArmorItems {
             String override = inventory.texture(piece);
             return override == null ? TextureTokens.item(item) : TextureTokens.resolveItem(item, override);
         }
-
-        //? if >=1.21.11 {
-        /*public Identifier existingInventoryModel(Piece piece) {
-        *///?} else {
-        public ResourceLocation existingInventoryModel(Piece piece) {
-        //?}
-            String model = inventory.model(piece);
-            //? if >=1.21.11 {
-            /*return model == null ? null : Identifier.parse(model);
-            *///?} else {
-            return model == null ? null : ResourceLocation.parse(model);
-            //?}
-        }
-
-        private void validate() {
-            if (inventory.mode() == InventoryMode.EXISTING && inventory.trims()) {
-                throw new IllegalStateException(
-                        "ArmorItems .trims() currently requires generated inventory models; "
-                                + "use .generated() or provide a dedicated future trim model family"
-                );
-            }
-        }
     }
 
     public static final class Builder {
@@ -147,8 +132,10 @@ public final class ArmorItems {
         private Equipment equipment;
         //? if >=1.21.11 {
         /*private Identifier helmetHeadModel;
+
         *///?} else {
         private ResourceLocation helmetHeadModel;
+
         //?}
         public Builder items(Consumer<ItemSet.Builder> config) {
             Objects.requireNonNull(config, "config");
@@ -201,8 +188,14 @@ public final class ArmorItems {
         }
 
         public static Builder builder() { return new Builder(); }
+
         public ItemLike item(Piece piece) {
-            return switch (piece) { case HELMET -> helmet; case CHESTPLATE -> chestplate; case LEGGINGS -> leggings; case BOOTS -> boots; };
+            return switch (piece) {
+            case HELMET -> helmet;
+            case CHESTPLATE -> chestplate;
+            case LEGGINGS -> leggings;
+            case BOOTS -> boots;
+            };
         }
 
         public List<ItemLike> all() {
@@ -214,45 +207,46 @@ public final class ArmorItems {
             private ItemLike chestplate;
             private ItemLike leggings;
             private ItemLike boots;
+
             public Builder helmet(ItemLike item) { helmet = Objects.requireNonNull(item, "item"); return this; }
+
             public Builder chestplate(ItemLike item) { chestplate = Objects.requireNonNull(item, "item"); return this; }
+
             public Builder leggings(ItemLike item) { leggings = Objects.requireNonNull(item, "item"); return this; }
+
             public Builder boots(ItemLike item) { boots = Objects.requireNonNull(item, "item"); return this; }
+
             public ItemSet build() { return new ItemSet(helmet, chestplate, leggings, boots); }
         }
     }
 
     public static final class Inventory {
-        private final InventoryMode mode;
         private final boolean trims;
         private final Map<Piece, String> textures;
-        private final Map<Piece, String> models;
+
         private Inventory(Builder builder) {
-            mode = builder.mode;
             trims = builder.trims;
             textures = Map.copyOf(builder.textures);
-            models = Map.copyOf(builder.models);
         }
 
         public static Builder builder() { return new Builder(); }
-        InventoryMode mode() { return mode; }
-        public boolean generated() { return mode == InventoryMode.GENERATED; }
-        public boolean existing() { return mode == InventoryMode.EXISTING; }
+
         public boolean trims() { return trims; }
+
         String texture(Piece piece) { return textures.get(piece); }
-        String model(Piece piece) { return models.get(piece); }
+
         public static final class Builder {
-            private InventoryMode mode;
+            private boolean generated;
             private boolean trims;
             private final Map<Piece, String> textures = new EnumMap<>(Piece.class);
-            private final Map<Piece, String> models = new EnumMap<>(Piece.class);
+
             public Builder generated() {
-                select(InventoryMode.GENERATED);
+                generated = true;
                 return this;
             }
 
             public Builder textures(Consumer<PieceTextures> config) {
-                if (mode != InventoryMode.GENERATED) throw new IllegalStateException("inventory.textures(...) requires .generated() first");
+                if (!generated) throw new IllegalStateException("inventory.textures(...) requires .generated() first");
                 PieceTextures values = new PieceTextures(textures);
                 config.accept(values);
                 return this;
@@ -264,27 +258,25 @@ public final class ArmorItems {
             }
 
             public Inventory build() {
-                if (mode == null) throw new IllegalStateException("Armor inventory requires .generated() or .models(...)");
-                if (mode == InventoryMode.EXISTING && models.size() != Piece.values().length) {
-                    throw new IllegalStateException("Existing armor inventory requires helmet/chestplate/leggings/boots models");
-                }
+                if (!generated) throw new IllegalStateException("Armor inventory requires .generated()");
                 return new Inventory(this);
-            }
-
-            private void select(InventoryMode requested) {
-                if (mode != null && mode != requested) throw new IllegalStateException("Armor inventory mode is already " + mode);
-                mode = requested;
             }
         }
     }
 
     public static final class PieceTextures {
         private final Map<Piece, String> values;
+
         private PieceTextures(Map<Piece, String> values) { this.values = values; }
+
         public PieceTextures helmet(String texture) { put(Piece.HELMET, texture); return this; }
+
         public PieceTextures chestplate(String texture) { put(Piece.CHESTPLATE, texture); return this; }
+
         public PieceTextures leggings(String texture) { put(Piece.LEGGINGS, texture); return this; }
+
         public PieceTextures boots(String texture) { put(Piece.BOOTS, texture); return this; }
+
         private void put(Piece piece, String value) {
             if (value == null || value.isBlank()) throw new IllegalArgumentException("armor texture must not be blank");
             values.put(piece, value);
@@ -302,23 +294,30 @@ public final class ArmorItems {
         }
 
         public static Builder builder() { return new Builder(); }
+
         public static final class Builder {
             //? if >=1.21.11 {
             /*private Identifier id;
             private Identifier texture;
+
             *///?} else {
             private ResourceLocation id;
             private ResourceLocation texture;
+
             //?}
             //? if >=1.21.11 {
             /*public Builder id(String id) { this.id = Identifier.parse(id); return this; }
+
             *///?} else {
             public Builder id(String id) { this.id = ResourceLocation.parse(id); return this; }
+
             //?}
             //? if >=1.21.11 {
             /*public Builder texture(String texture) { this.texture = Identifier.parse(texture); return this; }
+
             *///?} else {
             public Builder texture(String texture) { this.texture = ResourceLocation.parse(texture); return this; }
+
             //?}
             public Equipment build() {
                 if (id == null) throw new IllegalStateException("equipment.id(...) is required");
@@ -331,6 +330,7 @@ public final class ArmorItems {
     public static final class Provider implements DataProvider {
         private final PackOutput.PathProvider equipmentPathProvider;
         private final List<Entry> entries;
+
         public Provider(PackOutput output, List<Entry> entries) {
             //? if >=1.21.4 {
             this.equipmentPathProvider = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "equipment");
@@ -345,103 +345,73 @@ public final class ArmorItems {
             //? if >=1.21.2 {
             //? if >=1.21.11 {
             /*Map<Identifier, EquipmentClientInfo> equipmentInfos = new HashMap<>();
-            *///?} else if >=1.21.4 <1.21.11 {
+            *///?} else if >=1.21.4 {
             Map<ResourceLocation, EquipmentClientInfo> equipmentInfos = new HashMap<>();
             //?} else {
             /*Map<ResourceLocation, EquipmentModel> equipmentInfos = new HashMap<>();
-            addLegacyTrimCarrier(equipmentInfos);
-            addLegacyEquipmentInfos(equipmentInfos);
             *///?}
-            //? if >=1.21.4 {
             addTrimCarrier(equipmentInfos);
             addEquipmentInfos(equipmentInfos);
+            //? if >=1.21.4 {
             return DataProvider.saveAll(cache, EquipmentClientInfo.CODEC, equipmentPathProvider, equipmentInfos);
             //?} else {
             /*return DataProvider.saveAll(cache, EquipmentModel.CODEC, equipmentPathProvider, equipmentInfos);
             *///?}
-            //?}
-            //? if <1.21.2 {
+            //?} else {
             /*return CompletableFuture.completedFuture(null);
             *///?}
         }
+
         //? if >=1.21.2 {
-        //? if >=1.21.4 {
         //? if >=1.21.11 {
         /*private static void addTrimCarrier(Map<Identifier, EquipmentClientInfo> map) {
-        *///?} else {
+        *///?} else if >=1.21.4 {
         private static void addTrimCarrier(Map<ResourceLocation, EquipmentClientInfo> map) {
-        //?}
-            putUnique(
-                    map,
-                    CustomHelmetArmorTrims.TRIM_CARRIER_ID,
+        //?} else {
+        /*private static void addTrimCarrier(Map<ResourceLocation, EquipmentModel> map) {
+        *///?}
+            putUnique(map, CustomHelmetArmorTrims.TRIM_CARRIER_ID,
+                    //? if >=1.21.4 {
                     EquipmentClientInfo.builder()
                             .addLayers(EquipmentClientInfo.LayerType.HUMANOID,
                                     EquipmentClientInfo.Layer.onlyIfDyed(CustomHelmetArmorTrims.TRIM_CARRIER_ID, true))
-                            .build()
-            );
-        }
-        //?}
-        //? if >=1.21.2 <1.21.4 || >=1.21.11 {
-        /*//? if >=1.21.2 <1.21.4 {
-        /^private static void addLegacyTrimCarrier(Map<ResourceLocation, EquipmentModel> map) {
-            putLegacyUnique(
-                    map,
-                    CustomHelmetArmorTrims.TRIM_CARRIER_ID,
-                    EquipmentModel.builder()
+                    //?} else {
+                    /*EquipmentModel.builder()
                             .addLayers(EquipmentModel.LayerType.HUMANOID, EquipmentModel.Layer.onlyIfDyed(CustomHelmetArmorTrims.TRIM_CARRIER_ID, true))
-                            .build()
-            );
+                    *///?}
+                            .build());
         }
 
-        private void addLegacyEquipmentInfos(Map<ResourceLocation, EquipmentModel> map) {
-            for (Entry entry : entries) {
-                EquipmentModel.Layer layer = new EquipmentModel.Layer(entry.equipment().texture(), Optional.empty(), false);
-                putLegacyUnique(
-                        map,
-                        entry.equipment().id(),
-                        EquipmentModel.builder()
-                                .addLayers(EquipmentModel.LayerType.HUMANOID, layer)
-                                .addLayers(EquipmentModel.LayerType.HUMANOID_LEGGINGS, layer)
-                                .build()
-                );
-            }
-        }
-        ^///?}
         //? if >=1.21.11 {
-        /^private void addEquipmentInfos(Map<Identifier, EquipmentClientInfo> map) {
-        ^///?}
-        *///?}
-        //? if >=1.21.4 {
-        //? if >=1.21.4 <1.21.11 {
+        /*private void addEquipmentInfos(Map<Identifier, EquipmentClientInfo> map) {
+        *///?} else if >=1.21.4 {
         private void addEquipmentInfos(Map<ResourceLocation, EquipmentClientInfo> map) {
-        //?}
+        //?} else {
+        /*private void addEquipmentInfos(Map<ResourceLocation, EquipmentModel> map) {
+        *///?}
             for (Entry entry : entries) {
-                EquipmentClientInfo.Layer layer = new EquipmentClientInfo.Layer(entry.equipment().texture(), Optional.empty(), false);
-                putUnique(
-                        map,
-                        entry.equipment().id(),
-                        EquipmentClientInfo.builder()
-                                .addLayers(EquipmentClientInfo.LayerType.HUMANOID, layer)
+                //? if >=1.21.4 {
+                var layer = new EquipmentClientInfo.Layer(entry.equipment().texture(), Optional.empty(), false);
+                //?} else {
+                /*var layer = new EquipmentModel.Layer(entry.equipment().texture(), Optional.empty(), false);
+                *///?}
+                putUnique(map, entry.equipment().id(),
+                        //? if >=1.21.4 {
+                        EquipmentClientInfo.builder().addLayers(EquipmentClientInfo.LayerType.HUMANOID, layer)
                                 .addLayers(EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS, layer)
-                                .build()
-                );
+                        //?} else {
+                        /*EquipmentModel.builder().addLayers(EquipmentModel.LayerType.HUMANOID, layer)
+                                .addLayers(EquipmentModel.LayerType.HUMANOID_LEGGINGS, layer)
+                        *///?}
+                                .build());
             }
         }
 
-        //? if >=1.21.11 {
-        /*private static void putUnique(Map<Identifier, EquipmentClientInfo> map, Identifier id, EquipmentClientInfo info) {
-        *///?} else {
-        private static void putUnique(Map<ResourceLocation, EquipmentClientInfo> map, ResourceLocation id, EquipmentClientInfo info) {
-        //?}
+        private static <K, V> void putUnique(Map<K, V> map, K id, V info) {
             if (map.putIfAbsent(id, info) != null) throw new IllegalStateException("Duplicate equipment info id: " + id);
         }
         //?}
-        //? if >=1.21.2 <1.21.4 {
-        /*private static void putLegacyUnique(Map<ResourceLocation, EquipmentModel> map, ResourceLocation id, EquipmentModel info) {
-            if (map.putIfAbsent(id, info) != null) throw new IllegalStateException("Duplicate equipment model id: " + id);
-        }
-        *///?}
-        //?}
+
         @Override
         public String getName() {
             return "NewGen Armor Equipment: Musavacca";

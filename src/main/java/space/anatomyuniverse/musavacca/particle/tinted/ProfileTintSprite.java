@@ -4,12 +4,13 @@ import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.RandomSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class ProfileTintSprite {
     private ProfileTintSprite() {}
+
     public static Layer prepare(ProfileTintParticleOptions options) {
         PearlFireTintProfiles.Profile profile = options.type().profile();
         int layerCount = options.layerCount();

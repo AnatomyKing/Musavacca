@@ -7,61 +7,54 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.basuke.craft.VocoTableCrafting;
-import space.anatomyuniverse.musavacca.basuke.craft.VocoTableCraftingRecipe;
+import space.anatomyuniverse.musavacca.basuke.craft.VocoTableCraftingRecipes.Recipe;
 import space.anatomyuniverse.musavacca.basuke.sending.VocoTableSending;
-import space.anatomyuniverse.musavacca.basuke.sending.VocoTableSendingAuthorization;
 import space.anatomyuniverse.musavacca.basuke.sending.VocoTableSendingCommand;
 import space.anatomyuniverse.musavacca.basuke.summon.BasukeVocoCalling;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
 public final class VocoTableEatingLogic {
     public static final int DEFAULT_EATING_TIME_TICKS = 28;
+
     private VocoTableEatingLogic() {}
+
     @Nullable
-    public static VocoTableEatingAction findActiveAction(@NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack heldStack) {
+    public static Action findActiveAction(@NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack heldStack) {
         VocoTableSending.ActiveSending activeSending = VocoTableSending.findActiveSending(basuke, level, heldStack);
         if (activeSending != null) return new SendingAction(activeSending);
         BasukeVocoCalling.ActiveCalling activeCalling = BasukeVocoCalling.findActiveCalling(basuke, level, heldStack);
         if (activeCalling != null) return new CallingAction(activeCalling);
-        VocoTableCraftingRecipe recipe = VocoTableCrafting.findActiveRecipe(basuke, level, heldStack);
+        Recipe recipe = VocoTableCrafting.findActiveRecipe(basuke, level, heldStack);
         return recipe == null ? null : new CraftingAction(recipe);
     }
 
     public static void beforeItemInteraction(@NotNull Basuke basuke, @NotNull Player player, @NotNull InteractionHand hand) {
-        if (
-                basuke.level().isClientSide()
-                        || !player.getItemInHand(hand).isEmpty()
-        ) {
+        if (basuke.level().isClientSide() || !player.getItemInHand(hand).isEmpty()) {
             return;
         }
         ItemStack heldStack = basuke.getMainHandItem();
-        if (
-                VocoTableSendingCommand
-                        .isCommand(heldStack)
-        ) {
-            VocoTableSendingAuthorization.clear(heldStack);
+        if (VocoTableSendingCommand.isCommand(heldStack)) {
+            VocoTableSendingCommand.clearSender(heldStack);
         }
         BasukeVocoCalling.clearGivingPlayer(heldStack);
     }
 
     public static void afterItemInteraction(@NotNull Basuke basuke, @NotNull Player player, boolean wasHoldingNothing) {
-        if (
-                basuke.level().isClientSide()
-                        || !wasHoldingNothing
-        ) {
+        if (basuke.level().isClientSide() || !wasHoldingNothing) {
             return;
         }
         ItemStack heldStack = basuke.getMainHandItem();
-        if (
-                VocoTableSendingCommand
-                        .isCommand(heldStack)
-        ) {
-            VocoTableSendingAuthorization.stamp(heldStack, player.getUUID());
-        }
+        VocoTableSendingCommand.stampSender(heldStack, player.getUUID());
         BasukeVocoCalling.stampGivingPlayer(heldStack, player.getUUID());
     }
 
-    private record CraftingAction(@NotNull VocoTableCraftingRecipe recipe) implements VocoTableEatingAction {
+    public interface Action {
+        int eatingTimeTicks();
+
+        boolean complete(Basuke basuke, ServerLevel level, ItemStack heldStack);
+    }
+
+    private record CraftingAction(@NotNull Recipe recipe) implements Action {
         @Override
         public int eatingTimeTicks() {
             return this.recipe.eatingTimeTicks();
@@ -73,7 +66,7 @@ public final class VocoTableEatingLogic {
         }
     }
 
-    private record SendingAction(@NotNull VocoTableSending.ActiveSending activeSending) implements VocoTableEatingAction {
+    private record SendingAction(@NotNull VocoTableSending.ActiveSending activeSending) implements Action {
         @Override
         public int eatingTimeTicks() {
             return VocoTableSending.EATING_TIME_TICKS;
@@ -85,7 +78,7 @@ public final class VocoTableEatingLogic {
         }
     }
 
-    private record CallingAction(@NotNull BasukeVocoCalling.ActiveCalling activeCalling) implements VocoTableEatingAction {
+    private record CallingAction(@NotNull BasukeVocoCalling.ActiveCalling activeCalling) implements Action {
         @Override
         public int eatingTimeTicks() {
             return BasukeVocoCalling.EATING_TIME_TICKS;

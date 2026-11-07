@@ -20,23 +20,19 @@ public record FlintAndPearlColorPayload(int hexColor) implements CustomPacketPay
     *///?} else {
     public static final Type<FlintAndPearlColorPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl_color"));
     //?}
-    public static final StreamCodec<
-            ByteBuf,
-            FlintAndPearlColorPayload
-            > STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.VAR_INT, FlintAndPearlColorPayload::hexColor, FlintAndPearlColorPayload::new);
+    public static final StreamCodec<ByteBuf, FlintAndPearlColorPayload> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.VAR_INT,
+            FlintAndPearlColorPayload::hexColor, FlintAndPearlColorPayload::new);
+
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
     public static void handle(FlintAndPearlColorPayload payload, IPayloadContext context) {
-        if (!(context.player()
-                instanceof ServerPlayer player)) {
+        if (!(context.player() instanceof ServerPlayer player)) {
             return;
         }
-        if (!(player.containerMenu
-                instanceof FlintAndPearlMenu menu)) {
+        if (!(player.containerMenu instanceof FlintAndPearlMenu menu)) {
             return;
         }
         if (!menu.applyHexColor(player, payload.hexColor())) return;

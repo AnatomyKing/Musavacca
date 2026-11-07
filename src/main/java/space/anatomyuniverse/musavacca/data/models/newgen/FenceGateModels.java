@@ -7,24 +7,13 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import org.jetbrains.annotations.Nullable;
 
-public final class FenceGateModels {
-    //? if >=1.21.11 {
-    /*private final Identifier closed;
-    private final Identifier open;
-    private final Identifier wallClosed;
-    private final Identifier wallOpen;
-    *///?} else {
-    private final ResourceLocation closed;
-    private final ResourceLocation open;
-    private final ResourceLocation wallClosed;
-    private final ResourceLocation wallOpen;
-    //?}
-    private FenceGateModels(Builder builder) {
-        closed = builder.closed;
-        open = builder.open;
-        wallClosed = builder.wallClosed;
-        wallOpen = builder.wallOpen;
-        if (isEmpty()) throw new IllegalStateException("FenceGateModels requires at least one model");
+//? if >=1.21.11 {
+/*public record FenceGateModels(Identifier closed, Identifier open, Identifier wallClosed, Identifier wallOpen) {
+*///?} else {
+public record FenceGateModels(ResourceLocation closed, ResourceLocation open, ResourceLocation wallClosed, ResourceLocation wallOpen) {
+//?}
+    public FenceGateModels {
+        if (closed == null && open == null && wallClosed == null && wallOpen == null) throw new IllegalStateException("FenceGateModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -45,36 +34,22 @@ public final class FenceGateModels {
         return open ? this.open : closed;
     }
 
-    @Nullable
-    //? if >=1.21.11 {
-    /*public Identifier closed() {
-    *///?} else {
-    public ResourceLocation closed() {
-    //?}
-        return closed;
-    }
-
-    public boolean complete() {
-        return closed != null && open != null && wallClosed != null && wallOpen != null;
-    }
-
-    public boolean isEmpty() {
-        return closed == null && open == null && wallClosed == null && wallOpen == null;
-    }
-
     public static final class Builder {
         //? if >=1.21.11 {
         /*private Identifier closed;
         private Identifier open;
         private Identifier wallClosed;
         private Identifier wallOpen;
+
         *///?} else {
         private ResourceLocation closed;
         private ResourceLocation open;
         private ResourceLocation wallClosed;
         private ResourceLocation wallOpen;
+
         //?}
         private Builder() {}
+
         public Builder closed(String model) {
             closed = parse(model, "closed");
             return this;
@@ -96,7 +71,7 @@ public final class FenceGateModels {
         }
 
         public FenceGateModels build() {
-            return new FenceGateModels(this);
+            return new FenceGateModels(closed, open, wallClosed, wallOpen);
         }
     }
 

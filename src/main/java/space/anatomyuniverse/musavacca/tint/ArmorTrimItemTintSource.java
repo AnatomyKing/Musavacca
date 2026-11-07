@@ -9,13 +9,13 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.world.item.ItemStack;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
 import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
-import java.util.List;
 //? if <1.21.4 {
-/*import net.minecraft.client.renderer.item.ItemProperties;
+/*import java.util.List;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
 *///?}
 //? if >=1.21.2 {
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
@@ -38,18 +38,21 @@ public final class ArmorTrimItemTintSource
         *///?}
     //? if >=1.21.11 {
     /*private static final Identifier TINT_ID = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color");
-    *///?} else {
+    *///?} else if >=1.21.4 {
     private static final ResourceLocation TINT_ID = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color");
     //?}
     //? if <1.21.4 {
     /*private static final ResourceLocation HAS_TRIM_PROPERTY = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "has_armor_trim");
     *///?}
     public static final ArmorTrimItemTintSource INSTANCE = new ArmorTrimItemTintSource();
+
     //? if >=1.21.4 {
     public static final MapCodec<ArmorTrimItemTintSource> MAP_CODEC = MapCodec.unit(INSTANCE);
     private static final Tints.ItemTintType TINT_TYPE = new Tints.ItemTintType(TINT_ID, MAP_CODEC);
+
     //?}
     private ArmorTrimItemTintSource() {}
+
     public static int color(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return Tints.NO_TINT;
         ArmorTrim trim = stack.get(DataComponents.TRIM);
@@ -62,6 +65,7 @@ public final class ArmorTrimItemTintSource
     public static ItemTintSource itemTintSource() {
         return INSTANCE;
     }
+
     //?}
     //? if <1.21.4 {
     /*public static void registerLegacyItemProperties(FMLClientSetupEvent event, List<ArmorItems.Entry> entries) {
@@ -79,11 +83,13 @@ public final class ArmorTrimItemTintSource
         if (item == null) return;
         ItemProperties.register(item.asItem(), HAS_TRIM_PROPERTY, (stack, level, entity, seed) -> stack.has(DataComponents.TRIM) ? 1.0F : 0.0F);
     }
+
     *///?}
     //? if >=1.21.4 {
     public static Tints.ItemTintType itemTintType() {
         return TINT_TYPE;
     }
+
     //?}
     //? if <1.21.4 {
     /*public static ResourceLocation legacyTrimPropertyId() {

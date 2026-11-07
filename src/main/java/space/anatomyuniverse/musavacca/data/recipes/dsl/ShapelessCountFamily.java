@@ -6,15 +6,15 @@ import net.minecraft.data.recipes.RecipeCategory;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ItemLike;
-import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
 public final class ShapelessCountFamily {
     private final RecipeDSL dsl;
@@ -23,6 +23,7 @@ public final class ShapelessCountFamily {
     private final List<ItemLike> unlockItems = new ArrayList<>();
     private final List<TagKey<Item>> unlockTags = new ArrayList<>();
     private boolean reversible;
+
     public ShapelessCountFamily(RecipeDSL dsl, RecipeCategory category) {
         this.dsl = Objects.requireNonNull(dsl, "dsl");
         this.category = Objects.requireNonNull(category, "category");
@@ -37,8 +38,7 @@ public final class ShapelessCountFamily {
             throw new IllegalArgumentException("A shapeless count family step cannot convert an item into itself: " + RecipeDSL.keyOf(input));
         }
         for (Step step : this.steps) {
-            if (sameItem(step.input(), input)
-                    && sameItem(step.result(), result)) {
+            if (sameItem(step.input(), input) && sameItem(step.result(), result)) {
                 throw new IllegalArgumentException("Duplicate shapeless count family step: " + RecipeDSL.keyOf(input) + " -> " + RecipeDSL.keyOf(result));
             }
         }
@@ -89,17 +89,13 @@ public final class ShapelessCountFamily {
 
     //? if >=1.21.11 {
     /*private void saveStep(Step step, String folder, Set<Identifier> generatedIds) {
-        Identifier id = this.dsl.id(RecipeDSL.joinFolder(folder, RecipeDSL.keyOf(step.input()) + "_to_" + RecipeDSL.keyOf(step.result())));
     *///?} else {
     private void saveStep(Step step, String folder, Set<ResourceLocation> generatedIds) {
-        ResourceLocation id = this.dsl.id(RecipeDSL.joinFolder(folder, RecipeDSL.keyOf(step.input()) + "_to_" + RecipeDSL.keyOf(step.result())));
     //?}
+        var id = this.dsl.id(RecipeDSL.joinFolder(folder, RecipeDSL.keyOf(step.input()) + "_to_" + RecipeDSL.keyOf(step.result())));
         if (!generatedIds.add(id)) {
             throw new IllegalStateException(
-                    "Duplicate generated shapeless count family recipe id: "
-                            + id
-                            + ". Remove the duplicate/reverse step or disable reversible()."
-            );
+                    "Duplicate generated shapeless count family recipe id: " + id + ". Remove the duplicate/reverse step or disable reversible().");
         }
         ShapelessCrafting recipe = this.dsl.shapelessCountToCount(this.category, step.result(), step.resultCount(), step.input(), step.inputCount());
         for (ItemLike item : this.unlockItems) {

@@ -15,6 +15,7 @@ import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 public final class Stonecutting {
     private final RecipeDSL dsl;
     private SingleItemRecipeBuilder builder;
+
     public Stonecutting(RecipeDSL dsl) {
         this.dsl = dsl;
     }

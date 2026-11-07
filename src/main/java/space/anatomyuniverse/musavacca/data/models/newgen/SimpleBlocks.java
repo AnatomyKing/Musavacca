@@ -1,12 +1,13 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import net.minecraft.world.level.block.Block;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import net.minecraft.world.level.block.Block;
 
 public final class SimpleBlocks {
     private SimpleBlocks() {}
+
     public static final class Model extends BlockFamily.ModelRule<Models.Source, Model> {
         private Model(Models.Source source, Conditions.Match conditions) {
             super(source, conditions);
@@ -72,14 +73,15 @@ public final class SimpleBlocks {
         }
 
         private static void validateSource(Models.Source source) {
-            if (!(source instanceof Models.Existing)
-                    && !(source instanceof Models.Generated)) {
+            if (!(source instanceof Models.Existing) && !(source instanceof Models.Generated)) {
                 throw new IllegalStateException("SimpleBlocks only accepts existing models or Models.generated(...): " + source);
             }
         }
 
         public static final class Builder extends BlockFamily.ModelFamilyBuilder<Builder, Model, Part> {
-            private Consumer<Textures.Builder> generatedTextureConfig = textures -> {};
+            private Consumer<Textures.Builder> generatedTextureConfig = textures -> {
+            };
+
             private Builder(Block block) {
                 super(block);
             }
@@ -111,11 +113,7 @@ public final class SimpleBlocks {
             public Builder textures(Consumer<Textures.Builder> config) {
                 if (!generated) throw new IllegalStateException("textures(...) requires .generated() first");
                 Objects.requireNonNull(config, "config");
-                Consumer<Textures.Builder> previous = generatedTextureConfig;
-                generatedTextureConfig = textures -> {
-                    previous.accept(textures);
-                    config.accept(textures);
-                };
+                generatedTextureConfig = generatedTextureConfig.andThen(config);
                 return this;
             }
 

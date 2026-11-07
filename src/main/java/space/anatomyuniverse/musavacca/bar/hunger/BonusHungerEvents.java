@@ -6,6 +6,7 @@ package space.anatomyuniverse.musavacca.bar.hunger;
 import net.minecraft.world.level.GameRules;
 //?}
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionResult;
@@ -14,7 +15,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -25,24 +25,19 @@ import space.anatomyuniverse.musavacca.bar.ModAttachments;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class BonusHungerEvents {
-    private BonusHungerEvents() {
-    }
+    private BonusHungerEvents() {}
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
-            data.rememberBaseSnapshot(player.getFoodData().getFoodLevel(), player.getFoodData().getSaturationLevel());
-            sendSync(player, data, hasBonusHunger(player));
+            refreshPlayer(player);
         }
     }
 
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
-            data.rememberBaseSnapshot(player.getFoodData().getFoodLevel(), player.getFoodData().getSaturationLevel());
-            sendSync(player, data, hasBonusHunger(player));
+            refreshPlayer(player);
         }
     }
 
@@ -52,9 +47,7 @@ public final class BonusHungerEvents {
         if (!hasBonusHunger(player)) return;
         ItemStack stack = event.getItemStack();
         FoodProperties food = getFoodProperties(stack);
-        if (food == null) return;
-        if (player.getFoodData().needsFood()) return;
-        if (food.canAlwaysEat()) return;
+        if (food == null || player.getFoodData().needsFood() || food.canAlwaysEat()) return;
         if (player.level().isClientSide()) {
             if (!ClientBonusHungerData.needsFood()) return;
             player.startUsingItem(event.getHand());
@@ -122,6 +115,12 @@ public final class BonusHungerEvents {
         }
     }
 
+    private static void refreshPlayer(ServerPlayer player) {
+        BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
+        data.rememberBaseSnapshot(player.getFoodData().getFoodLevel(), player.getFoodData().getSaturationLevel());
+        sendSync(player, data, hasBonusHunger(player));
+    }
+
     private static FoodProperties getFoodProperties(ItemStack stack) {
         //? if >=1.21.2 {
         if (!stack.has(DataComponents.CONSUMABLE)) return null;
@@ -155,7 +154,6 @@ public final class BonusHungerEvents {
 
     private static boolean absorbVanillaFoodDrainIntoBonus(ServerPlayer player, BonusHungerData data) {
         FoodData vanillaFood = player.getFoodData();
-        int currentBaseFood = vanillaFood.getFoodLevel();
         float currentBaseSaturation = vanillaFood.getSaturationLevel();
         int previousBaseFood = data.getLastBaseFood();
         float previousBaseSaturation = data.getLastBaseSaturation();
@@ -168,7 +166,7 @@ public final class BonusHungerEvents {
                 changed = true;
             }
         }
-        currentBaseFood = vanillaFood.getFoodLevel();
+        int currentBaseFood = vanillaFood.getFoodLevel();
         if (currentBaseFood < previousBaseFood && data.hasUsableEnergy()) {
             int missingFood = previousBaseFood - currentBaseFood;
             int restoredFood = data.drainFood(missingFood);

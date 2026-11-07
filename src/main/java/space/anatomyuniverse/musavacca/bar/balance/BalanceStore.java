@@ -1,13 +1,19 @@
 package space.anatomyuniverse.musavacca.bar.balance;
 
 //? if >=26.1 {
-/*import java.nio.file.StandardCopyOption;
-import java.nio.file.Path;
-import java.nio.file.Files;
+/*import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.AtomicMoveNotSupportedException;
-import java.io.IOException;
-import space.anatomyuniverse.musavacca.MusaCore;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.storage.LevelResource;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.mixin.SavedDataStorageAccessor;
 *///?}
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -35,18 +41,14 @@ public final class BalanceStore extends SavedData {
     private static final Codec<UUID> UUID_CODEC = Codec.STRING.comapFlatMap(BalanceStore::readUuid, UUID::toString);
     private static final Codec<Map<UUID, Integer>> BALANCES_CODEC = Codec.unboundedMap(UUID_CODEC, Codec.INT);
     private static final Codec<Map<String, UUID>> KNOWN_NAMES_CODEC = Codec.unboundedMap(Codec.STRING, UUID_CODEC);
-    public static final Codec<BalanceStore> CODEC =
-            RecordCodecBuilder.create(instance -> instance.group(
-                    BALANCES_CODEC
-                            .optionalFieldOf(BALANCES_TAG, Map.of())
-                            .forGetter(store -> store.balances),
-                    KNOWN_NAMES_CODEC
-                            .optionalFieldOf(KNOWN_NAMES_TAG, Map.of())
-                            .forGetter(store -> store.knownNames)
-            ).apply(instance, BalanceStore::new));
+    public static final Codec<BalanceStore> CODEC = RecordCodecBuilder
+            .create(instance -> instance
+                    .group(BALANCES_CODEC.optionalFieldOf(BALANCES_TAG, Map.of()).forGetter(store -> store.balances),
+                            KNOWN_NAMES_CODEC.optionalFieldOf(KNOWN_NAMES_TAG, Map.of()).forGetter(store -> store.knownNames))
+                    .apply(instance, BalanceStore::new));
     //? if >=26.1 {
-    /*public static final SavedDataType<BalanceStore> TYPE =
-            new SavedDataType<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID), BalanceStore::new, CODEC);
+    /*public static final SavedDataType<BalanceStore> TYPE = new SavedDataType<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID), BalanceStore::new,
+            CODEC);
     *///?} else if >=1.21.5 <26.1 {
     public static final SavedDataType<BalanceStore> TYPE = new SavedDataType<>(STORAGE_ID, BalanceStore::new, CODEC);
     //?} else {
@@ -54,14 +56,14 @@ public final class BalanceStore extends SavedData {
     *///?}
     private final HashMap<UUID, Integer> balances;
     private final HashMap<String, UUID> knownNames;
+
     public BalanceStore() {
         this.balances = new HashMap<>();
         this.knownNames = new HashMap<>();
     }
 
     private BalanceStore(Map<UUID, Integer> loadedBalances, Map<String, UUID> loadedKnownNames) {
-        this.balances = new HashMap<>();
-        this.knownNames = new HashMap<>();
+        this();
         loadedBalances.forEach((playerUuid, balance) -> {
             if (playerUuid == null) return;
             int cleanBalance = clampBalance(balance);
@@ -109,15 +111,15 @@ public final class BalanceStore extends SavedData {
         tag.put(KNOWN_NAMES_TAG, knownNamesTag);
         return tag;
     }
+
     *///?}
     public static BalanceStore get(MinecraftServer server) {
-        //? if >=1.21.5 {
         //? if >=26.1 {
-        /*migrateLegacyData(server, STORAGE_ID);
+        /*migrateLegacyData(server);
         *///?}
+        //? if >=1.21.5 {
         return server.overworld().getDataStorage().computeIfAbsent(TYPE);
-        //?}
-        //? if <1.21.5 {
+        //?} else {
         /*return server.overworld().getDataStorage().computeIfAbsent(FACTORY, STORAGE_ID);
         *///?}
     }
@@ -220,20 +222,20 @@ public final class BalanceStore extends SavedData {
     }
 
     //? if >=26.1 {
-    /*private static final java.util.Map<Object, java.util.Set<String>> CHECKED = new java.util.WeakHashMap<>();
-    private static synchronized void migrateLegacyData(MinecraftServer server, String name) {
+    /*private static final Set<Object> CHECKED = Collections.newSetFromMap(new WeakHashMap<>());
+
+    private static synchronized void migrateLegacyData(MinecraftServer server) {
         var storage = server.overworld().getDataStorage();
-        var checked = CHECKED.computeIfAbsent(storage, ignored -> new java.util.HashSet<>());
-        if (checked.contains(name)) return;
-        var directory = ((space.anatomyuniverse.musavacca.mixin.SavedDataStorageAccessor) storage).musavacca$dataFolder();
-        var target = net.minecraft.resources.Identifier.fromNamespaceAndPath("musavacca", name + ".dat").resolveAgainst(directory);
+        if (CHECKED.contains(storage)) return;
+        var directory = ((SavedDataStorageAccessor) storage).musavacca$dataFolder();
+        var target = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID + ".dat").resolveAgainst(directory);
         try {
-            copyLegacyData(directory.resolve(name + ".dat"), target);
-            copyLegacyData(server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).resolve("data").resolve(name + ".dat"), target);
-        } catch (java.io.IOException error) {
-            throw new java.io.UncheckedIOException("Cannot migrate Musavacca saved data " + name + "; original retained", error);
+            copyLegacyData(directory.resolve(STORAGE_ID + ".dat"), target);
+            copyLegacyData(server.getWorldPath(LevelResource.ROOT).resolve("data").resolve(STORAGE_ID + ".dat"), target);
+        } catch (IOException error) {
+            throw new UncheckedIOException("Cannot migrate Musavacca saved data " + STORAGE_ID + "; original retained", error);
         }
-        checked.add(name);
+        CHECKED.add(storage);
     }
 
     private static void copyLegacyData(Path legacy, Path target) throws IOException {

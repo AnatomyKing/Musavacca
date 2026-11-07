@@ -25,34 +25,27 @@ public final class PotassiumSwordItem
     //?} else {
     /*public PotassiumSwordItem(Tier material, float attackDamage, float attackSpeed, Properties properties) {
     *///?}
-        //? if >=1.21.2 {
-        super(swordProperties(properties, material, attackDamage, attackSpeed));
-        //?} else {
+        //? if >=1.21.5 {
+        super(properties.sword(material, attackDamage, attackSpeed));
+        //?} else if >=1.21.2 {
+        /*super(material.applySwordProperties(properties, attackDamage, attackSpeed));
+        *///?} else {
         /*super(material, properties.attributes(SwordItem.createAttributes(material, attackDamage, attackSpeed)));
         *///?}
     }
 
-    //? if >=1.21.2 {
-    private static Properties swordProperties(Properties properties, ToolMaterial material, float attackDamage, float attackSpeed) {
-        //? if >=1.21.5 {
-        return properties.sword(material, attackDamage, attackSpeed);
-        //?} else {
-        /*return material.applySwordProperties(properties, attackDamage, attackSpeed);
-        *///?}
-    }
-    //?}
     //? if <1.21.2 {
     /*@Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (PotassiumItemBehavior.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
-        if (!PotassiumItemBehavior.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
+        if (PotassiumItem.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
+        if (!PotassiumItem.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
         return super.use(level, player, hand);
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
+        return PotassiumItem.finishEating(stack, level, entity);
     }
     *///?}
 }

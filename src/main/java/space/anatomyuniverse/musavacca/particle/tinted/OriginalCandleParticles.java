@@ -11,6 +11,7 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 public final class OriginalCandleParticles {
     private static final ThreadLocal<Integer> COLOR = new ThreadLocal<>();
     private static final ThreadLocal<Vec3> MOUNT = new ThreadLocal<>();
+
     private OriginalCandleParticles() {}
 
     public static void animate(BlockState state, Level level, BlockPos pos, RandomSource random, int color) {
@@ -30,7 +31,8 @@ public final class OriginalCandleParticles {
         }
     }
 
-    @Nullable public static Integer color() { return COLOR.get(); }
+    @Nullable
+    public static Integer color() { return COLOR.get(); }
 
     public static Vec3 mountOffset() {
         var offset = MOUNT.get();

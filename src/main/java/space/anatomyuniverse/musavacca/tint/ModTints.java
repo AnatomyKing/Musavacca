@@ -2,7 +2,11 @@ package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.core.BlockPos;
 //? if >=26.1 {
-/*import net.minecraft.client.renderer.block.BlockAndTintGetter;
+/*import java.util.ArrayList;
+import java.util.Set;
+import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.properties.Property;
 *///?} else {
 import net.minecraft.world.level.BlockAndTintGetter;
 //?}
@@ -11,17 +15,18 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import space.anatomyuniverse.musavacca.data.models.newgen.NewgenBlockTintCatalog;
 import space.anatomyuniverse.musavacca.data.models.newgen.NewgenItemCatalog;
-import space.anatomyuniverse.musavacca.data.models.newgen.SimpleItems;
 import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
 //? if <1.21.4 {
 /*import net.minecraft.world.level.ItemLike;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import space.anatomyuniverse.musavacca.data.models.NewModelSets;
 import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
+import space.anatomyuniverse.musavacca.data.models.newgen.SimpleItems;
 *///?}
 
 public final class ModTints {
     private ModTints() {}
+
     public static void register(IEventBus modBus) {
         modBus.addListener(ModTints::registerBlockColorHandlers);
         //? if >=1.21.4 {
@@ -40,24 +45,28 @@ public final class ModTints {
         //? if >=26.1 {
         /*for (var binding : NewgenBlockTintCatalog.bindings()) {
             int maximum = binding.rules().stream().flatMap(rule -> rule.generatedLayers().stream()).mapToInt(Tints.GeneratedLayer::tintIndex).max().orElse(-1);
-            var sources = new java.util.ArrayList<net.minecraft.client.color.block.BlockTintSource>();
+            var sources = new ArrayList<BlockTintSource>();
             for (int i = 0; i <= maximum; i++) {
                 final int index = i;
-                sources.add(new net.minecraft.client.color.block.BlockTintSource() {
-                    @Override public int color(BlockState state) {
+                sources.add(new BlockTintSource() {
+                    @Override
+                    public int color(BlockState state) {
                         return blockTint(state, null, null, index);
                     }
 
-                    @Override public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+                    @Override
+                    public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
                         return blockTint(state, level, pos, index);
                     }
 
-                    @Override public int colorAsTerrainParticle(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+                    @Override
+                    public int colorAsTerrainParticle(BlockState state, BlockAndTintGetter level, BlockPos pos) {
                         return blockTint(state, level, pos, index);
                     }
 
-                    @Override public java.util.Set<net.minecraft.world.level.block.state.properties.Property<?>> relevantProperties() {
-                        return java.util.Set.copyOf(binding.block().getStateDefinition().getProperties());
+                    @Override
+                    public Set<Property<?>> relevantProperties() {
+                        return Set.copyOf(binding.block().getStateDefinition().getProperties());
                     }
                 });
             }

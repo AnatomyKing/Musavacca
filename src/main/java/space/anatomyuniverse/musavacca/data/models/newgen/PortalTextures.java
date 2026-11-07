@@ -5,11 +5,12 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.level.block.Block;
 import java.util.Objects;
+import net.minecraft.world.level.block.Block;
 
 public final class PortalTextures {
     private PortalTextures() {}
+
     //? if >=1.21.11 {
     /*public record Set(Identifier texture, Identifier layerPrefix, Identifier particle) {
     *///?} else {
@@ -32,6 +33,7 @@ public final class PortalTextures {
             return ResourceLocation.fromNamespaceAndPath(layerPrefix.getNamespace(), layerPrefix.getPath() + "_" + layer);
             //?}
         }
+
         //? if >=1.21.11 {
         /*Identifier source(Tints.Tint tint, int layer) {
         *///?} else {
@@ -42,16 +44,17 @@ public final class PortalTextures {
     }
 
     public static Builder of(Block block) { return new Builder(block); }
+
     public static final class Builder {
         private final Block block;
         //? if >=1.21.11 {
         /*private Identifier texture;
         private Identifier layerPrefix;
-        private Identifier particle;
+
         *///?} else {
         private ResourceLocation texture;
         private ResourceLocation layerPrefix;
-        private ResourceLocation particle;
+
         //?}
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
@@ -59,8 +62,11 @@ public final class PortalTextures {
         }
 
         public Builder texture() { return folder(TextureTokens.block(block).toString()); }
+
         public Builder texture(String texture) { return folder(texture); }
+
         public Builder folder() { return texture(); }
+
         public Builder folder(String texture) {
             this.texture = TextureTokens.resolveBlock(block, texture);
             String path = this.texture.getPath();
@@ -73,6 +79,6 @@ public final class PortalTextures {
             return this;
         }
 
-        public Set build() { return new Set(texture, layerPrefix, particle); }
+        public Set build() { return new Set(texture, layerPrefix, null); }
     }
 }

@@ -13,9 +13,7 @@ import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
 @Mixin(MultiPlayerGameMode.class)
 public abstract class PearlCandleClientInteractionMixin {
     @WrapMethod(method = "performUseItemOn")
-    private InteractionResult musavacca$lightCandle(LocalPlayer player, InteractionHand hand, BlockHitResult hit,
-            Operation<InteractionResult> original) {
-        return PearlCandleConversion.useOn(player.level(), player, player.getItemInHand(hand), hit.getBlockPos(),
-                () -> original.call(player, hand, hit));
+    private InteractionResult musavacca$lightCandle(LocalPlayer player, InteractionHand hand, BlockHitResult hit, Operation<InteractionResult> original) {
+        return PearlCandleConversion.useOn(player.level(), player, player.getItemInHand(hand), hit.getBlockPos(), () -> original.call(player, hand, hit));
     }
 }

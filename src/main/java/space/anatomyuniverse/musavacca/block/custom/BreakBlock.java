@@ -1,5 +1,9 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
+//? if >=26.3 {
+/*import net.minecraft.world.level.block.BonemealSource;
+*///?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -13,6 +17,7 @@ import net.minecraft.world.level.ScheduledTickAccess;
 //?} else {
 /*import net.minecraft.world.level.LevelAccessor;
 *///?}
+import javax.annotation.Nullable;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -34,7 +39,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import space.anatomyuniverse.musavacca.block.custom.logic.BreakHexLogic;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
-import javax.annotation.Nullable;
 
 public class BreakBlock extends Block implements BonemealableBlock {
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 2);
@@ -43,6 +47,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
     private static final VoxelShape SHAPE_STAGE0 = Block.box(5.0, 0.0, 5.0, 11.0, 7.0, 11.0);
     private static final VoxelShape SHAPE_STAGE1 = Block.box(3.0, 0.0, 3.0, 13.0, 11.0, 13.0);
     private static final VoxelShape SHAPE_STAGE2 = Block.box(1.0, 0.0, 1.0, 15.0, 15.0, 15.0);
+
     public BreakBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, 0).setValue(ATTACHED, false));
@@ -86,8 +91,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
     //?} else {
     /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
     *///?}
-        return BreakHexLogic.shouldBreakBreakBlockOnNeighborChange(state, direction, level, pos)
-                ? Blocks.AIR.defaultBlockState()
+        return BreakHexLogic.shouldBreakBreakBlockOnNeighborChange(state, direction, level, pos) ? Blocks.AIR.defaultBlockState()
                 //? if >=1.21.2 {
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
                 //?} else {
@@ -96,7 +100,12 @@ public class BreakBlock extends Block implements BonemealableBlock {
     }
 
     private static VoxelShape shapeFor(BlockState state) {
-        return switch (state.getValue(AGE)) { case 0 -> SHAPE_STAGE0; case 1 -> SHAPE_STAGE1; case 2 -> SHAPE_STAGE2; default -> SHAPE_STAGE0; };
+        return switch (state.getValue(AGE)) {
+        case 0 -> SHAPE_STAGE0;
+        case 1 -> SHAPE_STAGE1;
+        case 2 -> SHAPE_STAGE2;
+        default -> SHAPE_STAGE0;
+        };
     }
 
     @Override
@@ -134,7 +143,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
 
     @Override
     //? if >=26.3 {
-    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
     //?}
@@ -143,7 +152,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
 
     @Override
     //? if >=26.3 {
-    /*public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
     //?}
@@ -156,7 +165,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
         if (state.getValue(AGE) >= MAX_AGE) return;
         if (random.nextInt(5) != 0) return;
         //? if >=26.3 {
-        /*performBonemeal(level, random, pos, state, net.minecraft.world.level.block.BonemealSource.MOB);
+        /*performBonemeal(level, random, pos, state, BonemealSource.MOB);
         *///?} else {
         performBonemeal(level, random, pos, state);
         //?}
@@ -164,7 +173,7 @@ public class BreakBlock extends Block implements BonemealableBlock {
 
     @Override
     //? if >=26.3 {
-    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
     //?}

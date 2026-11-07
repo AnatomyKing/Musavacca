@@ -1,12 +1,13 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import net.minecraft.world.level.block.Block;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import net.minecraft.world.level.block.Block;
 
 public final class CrossBlocks {
     private CrossBlocks() {}
+
     public static final class Model extends BlockFamily.ModelRule<Models.Source, Model> {
         private Model(Models.Source source, Conditions.Match conditions) {
             super(source, conditions);
@@ -72,14 +73,15 @@ public final class CrossBlocks {
         }
 
         private static void validateSource(Models.Source source) {
-            if (!(source instanceof Models.Existing)
-                    && !(source instanceof CrossModels.Generated)) {
+            if (!(source instanceof Models.Existing) && !(source instanceof CrossModels.Generated)) {
                 throw new IllegalStateException("CrossBlocks only accepts existing models or CrossModels.generated(...): " + source);
             }
         }
 
         public static final class Builder extends BlockFamily.ModelFamilyBuilder<Builder, Model, Part> {
-            private Consumer<CrossTextures.Builder> generatedTextureConfig = textures -> {};
+            private Consumer<FamilyTextures.Builder> generatedTextureConfig = textures -> {
+            };
+
             private Builder(Block block) {
                 super(block);
             }
@@ -109,21 +111,17 @@ public final class CrossBlocks {
             }
 
             public Builder texture() {
-                return textureConfig(CrossTextures.Builder::texture);
+                return textureConfig(FamilyTextures.Builder::texture);
             }
 
             public Builder texture(String texture) {
                 return textureConfig(textures -> textures.texture(texture));
             }
 
-            private Builder textureConfig(Consumer<CrossTextures.Builder> config) {
+            private Builder textureConfig(Consumer<FamilyTextures.Builder> config) {
                 if (!generated) throw new IllegalStateException("texture(...) requires .generated() first");
                 Objects.requireNonNull(config, "config");
-                Consumer<CrossTextures.Builder> previous = generatedTextureConfig;
-                generatedTextureConfig = textures -> {
-                    previous.accept(textures);
-                    config.accept(textures);
-                };
+                generatedTextureConfig = generatedTextureConfig.andThen(config);
                 return this;
             }
 

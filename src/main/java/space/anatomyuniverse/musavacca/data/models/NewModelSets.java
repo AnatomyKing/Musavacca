@@ -6,16 +6,16 @@ import net.minecraft.world.level.block.CandleBlock;
 *///?} else {
 import net.minecraft.world.level.block.SnowyDirtBlock;
 //?}
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.*;
 import space.anatomyuniverse.musavacca.data.models.newgen.*;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.tint.MusavaccaModelTints;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 
 public final class NewModelSets {
     private NewModelSets() {}
@@ -26,24 +26,12 @@ public final class NewModelSets {
 
     public static List<SimpleBlocks.Entry> simpleBlocks() {
         return List.of(
-                SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_BLOCK.get())
-                        .generated()
-                        .textures(textures -> textures.all())
-                        .build(),
-                SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_BRICKS.get())
-                        .generated()
-                        .textures(textures -> textures.all())
-                        .build(),
-                SimpleBlocks.Entry.builder(ModBlocks.MUSAVACCA_PLANKS.get())
-                        .generated()
-                        .textures(textures -> textures.all())
-                        .build(),
+                SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_BLOCK.get()).generated().textures(textures -> textures.all()).build(),
+                SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_BRICKS.get()).generated().textures(textures -> textures.all()).build(),
+                SimpleBlocks.Entry.builder(ModBlocks.MUSAVACCA_PLANKS.get()).generated().textures(textures -> textures.all()).build(),
                 SimpleBlocks.Entry.builder(ModBlocks.GILDED_MUSAVACCA_PLANKS.get())
                         .generated()
-                        .textures(textures -> textures
-                                .all()
-                                .top("musavacca:block/musavacca_planks")
-                                .bottom("_bottom"))
+                        .textures(textures -> textures.all().top("musavacca:block/musavacca_planks").bottom("_bottom"))
                         .build(),
                 SimpleBlocks.Entry.builder(ModBlocks.CAROTENE_GRASS.get())
                         .models(
@@ -81,10 +69,7 @@ public final class NewModelSets {
                         .build(),
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_CHAPITER.get())
                         .generated()
-                        .textures(textures -> textures
-                                .all()
-                                .top("_top")
-                                .bottom("_bottom"))
+                        .textures(textures -> textures.all().top("_top").bottom("_bottom"))
                         .rotations(Rotations.shulkerBox())
                         .build(),
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_MASCARON.get())
@@ -93,23 +78,17 @@ public final class NewModelSets {
                         .build(),
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_PILLAR.get())
                         .generated()
-                        .textures(textures -> textures
-                                .all()
-                                .ends("_top"))
+                        .textures(textures -> textures.all().ends("_top"))
                         .rotations(Rotations.log())
                         .build(),
                 SimpleBlocks.Entry.builder(ModBlocks.MUSAVACCA_STEM.get())
                         .generated()
-                        .textures(textures -> textures
-                                .all()
-                                .ends("_top"))
+                        .textures(textures -> textures.all().ends("_top"))
                         .rotations(Rotations.log())
                         .build(),
                 SimpleBlocks.Entry.builder(ModBlocks.STRIPPED_MUSAVACCA_STEM.get())
                         .generated()
-                        .textures(textures -> textures
-                                .all()
-                                .ends("_top"))
+                        .textures(textures -> textures.all().ends("_top"))
                         .rotations(Rotations.log())
                         .build(),
                 SimpleBlocks.Entry.builder(ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get())
@@ -153,11 +132,7 @@ public final class NewModelSets {
                         .tint(Tints.foliage())
                         .noItem()
                         .build(),
-                SimpleBlocks.Entry.builder(ModBlocks.MUSAVACCA_PLANT.get())
-                        .model("musavacca:block/musavacca_plant")
-                        .tint(Tints.foliage())
-                        .noItem()
-                        .build(),
+                SimpleBlocks.Entry.builder(ModBlocks.MUSAVACCA_PLANT.get()).model("musavacca:block/musavacca_plant").tint(Tints.foliage()).noItem().build(),
                 SimpleBlocks.Entry.builder(ModBlocks.MUSAVACCA_PSEUDOSTEM.get())
                         .model("musavacca:block/musavacca_pseudostem")
                         .tint(Tints.foliage())
@@ -366,7 +341,8 @@ public final class NewModelSets {
                         .multipart(
                                 SimpleBlocks.Part.always("musavacca:block/voco_post"),
                                 SimpleBlocks.Part.when("musavacca:block/voco_post_lit_receptor_corner", Conditions.when(VocoPostBlock.LIT, true)),
-                                SimpleBlocks.Part.when("musavacca:block/voco_post_portal", Conditions.when(VocoPostBlock.PORTAL, true)).tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK))
+                                SimpleBlocks.Part.when("musavacca:block/voco_post_portal", Conditions.when(VocoPostBlock.PORTAL, true))
+                                        .tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK))
                         )
                         .rotations(Rotations.furnace())
                         .build(),
@@ -391,10 +367,14 @@ public final class NewModelSets {
                                 SimpleBlocks.Part.when("musavacca:block/voco_table_lit_receptor_corner", Conditions.when(VocoTableBlock.LIT_SOUTH_WEST, true)).rotateY(180),
                                 SimpleBlocks.Part.when("musavacca:block/voco_table_lit_receptor_corner", Conditions.when(VocoTableBlock.LIT_NORTH_WEST, true)).rotateY(270),
                                 SimpleBlocks.Part.when("musavacca:block/voco_table_rotary_dialers", Conditions.when(VocoTableBlock.ROTARY_DIALERS, true)),
-                                SimpleBlocks.Part.when("musavacca:block/voco_table_portal_north_east", Conditions.when(VocoTableBlock.PORTAL_NORTH_EAST, true)).tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(0)),
-                                SimpleBlocks.Part.when("musavacca:block/voco_table_portal_south_east", Conditions.when(VocoTableBlock.PORTAL_SOUTH_EAST, true)).tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(1)),
-                                SimpleBlocks.Part.when("musavacca:block/voco_table_portal_south_west", Conditions.when(VocoTableBlock.PORTAL_SOUTH_WEST, true)).tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(2)),
-                                SimpleBlocks.Part.when("musavacca:block/voco_table_portal_north_west", Conditions.when(VocoTableBlock.PORTAL_NORTH_WEST, true)).tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(3))
+                                SimpleBlocks.Part.when("musavacca:block/voco_table_portal_north_east", Conditions.when(VocoTableBlock.PORTAL_NORTH_EAST, true))
+                                        .tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(0)),
+                                SimpleBlocks.Part.when("musavacca:block/voco_table_portal_south_east", Conditions.when(VocoTableBlock.PORTAL_SOUTH_EAST, true))
+                                        .tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(1)),
+                                SimpleBlocks.Part.when("musavacca:block/voco_table_portal_south_west", Conditions.when(VocoTableBlock.PORTAL_SOUTH_WEST, true))
+                                        .tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(2)),
+                                SimpleBlocks.Part.when("musavacca:block/voco_table_portal_north_west", Conditions.when(VocoTableBlock.PORTAL_NORTH_WEST, true))
+                                        .tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK).multi(3))
                         )
                         .noItem()
                         .build()
@@ -410,26 +390,21 @@ public final class NewModelSets {
     }
 
     public static List<DoorBlocks.Entry> doorBlocks() {
+        DoorModels litKnob = DoorModels.lower("musavacca:block/musavacca_door/knob/lit_knob_door_bottom_left",
+                "musavacca:block/musavacca_door/knob/lit_knob_door_bottom_left_open", "musavacca:block/musavacca_door/knob/lit_knob_door_bottom_right",
+                "musavacca:block/musavacca_door/knob/lit_knob_door_bottom_right_open");
         return List.of(
                 DoorBlocks.Entry.builder(ModBlocks.MUSAVACCA_DOOR.get())
                         .generated()
-                        .textures(textures -> textures
-                                .bottom()
-                                .top())
+                        .textures(textures -> textures.bottom().top())
                         .multipart(
                                 DoorBlocks.Part.when(
-                                        DoorModels.lower("musavacca:block/musavacca_door/knob/lit_knob_door_bottom_left",
-                                                "musavacca:block/musavacca_door/knob/lit_knob_door_bottom_left_open",
-                                                "musavacca:block/musavacca_door/knob/lit_knob_door_bottom_right",
-                                                "musavacca:block/musavacca_door/knob/lit_knob_door_bottom_right_open"),
+                                        litKnob,
                                         Conditions.when(MusavaccaPortalDoorBlock.LIT, true)
                                                 .and(MusavaccaPortalDoorBlock.LIT_PORTAL, false)
                                 ),
                                 DoorBlocks.Part.when(
-                                        DoorModels.lower("musavacca:block/musavacca_door/knob/lit_knob_door_bottom_left",
-                                                "musavacca:block/musavacca_door/knob/lit_knob_door_bottom_left_open",
-                                                "musavacca:block/musavacca_door/knob/lit_knob_door_bottom_right",
-                                                "musavacca:block/musavacca_door/knob/lit_knob_door_bottom_right_open"),
+                                        litKnob,
                                         Conditions.when(MusavaccaPortalDoorBlock.PORTAL, true)
                                 ),
                                 DoorBlocks.Part.when(
@@ -453,19 +428,13 @@ public final class NewModelSets {
                                 ).tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK))
                         )
                         .items(
-                                SimpleItems.Entry.builder(ModItems.MUSAVACCA_DOOR.get())
-                                        .generated()
-                                        .flat()
-                                        .texture()
-                                        .build(),
+                                SimpleItems.Entry.builder(ModItems.MUSAVACCA_DOOR.get()).generated().flat().texture().build(),
                                 SimpleItems.Entry.builder(ModItems.MUSAVACCA_CHARGED_DOOR.get())
-                                        .generated()
-                                        .flat()
+                                        .generated().flat()
                                         .textures("musavacca:item/musavacca_door", "musavacca:item/musavacca_door_knob")
                                         .build(),
                                 SimpleItems.Entry.builder(ModItems.MUSAVACCA_IMBUED_DOOR.get())
-                                        .generated()
-                                        .flat()
+                                        .generated().flat()
                                         .textures("musavacca:item/musavacca_door", "musavacca:item/musavacca_door_portal")
                                         .layerTint(1, MusavaccaModelTints.hexColor())
                                         .build()
@@ -479,9 +448,7 @@ public final class NewModelSets {
                 "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_top", "musavacca:block/musavacca_trapdoor/knob/lit_knob_trapdoor_open");
         return List.of(
                 TrapdoorBlocks.Entry.builder(ModBlocks.MUSAVACCA_TRAPDOOR.get())
-                        .generated()
-                        .orientable()
-                        .texture()
+                        .generated().orientable().texture()
                         .multipart(
                                 TrapdoorBlocks.Part.when(litKnob,
                                         Conditions.when(MusavaccaPortalTrapdoorBlock.LIT, true).and(MusavaccaPortalTrapdoorBlock.LIT_PORTAL, false)),
@@ -538,8 +505,7 @@ public final class NewModelSets {
     public static List<PortalBlocks.Entry> portalBlocks() {
         return List.of(
                 PortalBlocks.Entry.builder(ModBlocks.PEARL_PORTAL.get())
-                        .generated()
-                        .texture()
+                        .generated().texture()
                         .tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.PORTAL_BLOCK))
                         .noItem()
                         .build()
@@ -549,8 +515,7 @@ public final class NewModelSets {
     public static List<FireBlocks.Entry> fireBlocks() {
         return List.of(
                 FireBlocks.Entry.builder(ModBlocks.PEARL_FIRE.get())
-                        .generated()
-                        .texture()
+                        .generated().texture()
                         .tint(MusavaccaModelTints.pearlFire(PearlFireTintProfiles.FIRE_BLOCK))
                         .noItem()
                         .build()
@@ -570,120 +535,31 @@ public final class NewModelSets {
 
     public static List<SimpleItems.Entry> simpleItems() {
         List<SimpleItems.Entry> items = new ArrayList<>(List.of(
-                SimpleItems.Entry.builder(ModItems.BANANA_PEARL.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.BIG_BANANA_PEARL.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.SMALL_BANANA_PEARL.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.VACACA.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.MUSAVACCA_EXUDATE.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.BANAZO_GUSMA_LUMPA_GOOP.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.BANANA_PELLIS.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.MUSAVACCA_PUP.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModBlocks.UNRIPE_MUSAVACCA_EGG.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModBlocks.RIPENING_MUSAVACCA_EGG.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModBlocks.RIPE_MUSAVACCA_EGG.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.POTASSIUM_INGOT.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.BANANA_MILK_BUCKET.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.MUSAVACCA_BOAT.get())
-                        .generated()
-                        .flat()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.POTASSIUM_AXE.get())
-                        .generated()
-                        .handheld()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.POTASSIUM_PICKAXE.get())
-                        .generated()
-                        .handheld()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.POTASSIUM_SHOVEL.get())
-                        .generated()
-                        .handheld()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.POTASSIUM_SWORD.get())
-                        .generated()
-                        .handheld()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.POTASSIUM_HOE.get())
-                        .generated()
-                        .handheld()
-                        .texture()
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.BANANA_PHONE.get())
-                        .model("musavacca:item/banana_phone")
-                        .build(),
-                SimpleItems.Entry.builder(ModItems.INACTIVE_VOCO_CALLER.get())
-                        .model("musavacca:item/banana_phone_off")
-                        .build(),
+                SimpleItems.Entry.builder(ModItems.BANANA_PEARL.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.BIG_BANANA_PEARL.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.SMALL_BANANA_PEARL.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.VACACA.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.MUSAVACCA_EXUDATE.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.BANAZO_GUSMA_LUMPA_GOOP.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.BANANA_PELLIS.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.MUSAVACCA_PUP.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModBlocks.UNRIPE_MUSAVACCA_EGG.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModBlocks.RIPENING_MUSAVACCA_EGG.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModBlocks.RIPE_MUSAVACCA_EGG.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_INGOT.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.BANANA_MILK_BUCKET.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.MUSAVACCA_BOAT.get()).generated().flat().texture().build(),
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_AXE.get()).generated().handheld().texture().build(),
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_PICKAXE.get()).generated().handheld().texture().build(),
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_SHOVEL.get()).generated().handheld().texture().build(),
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_SWORD.get()).generated().handheld().texture().build(),
+                SimpleItems.Entry.builder(ModItems.POTASSIUM_HOE.get()).generated().handheld().texture().build(),
+                SimpleItems.Entry.builder(ModItems.BANANA_PHONE.get()).model("musavacca:item/banana_phone").build(),
+                SimpleItems.Entry.builder(ModItems.INACTIVE_VOCO_CALLER.get()).model("musavacca:item/banana_phone_off").build(),
                 SimpleItems.Entry.builder(ModItems.SIM_CARD.get())
-                        .generated()
-                        .flat()
+                        .generated().flat()
                         .folder()
                         .textures("sim_card", "sim_card")
                         .layerTint(1, MusavaccaModelTints.pearlFire(PearlFireTintProfiles.SIM_CARD_TINT))
@@ -707,20 +583,11 @@ public final class NewModelSets {
                                 .helmet(ModItems.POTASSIUM_HELMET.get())
                                 .chestplate(ModItems.POTASSIUM_CHESTPLATE.get())
                                 .leggings(ModItems.POTASSIUM_LEGGINGS.get())
-                                .boots(ModItems.POTASSIUM_BOOTS.get())
-                        )
-                        .inventory(inventory -> inventory
-                                .generated()
-                                .trims()
-                        )
-                        .equipment(equipment -> equipment
-                                .id("musavacca:potassium")
-                                .texture("musavacca:potassium")
-                        )
+                                .boots(ModItems.POTASSIUM_BOOTS.get()))
+                        .inventory(inventory -> inventory.generated().trims())
+                        .equipment(equipment -> equipment.id("musavacca:potassium").texture("musavacca:potassium"))
                         .helmetHeadModel("musavacca:item/potassium_helmet_model")
                         .build()
         );
     }
 }
-
-

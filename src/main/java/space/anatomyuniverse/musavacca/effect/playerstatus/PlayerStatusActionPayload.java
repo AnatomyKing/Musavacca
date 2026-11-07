@@ -20,11 +20,9 @@ public record PlayerStatusActionPayload(boolean accepted) implements CustomPacke
     *///?} else {
     public static final Type<PlayerStatusActionPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "player_status_action"));
     //?}
-    public static final StreamCodec<
-            ByteBuf,
-            PlayerStatusActionPayload
-            > STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.BOOL, PlayerStatusActionPayload::accepted, PlayerStatusActionPayload::new);
+    public static final StreamCodec<ByteBuf, PlayerStatusActionPayload> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BOOL,
+            PlayerStatusActionPayload::accepted, PlayerStatusActionPayload::new);
+
     public static PlayerStatusActionPayload accept() {
         return new PlayerStatusActionPayload(true);
     }

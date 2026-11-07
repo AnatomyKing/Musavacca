@@ -5,8 +5,8 @@ import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 //? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
+/*import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
+import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
@@ -19,22 +19,29 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 *///?}
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import space.anatomyuniverse.musavacca.particle.tinted.CandleSpriteLayers;
 
 @Mixin(SpriteContents.class)
 public abstract class PearlCandleSpriteContentsMixin implements CandleSpriteLayers.Source {
-    @Shadow @Final private NativeImage originalImage;
-    @Unique private TextureAtlasSprite[] musavacca$layers;
+    @Shadow
+    @Final
+    private NativeImage originalImage;
+    @Unique
+    private TextureAtlasSprite[] musavacca$layers;
     //? if >=1.21.9 {
-    /*@Unique private Optional<AnimationMetadataSection> musavacca$animation = Optional.empty();
-    @Shadow @Final private List<MetadataSectionType.WithValue<?>> additionalMetadata;
+    /*@Unique
+    private Optional<AnimationMetadataSection> musavacca$animation = Optional.empty();
+    @Shadow
+    @Final
+    private List<MetadataSectionType.WithValue<?>> additionalMetadata;
     *///?}
     //? if >=1.21.11 {
-    /*@Unique private Optional<TextureMetadataSection> musavacca$texture = Optional.empty();
+    /*@Unique
+    private Optional<TextureMetadataSection> musavacca$texture = Optional.empty();
     *///?}
 
     //? if >=1.21.9 {
@@ -51,8 +58,7 @@ public abstract class PearlCandleSpriteContentsMixin implements CandleSpriteLaye
             ^///?} else {
             ResourceLocation id,
             //?}
-            FrameSize size, NativeImage image, Optional<AnimationMetadataSection> animation,
-            List<MetadataSectionType.WithValue<?>> metadata,
+            FrameSize size, NativeImage image, Optional<AnimationMetadataSection> animation, List<MetadataSectionType.WithValue<?>> metadata,
             //? if >=1.21.11 {
             /^Optional<TextureMetadataSection> texture,
             ^///?}
@@ -85,7 +91,12 @@ public abstract class PearlCandleSpriteContentsMixin implements CandleSpriteLaye
         );
     }
 
-    @Override public NativeImage musavacca$image() { return this.originalImage; }
-    @Override public TextureAtlasSprite[] musavacca$layers() { return this.musavacca$layers; }
-    @Override public void musavacca$layers(TextureAtlasSprite[] layers) { this.musavacca$layers = layers; }
+    @Override
+    public NativeImage musavacca$image() { return this.originalImage; }
+
+    @Override
+    public TextureAtlasSprite[] musavacca$layers() { return this.musavacca$layers; }
+
+    @Override
+    public void musavacca$layers(TextureAtlasSprite[] layers) { this.musavacca$layers = layers; }
 }

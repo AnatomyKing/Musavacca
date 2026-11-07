@@ -27,8 +27,8 @@ import net.minecraft.world.level.material.FluidState;
 
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
 import net.neoforged.neoforge.common.extensions.IBlockExtension;
+import org.jetbrains.annotations.Nullable;
 
 public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtension {
     //? if <26.3 {
@@ -38,11 +38,12 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final IntegerProperty SMALL_PEARL_AMOUNT = IntegerProperty.create("small_pearl_amount", 1, MAX_SMALL_PEARL_AMOUNT);
     private static final VoxelShape SHAPE_GROUND = Block.box(0, 0, 0, 16, 1, 16);
-    private static final VoxelShape SHAPE_H3     = Block.box(0, 0, 0, 16, 3, 16);
-    private static final VoxelShape SHAPE_H6     = Block.box(0, 0, 0, 16, 6, 16);
-    private static final VoxelShape SHAPE_H9     = Block.box(0, 0, 0, 16, 9, 16);
-    private static final VoxelShape SHAPE_H12    = Block.box(0, 0, 0, 16, 12, 16);
-    private static final VoxelShape SHAPE_FULL   = Block.box(0, 0, 0, 16, 16, 16);
+    private static final VoxelShape SHAPE_H3 = Block.box(0, 0, 0, 16, 3, 16);
+    private static final VoxelShape SHAPE_H6 = Block.box(0, 0, 0, 16, 6, 16);
+    private static final VoxelShape SHAPE_H9 = Block.box(0, 0, 0, 16, 9, 16);
+    private static final VoxelShape SHAPE_H12 = Block.box(0, 0, 0, 16, 12, 16);
+    private static final VoxelShape SHAPE_FULL = Block.box(0, 0, 0, 16, 16, 16);
+
     public SmallBananaPearlBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(SMALL_PEARL_AMOUNT, 1));
@@ -53,6 +54,7 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
     protected MapCodec<? extends FallingBlock> codec() {
         return CODEC;
     }
+
     //?}
     @Override
     public int getDustColor(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
@@ -104,13 +106,13 @@ public class SmallBananaPearlBlock extends FallingBlock implements IBlockExtensi
     @Override
     public void onBrokenAfterFall(Level level, BlockPos pos, FallingBlockEntity fallingBlock) {
         BlockState falling = fallingBlock.getBlockState();
-        BlockState landed  = level.getBlockState(pos);
+        BlockState landed = level.getBlockState(pos);
         if (isSmallBananaPearlBlock(landed)) {
-            int landedAmt  = landed.getValue(SMALL_PEARL_AMOUNT);
+            int landedAmt = landed.getValue(SMALL_PEARL_AMOUNT);
             int fallingAmt = falling.getValue(SMALL_PEARL_AMOUNT);
             if (landedAmt < MAX_SMALL_PEARL_AMOUNT && fallingAmt > 0) {
                 int transfer = Math.min(MAX_SMALL_PEARL_AMOUNT - landedAmt, fallingAmt);
-                int remain   = fallingAmt - transfer;
+                int remain = fallingAmt - transfer;
                 level.setBlock(pos, landed.setValue(SMALL_PEARL_AMOUNT, landedAmt + transfer), 3);
                 if (remain > 0) {
                     BlockPos above = pos.above();

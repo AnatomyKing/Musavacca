@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.entity.mob.bananacow;
 
+import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -13,12 +14,12 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.neoforged.neoforge.event.EventHooks;
 import space.anatomyuniverse.musavacca.block.ModBlockTags;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-import java.util.EnumSet;
 
 final class BananaCowGrazeGoal extends Goal {
     private static final byte EAT_ANIMATION_EVENT = 10;
     private final BananaCow cow;
     private int eatAnimationTick;
+
     BananaCowGrazeGoal(BananaCow cow) {
         this.cow = cow;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
@@ -100,6 +101,7 @@ final class BananaCowGrazeGoal extends Goal {
         level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
         level.setBlockAndUpdate(pos, state.setValue(BlockStateProperties.FLOWER_AMOUNT, amount - 1));
     }
+
     int getEatAnimationTick() {
         return this.eatAnimationTick;
     }

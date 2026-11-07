@@ -24,8 +24,7 @@ import space.anatomyuniverse.musavacca.gui.voco.VocoCameraStartPayload;
 *///?}
 
 public final class ModNetworking {
-    private ModNetworking() {
-    }
+    private ModNetworking() {}
 
     public static void register(IEventBus modBus) {
         modBus.addListener(ModNetworking::registerPayloads);
@@ -39,29 +38,13 @@ public final class ModNetworking {
                 .playToClient(BalanceSyncPayload.TYPE, BalanceSyncPayload.STREAM_CODEC)
                 .playToClient(VocoCameraStartPayload.TYPE, VocoCameraStartPayload.STREAM_CODEC)
                 //?} else {
-                /*.playToClient(
-                        PlayerStatusCallerPayload.TYPE,
-                        PlayerStatusCallerPayload.STREAM_CODEC,
-                        (payload, context) -> PlayerStatusClient.setCaller(payload)
-                )
-                .playToClient(
-                        BonusHungerSyncPayload.TYPE,
-                        BonusHungerSyncPayload.STREAM_CODEC,
-                        (payload, context) ->
-                                ClientBonusHungerData.set(payload.food(), payload.saturation(), payload.active())
-                )
-                .playToClient(
-                        BalanceSyncPayload.TYPE,
-                        BalanceSyncPayload.STREAM_CODEC,
-                        (payload, context) ->
-                                ClientBalanceData.set(payload.balance(), payload.active())
-                )
-                .playToClient(
-                        VocoCameraStartPayload.TYPE,
-                        VocoCameraStartPayload.STREAM_CODEC,
-                        (payload, context) ->
-                                VocoCameraClient.start(payload)
-                )
+                /*.playToClient(PlayerStatusCallerPayload.TYPE, PlayerStatusCallerPayload.STREAM_CODEC,
+                        (payload, context) -> PlayerStatusClient.setCaller(payload))
+                .playToClient(BonusHungerSyncPayload.TYPE, BonusHungerSyncPayload.STREAM_CODEC,
+                        (payload, context) -> ClientBonusHungerData.set(payload.food(), payload.saturation(), payload.active()))
+                .playToClient(BalanceSyncPayload.TYPE, BalanceSyncPayload.STREAM_CODEC,
+                        (payload, context) -> ClientBalanceData.set(payload.balance(), payload.active()))
+                .playToClient(VocoCameraStartPayload.TYPE, VocoCameraStartPayload.STREAM_CODEC, (payload, context) -> VocoCameraClient.start(payload))
                 *///?}
                 .playToServer(VocoCameraSelectionPayload.TYPE, VocoCameraSelectionPayload.STREAM_CODEC, VocoCameraSelectionPayload::handle)
                 .playToServer(FlintAndPearlColorPayload.TYPE, FlintAndPearlColorPayload.STREAM_CODEC, FlintAndPearlColorPayload::handle)

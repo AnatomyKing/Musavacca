@@ -1,13 +1,15 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
 public final class Conditions {
     private Conditions() {}
+
     public record Term<T extends Comparable<T>>(Property<T> property, T value) {
         public Term {
             Objects.requireNonNull(property, "property");
@@ -21,6 +23,7 @@ public final class Conditions {
 
     public static final class Match {
         private final List<Term<?>> terms;
+
         private Match(List<Term<?>> terms) {
             this.terms = List.copyOf(terms);
         }
@@ -32,10 +35,7 @@ public final class Conditions {
                 if (term.property() == property) {
                     if (Objects.equals(term.value(), value)) return this;
                     throw new IllegalArgumentException(
-                            "Condition already requires " + property.getName()
-                                    + "=" + term.value()
-                                    + "; cannot also require " + value
-                    );
+                            "Condition already requires " + property.getName() + "=" + term.value() + "; cannot also require " + value);
                 }
             }
             ArrayList<Term<?>> copy = new ArrayList<>(terms);
@@ -47,7 +47,7 @@ public final class Conditions {
             Objects.requireNonNull(other, "other");
             Match result = this;
             for (Term<?> term : other.terms) {
-                result = andUnchecked(result, term);
+                result = andTerm(result, term);
             }
             return result;
         }
@@ -56,8 +56,7 @@ public final class Conditions {
             Objects.requireNonNull(property, "property");
             Objects.requireNonNull(value, "value");
             for (Term<?> term : terms) {
-                if (term.property() == property
-                        && !Objects.equals(term.value(), value)) {
+                if (term.property() == property && !Objects.equals(term.value(), value)) {
                     return false;
                 }
             }
@@ -83,24 +82,43 @@ public final class Conditions {
             return true;
         }
 
+        void validate(Block block) {
+            for (Term<?> term : terms) {
+                requireProperty(block, term.property(), "Condition");
+                if (!term.property().getPossibleValues().contains(term.value())) {
+                    throw new IllegalStateException("Invalid condition " + term + " on " + ModelLocations.blockId(block));
+                }
+            }
+        }
+
         public List<Term<?>> terms() { return terms; }
-        @Override public boolean equals(Object other) {
+
+        @Override
+        public boolean equals(Object other) {
             return other instanceof Match match && terms.size() == match.terms.size() && terms.containsAll(match.terms);
         }
 
-        @Override public int hashCode() {
+        @Override
+        public int hashCode() {
             return terms.stream().mapToInt(Term::hashCode).sum();
         }
     }
 
     private static final Match ALWAYS = new Match(List.of());
+
     public static Match always() { return ALWAYS; }
+
     public static <T extends Comparable<T>> Match when(Property<T> property, T value) {
         return always().and(property, value);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static Match andUnchecked(Match match, Term<?> term) {
-        return match.and((Property) term.property(), (Comparable) term.value());
+    static <T extends Comparable<T>> void requireProperty(Block block, Property<T> property, String family) {
+        if (!block.defaultBlockState().hasProperty(property)) {
+            throw new IllegalStateException(family + " requires property " + property.getName() + " on " + ModelLocations.blockId(block));
+        }
+    }
+
+    private static <T extends Comparable<T>> Match andTerm(Match match, Term<T> term) {
+        return match.and(term.property(), term.value());
     }
 }

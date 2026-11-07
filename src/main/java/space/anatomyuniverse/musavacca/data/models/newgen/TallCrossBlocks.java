@@ -1,13 +1,14 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DoublePlantBlock;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoublePlantBlock;
 
 public final class TallCrossBlocks {
     private TallCrossBlocks() {}
+
     public static final class Model extends BlockFamily.ModelRule<TallCrossModels.Source, Model> {
         private Model(TallCrossModels.Source source, Conditions.Match conditions) {
             super(source, conditions);
@@ -47,9 +48,8 @@ public final class TallCrossBlocks {
         }
 
         public void validate() {
-            BlockFamilyValidation.requireProperty(block(), DoublePlantBlock.HALF, "TallCrossBlocks");
-            if (rotations().type() != Rotations.Type.BRICKS
-                    && rotations().property() == DoublePlantBlock.HALF) {
+            Conditions.requireProperty(block(), DoublePlantBlock.HALF, "TallCrossBlocks");
+            if (rotations().type() != Rotations.Type.BRICKS && rotations().property() == DoublePlantBlock.HALF) {
                 throw new IllegalStateException("TallCrossBlocks manages DoublePlantBlock.HALF automatically for " + block());
             }
             for (Model model : models()) {
@@ -68,7 +68,9 @@ public final class TallCrossBlocks {
         }
 
         public static final class Builder extends BlockFamily.ModelFamilyBuilder<Builder, Model, Part> {
-            private Consumer<TallCrossTextures.Builder> generatedTextureConfig = textures -> {};
+            private Consumer<FamilyTextures.HalvesBuilder> generatedTextureConfig = textures -> {
+            };
+
             private Builder(Block block) {
                 super(block);
             }
@@ -97,14 +99,10 @@ public final class TallCrossBlocks {
                 return this;
             }
 
-            public Builder textures(Consumer<TallCrossTextures.Builder> config) {
+            public Builder textures(Consumer<FamilyTextures.HalvesBuilder> config) {
                 if (!generated) throw new IllegalStateException("textures(...) requires .generated() first");
                 Objects.requireNonNull(config, "config");
-                Consumer<TallCrossTextures.Builder> previous = generatedTextureConfig;
-                generatedTextureConfig = textures -> {
-                    previous.accept(textures);
-                    config.accept(textures);
-                };
+                generatedTextureConfig = generatedTextureConfig.andThen(config);
                 return this;
             }
 

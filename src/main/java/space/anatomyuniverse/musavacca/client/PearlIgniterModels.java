@@ -8,16 +8,24 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.model.BakedModelWrapper;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
+import space.anatomyuniverse.musavacca.item.PearlIgniter;
 *///?}
 
 public final class PearlIgniterModels {
     private PearlIgniterModels() {}
+
     //? if <1.21.2 {
-    /*private static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath("musavacca", "item/flint_and_pearl"));
+    /*private static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(
+            ResourceLocation.fromNamespaceAndPath("musavacca", "item/flint_and_pearl"));
+
+    public static void register(IEventBus modBus) {
+        modBus.addListener(PearlIgniterModels::registerAdditional);
+        modBus.addListener(PearlIgniterModels::modifyModels);
+    }
 
     public static void registerAdditional(ModelEvent.RegisterAdditional event) {
         event.register(MODEL);

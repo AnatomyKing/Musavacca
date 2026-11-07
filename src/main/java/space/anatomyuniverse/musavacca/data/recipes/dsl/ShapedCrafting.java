@@ -7,17 +7,17 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
+import java.util.Objects;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
-import java.util.Objects;
 
 public final class ShapedCrafting {
     private final RecipeDSL dsl;
     private final ShapedRecipeBuilder builder;
+
     public ShapedCrafting(RecipeDSL dsl, RecipeCategory category, ItemLike result, int count) {
         this.dsl = dsl;
         //? if >=26.1 {
@@ -35,18 +35,7 @@ public final class ShapedCrafting {
     }
 
     public ShapedCrafting define(char key, Object ingredient) {
-        Objects.requireNonNull(ingredient, "ingredient");
-        if (ingredient instanceof ItemLike itemLike) {
-            this.builder.define(key, itemLike);
-        } else if (ingredient instanceof TagKey<?> tagKey
-                && tagKey.registry().equals(net.minecraft.core.registries.Registries.ITEM)) {
-            @SuppressWarnings("unchecked") TagKey<Item> tag = (TagKey<Item>) tagKey;
-            this.builder.define(key, this.dsl.ingredientFromTag(tag));
-        } else if (ingredient instanceof Ingredient value) {
-            this.builder.define(key, value);
-        } else {
-            throw new IllegalArgumentException("Unsupported ingredient for key '" + key + "': " + ingredient);
-        }
+        this.builder.define(key, this.dsl.ingredient(Objects.requireNonNull(ingredient, "ingredient")));
         return this;
     }
 

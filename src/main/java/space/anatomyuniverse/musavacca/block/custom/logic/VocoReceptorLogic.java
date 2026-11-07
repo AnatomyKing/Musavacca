@@ -25,17 +25,18 @@ public final class VocoReceptorLogic {
     public static final int MAX_YAW_DEGREES = 180;
     public static final int MIN_PITCH_DEGREES = -90;
     public static final int MAX_PITCH_DEGREES = 90;
+
     private VocoReceptorLogic() {}
+
     public enum ReceptorPosition {
-        NORTH_EAST(0, -135, 0),
-        NORTH_WEST(1, 135, 0),
-        SOUTH_EAST(2, -45, 0),
-        SOUTH_WEST(3, 45, 0);
+        NORTH_EAST(0, -135, 0), NORTH_WEST(1, 135, 0), SOUTH_EAST(2, -45, 0), SOUTH_WEST(3, 45, 0);
+
         public static final int COUNT = 4;
         private static final ReceptorPosition[] BY_ID = values();
         private final int id;
         private final int defaultYawDegrees;
         private final int defaultPitchDegrees;
+
         ReceptorPosition(int id, int defaultYawDegrees, int defaultPitchDegrees) {
             this.id = id;
             this.defaultYawDegrees = defaultYawDegrees;
@@ -62,10 +63,7 @@ public final class VocoReceptorLogic {
     public static boolean tryOpenCameraEditor(Level level, BlockPos pos, Player player, ReceptorPosition receptor) {
         if (!player.isShiftKeyDown()) return false;
         if (!isReceptorLit(level, pos, receptor)) return true;
-        if (
-                !level.isClientSide()
-                        && player instanceof ServerPlayer serverPlayer
-        ) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             VocoCameraStartPayload.open(serverPlayer, pos, receptor);
         }
         return true;
@@ -92,27 +90,19 @@ public final class VocoReceptorLogic {
 
     private static Vec3 pearlPopOffset(ReceptorPosition receptor) {
         return switch (receptor) {
-            case NORTH_EAST ->
-                    new Vec3(0.8125D, 1.05D, 0.1875D);
-            case NORTH_WEST ->
-                    new Vec3(0.1875D, 1.05D, 0.1875D);
-            case SOUTH_EAST ->
-                    new Vec3(0.8125D, 1.05D, 0.8125D);
-            case SOUTH_WEST ->
-                    new Vec3(0.1875D, 1.05D, 0.8125D);
+        case NORTH_EAST -> new Vec3(0.8125D, 1.05D, 0.1875D);
+        case NORTH_WEST -> new Vec3(0.1875D, 1.05D, 0.1875D);
+        case SOUTH_EAST -> new Vec3(0.8125D, 1.05D, 0.8125D);
+        case SOUTH_WEST -> new Vec3(0.1875D, 1.05D, 0.8125D);
         };
     }
 
     private static Vec3 pearlPopMotion(ReceptorPosition receptor) {
         return switch (receptor) {
-            case NORTH_EAST ->
-                    new Vec3(0.08D, 0.18D, -0.08D);
-            case NORTH_WEST ->
-                    new Vec3(-0.08D, 0.18D, -0.08D);
-            case SOUTH_EAST ->
-                    new Vec3(0.08D, 0.18D, 0.08D);
-            case SOUTH_WEST ->
-                    new Vec3(-0.08D, 0.18D, 0.08D);
+        case NORTH_EAST -> new Vec3(0.08D, 0.18D, -0.08D);
+        case NORTH_WEST -> new Vec3(-0.08D, 0.18D, -0.08D);
+        case SOUTH_EAST -> new Vec3(0.08D, 0.18D, 0.08D);
+        case SOUTH_WEST -> new Vec3(-0.08D, 0.18D, 0.08D);
         };
     }
 

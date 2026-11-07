@@ -5,11 +5,12 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.level.block.Block;
 import java.util.Objects;
+import net.minecraft.world.level.block.Block;
 
 public final class FireTextures {
     private FireTextures() {}
+
     //? if >=1.21.11 {
     /*public record Set(Identifier base) {
     *///?} else {
@@ -26,22 +27,23 @@ public final class FireTextures {
 
     //? if >=1.21.11 {
     /*public static Identifier frame(Set textures, int frame) {
-        Identifier base = textures.base();
-        return Identifier.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + frame);
     *///?} else {
     public static ResourceLocation frame(Set textures, int frame) {
-        ResourceLocation base = textures.base();
-        return ResourceLocation.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + frame);
     //?}
+        var base = textures.base();
+        //? if >=1.21.11 {
+        /*return Identifier.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + frame);
+        *///?} else {
+        return ResourceLocation.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + frame);
+        //?}
     }
 
     //? if >=1.21.11 {
     /*public static Identifier layer(Set textures, int frame, int layer) {
-        Identifier base = textures.base();
     *///?} else {
     public static ResourceLocation layer(Set textures, int frame, int layer) {
-        ResourceLocation base = textures.base();
     //?}
+        var base = textures.base();
         String path = base.getPath();
         int slash = path.lastIndexOf('/');
         String stem = slash >= 0 ? path.substring(slash + 1) : path;
@@ -57,8 +59,10 @@ public final class FireTextures {
         private final Block block;
         //? if >=1.21.11 {
         /*private Identifier base;
+
         *///?} else {
         private ResourceLocation base;
+
         //?}
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");

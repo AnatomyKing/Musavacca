@@ -9,8 +9,8 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 /*import net.minecraft.core.Holder;
 *///?}
 //? if >=26.2 {
-/*import net.minecraft.advancements.predicates.entity.EntityPredicate;
-import net.minecraft.advancements.predicates.NbtPredicate;
+/*import net.minecraft.advancements.predicates.NbtPredicate;
+import net.minecraft.advancements.predicates.entity.EntityPredicate;
 *///?} else if >=1.21.11 <26.2 {
 /*import net.minecraft.advancements.criterion.EntityPredicate;
 import net.minecraft.advancements.criterion.NbtPredicate;
@@ -18,6 +18,7 @@ import net.minecraft.advancements.criterion.NbtPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.NbtPredicate;
 //?}
+import java.util.function.BiConsumer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.nbt.CompoundTag;
@@ -31,49 +32,37 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyC
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import java.util.function.BiConsumer;
 
 public final class ModMobLootProvider implements LootTableSubProvider {
     //? if >=26.3 {
     /*private final LootTableSubProvider.Context output;
-    public ModMobLootProvider(LootTableSubProvider.Context output) { this.output = output; }
-    @Override
-    public void run() {
-        output.accept(
-                ModLootTables.BANANA_COW,
-                LootTable.lootTable()
-                        .withPool(createVacacaPool(BananaCow.PEEL_STAGE_DEFAULT, 0.60F))
-                        .withPool(createVacacaPool(BananaCow.PEEL_STAGE_SHEARED, 0.20F))
-                        .withPool(createVacacaPool(BananaCow.PEEL_STAGE_PEELD, 0.20F))
-        );
+
+    public ModMobLootProvider(LootTableSubProvider.Context output) {
+        this.output = output;
     }
-    *///?}
-    //? if <26.3 {
-    public ModMobLootProvider(HolderLookup.Provider registries) {
-    }
+    *///?} else {
+    public ModMobLootProvider(HolderLookup.Provider registries) {}
+    //?}
 
     @Override
+    //? if >=26.3 {
+    /*public void run() {
+    *///?} else {
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output) {
-        output.accept(
-                ModLootTables.BANANA_COW,
-                LootTable.lootTable()
-                        .withPool(createVacacaPool(BananaCow.PEEL_STAGE_DEFAULT, 0.60F))
-                        .withPool(createVacacaPool(BananaCow.PEEL_STAGE_SHEARED, 0.20F))
-                        .withPool(createVacacaPool(BananaCow.PEEL_STAGE_PEELD, 0.20F))
-        );
-    }
     //?}
+        output.accept(ModLootTables.BANANA_COW, LootTable.lootTable().withPool(createVacacaPool(BananaCow.PEEL_STAGE_DEFAULT, 0.60F))
+                .withPool(createVacacaPool(BananaCow.PEEL_STAGE_SHEARED, 0.20F)).withPool(createVacacaPool(BananaCow.PEEL_STAGE_PEELD, 0.20F)));
+    }
+
     private static LootPool.Builder createVacacaPool(int requiredPeelStage, float chance) {
         return LootPool.lootPool()
                 //? if >=26.3 {
                 /*.setRolls(Holder.direct(new ConstantValue(1)))
                 .setBonusRolls(Holder.direct(new net.minecraft.world.level.storage.loot.providers.number.floats.ConstantValue(0.0F)))
                 *///?} else {
-                .setRolls(ConstantValue.exactly(1.0F))
-                .setBonusRolls(ConstantValue.exactly(0.0F))
+                .setRolls(ConstantValue.exactly(1.0F)).setBonusRolls(ConstantValue.exactly(0.0F))
                 //?}
-                .when(peelStageIs(requiredPeelStage))
-                .when(LootItemRandomChanceCondition.randomChance(chance))
+                .when(peelStageIs(requiredPeelStage)).when(LootItemRandomChanceCondition.randomChance(chance))
                 .add(LootItem.lootTableItem(ModItems.VACACA.get()));
     }
 

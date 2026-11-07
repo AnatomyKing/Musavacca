@@ -9,36 +9,16 @@ import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.Nullable;
 
-public final class DoorModels {
-    //? if >=1.21.11 {
-    /*private final Identifier bottomLeft;
-    private final Identifier bottomLeftOpen;
-    private final Identifier bottomRight;
-    private final Identifier bottomRightOpen;
-    private final Identifier topLeft;
-    private final Identifier topLeftOpen;
-    private final Identifier topRight;
-    private final Identifier topRightOpen;
-    *///?} else {
-    private final ResourceLocation bottomLeft;
-    private final ResourceLocation bottomLeftOpen;
-    private final ResourceLocation bottomRight;
-    private final ResourceLocation bottomRightOpen;
-    private final ResourceLocation topLeft;
-    private final ResourceLocation topLeftOpen;
-    private final ResourceLocation topRight;
-    private final ResourceLocation topRightOpen;
-    //?}
-    private DoorModels(Builder builder) {
-        this.bottomLeft = builder.bottomLeft;
-        this.bottomLeftOpen = builder.bottomLeftOpen;
-        this.bottomRight = builder.bottomRight;
-        this.bottomRightOpen = builder.bottomRightOpen;
-        this.topLeft = builder.topLeft;
-        this.topLeftOpen = builder.topLeftOpen;
-        this.topRight = builder.topRight;
-        this.topRightOpen = builder.topRightOpen;
-        if (isEmpty()) throw new IllegalStateException("DoorModels requires at least one model");
+//? if >=1.21.11 {
+/*public record DoorModels(Identifier bottomLeft, Identifier bottomLeftOpen, Identifier bottomRight, Identifier bottomRightOpen,
+        Identifier topLeft, Identifier topLeftOpen, Identifier topRight, Identifier topRightOpen) {
+*///?} else {
+public record DoorModels(ResourceLocation bottomLeft, ResourceLocation bottomLeftOpen, ResourceLocation bottomRight, ResourceLocation bottomRightOpen,
+        ResourceLocation topLeft, ResourceLocation topLeftOpen, ResourceLocation topRight, ResourceLocation topRightOpen) {
+//?}
+    public DoorModels {
+        if (bottomLeft == null && bottomLeftOpen == null && bottomRight == null && bottomRightOpen == null && topLeft == null
+                && topLeftOpen == null && topRight == null && topRightOpen == null) throw new IllegalStateException("DoorModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -51,16 +31,8 @@ public final class DoorModels {
 
     public static DoorModels full(String bottomLeft, String bottomLeftOpen, String bottomRight, String bottomRightOpen, String topLeft, String topLeftOpen,
             String topRight, String topRightOpen) {
-        return builder()
-                .bottomLeft(bottomLeft)
-                .bottomLeftOpen(bottomLeftOpen)
-                .bottomRight(bottomRight)
-                .bottomRightOpen(bottomRightOpen)
-                .topLeft(topLeft)
-                .topLeftOpen(topLeftOpen)
-                .topRight(topRight)
-                .topRightOpen(topRightOpen)
-                .build();
+        return builder().bottomLeft(bottomLeft).bottomLeftOpen(bottomLeftOpen).bottomRight(bottomRight).bottomRightOpen(bottomRightOpen).topLeft(topLeft)
+                .topLeftOpen(topLeftOpen).topRight(topRight).topRightOpen(topRightOpen).build();
     }
 
     @Nullable
@@ -77,17 +49,6 @@ public final class DoorModels {
         return open ? topRightOpen : topRight;
     }
 
-    public boolean isEmpty() {
-        return bottomLeft == null
-                && bottomLeftOpen == null
-                && bottomRight == null
-                && bottomRightOpen == null
-                && topLeft == null
-                && topLeftOpen == null
-                && topRight == null
-                && topRightOpen == null;
-    }
-
     public static final class Builder {
         //? if >=1.21.11 {
         /*private Identifier bottomLeft;
@@ -98,6 +59,7 @@ public final class DoorModels {
         private Identifier topLeftOpen;
         private Identifier topRight;
         private Identifier topRightOpen;
+
         *///?} else {
         private ResourceLocation bottomLeft;
         private ResourceLocation bottomLeftOpen;
@@ -107,8 +69,10 @@ public final class DoorModels {
         private ResourceLocation topLeftOpen;
         private ResourceLocation topRight;
         private ResourceLocation topRightOpen;
+
         //?}
         private Builder() {}
+
         public Builder bottomLeft(String model) {
             this.bottomLeft = parse(model, "bottomLeft");
             return this;
@@ -150,7 +114,7 @@ public final class DoorModels {
         }
 
         public DoorModels build() {
-            return new DoorModels(this);
+            return new DoorModels(bottomLeft, bottomLeftOpen, bottomRight, bottomRightOpen, topLeft, topLeftOpen, topRight, topRightOpen);
         }
 
         //? if >=1.21.11 {

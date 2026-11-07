@@ -6,42 +6,32 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
+import java.util.UUID;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic;
-import java.util.UUID;
 
 public final class HexTeleportAddressNetwork {
     private HexTeleportAddressNetwork() {}
+
     public static void releaseEndpoint(MinecraftServer server, UUID endpointId) {
-        if (
-                server == null
-                        || endpointId == null
-        ) {
+        if (server == null || endpointId == null) {
             return;
         }
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
-        HexTeleportDirectory.Endpoint endpoint = directory.getEndpoint(endpointId).orElse(null);
-        directory.removeEndpoint(endpointId);
+        HexTeleportDirectory.Endpoint endpoint = directory.removeEndpoint(endpointId).orElse(null);
         if (endpoint != null) {
             promotePendingForHex(server, endpoint.hexColor());
         }
     }
 
     public static void releaseOwner(MinecraftServer server, String ownerKey) {
-        if (
-                server == null
-                        || ownerKey == null
-                        || ownerKey.isBlank()
-        ) {
+        if (server == null || ownerKey == null || ownerKey.isBlank()) {
             return;
         }
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
-        HexTeleportDirectory.Endpoint activeEndpoint = directory.getEndpointByOwner(ownerKey).orElse(null);
-        HexTeleportDirectory.DoorEndpoint doorEndpoint = directory.getDoorEndpointByOwner(ownerKey)
-                .or(() -> directory.getTrapdoorEndpointByOwner(ownerKey)).orElse(null);
-        directory.removeOwner(ownerKey);
-        directory.removeDoorOwner(ownerKey);
+        HexTeleportDirectory.Endpoint activeEndpoint = directory.removeOwner(ownerKey).orElse(null);
+        HexTeleportDirectory.DoorEndpoint doorEndpoint = directory.removeDoorOwner(ownerKey).orElse(null);
         if (activeEndpoint != null) {
             promotePendingForHex(server, activeEndpoint.hexColor());
         }
@@ -71,10 +61,7 @@ public final class HexTeleportAddressNetwork {
     }
 
     private static ServerLevel levelFor(MinecraftServer server, HexTeleportDirectory.Endpoint endpoint) {
-        if (
-                endpoint.dimensionId()
-                        == null
-        ) {
+        if (endpoint.dimensionId() == null) {
             return null;
         }
         return server.getLevel(ResourceKey.create(Registries.DIMENSION, endpoint.dimensionId()));
@@ -82,12 +69,11 @@ public final class HexTeleportAddressNetwork {
 
     private static void refreshPendingCandidate(ServerLevel level, HexTeleportDirectory.Endpoint endpoint) {
         switch (endpoint.kind()) {
-            case VOCO_TABLE_RECEPTOR_CORNER ->
-                    VocoTableCandleLogic.syncPortalStateFromCandles(level, endpoint.ownerPos(), ReceptorPosition.byId(endpoint.slotId()));
-            case VOCO_POST_RECEPTOR_CORNER ->
-                    VocoPostCandleLogic.refreshPortalAt(level, endpoint.ownerPos());
-            default -> {
-            }
+        case VOCO_TABLE_RECEPTOR_CORNER ->
+            VocoTableCandleLogic.syncPortalStateFromCandles(level, endpoint.ownerPos(), ReceptorPosition.byId(endpoint.slotId()));
+        case VOCO_POST_RECEPTOR_CORNER -> VocoPostCandleLogic.refreshPortalAt(level, endpoint.ownerPos());
+        default -> {
+        }
         }
     }
 }

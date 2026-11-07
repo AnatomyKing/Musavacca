@@ -1,5 +1,7 @@
 package space.anatomyuniverse.musavacca.client;
 
+import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -10,7 +12,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
-import java.util.List;
 //? if >=1.21.9 {
 /*import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
@@ -31,6 +32,7 @@ import net.neoforged.neoforge.client.event.RegisterDebugEntriesEvent;
 @EventBusSubscriber(modid = MusaCore.MOD_ID, value = Dist.CLIENT)
 public final class HexDebugOverlay {
     private HexDebugOverlay() {}
+
     private static DataComponentMap getLookedAtComponents() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || !(mc.hitResult instanceof BlockHitResult hit)) return null;
@@ -38,25 +40,20 @@ public final class HexDebugOverlay {
         return blockEntity == null ? null : blockEntity.collectComponents();
     }
 
-    private static void addHexDebugLines(LineSink sink) {
+    private static void addHexDebugLines(Consumer<String> sink) {
         DataComponentMap components = getLookedAtComponents();
         if (components == null) return;
         Integer hex = components.get(ModDataComponents.HEX_COLOR.get());
         if (hex != null) {
-            sink.add("hex_color: " + MusavaccaTints.formatHex(hex));
+            sink.accept("hex_color: " + MusavaccaTints.formatHex(hex));
         }
         List<Integer> multi = components.get(ModDataComponents.MULTI_HEX_COLOR.get());
         if (multi == null) return;
-        sink.add("multi_hex_color:");
+        sink.accept("multi_hex_color:");
         for (int index = 0; index < multi.size(); index++) {
             int color = MusavaccaTints.multiColor(multi, index);
-            sink.add("  [" + index + "]: " + (color == MusavaccaTints.NO_TINT ? "none" : MusavaccaTints.formatHex(color)));
+            sink.accept("  [" + index + "]: " + (color == MusavaccaTints.NO_TINT ? "none" : MusavaccaTints.formatHex(color)));
         }
-    }
-
-    @FunctionalInterface
-    private interface LineSink {
-        void add(String line);
     }
 
     //? if >=1.21.9 {

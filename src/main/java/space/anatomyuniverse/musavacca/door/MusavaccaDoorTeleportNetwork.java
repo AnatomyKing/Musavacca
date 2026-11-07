@@ -1,5 +1,8 @@
 package space.anatomyuniverse.musavacca.door;
 
+import java.util.UUID;
+import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -12,29 +15,20 @@ import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
 public final class MusavaccaDoorTeleportNetwork {
     private MusavaccaDoorTeleportNetwork() {}
+
     public static void refresh(MusavaccaPortalDoorBlockEntity door) {
-        if (
-                !(door.getLevel()
-                        instanceof ServerLevel level)
-        ) {
+        if (!(door.getLevel() instanceof ServerLevel level)) {
             return;
         }
         BlockPos lowerPos = door.getBlockPos();
         BlockState state = level.getBlockState(lowerPos);
-        if (
-                !door.hasHexColor()
-                        || !(state.getBlock()
-                        instanceof MusavaccaPortalDoorBlock)
-                        || state.getValue(MusavaccaPortalDoorBlock.HALF)
-                        != DoubleBlockHalf.LOWER
-                        || !state.getValue(MusavaccaPortalDoorBlock.LIT)
-                        || !state.getValue(MusavaccaPortalDoorBlock.LIT_PORTAL)
-                        || !state.getValue(MusavaccaPortalDoorBlock.PORTAL)
-        ) {
+        if (!door.hasHexColor() || !(state.getBlock() instanceof MusavaccaPortalDoorBlock)
+                || state.getValue(MusavaccaPortalDoorBlock.HALF) != DoubleBlockHalf.LOWER || !state.getValue(MusavaccaPortalDoorBlock.LIT)
+                || !state.getValue(MusavaccaPortalDoorBlock.LIT_PORTAL) || !state.getValue(MusavaccaPortalDoorBlock.PORTAL)) {
             removeDoor(level, door.getDeviceId());
             return;
         }
-        door.setDeviceId(space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity.unique(level, lowerPos, door.getDeviceId()));
+        door.setDeviceId(TeleportDeviceIdentity.unique(level, lowerPos, door.getDeviceId()));
         MinecraftServer server = level.getServer();
         HexTeleportDirectory directory = HexTeleportDirectory.get(server);
         String ownerKey = HexTeleportDirectory.doorOwnerKey(door.getDeviceId());
@@ -50,16 +44,12 @@ public final class MusavaccaDoorTeleportNetwork {
             door.setHexColor(previousHex);
             return;
         }
-        if (
-                result.success()
-                        && previousHex >= 0
-                        && previousHex != resolvedHex
-        ) {
+        if (result.success() && previousHex >= 0 && previousHex != resolvedHex) {
             HexTeleportAddressNetwork.addressChanged(server, previousHex, resolvedHex);
         }
     }
 
-    public static void removeDoor(ServerLevel level, java.util.UUID deviceId) {
+    public static void removeDoor(ServerLevel level, UUID deviceId) {
         if (level == null || deviceId == null) return;
         HexTeleportAddressNetwork.releaseOwner(level.getServer(), HexTeleportDirectory.doorOwnerKey(deviceId));
     }

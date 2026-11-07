@@ -1,15 +1,21 @@
 package space.anatomyuniverse.musavacca.block.entity;
 
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import space.anatomyuniverse.musavacca.block.entity.renderer.PearlCandleBlockEntityRenderer;
-import space.anatomyuniverse.musavacca.block.entity.renderer.VocoTableBlockEntityRenderer;
 //? if >=1.21.11 {
 /*import space.anatomyuniverse.musavacca.block.entity.renderer.NearestBlockEntityRenderer;
 *///?}
+import space.anatomyuniverse.musavacca.block.entity.renderer.PearlCandleBlockEntityRenderer;
+import space.anatomyuniverse.musavacca.block.entity.renderer.VocoTableBlockEntityRenderer;
 
 public final class ModBlockEntityRenderers {
     private ModBlockEntityRenderers() {}
-    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+
+    public static void register(IEventBus modBus) {
+        modBus.addListener(ModBlockEntityRenderers::registerRenderers);
+    }
+
+    private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.VOCO_TABLE_BLOCK_ENTITY.get(), VocoTableBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.PEARL_CANDLE_BLOCK_ENTITY.get(), PearlCandleBlockEntityRenderer::new);
         //? if >=1.21.11 {

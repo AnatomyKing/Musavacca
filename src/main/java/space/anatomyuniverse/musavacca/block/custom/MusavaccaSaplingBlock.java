@@ -7,11 +7,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import space.anatomyuniverse.musavacca.worldgen.ModTreeGrowers;
+import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
 
 public class MusavaccaSaplingBlock extends SaplingBlock {
     public MusavaccaSaplingBlock(Properties properties) {
-        super(ModTreeGrowers.MUSAVACCA, properties);
+        super(ModFeatures.MUSAVACCA_TREE_GROWER, properties);
     }
 
     @Override

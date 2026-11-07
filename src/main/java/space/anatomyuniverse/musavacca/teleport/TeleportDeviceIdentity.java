@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.teleport;
 
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -9,22 +10,22 @@ import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalDoorBl
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalTrapdoorBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
-import java.util.UUID;
 
 public final class TeleportDeviceIdentity {
     private TeleportDeviceIdentity() {}
 
     public static UUID read(String saved) {
         if (saved != null && !saved.isEmpty()) {
-            try { return UUID.fromString(saved); }
-            catch (IllegalArgumentException ignored) {}
+            try {
+                return UUID.fromString(saved);
+            } catch (IllegalArgumentException ignored) {
+            }
         }
         return UUID.randomUUID();
     }
 
     public static UUID unique(ServerLevel level, BlockPos pos, UUID deviceId) {
-        HexTeleportDirectory.Endpoint existing = HexTeleportDirectory.get(level.getServer())
-                .getPhysicalDevice(deviceId).orElse(null);
+        HexTeleportDirectory.Endpoint existing = HexTeleportDirectory.get(level.getServer()).getPhysicalDevice(deviceId).orElse(null);
         if (existing == null) return deviceId;
         //? if >=1.21.11 {
         /*if (existing.dimension().equals(level.dimension().identifier().toString()) && existing.ownerPos().equals(pos)) return deviceId;
@@ -40,7 +41,8 @@ public final class TeleportDeviceIdentity {
         if (previous instanceof MusavaccaPortalDoorBlockEntity door && deviceId.equals(door.getDeviceId())
                 || previous instanceof MusavaccaPortalTrapdoorBlockEntity trapdoor && deviceId.equals(trapdoor.getDeviceId())
                 || previous instanceof VocoTableBlockEntity table && deviceId.equals(table.getDeviceId())
-                || previous instanceof VocoPostBlockEntity post && deviceId.equals(post.getDeviceId())) return UUID.randomUUID();
+                || previous instanceof VocoPostBlockEntity post && deviceId.equals(post.getDeviceId()))
+            return UUID.randomUUID();
         return deviceId;
     }
 }

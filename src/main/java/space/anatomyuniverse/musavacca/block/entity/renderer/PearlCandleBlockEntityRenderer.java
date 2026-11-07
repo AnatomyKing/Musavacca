@@ -15,7 +15,9 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 //?}
 //? if >=26.1 {
-/*import net.minecraft.client.renderer.state.level.CameraRenderState;
+/*import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 *///?} else if >=1.21.9 {
 /*import net.minecraft.client.renderer.state.CameraRenderState;
 *///?}
@@ -24,7 +26,7 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
         //? if >=1.21.9 {
         /*, PearlCandleBlockEntityRenderer.State
         *///?}
-        > {
+> {
     private final BlockEntityRendererProvider.Context context;
 
     public PearlCandleBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -34,19 +36,20 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
     //? if >=1.21.9 {
     /*public static final class State extends BlockEntityRenderState {
         //? if >=26.1 {
-        /^public final net.minecraft.client.renderer.block.BlockModelRenderState model = new net.minecraft.client.renderer.block.BlockModelRenderState();
+        /^public final BlockModelRenderState model = new BlockModelRenderState();
         ^///?} else {
         public BlockState model;
         //?}
     }
 
-    @Override public State createRenderState() { return new State(); }
+    @Override
+    public State createRenderState() { return new State(); }
 
     @Override
     public void extractRenderState(PearlCandleBlockEntity entity, State state, float partialTick, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, camera, overlay);
         //? if >=26.1 {
-        /^context.blockModelResolver().update(state.model, entity.originalState(), net.minecraft.client.renderer.block.model.BlockDisplayContext.create());
+        /^context.blockModelResolver().update(state.model, entity.originalState(), BlockDisplayContext.create());
         ^///?} else {
         state.model = entity.originalState();
         //?}
@@ -72,7 +75,8 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
         //? if >=1.21.5 {
         context.getBlockRenderDispatcher().renderSingleBlock(entity.originalState(), pose, buffers, light, overlay, entity.getLevel(), entity.getBlockPos());
         //?} else {
-        /*context.getBlockRenderDispatcher().renderSingleBlock(entity.originalState(), pose, buffers, light, overlay, net.neoforged.neoforge.client.model.data.ModelData.EMPTY, null);
+        /*context.getBlockRenderDispatcher().renderSingleBlock(entity.originalState(), pose, buffers, light, overlay,
+                net.neoforged.neoforge.client.model.data.ModelData.EMPTY, null);
         *///?}
     }
     //?}

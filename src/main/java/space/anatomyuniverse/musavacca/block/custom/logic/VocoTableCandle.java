@@ -1,8 +1,8 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
-import java.util.Collections;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Collections;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BlockItem;
@@ -22,8 +22,8 @@ public record VocoTableCandle(BlockState state, ItemStack item, int hex) {
     ).apply(instance, VocoTableCandle::new));
 
     public static boolean accepts(BlockState state) {
-        return state.is(BlockTags.CANDLES) && !state.is(BlockTags.CANDLE_CAKES) && !state.hasBlockEntity()
-                && !(state.getBlock() instanceof PearlCandleBlock) && PearlCandleConversion.flag(state, "lit") != null;
+        return state.is(BlockTags.CANDLES) && !state.is(BlockTags.CANDLE_CAKES) && !state.hasBlockEntity() && !(state.getBlock() instanceof PearlCandleBlock)
+                && PearlCandleConversion.flag(state, "lit") != null;
     }
 
     @Nullable
@@ -46,8 +46,7 @@ public record VocoTableCandle(BlockState state, ItemStack item, int hex) {
     }
 
     public VocoTableCandle withFlame(boolean lit, int color) {
-        return new VocoTableCandle(PearlCandleConversion.withFlag(state, "lit", lit), item,
-                lit ? MusavaccaTints.resolve(color) : MusavaccaTints.NO_TINT);
+        return new VocoTableCandle(PearlCandleConversion.withFlag(state, "lit", lit), item, lit ? MusavaccaTints.resolve(color) : MusavaccaTints.NO_TINT);
     }
 
     public int count() {

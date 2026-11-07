@@ -1,17 +1,16 @@
 package space.anatomyuniverse.musavacca.bar.balance;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 import space.anatomyuniverse.musavacca.bar.ModAttachments;
-import java.util.Optional;
-import java.util.UUID;
 
 public final class BalanceApi {
-    private BalanceApi() {
-    }
+    private BalanceApi() {}
 
     public static int getBalance(ServerPlayer player) {
         MinecraftServer server = getServer(player);

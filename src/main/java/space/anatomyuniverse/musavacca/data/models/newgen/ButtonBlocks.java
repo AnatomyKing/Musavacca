@@ -5,6 +5,7 @@ import net.minecraft.world.level.block.ButtonBlock;
 
 public final class ButtonBlocks {
     private ButtonBlocks() {}
+
     public static final class Part extends BlockFamily.ModelRule<ButtonModels, Part> {
         private Part(ButtonModels source, Conditions.Match conditions) {
             super(source, conditions);
@@ -25,11 +26,10 @@ public final class ButtonBlocks {
 
     public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
         private final FamilyTextures.Set textures;
-        private final ButtonModels baseModels;
+
         private Entry(Builder builder) {
             super(builder);
             textures = builder.textures;
-            baseModels = builder.baseModels;
         }
 
         public static Builder builder(Block block) {
@@ -40,38 +40,21 @@ public final class ButtonBlocks {
             return textures;
         }
 
-        public ButtonModels baseModels() {
-            return baseModels;
-        }
-
         public void validate() {
             if (!(block() instanceof ButtonBlock)) throw new IllegalStateException("ButtonBlocks requires a ButtonBlock: " + ModelLocations.blockId(block()));
-            BlockFamilyValidation.requireProperty(block(), ButtonBlock.FACE, "ButtonBlocks");
-            BlockFamilyValidation.requireProperty(block(), ButtonBlock.FACING, "ButtonBlocks");
-            BlockFamilyValidation.requireProperty(block(), ButtonBlock.POWERED, "ButtonBlocks");
-            if (baseMode() == null) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
-            if (baseMode() == BaseModelMode.GENERATED && textures == null) {
+            Conditions.requireProperty(block(), ButtonBlock.FACE, "ButtonBlocks");
+            Conditions.requireProperty(block(), ButtonBlock.FACING, "ButtonBlocks");
+            Conditions.requireProperty(block(), ButtonBlock.POWERED, "ButtonBlocks");
+            if (!generated()) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
+            if (textures == null) {
                 throw new IllegalStateException("No generated textures configured for " + ModelLocations.blockId(block()));
-            }
-            if (baseMode() == BaseModelMode.EXISTING) {
-                if (baseModels == null || !baseModels.worldComplete()) {
-                    throw new IllegalStateException("Base ButtonModels must provide the complete in-world family for " + ModelLocations.blockId(block()));
-                }
-            }
-            if (familyItemMode() == FamilyItemMode.DEFAULT
-                    && baseMode() == BaseModelMode.EXISTING
-                    && baseModels.inventory() == null) {
-                throw new IllegalStateException(
-                        ".item() requires an inventory model for " + ModelLocations.blockId(block())
-                                + "; provide it in the model family, use .item(model), or .noItem()."
-                );
             }
             validatePartConditions();
         }
 
         public static final class Builder extends BlockFamily.ItemFamilyBuilder<Builder, Part> {
             private FamilyTextures.Set textures;
-            private ButtonModels baseModels;
+
             private Builder(Block block) {
                 super(block);
             }
@@ -83,19 +66,19 @@ public final class ButtonBlocks {
 
             public Builder texture() {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_button").source().build();
+                textures = FamilyTextures.builder(block, "_button").texture().build();
                 return this;
             }
 
             public Builder texture(Block source) {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_button").source(source).build();
+                textures = FamilyTextures.builder(block, "_button").texture(source).build();
                 return this;
             }
 
             public Builder texture(String texture) {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_button").source(texture).build();
+                textures = FamilyTextures.builder(block, "_button").texture(texture).build();
                 return this;
             }
 

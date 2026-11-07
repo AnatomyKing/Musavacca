@@ -7,6 +7,7 @@ import net.minecraft.world.InteractionResult;
 
 public final class InteractionResultCompat {
     private InteractionResultCompat() {}
+
     //? if <1.21.2 {
     /*public static ItemInteractionResult forItemUse(InteractionResult result) {
         if (result == InteractionResult.FAIL) return ItemInteractionResult.FAIL;

@@ -1,16 +1,18 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.data.models.NewModelSets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.data.models.NewModelSets;
+import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.ModelMode;
 
 public final class NewgenBlockTintCatalog {
     private NewgenBlockTintCatalog() {}
+
     public record Rule(Conditions.Match conditions, Tints.Tint tint, List<Tints.GeneratedLayer> generatedLayers) {
         public Rule(Conditions.Match conditions, Tints.Tint tint) {
             this(conditions, tint, Tints.generatedLayers(tint));
@@ -21,6 +23,7 @@ public final class NewgenBlockTintCatalog {
             if (tint == null) throw new NullPointerException("tint");
             generatedLayers = List.copyOf(generatedLayers);
         }
+
         boolean handles(BlockState state, int tintIndex) {
             if (!conditions.matches(state)) return false;
             for (Tints.GeneratedLayer layer : generatedLayers) {
@@ -42,11 +45,8 @@ public final class NewgenBlockTintCatalog {
             for (Rule rule : rules) {
                 if (!rule.handles(state, tintIndex)) continue;
                 if (resolved != null && !resolved.equals(rule.tint())) {
-                    throw new IllegalStateException(
-                            "Conflicting active NewGen tints for " + ModelLocations.blockId(block)
-                                    + " tintIndex=" + tintIndex
-                                    + ": " + resolved + " vs " + rule.tint()
-                    );
+                    throw new IllegalStateException("Conflicting active NewGen tints for " + ModelLocations.blockId(block) + " tintIndex=" + tintIndex + ": "
+                            + resolved + " vs " + rule.tint());
                 }
                 resolved = rule.tint();
             }
@@ -127,6 +127,7 @@ public final class NewgenBlockTintCatalog {
         private static final List<Binding> BINDINGS = buildBindings();
         private static final Map<Block, Binding> BY_BLOCK = buildIndex(BINDINGS);
         private static final Block[] BLOCKS = BINDINGS.stream().map(Binding::block).toArray(Block[]::new);
+
         private static Map<Block, Binding> buildIndex(List<Binding> bindings) {
             LinkedHashMap<Block, Binding> result = new LinkedHashMap<>();
             for (Binding binding : bindings) {

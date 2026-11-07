@@ -16,12 +16,12 @@ import net.neoforged.neoforge.common.util.ValueIOSerializable;
 /*import net.neoforged.neoforge.common.util.INBTSerializable;
 *///?}
 
-@SuppressWarnings({"unused", "CommentedOutCode", "NullableProblems"})
+@SuppressWarnings({ "unused", "CommentedOutCode", "NullableProblems" })
 //? if >=1.21.6 {
 public final class BonusHungerData implements ValueIOSerializable {
 //?} else {
-    /*public final class BonusHungerData implements INBTSerializable<CompoundTag> {
-    *///?}
+/*public final class BonusHungerData implements INBTSerializable<CompoundTag> {
+*///?}
     public static final int MAX_FOOD = 20;
     private int food = MAX_FOOD;
     private float saturation = MAX_FOOD;
@@ -39,68 +39,50 @@ public final class BonusHungerData implements ValueIOSerializable {
     private int lastSyncedFood = Integer.MIN_VALUE;
     private float lastSyncedSaturation = Float.NaN;
     private boolean lastSyncedActive = false;
-    //? if >=1.21.6 {
+
     @Override
+    //? if >=1.21.6 {
     public void serialize(ValueOutput output) {
+    //?} else {
+    /*public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag output = new CompoundTag();
+    *///?}
         output.putInt("food", this.food);
         output.putFloat("saturation", this.saturation);
         output.putFloat("exhaustion", this.exhaustion);
         output.putInt("tick_timer", this.tickTimer);
+        //? if <1.21.6 {
+        /*return output;
+        *///?}
     }
-    //?}
-    //? if <1.21.6 {
-    /*@Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("food", this.food);
-        tag.putFloat("saturation", this.saturation);
-        tag.putFloat("exhaustion", this.exhaustion);
-        tag.putInt("tick_timer", this.tickTimer);
-        return tag;
-    }
-    *///?}
-    //? if >=1.21.6 {
+
     @Override
+    //? if >=1.21.6 {
     public void deserialize(ValueInput input) {
+    //?} else {
+    /*public void deserializeNBT(HolderLookup.Provider provider, CompoundTag input) {
+    *///?}
+        //? if >=1.21.5 {
         this.food = Mth.clamp(input.getIntOr("food", MAX_FOOD), 0, MAX_FOOD);
         this.saturation = Mth.clamp(input.getFloatOr("saturation", (float) MAX_FOOD), 0.0F, this.food);
         this.exhaustion = Mth.clamp(input.getFloatOr("exhaustion", 0.0F), 0.0F, 40.0F);
         this.tickTimer = Math.max(0, input.getIntOr("tick_timer", 0));
+        //?} else {
+        /*this.food = Mth.clamp(input.contains("food", Tag.TAG_ANY_NUMERIC) ? input.getInt("food") : MAX_FOOD, 0, MAX_FOOD);
+        this.saturation = Mth.clamp(input.contains("saturation", Tag.TAG_ANY_NUMERIC) ? input.getFloat("saturation") : (float) MAX_FOOD, 0.0F, this.food);
+        this.exhaustion = Mth.clamp(input.contains("exhaustion", Tag.TAG_ANY_NUMERIC) ? input.getFloat("exhaustion") : 0.0F, 0.0F, 40.0F);
+        this.tickTimer = Math.max(0, input.contains("tick_timer", Tag.TAG_ANY_NUMERIC) ? input.getInt("tick_timer") : 0);
+        *///?}
         resetTransientState();
         clampToValidState();
     }
-    //?}
-    //? if <1.21.6 {
-    /*@Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
-        //? if >=1.21.5 <1.21.6 {
-        /^this.food = Mth.clamp(tag.getIntOr("food", MAX_FOOD), 0, MAX_FOOD);
-        this.saturation = Mth.clamp(tag.getFloatOr("saturation", (float) MAX_FOOD), 0.0F, this.food);
-        this.exhaustion = Mth.clamp(tag.getFloatOr("exhaustion", 0.0F), 0.0F, 40.0F);
-        ^///?} else {
-        this.food = Mth.clamp((tag.contains("food", Tag.TAG_ANY_NUMERIC) ? tag.getInt("food") : MAX_FOOD), 0, MAX_FOOD);
-        this.saturation = Mth.clamp((tag.contains("saturation", Tag.TAG_ANY_NUMERIC) ? tag.getFloat("saturation") : (float) MAX_FOOD), 0.0F, this.food);
-        this.exhaustion = Mth.clamp((tag.contains("exhaustion", Tag.TAG_ANY_NUMERIC) ? tag.getFloat("exhaustion") : 0.0F), 0.0F, 40.0F);
-        //?}
-        //? if >=1.21.5 <1.21.6 {
-        /^this.tickTimer = Math.max(0, tag.getIntOr("tick_timer", 0));
-        ^///?} else {
-        this.tickTimer = Math.max(0, (tag.contains("tick_timer", Tag.TAG_ANY_NUMERIC) ? tag.getInt("tick_timer") : 0));
-        //?}
-        resetTransientState();
-        clampToValidState();
-    }
-    *///?}
+
     private void resetTransientState() {
         this.lastBaseFood = MAX_FOOD;
         this.lastBaseSaturation = 0.0F;
         this.baseSnapshotReady = false;
         this.forceBonusEating = false;
-        this.hasPendingFinishedFood = false;
-        this.pendingFoodNutrition = 0;
-        this.pendingFoodSaturationModifier = 0.0F;
-        this.pendingForceBonusFood = false;
-        this.pendingCanAlwaysEat = false;
+        clearPendingFinishedFood();
         this.lastSyncedFood = Integer.MIN_VALUE;
         this.lastSyncedSaturation = Float.NaN;
         this.lastSyncedActive = false;

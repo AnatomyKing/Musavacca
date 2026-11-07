@@ -4,9 +4,9 @@ package space.anatomyuniverse.musavacca.entity.boat.musavacca.client;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.state.BoatRenderState;
 //?} else {
-/*import net.minecraft.client.model.ListModel;
+/*import java.util.List;
+import net.minecraft.client.model.ListModel;
 import net.minecraft.world.entity.vehicle.Boat;
-import java.util.List;
 *///?}
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -46,6 +46,7 @@ public final class MusavaccaBoatModel extends
     private final ModelPart root;
     private final ModelPart paddleLeft;
     private final ModelPart paddleRight;
+
     public MusavaccaBoatModel(ModelPart bakedRoot) {
         //? if >=1.21.2 {
         super(bakedRoot);
@@ -75,28 +76,16 @@ public final class MusavaccaBoatModel extends
         PartDefinition back = root.addOrReplaceChild("back", CubeListBuilder.create(), PartPose.offset(0.0F, -9.1327F, 27.4239F));
         back.addOrReplaceChild("back_r1", CubeListBuilder.create().texOffs(0, 58).addBox(-4.0F, -9.5F, -6.5F, 12.0F, 17.0F, 13.0F),
                 PartPose.offsetAndRotation(-2.0F, 0.2573F, -0.9822F, -1.1781F, 0.0F, 0.0F));
-        root.addOrReplaceChild(
-                "paddle_left",
+        root.addOrReplaceChild("paddle_left",
                 CubeListBuilder.create()
-                        .texOffs(77, 70)
-                        .addBox(-1.0F, 0.0F, -10.0F, 2.0F, 2.0F, 23.0F)
-                        .texOffs(82, 75)
-                        .addBox(-1.001F, -3.0F, 8.0F, 1.0F, 6.0F, 7.0F),
-                PartPose.offsetAndRotation(12.25F, -13.0F, PADDLE_Z, 2.1368F, 0.8362F, 2.8434F)
-        );
-        root.addOrReplaceChild(
-                "paddle_right",
+                        .texOffs(77, 70).addBox(-1.0F, 0.0F, -10.0F, 2.0F, 2.0F, 23.0F)
+                        .texOffs(82, 75).addBox(-1.001F, -3.0F, 8.0F, 1.0F, 6.0F, 7.0F),
+                PartPose.offsetAndRotation(12.25F, -13.0F, PADDLE_Z, 2.1368F, 0.8362F, 2.8434F));
+        root.addOrReplaceChild("paddle_right",
                 CubeListBuilder.create()
-                        .texOffs(77, 70)
-                        .mirror()
-                        .addBox(-1.0F, 0.0F, -10.0F, 2.0F, 2.0F, 23.0F)
-                        .mirror(false)
-                        .texOffs(82, 75)
-                        .mirror()
-                        .addBox(0.001F, -3.0F, 8.0F, 1.0F, 6.0F, 7.0F)
-                        .mirror(false),
-                PartPose.offsetAndRotation(-12.25F, -13.0F, PADDLE_Z, 2.1368F, -0.8362F, -2.8434F)
-        );
+                        .texOffs(77, 70).mirror().addBox(-1.0F, 0.0F, -10.0F, 2.0F, 2.0F, 23.0F).mirror(false)
+                        .texOffs(82, 75).mirror().addBox(0.001F, -3.0F, 8.0F, 1.0F, 6.0F, 7.0F).mirror(false),
+                PartPose.offsetAndRotation(-12.25F, -13.0F, PADDLE_Z, 2.1368F, -0.8362F, -2.8434F));
         root.addOrReplaceChild("seat_driver", CubeListBuilder.create(), PartPose.offset(0.0F, -14.0F, DRIVER_SEAT_Z));
         root.addOrReplaceChild("seat_passenger_1", CubeListBuilder.create(), PartPose.offset(0.0F, -14.0F, 0.0F));
         root.addOrReplaceChild("seat_passenger_2", CubeListBuilder.create(), PartPose.offset(0.0F, -14.0F, PASSENGER_TWO_SEAT_Z));
@@ -108,6 +97,7 @@ public final class MusavaccaBoatModel extends
     public Iterable<ModelPart> parts() {
         return List.of(this.root);
     }
+
     *///?}
     @Override
     //? if >=1.21.2 {
@@ -130,8 +120,7 @@ public final class MusavaccaBoatModel extends
         paddle.xRot = 2.1368F;
         paddle.yRot = side * 0.8362F;
         paddle.zRot = side * 2.8434F;
-        if (Math.abs(rowingTime)
-                <= 1.0E-6F) {
+        if (Math.abs(rowingTime) <= 1.0E-6F) {
             return;
         }
         paddle.xRot += PADDLE_PITCH_AMPLITUDE * Mth.sin(rowingTime + PADDLE_PITCH_PHASE_OFFSET);

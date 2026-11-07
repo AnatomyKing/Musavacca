@@ -38,6 +38,7 @@ public final class MusavaccaBoatRenderer extends
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/boat/musavacca.png");
     //?}
     private final MusavaccaBoatModel model;
+
     public MusavaccaBoatRenderer(EntityRendererProvider.Context context) {
         //? if >=26.1 {
         /*super(context, TEXTURE);
@@ -69,8 +70,7 @@ public final class MusavaccaBoatRenderer extends
     //?}
     //? if <1.21.2 {
     /*@Override
-    public Pair<ResourceLocation, ListModel<Boat>>
-    getModelWithLocation(Boat boat) {
+    public Pair<ResourceLocation, ListModel<Boat>> getModelWithLocation(Boat boat) {
         return Pair.of(TEXTURE, this.model);
     }
     *///?}

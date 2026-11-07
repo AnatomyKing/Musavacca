@@ -19,18 +19,14 @@ public final class BonusHungerClientModEvents {
     *///?} else {
     private static final ResourceLocation BONUS_HUNGER_LAYER = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "bonus_hunger_layer");
     //?}
-    private BonusHungerClientModEvents() {
-    }
+
+    private BonusHungerClientModEvents() {}
 
     public static void register(IEventBus modBus) {
         //? if >=1.21.6 {
         modBus.addListener(BonusHungerClientModEvents::registerClientPayloads);
-        //?} else {
-        /*modBus.addListener(BonusHungerClientModEvents::registerGuiLayers);
-        *///?}
-        //? if >=1.21.6 {
-        modBus.addListener(BonusHungerClientModEvents::registerGuiLayers);
         //?}
+        modBus.addListener(BonusHungerClientModEvents::registerGuiLayers);
     }
 
     //? if >=1.21.6 {
@@ -38,6 +34,7 @@ public final class BonusHungerClientModEvents {
         event.register(BonusHungerSyncPayload.TYPE, (payload, context) -> ClientBonusHungerData.set(payload.food(), payload.saturation(), payload.active()));
     }
     //?}
+
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.FOOD_LEVEL, BONUS_HUNGER_LAYER, BonusHungerHud::render);
     }

@@ -1,6 +1,8 @@
 package space.anatomyuniverse.musavacca.component;
 
 import com.mojang.serialization.Codec;
+import java.util.List;
+import java.util.function.Supplier;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -9,36 +11,22 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
-import java.util.List;
-import java.util.function.Supplier;
 
 public final class ModDataComponents {
     private ModDataComponents() {}
-    public static final DeferredRegister.DataComponents DATA_COMPONENT_TYPES =
-            DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MusaCore.MOD_ID);
-    public static final Supplier<DataComponentType<Boolean>> PEARL_IGNITER =
-            DATA_COMPONENT_TYPES.registerComponentType("pearl_igniter", builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
-    public static final Supplier<DataComponentType<Integer>> HEX_COLOR =
-            DATA_COMPONENT_TYPES.registerComponentType(
-                    MusavaccaTints.HEX_COLOR_KEY,
-                    builder -> builder
-                            .persistent(Codec.INT)
-                            .networkSynchronized(ByteBufCodecs.INT)
-            );
-    public static final Supplier<DataComponentType<List<Integer>>> MULTI_HEX_COLOR =
-            DATA_COMPONENT_TYPES.registerComponentType(
-                    MusavaccaTints.MULTI_HEX_COLOR_KEY,
-                    builder -> builder
-                            .persistent(Codec.INT.listOf())
-                            .networkSynchronized(ByteBufCodecs.INT.apply(ByteBufCodecs.list()))
-            );
-    public static final Supplier<DataComponentType<VocoCallerPhonebook>> VOCO_CALLER_PHONEBOOK =
-            DATA_COMPONENT_TYPES.registerComponentType(
-                    "voco_caller_phonebook",
-                    builder -> builder
-                            .persistent(VocoCallerPhonebook.CODEC)
-                            .networkSynchronized(VocoCallerPhonebook.STREAM_CODEC)
-            );
+
+    public static final DeferredRegister.DataComponents DATA_COMPONENT_TYPES = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE,
+            MusaCore.MOD_ID);
+    public static final Supplier<DataComponentType<Boolean>> PEARL_IGNITER = DATA_COMPONENT_TYPES.registerComponentType("pearl_igniter",
+            builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
+    public static final Supplier<DataComponentType<Integer>> HEX_COLOR = DATA_COMPONENT_TYPES.registerComponentType(MusavaccaTints.HEX_COLOR_KEY,
+            builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT));
+    public static final Supplier<DataComponentType<List<Integer>>> MULTI_HEX_COLOR = DATA_COMPONENT_TYPES.registerComponentType(
+            MusavaccaTints.MULTI_HEX_COLOR_KEY,
+            builder -> builder.persistent(Codec.INT.listOf()).networkSynchronized(ByteBufCodecs.INT.apply(ByteBufCodecs.list())));
+    public static final Supplier<DataComponentType<VocoCallerPhonebook>> VOCO_CALLER_PHONEBOOK = DATA_COMPONENT_TYPES.registerComponentType(
+            "voco_caller_phonebook", builder -> builder.persistent(VocoCallerPhonebook.CODEC).networkSynchronized(VocoCallerPhonebook.STREAM_CODEC));
+
     public static void register(IEventBus modBus) {
         DATA_COMPONENT_TYPES.register(modBus);
     }

@@ -29,11 +29,9 @@ public final class BalanceHud {
     *///?} else {
     private static final ResourceLocation[] PEARL_ICON_LAYERS = {
     //?}
-            sprite("hud/pearl_husk"),
-            sprite("hud/pearl")
-    };
-    private BalanceHud() {
-    }
+            sprite("hud/pearl_husk"), sprite("hud/pearl") };
+
+    private BalanceHud() {}
 
     //? if >=26.1 {
     /*public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
@@ -61,10 +59,7 @@ public final class BalanceHud {
         *///?} else {
         return !minecraft.options.hideGui
         //?}
-                && player != null
-                && ClientBalanceData.isActive()
-                && !player.isSpectator()
-                && !player.getAbilities().instabuild
+                && player != null && ClientBalanceData.isActive() && !player.isSpectator() && !player.getAbilities().instabuild
                 && !hasVisibleMountHealth(player);
     }
 
@@ -94,11 +89,7 @@ public final class BalanceHud {
     *///?} else {
     private static void drawSpriteLayers(GuiGraphics graphics, ResourceLocation[] sprites, int x, int y) {
     //?}
-        //? if >=1.21.11 {
-        /*for (Identifier sprite : sprites) {
-        *///?} else {
-        for (ResourceLocation sprite : sprites) {
-        //?}
+        for (var sprite : sprites) {
             drawSprite(graphics, sprite, x, y);
         }
     }

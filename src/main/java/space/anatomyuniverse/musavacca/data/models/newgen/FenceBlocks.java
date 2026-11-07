@@ -5,6 +5,7 @@ import net.minecraft.world.level.block.FenceBlock;
 
 public final class FenceBlocks {
     private FenceBlocks() {}
+
     public static final class Part extends BlockFamily.ModelRule<FenceModels, Part> {
         private Part(FenceModels source, Conditions.Match conditions) {
             super(source, conditions);
@@ -25,11 +26,10 @@ public final class FenceBlocks {
 
     public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
         private final FamilyTextures.Set textures;
-        private final FenceModels baseModels;
+
         private Entry(Builder builder) {
             super(builder);
             textures = builder.textures;
-            baseModels = builder.baseModels;
         }
 
         public static Builder builder(Block block) {
@@ -40,39 +40,22 @@ public final class FenceBlocks {
             return textures;
         }
 
-        public FenceModels baseModels() {
-            return baseModels;
-        }
-
         public void validate() {
             if (!(block() instanceof FenceBlock)) throw new IllegalStateException("FenceBlocks requires a FenceBlock: " + ModelLocations.blockId(block()));
-            BlockFamilyValidation.requireProperty(block(), FenceBlock.NORTH, "FenceBlocks");
-            BlockFamilyValidation.requireProperty(block(), FenceBlock.EAST, "FenceBlocks");
-            BlockFamilyValidation.requireProperty(block(), FenceBlock.SOUTH, "FenceBlocks");
-            BlockFamilyValidation.requireProperty(block(), FenceBlock.WEST, "FenceBlocks");
-            if (baseMode() == null) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
-            if (baseMode() == BaseModelMode.GENERATED && textures == null) {
+            Conditions.requireProperty(block(), FenceBlock.NORTH, "FenceBlocks");
+            Conditions.requireProperty(block(), FenceBlock.EAST, "FenceBlocks");
+            Conditions.requireProperty(block(), FenceBlock.SOUTH, "FenceBlocks");
+            Conditions.requireProperty(block(), FenceBlock.WEST, "FenceBlocks");
+            if (!generated()) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
+            if (textures == null) {
                 throw new IllegalStateException("No generated textures configured for " + ModelLocations.blockId(block()));
-            }
-            if (baseMode() == BaseModelMode.EXISTING) {
-                if (baseModels == null || !baseModels.worldComplete()) {
-                    throw new IllegalStateException("Base FenceModels must provide the complete in-world family for " + ModelLocations.blockId(block()));
-                }
-            }
-            if (familyItemMode() == FamilyItemMode.DEFAULT
-                    && baseMode() == BaseModelMode.EXISTING
-                    && baseModels.inventory() == null) {
-                throw new IllegalStateException(
-                        ".item() requires an inventory model for " + ModelLocations.blockId(block())
-                                + "; provide it in the model family, use .item(model), or .noItem()."
-                );
             }
             validatePartConditions();
         }
 
         public static final class Builder extends BlockFamily.ItemFamilyBuilder<Builder, Part> {
             private FamilyTextures.Set textures;
-            private FenceModels baseModels;
+
             private Builder(Block block) {
                 super(block);
             }
@@ -84,19 +67,19 @@ public final class FenceBlocks {
 
             public Builder texture() {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_fence").source().build();
+                textures = FamilyTextures.builder(block, "_fence").texture().build();
                 return this;
             }
 
             public Builder texture(Block source) {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_fence").source(source).build();
+                textures = FamilyTextures.builder(block, "_fence").texture(source).build();
                 return this;
             }
 
             public Builder texture(String texture) {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_fence").source(texture).build();
+                textures = FamilyTextures.builder(block, "_fence").texture(texture).build();
                 return this;
             }
 

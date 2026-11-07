@@ -5,9 +5,9 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,8 +25,7 @@ public final class SimpleItems {
     private SimpleItems() {}
 
     static BlockState blockState(ItemLike item) {
-        if (!(item.asItem() instanceof BlockItem blockItem))
-            throw new IllegalArgumentException(".blockState() requires a BlockItem: " + item);
+        if (!(item.asItem() instanceof BlockItem blockItem)) throw new IllegalArgumentException(".blockState() requires a BlockItem: " + item);
         BlockItemStateProperties preset;
         //? if >=26.1 {
         /*var holder = blockItem.builtInRegistryHolder();
@@ -35,8 +34,8 @@ public final class SimpleItems {
         } else if (blockItem instanceof BlockStateItem stateItem) {
             preset = stateItem.blockState();
         } else {
-            throw new IllegalStateException("Cannot read the block-state preset before components are bound for "
-                    + ModelLocations.itemId(item) + ". Use BlockStateItem for .blockState() item definitions on 26.1+.");
+            throw new IllegalStateException("Cannot read the block-state preset before components are bound for " + ModelLocations.itemId(item)
+                    + ". Use BlockStateItem for .blockState() item definitions on 26.1+.");
         }
         *///?} else {
         preset = blockItem.getDefaultInstance().get(DataComponents.BLOCK_STATE);
@@ -46,14 +45,11 @@ public final class SimpleItems {
     }
 
     public enum Style {
-        FLAT,
-        HANDHELD
+        FLAT, HANDHELD
     }
+
     enum Mode {
-        GENERATED,
-        EXISTING,
-        MULTIPART,
-        BLOCK_STATE
+        GENERATED, EXISTING, MULTIPART, BLOCK_STATE
     }
 
     //? if >=1.21.11 {
@@ -81,6 +77,7 @@ public final class SimpleItems {
         private List<String> textureTokens;
         private Tints.Tint tint = Tints.none();
         private final Map<Integer, Tints.Tint> layerTints = new LinkedHashMap<>();
+
         private Model(Mode mode) {
             this.mode = Objects.requireNonNull(mode, "mode");
         }
@@ -103,13 +100,11 @@ public final class SimpleItems {
 
         public static Model existing(String modelId) {
             if (modelId == null || modelId.isBlank()) throw new IllegalArgumentException("item model id must not be blank");
-            Model model = new Model(Mode.EXISTING);
             //? if >=1.21.11 {
-            /*model.existingModel = Identifier.parse(modelId);
+            /*return existing(Identifier.parse(modelId));
             *///?} else {
-            model.existingModel = ResourceLocation.parse(modelId);
+            return existing(ResourceLocation.parse(modelId));
             //?}
-            return model;
         }
 
         //? if >=1.21.11 {
@@ -134,7 +129,9 @@ public final class SimpleItems {
         }
 
         public boolean isMultipart() { return mode == Mode.MULTIPART; }
+
         public boolean isBlockState() { return mode == Mode.BLOCK_STATE; }
+
         public List<SimpleBlocks.Part> parts() { return parts; }
 
         public Model flat() {
@@ -190,6 +187,7 @@ public final class SimpleItems {
             layerTints.put(layer, Objects.requireNonNull(tint, "tint"));
             return this;
         }
+
         Mode mode() {
             return mode;
         }
@@ -252,27 +250,18 @@ public final class SimpleItems {
         //?}
             validate(id);
             if (isExisting()) {
-                //? if >=1.21.11 {
-                /*Identifier texture = Identifier.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
-                *///?} else {
-                ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
-                //?}
+                var texture = ModelLocations.itemModel(id);
                 return physicalTintList(tint).stream().map(layerTint -> new PhysicalLayer(texture, layerTint)).toList();
             }
             if (isMultipart() || isBlockState()) return List.of();
-            //? if >=1.21.11 {
-            /*List<Identifier> logical = logicalTextures(id);
-            *///?} else {
-            List<ResourceLocation> logical = logicalTextures(id);
-            //?}
+            var logical = logicalTextures(id);
             List<PhysicalLayer> physical = new ArrayList<>();
             for (int i = 0; i < logical.size(); i++) {
                 var base = logical.get(i);
                 Tints.Tint layerTint = tintForLogicalLayer(i);
                 List<Tints.GeneratedLayer> generatedLayers = Tints.generatedLayers(layerTint);
                 for (Tints.GeneratedLayer generated : generatedLayers) {
-                    var texture = generatedLayers.size() == 1 && generated.sourceLayer() == 0
-                            ? base : TextureTokens.itemLayer(base, generated.sourceLayer());
+                    var texture = generatedLayers.size() == 1 && generated.sourceLayer() == 0 ? base : TextureTokens.itemLayer(base, generated.sourceLayer());
                     physical.add(new PhysicalLayer(texture, layerTint.physicalLayer(generated)));
                 }
             }
@@ -309,8 +298,7 @@ public final class SimpleItems {
                     for (SimpleBlocks.Part part : parts) {
                         if (part == null || !part.conditions().isAlways())
                             throw new IllegalStateException("Manual multipart items require unconditional parts; use .blockState() for conditional parts");
-                        if (part.variants().options().size() != 1)
-                            throw new IllegalStateException("Item multipart cannot randomize variants");
+                        if (part.variants().options().size() != 1) throw new IllegalStateException("Item multipart cannot randomize variants");
                     }
                 }
                 return;
@@ -329,10 +317,7 @@ public final class SimpleItems {
             int logicalCount = inferSingleTexture ? 1 : textureTokens.size();
             for (Integer layer : layerTints.keySet()) {
                 if (layer >= logicalCount) {
-                    throw new IllegalStateException(
-                            "Logical tint layer " + layer + " is outside the " + logicalCount
-                                    + " texture layers for " + id
-                    );
+                    throw new IllegalStateException("Logical tint layer " + layer + " is outside the " + logicalCount + " texture layers for " + id);
                 }
             }
         }
@@ -343,16 +328,11 @@ public final class SimpleItems {
         private ResourceLocation resolveTexture(ResourceLocation id, String token) {
         //?}
             if (!folder || token.indexOf(':') >= 0 || token.startsWith("item/")) return TextureTokens.resolveItem(id, token);
+            String path = token.startsWith("_") ? id.getPath() + token : token;
             //? if >=1.21.11 {
-            /*Identifier itemId = id;
+            /*return Identifier.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath() + "/" + path);
             *///?} else {
-            ResourceLocation itemId = id;
-            //?}
-            String path = token.startsWith("_") ? itemId.getPath() + token : token;
-            //? if >=1.21.11 {
-            /*return Identifier.fromNamespaceAndPath(itemId.getNamespace(), "item/" + itemId.getPath() + "/" + path);
-            *///?} else {
-            return ResourceLocation.fromNamespaceAndPath(itemId.getNamespace(), "item/" + itemId.getPath() + "/" + path);
+            return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath() + "/" + path);
             //?}
         }
 
@@ -368,6 +348,7 @@ public final class SimpleItems {
     public static final class Entry {
         private final ItemLike item;
         private final Model model;
+
         private Entry(Builder builder) {
             item = builder.item;
             model = Objects.requireNonNull(builder.model, "model").copy();
@@ -390,6 +371,7 @@ public final class SimpleItems {
     public static final class Builder {
         private final ItemLike item;
         private Model model;
+
         private Builder(ItemLike item) {
             this.item = Objects.requireNonNull(item, "item");
         }
@@ -469,7 +451,8 @@ public final class SimpleItems {
         }
 
         public Entry build() {
-            if (model == null) throw new IllegalStateException("Choose .generated(), .model(...), .multipart(...) or .blockState() for " + ModelLocations.itemId(item));
+            if (model == null)
+                throw new IllegalStateException("Choose .generated(), .model(...), .multipart(...) or .blockState() for " + ModelLocations.itemId(item));
             return new Entry(this);
         }
 
@@ -490,5 +473,3 @@ public final class SimpleItems {
         return tintIndex < tints.size() ? tints.get(tintIndex).itemColor(stack) : Tints.NO_TINT;
     }
 }
-
-

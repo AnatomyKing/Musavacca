@@ -1,7 +1,13 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
+//? if >=26.3 {
+/*import net.minecraft.world.level.block.BonemealSource;
+*///?}
+
 //? if >=26.1 {
-/*import net.minecraft.resources.Identifier;
+/*import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 *///?}
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -29,16 +35,14 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
 //?}
     //? if <26.3 {
     public static final MapCodec<CaroteneGrassBlock> CODEC = simpleCodec(CaroteneGrassBlock::new);
+
     //?}
     public CaroteneGrassBlock(Properties properties) {
         //? if >=26.1 {
-        /*super(properties,
+        /*super(properties, ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("minecraft", "dirt")));
         *///?} else {
         super(properties);
         //?}
-                //? if >=26.1 {
-                /*net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.BLOCK, Identifier.fromNamespaceAndPath("minecraft", "dirt")));
-                *///?}
     }
 
     //? if <26.3 {
@@ -50,6 +54,7 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
     //?}
         return CODEC;
     }
+
     //?}
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
@@ -62,8 +67,7 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
         for (int i = 0; i < 4; ++i) {
             BlockPos target = pos.offset(random.nextInt(3) - 1, random.nextInt(5) - 3, random.nextInt(3) - 1);
             BlockState targetState = level.getBlockState(target);
-            if ((targetState.is(Blocks.ROOTED_DIRT) || targetState.is(Blocks.DIRT))
-                    && canSpreadCarotene(level, target, spread)) {
+            if ((targetState.is(Blocks.ROOTED_DIRT) || targetState.is(Blocks.DIRT)) && canSpreadCarotene(level, target, spread)) {
                 level.setBlockAndUpdate(target, spread.setValue(SNOWY, level.getBlockState(target.above()).is(Blocks.SNOW)));
             }
         }
@@ -94,10 +98,7 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
     public TriState canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, BlockState plant) {
         Block block = plant.getBlock();
         if (facing == Direction.UP
-                && (block instanceof CropBlock
-                || block instanceof StemBlock
-                || block instanceof AttachedStemBlock
-                || block instanceof PitcherCropBlock)) {
+                && (block instanceof CropBlock || block instanceof StemBlock || block instanceof AttachedStemBlock || block instanceof PitcherCropBlock)) {
             return TriState.TRUE;
         }
         return TriState.DEFAULT;
@@ -110,7 +111,7 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
 
     @Override
     //? if >=26.3 {
-    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
     //?}
@@ -119,7 +120,7 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
 
     @Override
     //? if >=26.3 {
-    /*public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
     //?}
@@ -128,18 +129,16 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
 
     @Override
     //? if >=26.3 {
-    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
     //?}
         BlockPos start = pos.above();
-        outer:
-        for (int i = 0; i < 128; ++i) {
+        outer: for (int i = 0; i < 128; ++i) {
             BlockPos target = start;
             for (int j = 0; j < i / 16; ++j) {
                 target = target.offset(random.nextInt(3) - 1, (random.nextInt(3) - 1) * random.nextInt(3) / 2, random.nextInt(3) - 1);
-                if (!level.getBlockState(target.below()).is(this)
-                        || level.getBlockState(target).isCollisionShapeFullBlock(level, target)) {
+                if (!level.getBlockState(target.below()).is(this) || level.getBlockState(target).isCollisionShapeFullBlock(level, target)) {
                     continue outer;
                 }
             }

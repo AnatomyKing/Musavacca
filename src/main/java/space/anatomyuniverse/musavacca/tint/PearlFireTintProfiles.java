@@ -2,59 +2,24 @@ package space.anatomyuniverse.musavacca.tint;
 
 public final class PearlFireTintProfiles {
 
-    public static final Profile FIRE_BLOCK = of(settings(
-            1.0F,
-            0.5F,
-            0.0F,
-            0.86F),
-            255, 252, 249, 246, 243, 240, 237, 234, 231, 229, 226, 223, 220, 217, 214,
+    public static final Profile FIRE_BLOCK = of(settings(1.0F, 0.5F, 0.0F, 0.86F), 255, 252, 249, 246, 243, 240, 237, 234, 231, 229, 226, 223, 220, 217, 214,
             211, 208, 205, 203, 201, 199, 197, 195, 193, 191, 189, 187, 185, 183, 181, 179, 177);
 
-    public static final Profile FLINT_AND_PEARL = of(settings(
-            1.0F,
-            0.5F,
-            0.0F,
-            1.21F),
-            252, 242, 232, 222, 211, 201, 192, 182, 172, 162, 151, 142, 0);
+    public static final Profile FLINT_AND_PEARL = of(settings(1.0F, 0.5F, 0.0F, 1.21F), 252, 242, 232, 222, 211, 201, 192, 182, 172, 162, 151, 142, 0);
 
-    public static final Profile PORTAL_BLOCK = of(settings(
-            2.0F,
-            0.5F,
-            0.62F,
-            0.27F,
-            0.86F),
-            255, 247, 242, 232, 225, 217, 207, 203, 199, 195, 189, 181, 171,
+    public static final Profile PORTAL_BLOCK = of(settings(2.0F, 0.5F, 0.62F, 0.27F, 0.86F), 255, 247, 242, 232, 225, 217, 207, 203, 199, 195, 189, 181, 171,
             164, 157);
 
-    public static final Profile PORTAL_GLYPH_PARTICLE = of(settings(
-            0.13F,
-            0.12F,
-            0.0F,
-            0.36F),
-            244, 228, 202, 186);
+    public static final Profile PORTAL_GLYPH_PARTICLE = of(settings(0.13F, 0.12F, 0.0F, 0.36F), 244, 228, 202, 186);
 
-    public static final Profile PEARL_FLAME = of(settings(
-            0.80F,
-            0.5F,
-            0.0F,
-            1.21F),
-            255, 228, 196, 167);
+    public static final Profile PEARL_FLAME = of(settings(0.80F, 0.5F, 0.0F, 1.21F), 255, 228, 196, 167);
 
-    public static final Profile PEARL_CANDLE = of(settings(
-            1.0F,
-            0.5F,
-            0.0F,
-            0.86F), 255, 238, 221, 202, 190, 177);
+    public static final Profile PEARL_CANDLE = of(settings(1.0F, 0.5F, 0.0F, 0.86F), 255, 238, 221, 202, 190, 177);
 
-    public static final Profile SIM_CARD_TINT = of(settings(
-            1.25F,
-            0.64F,
-            0.36F,
-            0.34F,
-            0.47F),
-            255, 234, 210, 184, 174, 138, 112);
+    public static final Profile SIM_CARD_TINT = of(settings(1.25F, 0.64F, 0.36F, 0.34F, 0.47F), 255, 234, 210, 184, 174, 138, 112);
 
     private PearlFireTintProfiles() {}
+
     public static Settings settings(float coreToTailLightness, float colorJumpiness, float colorAmountTakeOver, float layerContrast) {
         return settings(coreToTailLightness, colorJumpiness, colorAmountTakeOver, 0.0F, layerContrast);
     }

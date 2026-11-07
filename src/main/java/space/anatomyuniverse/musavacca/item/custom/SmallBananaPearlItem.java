@@ -21,14 +21,6 @@ public class SmallBananaPearlItem extends Item {
         super(properties);
     }
 
-    private static InteractionResult passResult() {
-        return InteractionResult.PASS;
-    }
-
-    private static InteractionResult successResult() {
-        return InteractionResult.SUCCESS;
-    }
-
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
@@ -45,26 +37,24 @@ public class SmallBananaPearlItem extends Item {
                     stack.shrink(1);
                 }
             }
-            return successResult();
+            return InteractionResult.SUCCESS;
         }
         BlockPlaceContext placeContext = new BlockPlaceContext(context);
         BlockPos placePos = clickedState.canBeReplaced(placeContext) ? clickedPos : clickedPos.relative(context.getClickedFace());
         BlockState placeTarget = level.getBlockState(placePos);
-        if (!placeTarget.canBeReplaced(placeContext)) return passResult();
+        if (!placeTarget.canBeReplaced(placeContext)) return InteractionResult.PASS;
         Direction facing = context.getHorizontalDirection().getOpposite();
-        BlockState newState = ModBlocks.SMALL_BANANA_PEARL_BLOCK.get()
-                .defaultBlockState()
-                .setValue(SmallBananaPearlBlock.FACING, facing)
+        BlockState newState = ModBlocks.SMALL_BANANA_PEARL_BLOCK.get().defaultBlockState().setValue(SmallBananaPearlBlock.FACING, facing)
                 .setValue(SmallBananaPearlBlock.SMALL_PEARL_AMOUNT, 1);
         if (!level.isClientSide()) {
             boolean placed = level.setBlock(placePos, newState, Block.UPDATE_ALL);
-            if (!placed) return passResult();
+            if (!placed) return InteractionResult.PASS;
             playPlaceSound(level, placePos, newState, player);
             if (player == null || !player.getAbilities().instabuild) {
                 stack.shrink(1);
             }
         }
-        return successResult();
+        return InteractionResult.SUCCESS;
     }
 
     private static void playPlaceSound(Level level, BlockPos pos, BlockState state, Player player) {

@@ -31,6 +31,7 @@ public final class BonusHungerHud {
     private static final Identifier FOOD_EMPTY_HUNGER = Identifier.fromNamespaceAndPath("minecraft", "hud/food_empty_hunger");
     private static final Identifier FOOD_HALF_HUNGER = Identifier.fromNamespaceAndPath("minecraft", "hud/food_half_hunger");
     private static final Identifier FOOD_FULL_HUNGER = Identifier.fromNamespaceAndPath("minecraft", "hud/food_full_hunger");
+
     *///?} else {
     private static final ResourceLocation FOOD_EMPTY = ResourceLocation.fromNamespaceAndPath("minecraft", "hud/food_empty");
     private static final ResourceLocation FOOD_HALF = ResourceLocation.fromNamespaceAndPath("minecraft", "hud/food_half");
@@ -38,9 +39,9 @@ public final class BonusHungerHud {
     private static final ResourceLocation FOOD_EMPTY_HUNGER = ResourceLocation.fromNamespaceAndPath("minecraft", "hud/food_empty_hunger");
     private static final ResourceLocation FOOD_HALF_HUNGER = ResourceLocation.fromNamespaceAndPath("minecraft", "hud/food_half_hunger");
     private static final ResourceLocation FOOD_FULL_HUNGER = ResourceLocation.fromNamespaceAndPath("minecraft", "hud/food_full_hunger");
+
     //?}
-    private BonusHungerHud() {
-    }
+    private BonusHungerHud() {}
 
     //? if >=26.1 {
     /*public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
@@ -61,15 +62,9 @@ public final class BonusHungerHud {
         int food = ClientBonusHungerData.getFood();
         float saturation = ClientBonusHungerData.getSaturation();
         boolean hungerEffect = player.hasEffect(MobEffects.HUNGER);
-        //? if >=1.21.11 {
-        /*Identifier emptySprite = hungerEffect ? FOOD_EMPTY_HUNGER : FOOD_EMPTY;
-        Identifier halfSprite = hungerEffect ? FOOD_HALF_HUNGER : FOOD_HALF;
-        Identifier fullSprite = hungerEffect ? FOOD_FULL_HUNGER : FOOD_FULL;
-        *///?} else {
-        ResourceLocation emptySprite = hungerEffect ? FOOD_EMPTY_HUNGER : FOOD_EMPTY;
-        ResourceLocation halfSprite = hungerEffect ? FOOD_HALF_HUNGER : FOOD_HALF;
-        ResourceLocation fullSprite = hungerEffect ? FOOD_FULL_HUNGER : FOOD_FULL;
-        //?}
+        var emptySprite = hungerEffect ? FOOD_EMPTY_HUNGER : FOOD_EMPTY;
+        var halfSprite = hungerEffect ? FOOD_HALF_HUNGER : FOOD_HALF;
+        var fullSprite = hungerEffect ? FOOD_FULL_HUNGER : FOOD_FULL;
         int right = graphics.guiWidth() / 2 + 91;
         int baseY = getBonusFoodY(graphics, player);
         boolean shouldJitter = shouldJitter(food, saturation, player.tickCount);
@@ -113,18 +108,14 @@ public final class BonusHungerHud {
 
     //? if >=26.1 {
     /*private static void drawFoodIcon(GuiGraphicsExtractor graphics, int x, int y, int pointsInSlot, Identifier emptySprite, Identifier halfSprite,
-    *///?} else if >=1.21.11 <26.1 {
-    /*private static void drawFoodIcon(GuiGraphics graphics, int x, int y, int pointsInSlot, Identifier emptySprite, Identifier halfSprite, Identifier fullSprite) {
+            Identifier fullSprite) {
+    *///?} else if >=1.21.11 {
+    /*private static void drawFoodIcon(GuiGraphics graphics, int x, int y, int pointsInSlot, Identifier emptySprite, Identifier halfSprite,
+            Identifier fullSprite) {
     *///?} else {
     private static void drawFoodIcon(GuiGraphics graphics, int x, int y, int pointsInSlot, ResourceLocation emptySprite, ResourceLocation halfSprite,
-    //?}
-            //? if <1.21.11 || >=26.1 {
-            //? if >=26.1 {
-            /*Identifier fullSprite) {
-            *///?} else {
             ResourceLocation fullSprite) {
-            //?}
-            //?}
+    //?}
         drawSprite(graphics, emptySprite, x, y);
         if (pointsInSlot >= 2) {
             drawSprite(graphics, fullSprite, x, y);

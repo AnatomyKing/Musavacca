@@ -5,6 +5,7 @@ import net.minecraft.world.level.block.FenceGateBlock;
 
 public final class FenceGateBlocks {
     private FenceGateBlocks() {}
+
     public static final class Part extends BlockFamily.ModelRule<FenceGateModels, Part> {
         private Part(FenceGateModels source, Conditions.Match conditions) {
             super(source, conditions);
@@ -25,11 +26,10 @@ public final class FenceGateBlocks {
 
     public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
         private final FamilyTextures.Set textures;
-        private final FenceGateModels baseModels;
+
         private Entry(Builder builder) {
             super(builder);
             textures = builder.textures;
-            baseModels = builder.baseModels;
         }
 
         public static Builder builder(Block block) {
@@ -40,32 +40,23 @@ public final class FenceGateBlocks {
             return textures;
         }
 
-        public FenceGateModels baseModels() {
-            return baseModels;
-        }
-
         public void validate() {
             if (!(block() instanceof FenceGateBlock)) {
                 throw new IllegalStateException("FenceGateBlocks requires a FenceGateBlock: " + ModelLocations.blockId(block()));
             }
-            BlockFamilyValidation.requireProperty(block(), FenceGateBlock.FACING, "FenceGateBlocks");
-            BlockFamilyValidation.requireProperty(block(), FenceGateBlock.OPEN, "FenceGateBlocks");
-            BlockFamilyValidation.requireProperty(block(), FenceGateBlock.IN_WALL, "FenceGateBlocks");
-            if (baseMode() == null) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
-            if (baseMode() == BaseModelMode.GENERATED && textures == null) {
+            Conditions.requireProperty(block(), FenceGateBlock.FACING, "FenceGateBlocks");
+            Conditions.requireProperty(block(), FenceGateBlock.OPEN, "FenceGateBlocks");
+            Conditions.requireProperty(block(), FenceGateBlock.IN_WALL, "FenceGateBlocks");
+            if (!generated()) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
+            if (textures == null) {
                 throw new IllegalStateException("No generated textures configured for " + ModelLocations.blockId(block()));
-            }
-            if (baseMode() == BaseModelMode.EXISTING) {
-                if (baseModels == null || !baseModels.complete()) {
-                    throw new IllegalStateException("Base FenceGateModels must provide the complete family for " + ModelLocations.blockId(block()));
-                }
             }
             validatePartConditions();
         }
 
         public static final class Builder extends BlockFamily.ItemFamilyBuilder<Builder, Part> {
             private FamilyTextures.Set textures;
-            private FenceGateModels baseModels;
+
             private Builder(Block block) {
                 super(block);
             }
@@ -77,19 +68,19 @@ public final class FenceGateBlocks {
 
             public Builder texture() {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_fence_gate").source().build();
+                textures = FamilyTextures.builder(block, "_fence_gate").texture().build();
                 return this;
             }
 
             public Builder texture(Block source) {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_fence_gate").source(source).build();
+                textures = FamilyTextures.builder(block, "_fence_gate").texture(source).build();
                 return this;
             }
 
             public Builder texture(String texture) {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_fence_gate").source(texture).build();
+                textures = FamilyTextures.builder(block, "_fence_gate").texture(texture).build();
                 return this;
             }
 

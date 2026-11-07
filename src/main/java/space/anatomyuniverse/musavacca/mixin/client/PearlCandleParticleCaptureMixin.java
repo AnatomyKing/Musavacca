@@ -17,8 +17,8 @@ import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles;
 @Mixin(ParticleEngine.class)
 public abstract class PearlCandleParticleCaptureMixin {
     @WrapMethod(method = "createParticle(Lnet/minecraft/core/particles/ParticleOptions;DDDDDD)Lnet/minecraft/client/particle/Particle;", require = 1, allow = 1)
-    private Particle musavacca$placeMountedParticle(ParticleOptions options, double x, double y, double z,
-            double vx, double vy, double vz, Operation<Particle> create) {
+    private Particle musavacca$placeMountedParticle(ParticleOptions options, double x, double y, double z, double vx, double vy, double vz,
+            Operation<Particle> create) {
         Vec3 offset = OriginalCandleParticles.mountOffset();
         if (offset == Vec3.ZERO) return create.call(options, x, y, z, vx, vy, vz);
         OriginalCandleParticles.setMountOffset(Vec3.ZERO);
@@ -32,8 +32,9 @@ public abstract class PearlCandleParticleCaptureMixin {
     @ModifyVariable(method = "add(Lnet/minecraft/client/particle/Particle;)V", at = @At("HEAD"), argsOnly = true, ordinal = 0, require = 1)
     private Particle musavacca$wrapCandleParticle(Particle particle) {
         Integer color = OriginalCandleParticles.color();
-        if (color == null || !particle.isAlive() || particle instanceof OriginalCandleParticle
-                || particle instanceof SmokeParticle || particle instanceof CampfireSmokeParticle) return particle;
+        if (color == null || !particle.isAlive() || particle instanceof OriginalCandleParticle || particle instanceof SmokeParticle
+                || particle instanceof CampfireSmokeParticle)
+            return particle;
         return particle instanceof OriginalCandleParticle.Source source ? source.musavacca$wrap(color) : particle;
     }
 }

@@ -7,29 +7,32 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 //?}
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BundleContents;
 //? if >=1.21.2 {
 import net.minecraft.network.chat.Component;
 import space.anatomyuniverse.musavacca.mixin.client.ClientBundleTooltipAccessor;
 //?} else {
 /*import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 *///?}
 
-public final class VocoCallerClientBundleTooltip
-        extends ClientBundleTooltip {
-    private final BundleContents contents;
+public final class VocoCallerClientBundleTooltip extends ClientBundleTooltip {
     //? if >=1.21.2 {
     private static final Component EMPTY_DESCRIPTION = Component.translatable("item.musavacca.banana_phone.empty.description");
+
     //?} else {
-    /*private static final ResourceLocation LEGACY_BACKGROUND_SPRITE = ResourceLocation.fromNamespaceAndPath("minecraft", "container/bundle/background");
+    /*private final BundleContents contents;
+    private static final ResourceLocation LEGACY_BACKGROUND_SPRITE = ResourceLocation.fromNamespaceAndPath("minecraft", "container/bundle/background");
     private static final ResourceLocation LEGACY_SLOT_SPRITE = ResourceLocation.fromNamespaceAndPath("minecraft", "container/bundle/slot");
     private static final int TOOLTIP_WIDTH = 18 + 1 * 2;
     private static final int TOOLTIP_HEIGHT = 20 + 1 * 2 + 4;
+
     *///?}
     public VocoCallerClientBundleTooltip(BundleContents contents) {
         super(contents);
-        this.contents = contents;
+        //? if <1.21.2 {
+        /*this.contents = contents;
+        *///?}
     }
 
     @Override
@@ -64,28 +67,22 @@ public final class VocoCallerClientBundleTooltip
         *///?}
     }
 
-    //? if >=26.1 {
-    /*@Override
-    public void extractImage(Font font, int x, int y, int width, int height, GuiGraphicsExtractor graphics) {
-        Component vanilla = useVocoDescription();
-        try {
-            super.extractImage(font, x, y, width, height, graphics);
-        } finally {
-            restoreDescription(vanilla);
-        }
-    }
-    *///?}
-    //? if <26.1 {
     @Override
-    //? if >=1.21.2 <26.1 {
+    //? if >=26.1 {
+    /*public void extractImage(Font font, int x, int y, int width, int height, GuiGraphicsExtractor graphics) {
+    *///?} else if >=1.21.2 {
     public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics graphics) {
     //?} else {
     /*public void renderImage(Font font, int x, int y, GuiGraphics graphics) {
     *///?}
-        //? if >=1.21.2 <26.1 {
+        //? if >=1.21.2 {
         Component vanilla = useVocoDescription();
         try {
+            //? if >=26.1 {
+            /*super.extractImage(font, x, y, width, height, graphics);
+            *///?} else {
             super.renderImage(font, x, y, width, height, graphics);
+            //?}
         } finally {
             restoreDescription(vanilla);
         }
@@ -96,13 +93,12 @@ public final class VocoCallerClientBundleTooltip
         graphics.blitSprite(LEGACY_SLOT_SPRITE, slotX, slotY, 18, 20);
         ItemStack displayed = this.contents.itemCopyStream().findFirst().orElse(ItemStack.EMPTY);
         if (displayed.isEmpty()) return;
-        ItemStack one = displayed.copy();
-        one.setCount(1);
+        ItemStack one = displayed.copyWithCount(1);
         graphics.renderItem(one, slotX + 1, slotY + 1);
         graphics.renderItemDecorations(font, one, slotX + 1, slotY + 1);
         *///?}
     }
-    //?}
+
     //? if >=1.21.2 {
     private static Component useVocoDescription() {
         Component vanilla = ClientBundleTooltipAccessor.musavacca$getEmptyDescription();

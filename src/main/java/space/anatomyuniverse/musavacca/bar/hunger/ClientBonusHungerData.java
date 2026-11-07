@@ -6,8 +6,8 @@ public final class ClientBonusHungerData {
     private static int food = BonusHungerData.MAX_FOOD;
     private static float saturation = BonusHungerData.MAX_FOOD;
     private static boolean active = false;
-    private ClientBonusHungerData() {
-    }
+
+    private ClientBonusHungerData() {}
 
     public static void set(int newFood, float newSaturation, boolean newActive) {
         food = Mth.clamp(newFood, 0, BonusHungerData.MAX_FOOD);

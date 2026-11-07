@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceKey;
 //?} else {
 /*import net.minecraft.data.tags.TagsProvider;
 *///?}
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -21,7 +22,6 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import java.util.concurrent.CompletableFuture;
 //? if >=26.2 {
 
 /*public final class ModItemTagsProvider extends net.minecraft.data.tags.TagsProvider<Item> {
@@ -32,24 +32,19 @@ public final class ModItemTagsProvider extends KeyTagProvider<Item> {
 *///?}
     //? if >=1.21.6 {
     public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, Registries.ITEM, lookupProvider, MusaCore.MOD_ID);
     //?} else {
     /*public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider,
-    *///?}
-        //? if >=1.21.6 {
-        super(output, Registries.ITEM, lookupProvider, MusaCore.MOD_ID);
-        //?} else {
-            /*CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider) {
+            CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider) {
         super(output, lookupProvider, blockTagsProvider);
-            *///?}
+    *///?}
     }
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         tag(ItemTags.PLANKS).add(key(ModBlocks.MUSAVACCA_PLANKS));
         tag(ItemTags.LOGS).add(key(ModBlocks.MUSAVACCA_STEM)).add(key(ModBlocks.STRIPPED_MUSAVACCA_STEM)).add(key(ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM));
-        tag(ItemTags.LOGS_THAT_BURN)
-                .add(key(ModBlocks.MUSAVACCA_STEM))
-                .add(key(ModBlocks.STRIPPED_MUSAVACCA_STEM))
+        tag(ItemTags.LOGS_THAT_BURN).add(key(ModBlocks.MUSAVACCA_STEM)).add(key(ModBlocks.STRIPPED_MUSAVACCA_STEM))
                 .add(key(ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM));
         tag(ItemTags.LEAVES).add(key(ModBlocks.MUSAVACCA_LEAVES));
         tag(ItemTags.WOODEN_STAIRS).add(key(ModBlocks.MUSAVACCA_STAIRS));
@@ -65,35 +60,15 @@ public final class ModItemTagsProvider extends KeyTagProvider<Item> {
         tag(ItemTags.AXES).add(key(ModItems.POTASSIUM_AXE));
         tag(ItemTags.SHOVELS).add(key(ModItems.POTASSIUM_SHOVEL));
         tag(ItemTags.HOES).add(key(ModItems.POTASSIUM_HOE));
-        tag(ItemTags.DURABILITY_ENCHANTABLE)
-                .add(key(ModItems.POTASSIUM_SWORD))
-                .add(key(ModItems.POTASSIUM_PICKAXE))
-                .add(key(ModItems.POTASSIUM_AXE))
-                .add(key(ModItems.POTASSIUM_SHOVEL))
-                .add(key(ModItems.POTASSIUM_HOE))
-                .add(key(ModItems.POTASSIUM_HELMET))
-                .add(key(ModItems.POTASSIUM_CHESTPLATE))
-                .add(key(ModItems.POTASSIUM_LEGGINGS))
-                .add(key(ModItems.POTASSIUM_BOOTS));
-        tag(ItemTags.VANISHING_ENCHANTABLE)
-                .add(key(ModItems.POTASSIUM_SWORD))
-                .add(key(ModItems.POTASSIUM_PICKAXE))
-                .add(key(ModItems.POTASSIUM_AXE))
-                .add(key(ModItems.POTASSIUM_SHOVEL))
-                .add(key(ModItems.POTASSIUM_HOE))
-                .add(key(ModItems.POTASSIUM_HELMET))
-                .add(key(ModItems.POTASSIUM_CHESTPLATE))
-                .add(key(ModItems.POTASSIUM_LEGGINGS))
-                .add(key(ModItems.POTASSIUM_BOOTS));
-        tag(ItemTags.MINING_ENCHANTABLE)
-                .add(key(ModItems.POTASSIUM_PICKAXE))
-                .add(key(ModItems.POTASSIUM_AXE))
-                .add(key(ModItems.POTASSIUM_SHOVEL))
+        tag(ItemTags.DURABILITY_ENCHANTABLE).add(key(ModItems.POTASSIUM_SWORD)).add(key(ModItems.POTASSIUM_PICKAXE)).add(key(ModItems.POTASSIUM_AXE))
+                .add(key(ModItems.POTASSIUM_SHOVEL)).add(key(ModItems.POTASSIUM_HOE)).add(key(ModItems.POTASSIUM_HELMET))
+                .add(key(ModItems.POTASSIUM_CHESTPLATE)).add(key(ModItems.POTASSIUM_LEGGINGS)).add(key(ModItems.POTASSIUM_BOOTS));
+        tag(ItemTags.VANISHING_ENCHANTABLE).add(key(ModItems.POTASSIUM_SWORD)).add(key(ModItems.POTASSIUM_PICKAXE)).add(key(ModItems.POTASSIUM_AXE))
+                .add(key(ModItems.POTASSIUM_SHOVEL)).add(key(ModItems.POTASSIUM_HOE)).add(key(ModItems.POTASSIUM_HELMET))
+                .add(key(ModItems.POTASSIUM_CHESTPLATE)).add(key(ModItems.POTASSIUM_LEGGINGS)).add(key(ModItems.POTASSIUM_BOOTS));
+        tag(ItemTags.MINING_ENCHANTABLE).add(key(ModItems.POTASSIUM_PICKAXE)).add(key(ModItems.POTASSIUM_AXE)).add(key(ModItems.POTASSIUM_SHOVEL))
                 .add(key(ModItems.POTASSIUM_HOE));
-        tag(ItemTags.MINING_LOOT_ENCHANTABLE)
-                .add(key(ModItems.POTASSIUM_PICKAXE))
-                .add(key(ModItems.POTASSIUM_AXE))
-                .add(key(ModItems.POTASSIUM_SHOVEL))
+        tag(ItemTags.MINING_LOOT_ENCHANTABLE).add(key(ModItems.POTASSIUM_PICKAXE)).add(key(ModItems.POTASSIUM_AXE)).add(key(ModItems.POTASSIUM_SHOVEL))
                 .add(key(ModItems.POTASSIUM_HOE));
         //? if >=1.21.11 {
         /*tag(ItemTags.MELEE_WEAPON_ENCHANTABLE).add(key(ModItems.POTASSIUM_SWORD));
@@ -108,24 +83,15 @@ public final class ModItemTagsProvider extends KeyTagProvider<Item> {
         tag(ItemTags.CHEST_ARMOR).add(key(ModItems.POTASSIUM_CHESTPLATE));
         tag(ItemTags.LEG_ARMOR).add(key(ModItems.POTASSIUM_LEGGINGS));
         tag(ItemTags.FOOT_ARMOR).add(key(ModItems.POTASSIUM_BOOTS));
-        tag(ItemTags.TRIMMABLE_ARMOR)
-                .add(key(ModItems.POTASSIUM_HELMET))
-                .add(key(ModItems.POTASSIUM_CHESTPLATE))
-                .add(key(ModItems.POTASSIUM_LEGGINGS))
+        tag(ItemTags.TRIMMABLE_ARMOR).add(key(ModItems.POTASSIUM_HELMET)).add(key(ModItems.POTASSIUM_CHESTPLATE)).add(key(ModItems.POTASSIUM_LEGGINGS))
                 .add(key(ModItems.POTASSIUM_BOOTS));
         tag(ItemTags.HEAD_ARMOR_ENCHANTABLE).add(key(ModItems.POTASSIUM_HELMET));
         tag(ItemTags.CHEST_ARMOR_ENCHANTABLE).add(key(ModItems.POTASSIUM_CHESTPLATE));
         tag(ItemTags.LEG_ARMOR_ENCHANTABLE).add(key(ModItems.POTASSIUM_LEGGINGS));
         tag(ItemTags.FOOT_ARMOR_ENCHANTABLE).add(key(ModItems.POTASSIUM_BOOTS));
-        tag(ItemTags.ARMOR_ENCHANTABLE)
-                .add(key(ModItems.POTASSIUM_HELMET))
-                .add(key(ModItems.POTASSIUM_CHESTPLATE))
-                .add(key(ModItems.POTASSIUM_LEGGINGS))
+        tag(ItemTags.ARMOR_ENCHANTABLE).add(key(ModItems.POTASSIUM_HELMET)).add(key(ModItems.POTASSIUM_CHESTPLATE)).add(key(ModItems.POTASSIUM_LEGGINGS))
                 .add(key(ModItems.POTASSIUM_BOOTS));
-        tag(ItemTags.EQUIPPABLE_ENCHANTABLE)
-                .add(key(ModItems.POTASSIUM_HELMET))
-                .add(key(ModItems.POTASSIUM_CHESTPLATE))
-                .add(key(ModItems.POTASSIUM_LEGGINGS))
+        tag(ItemTags.EQUIPPABLE_ENCHANTABLE).add(key(ModItems.POTASSIUM_HELMET)).add(key(ModItems.POTASSIUM_CHESTPLATE)).add(key(ModItems.POTASSIUM_LEGGINGS))
                 .add(key(ModItems.POTASSIUM_BOOTS));
     }
 

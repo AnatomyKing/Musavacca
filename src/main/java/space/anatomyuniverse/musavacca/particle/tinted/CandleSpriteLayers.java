@@ -1,13 +1,13 @@
 package space.anatomyuniverse.musavacca.particle.tinted;
 
+import com.google.gson.JsonElement;
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.google.gson.JsonElement;
-import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 //? if >=1.21.11 {
@@ -195,6 +195,7 @@ public final class CandleSpriteLayers {
 
     public interface Source {
         NativeImage musavacca$image();
+
         SpriteContents musavacca$layer(
                 //? if >=1.21.11 {
                 /*Identifier id,
@@ -202,7 +203,9 @@ public final class CandleSpriteLayers {
                 ResourceLocation id,
                 //?}
                 NativeImage image);
+
         TextureAtlasSprite[] musavacca$layers();
+
         void musavacca$layers(TextureAtlasSprite[] layers);
     }
 }

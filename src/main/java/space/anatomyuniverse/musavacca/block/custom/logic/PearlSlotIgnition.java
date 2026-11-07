@@ -1,5 +1,6 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
+import java.util.Objects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,12 +21,13 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceApi;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import java.util.Objects;
 
 public final class PearlSlotIgnition {
     public static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
     public static final int DEFAULT_BALANCE_COST = 1;
+
     private PearlSlotIgnition() {}
+
     public record Slot(BooleanProperty litProperty, @Nullable BooleanProperty linkedProperty, Vec3 pearlPopOffset, Vec3 pearlPopMotion, int balanceCost) {
         public Slot {
             Objects.requireNonNull(litProperty, "litProperty");
@@ -38,7 +40,8 @@ public final class PearlSlotIgnition {
             return new Slot(litProperty, linkedProperty, pearlPopOffset, pearlPopMotion, DEFAULT_BALANCE_COST);
         }
 
-        public static Slot of(BooleanProperty litProperty, @Nullable BooleanProperty linkedProperty, Vec3 pearlPopOffset, Vec3 pearlPopMotion, int balanceCost) {
+        public static Slot of(BooleanProperty litProperty, @Nullable BooleanProperty linkedProperty, Vec3 pearlPopOffset, Vec3 pearlPopMotion,
+                int balanceCost) {
             return new Slot(litProperty, linkedProperty, pearlPopOffset, pearlPopMotion, balanceCost);
         }
 
@@ -52,10 +55,7 @@ public final class PearlSlotIgnition {
         validateState(state, slot);
         ItemStack mainHand = player.getMainHandItem();
         ItemStack offHand = player.getOffhandItem();
-        if (
-                hand == InteractionHand.OFF_HAND
-                        && !mainHand.isEmpty()
-        ) {
+        if (hand == InteractionHand.OFF_HAND && !mainHand.isEmpty()) {
             return InteractionResult.PASS;
         }
         //? if >=1.21.2 {
@@ -85,10 +85,7 @@ public final class PearlSlotIgnition {
             }
             return InteractionResult.SUCCESS;
         }
-        if (
-                hand == InteractionHand.MAIN_HAND
-                        && offHand.is(Items.SHEARS)
-        ) {
+        if (hand == InteractionHand.MAIN_HAND && offHand.is(Items.SHEARS)) {
             if (!level.isClientSide()) {
                 shearPearl(offHand, state, level, pos, player, InteractionHand.OFF_HAND, slot);
             }
@@ -117,10 +114,7 @@ public final class PearlSlotIgnition {
 
     public static boolean igniteFromPearl(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, Slot slot) {
         validateState(state, slot);
-        if (
-                !stack.is(ModItems.BANANA_PEARL.get())
-                        || isLit(state, slot)
-        ) {
+        if (!stack.is(ModItems.BANANA_PEARL.get()) || isLit(state, slot)) {
             return false;
         }
         if (level.isClientSide()) return true;
@@ -131,10 +125,7 @@ public final class PearlSlotIgnition {
 
     public static boolean shearPearl(ItemStack shears, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, Slot slot) {
         validateState(state, slot);
-        if (
-                !shears.is(Items.SHEARS)
-                        || !isLit(state, slot)
-        ) {
+        if (!shears.is(Items.SHEARS) || !isLit(state, slot)) {
             return false;
         }
         if (level.isClientSide()) return true;
@@ -158,10 +149,7 @@ public final class PearlSlotIgnition {
     }
 
     public static void playPortalStateChangeSound(Level level, BlockPos pos, boolean wasPortal, boolean portal) {
-        if (
-                level.isClientSide()
-                        || wasPortal == portal
-        ) {
+        if (level.isClientSide() || wasPortal == portal) {
             return;
         }
         level.playSound(null, pos, portal ? SoundEvents.BEACON_ACTIVATE : SoundEvents.BEACON_DEACTIVATE, SoundSource.BLOCKS, 0.65F, 1.25F);
@@ -197,23 +185,12 @@ public final class PearlSlotIgnition {
     private static void validateState(BlockState state, Slot slot) {
         if (!state.hasProperty(slot.litProperty())) {
             throw new IllegalArgumentException(
-                    "Block state for "
-                            + state.getBlock()
-                            + " does not contain pearl-slot lit property "
-                            + slot.litProperty().getName()
-            );
+                    "Block state for " + state.getBlock() + " does not contain pearl-slot lit property " + slot.litProperty().getName());
         }
         BooleanProperty linkedProperty = slot.linkedProperty();
-        if (
-                linkedProperty != null
-                        && !state.hasProperty(linkedProperty)
-        ) {
+        if (linkedProperty != null && !state.hasProperty(linkedProperty)) {
             throw new IllegalArgumentException(
-                    "Block state for "
-                            + state.getBlock()
-                            + " does not contain pearl-slot linked property "
-                            + linkedProperty.getName()
-            );
+                    "Block state for " + state.getBlock() + " does not contain pearl-slot linked property " + linkedProperty.getName());
         }
     }
 }

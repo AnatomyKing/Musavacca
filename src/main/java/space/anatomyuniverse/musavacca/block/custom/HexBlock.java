@@ -1,5 +1,9 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
+//? if >=26.3 {
+/*import net.minecraft.world.level.block.BonemealSource;
+*///?}
+
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -50,11 +54,13 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     //?}
     public static final BooleanProperty CLIPPED = BooleanProperty.create("clipped");
     private static final VoxelShape SHAPE = Block.box(3.5, 8.0, 3.5, 12.5, 16.0, 12.5);
+
     //? if <26.3 {
     @Override
     public MapCodec<HexBlock> codec() {
         return CODEC;
     }
+
     //?}
     public HexBlock(Properties properties) {
         super(properties);
@@ -71,30 +77,6 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         builder.add(CLIPPED);
     }
 
-    //? if >=1.21.2 {
-    private static InteractionResult passToDefault() {
-    //?} else {
-    /*private static ItemInteractionResult passToDefault() {
-    *///?}
-        //? if >=1.21.2 {
-        return InteractionResult.TRY_WITH_EMPTY_HAND;
-        //?} else {
-        /*return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        *///?}
-    }
-
-    //? if >=1.21.2 {
-    private static InteractionResult successResult() {
-    //?} else {
-    /*private static ItemInteractionResult successResult() {
-    *///?}
-        //? if >=1.21.2 {
-        return InteractionResult.SUCCESS;
-        //?} else {
-        /*return ItemInteractionResult.SUCCESS;
-        *///?}
-    }
-
     @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return BreakHexLogic.canHexBlockSurvive(level, pos);
@@ -108,8 +90,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     /*protected BlockState updateShape(BlockState state, net.minecraft.core.Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos,
             BlockPos neighborPos) {
     *///?}
-        return net.minecraft.core.Direction.UP == direction && !this.canSurvive(state, level, pos)
-                ? Blocks.AIR.defaultBlockState()
+        return net.minecraft.core.Direction.UP == direction && !this.canSurvive(state, level, pos) ? Blocks.AIR.defaultBlockState()
                 //? if >=1.21.2 {
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
                 //?} else {
@@ -147,20 +128,30 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
     //?} else {
     /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
     *///?}
-        if (!stack.is(Items.SHEARS)) return passToDefault();
-        if (state.getValue(CLIPPED)) return passToDefault();
+        if (!stack.is(Items.SHEARS) || state.getValue(CLIPPED)) {
+            //? if >=1.21.2 {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+            //?} else {
+            /*return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            *///?}
+        }
         if (!level.isClientSide()) {
             level.setBlock(pos, state.setValue(CLIPPED, true), Block.UPDATE_ALL);
             stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
             level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
             level.playSound(null, pos, SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
-        return successResult();
+        //? if >=1.21.2 {
+        return InteractionResult.SUCCESS;
+        //?} else {
+        /*return ItemInteractionResult.SUCCESS;
+        *///?}
     }
 
     //? if >=1.21.5 {
@@ -169,15 +160,17 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         BreakHexLogic.breakBreakBlockAboveIfPresent(level, pos);
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
+
     //?}
 //? if <1.21.5 {
-/*@Override
-protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-    if (!state.is(newState.getBlock()) && newState.isAir()) {
-        BreakHexLogic.breakBreakBlockAboveIfPresent(level, pos);
+    /*@Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && newState.isAir()) {
+            BreakHexLogic.breakBreakBlockAboveIfPresent(level, pos);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
-    super.onRemove(state, level, pos, newState, movedByPiston);
-}
+
 *///?}
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
@@ -207,7 +200,7 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
 
     @Override
     //? if >=26.3 {
-    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
     //?}
@@ -216,7 +209,7 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
 
     @Override
     //? if >=26.3 {
-    /*public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public boolean isBonemealSuccess(Level level, RandomSource random, BlockPos pos, BlockState state) {
     //?}
@@ -234,7 +227,7 @@ protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState 
 
     @Override
     //? if >=26.3 {
-    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
     //?}

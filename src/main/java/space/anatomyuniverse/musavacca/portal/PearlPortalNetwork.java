@@ -1,60 +1,59 @@
 package space.anatomyuniverse.musavacca.portal;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
-import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
-import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
+import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
 
 public final class PearlPortalNetwork {
     private PearlPortalNetwork() {}
-    private static final SideCache SERVER_CACHE = new SideCache();
+
+    private static final Map<UUID, Portal> PORTALS_BY_ID = new HashMap<>();
+    private static final Map<BlockKey, UUID> PORTAL_ID_BY_BLOCK = new HashMap<>();
+    private static final Map<UUID, Set<BlockKey>> LOADED_BLOCKS_BY_PORTAL_ID = new HashMap<>();
+    private static final ThreadLocal<Boolean> DESTROYING = ThreadLocal.withInitial(() -> false);
+
     private record BlockKey(ResourceKey<Level> dimension, BlockPos pos) {}
-    private static final class SideCache {
-        private final Map<UUID, LoadedPortal> portalsById = new HashMap<>();
-        private final Map<BlockKey, UUID> portalIdByBlock = new HashMap<>();
-        private final Map<UUID, Set<BlockKey>> loadedBlocksByPortalId = new HashMap<>();
-        private void clear() {
-            this.portalsById.clear();
-            this.portalIdByBlock.clear();
-            this.loadedBlocksByPortalId.clear();
+
+    public record Portal(UUID portalId, ServerLevel level, PearlPortalFrame.Shape shape, int hexColor) {
+        public Vec3 center() {
+            return this.shape.center();
         }
     }
 
-    public record LoadedPortal(UUID portalId, ServerLevel level, PearlPortalFrame.Shape shape, int hexColor) {}
     public static void registerPortalBlock(PearlPortalBlockEntity portalBlockEntity) {
-        if (
-                !(portalBlockEntity.getLevel()
-                        instanceof ServerLevel serverLevel)
-                        || !portalBlockEntity.isValidPortalTile()
-        ) {
+        if (!(portalBlockEntity.getLevel() instanceof ServerLevel serverLevel) || !portalBlockEntity.isValidPortalTile()) {
             return;
         }
         UUID portalId = portalBlockEntity.getPortalId();
         BlockKey key = blockKey(serverLevel, portalBlockEntity.getBlockPos());
-        UUID oldPortalId = SERVER_CACHE.portalIdByBlock.put(key, portalId);
-        if (
-                oldPortalId != null
-                        && !oldPortalId.equals(portalId)
-        ) {
-            removeLoadedBlockKey(SERVER_CACHE, oldPortalId, key);
+        UUID oldPortalId = PORTAL_ID_BY_BLOCK.put(key, portalId);
+        if (oldPortalId != null && !oldPortalId.equals(portalId)) {
+            removeLoadedBlockKey(oldPortalId, key);
         }
-        SERVER_CACHE.loadedBlocksByPortalId.computeIfAbsent(portalId, ignored -> new HashSet<>()).add(key);
-        SERVER_CACHE.portalsById.put(portalId, new LoadedPortal(portalId, serverLevel, portalBlockEntity.getPortalShape(), portalBlockEntity.getHexColor()));
-        if (
-                portalBlockEntity.isOriginBlock()
-        ) {
+        LOADED_BLOCKS_BY_PORTAL_ID.computeIfAbsent(portalId, ignored -> new HashSet<>()).add(key);
+        PORTALS_BY_ID.put(portalId, new Portal(portalId, serverLevel, portalBlockEntity.getPortalShape(), portalBlockEntity.getHexColor()));
+        if (portalBlockEntity.isOriginBlock()) {
             HexTeleportDirectory.get(serverLevel.getServer())
                     //? if >=1.21.11 {
-                    /*.registerPortalEndpoint(portalId, portalBlockEntity.getHexColor(), serverLevel.dimension().identifier(), portalBlockEntity.getPortalShape());
+                    /*.registerPortalEndpoint(portalId, portalBlockEntity.getHexColor(), serverLevel.dimension().identifier(),
+                            portalBlockEntity.getPortalShape());
                     *///?} else {
                     .registerPortalEndpoint(portalId, portalBlockEntity.getHexColor(), serverLevel.dimension().location(), portalBlockEntity.getPortalShape());
                     //?}
@@ -62,70 +61,109 @@ public final class PearlPortalNetwork {
     }
 
     public static void unregisterPortalBlock(PearlPortalBlockEntity portalBlockEntity) {
-        if (
-                !(portalBlockEntity.getLevel()
-                        instanceof ServerLevel serverLevel)
-                        || !portalBlockEntity.hasPortalData()
-        ) {
+        if (!(portalBlockEntity.getLevel() instanceof ServerLevel serverLevel) || !portalBlockEntity.hasPortalData()) {
             return;
         }
         UUID portalId = portalBlockEntity.getPortalId();
         BlockKey key = blockKey(serverLevel, portalBlockEntity.getBlockPos());
-        UUID indexedPortalId = SERVER_CACHE.portalIdByBlock.get(key);
-        if (
-                portalId.equals(indexedPortalId)
-        ) {
-            SERVER_CACHE.portalIdByBlock.remove(key);
-        }
-        removeLoadedBlockKey(SERVER_CACHE, portalId, key);
+        PORTAL_ID_BY_BLOCK.remove(key, portalId);
+        removeLoadedBlockKey(portalId, key);
     }
 
-    public static Optional<LoadedPortal> getLoadedPortalAt(ServerLevel level, BlockPos pos) {
-        UUID portalId = SERVER_CACHE.portalIdByBlock.get(blockKey(level, pos));
-        return portalId == null ? Optional.empty() : Optional.ofNullable(SERVER_CACHE.portalsById.get(portalId));
+    public static Optional<Portal> getLoadedPortalAt(ServerLevel level, BlockPos pos) {
+        UUID portalId = PORTAL_ID_BY_BLOCK.get(blockKey(level, pos));
+        return portalId == null ? Optional.empty() : Optional.ofNullable(PORTALS_BY_ID.get(portalId));
     }
 
     public static void removePortal(ServerLevel level, UUID portalId) {
-        if (
-                level == null
-                        || portalId == null
-        ) {
+        if (level == null || portalId == null) {
             return;
         }
-        removeLoadedPortal(SERVER_CACHE, portalId);
+        removeLoadedPortal(portalId);
         HexTeleportAddressNetwork.releaseEndpoint(level.getServer(), portalId);
     }
 
-    public static void clear() {
-        SERVER_CACHE.clear();
+    public static void onServerStopping(ServerStoppingEvent event) {
+        PORTALS_BY_ID.clear();
+        PORTAL_ID_BY_BLOCK.clear();
+        LOADED_BLOCKS_BY_PORTAL_ID.clear();
     }
 
-    private static void removeLoadedPortal(SideCache cache, UUID portalId) {
-        cache.portalsById.remove(portalId);
-        Set<BlockKey> keys = cache.loadedBlocksByPortalId.remove(portalId);
-        if (
-                keys == null
-                        || keys.isEmpty()
-        ) {
-            return;
+    public static boolean isDestroyingPortal() {
+        return DESTROYING.get();
+    }
+
+    public static void destroyPortal(ServerLevel level, UUID portalId) {
+        if (portalId == null || DESTROYING.get()) return;
+        DESTROYING.set(true);
+        try {
+            removePortal(level, portalId);
+        } finally {
+            DESTROYING.set(false);
         }
-        for (BlockKey key : keys) {
-            UUID indexedPortalId = cache.portalIdByBlock.get(key);
-            if (
-                    portalId.equals(indexedPortalId)
-            ) {
-                cache.portalIdByBlock.remove(key);
+    }
+
+    public static Optional<Portal> resolveLinkedPortal(ServerLevel sourceLevel, UUID sourcePortalId) {
+        return HexTeleportResolver.resolveLinkedPortal(sourceLevel, sourcePortalId).flatMap(resolved -> {
+            HexTeleportDirectory.Endpoint endpoint = resolved.endpoint();
+            if (!(resolved.level().getBlockEntity(endpoint.ownerPos()) instanceof PearlPortalBlockEntity portal)) return Optional.empty();
+            return Optional.of(new Portal(endpoint.endpointId(), resolved.level(), portal.getPortalShape(), endpoint.hexColor()));
+        });
+    }
+
+    @Nullable
+    public static Portal findSourcePortal(ServerLevel level, BlockPos entryPos) {
+        if (level.getBlockEntity(entryPos) instanceof PearlPortalBlockEntity portalBlockEntity && portalBlockEntity.isValidPortalTile()) {
+            registerPortalBlock(portalBlockEntity);
+            return fromBlockEntity(level, portalBlockEntity);
+        }
+        Portal loadedPortal = getLoadedPortalAt(level, entryPos).orElse(null);
+        if (loadedPortal != null) return loadedPortal;
+        BlockState state = level.getBlockState(entryPos);
+        if (!(state.getBlock() instanceof PearlPortalBlock)) {
+            return null;
+        }
+        Direction.Axis axis = state.getValue(PearlPortalBlock.AXIS);
+        PearlPortalFrame.Shape shape = PearlPortalFrame.findExistingShape(level, entryPos, axis).orElse(null);
+        if (shape == null) return null;
+        PearlPortalBlockEntity foundTile = findAnyValidPortalTile(level, shape);
+        if (foundTile == null) return null;
+        registerPortalBlock(foundTile);
+        return fromBlockEntity(level, foundTile);
+    }
+
+    @Nullable
+    private static PearlPortalBlockEntity findAnyValidPortalTile(ServerLevel level, PearlPortalFrame.Shape shape) {
+        PearlPortalBlockEntity[] found = { null };
+        shape.forEachInteriorBlock(pos -> {
+            if (found[0] != null) return;
+            if (level.getBlockEntity(pos) instanceof PearlPortalBlockEntity portalBlockEntity && portalBlockEntity.isValidPortalTile()) {
+                found[0] = portalBlockEntity;
             }
+        });
+        return found[0];
+    }
+
+    private static Portal fromBlockEntity(ServerLevel level, PearlPortalBlockEntity portalBlockEntity) {
+        return new Portal(portalBlockEntity.getPortalId(), level, portalBlockEntity.getPortalShape(), portalBlockEntity.getHexColor());
+    }
+
+    private static void removeLoadedPortal(UUID portalId) {
+        PORTALS_BY_ID.remove(portalId);
+        Set<BlockKey> keys = LOADED_BLOCKS_BY_PORTAL_ID.remove(portalId);
+        if (keys == null) return;
+        for (BlockKey key : keys) {
+            PORTAL_ID_BY_BLOCK.remove(key, portalId);
         }
     }
 
-    private static void removeLoadedBlockKey(SideCache cache, UUID portalId, BlockKey key) {
-        Set<BlockKey> keys = cache.loadedBlocksByPortalId.get(portalId);
+    private static void removeLoadedBlockKey(UUID portalId, BlockKey key) {
+        Set<BlockKey> keys = LOADED_BLOCKS_BY_PORTAL_ID.get(portalId);
         if (keys == null) return;
         keys.remove(key);
         if (keys.isEmpty()) {
-            cache.loadedBlocksByPortalId.remove(portalId);
-            cache.portalsById.remove(portalId);
+            LOADED_BLOCKS_BY_PORTAL_ID.remove(portalId);
+            PORTALS_BY_ID.remove(portalId);
         }
     }
 

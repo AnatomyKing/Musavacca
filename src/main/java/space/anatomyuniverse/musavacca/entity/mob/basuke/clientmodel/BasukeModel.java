@@ -23,6 +23,9 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+//? if >=1.21.9 {
+/*import net.minecraft.client.renderer.entity.state.EntityRenderState;
+*///?}
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
@@ -44,12 +47,11 @@ public class BasukeModel extends
         public int eatingTicks;
         public int eatingTotalTicks;
     }
+    //?}
 
     //? if >=1.21.11 {
     /*public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "basuke"), "main");
-    *///?}
-    //?}
-    //? if <1.21.11 {
+    *///?} else {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "basuke"), "main");
     //?}
     private final ModelPart basuke;
@@ -79,6 +81,7 @@ public class BasukeModel extends
     private final float rightArmBaseZRot;
     private final float leftArmBaseY;
     private final float rightArmBaseY;
+
     public BasukeModel(ModelPart bakedRoot) {
         //? if >=1.21.2 {
         super(bakedRoot);
@@ -112,16 +115,14 @@ public class BasukeModel extends
     }
 
     public static LayerDefinition createBodyLayer() {
-        MeshDefinition meshdefinition = new MeshDefinition();
-        PartDefinition partdefinition = meshdefinition.getRoot();
-        PartDefinition basuke = partdefinition.addOrReplaceChild("basuke", CubeListBuilder.create(), PartPose.offset(-0.0007F, 16.3706F, 0.0736F));
-        PartDefinition hHead = basuke.addOrReplaceChild(
-                "h_head",
+        MeshDefinition meshDefinition = new MeshDefinition();
+        PartDefinition partDefinition = meshDefinition.getRoot();
+        PartDefinition basuke = partDefinition.addOrReplaceChild("basuke", CubeListBuilder.create(), PartPose.offset(-0.0007F, 16.3706F, 0.0736F));
+        PartDefinition hHead = basuke.addOrReplaceChild("h_head",
                 CubeListBuilder.create()
                         .texOffs(0, 14).addBox(-2.5F, -2.5F, -1.5F, 5.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                         .texOffs(0, 0).addBox(-2.5F, -6.5F, -5.5F, 5.0F, 4.0F, 9.0F, new CubeDeformation(0.0F)),
-                PartPose.offset(0.0007F, 0.1294F, -1.0736F)
-        );
+                PartPose.offset(0.0007F, 0.1294F, -1.0736F));
         PartDefinition leftWing = hHead.addOrReplaceChild("left_wing", CubeListBuilder.create(), PartPose.offset(0.7F, -3.5F, 3.5F));
         leftWing.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(1, 19).addBox(0.0F, -2.5F, -3.0F, 0.0F, 5.0F, 6.0F, new CubeDeformation(0.0F)),
                 PartPose.offsetAndRotation(0.0F, 2.6F, 1.9F, 0.7854F, 0.0F, 0.0F));
@@ -134,7 +135,7 @@ public class BasukeModel extends
                 CubeListBuilder.create().texOffs(21, 14).mirror().addBox(-6.75F, 0.5F, -1.0F, 2.0F, 4.0F, 2.0F, new CubeDeformation(0.0F)).mirror(false),
                 PartPose.offset(2.75F, 0.5F, 1.0F));
         rightArm.addOrReplaceChild("item", CubeListBuilder.create(), PartPose.offset(-2.75F, 3.0F, -4.0F));
-        return LayerDefinition.create(meshdefinition, 32, 32);
+        return LayerDefinition.create(meshDefinition, 32, 32);
     }
 
     private void applyAnimation(float limbSwing, float ageTicks, float headYawRad, float headPitchRad, float flyAmount, float holdingAnimationProgress,
@@ -199,11 +200,13 @@ public class BasukeModel extends
     public ModelPart root() {
         return this.root;
     }
+
     *///?}
     @Override
     //? if >=1.21.2 {
-    public void setupAnim(@NotNull State s) {
-        this.applyAnimation(s.limbSwing, s.ageTicks, s.headYawRad, s.headPitchRad, s.flyAmount, s.holdingAnimationProgress, s.eatingTicks, s.eatingTotalTicks);
+    public void setupAnim(@NotNull State state) {
+        this.applyAnimation(state.limbSwing, state.ageTicks, state.headYawRad, state.headPitchRad, state.flyAmount, state.holdingAnimationProgress,
+                state.eatingTicks, state.eatingTotalTicks);
     //?} else {
     /*public void setupAnim(@NotNull Basuke entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         float partialTick = Mth.clamp(ageInTicks - entity.tickCount, 0.0F, 1.0F);
@@ -215,7 +218,7 @@ public class BasukeModel extends
 
     @Override
     //? if >=1.21.9 {
-    /*public void translateToHand(net.minecraft.client.renderer.entity.state.EntityRenderState state, HumanoidArm arm, PoseStack poseStack) {
+    /*public void translateToHand(EntityRenderState state, HumanoidArm arm, PoseStack poseStack) {
     *///?} else {
     public void translateToHand(HumanoidArm arm, PoseStack poseStack) {
     //?}

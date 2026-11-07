@@ -1,13 +1,17 @@
 package space.anatomyuniverse.musavacca.block.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+//? if >=26.1 {
+/*import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
+*///?}
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 *///?} else {
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 //?}
@@ -23,13 +27,16 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 public final class VocoTableBlockEntityCandleRenderer {
     //? if >=1.21.9 {
     /*//? if >=26.1 {
-    /^public record Candle(net.minecraft.client.renderer.block.BlockModelRenderState block, Vec3 translation) {}
+    /^public record Candle(BlockModelRenderState block, Vec3 translation) {}
+
     ^///?} else {
     public record Candle(BlockState block, Vec3 translation) {}
+
     //?}
     *///?}
     //? if <1.21.9 {
     private final BlockRenderDispatcher blockRenderer;
+
     public VocoTableBlockEntityCandleRenderer(BlockEntityRendererProvider.Context context) {
         this.blockRenderer = context.getBlockRenderDispatcher();
     }
@@ -61,18 +68,19 @@ public final class VocoTableBlockEntityCandleRenderer {
     }
     //?}
     //? if >=1.21.9 {
-    /*public static void extract(VocoTableBlockEntity entity, VocoTableBlockEntityRenderer.State state, net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context context) {
+    /*public static void extract(VocoTableBlockEntity entity, VocoTableBlockEntityRenderer.State state, BlockEntityRendererProvider.Context context) {
         state.candles.clear();
         if (entity.getLevel() == null) return;
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             var slot = entity.candle(receptor);
             if (slot == null) continue;
-            var candle = slot.state();
             //? if >=26.1 {
-            /^var model = new net.minecraft.client.renderer.block.BlockModelRenderState(); context.blockModelResolver().update(model, candle, net.minecraft.client.renderer.block.model.BlockDisplayContext.create()); state.candles.add(new Candle(model, VocoTableCandleVoxelShapes.renderTranslation(receptor)));
+            /^var model = new BlockModelRenderState();
+            context.blockModelResolver().update(model, slot.state(), BlockDisplayContext.create());
             ^///?} else {
-            state.candles.add(new Candle(candle, VocoTableCandleVoxelShapes.renderTranslation(receptor)));
+            var model = slot.state();
             //?}
+            state.candles.add(new Candle(model, VocoTableCandleVoxelShapes.renderTranslation(receptor)));
         }
     }
 

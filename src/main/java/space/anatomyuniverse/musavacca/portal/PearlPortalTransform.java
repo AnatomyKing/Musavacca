@@ -1,45 +1,52 @@
 package space.anatomyuniverse.musavacca.portal;
 
+import java.util.Optional;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import java.util.Optional;
 
 public final class PearlPortalTransform {
     private PearlPortalTransform() {}
+
     public record Result(Vec3 position, Vec3 deltaMovement, float yRot, float xRot) {}
+
     private record LocalVector(double right, double up, double front) {}
+
     private record AxisRange(double min, double max) {}
+
     private record TransformBasis(Direction rightDirection, Direction upDirection, Direction frontDirection, int rightSize, int upSize, Vec3 origin) {
         Vec3 rightVector() {
             return directionVector(this.rightDirection);
         }
+
         Vec3 upVector() {
             return directionVector(this.upDirection);
         }
+
         Vec3 frontVector() {
             return directionVector(this.frontDirection);
         }
+
         Vec3 localPosition(Vec3 worldPosition) {
             Vec3 relative = worldPosition.subtract(this.origin);
             return new Vec3(relative.dot(this.rightVector()), relative.dot(this.upVector()), relative.dot(this.frontVector()));
         }
+
         LocalVector localVector(Vec3 worldVector) {
             return new LocalVector(worldVector.dot(this.rightVector()), worldVector.dot(this.upVector()), worldVector.dot(this.frontVector()));
         }
+
         Vec3 worldVector(double right, double up, double front) {
             return this.rightVector().scale(right).add(this.upVector().scale(up)).add(this.frontVector().scale(front));
         }
+
         Vec3 worldPosition(double right, double up, double frontClearance, Direction.Axis planeAxis) {
-            return this.origin
-                    .add(this.rightVector().scale(right))
-                    .add(this.upVector().scale(up))
-                    .add(planeCenterOffset(planeAxis))
+            return this.origin.add(this.rightVector().scale(right)).add(this.upVector().scale(up)).add(planeCenterOffset(planeAxis))
                     .add(this.frontVector().scale(frontClearance));
         }
     }
 
-    public static Result calculate(Entity entity, PearlPortalResolver.ResolvedPortal sourcePortal, PearlPortalResolver.ResolvedPortal targetPortal) {
+    public static Result calculate(Entity entity, PearlPortalNetwork.Portal sourcePortal, PearlPortalNetwork.Portal targetPortal) {
         PearlPortalFrame.Shape sourceShape = sourcePortal.shape();
         PearlPortalFrame.Shape targetShape = targetPortal.shape();
         TransformBasis sourceBasis = basisOf(sourceShape);
@@ -175,7 +182,7 @@ public final class PearlPortalTransform {
 
     private static boolean shouldMirrorCrossOrientationLook(PearlPortalFrame.Shape sourceShape, PearlPortalFrame.Shape targetShape, int exitSide) {
         boolean standingBackToFlatUnderside = !sourceShape.isFlat() && targetShape.isFlat() && isBackSide(exitSide) && isFlatDownExit(targetShape, exitSide);
-        boolean flatTopToStandingFront = sourceShape.isFlat() && !targetShape.isFlat() && isFlatTopSide(sourceShape, exitSide) && isFrontSide(exitSide);
+        boolean flatTopToStandingFront = sourceShape.isFlat() && !targetShape.isFlat() && isFlatUpExit(sourceShape, exitSide) && isFrontSide(exitSide);
         return standingBackToFlatUnderside || flatTopToStandingFront;
     }
 
@@ -185,10 +192,6 @@ public final class PearlPortalTransform {
 
     private static boolean isBackSide(int exitSide) {
         return exitSide < 0;
-    }
-
-    private static boolean isFlatTopSide(PearlPortalFrame.Shape shape, int exitSide) {
-        return shape.isFlat() && directionVector(shape.frontDirection()).scale(exitSide).y > 0.0D;
     }
 
     private static double mapLocalAxis(double sourceValue, PearlPortalFrame.Shape sourceShape, PearlPortalFrame.Shape targetShape, int sourceSize,
@@ -243,11 +246,8 @@ public final class PearlPortalTransform {
 
     private static Direction flatAnchorDirection(PearlPortalFrame.Shape shape) {
         if (!shape.isFlat()) return Direction.DOWN;
-        return PearlPortalFrame
-                .nearestHorizontalDirection(Vec3.atCenterOf(shape.exitAnchorPos()).subtract(shape.center()))
-                .orElseGet(() -> shape.upDirection().getAxis().isHorizontal()
-                        ? shape.upDirection()
-                        : PearlPortalFrame.defaultUpDirection(Direction.Axis.Y));
+        return PearlPortalFrame.nearestHorizontalDirection(Vec3.atCenterOf(shape.exitAnchorPos()).subtract(shape.center()))
+                .orElseGet(() -> shape.upDirection().getAxis().isHorizontal() ? shape.upDirection() : PearlPortalFrame.defaultUpDirection(Direction.Axis.Y));
     }
 
     private static boolean isFlatUpExit(PearlPortalFrame.Shape shape, int exitSide) {
@@ -291,7 +291,11 @@ public final class PearlPortalTransform {
     }
 
     private static Vec3 planeCenterOffset(Direction.Axis axis) {
-        return switch (axis) { case X -> new Vec3(0.0D, 0.0D, 0.5D); case Z -> new Vec3(0.5D, 0.0D, 0.0D); case Y -> new Vec3(0.0D, 0.5D, 0.0D); };
+        return switch (axis) {
+        case X -> new Vec3(0.0D, 0.0D, 0.5D);
+        case Z -> new Vec3(0.5D, 0.0D, 0.0D);
+        case Y -> new Vec3(0.0D, 0.5D, 0.0D);
+        };
     }
 
     private static Vec3 cross(Vec3 a, Vec3 b) {

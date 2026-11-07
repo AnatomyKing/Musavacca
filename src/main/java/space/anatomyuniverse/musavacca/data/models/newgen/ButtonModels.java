@@ -7,21 +7,13 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import org.jetbrains.annotations.Nullable;
 
-public final class ButtonModels {
-    //? if >=1.21.11 {
-    /*private final Identifier normal;
-    private final Identifier pressed;
-    private final Identifier inventory;
-    *///?} else {
-    private final ResourceLocation normal;
-    private final ResourceLocation pressed;
-    private final ResourceLocation inventory;
-    //?}
-    private ButtonModels(Builder builder) {
-        normal = builder.normal;
-        pressed = builder.pressed;
-        inventory = builder.inventory;
-        if (isEmpty()) throw new IllegalStateException("ButtonModels requires at least one model");
+//? if >=1.21.11 {
+/*public record ButtonModels(Identifier normal, Identifier pressed, Identifier inventory) {
+*///?} else {
+public record ButtonModels(ResourceLocation normal, ResourceLocation pressed, ResourceLocation inventory) {
+//?}
+    public ButtonModels {
+        if (normal == null && pressed == null && inventory == null) throw new IllegalStateException("ButtonModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -41,38 +33,20 @@ public final class ButtonModels {
         return powered ? pressed : normal;
     }
 
-    @Nullable
-    //? if >=1.21.11 {
-    /*public Identifier inventory() {
-    *///?} else {
-    public ResourceLocation inventory() {
-    //?}
-        return inventory;
-    }
-
-    public boolean worldComplete() {
-        return normal != null && pressed != null;
-    }
-
-    public boolean complete() {
-        return worldComplete() && inventory != null;
-    }
-
-    public boolean isEmpty() {
-        return normal == null && pressed == null && inventory == null;
-    }
-
     public static final class Builder {
         //? if >=1.21.11 {
         /*private Identifier normal;
         private Identifier pressed;
         private Identifier inventory;
+
         *///?} else {
         private ResourceLocation normal;
         private ResourceLocation pressed;
         private ResourceLocation inventory;
+
         //?}
         private Builder() {}
+
         public Builder normal(String model) {
             normal = parse(model, "normal");
             return this;
@@ -89,7 +63,7 @@ public final class ButtonModels {
         }
 
         public ButtonModels build() {
-            return new ButtonModels(this);
+            return new ButtonModels(normal, pressed, inventory);
         }
     }
 

@@ -18,6 +18,7 @@ public final class BlockStateItem extends BlockItem {
     }
 
     //? if <1.21.2 {
-    /*@Override public String getDescriptionId() { return getOrCreateDescriptionId(); }
+    /*@Override
+    public String getDescriptionId() { return getOrCreateDescriptionId(); }
     *///?}
 }

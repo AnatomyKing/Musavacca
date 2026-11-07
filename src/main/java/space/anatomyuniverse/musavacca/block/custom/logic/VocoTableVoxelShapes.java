@@ -13,15 +13,16 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 public final class VocoTableVoxelShapes {
     private static final VoxelShape BODY_SHAPE = Shapes.or(Block.box(0.0D, 0.0D, 0.0D, 5.0D, 4.0D, 5.0D), Block.box(0.0D, 0.0D, 11.0D, 5.0D, 4.0D, 16.0D),
-            Block.box(11.0D, 0.0D, 11.0D, 16.0D, 4.0D, 16.0D), Block.box(11.0D, 0.0D, 0.0D, 16.0D, 4.0D, 5.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 14.0D, 14.0D));
-    public static final VoxelShape BASE_SHAPE = Shapes.or(BODY_SHAPE, VocoTableReceptorHitboxes.SHAPE);
-    public static final VoxelShape ROTARY_DIALERS_SHAPE = VocoTableDialerHitboxes.SHAPE;
+            Block.box(11.0D, 0.0D, 11.0D, 16.0D, 4.0D, 16.0D), Block.box(11.0D, 0.0D, 0.0D, 16.0D, 4.0D, 5.0D),
+            Block.box(2.0D, 0.0D, 2.0D, 14.0D, 14.0D, 14.0D));
+    public static final VoxelShape BASE_SHAPE = Shapes.or(BODY_SHAPE, VocoTableHitboxes.RECEPTOR_SHAPE);
+    public static final VoxelShape ROTARY_DIALERS_SHAPE = VocoTableHitboxes.DIALER_SHAPE;
     private static final VoxelShape BASE_WITH_DIALERS = Shapes.or(BASE_SHAPE, ROTARY_DIALERS_SHAPE);
 
     private VocoTableVoxelShapes() {}
 
     public static VoxelShape shape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Shapes.or(withCandles(state, level, pos, context, false), VocoTableItemDisplayHitboxes.SHAPE);
+        return Shapes.or(withCandles(state, level, pos, context, false), VocoTableHitboxes.ITEM_DISPLAY_SHAPE);
     }
 
     public static VoxelShape collisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

@@ -27,34 +27,27 @@ public final class PotassiumPickaxeItem
     //?} else {
     /*public PotassiumPickaxeItem(Tier material, float attackDamage, float attackSpeed, Properties properties) {
     *///?}
-        //? if >=1.21.2 {
-        super(pickaxeProperties(properties, material, attackDamage, attackSpeed));
-        //?} else {
+        //? if >=1.21.5 {
+        super(properties.pickaxe(material, attackDamage, attackSpeed));
+        //?} else if >=1.21.2 {
+        /*super(material.applyToolProperties(properties, BlockTags.MINEABLE_WITH_PICKAXE, attackDamage, attackSpeed));
+        *///?} else {
         /*super(material, properties.attributes(PickaxeItem.createAttributes(material, attackDamage, attackSpeed)));
         *///?}
     }
 
-    //? if >=1.21.2 {
-    private static Properties pickaxeProperties(Properties properties, ToolMaterial material, float attackDamage, float attackSpeed) {
-        //? if >=1.21.5 {
-        return properties.pickaxe(material, attackDamage, attackSpeed);
-        //?} else {
-        /*return material.applyToolProperties(properties, BlockTags.MINEABLE_WITH_PICKAXE, attackDamage, attackSpeed);
-        *///?}
-    }
-    //?}
     //? if <1.21.2 {
     /*@Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (PotassiumItemBehavior.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
-        if (!PotassiumItemBehavior.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
+        if (PotassiumItem.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
+        if (!PotassiumItem.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
         return super.use(level, player, hand);
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
+        return PotassiumItem.finishEating(stack, level, entity);
     }
     *///?}
 }

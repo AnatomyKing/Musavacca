@@ -8,12 +8,10 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 
-import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 //? if >=1.21.11 {
@@ -29,19 +27,20 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 
 import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapedCrafting;
-import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapelessCrafting;
 import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapelessCountFamily;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapelessCrafting;
 
 import space.anatomyuniverse.musavacca.data.recipes.dsl.SmithingTransforms;
 
-import space.anatomyuniverse.musavacca.data.recipes.dsl.Stonecutting;
-import space.anatomyuniverse.musavacca.data.recipes.dsl.StonecuttingFamily;
 import java.util.Objects;
 import java.util.function.Consumer;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.Stonecutting;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.StonecuttingFamily;
 
 public class RecipeDSL {
     public interface Unlocker {
         Criterion<?> item(ItemLike itemLike);
+
         Criterion<?> tag(TagKey<Item> tag);
     }
 
@@ -50,8 +49,10 @@ public class RecipeDSL {
     private final Unlocker unlocker;
     private final HolderLookup.Provider registries;
     private final String recipePathPrefix;
+
     //? if >=1.21.2 {
     private final HolderLookup.RegistryLookup<Item> items;
+
     //?}
     public RecipeDSL(RecipeOutput output, String modId, Unlocker unlocker, HolderLookup.Provider registries) {
         this(output, modId, unlocker, registries, "");
@@ -113,7 +114,7 @@ public class RecipeDSL {
         return shapeless(category, result, resultCount).requiresCount(input, inputCount);
     }
 
-    public ShapelessCrafting shapelessCounts(RecipeCategory category, ItemLike result, int resultCount, Object...ingredientCountPairs) {
+    public ShapelessCrafting shapelessCounts(RecipeCategory category, ItemLike result, int resultCount, Object... ingredientCountPairs) {
         return shapeless(category, result, resultCount).requiresPairs(ingredientCountPairs);
     }
 
@@ -128,9 +129,11 @@ public class RecipeDSL {
     public HolderLookup.Provider registries() {
         return this.registries;
     }
+
     String modId() {
         return this.modId;
     }
+
     String recipePathPrefix() {
         return this.recipePathPrefix;
     }
@@ -139,16 +142,18 @@ public class RecipeDSL {
     public HolderLookup.RegistryLookup<Item> items() {
         return this.items;
     }
+    //?}
 
     //? if >=1.21.11 {
     /*public Identifier id(String path) {
-        return Identifier.fromNamespaceAndPath(this.modId, joinFolder(this.recipePathPrefix, path));
-    *///?}
-    //?}
-    //? if <1.21.11 {
+    *///?} else {
     public ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(this.modId, joinFolder(this.recipePathPrefix, path));
     //?}
+        //? if >=1.21.11 {
+        /*return Identifier.fromNamespaceAndPath(this.modId, joinFolder(this.recipePathPrefix, path));
+        *///?} else {
+        return ResourceLocation.fromNamespaceAndPath(this.modId, joinFolder(this.recipePathPrefix, path));
+        //?}
     }
 
     //? if >=1.21.11 {
@@ -171,40 +176,17 @@ public class RecipeDSL {
         if (value instanceof Ingredient ingredient) return ingredient;
         if (value instanceof ItemLike itemLike) return Ingredient.of(itemLike);
         if (value instanceof TagKey<?> tagKey && tagKey.registry().equals(Registries.ITEM)) {
-            @SuppressWarnings("unchecked") TagKey<Item> tag = (TagKey<Item>) tagKey;
+            @SuppressWarnings("unchecked")
+            TagKey<Item> tag = (TagKey<Item>) tagKey;
             return ingredientFromTag(tag);
         }
         throw new IllegalArgumentException("Unsupported ingredient: " + value);
     }
 
     //? if >=1.21.11 {
-    /*public void save(ShapedRecipeBuilder builder, Identifier id) {
+    /*public void save(RecipeBuilder builder, Identifier id) {
     *///?} else {
-    public void save(ShapedRecipeBuilder builder, ResourceLocation id) {
-    //?}
-        //? if >=1.21.2 {
-        builder.save(this.output, recipeKey(id));
-        //?} else {
-        /*builder.save(this.output, id);
-        *///?}
-    }
-
-    //? if >=1.21.11 {
-    /*public void save(ShapelessRecipeBuilder builder, Identifier id) {
-    *///?} else {
-    public void save(ShapelessRecipeBuilder builder, ResourceLocation id) {
-    //?}
-        //? if >=1.21.2 {
-        builder.save(this.output, recipeKey(id));
-        //?} else {
-        /*builder.save(this.output, id);
-        *///?}
-    }
-
-    //? if >=1.21.11 {
-    /*public void save(SingleItemRecipeBuilder builder, Identifier id) {
-    *///?} else {
-    public void save(SingleItemRecipeBuilder builder, ResourceLocation id) {
+    public void save(RecipeBuilder builder, ResourceLocation id) {
     //?}
         //? if >=1.21.2 {
         builder.save(this.output, recipeKey(id));

@@ -8,6 +8,9 @@ import net.minecraft.world.item.ItemStack;
 *///?} else {
 import net.minecraft.world.level.BlockAndTintGetter;
 //?}
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,29 +20,28 @@ import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 //? if >=1.21.4 {
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import space.anatomyuniverse.musavacca.MusaCore;
-import java.util.Optional;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.MusaCore;
 //?}
 
 public final class MusavaccaModelTints {
     private static final Hex HEX = new Hex(-1);
+
     private MusavaccaModelTints() {}
+
     public record Hex(int multiIndex) implements Tints.Tint {
         public Hex {
             if (multiIndex < -1) throw new IllegalArgumentException("multiIndex must be >= -1");
@@ -190,32 +192,23 @@ public final class MusavaccaModelTints {
             *///?} else {
             new Tints.ItemTintType(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, MusavaccaTints.HEX_COLOR_KEY), ItemTint.MAP_CODEC);
             //?}
+
     public record ItemTint(PearlFireTintProfiles.Profile profile, int layer, int multiIndex) implements ItemTintSource {
         public static final ItemTint INSTANCE = new ItemTint(null, 0, -1);
-        private static final Codec<PearlFireTintProfiles.Profile> PROFILE_CODEC =
-                RecordCodecBuilder.create(instance -> instance.group(
-                        Codec.FLOAT.fieldOf("core_to_tail_lightness")
-                                .forGetter(PearlFireTintProfiles.Profile::coreToTailLightness),
-                        Codec.FLOAT.fieldOf("color_jumpiness")
-                                .forGetter(PearlFireTintProfiles.Profile::colorJumpiness),
-                        Codec.FLOAT.fieldOf("color_amount_take_over")
-                                .forGetter(PearlFireTintProfiles.Profile::colorAmountTakeOver),
-                        Codec.FLOAT.fieldOf("vibrancy_darkening")
-                                .forGetter(PearlFireTintProfiles.Profile::vibrancyDarkening),
-                        Codec.FLOAT.fieldOf("layer_contrast")
-                                .forGetter(PearlFireTintProfiles.Profile::layerContrast),
-                        Codec.FLOAT.listOf().fieldOf("gray_factors")
-                                .forGetter(ItemTint::grayFactors)
-                ).apply(instance, ItemTint::decodeProfile));
-        public static final MapCodec<ItemTint> MAP_CODEC =
-                RecordCodecBuilder.mapCodec(instance -> instance.group(
-                        PROFILE_CODEC.optionalFieldOf("profile")
-                                .forGetter(source -> Optional.ofNullable(source.profile)),
-                        Codec.INT.optionalFieldOf("layer", 0)
-                                .forGetter(source -> source.layer),
-                        Codec.INT.optionalFieldOf("multi_index", -1)
-                                .forGetter(source -> source.multiIndex)
-                ).apply(instance, ItemTint::decode));
+        private static final Codec<PearlFireTintProfiles.Profile> PROFILE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.FLOAT.fieldOf("core_to_tail_lightness").forGetter(PearlFireTintProfiles.Profile::coreToTailLightness),
+                Codec.FLOAT.fieldOf("color_jumpiness").forGetter(PearlFireTintProfiles.Profile::colorJumpiness),
+                Codec.FLOAT.fieldOf("color_amount_take_over").forGetter(PearlFireTintProfiles.Profile::colorAmountTakeOver),
+                Codec.FLOAT.fieldOf("vibrancy_darkening").forGetter(PearlFireTintProfiles.Profile::vibrancyDarkening),
+                Codec.FLOAT.fieldOf("layer_contrast").forGetter(PearlFireTintProfiles.Profile::layerContrast),
+                Codec.FLOAT.listOf().fieldOf("gray_factors").forGetter(ItemTint::grayFactors)
+        ).apply(instance, ItemTint::decodeProfile));
+        public static final MapCodec<ItemTint> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                PROFILE_CODEC.optionalFieldOf("profile").forGetter(source -> Optional.ofNullable(source.profile)),
+                Codec.INT.optionalFieldOf("layer", 0).forGetter(source -> source.layer),
+                Codec.INT.optionalFieldOf("multi_index", -1).forGetter(source -> source.multiIndex)
+        ).apply(instance, ItemTint::decode));
+
         public ItemTint {
             if (layer < 0) throw new IllegalArgumentException("layer must be >= 0");
             if (multiIndex < -1) throw new IllegalArgumentException("multiIndex must be >= -1");

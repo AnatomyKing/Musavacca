@@ -18,7 +18,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -37,9 +36,9 @@ import net.neoforged.neoforge.common.IShearable;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import java.util.List;
 
 public class BananaCow extends Cow implements IShearable {
     public static final int PEEL_STAGE_DEFAULT = 0;
@@ -55,16 +54,14 @@ public class BananaCow extends Cow implements IShearable {
     private static final EntityDataAccessor<Integer> DATA_EATEN_BITES = SynchedEntityData.defineId(BananaCow.class, EntityDataSerializers.INT);
     private BananaCowGrazeGoal eatBlockGoal;
     private int eatAnimationTick;
+
     public BananaCow(EntityType<? extends BananaCow> type, Level level) {
         super(type, level);
     }
 
     public static @NotNull AttributeSupplier.Builder createAttributes() {
-        AttributeSupplier.Builder builder =
-                Cow.createLivingAttributes()
-                        .add(Attributes.MAX_HEALTH, 10.0D)
-                        .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                        .add(Attributes.FOLLOW_RANGE, 16.0D);
+        AttributeSupplier.Builder builder = Cow.createLivingAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, 0.25D)
+                .add(Attributes.FOLLOW_RANGE, 16.0D);
         //? if >=1.21.2 {
         builder.add(Attributes.TEMPT_RANGE, 10.0D);
         //?}
@@ -83,7 +80,7 @@ public class BananaCow extends Cow implements IShearable {
     }
 
     public void setPeelStage(int peelStage) {
-        this.entityData.set(DATA_PEEL_STAGE, clampInt(peelStage, PEEL_STAGE_DEFAULT, PEEL_STAGE_PEELD));
+        this.entityData.set(DATA_PEEL_STAGE, Mth.clamp(peelStage, PEEL_STAGE_DEFAULT, PEEL_STAGE_PEELD));
     }
 
     public int getEatenBites() {
@@ -91,7 +88,7 @@ public class BananaCow extends Cow implements IShearable {
     }
 
     public void setEatenBites(int eatenBites) {
-        this.entityData.set(DATA_EATEN_BITES, clampInt(eatenBites, 0, MAX_EATEN_BITES_BEFORE_DEATH));
+        this.entityData.set(DATA_EATEN_BITES, Mth.clamp(eatenBites, 0, MAX_EATEN_BITES_BEFORE_DEATH));
     }
 
     public boolean isBananaSheared() {
@@ -114,7 +111,7 @@ public class BananaCow extends Cow implements IShearable {
     @Override
     public List<ItemStack> onSheared(Player player, ItemStack item, Level level, BlockPos pos) {
         if (!this.canBananaCowBeShearedAgain()) return List.of();
-        this.setPeelStage(clampInt(this.getPeelStage() + 1, PEEL_STAGE_DEFAULT, PEEL_STAGE_PEELD));
+        this.setPeelStage(this.getPeelStage() + 1);
         if (level instanceof ServerLevel serverLevel) {
             this.playBananaCowSound(serverLevel, SoundEvents.SHEEP_SHEAR, 1.0F, 1.0F);
         }
@@ -161,8 +158,7 @@ public class BananaCow extends Cow implements IShearable {
 
     public float getHeadEatPositionScale(float partialTick) {
         if (this.eatAnimationTick <= 0) return 0.0F;
-        if (this.eatAnimationTick >= 4
-                && this.eatAnimationTick <= 36) {
+        if (this.eatAnimationTick >= 4 && this.eatAnimationTick <= 36) {
             return 1.0F;
         }
         if (this.eatAnimationTick < 4) return ((float) this.eatAnimationTick - partialTick) / 4.0F;
@@ -170,8 +166,7 @@ public class BananaCow extends Cow implements IShearable {
     }
 
     public float getHeadEatAngleScale(float partialTick) {
-        if (this.eatAnimationTick > 4
-                && this.eatAnimationTick <= 36) {
+        if (this.eatAnimationTick > 4 && this.eatAnimationTick <= 36) {
             float animationProgress = ((float) (this.eatAnimationTick - 4) - partialTick) / 32.0F;
             return EAT_HEAD_DOWN_ANGLE + 0.21991149F * Mth.sin(animationProgress * 28.7F);
         }
@@ -199,11 +194,8 @@ public class BananaCow extends Cow implements IShearable {
             player.setItemInHand(hand, bananaMilk);
             return InteractionResult.SUCCESS;
         }
-        if (player.isShiftKeyDown()
-                && this.canBananaCowBeEaten()) {
-            if (!this.level().isClientSide()
-                    && this.level()
-                    instanceof ServerLevel serverLevel) {
+        if (player.isShiftKeyDown() && this.canBananaCowBeEaten()) {
+            if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel) {
                 this.eatBananaCow(serverLevel, player);
             }
             return InteractionResult.SUCCESS;
@@ -212,21 +204,17 @@ public class BananaCow extends Cow implements IShearable {
     }
 
     private void eatBananaCow(@NotNull ServerLevel level, @NotNull Player player) {
-        int nextBites = clampInt(this.getEatenBites() + 1, 0, MAX_EATEN_BITES_BEFORE_DEATH);
+        int nextBites = Mth.clamp(this.getEatenBites() + 1, 0, MAX_EATEN_BITES_BEFORE_DEATH);
         this.setEatenBites(nextBites);
-        this.feedPlayerLikeGoldenCarrot(player);
-        this.playBananaCowEatingFinishSounds(level);
-        float damage = nextBites >= MAX_EATEN_BITES_BEFORE_DEATH ? 1000.0F : 2.0F;
-        this.hurtBananaCow(level, this.damageSources().playerAttack(player), damage);
-    }
-
-    private void feedPlayerLikeGoldenCarrot(@NotNull Player player) {
         player.getFoodData().eat(6, 1.2F);
-    }
-
-    private void playBananaCowEatingFinishSounds(@NotNull ServerLevel level) {
         this.playBananaCowSound(level, SoundEvents.GENERIC_EAT, 1.0F, 1.0F);
         this.playBananaCowSound(level, SoundEvents.PLAYER_BURP, 0.55F, 1.15F);
+        float damage = nextBites >= MAX_EATEN_BITES_BEFORE_DEATH ? 1000.0F : 2.0F;
+        //? if >=1.21.6 {
+        this.hurtServer(level, this.damageSources().playerAttack(player), damage);
+        //?} else {
+        /*this.hurt(this.damageSources().playerAttack(player), damage);
+        *///?}
     }
 
     private void playBananaCowSound(@NotNull ServerLevel level, @NotNull SoundEvent sound, float volume, float pitch) {
@@ -237,56 +225,30 @@ public class BananaCow extends Cow implements IShearable {
         level.playSeededSound(null, this.getX(), this.getY(), this.getZ(), sound, SoundSource.NEUTRAL, volume, pitch, this.getRandom().nextLong());
     }
 
-    private void hurtBananaCow(@NotNull ServerLevel level, @NotNull DamageSource source, float damage) {
-        //? if >=1.21.6 {
-        this.hurtServer(level, source, damage);
-        //?} else {
-        /*this.hurt(source, damage);
-        *///?}
-    }
-
-    private static int clampInt(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
     @Override
     //? if >=1.21.6 {
     protected void addAdditionalSaveData(@NotNull ValueOutput output) {
-        super.addAdditionalSaveData(output);
     //?} else {
-    /*public void addAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
+    /*public void addAdditionalSaveData(@NotNull CompoundTag output) {
     *///?}
-        //? if >=1.21.6 {
+        super.addAdditionalSaveData(output);
         output.putInt(TAG_PEEL_STAGE, this.getPeelStage());
         output.putInt(TAG_EATEN_BITES, this.getEatenBites());
-        //?} else {
-        /*tag.putInt(TAG_PEEL_STAGE, this.getPeelStage());
-        tag.putInt(TAG_EATEN_BITES, this.getEatenBites());
-        *///?}
     }
 
     @Override
     //? if >=1.21.6 {
     protected void readAdditionalSaveData(@NotNull ValueInput input) {
-        super.readAdditionalSaveData(input);
     //?} else {
-    /*public void readAdditionalSaveData(@NotNull CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
+    /*public void readAdditionalSaveData(@NotNull CompoundTag input) {
     *///?}
-        //? if >=1.21.6 {
+        super.readAdditionalSaveData(input);
+        //? if >=1.21.5 {
         this.setPeelStage(input.getIntOr(TAG_PEEL_STAGE, PEEL_STAGE_DEFAULT));
-        //?} else if >=1.21.5 <1.21.6 {
-        /*this.setPeelStage(tag.getIntOr(TAG_PEEL_STAGE, PEEL_STAGE_DEFAULT));
-        *///?} else {
-        /*this.setPeelStage((tag.contains(TAG_PEEL_STAGE, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_PEEL_STAGE) : PEEL_STAGE_DEFAULT));
-        *///?}
-        //? if >=1.21.6 {
         this.setEatenBites(input.getIntOr(TAG_EATEN_BITES, 0));
-        //?} else if >=1.21.5 <1.21.6 {
-        /*this.setEatenBites(tag.getIntOr(TAG_EATEN_BITES, 0));
-        *///?} else {
-        /*this.setEatenBites((tag.contains(TAG_EATEN_BITES, Tag.TAG_ANY_NUMERIC) ? tag.getInt(TAG_EATEN_BITES) : 0));
+        //?} else {
+        /*this.setPeelStage(input.contains(TAG_PEEL_STAGE, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_PEEL_STAGE) : PEEL_STAGE_DEFAULT);
+        this.setEatenBites(input.contains(TAG_EATEN_BITES, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_EATEN_BITES) : 0);
         *///?}
     }
 

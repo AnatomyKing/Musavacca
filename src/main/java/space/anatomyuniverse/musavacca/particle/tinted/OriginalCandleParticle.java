@@ -2,11 +2,11 @@ package space.anatomyuniverse.musavacca.particle.tinted;
 
 import java.util.Optional;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Quaternionf;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 //? if >=26.1 {
 /*import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 *///?} else if >=1.21.9 {
@@ -59,7 +59,8 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
         this.original.remove();
     }
 
-    public void copyState(double x, double y, double z, double xo, double yo, double zo, float roll, float oRoll, float alpha, int age, int lifetime, TextureAtlasSprite sprite) {
+    public void copyState(double x, double y, double z, double xo, double yo, double zo, float roll, float oRoll, float alpha, int age, int lifetime,
+            TextureAtlasSprite sprite) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -74,12 +75,23 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
         this.sprite = sprite;
     }
 
-    @Override public float getQuadSize(float partialTick) { return this.original.getQuadSize(partialTick); }
-    @Override public FacingCameraMode getFacingCameraMode() { return this.original.getFacingCameraMode(); }
-    @Override protected float getU0() { return this.remapU(this.source.musavacca$u0()); }
-    @Override protected float getU1() { return this.remapU(this.source.musavacca$u1()); }
-    @Override protected float getV0() { return this.remapV(this.source.musavacca$v0()); }
-    @Override protected float getV1() { return this.remapV(this.source.musavacca$v1()); }
+    @Override
+    public float getQuadSize(float partialTick) { return this.original.getQuadSize(partialTick); }
+
+    @Override
+    public FacingCameraMode getFacingCameraMode() { return this.original.getFacingCameraMode(); }
+
+    @Override
+    protected float getU0() { return this.remapU(this.source.musavacca$u0()); }
+
+    @Override
+    protected float getU1() { return this.remapU(this.source.musavacca$u1()); }
+
+    @Override
+    protected float getV0() { return this.remapV(this.source.musavacca$v0()); }
+
+    @Override
+    protected float getV1() { return this.remapV(this.source.musavacca$v1()); }
 
     private float remapU(float u) {
         if (this.layerSprite == null) return u;
@@ -146,8 +158,8 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
     *///?} else {
     @Override
     public ParticleRenderType getRenderType() {
-        return this.original.getRenderType() == ParticleRenderType.TERRAIN_SHEET
-                ? ParticleRenderType.TERRAIN_SHEET : ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+        return this.original.getRenderType() == ParticleRenderType.TERRAIN_SHEET ? ParticleRenderType.TERRAIN_SHEET
+                : ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     @Override
@@ -158,11 +170,17 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
 
     public interface Source {
         Particle musavacca$wrap(int color);
+
         void musavacca$copyTo(OriginalCandleParticle target);
+
         float musavacca$u0();
+
         float musavacca$u1();
+
         float musavacca$v0();
+
         float musavacca$v1();
+
         int musavacca$light(float partialTick);
     }
 }

@@ -1,5 +1,5 @@
 
-package space.anatomyuniverse.musavacca.data.loot;
+package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -18,8 +18,7 @@ public final class VocoTableDrops {
 
     @SubscribeEvent
     public static void onBlockDrops(BlockDropsEvent event) {
-        if (!event.getState().is(ModBlocks.VOCO_TABLE.get())
-                || !(event.getBlockEntity() instanceof VocoTableBlockEntity table)) return;
+        if (!event.getState().is(ModBlocks.VOCO_TABLE.get()) || !(event.getBlockEntity() instanceof VocoTableBlockEntity table)) return;
 
         var pos = event.getPos();
 
@@ -28,8 +27,9 @@ public final class VocoTableDrops {
             if (candle == null) continue;
             var drop = VocoTableCandleVoxelShapes.dropPosition(event.getLevel(), pos, receptor, candle);
             int remaining = candle.count();
+            int maxStackSize = Math.max(1, candle.item().getMaxStackSize());
             while (remaining > 0) {
-                int count = Math.min(remaining, Math.max(1, candle.item().getMaxStackSize()));
+                int count = Math.min(remaining, maxStackSize);
                 event.getDrops().add(new ItemEntity(event.getLevel(), drop.x, drop.y, drop.z, candle.item().copyWithCount(count)));
                 remaining -= count;
             }
@@ -44,9 +44,7 @@ public final class VocoTableDrops {
         while (remaining > 0) {
             int count = Math.min(remaining, maxStackSize);
 
-            event.getDrops().add(new ItemEntity(event.getLevel(),
-                                                pos.getX() + 0.5D, pos.getY() + 1.0D, pos.getZ() + 0.5D,
-                                                displayed.copyWithCount(count)));
+            event.getDrops().add(new ItemEntity(event.getLevel(), pos.getX() + 0.5D, pos.getY() + 1.0D, pos.getZ() + 0.5D, displayed.copyWithCount(count)));
 
             remaining -= count;
         }

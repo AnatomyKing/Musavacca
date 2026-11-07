@@ -6,13 +6,13 @@ import net.minecraft.data.recipes.RecipeCategory;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public final class StonecuttingFamily {
     private final RecipeDSL dsl;
@@ -24,6 +24,7 @@ public final class StonecuttingFamily {
     private final List<ItemLike> unlockItems = new ArrayList<>();
     private final List<TagKey<Item>> unlockTags = new ArrayList<>();
     private boolean interchangeable;
+
     public StonecuttingFamily(RecipeDSL dsl) {
         this.dsl = Objects.requireNonNull(dsl, "dsl");
     }

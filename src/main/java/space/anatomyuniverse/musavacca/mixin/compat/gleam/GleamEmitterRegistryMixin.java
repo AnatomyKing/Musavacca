@@ -21,8 +21,7 @@ import space.anatomyuniverse.musavacca.compat.gleam.GleamHexLight;
         //?} else {
         /*targets = "net.thatmaidenjaden.gleam.client.lighting.GleamEmitterRegistry",
         *///?}
-        remap = false
-)
+        remap = false)
 public abstract class GleamEmitterRegistryMixin {
     //? if <1.21.2 {
     /*@Inject(method = "createLight", at = @At("HEAD"), cancellable = true, remap = false, require = 1)

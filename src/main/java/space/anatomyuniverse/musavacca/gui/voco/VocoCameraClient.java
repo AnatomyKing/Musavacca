@@ -13,14 +13,15 @@ import net.minecraft.client.Minecraft;
 *///?} else {
 import net.minecraft.client.gui.GuiGraphics;
 //?}
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.minecraft.util.Mth;
-import com.mojang.blaze3d.platform.InputConstants;
 
 public final class VocoCameraClient {
     private static boolean active = false;
@@ -28,7 +29,9 @@ public final class VocoCameraClient {
     private static float originalYaw;
     private static float originalPitch;
     private static CameraType originalCameraType;
+
     private VocoCameraClient() {}
+
     public static boolean isActive() {
         return active;
     }
@@ -170,17 +173,13 @@ public final class VocoCameraClient {
             if (originalCameraType != null) {
                 minecraft.options.setCameraType(originalCameraType);
             }
-            if (finishMessage == FinishMessage.SAVED) {
+            if (finishMessage != FinishMessage.NONE) {
+                Component message = Component.literal(
+                        finishMessage == FinishMessage.SAVED ? "Voco arrival position and view saved." : "Voco receptor restored to its default arrival.");
                 //? if >=26.1 {
-                /*minecraft.player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("Voco arrival position and view saved."));
+                /*minecraft.player.sendOverlayMessage(message);
                 *///?} else {
-                minecraft.player.displayClientMessage(net.minecraft.network.chat.Component.literal("Voco arrival position and view saved."), true);
-                //?}
-            } else if (finishMessage == FinishMessage.RESET) {
-                //? if >=26.1 {
-                /*minecraft.player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("Voco receptor restored to its default arrival."));
-                *///?} else {
-                minecraft.player.displayClientMessage(net.minecraft.network.chat.Component.literal("Voco receptor restored to its default arrival."), true);
+                minecraft.player.displayClientMessage(message, true);
                 //?}
             }
         }
@@ -190,8 +189,6 @@ public final class VocoCameraClient {
     }
 
     private enum FinishMessage {
-        NONE,
-        SAVED,
-        RESET
+        NONE, SAVED, RESET
     }
 }

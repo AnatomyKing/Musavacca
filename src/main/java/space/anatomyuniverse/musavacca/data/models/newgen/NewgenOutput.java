@@ -1,7 +1,7 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 import com.google.gson.JsonObject;
+import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 //? if >=1.21.4 {
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.renderer.item.ItemModels;
@@ -11,10 +11,6 @@ import net.minecraft.client.renderer.item.ItemModels;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.properties.Property;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +18,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.Property;
 //? if >=1.21.4 {
 import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.color.item.ItemTintSource;
@@ -35,9 +35,9 @@ import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
 //?}
 //? if >=1.21.4 {
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.renderer.item.CompositeModel;
 import net.minecraft.client.renderer.item.ItemModel;
-import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.renderer.item.SelectItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
@@ -74,9 +74,11 @@ final class NewgenOutput {
     //? if >=1.21.4 {
     private final BlockModelGenerators blocks;
     private final ItemModelGenerators items;
+
     //?} else {
     /*private final BlockStateProvider blocks;
     private final ItemModelProvider items;
+
     *///?}
     //? if >=1.21.4 {
     NewgenOutput(BlockModelGenerators blocks, ItemModelGenerators items) {
@@ -99,11 +101,13 @@ final class NewgenOutput {
     //?}
     private final Set<Block> generatedBlocks = new HashSet<>();
     private final Map<Item, ItemRequest> generatedItems = new HashMap<>();
+
     private record ItemRequest(List<NewgenModels.ItemPart> parts, String kind, boolean blockPerspective) {
         ItemRequest {
             parts = List.copyOf(parts);
         }
     }
+
     //? if >=1.21.11 {
     /*Identifier model(Identifier id, JsonObject json) {
     *///?} else {
@@ -116,24 +120,26 @@ final class NewgenOutput {
         }
         //? if >=1.21.4 {
         blocks.modelOutput.accept(id, () -> json);
-        return id;
         //?} else {
         /*if (id.getPath().startsWith("item/")) {
             if (items.generatedModels.containsKey(id)) throw duplicate(id);
             items.getBuilder(id.toString());
             items.generatedModels.put(id, new ItemModelBuilder(id, items.existingFileHelper) {
-                @Override public JsonObject toJson() { return json; }
+                @Override
+                public JsonObject toJson() { return json; }
             });
         } else {
             if (blocks.models().generatedModels.containsKey(id)) throw duplicate(id);
             blocks.models().getBuilder(id.toString());
             blocks.models().generatedModels.put(id, new BlockModelBuilder(id, blocks.models().existingFileHelper) {
-                @Override public JsonObject toJson() { return json; }
+                @Override
+                public JsonObject toJson() { return json; }
             });
         }
-        return id;
         *///?}
+        return id;
     }
+
     //? if >=1.21.11 {
     /*void item(Item item, Identifier model, List<Tints.Tint> tints) {
     *///?} else {
@@ -141,6 +147,7 @@ final class NewgenOutput {
     //?}
         item(item, new NewgenModels.ItemRender(List.of(new NewgenModels.ItemPart(model, tints))));
     }
+
     void item(Item item, NewgenModels.ItemRender render) {
         if (item == Items.AIR) throw new IllegalStateException("Cannot generate an item model for air. Use .noItem() for itemless blocks.");
         ItemRequest request = new ItemRequest(render.parts(), "simple", render.blockPerspective());
@@ -169,9 +176,7 @@ final class NewgenOutput {
             model(ModelLocations.itemModel(item), json);
             return;
         }
-        *///?}
-        //? if <1.21.4 {
-        /*NewgenModels.ItemPart part = render.parts().get(0);
+        NewgenModels.ItemPart part = render.parts().get(0);
         ResourceLocation id = ModelLocations.itemModel(item);
         if (!id.equals(part.model())) {
             JsonObject json = new JsonObject();
@@ -181,6 +186,7 @@ final class NewgenOutput {
         }
         *///?}
     }
+
     //? if >=1.21.11 {
     /*Map<Identifier, JsonObject> namedDefinitions() { return Map.copyOf(namedDefinitions); }
 
@@ -265,51 +271,51 @@ final class NewgenOutput {
             /*ItemModel.Unbaked trimmed = new CuboidItemModelWrapper.Unbaked(trimmedModel, java.util.Optional.empty(),
                     List.of(new Constant(0xFFFFFFFF), ArmorTrimItemTintSource.itemTintSource()));
             *///?} else {
-            ItemModel.Unbaked trimmed = new BlockModelWrapper.Unbaked(trimmedModel, List.of(new Constant(0xFFFFFFFF), ArmorTrimItemTintSource.itemTintSource()));
+            ItemModel.Unbaked trimmed = new BlockModelWrapper.Unbaked(trimmedModel,
+                    List.of(new Constant(0xFFFFFFFF), ArmorTrimItemTintSource.itemTintSource()));
             //?}
-        //?}
-        //? if >=1.21.4 {
             inventory = ItemModelUtils.conditional(new HasComponent(DataComponents.TRIM, false), trimmed, base);
-        //?} else {
-        /*ResourceLocation natural = ModelLocations.itemModel(item);
-        if (!natural.equals(baseModel) && trimmedModel == null) {
-            JsonObject json = new JsonObject();
-            json.addProperty("parent", baseModel.toString());
-            model(natural, json);
-        *///?}
         }
-        //? if >=1.21.4 {
         if (headModel != null) {
             inventory = ItemModelUtils.select(new DisplayContext(), inventory,
                     List.of(new SelectItemModel.SwitchCase<>(List.of(ItemDisplayContext.HEAD), ItemModelUtils.plainModel(headModel))));
         }
         items.itemModelOutput.accept(item, inventory);
-        //?}
+        //?} else {
+        /*var natural = ModelLocations.itemModel(item);
+        if (!natural.equals(baseModel) && trimmedModel == null) {
+            JsonObject json = new JsonObject();
+            json.addProperty("parent", baseModel.toString());
+            model(natural, json);
+        }
+        *///?}
     }
 
     //? if >=1.21.4 {
     private static List<ItemTintSource> itemTints(List<Tints.Tint> tints) {
-        if (tints.stream().allMatch(t -> !t.tinted())) return List.of();
-        return tints.stream().map(NewgenOutput::itemTint).toList();
+        if (tints.stream().noneMatch(Tints.Tint::tinted)) return List.of();
+        return tints.stream().map(Tints.Tint::itemTintSource).toList();
     }
 
-    private static ItemTintSource itemTint(Tints.Tint tint) {
-        return tint.itemTintSource();
-    }
     //?}
     State state(Block block) {
         if (!generatedBlocks.add(block)) throw new IllegalStateException("Block is declared twice in newgen: " + block);
         return new State(block);
     }
+
     //? if >=1.21.11 {
     /*record Application(List<Identifier> models, int x, int y, Variants.Set variants, boolean uvLock) {}
+
     *///?} else {
     record Application(List<ResourceLocation> models, int x, int y, Variants.Set variants, boolean uvLock) {}
+
     //?}
     final class State {
         private final Block block;
         private final Map<Application, List<Conditions.Match>> parts = new LinkedHashMap<>();
+
         private State(Block block) { this.block = block; }
+
         //? if >=1.21.11 {
         /*void add(Identifier model, Conditions.Match when, int x, int y, Variants.Set variants, boolean uvLock) {
         *///?} else {
@@ -317,18 +323,20 @@ final class NewgenOutput {
         //?}
             add(List.of(model), when, x, y, variants, uvLock);
         }
+
         //? if >=1.21.11 {
         /*void add(List<Identifier> models, Conditions.Match when, int x, int y, Variants.Set variants, boolean uvLock) {
         *///?} else {
         void add(List<ResourceLocation> models, Conditions.Match when, int x, int y, Variants.Set variants, boolean uvLock) {
         //?}
             if (models.isEmpty()) throw new IllegalArgumentException("A state needs at least one model");
-            Application apply = new Application(List.copyOf(models), ModelTransforms.quarterTurn(x), ModelTransforms.quarterTurn(y), variants, uvLock);
+            Application apply = new Application(List.copyOf(models), Rotations.quarterTurn(x), Rotations.quarterTurn(y), variants, uvLock);
             List<Conditions.Match> matches = parts.computeIfAbsent(apply, ignored -> new ArrayList<>());
             if (matches.stream().anyMatch(Conditions.Match::isAlways)) return;
             if (when.isAlways()) matches.clear();
             if (!matches.contains(when)) matches.add(when);
         }
+
         void finish() {
             if (parts.isEmpty()) throw new IllegalStateException("No model parts generated for " + block);
             //? if >=1.21.4 {
@@ -337,55 +345,50 @@ final class NewgenOutput {
             /*MultiPartBlockStateBuilder multi = blocks.getMultipartBuilder(block);
             *///?}
             for (var entry : parts.entrySet()) {
+                List<Conditions.Match> matches = entry.getValue();
                 //? if >=1.21.4 {
                 var variants = variants(entry.getKey());
+                if (matches.get(0).isAlways()) {
+                    multi = multi.with(variants);
+                } else {
+                    //? if >=1.21.5 {
+                    ConditionBuilder[] conditions = matches.stream().map(NewgenOutput::condition).toArray(ConditionBuilder[]::new);
+                    //?} else {
+                    /*Condition[] conditions = matches.stream().map(NewgenOutput::condition).toArray(Condition[]::new);
+                    *///?}
+                    if (conditions.length == 1) {
+                        multi = multi.with(conditions[0], variants);
+                    } else {
+                        //? if >=1.21.5 {
+                        multi = multi.with(BlockModelGenerators.or(conditions), variants);
+                        //?} else {
+                        /*multi = multi.with(Condition.or(conditions), variants);
+                        *///?}
+                    }
+                }
                 //?} else {
                 /*Application apply = entry.getKey();
                 var builder = multi.part();
                 int remaining = apply.models().size() * apply.variants().options().size();
-                for (ResourceLocation model : apply.models()) {
+                for (var model : apply.models()) {
                     for (Variants.Option option : apply.variants().options()) {
-                        builder = builder.modelFile(new ModelFile.UncheckedModelFile(model))
-                                .rotationX(ModelTransforms.combine(apply.x(), option.rotationX()))
-                                .rotationY(ModelTransforms.combine(apply.y(), option.rotationY()))
-                                .weight(option.weight()).uvLock(apply.uvLock());
+                        builder = builder.modelFile(new ModelFile.UncheckedModelFile(model)).rotationX(Rotations.combine(apply.x(), option.rotationX()))
+                                .rotationY(Rotations.combine(apply.y(), option.rotationY())).weight(option.weight()).uvLock(apply.uvLock());
                         if (--remaining > 0) builder = builder.nextModel();
                     }
                 }
                 var part = builder.addModel();
-                *///?}
-                List<Conditions.Match> matches = entry.getValue();
-                //? if >=1.21.4 {
-                if (matches.get(0).isAlways()) {
-                    multi = multi.with(variants);
-                //?} else {
-                /*if (matches.size() == 1) {
+                if (matches.size() == 1) {
                     for (Conditions.Term<?> term : matches.get(0).terms()) term(part, term);
-                *///?}
                 } else {
-                    //? if <1.21.4 || >=1.21.5 {
-                    //? if >=1.21.5 {
-                    ConditionBuilder[] conditions = matches.stream().map(NewgenOutput::condition).toArray(ConditionBuilder[]::new);
-                    if (conditions.length == 1) {
-                        multi = multi.with(conditions[0], variants);
-                    } else {
-                        multi = multi.with(BlockModelGenerators.or(conditions), variants);
-                    //?} else {
-                    /*part.useOr();
+                    part.useOr();
                     for (Conditions.Match match : matches) {
                         var group = part.nestedGroup();
                         for (Conditions.Term<?> term : match.terms()) term(group, term);
                         group.end();
-                    *///?}
                     }
-                    //?}
-                    //? if >=1.21.4 <1.21.5 {
-                    /*Condition[] conditions = matches.stream().map(NewgenOutput::condition).toArray(Condition[]::new);
-                    multi = multi.with(conditions.length == 1 ? conditions[0] : Condition.or(conditions), variants);
-                    *///?}
                 }
-                //? if <1.21.4 {
-                /*part.end();
+                part.end();
                 *///?}
             }
             //? if >=1.21.4 {
@@ -393,20 +396,15 @@ final class NewgenOutput {
             //?}
         }
     }
-    //? if >=1.21.4 {
+
     //? if >=1.21.5 {
     private static final Quadrant[] QUADRANTS = Quadrant.values();
-    //?} else {
+    //?} else if >=1.21.4 {
     /*private static final VariantProperties.Rotation[] ROTATIONS = VariantProperties.Rotation.values();
     *///?}
-    //?}
-    //? if <1.21.4 {
-    /*private static IllegalStateException duplicate(ResourceLocation id) {
-        return new IllegalStateException("Another generator already owns model " + id);
-    }
-    *///?}
+
     //? if >=1.21.4 {
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     //? if >=1.21.5 {
     private static ConditionBuilder condition(Conditions.Match match) {
         var condition = BlockModelGenerators.condition();
@@ -417,51 +415,27 @@ final class NewgenOutput {
         for (Conditions.Term<?> term : match.terms()) condition.term((Property) term.property(), (Comparable) term.value());
         return condition;
     }
-    //?}
-    //? if <1.21.4 || >=1.21.5 {
-    //? if <1.21.4 {
-    /*@SuppressWarnings({"rawtypes", "unchecked"})
-    private static void term(MultiPartBlockStateBuilder.PartBuilder part, Conditions.Term<?> term) {
-        part.condition((Property) term.property(), (Comparable) term.value());
-    }
-    *///?}
+
     //? if >=1.21.5 {
     private static MultiVariant variants(Application apply) {
-    //?}
-    //?}
-    //? if >=1.21.4 {
-    //? if >=1.21.5 {
         WeightedList.Builder<Variant> result = WeightedList.builder();
     //?} else {
     /*private static List<Variant> variants(Application apply) {
-    *///?}
-        //? if >=1.21.4 <1.21.5 || >=1.21.11 {
-        /*//? if >=1.21.11 {
-        /^for (Identifier model : apply.models()) {
-        ^///?} else {
         List<Variant> result = new ArrayList<>();
-        //?}
-        *///?}
-        //? if >=1.21.4 <1.21.11 {
-        for (ResourceLocation model : apply.models()) {
-        //?}
+    *///?}
+        for (var model : apply.models()) {
             for (Variants.Option option : apply.variants().options()) {
                 //? if >=1.21.5 {
-                Variant variant = new Variant(model)
-                        .withXRot(QUADRANTS[ModelTransforms.combine(apply.x(), option.rotationX()) / 90])
-                        .withYRot(QUADRANTS[ModelTransforms.combine(apply.y(), option.rotationY()) / 90])
-                        .withUvLock(apply.uvLock());
-                //?} else {
-                /*Variant variant = Variant.variant().with(VariantProperties.MODEL, model)
-                        .with(VariantProperties.X_ROT, ROTATIONS[ModelTransforms.combine(apply.x(), option.rotationX()) / 90])
-                        .with(VariantProperties.Y_ROT, ROTATIONS[ModelTransforms.combine(apply.y(), option.rotationY()) / 90])
-                        .with(VariantProperties.WEIGHT, option.weight());
-                if (apply.uvLock()) variant = variant.with(VariantProperties.UV_LOCK, true);
-                *///?}
-                //? if >=1.21.5 {
+                Variant variant = new Variant(model).withXRot(QUADRANTS[Rotations.combine(apply.x(), option.rotationX()) / 90])
+                        .withYRot(QUADRANTS[Rotations.combine(apply.y(), option.rotationY()) / 90]).withUvLock(apply.uvLock());
                 result.add(variant, option.weight());
                 //?} else {
-                /*result.add(variant);
+                /*Variant variant = Variant.variant().with(VariantProperties.MODEL, model)
+                        .with(VariantProperties.X_ROT, ROTATIONS[Rotations.combine(apply.x(), option.rotationX()) / 90])
+                        .with(VariantProperties.Y_ROT, ROTATIONS[Rotations.combine(apply.y(), option.rotationY()) / 90])
+                        .with(VariantProperties.WEIGHT, option.weight());
+                if (apply.uvLock()) variant = variant.with(VariantProperties.UV_LOCK, true);
+                result.add(variant);
                 *///?}
             }
         }
@@ -471,13 +445,19 @@ final class NewgenOutput {
         /*return result;
         *///?}
     }
-    //?}
-    //? if <1.21.4 {
-    /*@SuppressWarnings({"rawtypes", "unchecked"})
+    //?} else {
+    /*private static IllegalStateException duplicate(ResourceLocation id) {
+        return new IllegalStateException("Another generator already owns model " + id);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static void term(MultiPartBlockStateBuilder.PartBuilder part, Conditions.Term<?> term) {
+        part.condition((Property) term.property(), (Comparable) term.value());
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static void term(MultiPartBlockStateBuilder.PartBuilder.ConditionGroup group, Conditions.Term<?> term) {
         group.condition((Property) term.property(), (Comparable) term.value());
     }
     *///?}
 }
-
-

@@ -36,10 +36,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostVoxelShapes;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostHitboxes;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
+
+import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 
 public final class VocoPostBlock extends HorizontalDirectionalBlock implements EntityBlock {
     //? if <26.3 {
@@ -47,6 +49,7 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     //?}
     public static final BooleanProperty LIT = BooleanProperty.create("lit");
     public static final BooleanProperty PORTAL = BooleanProperty.create("portal");
+
     public VocoPostBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, false).setValue(PORTAL, false));
@@ -57,12 +60,14 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
         return CODEC;
     }
+
     //?}
     //? if >=1.21.11 {
     /*@Override
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.INVISIBLE;
     }
+
     *///?}
     @Nullable
     @Override
@@ -73,12 +78,12 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     //? if <1.21.5 {
     /*@Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.getBlock() != newState.getBlock()
-                && level.getBlockEntity(pos) instanceof VocoPostBlockEntity blockEntity) {
+        if (state.getBlock() != newState.getBlock() && level.getBlockEntity(pos) instanceof VocoPostBlockEntity blockEntity) {
             blockEntity.cleanupBeforeRemoval();
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
+
     *///?}
     @Nullable
     @Override
@@ -93,27 +98,65 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return VocoPostVoxelShapes.SHAPE;
+        return VocoPostHitboxes.SHAPE;
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        return VocoPostLogic.useWithoutItem(state, level, pos, player, hit);
+        ReceptorPosition receptor = receptorHit(state, pos, hit);
+        if (receptor == null) return InteractionResult.PASS;
+        if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) return InteractionResult.SUCCESS;
+        if (!VocoReceptorLogic.isCompletelyEmptyHanded(player)) return InteractionResult.PASS;
+        PearlSlotIgnition.Slot pearlSlot = VocoReceptorLogic.pearlSlot(VocoPostBlock.LIT, VocoPostBlock.PORTAL, receptor);
+        if (!PearlSlotIgnition.isLit(state, pearlSlot)) {
+            if (!level.isClientSide() && PearlSlotIgnition.igniteFromBalance(state, level, pos, player, pearlSlot)) {
+                VocoPostCandleLogic.refreshPortalAt(level, pos);
+            }
+            return InteractionResult.SUCCESS;
+        }
+        if (!state.getValue(VocoPostBlock.PORTAL) && level.isClientSide()) {
+            VocoReceptorLogic.showNeedsPortalMessage(player);
+        }
+        return InteractionResult.SUCCESS;
     }
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
     //?} else {
     /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
     *///?}
-        InteractionResult result = VocoPostLogic.useItemOn(stack, state, level, pos, player, hand, hit);
+        InteractionResult result = this.handleItemUse(stack, state, level, pos, player, hand, hit);
         //? if >=1.21.2 {
         return result;
         //?} else {
         /*return InteractionResultCompat.forItemUse(result);
         *///?}
+    }
+
+    private InteractionResult handleItemUse(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        //? if >=1.21.2 {
+        if (stack.isEmpty()) return InteractionResult.TRY_WITH_EMPTY_HAND;
+        //?} else {
+        /*if (stack.isEmpty()) return InteractionResult.PASS;
+        *///?}
+        ReceptorPosition receptor = receptorHit(state, pos, hit);
+        if (receptor == null) return InteractionResult.PASS;
+        if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) return InteractionResult.SUCCESS;
+        PearlSlotIgnition.Slot pearlSlot = VocoReceptorLogic.pearlSlot(VocoPostBlock.LIT, VocoPostBlock.PORTAL, receptor);
+        InteractionResult result = PearlSlotIgnition.handleHeldItemUse(stack, state, level, pos, player, hand, pearlSlot);
+        if (result == InteractionResult.SUCCESS && !level.isClientSide()) {
+            VocoPostCandleLogic.refreshPortalAt(level, pos);
+        }
+        return result;
+    }
+
+    @Nullable
+    private static ReceptorPosition receptorHit(BlockState state, BlockPos pos, BlockHitResult hit) {
+        return VocoPostHitboxes.isReceptor(pos, hit) ? VocoPostBlock.receptorPosition(state) : null;
     }
 
     @Override
@@ -129,23 +172,20 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     protected BlockState updateShape(BlockState state, LevelReader levelReader, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction,
             BlockPos neighborPos, BlockState neighborState, RandomSource random) {
     //?} else {
-    /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor levelReader, BlockPos pos,
+            BlockPos neighborPos) {
     *///?}
-        //? if >=1.21.2 {
         return VocoPostCandleLogic.updateShape(state, levelReader, pos, direction);
-        //?} else {
-        /*return VocoPostCandleLogic.updateShape(state, level, pos, direction);
-        *///?}
     }
 
     public static ReceptorPosition receptorPosition(BlockState state) {
         Direction facing = state.hasProperty(FACING) ? state.getValue(FACING) : Direction.NORTH;
         return switch (facing) {
-            case NORTH -> ReceptorPosition.NORTH_EAST;
-            case EAST -> ReceptorPosition.SOUTH_EAST;
-            case SOUTH -> ReceptorPosition.SOUTH_WEST;
-            case WEST -> ReceptorPosition.NORTH_WEST;
-            default -> ReceptorPosition.NORTH_EAST;
+        case NORTH -> ReceptorPosition.NORTH_EAST;
+        case EAST -> ReceptorPosition.SOUTH_EAST;
+        case SOUTH -> ReceptorPosition.SOUTH_WEST;
+        case WEST -> ReceptorPosition.NORTH_WEST;
+        default -> ReceptorPosition.NORTH_EAST;
         };
     }
 }

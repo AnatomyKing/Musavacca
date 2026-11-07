@@ -1,4 +1,4 @@
-package space.anatomyuniverse.musavacca.item.custom;
+package space.anatomyuniverse.musavacca.item;
 
 //? if >=26.2 {
 /*import net.minecraft.advancements.triggers.CriteriaTriggers;
@@ -7,6 +7,8 @@ import net.minecraft.advancements.CriteriaTriggers;
 //?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -16,10 +18,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -39,6 +39,7 @@ import space.anatomyuniverse.musavacca.tint.PearlPlacementColorMemory;
 
 public final class PearlIgniter {
     private static final Component TITLE = Component.literal("Pearl Fire Hex");
+
     private PearlIgniter() {}
 
     public static boolean is(ItemStack stack) {
@@ -68,9 +69,8 @@ public final class PearlIgniter {
     }
 
     private static DataComponentPatch.Builder configuration() {
-        var components = DataComponentPatch.builder()
-                .set(ModDataComponents.PEARL_IGNITER.get(), true)
-                .set(DataComponents.ITEM_NAME, Component.translatable("item.musavacca.flint_and_pearl"));
+        var components = DataComponentPatch.builder().set(ModDataComponents.PEARL_IGNITER.get(), true).set(DataComponents.ITEM_NAME,
+                Component.translatable("item.musavacca.flint_and_pearl"));
         //? if >=1.21.11 {
         /*components.set(DataComponents.ITEM_MODEL, net.minecraft.resources.Identifier.fromNamespaceAndPath("musavacca", "flint_and_pearl"));
         *///?} else if >=1.21.2 {
@@ -93,17 +93,11 @@ public final class PearlIgniter {
 
     public static void openGui(ServerPlayer serverPlayer, InteractionHand hand, ItemStack stack) {
         int initialHex = getStoredHexOrDefault(stack);
-        serverPlayer.openMenu(
-                new SimpleMenuProvider(
-                        (containerId, playerInventory, openingPlayer) ->
-                                new FlintAndPearlMenu(containerId, playerInventory, hand, initialHex),
-                        TITLE
-                ),
-                buf -> {
+        serverPlayer.openMenu(new SimpleMenuProvider(
+                (containerId, playerInventory, openingPlayer) -> new FlintAndPearlMenu(containerId, playerInventory, hand, initialHex), TITLE), buf -> {
                     buf.writeBoolean(hand == InteractionHand.OFF_HAND);
                     buf.writeInt(initialHex);
-                }
-        );
+                });
     }
 
     public static int getStoredHexOrDefault(ItemStack stack) {

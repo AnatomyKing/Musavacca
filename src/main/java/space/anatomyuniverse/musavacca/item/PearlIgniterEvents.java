@@ -9,7 +9,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
-import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
 
 public final class PearlIgniterEvents {
     private PearlIgniterEvents() {}
@@ -28,8 +27,7 @@ public final class PearlIgniterEvents {
     public static void onUseItemOnBlock(UseItemOnBlockEvent event) {
         if (event.getUsePhase() != UseItemOnBlockEvent.UsePhase.ITEM_AFTER_BLOCK || !PearlIgniter.is(event.getItemStack())) return;
         var state = event.getLevel().getBlockState(event.getPos());
-        if (PearlCandleConversion.isCandle(state) && !PearlCandleConversion.value(state, "lit")
-                && !PearlCandleConversion.value(state, "waterlogged")) return;
+        if (PearlCandleConversion.isCandle(state) && !PearlCandleConversion.value(state, "lit") && !PearlCandleConversion.value(state, "waterlogged")) return;
         InteractionResult result = PearlIgniter.useOn(event.getUseOnContext());
         //? if >=1.21.2 {
         event.cancelWithResult(result);
@@ -41,8 +39,7 @@ public final class PearlIgniterEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         var player = event.getEntity();
-        if (!PearlIgniter.is(event.getItemStack()) || player.isSpectator()
-                || !PearlIgniter.shouldOpenGui(event.getLevel(), player)) return;
+        if (!PearlIgniter.is(event.getItemStack()) || player.isSpectator() || !PearlIgniter.shouldOpenGui(event.getLevel(), player)) return;
         PearlIgniter.ensureDefaultColorComponent(event.getItemStack());
         if (player instanceof ServerPlayer serverPlayer) PearlIgniter.openGui(serverPlayer, event.getHand(), event.getItemStack());
         //? if >=1.21.2 {

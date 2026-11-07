@@ -40,6 +40,7 @@ import net.minecraft.world.level.portal.TeleportTransition;
 //?} else {
 /*import net.minecraft.world.level.portal.DimensionTransition;
 *///?}
+import java.util.Map;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -51,10 +52,8 @@ import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
-import space.anatomyuniverse.musavacca.portal.PearlPortalResolver;
 import space.anatomyuniverse.musavacca.portal.PearlPortalTransform;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportPreloader;
-import java.util.Map;
 //? if >=1.21.2 {
 import java.util.Set;
 //?}
@@ -66,6 +65,7 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     private static final Map<Direction.Axis, VoxelShape> SHAPES = Map.of(Direction.Axis.X, Block.box(0.0D, 0.0D, 6.0D, 16.0D, 16.0D, 10.0D), Direction.Axis.Z,
             Block.box(6.0D, 0.0D, 0.0D, 10.0D, 16.0D, 16.0D), Direction.Axis.Y, Block.box(0.0D, 6.0D, 0.0D, 16.0D, 10.0D, 16.0D));
+
     public PearlPortalBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(AXIS, Direction.Axis.X));
@@ -80,12 +80,14 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     public MapCodec<PearlPortalBlock> codec() {
         return CODEC;
     }
+
     //?}
     //? if >=1.21.11 {
     /*@Override
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.INVISIBLE;
     }
+
     *///?}
     @Nullable
     @Override
@@ -118,8 +120,7 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
 
     private boolean shouldRemovePortal(BlockState state, LevelReader level, BlockPos pos, Direction direction, BlockState neighborState) {
         Direction.Axis portalAxis = state.getValue(AXIS);
-        return direction.getAxis() != portalNormalAxis(portalAxis)
-                && !neighborState.is(this)
+        return direction.getAxis() != PearlPortalFrame.normalAxis(portalAxis) && !neighborState.is(this)
                 && PearlPortalFrame.findExistingShape(level, pos, portalAxis).isEmpty();
     }
 
@@ -145,12 +146,12 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     //? if <1.21.5 {
     /*@Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.getBlock() != newState.getBlock()
-                && level.getBlockEntity(pos) instanceof PearlPortalBlockEntity blockEntity) {
+        if (state.getBlock() != newState.getBlock() && level.getBlockEntity(pos) instanceof PearlPortalBlockEntity blockEntity) {
             blockEntity.cleanupBeforeRemoval();
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
+
     *///?}
     @Override
     public int getPortalTransitionTime(ServerLevel level, Entity entity) {
@@ -160,15 +161,15 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     @Nullable
     @Override
     public
-    //? if >=1.21.2 {
-    TeleportTransition
-    //?} else {
-    /*DimensionTransition
-    *///?}
-    getPortalDestination(ServerLevel currentLevel, Entity entity, BlockPos entryPos) {
-        PearlPortalResolver.ResolvedPortal sourcePortal = findSourcePortal(currentLevel, entryPos);
+            //? if >=1.21.2 {
+            TeleportTransition
+            //?} else {
+            /*DimensionTransition
+            *///?}
+            getPortalDestination(ServerLevel currentLevel, Entity entity, BlockPos entryPos) {
+        PearlPortalNetwork.Portal sourcePortal = PearlPortalNetwork.findSourcePortal(currentLevel, entryPos);
         if (sourcePortal == null) return null;
-        PearlPortalResolver.ResolvedPortal targetPortal = PearlPortalResolver.resolveLinkedPortal(currentLevel, sourcePortal.portalId()).orElse(null);
+        PearlPortalNetwork.Portal targetPortal = PearlPortalNetwork.resolveLinkedPortal(currentLevel, sourcePortal.portalId()).orElse(null);
         if (targetPortal == null) return null;
         ServerLevel targetLevel = targetPortal.level();
         PearlPortalTransform.Result transform = PearlPortalTransform.calculate(entity, sourcePortal, targetPortal);
@@ -183,77 +184,16 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
                 //?} else {
                 /*DimensionTransition
                 *///?}
-                        .PLAY_PORTAL_SOUND
-                        .then(
-                                teleportedEntity -> {
-                                    teleportedEntity.setPortalCooldown();
-                                    teleportedEntity.setDeltaMovement(transform.deltaMovement());
-                                    PearlPortalResolver.keepDestinationAlive(teleportedEntity, safeBlockPos);
-                                }
-                        );
+                        .PLAY_PORTAL_SOUND.then(teleportedEntity -> {
+                            teleportedEntity.setPortalCooldown();
+                            teleportedEntity.setDeltaMovement(transform.deltaMovement());
+                            teleportedEntity.placePortalTicket(safeBlockPos);
+                        });
         //? if >=1.21.2 {
         return new TeleportTransition(targetLevel, safePos, transform.deltaMovement(), transform.yRot(), transform.xRot(), Set.of(), postTeleport);
         //?} else {
         /*return new DimensionTransition(targetLevel, safePos, transform.deltaMovement(), transform.yRot(), transform.xRot(), postTeleport);
         *///?}
-    }
-
-    @Nullable
-    private static PearlPortalResolver.ResolvedPortal findSourcePortal(ServerLevel level, BlockPos entryPos) {
-        if (
-                level.getBlockEntity(entryPos)
-                        instanceof PearlPortalBlockEntity portalBlockEntity
-                        && portalBlockEntity.isValidPortalTile()
-        ) {
-            PearlPortalNetwork.registerPortalBlock(portalBlockEntity);
-            return fromBlockEntity(level, portalBlockEntity);
-        }
-        PearlPortalNetwork.LoadedPortal loadedPortal = PearlPortalNetwork.getLoadedPortalAt(level, entryPos).orElse(null);
-        if (loadedPortal != null) return fromLoadedPortal(loadedPortal);
-        BlockState state = level.getBlockState(entryPos);
-        if (
-                !(state.getBlock()
-                        instanceof PearlPortalBlock)
-        ) {
-            return null;
-        }
-        Direction.Axis axis = state.getValue(AXIS);
-        PearlPortalFrame.Shape shape = PearlPortalFrame.findExistingShape(level, entryPos, axis).orElse(null);
-        if (shape == null) return null;
-        PearlPortalBlockEntity foundTile = findAnyValidPortalTile(level, shape);
-        if (foundTile == null) return null;
-        PearlPortalNetwork.registerPortalBlock(foundTile);
-        return fromBlockEntity(level, foundTile);
-    }
-
-    @Nullable
-    private static PearlPortalBlockEntity findAnyValidPortalTile(ServerLevel level, PearlPortalFrame.Shape shape) {
-        PearlPortalBlockEntity[] found =
-                {
-                        null
-                };
-        shape.forEachInteriorBlock(
-                pos -> {
-                    if (found[0] != null) return;
-                    if (
-                            level.getBlockEntity(pos)
-                                    instanceof PearlPortalBlockEntity portalBlockEntity
-                                    && portalBlockEntity.isValidPortalTile()
-                    ) {
-                        found[0] = portalBlockEntity;
-                    }
-                }
-        );
-        return found[0];
-    }
-
-    private static PearlPortalResolver.ResolvedPortal fromBlockEntity(ServerLevel level, PearlPortalBlockEntity portalBlockEntity) {
-        return new PearlPortalResolver.ResolvedPortal(portalBlockEntity.getPortalId(), level, portalBlockEntity.getPortalShape(),
-                portalBlockEntity.getHexColor());
-    }
-
-    private static PearlPortalResolver.ResolvedPortal fromLoadedPortal(PearlPortalNetwork.LoadedPortal loadedPortal) {
-        return new PearlPortalResolver.ResolvedPortal(loadedPortal.portalId(), loadedPortal.level(), loadedPortal.shape(), loadedPortal.hexColor());
     }
 
     @Override
@@ -267,11 +207,7 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             level.playLocalSound(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, SoundEvents.PORTAL_AMBIENT, SoundSource.BLOCKS, 0.5F,
                     random.nextFloat() * 0.4F + 0.8F, false);
         }
-        if (
-                !(level.getBlockEntity(pos)
-                        instanceof PearlPortalBlockEntity pearlPortalBe)
-                        || !pearlPortalBe.isValidPortalTile()
-        ) {
+        if (!(level.getBlockEntity(pos) instanceof PearlPortalBlockEntity pearlPortalBe) || !pearlPortalBe.isValidPortalTile()) {
             return;
         }
         if (random.nextFloat() > 0.35F) return;
@@ -285,18 +221,18 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
         double dz = (random.nextFloat() - 0.5D) * 0.5D;
         int side = random.nextInt(2) * 2 - 1;
         switch (axis) {
-            case X -> {
-                z = pos.getZ() + 0.5D + 0.25D * side;
-                dz = random.nextFloat() * 2.0F * side;
-            }
-            case Z -> {
-                x = pos.getX() + 0.5D + 0.25D * side;
-                dx = random.nextFloat() * 2.0F * side;
-            }
-            case Y -> {
-                y = pos.getY() + 0.5D + 0.25D * side;
-                dy = random.nextFloat() * 2.0F * side;
-            }
+        case X -> {
+            z = pos.getZ() + 0.5D + 0.25D * side;
+            dz = random.nextFloat() * 2.0F * side;
+        }
+        case Z -> {
+            x = pos.getX() + 0.5D + 0.25D * side;
+            dx = random.nextFloat() * 2.0F * side;
+        }
+        case Y -> {
+            y = pos.getY() + 0.5D + 0.25D * side;
+            dy = random.nextFloat() * 2.0F * side;
+        }
         }
         ProfileTintParticles.spawnRandomVariant(level, random, hexColor, x, y, z, dx, dy, dz, ModParticleTypes.PEARL_G_TINTED.get(),
                 ModParticleTypes.PEARL_2_TINTED.get(), ModParticleTypes.PEARL_C_TINTED.get(), ModParticleTypes.PEARL_H_TINTED.get());
@@ -314,29 +250,18 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
         return switch (rotation) {
-            case COUNTERCLOCKWISE_90,
-                 CLOCKWISE_90 ->
-                    switch (
-                            state.getValue(AXIS)
-                            ) {
-                        case X ->
-                                state.setValue(AXIS, Direction.Axis.Z);
-                        case Z ->
-                                state.setValue(AXIS, Direction.Axis.X);
-                        case Y ->
-                                state;
-                    };
-            default ->
-                    state;
+        case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(AXIS)) {
+        case X -> state.setValue(AXIS, Direction.Axis.Z);
+        case Z -> state.setValue(AXIS, Direction.Axis.X);
+        case Y -> state;
+        };
+        default -> state;
         };
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder< Block, BlockState > builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AXIS);
     }
 
-    private static Direction.Axis portalNormalAxis(Direction.Axis portalAxis) {
-        return switch (portalAxis) { case X -> Direction.Axis.Z; case Z -> Direction.Axis.X; case Y -> Direction.Axis.Y; };
-    }
 }

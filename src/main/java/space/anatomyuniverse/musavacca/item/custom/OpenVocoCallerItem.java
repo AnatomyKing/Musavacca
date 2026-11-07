@@ -5,11 +5,9 @@ package space.anatomyuniverse.musavacca.item.custom;
 *///?}
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
+//? if >=1.21.2 <1.21.4 {
+/*import net.minecraft.resources.ResourceLocation;
+*///?}
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,21 +30,21 @@ import net.minecraft.world.item.component.TooltipDisplay;
 //?}
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import space.anatomyuniverse.musavacca.MusaCore;
+//? if >=1.21.2 <1.21.4 {
+/*import space.anatomyuniverse.musavacca.MusaCore;
+*///?}
+import java.util.List;
+import java.util.Optional;
 import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerBundleTooltip;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
-import java.util.List;
-import java.util.Optional;
 
-public class OpenVocoCallerItem
-        extends BundleItem {
-    //? if >=1.21.11 {
-    /*private static final Identifier LEGACY_BUNDLE_MODEL = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "item/banana_phone");
-    *///?} else {
-    private static final ResourceLocation LEGACY_BUNDLE_MODEL = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "item/banana_phone");
-    //?}
+public class OpenVocoCallerItem extends BundleItem {
+    //? if >=1.21.2 <1.21.4 {
+    /*private static final ResourceLocation LEGACY_BUNDLE_MODEL = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "item/banana_phone");
+
+    *///?}
     public OpenVocoCallerItem(Properties properties) {
         //? if <1.21.2 || >=1.21.4 {
         super(properties);
@@ -56,41 +54,19 @@ public class OpenVocoCallerItem
     }
 
     public static ItemStack getSim(ItemStack phone) {
-        if (
-                phone.isEmpty()
-                        || !(phone.getItem()
-                        instanceof OpenVocoCallerItem)
-        ) {
-            return ItemStack.EMPTY;
-        }
-        return phone
-                .getOrDefault(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY)
+        if (phone.isEmpty() || !(phone.getItem() instanceof OpenVocoCallerItem)) return ItemStack.EMPTY;
+        return phone.getOrDefault(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY)
                 //? if >=26.3 {
                 /*.itemCopies()
                 *///?} else {
                 .itemCopyStream()
                 //?}
-                .filter(
-                        stack ->
-                                stack.getItem()
-                                        instanceof SimCardItem
-                )
-                .findFirst()
-                .orElse(ItemStack.EMPTY);
+                .filter(stack -> stack.getItem() instanceof SimCardItem).findFirst().orElse(ItemStack.EMPTY);
     }
 
     public static void setSim(ItemStack phone, ItemStack sim) {
-        if (
-                phone.isEmpty()
-                        || !(phone.getItem()
-                        instanceof OpenVocoCallerItem)
-        ) {
-            return;
-        }
-        if (
-                sim == null
-                        || sim.isEmpty()
-        ) {
+        if (phone.isEmpty() || !(phone.getItem() instanceof OpenVocoCallerItem)) return;
+        if (sim == null || sim.isEmpty()) {
             phone.set(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY);
             return;
         }
@@ -98,7 +74,7 @@ public class OpenVocoCallerItem
         ItemStack storedSim = sim.copy();
         storedSim.setCount(1);
         //? if >=26.1 {
-        /*phone.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(java.util.List.of(ItemStackTemplate.fromNonEmptyStack(storedSim))));
+        /*phone.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(List.of(ItemStackTemplate.fromNonEmptyStack(storedSim))));
         *///?} else {
         phone.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(List.of(storedSim)));
         //?}
@@ -106,12 +82,7 @@ public class OpenVocoCallerItem
 
     public static int getSimHex(ItemStack phone) {
         ItemStack sim = getSim(phone);
-        if (
-                sim.isEmpty()
-                        || !SimCardItem.hasStoredHex(sim)
-        ) {
-            return -1;
-        }
+        if (sim.isEmpty() || !SimCardItem.hasStoredHex(sim)) return -1;
         return HexTeleportDirectory.normalizeHex(SimCardItem.getStoredHexOrFallback(sim, 0));
     }
 
@@ -121,19 +92,16 @@ public class OpenVocoCallerItem
         int used = getSim(stack).isEmpty() ? 0 : 1;
         tooltipComponents.add(Component.literal(used + "/1").withStyle(ChatFormatting.GRAY));
     }
+
     *///?}
     @Override
     //? if >=1.21.2 {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
     //?} else {
     /*public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
     *///?}
-        //? if >=1.21.2 {
-        openPhone(level, player, player.getItemInHand(hand));
-        //?} else {
-        /*openPhone(level, player, stack);
-        *///?}
+        ItemStack stack = player.getItemInHand(hand);
+        openPhone(level, player, stack);
         //? if >=1.21.2 {
         return InteractionResult.SUCCESS_SERVER;
         //?} else {
@@ -163,23 +131,11 @@ public class OpenVocoCallerItem
     public boolean overrideOtherStackedOnMe(ItemStack phone, ItemStack carried, Slot slot, ClickAction action, Player player, SlotAccess carriedAccess) {
         ItemStack currentSim = getSim(phone);
         if (!carried.isEmpty()) {
-            if (
-                    !isInsertAction(action)
-                            || !(carried.getItem()
-                            instanceof SimCardItem)
-                            || !SimCardItem.hasStoredHex(carried)
-                            || !currentSim.isEmpty()
-            ) {
-                return false;
-            }
+            if (!canInsert(action, carried, currentSim)) return false;
             ItemStack insertingSim = carried.copy();
             insertingSim.setCount(1);
             if (player.level().isClientSide()) return super.overrideOtherStackedOnMe(phone, carried, slot, action, player, carriedAccess);
-            if (
-                    !(player
-                            instanceof ServerPlayer serverPlayer)
-                            || !activateForInsert(serverPlayer, insertingSim)
-            ) {
+            if (!(player instanceof ServerPlayer serverPlayer) || !activateForInsert(serverPlayer, insertingSim)) {
                 return true;
             }
             boolean handled = super.overrideOtherStackedOnMe(phone, carried, slot, action, player, carriedAccess);
@@ -188,29 +144,13 @@ public class OpenVocoCallerItem
             }
             return handled;
         }
-        if (
-                action != ClickAction.SECONDARY
-                        || currentSim.isEmpty()
-        ) {
-            return false;
-        }
-        if (
-                !player.level().isClientSide()
-                        && player
-                        instanceof ServerPlayer serverPlayer
-                        && !VocoCallerNetwork.canEject(serverPlayer, currentSim)
-        ) {
+        if (action != ClickAction.SECONDARY || currentSim.isEmpty()) return false;
+        if (!player.level().isClientSide() && player instanceof ServerPlayer serverPlayer && !VocoCallerNetwork.canEject(serverPlayer, currentSim)) {
             denyEject(serverPlayer);
             return true;
         }
         boolean handled = super.overrideOtherStackedOnMe(phone, carried, slot, action, player, carriedAccess);
-        if (
-                !player.level().isClientSide()
-                        && player
-                        instanceof ServerPlayer serverPlayer
-                        && handled
-                        && getSim(phone).isEmpty()
-        ) {
+        if (!player.level().isClientSide() && player instanceof ServerPlayer serverPlayer && handled && getSim(phone).isEmpty()) {
             VocoCallerNetwork.release(serverPlayer, currentSim);
         }
         return handled;
@@ -221,23 +161,11 @@ public class OpenVocoCallerItem
         ItemStack currentSim = getSim(phone);
         ItemStack slotStack = slot.getItem();
         if (!slotStack.isEmpty()) {
-            if (
-                    !isInsertAction(action)
-                            || !(slotStack.getItem()
-                            instanceof SimCardItem)
-                            || !SimCardItem.hasStoredHex(slotStack)
-                            || !currentSim.isEmpty()
-            ) {
-                return false;
-            }
+            if (!canInsert(action, slotStack, currentSim)) return false;
             ItemStack insertingSim = slotStack.copy();
             insertingSim.setCount(1);
             if (player.level().isClientSide()) return super.overrideStackedOnOther(phone, slot, action, player);
-            if (
-                    !(player
-                            instanceof ServerPlayer serverPlayer)
-                            || !activateForInsert(serverPlayer, insertingSim)
-            ) {
+            if (!(player instanceof ServerPlayer serverPlayer) || !activateForInsert(serverPlayer, insertingSim)) {
                 return true;
             }
             boolean handled = super.overrideStackedOnOther(phone, slot, action, player);
@@ -246,29 +174,13 @@ public class OpenVocoCallerItem
             }
             return handled;
         }
-        if (
-                action != ClickAction.SECONDARY
-                        || currentSim.isEmpty()
-        ) {
-            return false;
-        }
-        if (
-                !player.level().isClientSide()
-                        && player
-                        instanceof ServerPlayer serverPlayer
-                        && !VocoCallerNetwork.canEject(serverPlayer, currentSim)
-        ) {
+        if (action != ClickAction.SECONDARY || currentSim.isEmpty()) return false;
+        if (!player.level().isClientSide() && player instanceof ServerPlayer serverPlayer && !VocoCallerNetwork.canEject(serverPlayer, currentSim)) {
             denyEject(serverPlayer);
             return true;
         }
         boolean handled = super.overrideStackedOnOther(phone, slot, action, player);
-        if (
-                !player.level().isClientSide()
-                        && player
-                        instanceof ServerPlayer serverPlayer
-                        && handled
-                        && getSim(phone).isEmpty()
-        ) {
+        if (!player.level().isClientSide() && player instanceof ServerPlayer serverPlayer && handled && getSim(phone).isEmpty()) {
             VocoCallerNetwork.release(serverPlayer, currentSim);
         }
         return handled;
@@ -278,18 +190,10 @@ public class OpenVocoCallerItem
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         //? if >=1.21.5 {
         TooltipDisplay display = stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT);
-        if (
-                !display.shows(DataComponents.BUNDLE_CONTENTS)
-        ) {
-            return Optional.empty();
-        }
+        if (!display.shows(DataComponents.BUNDLE_CONTENTS)) return Optional.empty();
         //?}
         BundleContents contents = stack.get(DataComponents.BUNDLE_CONTENTS);
-        //? if >=1.21.5 {
         return contents == null ? Optional.empty() : Optional.of(new VocoCallerBundleTooltip(contents));
-        //?} else {
-        /*return contents == null ? Optional.empty() : Optional.of(new VocoCallerBundleTooltip(contents));
-        *///?}
     }
 
     @Override
@@ -298,80 +202,46 @@ public class OpenVocoCallerItem
     }
 
     private static void openPhone(Level level, Player player, ItemStack phone) {
-        if (
-                level.isClientSide()
-                        || !(player
-                        instanceof ServerPlayer serverPlayer)
-        ) {
-            return;
-        }
+        if (level.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) return;
         ItemStack sim = getSim(phone);
         if (sim.isEmpty()) {
-            //? if >=26.1 {
-            /*serverPlayer.sendOverlayMessage(Component.literal("Insert a SIM card first."));
-            *///?} else {
-            serverPlayer.displayClientMessage(Component.literal("Insert a SIM card first."), true);
-            //?}
+            sendOverlay(serverPlayer, "Insert a SIM card first.");
             return;
         }
         int hex = getSimHex(phone);
         if (hex < 0) {
-            //? if >=26.1 {
-            /*serverPlayer.sendOverlayMessage(Component.literal("This SIM card does not have a Voco hex code."));
-            *///?} else {
-            serverPlayer.displayClientMessage(Component.literal("This SIM card does not have a Voco hex code."), true);
-            //?}
+            sendOverlay(serverPlayer, "This SIM card does not have a Voco hex code.");
             return;
         }
-        if (
-                !VocoCallerNetwork.isActive(level.getServer(), hex)
-        ) {
-            //? if >=26.1 {
-            /*serverPlayer.sendOverlayMessage(Component.literal("This SIM card is not active on the Voco network."));
-            *///?} else {
-            serverPlayer.displayClientMessage(Component.literal("This SIM card is not active on the Voco network."), true);
-            //?}
+        if (!VocoCallerNetwork.isActive(level.getServer(), hex)) {
+            sendOverlay(serverPlayer, "This SIM card is not active on the Voco network.");
             return;
         }
         VocoCallerMenu.open(serverPlayer, phone);
     }
 
+    private static boolean canInsert(ClickAction action, ItemStack stack, ItemStack currentSim) {
+        return isInsertAction(action) && stack.getItem() instanceof SimCardItem && SimCardItem.hasStoredHex(stack) && currentSim.isEmpty();
+    }
+
     private static boolean activateForInsert(ServerPlayer player, ItemStack sim) {
         int hex = SimCardItem.getStoredHexOrFallback(sim, 0);
         HexTeleportDirectory.Result result = VocoCallerNetwork.activate(player, sim);
-        if (
-                result
-                        == HexTeleportDirectory.Result.REGISTERED
-        ) {
-            return true;
-        }
-        //? if >=26.1 {
-        /*player.sendOverlayMessage(Component.literal(
-                        result
-                                == HexTeleportDirectory.Result.HEX_OCCUPIED
-                                ? "Voco address #"
-                                  + HexTeleportDirectory.toHex(hex)
-                                  + " is already reserved."
-                                : "This SIM card cannot be activated."
-                ));
-        *///?} else {
-        player.displayClientMessage(Component.literal(
-                        result
-                                == HexTeleportDirectory.Result.HEX_OCCUPIED
-                                ? "Voco address #"
-                                  + HexTeleportDirectory.toHex(hex)
-                                  + " is already reserved."
-                                : "This SIM card cannot be activated."
-                ), true);
-        //?}
+        if (result == HexTeleportDirectory.Result.REGISTERED) return true;
+        sendOverlay(player, result == HexTeleportDirectory.Result.HEX_OCCUPIED ? "Voco address #" + HexTeleportDirectory.toHex(hex) + " is already reserved."
+                : "This SIM card cannot be activated.");
         return false;
     }
 
     private static void denyEject(ServerPlayer player) {
+        sendOverlay(player, "Only this SIM's registered owner can remove it.");
+    }
+
+    private static void sendOverlay(ServerPlayer player, String message) {
         //? if >=26.1 {
-        /*player.sendOverlayMessage(Component.literal("Only this SIM's registered owner can remove it."));
+        /*player.sendOverlayMessage(Component.literal(message));
         *///?} else {
-        player.displayClientMessage(Component.literal("Only this SIM's registered owner can remove it."), true);
+        player.displayClientMessage(Component.literal(message), true);
         //?}
     }
 }

@@ -5,21 +5,19 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
+import java.util.Objects;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import java.util.Objects;
 
 public final class TextureTokens {
     private TextureTokens() {}
+
     //? if >=1.21.11 {
     /*public static Identifier block(Block block) {
-        Identifier id = ModelLocations.blockId(block);
-        return Identifier.fromNamespaceAndPath(id.getNamespace(), "block/" + id.getPath());
     *///?} else {
     public static ResourceLocation block(Block block) {
-        ResourceLocation id = ModelLocations.blockId(block);
-        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "block/" + id.getPath());
     //?}
+        return ModelLocations.blockModel(block, "");
     }
 
     //? if >=1.21.11 {
@@ -28,12 +26,11 @@ public final class TextureTokens {
     public static ResourceLocation block(Block block, String suffix) {
     //?}
         Objects.requireNonNull(suffix, "suffix");
+        var base = block(block);
         //? if >=1.21.11 {
-        /*Identifier id = ModelLocations.blockId(block);
-        return Identifier.fromNamespaceAndPath(id.getNamespace(), block(block).getPath() + suffix);
+        /*return Identifier.fromNamespaceAndPath(base.getNamespace(), base.getPath() + suffix);
         *///?} else {
-        ResourceLocation id = ModelLocations.blockId(block);
-        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), block(block).getPath() + suffix);
+        return ResourceLocation.fromNamespaceAndPath(base.getNamespace(), base.getPath() + suffix);
         //?}
     }
 
@@ -50,35 +47,33 @@ public final class TextureTokens {
         if (token.indexOf(':') >= 0) return ResourceLocation.parse(token);
         //?}
         if (token.startsWith("_")) return block(block, token);
+        var id = ModelLocations.blockId(block);
         //? if >=1.21.11 {
-        /*Identifier id = ModelLocations.blockId(block);
-        return Identifier.fromNamespaceAndPath(id.getNamespace(), token.startsWith("block/") ? token : "block/" + token);
+        /*return Identifier.fromNamespaceAndPath(id.getNamespace(), token.startsWith("block/") ? token : "block/" + token);
         *///?} else {
-        ResourceLocation id = ModelLocations.blockId(block);
         return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), token.startsWith("block/") ? token : "block/" + token);
         //?}
     }
 
     //? if >=1.21.11 {
     /*public static Identifier item(ItemLike item) {
-        Identifier id = ModelLocations.itemId(item);
-        return Identifier.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
     *///?} else {
     public static ResourceLocation item(ItemLike item) {
-        ResourceLocation id = ModelLocations.itemId(item);
-        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath());
     //?}
+        return ModelLocations.itemModel(item);
     }
 
     //? if >=1.21.11 {
     /*public static Identifier itemFolder(ItemLike item) {
-        Identifier id = ModelLocations.itemId(item);
-        return Identifier.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath() + "/" + id.getPath());
     *///?} else {
     public static ResourceLocation itemFolder(ItemLike item) {
-        ResourceLocation id = ModelLocations.itemId(item);
-        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath() + "/" + id.getPath());
     //?}
+        var id = ModelLocations.itemId(item);
+        //? if >=1.21.11 {
+        /*return Identifier.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath() + "/" + id.getPath());
+        *///?} else {
+        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/" + id.getPath() + "/" + id.getPath());
+        //?}
     }
 
     //? if >=1.21.11 {

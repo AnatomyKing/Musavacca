@@ -37,8 +37,7 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
     /*public void extract(VocoTableBlockEntity entity, VocoTableBlockEntityRenderer.State state, float partialTick) {
         state.item.clear();
         if (entity.getLevel() == null || entity.getDisplayedItem().isEmpty()) return;
-        resolver.updateForTopItem(state.item, entity.getDisplayedItem(), ItemDisplayContext.GROUND,
-                entity.getLevel(), null, 0);
+        resolver.updateForTopItem(state.item, entity.getDisplayedItem(), ItemDisplayContext.GROUND, entity.getLevel(), null, 0);
         state.itemRotation = (((entity.getLevel().getGameTime() % 400L) + partialTick) * 2.7F) % 360.0F;
     }
 
@@ -46,8 +45,7 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
         if (state.item.isEmpty()) return;
         float rotation = state.itemRotation;
     *///?} else {
-    public void render(VocoTableBlockEntity entity, float partialTick, PoseStack pose,
-                       MultiBufferSource buffer, int light, int overlay, Vec3 cameraPos) {
+    public void render(VocoTableBlockEntity entity, float partialTick, PoseStack pose, MultiBufferSource buffer, int light, int overlay, Vec3 cameraPos) {
         ItemStack stack = entity.getDisplayedItem();
         if (stack.isEmpty() || entity.getLevel() == null) return;
         float rotation = (((entity.getLevel().getGameTime() % 400L) + partialTick) * 2.7F) % 360.0F;
@@ -70,8 +68,8 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
                 entity.getLevel(), null, 0);
         itemRenderState.render(pose, buffer, light, OverlayTexture.NO_OVERLAY);
         //?} else {
-        /*Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.GROUND, light,
-                OverlayTexture.NO_OVERLAY, pose, buffer, entity.getLevel(), 0);
+        /*Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.GROUND, light, OverlayTexture.NO_OVERLAY, pose, buffer,
+                entity.getLevel(), 0);
         *///?}
         pose.popPose();
     }

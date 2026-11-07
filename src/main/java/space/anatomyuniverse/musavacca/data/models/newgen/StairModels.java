@@ -8,21 +8,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.StairsShape;
 import org.jetbrains.annotations.Nullable;
 
-public final class StairModels {
-    //? if >=1.21.11 {
-    /*private final Identifier straight;
-    private final Identifier inner;
-    private final Identifier outer;
-    *///?} else {
-    private final ResourceLocation straight;
-    private final ResourceLocation inner;
-    private final ResourceLocation outer;
-    //?}
-    private StairModels(Builder builder) {
-        straight = builder.straight;
-        inner = builder.inner;
-        outer = builder.outer;
-        if (isEmpty()) throw new IllegalStateException("StairModels requires at least one model");
+//? if >=1.21.11 {
+/*public record StairModels(Identifier straight, Identifier inner, Identifier outer) {
+*///?} else {
+public record StairModels(ResourceLocation straight, ResourceLocation inner, ResourceLocation outer) {
+//?}
+    public StairModels {
+        if (straight == null && inner == null && outer == null) throw new IllegalStateException("StairModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -39,15 +31,11 @@ public final class StairModels {
     *///?} else {
     public ResourceLocation model(StairsShape shape) {
     //?}
-        return switch (shape) { case STRAIGHT -> straight; case INNER_LEFT, INNER_RIGHT -> inner; case OUTER_LEFT, OUTER_RIGHT -> outer; };
-    }
-
-    public boolean complete() {
-        return straight != null && inner != null && outer != null;
-    }
-
-    public boolean isEmpty() {
-        return straight == null && inner == null && outer == null;
+        return switch (shape) {
+        case STRAIGHT -> straight;
+        case INNER_LEFT, INNER_RIGHT -> inner;
+        case OUTER_LEFT, OUTER_RIGHT -> outer;
+        };
     }
 
     public static final class Builder {
@@ -55,12 +43,15 @@ public final class StairModels {
         /*private Identifier straight;
         private Identifier inner;
         private Identifier outer;
+
         *///?} else {
         private ResourceLocation straight;
         private ResourceLocation inner;
         private ResourceLocation outer;
+
         //?}
         private Builder() {}
+
         public Builder straight(String model) {
             straight = parse(model, "straight");
             return this;
@@ -77,7 +68,7 @@ public final class StairModels {
         }
 
         public StairModels build() {
-            return new StairModels(this);
+            return new StairModels(straight, inner, outer);
         }
 
         //? if >=1.21.11 {

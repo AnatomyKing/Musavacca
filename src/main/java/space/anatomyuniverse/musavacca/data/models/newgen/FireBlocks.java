@@ -1,12 +1,14 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.FireBlock;
 import java.util.Objects;
 import java.util.function.Consumer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FireBlock;
+import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.FamilyItemMode;
 
 public final class FireBlocks {
     private FireBlocks() {}
+
     public static final class Entry {
         private final Block block;
         private final FireTextures.Set textures;
@@ -14,6 +16,7 @@ public final class FireBlocks {
         private final Variants.Set variants;
         private final FamilyItemMode itemMode;
         private final SimpleItems.Model item;
+
         private Entry(Builder builder) {
             block = builder.block;
             textures = builder.textures;
@@ -24,19 +27,26 @@ public final class FireBlocks {
         }
 
         public static Builder builder(Block block) { return new Builder(block); }
+
         public Block block() { return block; }
+
         public FireTextures.Set textures() { return textures; }
+
         public Tints.Tint tint() { return tint; }
+
         public Variants.Set variants() { return variants; }
+
         FamilyItemMode itemMode() { return itemMode; }
+
         SimpleItems.Model item() { return item; }
+
         public void validate() {
             if (textures == null) throw new IllegalStateException("No texture configured for " + ModelLocations.blockId(block));
-            BlockFamilyValidation.requireProperty(block, FireBlock.NORTH, "FireBlocks");
-            BlockFamilyValidation.requireProperty(block, FireBlock.EAST, "FireBlocks");
-            BlockFamilyValidation.requireProperty(block, FireBlock.SOUTH, "FireBlocks");
-            BlockFamilyValidation.requireProperty(block, FireBlock.WEST, "FireBlocks");
-            BlockFamilyValidation.requireProperty(block, FireBlock.UP, "FireBlocks");
+            Conditions.requireProperty(block, FireBlock.NORTH, "FireBlocks");
+            Conditions.requireProperty(block, FireBlock.EAST, "FireBlocks");
+            Conditions.requireProperty(block, FireBlock.SOUTH, "FireBlocks");
+            Conditions.requireProperty(block, FireBlock.WEST, "FireBlocks");
+            Conditions.requireProperty(block, FireBlock.UP, "FireBlocks");
         }
 
         public static final class Builder {
@@ -48,8 +58,11 @@ public final class FireBlocks {
             private FamilyItemMode itemMode = FamilyItemMode.DEFAULT;
             private SimpleItems.Model item;
             private boolean explicitItem;
+
             private Builder(Block block) { this.block = Objects.requireNonNull(block, "block"); }
+
             public Builder generated() { generated = true; return this; }
+
             public Builder texture() {
                 requireGeneratedTextures();
                 textures = FireTextures.builder(block).texture().build();
@@ -72,7 +85,9 @@ public final class FireBlocks {
             }
 
             public Builder tint(Tints.Tint tint) { this.tint = Objects.requireNonNull(tint, "tint"); return this; }
+
             public Builder variants(Variants.Set variants) { this.variants = Objects.requireNonNull(variants, "variants"); return this; }
+
             public Builder item() {
                 requireItem();
                 itemMode = FamilyItemMode.DEFAULT;
@@ -81,6 +96,7 @@ public final class FireBlocks {
             }
 
             public Builder item(String model) { return item(SimpleItems.Model.existing(model)); }
+
             public Builder item(SimpleItems.Model model) {
                 requireItem();
                 itemMode = FamilyItemMode.CUSTOM;
@@ -107,9 +123,7 @@ public final class FireBlocks {
             public Entry build() {
                 if (!generated) {
                     throw new IllegalStateException(
-                            "FireBlocks currently represents generated Minecraft fire geometry; call .generated() for "
-                                    + ModelLocations.blockId(block)
-                    );
+                            "FireBlocks currently represents generated Minecraft fire geometry; call .generated() for " + ModelLocations.blockId(block));
                 }
                 Entry entry = new Entry(this);
                 entry.validate();

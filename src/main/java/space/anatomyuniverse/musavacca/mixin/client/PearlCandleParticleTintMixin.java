@@ -18,15 +18,27 @@ import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticle;
 //?}
 public abstract class PearlCandleParticleTintMixin extends Particle implements OriginalCandleParticle.Source {
     //? if >=1.21.9 {
-    /*@Shadow protected float alpha;
-    @Shadow protected float roll;
-    @Shadow protected float oRoll;
+    /*@Shadow
+    protected float alpha;
+    @Shadow
+    protected float roll;
+    @Shadow
+    protected float oRoll;
     *///?}
-    @Shadow protected TextureAtlasSprite sprite;
-    @Shadow protected abstract float getU0();
-    @Shadow protected abstract float getU1();
-    @Shadow protected abstract float getV0();
-    @Shadow protected abstract float getV1();
+    @Shadow
+    protected TextureAtlasSprite sprite;
+
+    @Shadow
+    protected abstract float getU0();
+
+    @Shadow
+    protected abstract float getU1();
+
+    @Shadow
+    protected abstract float getV0();
+
+    @Shadow
+    protected abstract float getV1();
 
     protected PearlCandleParticleTintMixin(ClientLevel level, double x, double y, double z) {
         super(level, x, y, z);
@@ -34,8 +46,7 @@ public abstract class PearlCandleParticleTintMixin extends Particle implements O
 
     @Override
     public Particle musavacca$wrap(int color) {
-        return this.sprite == null ? this
-                : new OriginalCandleParticle(this.level, (SingleQuadParticle) (Object) this, this.sprite, color);
+        return this.sprite == null ? this : new OriginalCandleParticle(this.level, (SingleQuadParticle) (Object) this, this.sprite, color);
     }
 
     @Override
@@ -44,10 +55,17 @@ public abstract class PearlCandleParticleTintMixin extends Particle implements O
         target.setBoundingBox(this.getBoundingBox());
     }
 
-    @Override public float musavacca$u0() { return this.getU0(); }
-    @Override public float musavacca$u1() { return this.getU1(); }
-    @Override public float musavacca$v0() { return this.getV0(); }
-    @Override public float musavacca$v1() { return this.getV1(); }
+    @Override
+    public float musavacca$u0() { return this.getU0(); }
+
+    @Override
+    public float musavacca$u1() { return this.getU1(); }
+
+    @Override
+    public float musavacca$v0() { return this.getV0(); }
+
+    @Override
+    public float musavacca$v1() { return this.getV1(); }
 
     @Override
     public int musavacca$light(float partialTick) {

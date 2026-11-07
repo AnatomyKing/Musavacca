@@ -25,8 +25,11 @@ public final class PotassiumArmorItem
         *///?}
 {
     //? if <1.21.2 {
-    /*private static final ResourceLocation HUMANOID_TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/equipment/humanoid/potassium.png");
-    private static final ResourceLocation LEGGINGS_TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/equipment/humanoid_leggings/potassium.png");
+    /*private static final ResourceLocation HUMANOID_TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID,
+            "textures/entity/equipment/humanoid/potassium.png");
+    private static final ResourceLocation LEGGINGS_TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID,
+            "textures/entity/equipment/humanoid_leggings/potassium.png");
+
     *///?}
     //? if >=1.21.2 {
     public PotassiumArmorItem(Properties properties) {
@@ -49,14 +52,14 @@ public final class PotassiumArmorItem
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (PotassiumItemBehavior.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
-        if (!PotassiumItemBehavior.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
+        if (PotassiumItem.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
+        if (!PotassiumItem.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
         return super.use(level, player, hand);
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
+        return PotassiumItem.finishEating(stack, level, entity);
     }
     *///?}
 }

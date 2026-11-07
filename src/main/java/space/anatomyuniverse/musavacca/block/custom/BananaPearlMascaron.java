@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class BananaPearlMascaron extends BananaPearlBlock {
     public static final EnumProperty<FrontAndTop> ORIENTATION = BlockStateProperties.ORIENTATION;
+
     public BananaPearlMascaron(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(ORIENTATION, FrontAndTop.NORTH_UP));

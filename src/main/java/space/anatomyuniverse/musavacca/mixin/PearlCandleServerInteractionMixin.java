@@ -15,8 +15,8 @@ import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
 @Mixin(ServerPlayerGameMode.class)
 public abstract class PearlCandleServerInteractionMixin {
     @WrapMethod(method = "useItemOn")
-    private InteractionResult musavacca$lightCandle(ServerPlayer player, Level level, ItemStack stack, InteractionHand hand,
-            BlockHitResult hit, Operation<InteractionResult> original) {
+    private InteractionResult musavacca$lightCandle(ServerPlayer player, Level level, ItemStack stack, InteractionHand hand, BlockHitResult hit,
+            Operation<InteractionResult> original) {
         return PearlCandleConversion.useOn(level, player, stack, hit.getBlockPos(), () -> original.call(player, level, stack, hand, hit));
     }
 }

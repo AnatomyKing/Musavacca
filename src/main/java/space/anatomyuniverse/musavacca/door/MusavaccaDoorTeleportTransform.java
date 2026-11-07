@@ -7,10 +7,14 @@ import net.minecraft.world.phys.Vec3;
 public final class MusavaccaDoorTeleportTransform {
     public static final double PORTAL_ENTRANCE_NUDGE = 0.17D;
     public static final double PORTAL_EXIT_NUDGE = 0.07D;
+
     private MusavaccaDoorTeleportTransform() {}
+
     public record Result(Vec3 position, Vec3 deltaMovement, float yRot, float xRot) {}
+
     private record Basis(Vec3 right, Vec3 front) {}
-    public static Result calculate(Entity entity, MusavaccaDoorTeleportResolver.ResolvedDoor source, MusavaccaDoorTeleportResolver.ResolvedDoor target) {
+
+    public static Result calculate(Entity entity, MusavaccaDoorTeleport.ResolvedDoor source, MusavaccaDoorTeleport.ResolvedDoor target) {
         Basis sourceBasis = basis(source.facing());
         Basis targetBasis = basis(target.facing());
         double entityHalfWidth = Math.max(0.0D, entity.getBbWidth() * 0.5D);
@@ -25,15 +29,10 @@ public final class MusavaccaDoorTeleportTransform {
         Vec3 targetMovement = transformVector(entity.getDeltaMovement(), sourceBasis, targetBasis);
         double targetFrontMovement = targetMovement.dot(targetBasis.front());
         double exitNudge = Math.abs(targetFrontMovement) >= 1.0E-6D ? Math.copySign(PORTAL_EXIT_NUDGE, targetFrontMovement) : 0.0D;
-        Vec3 targetPosition =
-                new Vec3(target.portalCenter().x, target.pos().getY() + targetUp, target.portalCenter().z)
-                        .add(targetBasis.right().scale(targetRight))
-                        .add(targetBasis.front().scale(exitNudge));
+        Vec3 targetPosition = new Vec3(target.portalCenter().x, target.pos().getY() + targetUp, target.portalCenter().z)
+                .add(targetBasis.right().scale(targetRight)).add(targetBasis.front().scale(exitNudge));
         Vec3 targetLook = transformVector(entity.getLookAngle(), sourceBasis, targetBasis);
-        if (
-                targetLook.lengthSqr()
-                        >= 1.0E-6D
-        ) {
+        if (targetLook.lengthSqr() >= 1.0E-6D) {
             targetLook = targetLook.normalize();
         }
         return new Result(targetPosition, targetMovement, yawFromLook(targetLook), pitchFromLook(targetLook));

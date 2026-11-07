@@ -16,11 +16,10 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 
 public class MusavaccaCropBlock extends CropBlock {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_3;
-    private final int stageAge;
+
     public MusavaccaCropBlock(int stageAge, Properties properties) {
         super(properties);
         if (stageAge < 0 || stageAge > 2) throw new IllegalArgumentException("MusavaccaCropBlock stageAge must be 0, 1, or 2.");
-        this.stageAge = stageAge;
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, stageAge));
     }
 
@@ -43,10 +42,10 @@ public class MusavaccaCropBlock extends CropBlock {
     public BlockState getStateForAge(int age) {
         int clampedAge = Math.max(0, Math.min(age, getMaxAge()));
         return switch (clampedAge) {
-            case 0 -> ModBlocks.MUSAVACCA_SPROUT.get().defaultBlockState().setValue(AGE, 0);
-            case 1 -> ModBlocks.MUSAVACCA_SUCKER.get().defaultBlockState().setValue(AGE, 1);
-            case 2 -> ModBlocks.MUSAVACCA_PLANT.get().defaultBlockState().setValue(AGE, 2);
-            default -> ModBlocks.MUSAVACCA_PSEUDOSTEM.get().defaultBlockState();
+        case 0 -> ModBlocks.MUSAVACCA_SPROUT.get().defaultBlockState().setValue(AGE, 0);
+        case 1 -> ModBlocks.MUSAVACCA_SUCKER.get().defaultBlockState().setValue(AGE, 1);
+        case 2 -> ModBlocks.MUSAVACCA_PLANT.get().defaultBlockState().setValue(AGE, 2);
+        default -> ModBlocks.MUSAVACCA_PSEUDOSTEM.get().defaultBlockState();
         };
     }
 

@@ -1,9 +1,11 @@
 package space.anatomyuniverse.musavacca.data;
 
-import space.anatomyuniverse.musavacca.MusaCore;
+import java.util.List;
+import java.util.Set;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.data.language.ModLanguageProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModBlockLootProvider;
 import space.anatomyuniverse.musavacca.data.loot.ModGlobalLootModifierProvider;
@@ -18,8 +20,6 @@ import space.anatomyuniverse.musavacca.data.tags.ModBlockTagsProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModItemTagsProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModMobEffectTagsProvider;
 import space.anatomyuniverse.musavacca.data.worldgen.MusavaccaTreeFeatureProvider;
-import java.util.List;
-import java.util.Set;
 //? if <1.21.4 {
 /*import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -31,165 +31,71 @@ public final class ModDataGenerators {
     //?} else {
     /*public static void gatherData(final GatherDataEvent event) {
     *///?}
+        var lootTables = List.of(new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK),
+                new LootTableProvider.SubProviderEntry(ModMobLootProvider::new, LootContextParamSets.ENTITY),
+                new LootTableProvider.SubProviderEntry(ModSnifferDiggingLootProvider::new, LootContextParamSets.GIFT),
+                new LootTableProvider.SubProviderEntry(ModJungleTempleLootProvider::new, LootContextParamSets.CHEST));
         //? if >=1.21.4 {
         verifyClientMixins();
         event.createProvider(output -> new ModLanguageProvider(output, "en_us"));
         event.createProvider(Newgen.Provider::new);
-        //? if >=26.3 {
-        /*event.createProvider(ModMobEffectTagsProvider::new);
-        *///?} else {
+        //? if <26.3 {
         event.createProvider(ModRecipeProvider.Runner::new);
         //?}
-        //?}
-        //? if >=26.3 {
-        /*event.createProvider(ModBlockTagsProvider::new);
-        *///?} else if >=1.21.4 <26.3 {
         event.createProvider(ModMobEffectTagsProvider::new);
-        //?} else {
-        /*final PackOutput output = event.getGenerator().getPackOutput();
-        final ExistingFileHelper efh = event.getExistingFileHelper();
-        *///?}
-        //? if >=1.21.4 {
         //? if >=1.21.6 {
-        //? if >=26.3 {
-        /*event.createProvider(ModItemTagsProvider::new);
-        *///?} else {
         event.createProvider(ModBlockTagsProvider::new);
-        //?}
-        //? if >=26.3 {
-        /*event.createProvider(output -> new ArmorItems.Provider(output, NewModelSets.armorItems()));
-        event.createProvider(MusavaccaTreeFeatureProvider::new);
-        *///?}
-        //?}
-        //? if >=1.21.4 <1.21.6 {
+        event.createProvider(ModItemTagsProvider::new);
+        //?} else {
         /*event.createBlockAndItemTags(ModBlockTagsProvider::new, ModItemTagsProvider::new);
         *///?}
-        //?}
-        //? if <26.3 {
-        
-        //? if >=1.21.6 <26.3 {
-        event.createProvider(ModItemTagsProvider::new);
-        //?} else if >=1.21.4 <1.21.6 {
-        /*event.createProvider(output -> new ArmorItems.Provider(output, NewModelSets.armorItems()));
-        *///?} else {
-        /*if (event.includeClient()) {
-            verifyClientMixins();
-            event.getGenerator().addProvider(true, new ModLanguageProvider(output, "en_us"));
-        *///?}
-        //? if >=1.21.4 <26.3 {
-        //? if >=1.21.6 <26.3 {
         event.createProvider(output -> new ArmorItems.Provider(output, NewModelSets.armorItems()));
-        //?} else {
-        /*event.createProvider(MusavaccaTreeFeatureProvider::new);
-        *///?}
-        //?}
-        //?}
-        //? if >=1.21.4 {
-        //? if >=1.21.6 {
-        //? if >=26.3 {
-        /*event.createProvider(ModGlobalLootModifierProvider::new);
-        *///?} else {
         event.createProvider(MusavaccaTreeFeatureProvider::new);
-        //?}
+        event.createProvider(ModGlobalLootModifierProvider::new);
         //? if >=26.3 {
         /*var registries = event.getWorldLookupProvider();
-        event.getDefaultPackGenerator().createReloadableRegistryObjects(new net.minecraft.core.RegistrySetBuilder()
-                .add(net.minecraft.data.recipes.RecipeProvider.asBootstrap((recipes, advancements) ->
-                        new ModRecipeProvider(recipes, advancements, registries.join())))
-                .add(net.minecraft.core.registries.Registries.LOOT_TABLE,
-                        new LootTableProvider(Set.of(), List.of(new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK),
-                                new LootTableProvider.SubProviderEntry(ModMobLootProvider::new, LootContextParamSets.ENTITY),
-                                new LootTableProvider.SubProviderEntry(ModSnifferDiggingLootProvider::new, LootContextParamSets.GIFT),
-                                new LootTableProvider.SubProviderEntry(ModJungleTempleLootProvider::new, LootContextParamSets.CHEST)))));
+        event.getDefaultPackGenerator()
+                .createReloadableRegistryObjects(new net.minecraft.core.RegistrySetBuilder()
+                        .add(net.minecraft.data.recipes.RecipeProvider.asBootstrap(
+                                (recipes, advancements) -> new ModRecipeProvider(recipes, advancements, registries.join())))
+                        .add(net.minecraft.core.registries.Registries.LOOT_TABLE, new LootTableProvider(Set.of(), lootTables)));
         *///?} else {
-        event.createProvider(ModGlobalLootModifierProvider::new);
-        event.createProvider(
-                (output, lookup) -> new LootTableProvider(
-                        output,
-                        Set.of(),
-                        List.of(new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK),
-                                new LootTableProvider.SubProviderEntry(ModMobLootProvider::new, LootContextParamSets.ENTITY),
-                                new LootTableProvider.SubProviderEntry(ModSnifferDiggingLootProvider::new, LootContextParamSets.GIFT),
-                                new LootTableProvider.SubProviderEntry(ModJungleTempleLootProvider::new, LootContextParamSets.CHEST)),
-                        lookup
-                )
-        );
+        event.createProvider((output, lookup) -> new LootTableProvider(output, Set.of(), lootTables, lookup));
         //?}
-        //?}
-        //? if >=1.21.4 <1.21.6 {
-        /*event.createProvider(ModGlobalLootModifierProvider::new);
-        event.createProvider(
-                (output, lookup) -> new LootTableProvider(
-                        output,
-                        Set.of(),
-                        List.of(new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK),
-                                new LootTableProvider.SubProviderEntry(ModMobLootProvider::new, LootContextParamSets.ENTITY),
-                                new LootTableProvider.SubProviderEntry(ModSnifferDiggingLootProvider::new, LootContextParamSets.GIFT),
-                                new LootTableProvider.SubProviderEntry(ModJungleTempleLootProvider::new, LootContextParamSets.CHEST)),
-                        lookup
-                )
-        );
-        *///?}
-        //?}
-        //? if <1.21.4 {
-            /*event.getGenerator().addProvider(true, new Newgen.Provider(output, efh));
+        //?} else {
+        /*PackOutput output = event.getGenerator().getPackOutput();
+        ExistingFileHelper efh = event.getExistingFileHelper();
+        if (event.includeClient()) {
+            verifyClientMixins();
+            event.getGenerator().addProvider(true, new ModLanguageProvider(output, "en_us"));
+            event.getGenerator().addProvider(true, new Newgen.Provider(output, efh));
         }
         if (event.includeServer()) {
-            //? if >=1.21.3 <1.21.4 {
-            /^event.getGenerator().addProvider(true, new ModRecipeProvider.Runner(output, event.getLookupProvider()));
-            ^///?} else {
-            event.getGenerator().addProvider(true, new ModRecipeProvider(output, event.getLookupProvider()));
-            //?}
-            final ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(output, event.getLookupProvider(), efh);
+            //? if >=1.21.2 {
+            event.getGenerator().addProvider(true, new ModRecipeProvider.Runner(output, event.getLookupProvider()));
+            //?} else {
+            /^event.getGenerator().addProvider(true, new ModRecipeProvider(output, event.getLookupProvider()));
+            ^///?}
+            ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(output, event.getLookupProvider(), efh);
             event.getGenerator().addProvider(true, blockTagsProvider);
             event.getGenerator().addProvider(true, new ModMobEffectTagsProvider(output, event.getLookupProvider(), efh));
             event.getGenerator().addProvider(true, new ModItemTagsProvider(output, event.getLookupProvider(), blockTagsProvider.contentsGetter()));
-            //? if >=1.21.2 <1.21.4 {
-            /^event.getGenerator().addProvider(true, new ArmorItems.Provider(output, NewModelSets.armorItems()));
-            event.getGenerator().addProvider(true, new MusavaccaTreeFeatureProvider(output));
-            ^///?} else {
+            //? if >=1.21.2 {
+            event.getGenerator().addProvider(true, new ArmorItems.Provider(output, NewModelSets.armorItems()));
+            //?}
             event.getGenerator().addProvider(true, new MusavaccaTreeFeatureProvider(output));
             event.getGenerator().addProvider(true, new ModGlobalLootModifierProvider(output, event.getLookupProvider()));
-            //?}
-            //? if >=1.21.2 <1.21.4 {
-            /^event.getGenerator().addProvider(true, new ModGlobalLootModifierProvider(output, event.getLookupProvider()));
-            event.getGenerator().addProvider(
-                    true,
-                    new LootTableProvider(
-                            output,
-                            Set.of(),
-                            List.of(new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK),
-                                    new LootTableProvider.SubProviderEntry(ModMobLootProvider::new, LootContextParamSets.ENTITY),
-                                    new LootTableProvider.SubProviderEntry(ModSnifferDiggingLootProvider::new, LootContextParamSets.GIFT),
-                                    new LootTableProvider.SubProviderEntry(ModJungleTempleLootProvider::new, LootContextParamSets.CHEST)),
-                            event.getLookupProvider()
-                    )
-            );
-            ^///?} else {
-            event.getGenerator().addProvider(
-                    true,
-                    new LootTableProvider(
-                            output,
-                            Set.of(),
-                            List.of(new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK),
-                                    new LootTableProvider.SubProviderEntry(ModMobLootProvider::new, LootContextParamSets.ENTITY),
-                                    new LootTableProvider.SubProviderEntry(ModSnifferDiggingLootProvider::new, LootContextParamSets.GIFT),
-                                    new LootTableProvider.SubProviderEntry(ModJungleTempleLootProvider::new, LootContextParamSets.CHEST)),
-                            event.getLookupProvider()
-                    )
-            );
-            //?}
+            event.getGenerator().addProvider(true, new LootTableProvider(output, Set.of(), lootTables, event.getLookupProvider()));
         }
-            *///?}
+        *///?}
     }
 
     private ModDataGenerators() {}
+
     private static void verifyClientMixins() {
         var loader = ModDataGenerators.class.getClassLoader();
-        for (String target : new String[] {
-                "net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer",
-                "net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip"
-        }) {
+        for (String target : new String[] { "net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer",
+                "net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip" }) {
             try {
                 Class.forName(target, false, loader);
             } catch (ClassNotFoundException error) {

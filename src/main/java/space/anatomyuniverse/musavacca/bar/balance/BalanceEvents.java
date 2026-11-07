@@ -8,8 +8,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class BalanceEvents {
-    private BalanceEvents() {
-    }
+    private BalanceEvents() {}
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {

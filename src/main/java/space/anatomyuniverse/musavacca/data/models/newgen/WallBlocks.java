@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public final class WallBlocks {
     private WallBlocks() {}
+
     public static final class Part extends BlockFamily.ModelRule<WallModels, Part> {
         private Part(WallModels source, Conditions.Match conditions) {
             super(source, conditions);
@@ -26,11 +27,10 @@ public final class WallBlocks {
 
     public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
         private final FamilyTextures.Set textures;
-        private final WallModels baseModels;
+
         private Entry(Builder builder) {
             super(builder);
             textures = builder.textures;
-            baseModels = builder.baseModels;
         }
 
         public static Builder builder(Block block) {
@@ -41,40 +41,23 @@ public final class WallBlocks {
             return textures;
         }
 
-        public WallModels baseModels() {
-            return baseModels;
-        }
-
         public void validate() {
             if (!(block() instanceof WallBlock)) throw new IllegalStateException("WallBlocks requires a WallBlock: " + ModelLocations.blockId(block()));
-            BlockFamilyValidation.requireProperty(block(), BlockStateProperties.UP, "WallBlocks");
-            BlockFamilyValidation.requireProperty(block(), BlockStateProperties.NORTH_WALL, "WallBlocks");
-            BlockFamilyValidation.requireProperty(block(), BlockStateProperties.EAST_WALL, "WallBlocks");
-            BlockFamilyValidation.requireProperty(block(), BlockStateProperties.SOUTH_WALL, "WallBlocks");
-            BlockFamilyValidation.requireProperty(block(), BlockStateProperties.WEST_WALL, "WallBlocks");
-            if (baseMode() == null) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
-            if (baseMode() == BaseModelMode.GENERATED && textures == null) {
+            Conditions.requireProperty(block(), BlockStateProperties.UP, "WallBlocks");
+            Conditions.requireProperty(block(), BlockStateProperties.NORTH_WALL, "WallBlocks");
+            Conditions.requireProperty(block(), BlockStateProperties.EAST_WALL, "WallBlocks");
+            Conditions.requireProperty(block(), BlockStateProperties.SOUTH_WALL, "WallBlocks");
+            Conditions.requireProperty(block(), BlockStateProperties.WEST_WALL, "WallBlocks");
+            if (!generated()) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
+            if (textures == null) {
                 throw new IllegalStateException("No generated textures configured for " + ModelLocations.blockId(block()));
-            }
-            if (baseMode() == BaseModelMode.EXISTING) {
-                if (baseModels == null || !baseModels.worldComplete()) {
-                    throw new IllegalStateException("Base WallModels must provide the complete in-world family for " + ModelLocations.blockId(block()));
-                }
-            }
-            if (familyItemMode() == FamilyItemMode.DEFAULT
-                    && baseMode() == BaseModelMode.EXISTING
-                    && baseModels.inventory() == null) {
-                throw new IllegalStateException(
-                        ".item() requires an inventory model for " + ModelLocations.blockId(block())
-                                + "; provide it in the model family, use .item(model), or .noItem()."
-                );
             }
             validatePartConditions();
         }
 
         public static final class Builder extends BlockFamily.ItemFamilyBuilder<Builder, Part> {
             private FamilyTextures.Set textures;
-            private WallModels baseModels;
+
             private Builder(Block block) {
                 super(block);
             }
@@ -86,19 +69,19 @@ public final class WallBlocks {
 
             public Builder texture() {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_wall").source().build();
+                textures = FamilyTextures.builder(block, "_wall").texture().build();
                 return this;
             }
 
             public Builder texture(Block source) {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_wall").source(source).build();
+                textures = FamilyTextures.builder(block, "_wall").texture(source).build();
                 return this;
             }
 
             public Builder texture(String texture) {
                 requireGeneratedTextures();
-                textures = FamilyTextures.builder(block, "_wall").source(texture).build();
+                textures = FamilyTextures.builder(block, "_wall").texture(texture).build();
                 return this;
             }
 

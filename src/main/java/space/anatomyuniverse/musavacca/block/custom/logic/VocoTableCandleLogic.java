@@ -11,8 +11,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -25,19 +25,20 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.basuke.summon.BasukeSummon;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic.SyncResult;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
-import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
-import space.anatomyuniverse.musavacca.basuke.summon.BasukeSummon;
+import space.anatomyuniverse.musavacca.item.PearlIgniter;
 import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoTableCandleLogic {
     private VocoTableCandleLogic() {}
 
-    public static InteractionResult place(Level level, BlockPos pos, ReceptorPosition corner, Player player, InteractionHand hand,
-                                          ItemStack stack, BlockItem item, BlockHitResult hit) {
+    public static InteractionResult place(Level level, BlockPos pos, ReceptorPosition corner, Player player, InteractionHand hand, ItemStack stack,
+            BlockItem item, BlockHitResult hit) {
         if (player.isSpectator() || !player.getAbilities().mayBuild || !(level.getBlockEntity(pos) instanceof VocoTableBlockEntity table)) {
             return InteractionResult.FAIL;
         }
@@ -83,45 +84,40 @@ public final class VocoTableCandleLogic {
         if (level == null || level.isClientSide()) return;
         BlockState state = level.getBlockState(pos);
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(state.getBlock() instanceof VocoTableBlock)
-                || !(be instanceof VocoTableBlockEntity tableBe)) {
+        if (!(state.getBlock() instanceof VocoTableBlock) || !(be instanceof VocoTableBlockEntity tableBe)) {
             return;
         }
         BooleanProperty litProperty = VocoTableBlock.lightProperty(receptor);
         BooleanProperty portalProperty = VocoTableBlock.portalProperty(receptor);
-        Sync sync = syncEndpoint(level, pos, receptor, state.getValue(litProperty), tableBe);
+        boolean portal = syncEndpoint(level, pos, receptor, state.getValue(litProperty), tableBe) == SyncResult.ACTIVE;
+        state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof VocoTableBlock)) return;
         boolean wasPortal = state.getValue(portalProperty);
-        if (wasPortal != sync.portal()) {
-            level.setBlock(pos, state.setValue(portalProperty, sync.portal()), VocoReceptorLogic.UPDATE_FLAGS);
-            PearlSlotIgnition.playPortalStateChangeSound(level, pos, wasPortal, sync.portal());
+        if (wasPortal != portal) {
+            level.setBlock(pos, state.setValue(portalProperty, portal), VocoReceptorLogic.UPDATE_FLAGS);
+            PearlSlotIgnition.playPortalStateChangeSound(level, pos, wasPortal, portal);
         }
-        if (sync.portal()) {
+        if (portal) {
             tableBe.activatePortal(receptor);
         } else {
             tableBe.refreshLatestHexFromLitCandles();
         }
     }
 
-    private static Sync syncEndpoint(Level level, BlockPos pos, ReceptorPosition receptor, boolean receptorLit, VocoTableBlockEntity tableBe) {
+    private static SyncResult syncEndpoint(Level level, BlockPos pos, ReceptorPosition receptor, boolean receptorLit, VocoTableBlockEntity tableBe) {
         if (!receptorLit || !tableBe.isPearlCandleLit(receptor)) {
             removeEndpoint(level, pos, receptor);
-            return Sync.INACTIVE;
+            return SyncResult.INACTIVE;
         }
         int hexColor = tableBe.getPortalHexColorOrNoTint(receptor);
         if (hexColor == MusavaccaTints.NO_TINT) {
             removeEndpoint(level, pos, receptor);
-            return Sync.INACTIVE;
+            return SyncResult.INACTIVE;
         }
-        if (!(level instanceof ServerLevel serverLevel)) return Sync.INACTIVE;
-        VocoTeleportLogic.SyncResult result = VocoTeleportLogic.syncEndpointDetailed(serverLevel, pos, receptor, true, hexColor);
-        return switch (result) {
-            case ACTIVE -> Sync.ACTIVE;
-            case QUEUED -> Sync.QUEUED;
-            case INACTIVE -> {
-                removeEndpoint(level, pos, receptor);
-                yield Sync.INACTIVE;
-            }
-        };
+        if (!(level instanceof ServerLevel serverLevel)) return SyncResult.INACTIVE;
+        SyncResult result = VocoTeleportLogic.syncEndpointDetailed(serverLevel, pos, receptor, true, hexColor);
+        if (result == SyncResult.INACTIVE) removeEndpoint(level, pos, receptor);
+        return result;
     }
 
     private static void removeEndpoint(Level level, BlockPos pos, ReceptorPosition receptor) {
@@ -148,8 +144,7 @@ public final class VocoTableCandleLogic {
             level.addFreshEntity(item);
         }
         SoundType sound = candle.state().getSoundType();
-        level.playSound(null, drop.x, drop.y, drop.z, sound.getBreakSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F,
-                sound.getPitch() * 0.8F);
+        level.playSound(null, drop.x, drop.y, drop.z, sound.getBreakSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         return true;
     }
@@ -160,7 +155,8 @@ public final class VocoTableCandleLogic {
         for (var corner : ReceptorPosition.values()) {
             var candle = table.candle(corner);
             if (candle != null && candle.lit()) {
-                OriginalCandleParticles.animateMounted(candle.state(), level, ground, random, candle.hex(), VocoTableCandleVoxelShapes.renderTranslation(corner));
+                OriginalCandleParticles.animateMounted(candle.state(), level, ground, random, candle.hex(),
+                        VocoTableCandleVoxelShapes.renderTranslation(corner));
             }
         }
     }
@@ -206,9 +202,4 @@ public final class VocoTableCandleLogic {
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
     }
 
-    private record Sync(boolean portal) {
-        private static final Sync ACTIVE = new Sync(true);
-        private static final Sync QUEUED = new Sync(false);
-        private static final Sync INACTIVE = new Sync(false);
-    }
 }

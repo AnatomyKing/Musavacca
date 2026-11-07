@@ -1,12 +1,14 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import net.minecraft.world.level.ItemLike;
 import java.util.Objects;
+import net.minecraft.world.level.ItemLike;
 
 public final class SpawnEggItems {
     private SpawnEggItems() {}
+
     public static final int DEFAULT_PRIMARY_COLOR = 0xFFFFFF;
     public static final int DEFAULT_SECONDARY_COLOR = 0xFFFFFF;
+
     public static final class Entry {
         private final ItemLike item;
         private final int primaryColor;
@@ -14,6 +16,7 @@ public final class SpawnEggItems {
         private final boolean folder;
         private final String texture;
         private final boolean inferTexture;
+
         private Entry(Builder builder) {
             item = builder.item;
             primaryColor = builder.primaryColor & 0xFFFFFF;
@@ -28,8 +31,11 @@ public final class SpawnEggItems {
         }
 
         public ItemLike item() { return item; }
+
         public int primaryColor() { return primaryColor; }
+
         public int secondaryColor() { return secondaryColor; }
+
         SimpleItems.Model modernModel() {
             SimpleItems.Model model = SimpleItems.Model.generated().flat();
             if (folder) model.folder();
@@ -47,6 +53,7 @@ public final class SpawnEggItems {
         private String texture;
         private boolean inferTexture;
         private boolean textureSelected;
+
         private Builder(ItemLike item) {
             this.item = Objects.requireNonNull(item, "item");
         }
@@ -80,9 +87,7 @@ public final class SpawnEggItems {
         public Entry build() {
             if (!textureSelected) {
                 throw new IllegalStateException(
-                        "SpawnEggItems requires explicit texture handling for "
-                                + ModelLocations.itemId(item) + ": call .texture() or .texture(model)"
-                );
+                        "SpawnEggItems requires explicit texture handling for " + ModelLocations.itemId(item) + ": call .texture() or .texture(model)");
             }
             return new Entry(this);
         }

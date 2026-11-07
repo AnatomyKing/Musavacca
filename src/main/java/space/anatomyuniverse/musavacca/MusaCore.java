@@ -5,6 +5,11 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+//? if >=1.21.9 {
+/*import net.neoforged.fml.loading.FMLEnvironment;
+*///?} else {
+import net.neoforged.fml.loading.FMLLoader;
+//?}
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import space.anatomyuniverse.musavacca.bar.ModAttachments;
@@ -13,18 +18,24 @@ import space.anatomyuniverse.musavacca.bar.balance.BalanceEvents;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerClientModEvents;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerEvents;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+//? if >=26.3 {
+/*import space.anatomyuniverse.musavacca.block.custom.StrippableLogBlock;
+*///?}
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableItemDisplayLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
-import space.anatomyuniverse.musavacca.client.PearlIgniterModels;
-import space.anatomyuniverse.musavacca.client.helmet.CustomHelmetModels;
+//? if <1.21.4 {
+/*import space.anatomyuniverse.musavacca.client.helmet.CustomHelmetModels;
+*///?}
+//? if <1.21.2 {
+/*import space.anatomyuniverse.musavacca.client.PearlIgniterModels;
+*///?}
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
+import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.effect.BananaCowBlessingEvents;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
-import space.anatomyuniverse.musavacca.effect.PlayerStatusEvents;
 import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusClient;
-import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntityRenderers;
 import space.anatomyuniverse.musavacca.gui.ModMenuEvents;
@@ -35,17 +46,12 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.item.PearlIgniterEvents;
 import space.anatomyuniverse.musavacca.particle.ModParticleProviders;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
-import space.anatomyuniverse.musavacca.portal.PearlPortalServerEvents;
+import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
 import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.tint.ModTints;
+import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerTooltipClient;
-//? if <1.21.9 {
-import net.neoforged.fml.loading.FMLLoader;
-//?}
 import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
-//? if >=1.21.9 {
-/*import net.neoforged.fml.loading.FMLEnvironment;
-*///?}
 
 @Mod(MusaCore.MOD_ID)
 public final class MusaCore {
@@ -57,6 +63,7 @@ public final class MusaCore {
     public static final String MINECRAFT =
             //$ minecraft
             "1.21.8";
+
     public MusaCore(IEventBus modBus, ModContainer container) {
         ModItems.register(modBus);
         ModBlocks.register(modBus);
@@ -72,55 +79,37 @@ public final class MusaCore {
         ModNetworking.register(modBus);
         EconomyConfig.register(container);
         //? if >=26.3 {
-        /*NeoForge.EVENT_BUS.addListener(space.anatomyuniverse.musavacca.block.custom.StrippableLogBlock::onUseItemOnBlock);
-        NeoForge.EVENT_BUS.addListener(space.anatomyuniverse.musavacca.block.custom.StrippableMusavaccaStemBlock::onUseItemOnBlock);
+        /*NeoForge.EVENT_BUS.addListener(StrippableLogBlock::onUseItemOnBlock);
         *///?}
         modBus.addListener(ModDataGenerators::gatherData);
-        //? if >=26.3 {
-        /*NeoForge.EVENT_BUS.addListener(PearlPortalServerEvents::onServerStopping);
-        *///?} else {
-        NeoForge.EVENT_BUS.addListener(PearlPortalServerEvents::onServerStopping);
-        //?}
+        NeoForge.EVENT_BUS.addListener(PearlPortalNetwork::onServerStopping);
         NeoForge.EVENT_BUS.register(BonusHungerEvents.class);
         NeoForge.EVENT_BUS.register(BalanceEvents.class);
         NeoForge.EVENT_BUS.register(BananaCowBlessingEvents.class);
-        NeoForge.EVENT_BUS.register(PlayerStatusEvents.class);
+        NeoForge.EVENT_BUS.register(VocoCallerNetwork.class);
         NeoForge.EVENT_BUS.register(PearlIgniterEvents.class);
-        //? if >=26.3 {
-        /*NeoForge.EVENT_BUS.addListener(VocoTableItemDisplayLogic ::onRightClickBlock);
+        NeoForge.EVENT_BUS.addListener(VocoTableItemDisplayLogic::onRightClickBlock);
+
+        //? if >=1.21.9 {
+        /*if (FMLEnvironment.getDist() == Dist.CLIENT) {
         *///?} else {
-        NeoForge.EVENT_BUS.addListener(VocoTableItemDisplayLogic ::onRightClickBlock);
+        if (FMLLoader.getDist() == Dist.CLIENT) {
         //?}
-        if (
-             //? if >=1.21.9 {
-             /*FMLEnvironment
-             *///?} else {
-             FMLLoader
-             //?}
-                .getDist() == Dist.CLIENT
-        ) {
             ModTints.register(modBus);
-            modBus.addListener(VocoCallerTooltipClient::register);
+            VocoCallerTooltipClient.register(modBus);
             //? if <26.1 {
             modBus.addListener(MusaRenderLayers::onClientSetup);
             //?}
             modBus.addListener(MusaRenderLayers::onModifyBakingResult);
-            //? if >=1.21.4 {
-            modBus.addListener(ModMenuEvents::register);
-            modBus.addListener(ModEntityRenderers::registerRenderers);
-            modBus.addListener(ModEntityRenderers ::registerLayerDefinitions);
-            modBus.addListener(ModBlockEntityRenderers ::registerRenderers);
-            //?} else {
-            /*modBus.addListener(CustomHelmetModels::registerAdditionalModels);
-            //? if <1.21.2 {
-            /^modBus.addListener(PearlIgniterModels::registerAdditional);
-            modBus.addListener(PearlIgniterModels::modifyModels);
-            ^///?}
-            modBus.addListener(ModMenuEvents::register);
-            modBus.addListener(ModEntityRenderers::registerRenderers);
-            modBus.addListener(ModEntityRenderers ::registerLayerDefinitions);
-            modBus.addListener(ModBlockEntityRenderers ::registerRenderers);
+            //? if <1.21.4 {
+            /*CustomHelmetModels.register(modBus);
             *///?}
+            //? if <1.21.2 {
+            /*PearlIgniterModels.register(modBus);
+            *///?}
+            ModMenuEvents.register(modBus);
+            ModEntityRenderers.register(modBus);
+            ModBlockEntityRenderers.register(modBus);
             ModParticleProviders.register(modBus);
             BonusHungerClientModEvents.register(modBus);
             BalanceClientModEvents.register(modBus);

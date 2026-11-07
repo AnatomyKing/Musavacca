@@ -10,12 +10,12 @@ import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock
 public final class MusavaccaPortalTrapdoorHitboxes {
     private static final VoxelShape BOTTOM = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D);
     private static final VoxelShape TOP = Block.box(0.0D, 14.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+
     private MusavaccaPortalTrapdoorHitboxes() {}
+
     public static boolean hasOpenPortal(BlockState state) {
-        return state.hasProperty(MusavaccaPortalTrapdoorBlock.PORTAL)
-                && state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
-                && state.hasProperty(MusavaccaPortalTrapdoorBlock.OPEN)
-                && state.getValue(MusavaccaPortalTrapdoorBlock.OPEN);
+        return state.hasProperty(MusavaccaPortalTrapdoorBlock.PORTAL) && state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
+                && state.hasProperty(MusavaccaPortalTrapdoorBlock.OPEN) && state.getValue(MusavaccaPortalTrapdoorBlock.OPEN);
     }
 
     public static VoxelShape portalPanel(BlockState state) {

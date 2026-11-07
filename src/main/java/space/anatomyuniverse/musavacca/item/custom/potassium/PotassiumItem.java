@@ -1,6 +1,15 @@
 package space.anatomyuniverse.musavacca.item.custom.potassium;
 
+import net.minecraft.core.component.DataComponents;
+//? if <1.21.6 {
+/*import net.minecraft.world.entity.EquipmentSlot;
+*///?}
+import net.minecraft.world.food.FoodProperties;
+//? if >=1.21.2 {
+import net.minecraft.world.item.component.Consumable;
+//?}
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.HitResult;
 //? if >=1.21.2 {
 import net.minecraft.world.InteractionResult;
 //?} else {
@@ -24,22 +33,64 @@ public class PotassiumItem extends Item {
     /*public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
     *///?}
         //? if >=1.21.2 {
-        if (PotassiumItemBehavior.isLookingAtBlock(player)) return InteractionResult.PASS;
+        if (isLookingAtBlock(player)) return InteractionResult.PASS;
         //?}
         ItemStack stack = player.getItemInHand(hand);
         //? if >=1.21.2 {
-        if (!PotassiumItemBehavior.canStartEating(stack, player)) return InteractionResult.FAIL;
+        if (!canStartEating(stack, player)) return InteractionResult.FAIL;
         //?} else {
-        /*if (PotassiumItemBehavior.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
-        *///?}
-        //? if <1.21.2 {
-        /*if (!PotassiumItemBehavior.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
+        /*if (isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
+        if (!canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
         *///?}
         return super.use(level, player, hand);
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        return PotassiumItemBehavior.finishUsingItem(stack, level, entity);
+        return finishEating(stack, level, entity);
+    }
+
+    static boolean isLookingAtBlock(Player player) {
+        HitResult hitResult = player.pick(player.blockInteractionRange(), 0.0F, false);
+        return hitResult.getType() == HitResult.Type.BLOCK;
+    }
+
+    static boolean canStartEating(ItemStack stack, Player player) {
+        if (player.getAbilities().instabuild) return true;
+        if (!stack.isDamageableItem()) return true;
+        int remainingDurability = stack.getMaxDamage() - stack.getDamageValue();
+        int eatDurabilityDamage = getEatDurabilityDamage(stack);
+        return remainingDurability > eatDurabilityDamage;
+    }
+
+    static ItemStack finishEating(ItemStack stack, Level level, LivingEntity entity) {
+        FoodProperties food = stack.get(DataComponents.FOOD);
+        //? if >=1.21.2 {
+        Consumable consumable = stack.get(DataComponents.CONSUMABLE);
+        if (!level.isClientSide() && food != null && consumable != null) {
+        //?} else {
+        /*if (!level.isClientSide() && food != null) {
+        *///?}
+            //? if >=1.21.2 {
+            food.onConsume(level, entity, stack, consumable);
+            //?} else {
+            /*entity.eat(level, stack.copyWithCount(1), food);
+            *///?}
+            if (!(entity instanceof Player player) || !player.getAbilities().instabuild) {
+                InteractionHand hand = entity.getUsedItemHand();
+                int eatDurabilityDamage = getEatDurabilityDamage(stack);
+                //? if >=1.21.6 {
+                stack.hurtAndBreak(eatDurabilityDamage, entity, hand);
+                //?} else {
+                /*stack.hurtAndBreak(eatDurabilityDamage, entity, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+                *///?}
+            }
+        }
+        return stack;
+    }
+
+    private static int getEatDurabilityDamage(ItemStack stack) {
+        if (!stack.isDamageableItem()) return 0;
+        return Math.max(1, (int) Math.ceil(stack.getMaxDamage() * 0.02F));
     }
 }

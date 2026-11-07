@@ -5,23 +5,14 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import org.jetbrains.annotations.Nullable;
 
-public final class FenceModels {
-    //? if >=1.21.11 {
-    /*private final Identifier post;
-    private final Identifier side;
-    private final Identifier inventory;
-    *///?} else {
-    private final ResourceLocation post;
-    private final ResourceLocation side;
-    private final ResourceLocation inventory;
-    //?}
-    private FenceModels(Builder builder) {
-        post = builder.post;
-        side = builder.side;
-        inventory = builder.inventory;
-        if (isEmpty()) throw new IllegalStateException("FenceModels requires at least one model");
+//? if >=1.21.11 {
+/*public record FenceModels(Identifier post, Identifier side, Identifier inventory) {
+*///?} else {
+public record FenceModels(ResourceLocation post, ResourceLocation side, ResourceLocation inventory) {
+//?}
+    public FenceModels {
+        if (post == null && side == null && inventory == null) throw new IllegalStateException("FenceModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -32,56 +23,20 @@ public final class FenceModels {
         return builder().post(post).side(side).inventory(inventory).build();
     }
 
-    @Nullable
-    //? if >=1.21.11 {
-    /*public Identifier post() {
-    *///?} else {
-    public ResourceLocation post() {
-    //?}
-        return post;
-    }
-
-    @Nullable
-    //? if >=1.21.11 {
-    /*public Identifier side() {
-    *///?} else {
-    public ResourceLocation side() {
-    //?}
-        return side;
-    }
-
-    @Nullable
-    //? if >=1.21.11 {
-    /*public Identifier inventory() {
-    *///?} else {
-    public ResourceLocation inventory() {
-    //?}
-        return inventory;
-    }
-
-    public boolean worldComplete() {
-        return post != null && side != null;
-    }
-
-    public boolean complete() {
-        return worldComplete() && inventory != null;
-    }
-
-    public boolean isEmpty() {
-        return post == null && side == null && inventory == null;
-    }
-
     public static final class Builder {
         //? if >=1.21.11 {
         /*private Identifier post;
         private Identifier side;
         private Identifier inventory;
+
         *///?} else {
         private ResourceLocation post;
         private ResourceLocation side;
         private ResourceLocation inventory;
+
         //?}
         private Builder() {}
+
         public Builder post(String model) {
             post = parse(model, "post");
             return this;
@@ -98,7 +53,7 @@ public final class FenceModels {
         }
 
         public FenceModels build() {
-            return new FenceModels(this);
+            return new FenceModels(post, side, inventory);
         }
     }
 

@@ -5,13 +5,14 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.level.block.Block;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import net.minecraft.world.level.block.Block;
 
 public final class Textures {
     private Textures() {}
+
     //? if >=1.21.11 {
     /*public record Set(List<Identifier> top, List<Identifier> bottom, List<Identifier> north, List<Identifier> south, List<Identifier> west,
             List<Identifier> east, Identifier particle) {
@@ -31,7 +32,7 @@ public final class Textures {
 
         private Set(Builder b) {
             this(first(b.top, b.ends, b.all), first(b.bottom, b.ends, b.all), first(b.north, b.sides, b.all), first(b.south, b.sides, b.all),
-                    first(b.west, b.sides, b.all), first(b.east, b.sides, b.all), b.particle != null ? b.particle : first(b.north, b.sides, b.all).get(0));
+                    first(b.west, b.sides, b.all), first(b.east, b.sides, b.all), first(b.north, b.sides, b.all).get(0));
         }
 
         public int layerCount() {
@@ -41,11 +42,10 @@ public final class Textures {
         @SafeVarargs
         //? if >=1.21.11 {
         /*private static List<Identifier> first(List<Identifier>... values) {
-            for (List<Identifier> value : values) {
         *///?} else {
         private static List<ResourceLocation> first(List<ResourceLocation>... values) {
-            for (List<ResourceLocation> value : values) {
         //?}
+            for (var value : values) {
                 if (value != null) return value;
             }
             throw new IllegalStateException("No texture resolves for generated face");
@@ -58,11 +58,7 @@ public final class Textures {
         //?}
             Objects.requireNonNull(layers, name);
             if (layers.isEmpty()) throw new IllegalStateException("No textures resolve for generated " + name + " face");
-            //? if >=1.21.11 {
-            /*for (Identifier layer : layers) {
-            *///?} else {
-            for (ResourceLocation layer : layers) {
-            //?}
+            for (var layer : layers) {
                 Objects.requireNonNull(layer, name + " layer");
             }
             return List.copyOf(layers);
@@ -81,7 +77,7 @@ public final class Textures {
         private List<Identifier> south;
         private List<Identifier> west;
         private List<Identifier> east;
-        private Identifier particle;
+
         *///?} else {
         private List<ResourceLocation> all;
         private List<ResourceLocation> sides;
@@ -92,7 +88,7 @@ public final class Textures {
         private List<ResourceLocation> south;
         private List<ResourceLocation> west;
         private List<ResourceLocation> east;
-        private ResourceLocation particle;
+
         //?}
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");

@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.particle.particles;
 
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -7,7 +6,9 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SimpleAnimatedParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.util.RandomSource;
+//? if >=1.21.9 {
+/*import net.minecraft.util.RandomSource;
+*///?}
 //? if <1.21.9 {
 import net.minecraft.client.particle.ParticleRenderType;
 //?}
@@ -30,8 +31,8 @@ public final class GlinsterParticle extends SimpleAnimatedParticle {
 
     //? if >=1.21.9 {
     /*@Override
-    public net.minecraft.client.particle.SingleQuadParticle.Layer getLayer() {
-        return net.minecraft.client.particle.SingleQuadParticle.Layer.TRANSLUCENT;
+    public Layer getLayer() {
+        return Layer.TRANSLUCENT;
     }
     *///?} else {
     @Override
@@ -63,13 +64,12 @@ public final class GlinsterParticle extends SimpleAnimatedParticle {
 
         @Override
         public Particle createParticle(SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd,
-                                       //? if >=1.21.9 {
+                //? if >=1.21.9 {
                 /*double zd, RandomSource random) {
-                 *///?} else {
-                                       double zd) {
-            //?}
+                *///?} else {
+                double zd) {
+                //?}
             return new GlinsterParticle(level, x, y, z, xd, yd, zd, this.sprites, this.burst);
         }
     }
 }
-

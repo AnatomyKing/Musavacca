@@ -29,9 +29,11 @@ public final class BasukeRenderer extends
     /*private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/basuke/basuke.png");
     *///?} else {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/basuke/basuke.png");
+
     //?}
     //? if >=1.21.4 {
     private final ItemModelResolver itemModelResolver;
+
     //?}
     public BasukeRenderer(EntityRendererProvider.Context ctx) {
         super(ctx, new BasukeModel(ctx.bakeLayer(BasukeModel.LAYER_LOCATION)), 0.35F);
@@ -57,14 +59,12 @@ public final class BasukeRenderer extends
     }
 
     @Override
-    public void extractRenderState(@NotNull Basuke entity, @NotNull BasukeModel.State s, float partialTick) {
-        super.extractRenderState(entity, s, partialTick);
-        //? if >=1.21.4 {
+    public void extractRenderState(@NotNull Basuke entity, @NotNull BasukeModel.State state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
         //? if >=1.21.11 {
-        /*ArmedEntityRenderState.extractArmedEntityRenderState(entity, s, this.itemModelResolver, partialTick);
-        *///?} else {
-        ArmedEntityRenderState.extractArmedEntityRenderState(entity, s, this.itemModelResolver);
-        //?}
+        /*ArmedEntityRenderState.extractArmedEntityRenderState(entity, state, this.itemModelResolver, partialTick);
+        *///?} else if >=1.21.4 {
+        ArmedEntityRenderState.extractArmedEntityRenderState(entity, state, this.itemModelResolver);
         //?}
         float bodyYaw = Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
         float headYaw = Mth.rotLerp(partialTick, entity.yHeadRotO, entity.yHeadRot);
@@ -72,21 +72,22 @@ public final class BasukeRenderer extends
         float headPitchDeg = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
         netHeadYawDeg = Mth.clamp(netHeadYawDeg, -35.0F, 35.0F);
         headPitchDeg = Mth.clamp(headPitchDeg, -25.0F, 25.0F);
-        s.headYawRad = netHeadYawDeg * Mth.DEG_TO_RAD;
-        s.headPitchRad = headPitchDeg * Mth.DEG_TO_RAD;
-        s.limbSwing = entity.walkAnimation.position(partialTick);
-        s.ageTicks = entity.tickCount + partialTick;
-        s.flyAmount = Mth.clamp((float) (entity.getDeltaMovement().length() * 6.0D), 0.0F, 1.0F);
-        s.holdingAnimationProgress = entity.getHoldingItemAnimationProgress(partialTick);
-        s.eatingTicks = entity.getBasukeEatingTicks();
-        s.eatingTotalTicks = entity.getBasukeEatingTotalTicks();
+        state.headYawRad = netHeadYawDeg * Mth.DEG_TO_RAD;
+        state.headPitchRad = headPitchDeg * Mth.DEG_TO_RAD;
+        state.limbSwing = entity.walkAnimation.position(partialTick);
+        state.ageTicks = entity.tickCount + partialTick;
+        state.flyAmount = Mth.clamp((float) (entity.getDeltaMovement().length() * 6.0D), 0.0F, 1.0F);
+        state.holdingAnimationProgress = entity.getHoldingItemAnimationProgress(partialTick);
+        state.eatingTicks = entity.getBasukeEatingTicks();
+        state.eatingTotalTicks = entity.getBasukeEatingTotalTicks();
     }
+
     //?}
     @Override
     //? if >=1.21.11 {
-    /*public @NotNull Identifier getTextureLocation(@NotNull BasukeModel.State s) {
+    /*public @NotNull Identifier getTextureLocation(@NotNull BasukeModel.State state) {
     *///?} else if >=1.21.2 <1.21.11 {
-    public @NotNull ResourceLocation getTextureLocation(@NotNull BasukeModel.State s) {
+    public @NotNull ResourceLocation getTextureLocation(@NotNull BasukeModel.State state) {
     //?} else {
     /*public @NotNull ResourceLocation getTextureLocation(@NotNull Basuke entity) {
     *///?}

@@ -6,10 +6,11 @@ import java.util.Objects;
 
 public final class Variants {
     private Variants() {}
+
     public record Option(int rotationX, int rotationY, int weight) {
         public Option {
-            rotationX = ModelTransforms.quarterTurn(rotationX);
-            rotationY = ModelTransforms.quarterTurn(rotationY);
+            rotationX = Rotations.quarterTurn(rotationX);
+            rotationY = Rotations.quarterTurn(rotationY);
             if (weight <= 0) throw new IllegalArgumentException("Variant weight must be greater than zero");
         }
 
@@ -38,7 +39,9 @@ public final class Variants {
     }
 
     private static final Set SINGLE = of(option());
+
     public static Set single() { return SINGLE; }
+
     public static Set randomY() {
         return of(option(), option().rotateY(90), option().rotateY(180), option().rotateY(270));
     }

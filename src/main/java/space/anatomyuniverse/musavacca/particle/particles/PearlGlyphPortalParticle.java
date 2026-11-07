@@ -15,8 +15,7 @@ import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticleOption
 import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintSprite;
 
 public final class PearlGlyphPortalParticle extends PortalParticle {
-    private PearlGlyphPortalParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd,
-            TextureAtlasSprite initialSprite) {
+    private PearlGlyphPortalParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, TextureAtlasSprite initialSprite) {
         //? if >=1.21.9 {
         /*super(level, x, y, z, xd, yd, zd, initialSprite);
         *///?} else {
@@ -24,15 +23,17 @@ public final class PearlGlyphPortalParticle extends PortalParticle {
         //?}
     }
 
+    @Override
     //? if >=1.21.9 {
-    /*public net.minecraft.client.particle.SingleQuadParticle.Layer getLayer() {
-        return net.minecraft.client.particle.SingleQuadParticle.Layer.TRANSLUCENT;
+    /*public Layer getLayer() {
+        return Layer.TRANSLUCENT;
     }
-    *///?}
-    //? if <1.21.9 {
+
+    *///?} else {
     public ParticleRenderType getRenderType() {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
+
     //?}
     private static PearlGlyphPortalParticle createLayer(ProfileTintParticleOptions options, ClientLevel level, SpriteSet sprites, double x, double y, double z,
             double xSpeed, double ySpeed, double zSpeed) {
@@ -49,6 +50,7 @@ public final class PearlGlyphPortalParticle extends PortalParticle {
 
     public static final class Provider implements ParticleProvider<ProfileTintParticleOptions> {
         private final SpriteSet sprites;
+
         public Provider(SpriteSet sprites) {
             this.sprites = sprites;
         }

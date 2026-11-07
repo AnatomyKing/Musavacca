@@ -1,5 +1,9 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
+//? if >=26.3 {
+/*import net.minecraft.world.level.block.BonemealSource;
+*///?}
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -16,7 +20,7 @@ public final class CaroteneShortGrassBlock extends TallGrassBlock {
 
     @Override
     //? if >=26.3 {
-    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, net.minecraft.world.level.block.BonemealSource source) {
+    /*public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state, BonemealSource source) {
     *///?} else {
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
     //?}

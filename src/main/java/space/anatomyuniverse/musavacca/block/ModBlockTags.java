@@ -14,7 +14,9 @@ public final class ModBlockTags {
     public static final TagKey<Block> PEARL_PORTAL_FRAME = create("pearl_portal_frame");
     public static final TagKey<Block> MUSAVACCA_STEMS = create("musavacca_stems");
     public static final TagKey<Block> EDIBLE_FOR_BANANA_COW = create("edible_for_banana_cow");
+
     private ModBlockTags() {}
+
     private static TagKey<Block> create(String name) {
         //? if >=1.21.11 {
         /*return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, name));

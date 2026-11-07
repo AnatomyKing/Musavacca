@@ -6,8 +6,9 @@ import net.minecraft.world.level.Level;
 
 public final class ProfileTintParticles {
     private ProfileTintParticles() {}
-    public static void spawn(Level level, RandomSource random, ProfileTintParticleType renderType, int color, double x, double y, double z,
-            double xSpeed, double ySpeed, double zSpeed) {
+
+    public static void spawn(Level level, RandomSource random, ProfileTintParticleType renderType, int color, double x, double y, double z, double xSpeed,
+            double ySpeed, double zSpeed) {
         if (level == null || !level.isClientSide()) return;
         RandomSource rng = random == null ? level.getRandom() : random;
         int layerCount = renderType.layerCount();
@@ -17,8 +18,8 @@ public final class ProfileTintParticles {
         }
     }
 
-    public static void send(ServerLevel level, RandomSource random, ProfileTintParticleType renderType, int color, double x, double y, double z,
-            int count, double xOffset, double yOffset, double zOffset, double speed) {
+    public static void send(ServerLevel level, RandomSource random, ProfileTintParticleType renderType, int color, double x, double y, double z, int count,
+            double xOffset, double yOffset, double zOffset, double speed) {
         if (level == null || level.isClientSide()) return;
         RandomSource rng = random == null ? level.getRandom() : random;
         if (count <= 0) {
@@ -36,8 +37,8 @@ public final class ProfileTintParticles {
         }
     }
 
-    public static void sendExact(ServerLevel level, RandomSource random, ProfileTintParticleType renderType, int color, double x, double y,
-            double z, double xSpeed, double ySpeed, double zSpeed) {
+    public static void sendExact(ServerLevel level, RandomSource random, ProfileTintParticleType renderType, int color, double x, double y, double z,
+            double xSpeed, double ySpeed, double zSpeed) {
         if (level == null || level.isClientSide()) return;
         RandomSource rng = random == null ? level.getRandom() : random;
         int layerCount = renderType.layerCount();
@@ -47,8 +48,8 @@ public final class ProfileTintParticles {
         }
     }
 
-    public static void spawnRandomVariant(Level level, RandomSource random, int color, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed,
-            ProfileTintParticleType... renderTypes) {
+    public static void spawnRandomVariant(Level level, RandomSource random, int color, double x, double y, double z, double xSpeed, double ySpeed,
+            double zSpeed, ProfileTintParticleType... renderTypes) {
         if (level == null || !level.isClientSide()) return;
         if (renderTypes == null || renderTypes.length == 0) return;
         RandomSource rng = random == null ? level.getRandom() : random;

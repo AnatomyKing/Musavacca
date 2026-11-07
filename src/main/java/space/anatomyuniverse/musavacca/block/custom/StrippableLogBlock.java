@@ -1,16 +1,17 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
 //? if >=26.3 {
-/*import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.item.component.BlockTransformers;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.sounds.SoundSource;
+/*import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.component.BlockTransformers;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 *///?}
+import java.util.function.Supplier;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -18,10 +19,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
-import java.util.function.Supplier;
 
 public class StrippableLogBlock extends RotatedPillarBlock {
     private final Supplier<? extends Block> stripped;
+
     public StrippableLogBlock(Properties props, Supplier<? extends Block> stripped) {
         super(props);
         this.stripped = stripped;
@@ -33,9 +34,10 @@ public class StrippableLogBlock extends RotatedPillarBlock {
         if (ability == ItemAbilities.AXE_STRIP) return strippedState(state, ctx, simulate);
         return super.getToolModifiedState(state, ctx, ability, simulate);
     }
+
     //?}
-    private BlockState strippedState(BlockState state, UseOnContext ctx, boolean simulate) {
-            return stripped.get().withPropertiesOf(state);
+    protected BlockState strippedState(BlockState state, UseOnContext context, boolean simulate) {
+        return stripped.get().withPropertiesOf(state);
     }
 
     //? if >=26.3 {

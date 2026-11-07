@@ -29,15 +29,10 @@ public final class MusavaccaBoat extends
     public static final float HITBOX_HEIGHT = 14.0F / 16.0F;
     public static final int MAX_PASSENGERS = 3;
     private static final double SEAT_SPACING_Z = 11.0D / 16.0D;
-    private static final double DRIVER_SEAT_Z = SEAT_SPACING_Z;
-    private static final double PASSENGER_TWO_SEAT_Z = -SEAT_SPACING_Z;
+
     public MusavaccaBoat(EntityType<? extends MusavaccaBoat> entityType, Level level) {
         //? if >=1.21.2 {
-        super(
-                entityType,
-                level,
-                () -> ModItems.MUSAVACCA_BOAT.get()
-        );
+        super(entityType, level, () -> ModItems.MUSAVACCA_BOAT.get());
         //?} else {
         /*super(entityType, level);
         *///?}
@@ -48,6 +43,7 @@ public final class MusavaccaBoat extends
     protected double rideHeight(EntityDimensions dimensions) {
         return dimensions.height();
     }
+
     //?}
     @Override
     protected int getMaxPassengers() {
@@ -57,12 +53,12 @@ public final class MusavaccaBoat extends
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
         int passengerIndex = this.getPassengers().indexOf(passenger);
-        double seatZ = switch (passengerIndex) { case 0 -> DRIVER_SEAT_Z; case 1 -> 0.0D; case 2 -> PASSENGER_TWO_SEAT_Z; default -> DRIVER_SEAT_Z; };
-        //? if >=1.21.2 {
-        return new Vec3(0.0D, this.rideHeight(dimensions), seatZ * scaleFactor).yRot(-this.getYRot() * Mth.DEG_TO_RAD);
-        //?} else {
-        /*return new Vec3(0.0D, dimensions.height(), seatZ * scaleFactor).yRot(-this.getYRot() * Mth.DEG_TO_RAD);
-        *///?}
+        double seatZ = switch (passengerIndex) {
+        case 1 -> 0.0D;
+        case 2 -> -SEAT_SPACING_Z;
+        default -> SEAT_SPACING_Z;
+        };
+        return new Vec3(0.0D, dimensions.height(), seatZ * scaleFactor).yRot(-this.getYRot() * Mth.DEG_TO_RAD);
     }
 
     @Override
