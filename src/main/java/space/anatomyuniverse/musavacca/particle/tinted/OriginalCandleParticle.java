@@ -40,7 +40,7 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
         this.original = original;
         this.source = (Source) original;
         this.source.musavacca$copyTo(this);
-        this.colors = ProfileTintSprite.colors(color, PearlFireTintProfiles.PEARL_FLAME);
+        this.colors = ProfileTintSprite.colors(color, PearlFireTintProfiles.PEARL_CANDLE);
     }
 
     @Override

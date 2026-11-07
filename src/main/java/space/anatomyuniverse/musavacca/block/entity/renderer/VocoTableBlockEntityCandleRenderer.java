@@ -10,9 +10,7 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.Block;
 //?}
-import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 //? if <1.21.5 {
@@ -48,19 +46,14 @@ public final class VocoTableBlockEntityCandleRenderer {
 
     private void renderCorner(VocoTableBlockEntity blockEntity, ReceptorPosition receptor, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
             int packedOverlay, BlockAndTintGetter level, BlockPos blockPos) {
-        Block candleBlock = blockEntity.getCandleBlock(receptor);
-        if (!(candleBlock instanceof CandleBlock)) return;
-        int candleCount = blockEntity.getCandleCount(receptor);
-        if (candleCount <= 0) return;
-        BlockState candleState = candleBlock.defaultBlockState()
-                .setValue(CandleBlock.CANDLES, Math.max(1, Math.min(4, candleCount)))
-                .setValue(CandleBlock.LIT, blockEntity.isCandleLit(receptor))
-                .setValue(CandleBlock.WATERLOGGED, false);
+        var candle = blockEntity.candle(receptor);
+        if (candle == null) return;
+        BlockState candleState = candle.state();
         Vec3 translation = VocoTableCandleVoxelShapes.renderTranslation(receptor);
         poseStack.pushPose();
         poseStack.translate(translation.x, translation.y, translation.z);
         //? if >=1.21.5 <1.21.9 {
-        this.blockRenderer.renderSingleBlock(candleState, poseStack, bufferSource, packedLight, packedOverlay, level, blockPos);
+        this.blockRenderer.renderSingleBlock(candleState, poseStack, bufferSource, packedLight, packedOverlay, level, blockPos.above());
         //?} else {
         /*this.blockRenderer.renderSingleBlock(candleState, poseStack, bufferSource, packedLight, packedOverlay, ModelData.EMPTY, null);
         *///?}
@@ -72,13 +65,9 @@ public final class VocoTableBlockEntityCandleRenderer {
         state.candles.clear();
         if (entity.getLevel() == null) return;
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            var block = entity.getCandleBlock(receptor);
-            int count = entity.getCandleCount(receptor);
-            if (!(block instanceof CandleBlock) || count <= 0) continue;
-            var candle = block.defaultBlockState()
-                    .setValue(CandleBlock.CANDLES, Math.max(1, Math.min(4, count)))
-                    .setValue(CandleBlock.LIT, entity.isCandleLit(receptor))
-                    .setValue(CandleBlock.WATERLOGGED, false);
+            var slot = entity.candle(receptor);
+            if (slot == null) continue;
+            var candle = slot.state();
             //? if >=26.1 {
             /^var model = new net.minecraft.client.renderer.block.BlockModelRenderState(); context.blockModelResolver().update(model, candle, net.minecraft.client.renderer.block.model.BlockDisplayContext.create()); state.candles.add(new Candle(model, VocoTableCandleVoxelShapes.renderTranslation(receptor)));
             ^///?} else {

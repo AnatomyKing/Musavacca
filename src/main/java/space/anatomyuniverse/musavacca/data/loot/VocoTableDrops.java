@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.data.loot;
 
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
@@ -25,14 +24,15 @@ public final class VocoTableDrops {
         var pos = event.getPos();
 
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            Block candle = table.getCandleBlock(receptor);
-            int count = table.getCandleCount(receptor);
-            if (candle == null || count <= 0) continue;
-
-            var offset = VocoTableCandleVoxelShapes.dropPosition(receptor, count);
-            event.getDrops().add(new ItemEntity(event.getLevel(),
-                                                pos.getX() + offset.x, pos.getY() + offset.y, pos.getZ() + offset.z,
-                                                new ItemStack(candle.asItem(), count)));
+            var candle = table.candle(receptor);
+            if (candle == null) continue;
+            var drop = VocoTableCandleVoxelShapes.dropPosition(event.getLevel(), pos, receptor, candle);
+            int remaining = candle.count();
+            while (remaining > 0) {
+                int count = Math.min(remaining, Math.max(1, candle.item().getMaxStackSize()));
+                event.getDrops().add(new ItemEntity(event.getLevel(), drop.x, drop.y, drop.z, candle.item().copyWithCount(count)));
+                remaining -= count;
+            }
         }
 
         if (!table.hasDisplayedItem()) return;

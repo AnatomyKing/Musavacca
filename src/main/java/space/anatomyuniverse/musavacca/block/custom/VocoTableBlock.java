@@ -46,7 +46,7 @@ public final class VocoTableBlock extends Block implements EntityBlock {
     public static final BooleanProperty[] RECEPTOR_LIGHTS = VocoTableLogic.RECEPTOR_LIGHTS;
     public static final BooleanProperty[] RECEPTOR_PORTALS = VocoTableLogic.RECEPTOR_PORTALS;
     public VocoTableBlock(Properties properties) {
-        super(properties);
+        super(properties.dynamicShape());
         this.registerDefaultState(VocoTableLogic.defaultState(this.stateDefinition.any()));
     }
 
@@ -113,11 +113,11 @@ public final class VocoTableBlock extends Block implements EntityBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return VocoTableVoxelShapes.shape(state, level, pos);
+        return VocoTableVoxelShapes.shape(state, level, pos, context);
     }
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return VocoTableVoxelShapes.collisionShape(state, level, pos);
+        return VocoTableVoxelShapes.collisionShape(state, level, pos, context);
     }
 }

@@ -53,10 +53,10 @@ public final class PearlCandleLogic {
 
     public static void animateTick(PearlCandleBlock block, BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (!state.getValue(CandleBlock.LIT) || state.getValue(CandleBlock.WATERLOGGED)) return;
-        if (!(level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle)) return;
+        if (!(level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle) || !candle.hasHexColor()) return;
         BlockState original = candle.originalState();
         if (!PearlCandleConversion.isCandle(original)) return;
-        OriginalCandleParticles.animate(original, level, pos, random, candle.getHexColorOrFallback());
+        OriginalCandleParticles.animate(original, level, pos, random, candle.getHexColor());
     }
 
     public static int candleLightLevel(BlockState state) {

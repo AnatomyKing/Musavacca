@@ -6,17 +6,18 @@
   "compatibilityLevel": "${java}",
   "mixins": [
     "SavedDataStorageAccessor",
-    "AbstractBoatFloatMixin"
+    "AbstractBoatFloatMixin",
+    "PearlCandleServerInteractionMixin"
   ],
   "client": [
     "client.HumanoidArmorLayerMixin",
     "client.ClientBundleTooltipAccessor",
-    "compat.gleam.GleamVanillaMixin",
-    "compat.gleam.GleamSodiumMixin",
+    "compat.gleam.GleamEmitterRegistryMixin",
     "client.PearlCandleParticleCaptureMixin",
     "client.PearlCandleParticleTintMixin",
     "client.PearlCandleSpriteContentsMixin",
-    "client.PearlCandleSpriteLoaderMixin"
+    "client.PearlCandleSpriteLoaderMixin",
+    "client.PearlCandleClientInteractionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

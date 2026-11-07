@@ -9,23 +9,18 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableDialerHitboxes.HitPart;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.basuke.summon.BasukeSummon;
 import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
-import space.anatomyuniverse.musavacca.item.custom.PearlIgniter;
 
 public final class VocoTableLogic {
     public static final BooleanProperty LIT_NORTH_EAST = BooleanProperty.create("lit_north_east");
@@ -86,7 +81,7 @@ public final class VocoTableLogic {
     }
 
     public static InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        ReceptorPosition candleHit = VocoTableCandleLogic.detectExistingCandleHit(level, pos, hit);
+        ReceptorPosition candleHit = VocoTableCandleLogic.detectExistingCandleHit(level, pos, hit, player);
         VocoTableReceptorHitboxes.HitPart receptorPart = VocoTableReceptorHitboxes.detectHitPart(pos, hit);
         VocoTableItemDisplayHitboxes.HitPart itemDisplayPart = VocoTableItemDisplayHitboxes.detectHitPart(pos, hit);
         HitPart dialerPart = detectDialerHitIfActive(state, pos, hit);
@@ -101,7 +96,7 @@ public final class VocoTableLogic {
             return VocoTableItemDisplayLogic.useWithoutItem(level, pos, player, true);
         }
         if (candleHit != null) {
-            if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
+            if (!player.getMainHandItem().isEmpty() || !player.getAbilities().mayBuild || player.isSpectator()) return InteractionResult.PASS;
             if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) return InteractionResult.PASS;
             if (!tableBe.isCandleLit(candleHit)) return InteractionResult.PASS;
             if (!level.isClientSide()) {
@@ -139,7 +134,7 @@ public final class VocoTableLogic {
 
     public static InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
-        ReceptorPosition candleHit = VocoTableCandleLogic.detectExistingCandleHit(level, pos, hit);
+        ReceptorPosition candleHit = VocoTableCandleLogic.detectExistingCandleHit(level, pos, hit, player);
         VocoTableReceptorHitboxes.HitPart receptorPart = VocoTableReceptorHitboxes.detectHitPart(pos, hit);
         VocoTableItemDisplayHitboxes.HitPart itemDisplayPart = VocoTableItemDisplayHitboxes.detectHitPart(pos, hit);
         HitPart dialerPart = detectDialerHitIfActive(state, pos, hit);
@@ -158,44 +153,14 @@ public final class VocoTableLogic {
             if (!itemDisplayPart.isItemDisplay()) return InteractionResult.PASS;
             return VocoTableItemDisplayLogic.useItemOn(stack, level, pos, player, hand, true);
         }
-        if (candleHit != null) {
-            Block candleBlock = candleBlockFromStack(stack);
-            if (candleBlock != null) {
-                if (!level.isClientSide()) {
-                    VocoTableCandleLogic.addCandleToSlot(stack, level, pos, player, candleBlock, candleHit);
-                }
-                return InteractionResult.SUCCESS;
-            }
-            if (PearlIgniter.is(stack)) {
-                if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) return InteractionResult.PASS;
-                if (!tableBe.hasCandle(candleHit)) return InteractionResult.PASS;
-                if (!level.isClientSide()) {
-                    VocoTableCandleLogic.lightCandleSlot(stack, level, pos, player, hand, tableBe, candleHit);
-                    BasukeSummon.trySummonFromVocoTable(level, pos);
-                }
-                return InteractionResult.SUCCESS;
-            }
-            if (stack.is(Items.FLINT_AND_STEEL)) {
-                if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) return InteractionResult.PASS;
-                if (!tableBe.hasCandle(candleHit)) return InteractionResult.PASS;
-                if (!level.isClientSide()) {
-                    VocoTableCandleLogic.lightVanillaCandleSlot(stack, level, pos, player, hand, tableBe, candleHit);
-                    BasukeSummon.trySummonFromVocoTable(level, pos);
-                }
-                return InteractionResult.SUCCESS;
-            }
-            return InteractionResult.PASS;
+        var corner = candleHit != null ? candleHit : receptorPart.receptor();
+        if (corner != null && stack.getItem() instanceof BlockItem item && VocoTableCandle.accepts(item.getBlock().defaultBlockState())) {
+            return VocoTableCandleLogic.place(level, pos, corner, player, hand, stack, item, hit);
         }
-        ReceptorPosition receptorHit = receptorPart.receptor();
-        if (receptorHit != null) {
-            Block candleBlock = candleBlockFromStack(stack);
-            if (candleBlock != null) {
-                if (!level.isClientSide()) {
-                    VocoTableCandleLogic.addCandleToSlot(stack, level, pos, player, candleBlock, receptorHit);
-                }
-                return InteractionResult.SUCCESS;
-            }
-            return useReceptorCornerItem(stack, state, level, pos, player, hand, receptorHit);
+        if (corner != null) {
+            var ignition = VocoTableCandleLogic.ignite(level, pos, corner, player, hand, stack);
+            if (ignition != InteractionResult.PASS || candleHit != null) return ignition;
+            return useReceptorCornerItem(stack, state, level, pos, player, hand, corner);
         }
         if (!itemDisplayPart.isItemDisplay()) return InteractionResult.PASS;
         return VocoTableItemDisplayLogic.useItemOn(stack, level, pos, player, hand, false);
@@ -232,12 +197,5 @@ public final class VocoTableLogic {
             VocoReceptorLogic.playUiClick(level, pos);
         }
         return InteractionResult.SUCCESS;
-    }
-
-    @Nullable
-    private static Block candleBlockFromStack(ItemStack stack) {
-        if (!(stack.getItem() instanceof BlockItem blockItem)) return null;
-        Block block = blockItem.getBlock();
-        return block instanceof CandleBlock && !(block instanceof PearlCandleBlock) ? block : null;
     }
 }

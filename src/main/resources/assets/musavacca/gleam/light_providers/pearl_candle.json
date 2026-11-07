@@ -1,0 +1,12 @@
+{
+  "emitters": [
+    "musavacca:pearl_candle[lit=true,waterlogged=false]"
+  ],
+  "light_properties": {
+    "encoding": "hex",
+    "hex": "#D5CD49",
+    "radius": 8.0,
+    "intensity": 0.0,
+    "occlude_to_blocklight": true
+  }
+}

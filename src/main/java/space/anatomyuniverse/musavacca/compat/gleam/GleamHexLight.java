@@ -1,35 +1,32 @@
 package space.anatomyuniverse.musavacca.compat.gleam;
 
 //? if <1.21.2 {
-/*import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
+/*import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.thatmaidenjaden.gleam.client.lighting.GleamLight;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
-*///?}
-//? if <1.21.2 {
 
-/*public final class GleamHexLight {
+public final class GleamHexLight {
     private static final float COLOR_SCALE = 1.0F / 255.0F;
     private GleamHexLight() {}
+
     public static boolean handles(BlockState state) {
         Block block = state.getBlock();
-        return block == ModBlocks.PEARL_FIRE.get() || block == ModBlocks.PEARL_PORTAL.get();
+        return block == ModBlocks.PEARL_FIRE.get() || block == ModBlocks.PEARL_PORTAL.get()
+                || block == ModBlocks.PEARL_CANDLE.get() && state.getValue(CandleBlock.LIT)
+                && !state.getValue(CandleBlock.WATERLOGGED);
     }
 
-    public static GleamLight create(BlockGetter level, int x, int y, int z) {
-        BlockEntity blockEntity = level.getBlockEntity(new BlockPos(x, y, z));
-        if (!(blockEntity instanceof HexSource source)
-                || !source.hasHexColor()) {
-            return null;
-        }
+    public static GleamLight create(BlockEntity blockEntity, int x, int y, int z) {
+        if (!(blockEntity instanceof HexSource source) || !source.hasHexColor()) return null;
         int color = MusavaccaTints.rgb(source.getHexColor());
         boolean blacklight = color == 0x000000;
-        return GleamLight.create(x + 0.5F, y + 0.5F, z + 0.5F, ((color >> 16) & 0xFF) * COLOR_SCALE, ((color >> 8) & 0xFF) * COLOR_SCALE,
+        return GleamLight.create(x + 0.5F, y + 0.5F, z + 0.5F,
+                ((color >> 16) & 0xFF) * COLOR_SCALE, ((color >> 8) & 0xFF) * COLOR_SCALE,
                 (color & 0xFF) * COLOR_SCALE, 8.0F, 0.55F, blacklight, true);
     }
 }
