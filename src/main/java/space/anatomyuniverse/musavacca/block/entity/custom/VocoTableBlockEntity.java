@@ -47,6 +47,7 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandle;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableVoxelShapes;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -90,6 +91,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     private final double[] targetY = new double[ReceptorPosition.COUNT];
     private final double[] targetZ = new double[ReceptorPosition.COUNT];
     private final VocoTableCandle[] candleSlots = new VocoTableCandle[ReceptorPosition.COUNT];
+    private final VocoTableVoxelShapes.Cache shapeCache = new VocoTableVoxelShapes.Cache();
     private int latestHexColor = MusavaccaTints.NO_TINT;
     private int latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
     private boolean basukeVisible = false;
@@ -320,6 +322,10 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     @Nullable
     public VocoTableCandle candle(ReceptorPosition receptor) {
         return candleSlots[receptor.id()];
+    }
+
+    public VocoTableVoxelShapes.Cache getShapeCache() {
+        return shapeCache;
     }
 
     public boolean isCandleLit(ReceptorPosition receptor) {

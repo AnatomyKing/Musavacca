@@ -78,6 +78,17 @@ public final class VocoTableBlock extends Block implements EntityBlock {
         return new VocoTableBlockEntity(pos, state);
     }
 
+    //? if <1.21.5 {
+    /*@Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (state.getBlock() != newState.getBlock() && level.getBlockEntity(pos) instanceof VocoTableBlockEntity blockEntity) {
+            blockEntity.cleanupBeforeRemoval();
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    *///?}
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
