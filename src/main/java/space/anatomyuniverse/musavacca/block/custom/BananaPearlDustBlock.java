@@ -106,16 +106,6 @@ public final class BananaPearlDustBlock extends Block {
         return side;
     }
 
-    public static Direction dustFacing(LevelReader level, BlockPos pos) {
-        Direction attached = null;
-        for (Direction direction : Direction.Plane.HORIZONTAL) {
-            if (!(level.getBlockState(pos.relative(direction)).getBlock() instanceof BananaPearlDustBlock)) continue;
-            if (attached != null) return null;
-            attached = direction;
-        }
-        return attached;
-    }
-
     public static BlockPos connected(LevelReader level, BlockPos pos, Direction direction) {
         BlockPos adjacent = pos.relative(direction);
         BlockState state = level.getBlockState(adjacent);

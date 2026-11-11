@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceApi;
-import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class PearlSlotIgnition {
@@ -150,7 +149,6 @@ public final class PearlSlotIgnition {
     }
 
     private static void setReceptorState(Level level, BlockPos pos, BlockState state) {
-        if (state.getBlock() instanceof VocoPostBlock) state = VocoPostBlock.withDustPower(state, level, pos);
         level.setBlock(pos, state, UPDATE_FLAGS);
     }
 

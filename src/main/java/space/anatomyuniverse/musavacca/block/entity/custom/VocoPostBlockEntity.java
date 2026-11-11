@@ -210,10 +210,7 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     @Override
     public void onLoad() {
         super.onLoad();
-        if (this.level instanceof ServerLevel serverLevel) {
-            VocoPostCandleLogic.refreshPortalAt(serverLevel, this.getBlockPos());
-            VocoPostBlock.refreshPowered(serverLevel, this.getBlockPos());
-        }
+        if (this.level instanceof ServerLevel serverLevel) VocoPostCandleLogic.refreshPortalAt(serverLevel, this.getBlockPos());
     }
 
     public void cleanupBeforeRemoval() {

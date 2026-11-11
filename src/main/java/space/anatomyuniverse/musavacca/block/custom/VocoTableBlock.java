@@ -32,11 +32,13 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableVoxelShapes;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.BlockItem;
 import space.anatomyuniverse.musavacca.basuke.summon.BasukeSummon;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustRide;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandle;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableHitboxes;
@@ -157,9 +159,7 @@ public final class VocoTableBlock extends Block implements EntityBlock {
                 }
                 return InteractionResult.SUCCESS;
             }
-            if (!state.getValue(portalProperty) && level.isClientSide()) {
-                VocoReceptorLogic.showNeedsPortalMessage(player);
-            }
+            if (level instanceof ServerLevel server && player instanceof ServerPlayer rider) VocoDustRide.start(rider, server, pos, receptorHit);
             return InteractionResult.SUCCESS;
         }
         if (!itemDisplayHit) return InteractionResult.PASS;

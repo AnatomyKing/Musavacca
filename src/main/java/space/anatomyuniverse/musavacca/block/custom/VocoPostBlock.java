@@ -33,7 +33,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -54,14 +53,9 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     //?}
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
     public static final BooleanProperty PORTAL = BooleanProperty.create("portal");
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-    public static final EnumProperty<Direction> POWERED_FACING = EnumProperty.create("powered_facing", Direction.class,
-            Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
-
     public VocoPostBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, false).setValue(PORTAL, false)
-                .setValue(POWERED, false).setValue(POWERED_FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, false).setValue(PORTAL, false));
     }
 
     //? if <26.3 {
@@ -102,7 +96,7 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, LIT, PORTAL, POWERED, POWERED_FACING);
+        builder.add(FACING, LIT, PORTAL);
     }
 
     @Override
@@ -117,7 +111,7 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
         if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) return InteractionResult.SUCCESS;
         if (!VocoReceptorLogic.isCompletelyEmptyHanded(player)) return InteractionResult.PASS;
         if (state.getValue(LIT)) {
-            if (level instanceof ServerLevel server && player instanceof ServerPlayer rider) VocoDustRide.start(rider, server, pos);
+            if (level instanceof ServerLevel server && player instanceof ServerPlayer rider) VocoDustRide.start(rider, server, pos, receptor);
             return InteractionResult.SUCCESS;
         }
         var slot = VocoReceptorLogic.pearlSlot(LIT, PORTAL, receptor);
@@ -170,12 +164,10 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (level.isClientSide()) return;
-        boolean litChanged = !oldState.is(this) || oldState.getValue(LIT) != state.getValue(LIT);
-        if (litChanged || oldState.getValue(FACING) != state.getValue(FACING)
+        if (!oldState.is(this) || oldState.getValue(LIT) != state.getValue(LIT) || oldState.getValue(FACING) != state.getValue(FACING)
                 || oldState.getValue(PORTAL) != state.getValue(PORTAL)) {
             VocoPostCandleLogic.refreshPortalAt(level, pos);
         }
-        if (litChanged) refreshPowered(level, pos);
     }
 
     @Override
@@ -186,21 +178,7 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor levelReader, BlockPos pos,
             BlockPos neighborPos) {
     *///?}
-        BlockState updated = VocoPostCandleLogic.updateShape(state, levelReader, pos, direction);
-        return direction.getAxis().isHorizontal() ? withDustPower(updated, levelReader, pos) : updated;
-    }
-
-    public static BlockState refreshPowered(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        if (!(state.getBlock() instanceof VocoPostBlock)) return state;
-        BlockState updated = withDustPower(state, level, pos);
-        if (updated != state) level.setBlock(pos, updated, Block.UPDATE_ALL);
-        return updated;
-    }
-
-    public static BlockState withDustPower(BlockState state, LevelReader level, BlockPos pos) {
-        Direction wire = state.getValue(LIT) ? BananaPearlDustBlock.dustFacing(level, pos) : null;
-        return state.setValue(POWERED, wire != null).setValue(POWERED_FACING, wire == null ? Direction.NORTH : wire);
+        return VocoPostCandleLogic.updateShape(state, levelReader, pos, direction);
     }
 
     public static ReceptorPosition receptorPosition(BlockState state) {
