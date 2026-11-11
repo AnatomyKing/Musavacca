@@ -32,7 +32,7 @@ public final class BasukeSummon {
         if (!(serverLevel.getBlockEntity(pos) instanceof VocoTableBlockEntity table)) return false;
         boolean sealing = state.getValue(VocoTableBlock.ROTARY_DIALERS);
         if (!table.getDisplayedItem().is(sealing ? ModItems.INACTIVE_VOCO_CALLER.get() : ModItems.BIG_BANANA_PEARL.get())) return false;
-        if (!allReceptorsCharged(state) || !allNormalCandleCornersLit(table)) return false;
+        if (!allReceptorsCharged(state) || !allCandleCornersLit(table)) return false;
         List<Basuke> boundBasukes = sealing ? findPresentBoundBasukes(serverLevel, pos) : List.of();
         if (sealing && boundBasukes.isEmpty()) return false;
         completeRitual(serverLevel, pos, table, sealing, boundBasukes);
@@ -46,9 +46,9 @@ public final class BasukeSummon {
         return true;
     }
 
-    private static boolean allNormalCandleCornersLit(VocoTableBlockEntity table) {
+    private static boolean allCandleCornersLit(VocoTableBlockEntity table) {
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            if (!table.isCandleLit(receptor) || table.getCornerHexColor(receptor) != MusavaccaTints.NO_TINT) return false;
+            if (!table.isCandleLit(receptor)) return false;
         }
         return true;
     }

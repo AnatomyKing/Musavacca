@@ -4,6 +4,13 @@ import java.util.UUID;
 import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
@@ -80,14 +87,14 @@ public final class VocoTeleportLogic {
         if (be instanceof VocoTableBlockEntity tableBe) {
             if (tableBe.isCustomTargetEnabled(receptor)) {
                 return new EndpointTarget(tableBe.getCustomTarget(receptor), new Facing(tableBe.getYawDegrees(receptor), tableBe.getPitchDegrees(receptor)),
-                        true, tableBe.getCustomTargetDimension(receptor));
+                        tableBe.getCustomTargetDimension(receptor));
             }
             return defaultEndpointTarget(pos, receptor);
         }
         if (be instanceof VocoPostBlockEntity postBe) {
             ReceptorPosition postReceptor = actualReceptor(level, pos, receptor);
             if (postBe.isCustomTargetEnabled()) {
-                return new EndpointTarget(postBe.getCustomTarget(), new Facing(postBe.getYawDegrees(), postBe.getPitchDegrees()), true,
+                return new EndpointTarget(postBe.getCustomTarget(), new Facing(postBe.getYawDegrees(), postBe.getPitchDegrees()),
                         postBe.getCustomTargetDimension());
             }
             return defaultEndpointTarget(pos, postReceptor);
@@ -95,12 +102,8 @@ public final class VocoTeleportLogic {
         return defaultEndpointTarget(pos, receptor);
     }
 
-    public static Vec3 getCameraEditorPosition(BlockPos pos, ReceptorPosition receptor) {
-        return getDefaultTeleportPosition(pos, receptor);
-    }
-
     private static EndpointTarget defaultEndpointTarget(BlockPos pos, ReceptorPosition receptor) {
-        return new EndpointTarget(getDefaultTeleportPosition(pos, receptor), defaultFacing(receptor), false, null);
+        return new EndpointTarget(getDefaultTeleportPosition(pos, receptor), defaultFacing(receptor), null);
     }
 
     private static Facing defaultFacing(ReceptorPosition receptor) {
@@ -123,5 +126,15 @@ public final class VocoTeleportLogic {
 
     public record Facing(int yawDegrees, int pitchDegrees) {}
 
-    public record EndpointTarget(Vec3 pos, Facing facing, boolean custom, String dimension) {}
+    public record EndpointTarget(Vec3 pos, Facing facing, String dimension) {
+        public ServerLevel level(ServerLevel owner) {
+            if (dimension == null || dimension.isEmpty()) return owner;
+            //? if >=1.21.11 {
+            /*var id = Identifier.tryParse(dimension);
+            *///?} else {
+            var id = ResourceLocation.tryParse(dimension);
+            //?}
+            return id == null ? null : owner.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, id));
+        }
+    }
 }

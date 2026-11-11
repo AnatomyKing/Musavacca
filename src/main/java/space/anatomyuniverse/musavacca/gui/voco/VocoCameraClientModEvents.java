@@ -31,9 +31,13 @@ public final class VocoCameraClientModEvents {
         NeoForge.EVENT_BUS.addListener(VocoCameraClient::onClientTickPre);
         NeoForge.EVENT_BUS.addListener(VocoCameraClient::onClientTickPost);
         NeoForge.EVENT_BUS.addListener(VocoCameraClient::onMouseButton);
+        NeoForge.EVENT_BUS.addListener(VocoCameraClient::onInteractionKey);
         NeoForge.EVENT_BUS.addListener(VocoCameraClient::onScreenOpening);
         NeoForge.EVENT_BUS.addListener(VocoCameraClient::onLogout);
         NeoForge.EVENT_BUS.addListener(VocoCameraClient::onRenderHand);
+        NeoForge.EVENT_BUS.addListener(VocoCameraClient::onCameraSize);
+        NeoForge.EVENT_BUS.addListener(VocoCameraClient::onCameraAngles);
+        NeoForge.EVENT_BUS.addListener(VocoCameraClient::onScroll);
     }
 
     //? if >=1.21.6 {

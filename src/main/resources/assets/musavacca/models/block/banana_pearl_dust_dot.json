@@ -1,0 +1,16 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "musavacca:block/banana_pearl_dust_dot",
+    "dust": "musavacca:block/banana_pearl_dust_dot"
+  },
+  "elements": [
+    {
+      "from": [0, 0.5, 0], "to": [16, 0.5, 16], "shade": false,
+      "faces": {
+        "up": {"uv": [0, 0, 16, 16], "texture": "#dust"},
+        "down": {"uv": [0, 16, 16, 0], "texture": "#dust"}
+      }
+    }
+  ]
+}

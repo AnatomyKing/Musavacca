@@ -1,0 +1,97 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_dust_dot"
+      },
+      "when": {
+        "OR": [
+          {
+            "east": "none",
+            "north": "none"
+          },
+          {
+            "east": "none",
+            "south": "none"
+          },
+          {
+            "south": "none",
+            "west": "none"
+          },
+          {
+            "north": "none",
+            "west": "none"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_dust_line"
+      },
+      "when": {
+        "north": "side"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_dust_line",
+        "y": 90
+      },
+      "when": {
+        "east": "side"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_dust_line_south"
+      },
+      "when": {
+        "south": "side"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_dust_line_south",
+        "y": 90
+      },
+      "when": {
+        "west": "side"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_dust_up"
+      },
+      "when": {
+        "north": "up"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_dust_up",
+        "y": 90
+      },
+      "when": {
+        "east": "up"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_dust_up_south"
+      },
+      "when": {
+        "south": "up"
+      }
+    },
+    {
+      "apply": {
+        "model": "musavacca:block/banana_pearl_dust_up_south",
+        "y": 90
+      },
+      "when": {
+        "west": "up"
+      }
+    }
+  ]
+}

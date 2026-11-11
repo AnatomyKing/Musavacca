@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "musavacca:block/banana_pearl_dust_dot"
+  }
+}

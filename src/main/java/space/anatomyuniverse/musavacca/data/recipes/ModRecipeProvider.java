@@ -98,6 +98,10 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .reversible()
                 .unlockedByHas(ModItems.BANANA_PEARL.get())
                 .save("misc");
+        dsl.shapeless(RecipeCategory.REDSTONE, ModItems.BANANA_PEARL_DUST.get(), 4)
+                .requires(ModItems.SMALL_BANANA_PEARL.get())
+                .unlockedByHas(ModItems.SMALL_BANANA_PEARL.get())
+                .save("redstone/banana_pearl_dust");
         dsl.stonecutFamily()
                 .of(ModItems.BIG_BANANA_PEARL.get(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.BANANA_PEARL_BLOCK.get(), 1)
                 .variants(ModBlocks.BANANA_PEARL_BRICKS.get(), ModBlocks.BANANA_PEARL_CHAPITER.get(), ModBlocks.BANANA_PEARL_PILLAR.get())

@@ -16,7 +16,6 @@ import space.anatomyuniverse.musavacca.block.custom.logic.GlinsterLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoTableCrafting {
     private VocoTableCrafting() {}
@@ -38,17 +37,11 @@ public final class VocoTableCrafting {
         }
         ItemStack displayedStack = tableBe.getDisplayedItem();
         if (displayedStack.isEmpty()) return null;
-        int matchingCandleColor = tableBe.getMatchingCandleHexColor();
-        Recipe recipe = VocoTableCraftingRecipes.findMatchingRecipe(displayedStack, edibleStack,
-                matchingCandleColor != MusavaccaTints.NO_TINT);
+        Recipe recipe = VocoTableCraftingRecipes.findMatchingRecipe(level, displayedStack, edibleStack);
         if (recipe == null) return null;
-        if (recipe.hexColorInject() && matchingCandleColor == MusavaccaTints.NO_TINT) {
-            return null;
-        }
-        ItemStack resultStack = recipe.createResultStack();
-        if (tableBe.getDisplayedItemCount() > 1 && resultStack.getMaxStackSize() <= 1) {
-            return null;
-        }
+        ItemStack resultStack = recipe.createResultStack(displayedStack);
+        long count = (long) tableBe.getDisplayedItemCount() * recipe.resultCount();
+        if (count > Integer.MAX_VALUE || (count > 1 && resultStack.getMaxStackSize() <= 1)) return null;
         return recipe;
     }
 
@@ -59,20 +52,11 @@ public final class VocoTableCrafting {
         if (!(level.getBlockEntity(tablePos) instanceof VocoTableBlockEntity tableBe)) {
             return false;
         }
-        ItemStack displayedStack = tableBe.getDisplayedItem();
-        if (!recipe.matches(displayedStack, edibleStack)) return false;
-        int matchingCandleColor = MusavaccaTints.NO_TINT;
-        if (recipe.hexColorInject()) {
-            matchingCandleColor = tableBe.getMatchingCandleHexColor();
-            if (matchingCandleColor == MusavaccaTints.NO_TINT) return false;
-        }
-        int displayedItemCount = tableBe.getDisplayedItemCount();
-        ItemStack resultStack = recipe.createResultStack();
-        if (displayedItemCount > 1 && resultStack.getMaxStackSize() <= 1) {
-            return false;
-        }
-        if (recipe.hexColorInject()) resultStack.set(ModDataComponents.HEX_COLOR.get(), matchingCandleColor);
-        tableBe.setDisplayedItem(resultStack, displayedItemCount);
+        if (!recipe.equals(findActiveRecipe(basuke, level, edibleStack))) return false;
+        ItemStack resultStack = recipe.createResultStack(tableBe.getDisplayedItem());
+        int count = tableBe.getDisplayedItemCount() * recipe.resultCount();
+        if (recipe.hexColorInject()) resultStack.set(ModDataComponents.HEX_COLOR.get(), edibleStack.get(ModDataComponents.HEX_COLOR.get()) & 0xFFFFFF);
+        tableBe.setDisplayedItem(resultStack, count);
         edibleStack.shrink(1);
         basuke.setItemInHand(InteractionHand.MAIN_HAND, edibleStack.isEmpty() ? ItemStack.EMPTY : edibleStack);
         GlinsterLogic.burst(level, tablePos);

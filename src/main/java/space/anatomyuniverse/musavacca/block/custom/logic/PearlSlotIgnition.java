@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceApi;
+import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class PearlSlotIgnition {
@@ -135,7 +136,7 @@ public final class PearlSlotIgnition {
         if (linkedProperty != null) {
             newState = newState.setValue(linkedProperty, false);
         }
-        level.setBlock(pos, newState, UPDATE_FLAGS);
+        setReceptorState(level, pos, newState);
         playPortalStateChangeSound(level, pos, wasLinked, false);
         playShearEffects(level, pos, slot);
         popBananaPearl(level, pos, slot);
@@ -144,8 +145,13 @@ public final class PearlSlotIgnition {
     }
 
     private static void ignite(BlockState state, Level level, BlockPos pos, Slot slot) {
-        level.setBlock(pos, state.setValue(slot.litProperty(), true), UPDATE_FLAGS);
+        setReceptorState(level, pos, state.setValue(slot.litProperty(), true));
         level.playSound(null, pos, SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.BLOCKS, 0.65F, 1.54F);
+    }
+
+    private static void setReceptorState(Level level, BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof VocoPostBlock) state = VocoPostBlock.withDustPower(state, level, pos);
+        level.setBlock(pos, state, UPDATE_FLAGS);
     }
 
     public static void playPortalStateChangeSound(Level level, BlockPos pos, boolean wasPortal, boolean portal) {

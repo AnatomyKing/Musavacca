@@ -1,5 +1,13 @@
 package space.anatomyuniverse.musavacca.data.models;
 
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.EAST_REDSTONE;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH_REDSTONE;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.SOUTH_REDSTONE;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WEST_REDSTONE;
+import static net.minecraft.world.level.block.state.properties.RedstoneSide.NONE;
+import static net.minecraft.world.level.block.state.properties.RedstoneSide.SIDE;
+import static net.minecraft.world.level.block.state.properties.RedstoneSide.UP;
+
 import net.minecraft.world.level.block.CandleBlock;
 //? if >=26.1 {
 /*import net.minecraft.world.level.block.SnowyBlock;
@@ -25,6 +33,7 @@ public final class NewModelSets {
     }
 
     public static List<SimpleBlocks.Entry> simpleBlocks() {
+        String dust = "musavacca:block/banana_pearl_dust_";
         return List.of(
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_BLOCK.get()).generated().textures(textures -> textures.all()).build(),
                 SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_BRICKS.get()).generated().textures(textures -> textures.all()).build(),
@@ -336,6 +345,23 @@ public final class NewModelSets {
                                         Conditions.when(BreakBlock.AGE, 2).and(BreakBlock.ATTACHED, true))
                         )
                         .noItem()
+                        .build(),
+                SimpleBlocks.Entry.builder(ModBlocks.BANANA_PEARL_DUST.get())
+                        .multipart(
+                                SimpleBlocks.Part.when(dust + "dot", Conditions.when(NORTH_REDSTONE, NONE).and(EAST_REDSTONE, NONE)),
+                                SimpleBlocks.Part.when(dust + "dot", Conditions.when(EAST_REDSTONE, NONE).and(SOUTH_REDSTONE, NONE)),
+                                SimpleBlocks.Part.when(dust + "dot", Conditions.when(SOUTH_REDSTONE, NONE).and(WEST_REDSTONE, NONE)),
+                                SimpleBlocks.Part.when(dust + "dot", Conditions.when(WEST_REDSTONE, NONE).and(NORTH_REDSTONE, NONE)),
+                                SimpleBlocks.Part.when(dust + "line", Conditions.when(NORTH_REDSTONE, SIDE)),
+                                SimpleBlocks.Part.when(dust + "line", Conditions.when(EAST_REDSTONE, SIDE)).rotateY(90),
+                                SimpleBlocks.Part.when(dust + "line_south", Conditions.when(SOUTH_REDSTONE, SIDE)),
+                                SimpleBlocks.Part.when(dust + "line_south", Conditions.when(WEST_REDSTONE, SIDE)).rotateY(90),
+                                SimpleBlocks.Part.when(dust + "up", Conditions.when(NORTH_REDSTONE, UP)),
+                                SimpleBlocks.Part.when(dust + "up", Conditions.when(EAST_REDSTONE, UP)).rotateY(90),
+                                SimpleBlocks.Part.when(dust + "up_south", Conditions.when(SOUTH_REDSTONE, UP)),
+                                SimpleBlocks.Part.when(dust + "up_south", Conditions.when(WEST_REDSTONE, UP)).rotateY(90)
+                        )
+                        .item(SimpleItems.Model.generated().flat().texture(dust + "dot"))
                         .build(),
                 SimpleBlocks.Entry.builder(ModBlocks.VOCO_POST.get())
                         .multipart(

@@ -2,6 +2,7 @@ package space.anatomyuniverse.musavacca.gui.voco;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 //? if >=1.21.11 {
@@ -29,21 +30,13 @@ public record VocoCameraSelectionPayload(BlockPos pos, int receptorId, float yaw
     *///?} else {
     public static final Type<VocoCameraSelectionPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
     //?}
-    public static final StreamCodec<FriendlyByteBuf, VocoCameraSelectionPayload> STREAM_CODEC = new StreamCodec<>() {
-        @Override
-        public VocoCameraSelectionPayload decode(FriendlyByteBuf buffer) {
-            return new VocoCameraSelectionPayload(buffer.readBlockPos(), buffer.readVarInt(), buffer.readFloat(), buffer.readFloat(), buffer.readBoolean());
-        }
-
-        @Override
-        public void encode(FriendlyByteBuf buffer, VocoCameraSelectionPayload payload) {
-            buffer.writeBlockPos(payload.pos());
-            buffer.writeVarInt(payload.receptorId());
-            buffer.writeFloat(payload.yawDegrees());
-            buffer.writeFloat(payload.pitchDegrees());
-            buffer.writeBoolean(payload.resetToDefault());
-        }
-    };
+    public static final StreamCodec<FriendlyByteBuf, VocoCameraSelectionPayload> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC, VocoCameraSelectionPayload::pos,
+            ByteBufCodecs.VAR_INT, VocoCameraSelectionPayload::receptorId,
+            ByteBufCodecs.FLOAT, VocoCameraSelectionPayload::yawDegrees,
+            ByteBufCodecs.FLOAT, VocoCameraSelectionPayload::pitchDegrees,
+            ByteBufCodecs.BOOL, VocoCameraSelectionPayload::resetToDefault,
+            VocoCameraSelectionPayload::new);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

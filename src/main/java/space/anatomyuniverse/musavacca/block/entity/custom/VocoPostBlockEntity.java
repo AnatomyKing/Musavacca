@@ -212,6 +212,7 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
         super.onLoad();
         if (this.level instanceof ServerLevel serverLevel) {
             VocoPostCandleLogic.refreshPortalAt(serverLevel, this.getBlockPos());
+            VocoPostBlock.refreshPowered(serverLevel, this.getBlockPos());
         }
     }
 

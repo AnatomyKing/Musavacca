@@ -118,6 +118,19 @@ public final class ModBlocks {
                     .pushReaction(PushReaction.NORMAL)
                     //?}
             ));
+    public static final DeferredBlock<BananaPearlDustBlock> BANANA_PEARL_DUST = BLOCKS.registerBlock("banana_pearl_dust",
+            props -> new BananaPearlDustBlock(props.mapColor(MapColor.COLOR_YELLOW).instabreak().sound(SoundType.STONE).noOcclusion()
+                    //? if >=1.21.9 {
+                    /*.noCollision()
+                    *///?} else {
+                    .noCollission()
+                    //?}
+                    //? if >=26.3 {
+                    /*.pushReaction(PushReaction.POPPED)
+                    *///?} else {
+                    .pushReaction(PushReaction.DESTROY)
+                    //?}
+            ));
     public static final DeferredBlock<PearlFireBlock> PEARL_FIRE = BLOCKS.registerBlock("pearl_fire",
             props -> new PearlFireBlock(props.mapColor(MapColor.FIRE).replaceable()
                     //? if >=1.21.9 {
@@ -388,7 +401,7 @@ public final class ModBlocks {
                     //?}
             ));
     private static final Set<DeferredBlock<? extends Block>> SKIP_BLOCK_ITEMS = Set.of(PEARL_FIRE, MUSAVACCA_EGG, MUSAVACCA_SPROUT, MUSAVACCA_SUCKER,
-            MUSAVACCA_PLANT, MUSAVACCA_PSEUDOSTEM, PEARL_PORTAL, MUSAVACCA_DOOR, VOCO_TABLE, PEARL_CANDLE);
+            MUSAVACCA_PLANT, MUSAVACCA_PSEUDOSTEM, PEARL_PORTAL, MUSAVACCA_DOOR, VOCO_TABLE, PEARL_CANDLE, BANANA_PEARL_DUST);
     static {
         BLOCKS.getEntries().forEach(entry -> {
             if (!SKIP_BLOCK_ITEMS.contains(entry)) {

@@ -3,6 +3,7 @@ package space.anatomyuniverse.musavacca;
 import com.mojang.logging.LogUtils;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 //? if >=1.21.9 {
@@ -22,6 +23,9 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 /*import space.anatomyuniverse.musavacca.block.custom.StrippableLogBlock;
 *///?}
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableItemDisplayLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustInputs;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustReturn;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustRide;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
 //? if <1.21.4 {
@@ -77,6 +81,7 @@ public final class MusaCore {
         ModEntities.register(modBus);
         ModAttachments.register(modBus);
         ModNetworking.register(modBus);
+        modBus.addListener(BalanceEvents::registerPayloads);
         EconomyConfig.register(container);
         //? if >=26.3 {
         /*NeoForge.EVENT_BUS.addListener(StrippableLogBlock::onUseItemOnBlock);
@@ -89,6 +94,12 @@ public final class MusaCore {
         NeoForge.EVENT_BUS.register(VocoCallerNetwork.class);
         NeoForge.EVENT_BUS.register(PearlIgniterEvents.class);
         NeoForge.EVENT_BUS.addListener(VocoTableItemDisplayLogic::onRightClickBlock);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, VocoDustInputs::onUseBlock);
+        NeoForge.EVENT_BUS.addListener(VocoDustRide::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(VocoDustReturn::onLogin);
+        NeoForge.EVENT_BUS.addListener(VocoDustRide::onLogout);
+        NeoForge.EVENT_BUS.addListener(VocoDustRide::onClone);
+        NeoForge.EVENT_BUS.addListener(VocoDustRide::onServerStopping);
 
         //? if >=1.21.9 {
         /*if (FMLEnvironment.getDist() == Dist.CLIENT) {
@@ -118,3 +129,5 @@ public final class MusaCore {
         }
     }
 }
+
+

@@ -11,6 +11,7 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -124,19 +125,8 @@ public final class HexTeleportResolver {
             targetPos = target.pos();
             yaw = target.facing().yawDegrees();
             pitch = target.facing().pitchDegrees();
-            if (target.custom() && target.dimension() != null && !target.dimension().isEmpty()) {
-                try {
-                    //? if >=1.21.11 {
-                    /*destinationLevel = server.getLevel(ResourceKey.create(Registries.DIMENSION, net.minecraft.resources.Identifier.parse(target.dimension())));
-                    *///?} else {
-                    destinationLevel = server
-                            .getLevel(ResourceKey.create(Registries.DIMENSION, net.minecraft.resources.ResourceLocation.parse(target.dimension())));
-                    //?}
-                } catch (IllegalArgumentException invalid) {
-                    return Optional.empty();
-                }
-                if (destinationLevel == null) return Optional.empty();
-            }
+            destinationLevel = target.level(ownerLevel);
+            if (destinationLevel == null) return Optional.empty();
         } else return Optional.empty();
         keepChunkLoaded(destinationLevel, BlockPos.containing(targetPos));
         return Optional.of(new ResolvedEndpoint(endpoint.endpointId(), destinationLevel, endpoint, targetPos, yaw, pitch));
@@ -258,6 +248,20 @@ public final class HexTeleportResolver {
     public static boolean teleportToTarget(ServerPlayer player, ServerLevel targetLevel, Vec3 wantedPos, float yaw, float pitch) {
         EntityDimensions dimensions = player.getDimensions(player.getPose());
         Vec3 safePos = PortalShape.findCollisionFreePosition(wantedPos, targetLevel, player, dimensions);
+        return teleportToPosition(player, targetLevel, safePos, yaw, pitch);
+    }
+
+    public static boolean teleportToVocoExit(ServerPlayer player, ServerLevel owner, VocoTeleportLogic.EndpointTarget target) {
+        ServerLevel level = target.level(owner);
+        if (level == null) return false;
+        keepChunkLoaded(level, BlockPos.containing(target.pos()));
+        EntityDimensions body = player.getDimensions(Pose.STANDING);
+        Vec3 exit = PortalShape.findCollisionFreePosition(target.pos(), level, player, body);
+        return level.noCollision(player, body.makeBoundingBox(exit))
+                && teleportToPosition(player, level, exit, target.facing().yawDegrees(), target.facing().pitchDegrees());
+    }
+
+    private static boolean teleportToPosition(ServerPlayer player, ServerLevel targetLevel, Vec3 safePos, float yaw, float pitch) {
         HexTeleportPreloader.prepare(player, targetLevel, safePos);
         if (player.level() == targetLevel) {
             player.connection.teleport(safePos.x, safePos.y, safePos.z, yaw, pitch);

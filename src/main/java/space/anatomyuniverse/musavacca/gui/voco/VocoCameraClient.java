@@ -1,10 +1,5 @@
 package space.anatomyuniverse.musavacca.gui.voco;
 
-//? if >=1.21.6 {
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-//?} else {
-/*import net.neoforged.neoforge.network.PacketDistributor;
-*///?}
 import net.minecraft.client.CameraType;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -15,7 +10,13 @@ import net.minecraft.client.gui.GuiGraphics;
 //?}
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
+import net.neoforged.neoforge.event.entity.EntityEvent;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustRide;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -24,7 +25,9 @@ import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
 public final class VocoCameraClient {
-    private static boolean active = false;
+    private static LocalPlayer rider;
+    private static Entity checkedCamera;
+    private static boolean cancelSent;
     private static VocoCameraStartPayload session;
     private static float originalYaw;
     private static float originalPitch;
@@ -33,29 +36,63 @@ public final class VocoCameraClient {
     private VocoCameraClient() {}
 
     public static boolean isActive() {
-        return active;
+        return session != null || rider != null;
     }
 
     public static void start(VocoCameraStartPayload payload) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || minecraft.level == null) return;
-        if (active) {
-            finish(FinishMessage.NONE);
-        }
+        if (minecraft.player == null || minecraft.level == null || rider != null) return;
+        if (session != null) finish();
         session = payload;
         originalYaw = minecraft.player.getYRot();
         originalPitch = minecraft.player.getXRot();
+        enterFirstPerson(minecraft);
+    }
+
+    private static void syncRide(Minecraft minecraft) {
+        Entity camera = minecraft.getCameraEntity();
+        if (camera == checkedCamera && (rider == null || rider == minecraft.player)) return;
+        checkedCamera = camera;
+        if (minecraft.player == null || !VocoDustRide.isCamera(camera, minecraft.player)) {
+            if (rider != null) finish();
+            return;
+        }
+        if (rider == minecraft.player) return;
+        if (isActive()) finish();
+        rider = minecraft.player;
+        camera.refreshDimensions();
+        enterFirstPerson(minecraft);
+    }
+
+    private static void enterFirstPerson(Minecraft minecraft) {
         originalCameraType = minecraft.options.getCameraType();
         minecraft.options.setCameraType(CameraType.FIRST_PERSON);
-        minecraft.setCameraEntity(minecraft.player);
-        active = true;
+        if (session != null) minecraft.setCameraEntity(minecraft.player);
+    }
+
+    public static void onCameraSize(EntityEvent.Size event) {
+        if (rider == null || event.getEntity() != checkedCamera) return;
+        float eye = event.getPose() == Pose.CROUCHING ? VocoDustRide.TRAIL_EYE_HEIGHT : rider.getEyeHeight();
+        event.setNewSize(event.getNewSize().withEyeHeight(eye));
+    }
+
+    public static void onCameraAngles(ViewportEvent.ComputeCameraAngles event) {
+        syncRide(Minecraft.getInstance());
+        if (rider == null) return;
+        event.setYaw(rider.getYRot());
+        event.setPitch(rider.getXRot());
+    }
+
+    public static void onScroll(InputEvent.MouseScrollingEvent event) {
+        if (rider != null) event.setCanceled(true);
     }
 
     public static void onClientTickPre(ClientTickEvent.Pre event) {
-        if (!active) return;
         Minecraft minecraft = Minecraft.getInstance();
+        syncRide(minecraft);
+        if (!isActive()) return;
         if (minecraft.player == null) {
-            finish(FinishMessage.NONE);
+            finish();
             return;
         }
         minecraft.options.keyUp.setDown(false);
@@ -65,13 +102,18 @@ public final class VocoCameraClient {
         minecraft.options.keyJump.setDown(false);
         minecraft.options.keyShift.setDown(false);
         minecraft.options.keySprint.setDown(false);
+        if (rider != null) {
+            minecraft.options.keyAttack.setDown(false);
+            minecraft.options.keyUse.setDown(false);
+            for (var key : minecraft.options.keyHotbarSlots) while (key.consumeClick()) {}
+        }
     }
 
     public static void onClientTickPost(ClientTickEvent.Post event) {
-        if (!active) return;
+        if (!isActive()) return;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.level == null) {
-            finish(FinishMessage.NONE);
+            finish();
             return;
         }
         //? if >=26.2 {
@@ -79,10 +121,14 @@ public final class VocoCameraClient {
         *///?} else {
         if (minecraft.screen != null) {
         //?}
-            finish(FinishMessage.NONE);
+            cancel();
             return;
         }
-        if (minecraft.getCameraEntity() != minecraft.player) {
+        if (rider != null && rider != minecraft.player) {
+            finish();
+            return;
+        }
+        if (session != null && minecraft.getCameraEntity() != minecraft.player) {
             minecraft.setCameraEntity(minecraft.player);
         }
         if (minecraft.options.getCameraType() != CameraType.FIRST_PERSON) {
@@ -91,30 +137,38 @@ public final class VocoCameraClient {
     }
 
     public static void onMouseButton(InputEvent.MouseButton.Pre event) {
-        if (!active || event.getAction() != InputConstants.PRESS) return;
-        if (event.getButton() == InputConstants.MOUSE_BUTTON_LEFT) {
+        if (event.getAction() != InputConstants.PRESS) return;
+        if (rider != null) {
             event.setCanceled(true);
-            save(false);
             return;
         }
-        if (event.getButton() == InputConstants.MOUSE_BUTTON_RIGHT) {
+        if (session == null) return;
+        int button = event.getButton();
+        if (button == InputConstants.MOUSE_BUTTON_LEFT || button == InputConstants.MOUSE_BUTTON_RIGHT) {
             event.setCanceled(true);
-            save(true);
+            save(button == InputConstants.MOUSE_BUTTON_RIGHT);
         }
+    }
+
+    public static void onInteractionKey(InputEvent.InteractionKeyMappingTriggered event) {
+        if (rider == null) return;
+        event.setSwingHand(false);
+        event.setCanceled(true);
     }
 
     public static void onScreenOpening(ScreenEvent.Opening event) {
-        if (!active || !(event.getNewScreen() instanceof PauseScreen)) return;
+        if (!isActive() || !(event.getNewScreen() instanceof PauseScreen)) return;
         event.setCanceled(true);
-        finish(FinishMessage.NONE);
+        cancel();
     }
 
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        finish(FinishMessage.NONE);
+        checkedCamera = null;
+        finish();
     }
 
     public static void onRenderHand(RenderHandEvent event) {
-        if (active) {
+        if (isActive()) {
             event.setCanceled(true);
         }
     }
@@ -124,71 +178,68 @@ public final class VocoCameraClient {
     *///?} else {
     public static void renderHud(GuiGraphics graphics, DeltaTracker deltaTracker) {
     //?}
-        if (!active) return;
+        if (!isActive()) return;
         Minecraft minecraft = Minecraft.getInstance();
         int width = graphics.guiWidth();
         int height = graphics.guiHeight();
         graphics.fill(0, 0, width, height, 0x18D7B84E);
         for (int x = 0; x < width; x += 6) {
-            graphics.fill(x, 0, Math.min(x + 1, width), height, 0x0AE7C85B);
+            graphics.fill(x, 0, x + 1, height, 0x0AE7C85B);
         }
         for (int y = 0; y < height; y += 6) {
-            graphics.fill(0, y, width, Math.min(y + 1, height), 0x0AE7C85B);
+            graphics.fill(0, y, width, y + 1, 0x0AE7C85B);
         }
         int centerX = width / 2;
+        String title = rider == null ? "Voco view" : "Pearl Current";
+        String controls = rider == null ? "Left-click: save  |  Right-click: default  |  Esc: cancel" : "Esc: cancel ride";
         //? if >=26.1 {
-        /*graphics.centeredText(minecraft.font, "Voco view", centerX, 8, 0xFFE6C95D);
-        graphics.centeredText(minecraft.font, "Left-click: save  |  Right-click: default  |  Esc: cancel", centerX, 20, 0xFFD8C984);
+        /*graphics.centeredText(minecraft.font, title, centerX, 8, 0xFFE6C95D);
+        graphics.centeredText(minecraft.font, controls, centerX, 20, 0xFFD8C984);
         *///?} else {
-        graphics.drawCenteredString(minecraft.font, "Voco view", centerX, 8, 0xFFE6C95D);
-        graphics.drawCenteredString(minecraft.font, "Left-click: save  |  Right-click: default  |  Esc: cancel", centerX, 20, 0xFFD8C984);
+        graphics.drawCenteredString(minecraft.font, title, centerX, 8, 0xFFE6C95D);
+        graphics.drawCenteredString(minecraft.font, controls, centerX, 20, 0xFFD8C984);
         //?}
     }
 
     private static void save(boolean resetToDefault) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (!active || session == null || minecraft.player == null) {
-            finish(FinishMessage.NONE);
+        if (session == null || minecraft.player == null) {
+            finish();
             return;
         }
         float yaw = Mth.wrapDegrees(minecraft.player.getYRot());
         float pitch = Mth.clamp(minecraft.player.getXRot(), -90.0F, 90.0F);
-        VocoCameraSelectionPayload payload = new VocoCameraSelectionPayload(session.pos(), session.receptorId(), yaw, pitch, resetToDefault);
-        //? if >=1.21.6 {
-        ClientPacketDistributor.sendToServer(payload);
-        //?} else {
-        /*PacketDistributor.sendToServer(payload);
-        *///?}
-        finish(resetToDefault ? FinishMessage.RESET : FinishMessage.SAVED);
+        minecraft.player.connection.send(new VocoCameraSelectionPayload(session.pos(), session.receptorId(), yaw, pitch, resetToDefault));
+        Component message = Component.literal(resetToDefault ? "Voco receptor restored to its default arrival." : "Voco arrival position and view saved.");
+        //? if >=26.1 {
+        /*minecraft.player.sendOverlayMessage(message);
+        *///?} else {
+        minecraft.player.displayClientMessage(message, true);
+        //?}
+        finish();
     }
 
-    private static void finish(FinishMessage finishMessage) {
+    private static void cancel() {
+        if (rider == null) {
+            finish();
+        } else if (!cancelSent) {
+            cancelSent = true;
+            rider.connection.send(VocoDustRideCancelPayload.INSTANCE);
+        }
+    }
+
+    private static void finish() {
         Minecraft minecraft = Minecraft.getInstance();
-        if (active && minecraft.player != null) {
+        if (session != null && minecraft.player != null) {
             minecraft.player.setYRot(originalYaw);
             minecraft.player.setXRot(originalPitch);
             minecraft.player.setYHeadRot(originalYaw);
             minecraft.player.setYBodyRot(originalYaw);
-            minecraft.setCameraEntity(minecraft.player);
-            if (originalCameraType != null) {
-                minecraft.options.setCameraType(originalCameraType);
-            }
-            if (finishMessage != FinishMessage.NONE) {
-                Component message = Component.literal(
-                        finishMessage == FinishMessage.SAVED ? "Voco arrival position and view saved." : "Voco receptor restored to its default arrival.");
-                //? if >=26.1 {
-                /*minecraft.player.sendOverlayMessage(message);
-                *///?} else {
-                minecraft.player.displayClientMessage(message, true);
-                //?}
-            }
         }
-        active = false;
+        if (originalCameraType != null) minecraft.options.setCameraType(originalCameraType);
+        rider = null;
+        cancelSent = false;
         session = null;
         originalCameraType = null;
-    }
-
-    private enum FinishMessage {
-        NONE, SAVED, RESET
     }
 }

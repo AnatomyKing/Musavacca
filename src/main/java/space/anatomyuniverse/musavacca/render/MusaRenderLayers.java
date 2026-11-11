@@ -56,6 +56,7 @@ public final class MusaRenderLayers {
 
     //? if <26.1 {
     private static final Set<Block> CUTOUT_BLOCKS = Set.of(ModBlocks.MUSAVACCA_EGG.get(), ModBlocks.HEX_BLOCK.get(), ModBlocks.PEARL_FIRE.get(),
+            ModBlocks.BANANA_PEARL_DUST.get(),
             ModBlocks.VOCO_TABLE.get(), ModBlocks.MUSAVACCA_SPROUT.get(), ModBlocks.MUSAVACCA_SUCKER.get(), ModBlocks.MUSAVACCA_PLANT.get(),
             ModBlocks.MUSAVACCA_PSEUDOSTEM.get(), ModBlocks.MUSAVACCA_TRAPDOOR.get(), ModBlocks.CAROTENE_GRASS.get(), ModBlocks.CAROTENE_SHORT_GRASS.get(),
             ModBlocks.CAROTENE_TALL_GRASS.get(), ModBlocks.BANANA_PEARL_MASCARON.get(), ModBlocks.VOCO_POST.get());

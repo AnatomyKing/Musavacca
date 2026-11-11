@@ -29,7 +29,6 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.item.custom.OpenVocoCallerItem;
 import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class BasukeVocoCalling {
     public static final int EATING_TIME_TICKS = VocoTableEatingLogic.DEFAULT_EATING_TIME_TICKS;
@@ -40,7 +39,7 @@ public final class BasukeVocoCalling {
 
     @Nullable
     public static ActiveCalling findActiveCalling(@NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack simCardStack) {
-        if (!isBlankSimCard(simCardStack) || !basuke.isBoundToVocoTable()) {
+        if (!isColoredSimCard(simCardStack) || !basuke.isBoundToVocoTable()) {
             return null;
         }
         UUID givingPlayerUuid = readGivingPlayer(simCardStack);
@@ -57,14 +56,13 @@ public final class BasukeVocoCalling {
         }
         ItemStack displayedPhone = tableBe.getDisplayedItem();
         if (!isEmptyBananaPhone(displayedPhone)) return null;
-        int matchingCandleColor = tableBe.getMatchingCandleHexColor();
-        if (matchingCandleColor == MusavaccaTints.NO_TINT) return null;
-        HexTeleportDirectory.PhoneRegistration registration = HexTeleportDirectory.get(level.getServer()).getPhoneRegistrationByHex(matchingCandleColor)
+        int hexColor = simCardStack.get(ModDataComponents.HEX_COLOR.get()) & 0xFFFFFF;
+        HexTeleportDirectory.PhoneRegistration registration = HexTeleportDirectory.get(level.getServer()).getPhoneRegistrationByHex(hexColor)
                 .orElse(null);
         if (registration == null || !registration.ownerUuid().equals(givingPlayerUuid)) {
             return null;
         }
-        return new ActiveCalling(matchingCandleColor, givingPlayerUuid);
+        return new ActiveCalling(hexColor, givingPlayerUuid);
     }
 
     public static boolean completeActiveCalling(@NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack simCardStack,
@@ -81,7 +79,6 @@ public final class BasukeVocoCalling {
         if (!isEmptyBananaPhone(displayedPhone)) return false;
         ItemStack recoveredSim = simCardStack.copyWithCount(1);
         clearGivingPlayer(recoveredSim);
-        recoveredSim.set(ModDataComponents.HEX_COLOR.get(), activeCalling.hexColor());
         ItemStack recoveredPhone = displayedPhone.copyWithCount(1);
         //? if >=26.1 {
         /*recoveredPhone.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(List.of(ItemStackTemplate.fromNonEmptyStack(recoveredSim))));
@@ -139,8 +136,8 @@ public final class BasukeVocoCalling {
         return !stack.isEmpty() && stack.is(ModItems.SIM_CARD.get()) && stack.getItem() instanceof SimCardItem;
     }
 
-    private static boolean isBlankSimCard(@NotNull ItemStack stack) {
-        return isSimCard(stack) && !SimCardItem.hasStoredHex(stack);
+    private static boolean isColoredSimCard(@NotNull ItemStack stack) {
+        return isSimCard(stack) && SimCardItem.hasStoredHex(stack);
     }
 
     private static boolean isEmptyBananaPhone(@NotNull ItemStack stack) {

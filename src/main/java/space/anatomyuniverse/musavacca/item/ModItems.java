@@ -178,9 +178,11 @@ public final class ModItems {
             props -> new OpenVocoCallerItem(props.rarity(Rarity.RARE).stacksTo(1).component(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY)));
     public static final DeferredItem<Item> BIG_BANANA_PEARL = ITEMS.registerItem("big_banana_pearl", props -> new Item(props.rarity(Rarity.RARE)));
     public static final DeferredItem<Item> SIM_CARD = ITEMS.registerItem("sim_card",
-            props -> new SimCardItem(props.rarity(Rarity.RARE).fireResistant().stacksTo(1)));
+            props -> new SimCardItem(props.rarity(Rarity.RARE).fireResistant()));
     public static final DeferredItem<Item> SMALL_BANANA_PEARL = ITEMS.registerItem("small_banana_pearl",
             props -> new SmallBananaPearlItem(props.rarity(Rarity.RARE)));
+    public static final DeferredItem<BlockItem> BANANA_PEARL_DUST = ITEMS.registerItem("banana_pearl_dust",
+            props -> new BlockItem(ModBlocks.BANANA_PEARL_DUST.get(), props));
     public static final DeferredItem<SpawnEggItem> BANANA_COW_SPAWN_EGG = ITEMS.registerItem("banana_cow_spawn_egg", props ->
             //? if >=1.21.9 {
             /*new SpawnEggItem(props.spawnEgg(ModEntities.BANANA_COW.get()))
@@ -227,7 +229,7 @@ public final class ModItems {
             props -> createPotassiumArmor(props, BOOTS));
 
     private static Item.Properties bananaPearlProperties(Item.Properties props) {
-        FoodProperties food = new FoodProperties.Builder().nutrition(1).saturationModifier(0.3F).alwaysEdible()
+        FoodProperties food = new FoodProperties.Builder().nutrition(0).saturationModifier(0.0F).alwaysEdible()
                 //? if <1.21.2 {
                 /*.fast()
                 *///?}

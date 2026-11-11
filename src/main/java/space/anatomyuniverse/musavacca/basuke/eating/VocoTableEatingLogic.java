@@ -8,8 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.basuke.craft.VocoTableCrafting;
 import space.anatomyuniverse.musavacca.basuke.craft.VocoTableCraftingRecipes.Recipe;
-import space.anatomyuniverse.musavacca.basuke.sending.VocoTableSending;
-import space.anatomyuniverse.musavacca.basuke.sending.VocoTableSendingCommand;
 import space.anatomyuniverse.musavacca.basuke.summon.BasukeVocoCalling;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
@@ -20,8 +18,6 @@ public final class VocoTableEatingLogic {
 
     @Nullable
     public static Action findActiveAction(@NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack heldStack) {
-        VocoTableSending.ActiveSending activeSending = VocoTableSending.findActiveSending(basuke, level, heldStack);
-        if (activeSending != null) return new SendingAction(activeSending);
         BasukeVocoCalling.ActiveCalling activeCalling = BasukeVocoCalling.findActiveCalling(basuke, level, heldStack);
         if (activeCalling != null) return new CallingAction(activeCalling);
         Recipe recipe = VocoTableCrafting.findActiveRecipe(basuke, level, heldStack);
@@ -32,11 +28,7 @@ public final class VocoTableEatingLogic {
         if (basuke.level().isClientSide() || !player.getItemInHand(hand).isEmpty()) {
             return;
         }
-        ItemStack heldStack = basuke.getMainHandItem();
-        if (VocoTableSendingCommand.isCommand(heldStack)) {
-            VocoTableSendingCommand.clearSender(heldStack);
-        }
-        BasukeVocoCalling.clearGivingPlayer(heldStack);
+        BasukeVocoCalling.clearGivingPlayer(basuke.getMainHandItem());
     }
 
     public static void afterItemInteraction(@NotNull Basuke basuke, @NotNull Player player, boolean wasHoldingNothing) {
@@ -44,7 +36,6 @@ public final class VocoTableEatingLogic {
             return;
         }
         ItemStack heldStack = basuke.getMainHandItem();
-        VocoTableSendingCommand.stampSender(heldStack, player.getUUID());
         BasukeVocoCalling.stampGivingPlayer(heldStack, player.getUUID());
     }
 
@@ -57,24 +48,12 @@ public final class VocoTableEatingLogic {
     private record CraftingAction(@NotNull Recipe recipe) implements Action {
         @Override
         public int eatingTimeTicks() {
-            return this.recipe.eatingTimeTicks();
+            return DEFAULT_EATING_TIME_TICKS;
         }
 
         @Override
         public boolean complete(Basuke basuke, ServerLevel level, ItemStack heldStack) {
             return VocoTableCrafting.completeActiveRecipe(basuke, level, heldStack, this.recipe);
-        }
-    }
-
-    private record SendingAction(@NotNull VocoTableSending.ActiveSending activeSending) implements Action {
-        @Override
-        public int eatingTimeTicks() {
-            return VocoTableSending.EATING_TIME_TICKS;
-        }
-
-        @Override
-        public boolean complete(Basuke basuke, ServerLevel level, ItemStack heldStack) {
-            return VocoTableSending.completeActiveSending(basuke, level, heldStack, this.activeSending);
         }
     }
 

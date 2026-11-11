@@ -19,6 +19,7 @@ import space.anatomyuniverse.musavacca.gui.menu.payloads.FlintAndPearlColorPaylo
 import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraSelectionPayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraStartPayload;
+import space.anatomyuniverse.musavacca.gui.voco.VocoDustRideCancelPayload;
 //? if <1.21.6 {
 /*import space.anatomyuniverse.musavacca.gui.voco.VocoCameraClient;
 *///?}
@@ -49,6 +50,7 @@ public final class ModNetworking {
                 .playToServer(VocoCameraSelectionPayload.TYPE, VocoCameraSelectionPayload.STREAM_CODEC, VocoCameraSelectionPayload::handle)
                 .playToServer(FlintAndPearlColorPayload.TYPE, FlintAndPearlColorPayload.STREAM_CODEC, FlintAndPearlColorPayload::handle)
                 .playToServer(VocoCallerStatePayload.TYPE, VocoCallerStatePayload.STREAM_CODEC, VocoCallerStatePayload::handle)
-                .playToServer(PlayerStatusActionPayload.TYPE, PlayerStatusActionPayload.STREAM_CODEC, PlayerStatusActionPayload::handle);
+                .playToServer(PlayerStatusActionPayload.TYPE, PlayerStatusActionPayload.STREAM_CODEC, PlayerStatusActionPayload::handle)
+                .playToServer(VocoDustRideCancelPayload.TYPE, VocoDustRideCancelPayload.STREAM_CODEC, VocoDustRideCancelPayload::handle);
     }
 }

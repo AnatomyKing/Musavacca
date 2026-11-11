@@ -60,7 +60,8 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 ModBlocks.BANANA_PEARL_BRICK_STAIRS.get(), ModBlocks.MUSAVACCA_STEM.get(), ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.STRIPPED_MUSAVACCA_STEM.get(), ModBlocks.MUSAVACCA_PLANKS.get(), ModBlocks.GILDED_MUSAVACCA_PLANKS.get(),
                 ModBlocks.MUSAVACCA_STAIRS.get(), ModBlocks.MUSAVACCA_FENCE.get(), ModBlocks.MUSAVACCA_FENCE_GATE.get(),
-                ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(), ModBlocks.MUSAVACCA_BUTTON.get(), ModBlocks.HARD_HEX_BLOCK.get(), ModBlocks.VOCO_POST.get());
+                ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(), ModBlocks.MUSAVACCA_BUTTON.get(), ModBlocks.HARD_HEX_BLOCK.get(), ModBlocks.VOCO_POST.get(),
+                ModBlocks.BANANA_PEARL_DUST.get());
 
         this.add(ModBlocks.MUSAVACCA_LEAVES.get(), this.createSilkTouchOrShearsDispatchTable(ModBlocks.MUSAVACCA_LEAVES.get(), EmptyLootItem.emptyItem()));
         this.add(ModBlocks.MUSAVACCA_SLAB.get(), this.createSlabItemTable(ModBlocks.MUSAVACCA_SLAB.get()));
