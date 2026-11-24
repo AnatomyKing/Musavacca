@@ -45,17 +45,7 @@ public class PotassiumShovelItem extends ShovelItem {
     //?} else {
     /*public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
     *///?}
-        //? if >=1.21.2 {
-        if (PotassiumItem.isLookingAtBlock(player)) return InteractionResult.PASS;
-        //?}
-        ItemStack stack = player.getItemInHand(hand);
-        //? if >=1.21.2 {
-        if (!PotassiumItem.canStartEating(stack, player)) return InteractionResult.FAIL;
-        //?} else {
-        /*if (PotassiumItem.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
-        if (!PotassiumItem.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
-        *///?}
-        return super.use(level, player, hand);
+        return PotassiumItem.useTool(level, player, hand);
     }
 
     @Override
@@ -63,5 +53,4 @@ public class PotassiumShovelItem extends ShovelItem {
         return PotassiumItem.finishEating(stack, level, entity);
     }
     //?}
-
 }

@@ -23,8 +23,12 @@ public final class BonusHungerData implements ValueIOSerializable {
 /*public final class BonusHungerData implements INBTSerializable<CompoundTag> {
 *///?}
     public static final int MAX_FOOD = 20;
+    public static final int FOOD_PER_PIECE = 5;
+    private int capacity = MAX_FOOD;
     private int food = MAX_FOOD;
     private float saturation = MAX_FOOD;
+    private final int[] storedFood = new int[MAX_FOOD / FOOD_PER_PIECE];
+    private final float[] storedSaturation = new float[MAX_FOOD / FOOD_PER_PIECE];
     private float exhaustion = 0.0F;
     private int tickTimer = 0;
     private int lastBaseFood = MAX_FOOD;
@@ -39,6 +43,7 @@ public final class BonusHungerData implements ValueIOSerializable {
     private int lastSyncedFood = Integer.MIN_VALUE;
     private float lastSyncedSaturation = Float.NaN;
     private boolean lastSyncedActive = false;
+    private int lastSyncedCapacity = -1;
 
     @Override
     //? if >=1.21.6 {
@@ -47,10 +52,15 @@ public final class BonusHungerData implements ValueIOSerializable {
     /*public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag output = new CompoundTag();
     *///?}
+        output.putInt("capacity", this.capacity);
         output.putInt("food", this.food);
         output.putFloat("saturation", this.saturation);
         output.putFloat("exhaustion", this.exhaustion);
         output.putInt("tick_timer", this.tickTimer);
+        for (int i = 0; i < this.storedFood.length; i++) {
+            output.putInt("stored_food_" + i, this.storedFood[i]);
+            output.putFloat("stored_saturation_" + i, this.storedSaturation[i]);
+        }
         //? if <1.21.6 {
         /*return output;
         *///?}
@@ -63,15 +73,25 @@ public final class BonusHungerData implements ValueIOSerializable {
     /*public void deserializeNBT(HolderLookup.Provider provider, CompoundTag input) {
     *///?}
         //? if >=1.21.5 {
-        this.food = Mth.clamp(input.getIntOr("food", MAX_FOOD), 0, MAX_FOOD);
+        this.capacity = Mth.clamp(input.getIntOr("capacity", MAX_FOOD), 0, MAX_FOOD) / FOOD_PER_PIECE * FOOD_PER_PIECE;
+        this.food = Mth.clamp(input.getIntOr("food", MAX_FOOD), 0, this.capacity);
         this.saturation = Mth.clamp(input.getFloatOr("saturation", (float) MAX_FOOD), 0.0F, this.food);
         this.exhaustion = Mth.clamp(input.getFloatOr("exhaustion", 0.0F), 0.0F, 40.0F);
         this.tickTimer = Math.max(0, input.getIntOr("tick_timer", 0));
+        for (int i = 0; i < this.storedFood.length; i++) {
+            this.storedFood[i] = i < this.capacity / FOOD_PER_PIECE ? 0 : Mth.clamp(input.getIntOr("stored_food_" + i, 0), 0, FOOD_PER_PIECE);
+            this.storedSaturation[i] = Mth.clamp(input.getFloatOr("stored_saturation_" + i, 0.0F), 0.0F, this.storedFood[i]);
+        }
         //?} else {
-        /*this.food = Mth.clamp(input.contains("food", Tag.TAG_ANY_NUMERIC) ? input.getInt("food") : MAX_FOOD, 0, MAX_FOOD);
+        /*this.capacity = Mth.clamp(input.contains("capacity", Tag.TAG_ANY_NUMERIC) ? input.getInt("capacity") : MAX_FOOD, 0, MAX_FOOD) / FOOD_PER_PIECE * FOOD_PER_PIECE;
+        this.food = Mth.clamp(input.contains("food", Tag.TAG_ANY_NUMERIC) ? input.getInt("food") : MAX_FOOD, 0, this.capacity);
         this.saturation = Mth.clamp(input.contains("saturation", Tag.TAG_ANY_NUMERIC) ? input.getFloat("saturation") : (float) MAX_FOOD, 0.0F, this.food);
         this.exhaustion = Mth.clamp(input.contains("exhaustion", Tag.TAG_ANY_NUMERIC) ? input.getFloat("exhaustion") : 0.0F, 0.0F, 40.0F);
         this.tickTimer = Math.max(0, input.contains("tick_timer", Tag.TAG_ANY_NUMERIC) ? input.getInt("tick_timer") : 0);
+        for (int i = 0; i < this.storedFood.length; i++) {
+            this.storedFood[i] = i < this.capacity / FOOD_PER_PIECE ? 0 : Mth.clamp(input.getInt("stored_food_" + i), 0, FOOD_PER_PIECE);
+            this.storedSaturation[i] = Mth.clamp(input.getFloat("stored_saturation_" + i), 0.0F, this.storedFood[i]);
+        }
         *///?}
         resetTransientState();
         clampToValidState();
@@ -86,6 +106,37 @@ public final class BonusHungerData implements ValueIOSerializable {
         this.lastSyncedFood = Integer.MIN_VALUE;
         this.lastSyncedSaturation = Float.NaN;
         this.lastSyncedActive = false;
+        this.lastSyncedCapacity = -1;
+    }
+
+    public int getCapacity() {
+        return this.capacity;
+    }
+
+    public boolean setCapacity(int capacity) {
+        capacity = Mth.clamp(capacity, 0, MAX_FOOD) / FOOD_PER_PIECE * FOOD_PER_PIECE;
+        if (this.capacity == capacity) return false;
+        while (this.capacity > capacity) {
+            this.capacity -= FOOD_PER_PIECE;
+            int index = this.capacity / FOOD_PER_PIECE;
+            int remainingFood = Math.min(this.food, this.capacity);
+            float remainingSaturation = Math.min(this.saturation, remainingFood);
+            this.storedFood[index] = this.food - remainingFood;
+            this.storedSaturation[index] = this.saturation - remainingSaturation;
+            this.food = remainingFood;
+            this.saturation = remainingSaturation;
+        }
+        while (this.capacity < capacity) {
+            int index = this.capacity / FOOD_PER_PIECE;
+            this.food += this.storedFood[index];
+            this.saturation += this.storedSaturation[index];
+            this.storedFood[index] = 0;
+            this.storedSaturation[index] = 0.0F;
+            this.capacity += FOOD_PER_PIECE;
+        }
+        resetTickTimer();
+        clampToValidState();
+        return true;
     }
 
     public int getFood() {
@@ -158,7 +209,7 @@ public final class BonusHungerData implements ValueIOSerializable {
     }
 
     public boolean needsFood() {
-        return this.food < MAX_FOOD;
+        return this.food < this.capacity;
     }
 
     public boolean needsSaturation() {
@@ -189,7 +240,7 @@ public final class BonusHungerData implements ValueIOSerializable {
 
     public void eat(int nutrition, float saturationModifier) {
         if (nutrition <= 0) return;
-        this.food = Mth.clamp(this.food + nutrition, 0, MAX_FOOD);
+        this.food = Mth.clamp(this.food + nutrition, 0, this.capacity);
         this.saturation = Mth.clamp(this.saturation + (float) nutrition * saturationModifier * 2.0F, 0.0F, this.food);
         clampToValidState();
     }
@@ -225,17 +276,19 @@ public final class BonusHungerData implements ValueIOSerializable {
     }
 
     public boolean shouldSync(boolean active) {
-        return active != this.lastSyncedActive || this.food != this.lastSyncedFood || Float.compare(this.saturation, this.lastSyncedSaturation) != 0;
+        return active != this.lastSyncedActive || this.capacity != this.lastSyncedCapacity || this.food != this.lastSyncedFood
+                || Float.compare(this.saturation, this.lastSyncedSaturation) != 0;
     }
 
     public void markSynced(boolean active) {
         this.lastSyncedActive = active;
+        this.lastSyncedCapacity = this.capacity;
         this.lastSyncedFood = this.food;
         this.lastSyncedSaturation = this.saturation;
     }
 
     private void clampToValidState() {
-        this.food = Mth.clamp(this.food, 0, MAX_FOOD);
+        this.food = Mth.clamp(this.food, 0, this.capacity);
         this.saturation = Mth.clamp(this.saturation, 0.0F, this.food);
         this.exhaustion = Mth.clamp(this.exhaustion, 0.0F, 40.0F);
         this.tickTimer = Math.max(0, this.tickTimer);

@@ -21,14 +21,14 @@ public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MusaCore.MOD_ID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MusaCore.MOD_ID);
     public static final DeferredBlock<Block> BANANA_PEARL_BLOCK = BLOCKS.registerBlock("banana_pearl_block",
-            props -> new BananaPearlBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(3.0F, 6.0F).sound(SoundType.COPPER).requiresCorrectToolForDrops()
+            props -> new BananaPearlBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(1.5F, 1.5F).sound(SoundType.AMETHYST).requiresCorrectToolForDrops()
                     //? if >=26.3 {
                     /*.pushReaction(PushReaction.PUSH_PULL)));
                     *///?} else {
                     .pushReaction(PushReaction.NORMAL)));
                     //?}
     public static final DeferredBlock<Block> BANANA_PEARL_BRICKS = BLOCKS.registerBlock("banana_pearl_bricks",
-            props -> new BananaPearlBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(3.0F, 6.0F).sound(SoundType.COPPER).requiresCorrectToolForDrops()
+            props -> new BananaPearlBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(1.5F, 1.5F).sound(SoundType.AMETHYST).requiresCorrectToolForDrops()
                     //? if >=26.3 {
                     /*.pushReaction(PushReaction.PUSH_PULL)));
                     *///?} else {
@@ -58,7 +58,7 @@ public final class ModBlocks {
     public static final DeferredItem<BlockItem> RIPENING_MUSAVACCA_EGG = musavaccaEggItem("ripening_musavacca_egg", 1);
     public static final DeferredItem<BlockItem> RIPE_MUSAVACCA_EGG = musavaccaEggItem("ripe_musavacca_egg", 2);
     public static final DeferredBlock<Block> BANANA_PEARL_CHAPITER = BLOCKS.registerBlock("banana_pearl_chapiter",
-            props -> new BananaPearlChapiter(props.mapColor(MapColor.COLOR_YELLOW).strength(3.0F, 6.0F).sound(SoundType.COPPER).requiresCorrectToolForDrops()
+            props -> new BananaPearlChapiter(props.mapColor(MapColor.COLOR_YELLOW).strength(1.5F, 1.5F).sound(SoundType.AMETHYST).requiresCorrectToolForDrops()
                     //? if >=26.3 {
                     /*.pushReaction(PushReaction.PUSH_PULL)));
                     *///?} else {
@@ -66,14 +66,14 @@ public final class ModBlocks {
                     //?}
     public static final DeferredBlock<Block> BANANA_PEARL_MASCARON = BLOCKS.registerBlock("banana_pearl_mascaron",
             props -> new BananaPearlMascaron(
-                    props.mapColor(MapColor.COLOR_YELLOW).strength(3.0F, 6.0F).sound(SoundType.COPPER).requiresCorrectToolForDrops().noOcclusion()
+                    props.mapColor(MapColor.COLOR_YELLOW).strength(1.5F, 1.5F).sound(SoundType.AMETHYST).requiresCorrectToolForDrops().noOcclusion()
                             //? if >=26.3 {
                             /*.pushReaction(PushReaction.PUSH_PULL)));
                             *///?} else {
                             .pushReaction(PushReaction.NORMAL)));
                             //?}
     public static final DeferredBlock<RotatedPillarBlock> BANANA_PEARL_PILLAR = BLOCKS.registerBlock("banana_pearl_pillar",
-            props -> new BananaPearlPillarBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(3.0F, 6.0F).sound(SoundType.COPPER).requiresCorrectToolForDrops()
+            props -> new BananaPearlPillarBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(1.5F, 1.5F).sound(SoundType.AMETHYST).requiresCorrectToolForDrops()
                     //? if >=26.3 {
                     /*.pushReaction(PushReaction.PUSH_PULL)));
                     *///?} else {
@@ -104,7 +104,7 @@ public final class ModBlocks {
                     //?}
                     STRIPPED_MUSAVACCA_STEM, EXUDATED_STRIPPED_MUSAVACCA_STEM));
     public static final DeferredBlock<SmallBananaPearlBlock> SMALL_BANANA_PEARL_BLOCK = BLOCKS.registerBlock("small_banana_pearl_block",
-            props -> new SmallBananaPearlBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(0.1F, 3.0F).sound(SoundType.CHAIN).noOcclusion()
+            props -> new SmallBananaPearlBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(0.1F, 3.0F).sound(SoundType.AMETHYST).noOcclusion()
                     .isSuffocating((state, level, pos) -> false)
                     //? if >=26.3 {
                     /*.isViewBlocking((state, level, pos, bounds) -> false)
@@ -295,7 +295,7 @@ public final class ModBlocks {
                     //?}
                     .noLootTable()));
     public static final DeferredBlock<DecorationBlock> BANANA_PEARL_CHALICE = BLOCKS.registerBlock("banana_pearl_chalice",
-            props -> new DecorationBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(0.2F, 3.0F).sound(SoundType.CHAIN).noOcclusion()
+            props -> new DecorationBlock(props.mapColor(MapColor.COLOR_YELLOW).strength(0.2F, 3.0F).sound(SoundType.AMETHYST).noOcclusion()
                     //? if >=26.3 {
                     /*.pushReaction(PushReaction.POPPED),
                     *///?} else {
@@ -309,7 +309,7 @@ public final class ModBlocks {
                                     Block.box(4.0D, 4.0D, 4.0D, 12.0D, 16.0D, 12.0D)))
                             .build()));
     public static final DeferredBlock<VocoTableBlock> VOCO_TABLE = BLOCKS.registerBlock("voco_table",
-            props -> new VocoTableBlock(props.mapColor(MapColor.COLOR_BROWN).strength(2.0F, 3.0F).sound(SoundType.WOOD).noOcclusion()
+            props -> new VocoTableBlock(props.mapColor(MapColor.COLOR_BROWN).strength(2.0F, 1200.0F).sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType()).noOcclusion()
                     .lightLevel(state -> state.getValue(VocoTableBlock.CANDLE_LIGHT) * 3)
                     //? if >=26.3 {
                     /*.pushReaction(PushReaction.POPPED)));
@@ -317,7 +317,7 @@ public final class ModBlocks {
                     .pushReaction(PushReaction.DESTROY)));
                     //?}
     public static final DeferredBlock<VocoPostBlock> VOCO_POST = BLOCKS.registerBlock("voco_post",
-            props -> new VocoPostBlock(props.mapColor(MapColor.COLOR_BROWN).strength(2.0F, 3.0F).sound(SoundType.WOOD).noOcclusion()
+            props -> new VocoPostBlock(props.mapColor(MapColor.COLOR_BROWN).strength(2.0F, 3.0F).sound(ModWoodTypes.MUSAVACCA_BLOCK_SET.soundType()).noOcclusion()
                     //? if >=26.3 {
                     /*.pushReaction(PushReaction.POPPED)));
                     *///?} else {
@@ -339,7 +339,7 @@ public final class ModBlocks {
                     //?}
     public static final DeferredBlock<StairBlock> BANANA_PEARL_STAIRS = BLOCKS.registerBlock("banana_pearl_stairs",
             props -> new BananaPearlStairBlock(BANANA_PEARL_BLOCK.get().defaultBlockState(),
-                    props.mapColor(MapColor.COLOR_YELLOW).strength(3.0F, 6.0F).sound(SoundType.COPPER).requiresCorrectToolForDrops()
+                    props.mapColor(MapColor.COLOR_YELLOW).strength(1.5F, 1.5F).sound(SoundType.AMETHYST).requiresCorrectToolForDrops()
                             //? if >=26.3 {
                             /*.pushReaction(PushReaction.PUSH_PULL)
                             *///?} else {
@@ -348,7 +348,7 @@ public final class ModBlocks {
             ));
     public static final DeferredBlock<StairBlock> BANANA_PEARL_BRICK_STAIRS = BLOCKS.registerBlock("banana_pearl_brick_stairs",
             props -> new BananaPearlStairBlock(BANANA_PEARL_BRICKS.get().defaultBlockState(),
-                    props.mapColor(MapColor.COLOR_YELLOW).strength(3.0F, 6.0F).sound(SoundType.COPPER).requiresCorrectToolForDrops()
+                    props.mapColor(MapColor.COLOR_YELLOW).strength(1.5F, 1.5F).sound(SoundType.AMETHYST).requiresCorrectToolForDrops()
                             //? if >=26.3 {
                             /*.pushReaction(PushReaction.PUSH_PULL)
                             *///?} else {

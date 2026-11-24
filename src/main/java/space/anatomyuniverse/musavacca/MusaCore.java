@@ -47,6 +47,9 @@ import space.anatomyuniverse.musavacca.gui.ModMenuRegistries;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraClientModEvents;
 import space.anatomyuniverse.musavacca.item.ModCreativeTabs;
 import space.anatomyuniverse.musavacca.item.ModItems;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumThrow;
+import space.anatomyuniverse.musavacca.entity.projectile.PotassiumProjectileRenderer;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumDropProtection;
 import space.anatomyuniverse.musavacca.item.PearlIgniterEvents;
 import space.anatomyuniverse.musavacca.particle.ModParticleProviders;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
@@ -54,7 +57,6 @@ import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
 import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.tint.ModTints;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
-import space.anatomyuniverse.musavacca.vococaller.VocoCallerTooltipClient;
 import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
 
 @Mod(MusaCore.MOD_ID)
@@ -79,6 +81,7 @@ public final class MusaCore {
         ModMenuRegistries.register(modBus);
         ModParticleTypes.register(modBus);
         ModEntities.register(modBus);
+        PotassiumThrow.register(modBus);
         ModAttachments.register(modBus);
         ModNetworking.register(modBus);
         modBus.addListener(BalanceEvents::registerPayloads);
@@ -107,7 +110,6 @@ public final class MusaCore {
         if (FMLLoader.getDist() == Dist.CLIENT) {
         //?}
             ModTints.register(modBus);
-            VocoCallerTooltipClient.register(modBus);
             //? if <26.1 {
             modBus.addListener(MusaRenderLayers::onClientSetup);
             //?}
@@ -120,6 +122,8 @@ public final class MusaCore {
             *///?}
             ModMenuEvents.register(modBus);
             ModEntityRenderers.register(modBus);
+            modBus.addListener(PotassiumProjectileRenderer::register);
+            PotassiumDropProtection.register();
             ModBlockEntityRenderers.register(modBus);
             ModParticleProviders.register(modBus);
             BonusHungerClientModEvents.register(modBus);
@@ -129,5 +133,3 @@ public final class MusaCore {
         }
     }
 }
-
-

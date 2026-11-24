@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "d": "musavacca:pearl_dust",
+    "n": "minecraft:name_tag"
+  },
+  "pattern": [
+    " d ",
+    "dnd",
+    " d "
+  ],
+  "result": {
+    "count": 1,
+    "id": "musavacca:sim_card"
+  }
+}

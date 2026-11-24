@@ -32,12 +32,13 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
-import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.custom.BreakBlock;
+import space.anatomyuniverse.musavacca.block.custom.HexBlock;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
@@ -70,7 +71,7 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         musavaccaTrapdoorDrops(ModBlocks.MUSAVACCA_TRAPDOOR.get());
         this.add(ModBlocks.PEARL_CANDLE.get(), LootTable.lootTable());
         silkTouchMusavaccaEggByAge(ModBlocks.MUSAVACCA_EGG.get());
-        silkTouchHexBlockWithAssignedHexColor(ModBlocks.HEX_BLOCK.get(), 0xFFFFFF);
+        lophaFlowerDrops(ModBlocks.HEX_BLOCK.get());
         //? if >=26.3 {
         /*this.add(ModBlocks.BANANA_PEARL_CHALICE.get(), this.createSingleItemTable(ModItems.SMALL_BANANA_PEARL.get(), Holder.direct(new ConstantValue(6))));
         *///?} else {
@@ -265,16 +266,16 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
                 .when(matchesBlockState(block, StatePropertiesPredicate.Builder.properties().hasProperty(BreakBlock.AGE, age))));
     }
 
-    private void silkTouchHexBlockWithAssignedHexColor(Block block, int assignedHexColor) {
+    private void lophaFlowerDrops(Block block) {
         this.add(block, LootTable.lootTable().withPool(LootPool.lootPool()
                 //? if >=26.3 {
                 /*.setRolls(Holder.direct(new ConstantValue(1)))
                 *///?} else {
                 .setRolls(ConstantValue.exactly(1.0F))
                 //?}
+                .apply(CopyBlockState.copyState(block).copy(HexBlock.CLIPPED))
                 .add(this.applyExplosionCondition(block, LootItem.lootTableItem(block).when(this.hasSilkTouch()).apply(copyHexColorFromBlockEntity())))
-                .add(this.applyExplosionCondition(block, LootItem.lootTableItem(block).when(this.doesNotHaveSilkTouch())
-                        .apply(SetComponentsFunction.setComponent(ModDataComponents.HEX_COLOR.get(), assignedHexColor))))));
+                .add(this.applyExplosionCondition(block, LootItem.lootTableItem(block).when(this.doesNotHaveSilkTouch())))));
     }
 
     @Override

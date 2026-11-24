@@ -48,15 +48,14 @@ public final class PearlIgniter {
 
     public static ItemStack create() {
         ItemStack stack = new ItemStack(Items.FLINT_AND_STEEL);
-        ensureDefaultColorComponent(stack);
-        configure(stack);
+        stack.applyComponents(recipeComponents());
         return stack;
     }
 
     //? if >=26.1 {
     /*public static net.minecraft.world.item.ItemStackTemplate recipeResult() {
         return new net.minecraft.world.item.ItemStackTemplate(Items.FLINT_AND_STEEL.builtInRegistryHolder(), 1,
-                configuration().set(ModDataComponents.HEX_COLOR.get(), MusavaccaTints.DEFAULT_TINT).build());
+                recipeComponents());
     }
     *///?} else {
     public static ItemStack recipeResult() {
@@ -66,6 +65,10 @@ public final class PearlIgniter {
 
     public static void configure(ItemStack stack) {
         stack.applyComponents(configuration().build());
+    }
+
+    private static DataComponentPatch recipeComponents() {
+        return configuration().set(ModDataComponents.HEX_COLOR.get(), MusavaccaTints.DEFAULT_TINT).build();
     }
 
     private static DataComponentPatch.Builder configuration() {
@@ -222,3 +225,4 @@ public final class PearlIgniter {
         }
     }
 }
+

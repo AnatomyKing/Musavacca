@@ -100,6 +100,8 @@ neoForge {
 
             if (usesClientData) clientData() else data()
 
+            taskBefore(cleanGeneratedResources)
+
             fun existing(dirPath: String) {
                 programArguments.addAll(listOf("--existing", dirPath))
             }

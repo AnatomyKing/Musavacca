@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "d": "musavacca:pearl_dust",
+    "s": "minecraft:string"
+  },
+  "pattern": [
+    " d ",
+    "dsd",
+    " d "
+  ],
+  "result": {
+    "count": 4,
+    "id": "musavacca:banana_pearl_dust"
+  }
+}

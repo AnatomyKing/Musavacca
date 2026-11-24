@@ -36,10 +36,16 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         addBlocks(ModBlockTags.MUSAVACCA_STEMS, ModBlocks.MUSAVACCA_STEM.get(), ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                 ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get());
         addBlocks(ModBlockTags.EDIBLE_FOR_BANANA_COW, ModBlocks.CAROTENE_SHORT_GRASS.get(), ModBlocks.CAROTENE_TALL_GRASS.get(), Blocks.PINK_PETALS);
-        addBlocks(BlockTags.MINEABLE_WITH_PICKAXE, ModBlocks.BANANA_PEARL_BLOCK.get(), ModBlocks.BANANA_PEARL_BRICKS.get());
-        addBlocks(BlockTags.NEEDS_STONE_TOOL, ModBlocks.BANANA_PEARL_BLOCK.get(), ModBlocks.BANANA_PEARL_BRICKS.get());
+        addBlocks(BlockTags.MINEABLE_WITH_PICKAXE, ModBlocks.BANANA_PEARL_BLOCK.get(), ModBlocks.BANANA_PEARL_BRICKS.get(),
+                ModBlocks.BANANA_PEARL_CHAPITER.get(), ModBlocks.BANANA_PEARL_MASCARON.get(), ModBlocks.BANANA_PEARL_PILLAR.get(),
+                ModBlocks.BANANA_PEARL_STAIRS.get(), ModBlocks.BANANA_PEARL_BRICK_STAIRS.get());
+        addBlocks(BlockTags.CRYSTAL_SOUND_BLOCKS, ModBlocks.BANANA_PEARL_BLOCK.get(), ModBlocks.BANANA_PEARL_BRICKS.get(),
+                ModBlocks.BANANA_PEARL_CHAPITER.get(), ModBlocks.BANANA_PEARL_MASCARON.get(), ModBlocks.BANANA_PEARL_PILLAR.get(),
+                ModBlocks.BANANA_PEARL_STAIRS.get(), ModBlocks.BANANA_PEARL_BRICK_STAIRS.get(), ModBlocks.SMALL_BANANA_PEARL_BLOCK.get(),
+                ModBlocks.BANANA_PEARL_CHALICE.get());
         addBlocks(BlockTags.MINEABLE_WITH_AXE, ModBlocks.MUSAVACCA_STEM.get(), ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
-                ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get(), ModBlocks.MUSAVACCA_PLANKS.get(), ModBlocks.MUSAVACCA_STAIRS.get(),
+                ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get(), ModBlocks.MUSAVACCA_PLANKS.get(), ModBlocks.GILDED_MUSAVACCA_PLANKS.get(),
+                ModBlocks.MUSAVACCA_STAIRS.get(),
                 ModBlocks.MUSAVACCA_SLAB.get(), ModBlocks.MUSAVACCA_FENCE.get(), ModBlocks.MUSAVACCA_FENCE_GATE.get(), ModBlocks.MUSAVACCA_DOOR.get(),
                 ModBlocks.MUSAVACCA_TRAPDOOR.get(), ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(), ModBlocks.MUSAVACCA_BUTTON.get(), ModBlocks.VOCO_POST.get(),
                 ModBlocks.VOCO_TABLE.get());
@@ -62,6 +68,7 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         addBlocks(BlockTags.WOODEN_PRESSURE_PLATES, ModBlocks.MUSAVACCA_PRESSURE_PLATE.get());
         addBlocks(BlockTags.WOODEN_BUTTONS, ModBlocks.MUSAVACCA_BUTTON.get());
         addBlocks(BlockTags.DIRT, ModBlocks.CAROTENE_GRASS.get());
+        addBlocks(BlockTags.SNIFFER_DIGGABLE_BLOCK, ModBlocks.CAROTENE_GRASS.get());
         addBlocks(BlockTags.MINEABLE_WITH_SHOVEL, ModBlocks.CAROTENE_GRASS.get());
         addBlocks(Tags.Blocks.VILLAGER_FARMLANDS, ModBlocks.CAROTENE_GRASS.get());
         addBlocks(BlockTags.FIRE, ModBlocks.PEARL_FIRE.get());

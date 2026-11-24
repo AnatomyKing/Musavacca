@@ -39,10 +39,7 @@ public final class PotassiumPickaxeItem
     //? if <1.21.2 {
     /*@Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        if (PotassiumItem.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
-        if (!PotassiumItem.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
-        return super.use(level, player, hand);
+        return PotassiumItem.useTool(level, player, hand);
     }
 
     @Override

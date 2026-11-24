@@ -59,6 +59,7 @@ public final class BonusHungerHud {
         if (!ClientBonusHungerData.isActive()) return;
         if (player.isSpectator() || player.getAbilities().instabuild) return;
         if (shouldHideForMountHealth(player)) return;
+        int capacity = ClientBonusHungerData.getCapacity();
         int food = ClientBonusHungerData.getFood();
         float saturation = ClientBonusHungerData.getSaturation();
         boolean hungerEffect = player.hasEffect(MobEffects.HUNGER);
@@ -69,7 +70,7 @@ public final class BonusHungerHud {
         int baseY = getBonusFoodY(graphics, player);
         boolean shouldJitter = shouldJitter(food, saturation, player.tickCount);
         RANDOM.setSeed((long) player.tickCount * 312871L);
-        for (int slot = 0; slot < 10; slot++) {
+        for (int slot = 0; slot < (capacity + 1) / 2; slot++) {
             int x = right - slot * 8 - 9;
             int y = baseY;
             if (shouldJitter) {

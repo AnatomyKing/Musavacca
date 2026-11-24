@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "musavacca:banana_pellis",
+    "musavacca:banana_pellis",
+    "musavacca:banana_pellis",
+    "musavacca:banana_pellis"
+  ],
+  "result": {
+    "count": 1,
+    "id": "musavacca:banana_pellis_bundle"
+  }
+}

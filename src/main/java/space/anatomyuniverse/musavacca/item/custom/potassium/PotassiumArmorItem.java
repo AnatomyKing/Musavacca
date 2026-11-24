@@ -1,19 +1,23 @@
 package space.anatomyuniverse.musavacca.item.custom.potassium;
 
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+//? if >=1.21.2 {
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.InteractionResult;
+//?}
 //? if <1.21.2 {
 /*import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import space.anatomyuniverse.musavacca.MusaCore;
 *///?}
 
@@ -43,18 +47,24 @@ public final class PotassiumArmorItem
         *///?}
     }
 
+    @Override
+    //? if >=1.21.2 {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        if (player.isShiftKeyDown()) return PotassiumItem.startEating(player, hand);
+        ItemStack stack = player.getItemInHand(hand);
+        var equippable = stack.get(DataComponents.EQUIPPABLE);
+        return equippable != null && equippable.swappable() ? equippable.swapWithEquipmentSlot(stack, player) : InteractionResult.PASS;
+    }
+    //?} else {
+    /*public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        return player.isShiftKeyDown() ? PotassiumItem.startEating(player, hand) : super.use(level, player, hand);
+    }
+    *///?}
+
     //? if <1.21.2 {
     /*@Override
     public ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
         return innerModel ? LEGGINGS_TEXTURE : HUMANOID_TEXTURE;
-    }
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        if (PotassiumItem.isLookingAtBlock(player)) return InteractionResultHolder.pass(stack);
-        if (!PotassiumItem.canStartEating(stack, player)) return InteractionResultHolder.fail(stack);
-        return super.use(level, player, hand);
     }
 
     @Override

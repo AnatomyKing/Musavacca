@@ -1,11 +1,11 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "redstone",
+  "category": "misc",
   "ingredients": [
     "musavacca:small_banana_pearl"
   ],
   "result": {
     "count": 4,
-    "id": "musavacca:banana_pearl_dust"
+    "id": "musavacca:pearl_dust"
   }
 }

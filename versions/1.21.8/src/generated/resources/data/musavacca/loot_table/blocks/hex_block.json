@@ -62,15 +62,16 @@
               "condition": "minecraft:survives_explosion"
             }
           ],
-          "functions": [
-            {
-              "components": {
-                "musavacca:hex_color": 16777215
-              },
-              "function": "minecraft:set_components"
-            }
-          ],
           "name": "musavacca:hex_block"
+        }
+      ],
+      "functions": [
+        {
+          "block": "musavacca:hex_block",
+          "function": "minecraft:copy_state",
+          "properties": [
+            "clipped"
+          ]
         }
       ],
       "rolls": 1.0

@@ -41,6 +41,6 @@ public final class ModSnifferDiggingLootProvider implements LootTableSubProvider
                 *///?} else {
                 .setRolls(ConstantValue.exactly(1.0F))
                 //?}
-                .when(LootItemRandomChanceCondition.randomChance(0.33333334F)).add(LootItem.lootTableItem(ModItems.MUSAVACCA_PUP.get()))));
+                .when(LootItemRandomChanceCondition.randomChance(0.5F)).add(LootItem.lootTableItem(ModItems.MUSAVACCA_PUP.get()))));
     }
 }

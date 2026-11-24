@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_banana_pellis": {
+      "conditions": {
+        "items": [
+          {
+            "items": "musavacca:banana_pellis"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "musavacca:misc/banana_pellis_bundle"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_banana_pellis"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "musavacca:misc/banana_pellis_bundle"
+    ]
+  }
+}

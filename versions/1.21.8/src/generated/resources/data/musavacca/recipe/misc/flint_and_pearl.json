@@ -6,7 +6,15 @@
     "musavacca:banana_pearl"
   ],
   "result": {
+    "components": {
+      "minecraft:item_model": "musavacca:flint_and_pearl",
+      "minecraft:item_name": {
+        "translate": "item.musavacca.flint_and_pearl"
+      },
+      "musavacca:hex_color": 14011721,
+      "musavacca:pearl_igniter": true
+    },
     "count": 1,
-    "id": "musavacca:flint_and_pearl"
+    "id": "minecraft:flint_and_steel"
   }
 }

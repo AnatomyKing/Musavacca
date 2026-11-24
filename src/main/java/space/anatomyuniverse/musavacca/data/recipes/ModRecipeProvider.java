@@ -18,6 +18,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.item.ModItems;
+import space.anatomyuniverse.musavacca.item.PearlIgniter;
 
 public final class ModRecipeProvider extends RecipeProvider {
     public static final String MOD_ID = "musavacca";
@@ -92,22 +93,41 @@ public final class ModRecipeProvider extends RecipeProvider {
             }
         };
         final RecipeDSL dsl = new RecipeDSL(output, MOD_ID, unlocker, registries);
+
         dsl.shapelessCountFamily(RecipeCategory.MISC)
+                .step(ModItems.SMALL_BANANA_PEARL.get(), 1, ModItems.PEARL_DUST.get(), 4)
                 .step(ModItems.SMALL_BANANA_PEARL.get(), 4, ModItems.BANANA_PEARL.get(), 1)
                 .step(ModItems.BANANA_PEARL.get(), 4, ModItems.BIG_BANANA_PEARL.get(), 1)
                 .reversible()
                 .unlockedByHas(ModItems.BANANA_PEARL.get())
                 .save("misc");
-        dsl.shapeless(RecipeCategory.REDSTONE, ModItems.BANANA_PEARL_DUST.get(), 4)
-                .requires(ModItems.SMALL_BANANA_PEARL.get())
-                .unlockedByHas(ModItems.SMALL_BANANA_PEARL.get())
-                .save("redstone/banana_pearl_dust");
+
+
+        dsl.shaped(RecipeCategory.REDSTONE, ModItems.BANANA_PEARL_DUST.get(), 4)
+                .pattern(" d ")
+                .pattern("dsd")
+                .pattern(" d ")
+                .define('d', ModItems.PEARL_DUST.get())
+                .define('s', Items.STRING)
+                .unlockedByHas(ModItems.PEARL_DUST.get())
+                .save("misc/pearl_dust_to_string");
+
+        dsl.shaped(RecipeCategory.MISC, ModItems.SIM_CARD.get(), 1)
+                .pattern(" d ")
+                .pattern("dnd")
+                .pattern(" d ")
+                .define('d', ModItems.PEARL_DUST.get())
+                .define('n', Items.NAME_TAG)
+                .unlockedByHas(ModItems.PEARL_DUST.get())
+                .save("misc/name_tag_to_sim");
+
         dsl.stonecutFamily()
                 .of(ModItems.BIG_BANANA_PEARL.get(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.BANANA_PEARL_BLOCK.get(), 1)
                 .variants(ModBlocks.BANANA_PEARL_BRICKS.get(), ModBlocks.BANANA_PEARL_CHAPITER.get(), ModBlocks.BANANA_PEARL_PILLAR.get())
                 .interchangeable()
                 .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
                 .save("stonecutting/banana_pearl_block");
+
         dsl.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
                 .pattern("aaa")
                 .pattern("ava")
@@ -116,14 +136,16 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('v', ModItems.VACACA.get())
                 .unlockedByHas(ModItems.VACACA.get(), Items.AMETHYST_SHARD)
                 .save("misc/banana_pearl_from_vacaca");
+
         dsl.shaped(RecipeCategory.MISC, ModItems.BANANA_PEARL.get(), 1)
                 .pattern("aaa")
                 .pattern("apa")
                 .pattern("aaa")
                 .define('a', Items.AMETHYST_SHARD)
-                .define('p', ModItems.BANANA_PELLIS.get())
+                .define('p', ModItems.BANANA_PELLIS_BUNDLE.get())
                 .unlockedByHas(ModItems.BANANA_PELLIS.get(), Items.AMETHYST_SHARD)
                 .save("misc/banana_pearl_from_banana_pellis");
+
         //? if <1.21.2 {
         /*dsl.compat("neapolitan", compat -> {
             Item banana = compat.item("banana");
@@ -147,11 +169,13 @@ public final class ModRecipeProvider extends RecipeProvider {
                     .save("misc/banana_pearl_from_banana_pellis");
         });
         *///?}
+
         dsl.shapeless(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_PLANKS.get(), 4)
                 .requires(Ingredient.of(ModBlocks.MUSAVACCA_STEM.get(), ModBlocks.STRIPPED_MUSAVACCA_STEM.get(),
                         ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get()))
                 .unlockedByHas(ModBlocks.MUSAVACCA_STEM.get(), ModBlocks.STRIPPED_MUSAVACCA_STEM.get(), ModBlocks.EXUDATED_STRIPPED_MUSAVACCA_STEM.get())
                 .save("blocks/musavacca_planks");
+
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_STAIRS.get(), 4)
                 .pattern("p  ")
                 .pattern("pp ")
@@ -159,6 +183,27 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_stairs");
+
+        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.MUSAVACCA_BOAT, 1)
+                .pattern("   ")
+                .pattern("p p")
+                .pattern("ppp")
+                .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
+                .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
+                .save("blocks/musavacca_boat");
+
+        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.INACTIVE_VOCO_CALLER, 1)
+                .pattern("ss ")
+                .pattern("gp ")
+                .pattern("bpd")
+                .define('s', ModBlocks.MUSAVACCA_SLAB.get())
+                .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
+                .define('g', Items.GLASS_PANE)
+                .define('b', ModItems.BIG_BANANA_PEARL.get())
+                .define('d', ModItems.BANANA_PEARL_DUST.get())
+                .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
+                .save("blocks/musavacca_phone");
+
         dsl.shaped(RecipeCategory.REDSTONE, ModItems.MUSAVACCA_DOOR.get(), 3)
                 .pattern("pp")
                 .pattern("pp")
@@ -166,6 +211,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_door");
+
         dsl.shaped(RecipeCategory.REDSTONE, ModBlocks.MUSAVACCA_FENCE_GATE.get(), 1)
                 .pattern("sps")
                 .pattern("sps")
@@ -173,23 +219,34 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get(), Items.STICK)
                 .save("blocks/musavacca_fence_gate");
+
         dsl.shaped(RecipeCategory.REDSTONE, ModBlocks.MUSAVACCA_PRESSURE_PLATE.get(), 1)
                 .pattern("pp")
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_pressure_plate");
+
         dsl.shapeless(RecipeCategory.REDSTONE, ModBlocks.MUSAVACCA_BUTTON.get(), 1)
                 .requires(ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_button");
+
         dsl.shapeless(RecipeCategory.BUILDING_BLOCKS, ModBlocks.GILDED_MUSAVACCA_PLANKS.get(), 1)
                 .requires(ModItems.BIG_BANANA_PEARL, ModBlocks.MUSAVACCA_PLANKS)
                 .unlockedByHas(ModItems.BIG_BANANA_PEARL.get())
                 .save("blocks/gilded_musavacca_planks");
-        dsl.shapeless(RecipeCategory.MISC, space.anatomyuniverse.musavacca.item.PearlIgniter.recipeResult())
+
+        dsl.shapeless(RecipeCategory.MISC, ModItems.BANANA_PELLIS_BUNDLE.get(), 1)
+                .requiresCount(ModItems.BANANA_PELLIS.get(), 4)
+                .unlockedByHas(ModItems.BANANA_PELLIS.get())
+                .save("misc/banana_pellis_bundle");
+
+
+        dsl.shapeless(RecipeCategory.MISC, PearlIgniter.recipeResult())
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .save("misc/flint_and_pearl");
+
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.VOCO_POST.get(), 1)
                 .pattern("s")
                 .pattern("f")
@@ -198,7 +255,8 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('f', ModBlocks.MUSAVACCA_FENCE.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_SLAB.get(), ModBlocks.MUSAVACCA_FENCE.get())
                 .save("blocks/voco_post");
-        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.VOCO_TABLE.get(), 1)
+
+        dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.VOCO_TABLE.get(), 1)
                 .pattern("p p")
                 .pattern(" m ")
                 .pattern("p p")
@@ -206,23 +264,28 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('m', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.VOCO_POST.get(), ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/voco_table");
+
         dsl.shapelessCounts(RecipeCategory.MISC, ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), 1, ModItems.MUSAVACCA_EXUDATE.get(), 4, ModItems.BANANA_PELLIS.get(), 4)
                 .unlockedByHas(ModItems.MUSAVACCA_EXUDATE.get(), ModItems.BANANA_PELLIS.get())
                 .save("misc/banazo_gusma_lumpa_goop");
+
         dsl.shapelessCounts(RecipeCategory.MISC, ModItems.POTASSIUM_INGOT.get(), 1, ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), 4, ModItems.VACACA.get(), 4)
                 .unlockedByHas(ModItems.BANAZO_GUSMA_LUMPA_GOOP.get(), ModItems.VACACA.get())
                 .save("misc/potassium_ingot");
+
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_SLAB.get(), 6)
                 .pattern("ppp")
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_slab");
+
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_TRAPDOOR.get(), 2)
                 .pattern("ppp")
                 .pattern("ppp")
                 .define('p', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("blocks/musavacca_trapdoor");
+
         dsl.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.MUSAVACCA_FENCE.get(), 3)
                 .pattern("psp")
                 .pattern("psp")
@@ -230,42 +293,52 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('s', Items.STICK)
                 .unlockedByHas(ModBlocks.MUSAVACCA_PLANKS.get(), Items.STICK)
                 .save("blocks/musavacca_fence");
+
         dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_SWORD),
                 Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_SWORD.get())
                 .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_sword_upgrade");
+
         dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_PICKAXE),
                 Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.TOOLS, ModItems.POTASSIUM_PICKAXE.get())
                 .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_pickaxe_upgrade");
+
         dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_AXE),
                 Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.TOOLS, ModItems.POTASSIUM_AXE.get())
                 .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_axe_upgrade");
+
         dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_SHOVEL),
                 Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.TOOLS, ModItems.POTASSIUM_SHOVEL.get())
                 .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_shovel_upgrade");
+
         dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_HOE),
                 Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.TOOLS, ModItems.POTASSIUM_HOE.get())
                 .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_hoe_upgrade");
+
         dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_HELMET),
                 Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_HELMET.get())
                 .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_helmet_upgrade");
+
         dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_CHESTPLATE),
                 Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_CHESTPLATE.get())
                 .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_chestplate_upgrade");
+
         dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_LEGGINGS),
                 Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_LEGGINGS.get())
                 .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_leggings_upgrade");
+
         dsl.transform().of(Ingredient.of(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()), Ingredient.of(Items.DIAMOND_BOOTS),
                 Ingredient.of(ModItems.POTASSIUM_INGOT.get()), RecipeCategory.COMBAT, ModItems.POTASSIUM_BOOTS.get())
                 .unlocksHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), ModItems.POTASSIUM_INGOT.get())
                 .save("smithing/potassium_boots_upgrade");
+
         dsl.shaped(RecipeCategory.MISC, ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), 2)
                 .pattern("xAx")
                 .pattern("xPx")
@@ -275,6 +348,7 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .define('P', ModBlocks.MUSAVACCA_PLANKS.get())
                 .unlockedByHas(ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), Items.DIAMOND, ModBlocks.MUSAVACCA_PLANKS.get())
                 .save("smithing/potassium_upgrade_smithing_template_duplication");
+
         dsl.shaped(RecipeCategory.MISC, ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get(), 2)
                 .pattern("xAx")
                 .pattern("xPx")
@@ -286,3 +360,5 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .save("smithing/fractured_potassium_upgrade_smithing_template_duplication");
     }
 }
+
+

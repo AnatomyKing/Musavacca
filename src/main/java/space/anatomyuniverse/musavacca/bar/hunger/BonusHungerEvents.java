@@ -56,7 +56,7 @@ public final class BonusHungerEvents {
             return;
         }
         if (!(player instanceof ServerPlayer serverPlayer)) return;
-        BonusHungerData data = serverPlayer.getData(ModAttachments.BONUS_HUNGER);
+        BonusHungerData data = getBonusHungerData(serverPlayer);
         if (!data.needsFood()) return;
         data.setForceBonusEating(true);
         serverPlayer.startUsingItem(event.getHand());
@@ -72,7 +72,7 @@ public final class BonusHungerEvents {
         ItemStack stack = event.getItem();
         FoodProperties food = getFoodProperties(stack);
         if (food == null) return;
-        BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
+        BonusHungerData data = getBonusHungerData(player);
         data.queueFinishedFood(food.nutrition(), food.saturation(), data.isForceBonusEating(), food.canAlwaysEat());
         data.setForceBonusEating(false);
         player.setData(ModAttachments.BONUS_HUNGER, data);
@@ -89,8 +89,8 @@ public final class BonusHungerEvents {
     @SubscribeEvent
     public static void onPlayerTickPost(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
-        boolean active = hasBonusHunger(player);
+        BonusHungerData data = getBonusHungerData(player);
+        boolean active = data.getCapacity() > 0;
         if (!data.isBaseSnapshotReady()) {
             data.rememberBaseSnapshot(player.getFoodData().getFoodLevel(), player.getFoodData().getSaturationLevel());
             sendSync(player, data, active);
@@ -116,9 +116,17 @@ public final class BonusHungerEvents {
     }
 
     private static void refreshPlayer(ServerPlayer player) {
-        BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
+        BonusHungerData data = getBonusHungerData(player);
         data.rememberBaseSnapshot(player.getFoodData().getFoodLevel(), player.getFoodData().getSaturationLevel());
-        sendSync(player, data, hasBonusHunger(player));
+        sendSync(player, data, data.getCapacity() > 0);
+    }
+
+    private static BonusHungerData getBonusHungerData(ServerPlayer player) {
+        BonusHungerData data = player.getData(ModAttachments.BONUS_HUNGER);
+        if (data.setCapacity(getCapacity(player))) {
+            player.setData(ModAttachments.BONUS_HUNGER, data);
+        }
+        return data;
     }
 
     private static FoodProperties getFoodProperties(ItemStack stack) {
@@ -188,15 +196,17 @@ public final class BonusHungerEvents {
             data.resetTickTimer();
             return false;
         }
-        if (player.getHealth() >= player.getMaxHealth()) {
+        int capacity = data.getCapacity();
+        if (capacity == 0 || player.getHealth() >= player.getMaxHealth()) {
             data.resetTickTimer();
             return false;
         }
+        float scale = capacity / (float) BonusHungerData.MAX_FOOD;
         boolean canDrainFood = player.level().getDifficulty() != Difficulty.PEACEFUL;
-        if (data.getFood() >= 20 && data.getSaturation() > 0.0F) {
+        if (data.getFood() >= capacity && data.getSaturation() > 0.0F) {
             data.increaseTickTimer();
             if (data.getTickTimer() >= 10) {
-                float saturationSlice = Math.min(data.getSaturation(), 6.0F);
+                float saturationSlice = Math.min(data.getSaturation(), 6.0F * scale);
                 float healAmount = saturationSlice / 6.0F;
                 if (healAmount > 0.0F) {
                     player.heal(healAmount);
@@ -207,11 +217,11 @@ public final class BonusHungerEvents {
             }
             return false;
         }
-        if (data.getFood() >= 18) {
+        if (data.getFood() * 10 >= capacity * 9) {
             data.increaseTickTimer();
             if (data.getTickTimer() >= 80) {
-                player.heal(1.0F);
-                data.addExhaustion(6.0F, canDrainFood);
+                player.heal(scale);
+                data.addExhaustion(6.0F * scale, canDrainFood);
                 data.resetTickTimer();
                 return true;
             }
@@ -222,10 +232,16 @@ public final class BonusHungerEvents {
     }
 
     private static boolean hasBonusHunger(Player player) {
-        return player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.POTASSIUM_HELMET)
-                && player.getItemBySlot(EquipmentSlot.CHEST).is(ModItems.POTASSIUM_CHESTPLATE)
-                && player.getItemBySlot(EquipmentSlot.LEGS).is(ModItems.POTASSIUM_LEGGINGS)
-                && player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.POTASSIUM_BOOTS);
+        return getCapacity(player) > 0;
+    }
+
+    public static int getCapacity(Player player) {
+        int pieces = 0;
+        if (player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.POTASSIUM_HELMET)) pieces++;
+        if (player.getItemBySlot(EquipmentSlot.CHEST).is(ModItems.POTASSIUM_CHESTPLATE)) pieces++;
+        if (player.getItemBySlot(EquipmentSlot.LEGS).is(ModItems.POTASSIUM_LEGGINGS)) pieces++;
+        if (player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.POTASSIUM_BOOTS)) pieces++;
+        return pieces * BonusHungerData.FOOD_PER_PIECE;
     }
 
     private static void sendSync(ServerPlayer player, BonusHungerData data, boolean active) {

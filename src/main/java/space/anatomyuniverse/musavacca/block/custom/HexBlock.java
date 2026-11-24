@@ -6,6 +6,7 @@ package space.anatomyuniverse.musavacca.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -44,6 +45,7 @@ import space.anatomyuniverse.musavacca.block.custom.logic.BreakHexLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.GlinsterLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.HexBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
@@ -117,9 +119,13 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-        if (level.isClientSide()) return;
+        if (!(level instanceof ServerLevel server)) return;
         Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
-        if (savedHex == null) return;
+        if (savedHex == null) {
+            server.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5D, pos.getY() + 0.55D, pos.getZ() + 0.5D, 15, 0.26D, 0.13D, 0.26D, 0.0D);
+            server.playSound(null, pos, SoundEvents.BONE_MEAL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+            return;
+        }
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof HexBlockEntity hexBe) {
             hexBe.setHexColor(savedHex);
@@ -143,6 +149,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         }
         if (!level.isClientSide()) {
             level.setBlock(pos, state.setValue(CLIPPED, true), Block.UPDATE_ALL);
+            if (level.getRandom().nextInt(32) == 0) Block.popResource(level, pos, new ItemStack(ModItems.PEARL_DUST.get()));
             stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
             level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
             level.playSound(null, pos, SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);

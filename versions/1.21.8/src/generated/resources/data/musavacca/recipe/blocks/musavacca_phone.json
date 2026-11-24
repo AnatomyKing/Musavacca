@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "b": "musavacca:big_banana_pearl",
+    "d": "musavacca:banana_pearl_dust",
+    "g": "minecraft:glass_pane",
+    "p": "musavacca:musavacca_planks",
+    "s": "musavacca:musavacca_slab"
+  },
+  "pattern": [
+    "ss ",
+    "gp ",
+    "bpd"
+  ],
+  "result": {
+    "count": 1,
+    "id": "musavacca:inactive_voco_caller"
+  }
+}

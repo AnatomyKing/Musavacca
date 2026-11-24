@@ -29,6 +29,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.item.component.BundleContents;
@@ -168,6 +169,8 @@ public final class ModItems {
     public static final DeferredItem<Item> INACTIVE_VOCO_CALLER = ITEMS.registerItem("inactive_voco_caller",
             props -> new Item(props.rarity(Rarity.EPIC).stacksTo(1)));
     public static final DeferredItem<Item> BANANA_PELLIS = ITEMS.registerItem("banana_pellis", props -> new Item(props.rarity(Rarity.COMMON)));
+    public static final DeferredItem<Item> BANANA_PELLIS_BUNDLE = ITEMS.registerItem("banana_pellis_bundle", props -> new Item(props.rarity(Rarity.COMMON)));
+    public static final DeferredItem<Item> PEARL_DUST = ITEMS.registerItem("pearl_dust", props -> new Item(props.rarity(Rarity.COMMON)));
     public static final DeferredItem<Item> FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE = ITEMS.registerItem("fractured_potassium_upgrade_smithing_template",
             props -> new Item(props.rarity(Rarity.RARE)));
     public static final DeferredItem<SmithingTemplateItem> POTASSIUM_UPGRADE_SMITHING_TEMPLATE =
@@ -211,6 +214,13 @@ public final class ModItems {
     public static final DeferredItem<Item> POTASSIUM_INGOT = ITEMS.registerItem("potassium_ingot", Item::new);
     public static final DeferredItem<Item> POTASSIUM_SWORD = ITEMS.registerItem("potassium_sword",
             props -> new PotassiumSwordItem(POTASSIUM_TOOL_MATERIAL, 3.0F, -2.4F, potassiumFoodProperties(props)));
+    public static final DeferredItem<Item> POTASSIUM_THROWABLE_TOOL = ITEMS.registerItem("potassium_throwable_tool",
+            props -> new Item(props.stacksTo(1)) {
+                @Override
+                public boolean onDroppedByPlayer(ItemStack stack, Player player) {
+                    return false;
+                }
+            });
     public static final DeferredItem<Item> POTASSIUM_SHOVEL = ITEMS.registerItem("potassium_shovel",
             props -> new PotassiumShovelItem(POTASSIUM_TOOL_MATERIAL, 1.5F, -3.0F, potassiumFoodProperties(props)));
     public static final DeferredItem<Item> POTASSIUM_PICKAXE = ITEMS.registerItem("potassium_pickaxe",

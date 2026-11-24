@@ -37,7 +37,7 @@
         "state": {
           "Name": "musavacca:hex_block",
           "Properties": {
-            "clipped": "true"
+            "clipped": "false"
           }
         }
       },
@@ -50,7 +50,7 @@
         "state": {
           "Name": "musavacca:hex_block",
           "Properties": {
-            "clipped": "true"
+            "clipped": "false"
           }
         }
       },
@@ -76,7 +76,7 @@
         "state": {
           "Name": "musavacca:hex_block",
           "Properties": {
-            "clipped": "true"
+            "clipped": "false"
           }
         }
       },
@@ -89,7 +89,7 @@
         "state": {
           "Name": "musavacca:hex_block",
           "Properties": {
-            "clipped": "true"
+            "clipped": "false"
           }
         }
       },

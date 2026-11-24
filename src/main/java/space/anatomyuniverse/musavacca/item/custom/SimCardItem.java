@@ -8,7 +8,7 @@ import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
 
 public class SimCardItem extends Item {
     public SimCardItem(Properties properties) {
-        super(properties);
+        super(properties.stacksTo(1));
     }
 
     public static boolean hasStoredHex(ItemStack stack) {

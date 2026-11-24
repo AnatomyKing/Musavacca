@@ -18,7 +18,7 @@ import java.util.Set;
 
 public final class ModCreativeTabs {
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MusaCore.MOD_ID);
-    private static final Set<String> BLACKLIST = Set.of("basuke_spawn_egg", "voco_charged_table_north_east",
+    private static final Set<String> BLACKLIST = Set.of("potassium_throwable_tool", "basuke_spawn_egg", "voco_charged_table_north_east",
             "voco_charged_table_north_west", "voco_charged_table_north", "voco_charged_table_south_east", "voco_charged_table_east",
             "voco_charged_table_north_west_and_south_east", "voco_charged_table_north_and_south_east", "voco_charged_table_south_west",
             "voco_charged_table_north_east_and_south_west", "voco_charged_table_west", "voco_charged_table_north_and_south_west", "voco_charged_table_south",
