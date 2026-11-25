@@ -1,12 +1,15 @@
 package space.anatomyuniverse.musavacca.particle.tinted;
 
+import java.util.LinkedHashMap;
 import java.util.Optional;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Quaternionf;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
+import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
 //? if >=26.1 {
 /*import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 *///?} else if >=1.21.9 {
@@ -23,10 +26,15 @@ import net.minecraft.core.particles.ParticleGroup;
 //?}
 
 public final class OriginalCandleParticle extends SingleQuadParticle {
+    private static final int PALETTE_CACHE_LIMIT = 256;
+    private static final int LAYER_COUNT = PearlFireTintProfiles.PEARL_CANDLE.layerCount();
+    private static final LinkedHashMap<Integer, float[]> PALETTES = new LinkedHashMap<>(16, 0.75F, true);
     private final SingleQuadParticle original;
     private final Source source;
-    private final int[] colors;
-    private TextureAtlasSprite layerSprite;
+    private final float[] colors;
+    private boolean rendering;
+    private float renderU0, renderU1, renderV0, renderV1, renderSize;
+    private int renderLight;
     //? if <1.21.9 {
     private TextureAtlasSprite sprite;
     //?}
@@ -40,7 +48,24 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
         this.original = original;
         this.source = (Source) original;
         this.source.musavacca$copyTo(this);
-        this.colors = ProfileTintSprite.colors(color, PearlFireTintProfiles.PEARL_CANDLE);
+        this.colors = palette(color);
+    }
+
+    private static synchronized float[] palette(int color) {
+        float[] cached = PALETTES.get(color);
+        if (cached != null) return cached;
+
+        float[] colors = new float[LAYER_COUNT * 3];
+        for (int i = 0; i < LAYER_COUNT; i++) {
+            int rgb = MusavaccaTints.rgb(PearlFireTintSource.profileTint(color, i, PearlFireTintProfiles.PEARL_CANDLE));
+            int index = i * 3;
+            colors[index] = ((rgb >> 16) & 255) / 255.0F;
+            colors[index + 1] = ((rgb >> 8) & 255) / 255.0F;
+            colors[index + 2] = (rgb & 255) / 255.0F;
+        }
+        if (PALETTES.size() >= PALETTE_CACHE_LIMIT) PALETTES.pollFirstEntry();
+        PALETTES.put(color, colors);
+        return colors;
     }
 
     @Override
@@ -76,34 +101,22 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
     }
 
     @Override
-    public float getQuadSize(float partialTick) { return this.original.getQuadSize(partialTick); }
+    public float getQuadSize(float partialTick) { return this.rendering ? this.renderSize : this.original.getQuadSize(partialTick); }
 
     @Override
     public FacingCameraMode getFacingCameraMode() { return this.original.getFacingCameraMode(); }
 
     @Override
-    protected float getU0() { return this.remapU(this.source.musavacca$u0()); }
+    protected float getU0() { return this.rendering ? this.renderU0 : this.source.musavacca$u0(); }
 
     @Override
-    protected float getU1() { return this.remapU(this.source.musavacca$u1()); }
+    protected float getU1() { return this.rendering ? this.renderU1 : this.source.musavacca$u1(); }
 
     @Override
-    protected float getV0() { return this.remapV(this.source.musavacca$v0()); }
+    protected float getV0() { return this.rendering ? this.renderV0 : this.source.musavacca$v0(); }
 
     @Override
-    protected float getV1() { return this.remapV(this.source.musavacca$v1()); }
-
-    private float remapU(float u) {
-        if (this.layerSprite == null) return u;
-        float t = (u - this.sprite.getU0()) / (this.sprite.getU1() - this.sprite.getU0());
-        return this.layerSprite.getU0() + t * (this.layerSprite.getU1() - this.layerSprite.getU0());
-    }
-
-    private float remapV(float v) {
-        if (this.layerSprite == null) return v;
-        float t = (v - this.sprite.getV0()) / (this.sprite.getV1() - this.sprite.getV0());
-        return this.layerSprite.getV0() + t * (this.layerSprite.getV1() - this.layerSprite.getV0());
-    }
+    protected float getV1() { return this.rendering ? this.renderV1 : this.source.musavacca$v1(); }
 
     @Override
     //? if >=1.21.9 {
@@ -112,11 +125,38 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
     protected void renderRotatedQuad(VertexConsumer output, Quaternionf rotation, float x, float y, float z, float partialTick) {
     //?}
         TextureAtlasSprite[] layers = ((CandleSpriteLayers.Source) this.sprite.contents()).musavacca$layers();
+        float u0 = this.source.musavacca$u0(), u1 = this.source.musavacca$u1();
+        float v0 = this.source.musavacca$v0(), v1 = this.source.musavacca$v1();
+        if (layers != null) {
+            float minU = this.sprite.getU0(), minV = this.sprite.getV0();
+            float width = this.sprite.getU1() - minU, height = this.sprite.getV1() - minV;
+            u0 = (u0 - minU) / width;
+            u1 = (u1 - minU) / width;
+            v0 = (v0 - minV) / height;
+            v1 = (v1 - minV) / height;
+        } else {
+            this.renderU0 = u0;
+            this.renderU1 = u1;
+            this.renderV0 = v0;
+            this.renderV1 = v1;
+        }
+        this.renderSize = this.original.getQuadSize(partialTick);
+        this.renderLight = this.source.musavacca$light(partialTick);
+        this.rendering = true;
         try {
             for (int i = 0; i < (layers == null ? 1 : layers.length); i++) {
-                this.layerSprite = layers == null ? null : layers[i];
-                if (layers != null && this.layerSprite == null) continue;
-                ProfileTintSprite.applyColor(this, this.colors[layers == null ? this.colors.length / 2 : i]);
+                if (layers != null) {
+                    TextureAtlasSprite layer = layers[i];
+                    if (layer == null) continue;
+                    float minU = layer.getU0(), minV = layer.getV0();
+                    float width = layer.getU1() - minU, height = layer.getV1() - minV;
+                    this.renderU0 = minU + u0 * width;
+                    this.renderU1 = minU + u1 * width;
+                    this.renderV0 = minV + v0 * height;
+                    this.renderV1 = minV + v1 * height;
+                }
+                int index = (layers == null ? LAYER_COUNT / 2 : i) * 3;
+                this.setColor(this.colors[index], this.colors[index + 1], this.colors[index + 2]);
                 //? if >=1.21.9 {
                 /*super.extractRotatedQuad(output, rotation, x, y, z, partialTick);
                 *///?} else {
@@ -124,7 +164,7 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
                 //?}
             }
         } finally {
-            this.layerSprite = null;
+            this.rendering = false;
         }
     }
 
@@ -134,7 +174,7 @@ public final class OriginalCandleParticle extends SingleQuadParticle {
     *///?} else {
     protected int getLightColor(float partialTick) {
     //?}
-        return this.source.musavacca$light(partialTick);
+        return this.rendering ? this.renderLight : this.source.musavacca$light(partialTick);
     }
 
     //? if >=1.21.9 {

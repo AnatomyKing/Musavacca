@@ -9,18 +9,22 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.PortalParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.RandomSource;
-import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticleOptions;
-import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintSprite;
+import net.minecraft.core.particles.SimpleParticleType;
+//? if >=1.21.9 {
+/*import net.minecraft.util.RandomSource;
+*///?}
 
 public final class PearlGlyphPortalParticle extends PortalParticle {
-    private PearlGlyphPortalParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, TextureAtlasSprite initialSprite) {
+    private PearlGlyphPortalParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, TextureAtlasSprite sprite) {
         //? if >=1.21.9 {
-        /*super(level, x, y, z, xd, yd, zd, initialSprite);
+        /*super(level, x, y, z, xd, yd, zd, sprite);
         *///?} else {
         super(level, x, y, z, xd, yd, zd);
+        this.setSprite(sprite);
         //?}
+        this.setColor(1.0F, 1.0F, 1.0F);
+        this.quadSize = 0.22F + this.random.nextFloat() * 0.08F;
+        this.setLifetime(34 + this.random.nextInt(16));
     }
 
     @Override
@@ -28,27 +32,13 @@ public final class PearlGlyphPortalParticle extends PortalParticle {
     /*public Layer getLayer() {
         return Layer.TRANSLUCENT;
     }
-
     *///?} else {
     public ParticleRenderType getRenderType() {
         return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
-
     //?}
-    private static PearlGlyphPortalParticle createLayer(ProfileTintParticleOptions options, ClientLevel level, SpriteSet sprites, double x, double y, double z,
-            double xSpeed, double ySpeed, double zSpeed) {
-        ProfileTintSprite.Layer layer = ProfileTintSprite.prepare(options);
-        TextureAtlasSprite sprite = layer.sprite(sprites);
-        RandomSource random = layer.random();
-        PearlGlyphPortalParticle particle = new PearlGlyphPortalParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprite);
-        particle.setSprite(sprite);
-        particle.quadSize = 0.22F + (random.nextFloat() * 0.08F);
-        particle.setLifetime(34 + random.nextInt(16));
-        layer.applyColor(particle);
-        return particle;
-    }
 
-    public static final class Provider implements ParticleProvider<ProfileTintParticleOptions> {
+    public static final class Provider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet sprites;
 
         public Provider(SpriteSet sprites) {
@@ -56,13 +46,13 @@ public final class PearlGlyphPortalParticle extends PortalParticle {
         }
 
         @Override
-        public @Nullable Particle createParticle(ProfileTintParticleOptions options, ClientLevel level, double x, double y, double z, double xSpeed,
+        public Particle createParticle(SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd,
                 //? if >=1.21.9 {
-                /*double ySpeed, double zSpeed, RandomSource random) {
+                /*double zd, RandomSource random) {
                 *///?} else {
-                double ySpeed, double zSpeed) {
+                double zd) {
                 //?}
-            return PearlGlyphPortalParticle.createLayer(options, level, sprites, x, y, z, xSpeed, ySpeed, zSpeed);
+            return new PearlGlyphPortalParticle(level, x, y, z, xd, yd, zd, this.sprites.get(0, 1));
         }
     }
 }

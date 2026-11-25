@@ -49,7 +49,6 @@ import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntit
 import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
-import space.anatomyuniverse.musavacca.particle.tinted.ProfileTintParticles;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
 import space.anatomyuniverse.musavacca.portal.PearlPortalTransform;
@@ -211,7 +210,6 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             return;
         }
         if (random.nextFloat() > 0.35F) return;
-        int hexColor = pearlPortalBe.getHexColor();
         Direction.Axis axis = state.getValue(AXIS);
         double x = pos.getX() + random.nextDouble();
         double y = pos.getY() + random.nextDouble();
@@ -234,8 +232,7 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
             dy = random.nextFloat() * 2.0F * side;
         }
         }
-        ProfileTintParticles.spawnRandomVariant(level, random, hexColor, x, y, z, dx, dy, dz, ModParticleTypes.PEARL_G_TINTED.get(),
-                ModParticleTypes.PEARL_2_TINTED.get(), ModParticleTypes.PEARL_C_TINTED.get(), ModParticleTypes.PEARL_H_TINTED.get());
+        level.addParticle(ModParticleTypes.PEARL_G.get(), x, y, z, dx, dy, dz);
     }
 
     @Override
