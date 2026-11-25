@@ -16,7 +16,7 @@ import net.neoforged.neoforge.common.util.ValueIOSerializable;
 /*import net.neoforged.neoforge.common.util.INBTSerializable;
 *///?}
 
-@SuppressWarnings({ "unused", "CommentedOutCode", "NullableProblems" })
+@SuppressWarnings({"unused", "CommentedOutCode", "NullableProblems"})
 //? if >=1.21.6 {
 public final class BonusHungerData implements ValueIOSerializable {
 //?} else {
@@ -79,13 +79,21 @@ public final class BonusHungerData implements ValueIOSerializable {
         this.exhaustion = Mth.clamp(input.getFloatOr("exhaustion", 0.0F), 0.0F, 40.0F);
         this.tickTimer = Math.max(0, input.getIntOr("tick_timer", 0));
         for (int i = 0; i < this.storedFood.length; i++) {
-            this.storedFood[i] = i < this.capacity / FOOD_PER_PIECE ? 0 : Mth.clamp(input.getIntOr("stored_food_" + i, 0), 0, FOOD_PER_PIECE);
+            this.storedFood[i] =
+                    i < this.capacity / FOOD_PER_PIECE ? 0 : Mth.clamp(input.getIntOr("stored_food_" + i, 0), 0, FOOD_PER_PIECE);
             this.storedSaturation[i] = Mth.clamp(input.getFloatOr("stored_saturation_" + i, 0.0F), 0.0F, this.storedFood[i]);
         }
         //?} else {
-        /*this.capacity = Mth.clamp(input.contains("capacity", Tag.TAG_ANY_NUMERIC) ? input.getInt("capacity") : MAX_FOOD, 0, MAX_FOOD) / FOOD_PER_PIECE * FOOD_PER_PIECE;
+        /*this.capacity =
+                Mth.clamp(input.contains("capacity", Tag.TAG_ANY_NUMERIC) ? input.getInt("capacity") : MAX_FOOD, 0, MAX_FOOD)
+                        / FOOD_PER_PIECE
+                        * FOOD_PER_PIECE;
         this.food = Mth.clamp(input.contains("food", Tag.TAG_ANY_NUMERIC) ? input.getInt("food") : MAX_FOOD, 0, this.capacity);
-        this.saturation = Mth.clamp(input.contains("saturation", Tag.TAG_ANY_NUMERIC) ? input.getFloat("saturation") : (float) MAX_FOOD, 0.0F, this.food);
+        this.saturation =
+                Mth.clamp(
+                        input.contains("saturation", Tag.TAG_ANY_NUMERIC) ? input.getFloat("saturation") : (float) MAX_FOOD,
+                        0.0F,
+                        this.food);
         this.exhaustion = Mth.clamp(input.contains("exhaustion", Tag.TAG_ANY_NUMERIC) ? input.getFloat("exhaustion") : 0.0F, 0.0F, 40.0F);
         this.tickTimer = Math.max(0, input.contains("tick_timer", Tag.TAG_ANY_NUMERIC) ? input.getInt("tick_timer") : 0);
         for (int i = 0; i < this.storedFood.length; i++) {
@@ -276,7 +284,9 @@ public final class BonusHungerData implements ValueIOSerializable {
     }
 
     public boolean shouldSync(boolean active) {
-        return active != this.lastSyncedActive || this.capacity != this.lastSyncedCapacity || this.food != this.lastSyncedFood
+        return active != this.lastSyncedActive
+                || this.capacity != this.lastSyncedCapacity
+                || this.food != this.lastSyncedFood
                 || Float.compare(this.saturation, this.lastSyncedSaturation) != 0;
     }
 

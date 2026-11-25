@@ -26,11 +26,13 @@ public final class PotassiumDropProtection {
     }
 
     private static void onMousePressed(ScreenEvent.MouseButtonPressed.Pre event) {
-        if (event.getScreen() instanceof AbstractContainerScreen<?> screen && droppingOutside(screen, event.getMouseX(), event.getMouseY())) event.setCanceled(true);
+        if (event.getScreen() instanceof AbstractContainerScreen<?> screen && droppingOutside(screen, event.getMouseX(), event.getMouseY()))
+            event.setCanceled(true);
     }
 
     private static void onMouseReleased(ScreenEvent.MouseButtonReleased.Pre event) {
-        if (event.getScreen() instanceof AbstractContainerScreen<?> screen && droppingOutside(screen, event.getMouseX(), event.getMouseY())) event.setCanceled(true);
+        if (event.getScreen() instanceof AbstractContainerScreen<?> screen && droppingOutside(screen, event.getMouseX(), event.getMouseY()))
+            event.setCanceled(true);
     }
 
     private static Slot hovered(AbstractContainerScreen<?> screen) {
@@ -50,7 +52,8 @@ public final class PotassiumDropProtection {
         //?}
         if (x >= left && x < left + width && y >= top && y < top + height) return false;
         for (Slot slot : screen.getMenu().slots) {
-            if (slot.isActive() && x >= left + slot.x - 1 && x < left + slot.x + 17 && y >= top + slot.y - 1 && y < top + slot.y + 17) return false;
+            if (slot.isActive() && x >= left + slot.x - 1 && x < left + slot.x + 17 && y >= top + slot.y - 1 && y < top + slot.y + 17)
+                return false;
         }
         return true;
     }

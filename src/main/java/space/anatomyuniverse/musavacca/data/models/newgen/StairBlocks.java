@@ -1,9 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import java.util.Objects;
-import java.util.function.Consumer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.StairBlock;
+
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public final class StairBlocks {
     private StairBlocks() {}
@@ -43,7 +44,8 @@ public final class StairBlocks {
         }
 
         public void validate() {
-            if (!(block() instanceof StairBlock)) throw new IllegalStateException("StairBlocks requires a StairBlock: " + ModelLocations.blockId(block()));
+            if (!(block() instanceof StairBlock))
+                throw new IllegalStateException("StairBlocks requires a StairBlock: " + ModelLocations.blockId(block()));
             Conditions.requireProperty(block(), StairBlock.FACING, "StairBlocks");
             Conditions.requireProperty(block(), StairBlock.HALF, "StairBlocks");
             Conditions.requireProperty(block(), StairBlock.SHAPE, "StairBlocks");

@@ -1,9 +1,10 @@
 package space.anatomyuniverse.musavacca.tint;
 
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class MusavaccaTints {
     public static final int NO_TINT = -1;
@@ -74,5 +75,4 @@ public final class MusavaccaTints {
         Integer color = blockEntity.collectComponents().get(ModDataComponents.HEX_COLOR.get());
         return color == null ? NO_TINT : stored(color);
     }
-
 }

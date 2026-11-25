@@ -2,6 +2,11 @@ package space.anatomyuniverse.musavacca.block.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleVoxelShapes;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 //? if >=26.1 {
 /*import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
@@ -15,14 +20,9 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 //?}
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 //? if <1.21.5 {
 /*import net.neoforged.neoforge.client.model.data.ModelData;
 *///?}
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleVoxelShapes;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 public final class VocoTableBlockEntityCandleRenderer {
     //? if >=1.21.9 {
@@ -41,8 +41,14 @@ public final class VocoTableBlockEntityCandleRenderer {
         this.blockRenderer = context.getBlockRenderDispatcher();
     }
 
-    public void render(VocoTableBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
-            int packedOverlay, Vec3 cameraPos) {
+    public void render(
+            VocoTableBlockEntity blockEntity,
+            float partialTick,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay,
+            Vec3 cameraPos) {
         BlockAndTintGetter level = blockEntity.getLevel();
         if (level == null) return;
         BlockPos blockPos = blockEntity.getBlockPos();
@@ -51,8 +57,15 @@ public final class VocoTableBlockEntityCandleRenderer {
         }
     }
 
-    private void renderCorner(VocoTableBlockEntity blockEntity, ReceptorPosition receptor, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
-            int packedOverlay, BlockAndTintGetter level, BlockPos blockPos) {
+    private void renderCorner(
+            VocoTableBlockEntity blockEntity,
+            ReceptorPosition receptor,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay,
+            BlockAndTintGetter level,
+            BlockPos blockPos) {
         var candle = blockEntity.candle(receptor);
         if (candle == null) return;
         BlockState candleState = candle.state();
@@ -68,7 +81,8 @@ public final class VocoTableBlockEntityCandleRenderer {
     }
     //?}
     //? if >=1.21.9 {
-    /*public static void extract(VocoTableBlockEntity entity, VocoTableBlockEntityRenderer.State state, BlockEntityRendererProvider.Context context) {
+    /*public static void extract(
+            VocoTableBlockEntity entity, VocoTableBlockEntityRenderer.State state, BlockEntityRendererProvider.Context context) {
         state.candles.clear();
         if (entity.getLevel() == null) return;
         for (ReceptorPosition receptor : ReceptorPosition.values()) {

@@ -1,7 +1,5 @@
 package space.anatomyuniverse.musavacca.client;
 
-import java.util.List;
-import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,6 +10,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+
+import java.util.List;
+import java.util.function.Consumer;
+
 //? if >=1.21.9 {
 /*import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
@@ -64,17 +66,19 @@ public final class HexDebugOverlay {
         ^///?} else {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "hex_debug_overlay");
         //?}
-        event.register(id, new DebugScreenEntry() {
-            @Override
-            public void display(DebugScreenDisplayer displayer, Level level, LevelChunk clientChunk, LevelChunk serverChunk) {
-                addHexDebugLines(displayer::addLine);
-            }
+        event.register(
+                id,
+                new DebugScreenEntry() {
+                    @Override
+                    public void display(DebugScreenDisplayer displayer, Level level, LevelChunk clientChunk, LevelChunk serverChunk) {
+                        addHexDebugLines(displayer::addLine);
+                    }
 
-            @Override
-            public boolean isAllowed(boolean reducedDebugInfo) {
-                return true;
-            }
-        });
+                    @Override
+                    public boolean isAllowed(boolean reducedDebugInfo) {
+                        return true;
+                    }
+                });
     }
     *///?}
     //? if <1.21.9 {

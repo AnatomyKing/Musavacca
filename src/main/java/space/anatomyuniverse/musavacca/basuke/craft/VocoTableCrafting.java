@@ -28,7 +28,8 @@ public final class VocoTableCrafting {
         BlockPos tablePos = basuke.getVocoTablePos();
         if (tablePos == null) return null;
         BlockState state = level.getBlockState(tablePos);
-        if (!(state.getBlock() instanceof VocoTableBlock) || !state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
+        if (!(state.getBlock() instanceof VocoTableBlock)
+                || !state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
                 || !state.getValue(VocoTableBlock.ROTARY_DIALERS)) {
             return null;
         }
@@ -45,8 +46,8 @@ public final class VocoTableCrafting {
         return recipe;
     }
 
-    public static boolean completeActiveRecipe(@NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack edibleStack,
-            @NotNull Recipe recipe) {
+    public static boolean completeActiveRecipe(
+            @NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack edibleStack, @NotNull Recipe recipe) {
         BlockPos tablePos = basuke.getVocoTablePos();
         if (tablePos == null) return false;
         if (!(level.getBlockEntity(tablePos) instanceof VocoTableBlockEntity tableBe)) {
@@ -55,7 +56,8 @@ public final class VocoTableCrafting {
         if (!recipe.equals(findActiveRecipe(basuke, level, edibleStack))) return false;
         ItemStack resultStack = recipe.createResultStack(tableBe.getDisplayedItem());
         int count = tableBe.getDisplayedItemCount() * recipe.resultCount();
-        if (recipe.hexColorInject()) resultStack.set(ModDataComponents.HEX_COLOR.get(), edibleStack.get(ModDataComponents.HEX_COLOR.get()) & 0xFFFFFF);
+        if (recipe.hexColorInject())
+            resultStack.set(ModDataComponents.HEX_COLOR.get(), edibleStack.get(ModDataComponents.HEX_COLOR.get()) & 0xFFFFFF);
         tableBe.setDisplayedItem(resultStack, count);
         edibleStack.shrink(1);
         basuke.setItemInHand(InteractionHand.MAIN_HAND, edibleStack.isEmpty() ? ItemStack.EMPTY : edibleStack);
@@ -66,10 +68,23 @@ public final class VocoTableCrafting {
 
     private static void playCraftingSounds(@NotNull ServerLevel level, @NotNull BlockPos tablePos) {
         Vec3 itemDisplayCenter = new Vec3(tablePos.getX() + 0.5D, tablePos.getY() + 1.20D, tablePos.getZ() + 0.5D);
-        level.playSound(null, itemDisplayCenter.x, itemDisplayCenter.y, itemDisplayCenter.z, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 0.85F,
+        level.playSound(
+                null,
+                itemDisplayCenter.x,
+                itemDisplayCenter.y,
+                itemDisplayCenter.z,
+                SoundEvents.ENCHANTMENT_TABLE_USE,
+                SoundSource.BLOCKS,
+                0.85F,
                 1.35F);
-        level.playSound(null, itemDisplayCenter.x, itemDisplayCenter.y, itemDisplayCenter.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 0.65F,
+        level.playSound(
+                null,
+                itemDisplayCenter.x,
+                itemDisplayCenter.y,
+                itemDisplayCenter.z,
+                SoundEvents.AMETHYST_BLOCK_CHIME,
+                SoundSource.BLOCKS,
+                0.65F,
                 1.65F);
     }
-
 }

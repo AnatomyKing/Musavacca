@@ -4,16 +4,16 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
-//? if >=26.2 {
-/*import net.minecraft.network.protocol.game.ServerboundSpectatorActionPacket;
-*///?}
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.gui.voco.VocoDustRideCancelPayload;
+import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.gui.voco.VocoDustRideCancelPayload;
+//? if >=26.2 {
+/*import net.minecraft.network.protocol.game.ServerboundSpectatorActionPacket;
+*///?}
 
 public final class VocoDustInputs extends ChannelInboundHandlerAdapter {
     private static final String NAME = "musavacca_dust_controls";
@@ -48,17 +48,39 @@ public final class VocoDustInputs extends ChannelInboundHandlerAdapter {
         //? if >=26.2 {
         /*spectatorControl |= message instanceof ServerboundSpectatorActionPacket;
         *///?}
-        if (spectatorControl && (riding || !(connection.getPacketListener() instanceof ServerGamePacketListenerImpl listener)
-                || !listener.player.isSpectator())) return;
+        if (spectatorControl
+                && (riding
+                        || !(connection.getPacketListener() instanceof ServerGamePacketListenerImpl listener)
+                        || !listener.player.isSpectator())) return;
         if (riding && message instanceof Packet<?> packet) {
             if (packet instanceof ServerboundCustomPayloadPacket custom
                     && custom.payload().type().id().getNamespace().equals(MusaCore.MOD_ID)
                     && !(custom.payload() instanceof VocoDustRideCancelPayload)) return;
             if (switch (packet.type().id().getPath()) {
-                case "attack", "interact", "punch", "swing", "use_item", "use_item_on", "player_action", "player_input", "player_command",
-                     "move_player_pos", "move_player_pos_rot", "move_player_rot", "move_player_status_only", "move_vehicle", "player_abilities",
-                     "pick_item", "pick_item_from_block", "pick_item_from_entity", "container_click", "container_button_click",
-                     "set_carried_item", "set_creative_mode_slot", "bundle_item_selected" -> true;
+                case "attack",
+                        "interact",
+                        "punch",
+                        "swing",
+                        "use_item",
+                        "use_item_on",
+                        "player_action",
+                        "player_input",
+                        "player_command",
+                        "move_player_pos",
+                        "move_player_pos_rot",
+                        "move_player_rot",
+                        "move_player_status_only",
+                        "move_vehicle",
+                        "player_abilities",
+                        "pick_item",
+                        "pick_item_from_block",
+                        "pick_item_from_entity",
+                        "container_click",
+                        "container_button_click",
+                        "set_carried_item",
+                        "set_creative_mode_slot",
+                        "bundle_item_selected" ->
+                        true;
                 default -> false;
             }) return;
         }

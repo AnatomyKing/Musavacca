@@ -1,20 +1,7 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
-import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
-import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
-import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
-
-import java.util.UUID;
-
-//? if <1.21.5 {
-/*import net.minecraft.nbt.Tag;
-*///?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-//? if >=1.21.5 {
-import net.minecraft.core.component.DataComponentGetter;
-//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -26,19 +13,32 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if >=1.21.6 {
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-//?}
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
+import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+
+import java.util.UUID;
+
+//? if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+*///?}
+//? if >=1.21.5 {
+import net.minecraft.core.component.DataComponentGetter;
+//?}
+//? if >=1.21.6 {
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+//?}
 
 public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     private static final String TAG_YAW_DEGREES = "yaw_degrees";
@@ -53,7 +53,9 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     private int pitchDegrees = DEFAULT_PITCH_DEGREES;
     private UUID deviceId = UUID.randomUUID();
 
-    public UUID getDeviceId() { return this.deviceId; }
+    public UUID getDeviceId() {
+        return this.deviceId;
+    }
 
     public void setDeviceId(UUID deviceId) {
         if (deviceId == null || deviceId.equals(this.deviceId)) return;
@@ -146,7 +148,8 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
     public void releaseHexClaim() {
         Level level = this.getLevel();
         if (level instanceof ServerLevel serverLevel) {
-            HexTeleportAddressNetwork.releaseOwner(serverLevel.getServer(), HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(this.deviceId));
+            HexTeleportAddressNetwork.releaseOwner(
+                    serverLevel.getServer(), HexTeleportDirectory.vocoPostReceptorCornerOwnerKey(this.deviceId));
         }
     }
 
@@ -239,7 +242,9 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
         //? if >=1.21.5 {
         this.deviceId = TeleportDeviceIdentity.read(input.getStringOr("musavacca_device_id", ""));
         //?} else {
-        /*this.deviceId = TeleportDeviceIdentity.read(input.contains("musavacca_device_id", Tag.TAG_STRING) ? input.getString("musavacca_device_id") : "");
+        /*this.deviceId =
+                TeleportDeviceIdentity.read(
+                        input.contains("musavacca_device_id", Tag.TAG_STRING) ? input.getString("musavacca_device_id") : "");
         *///?}
         ReceptorPosition receptor = this.getPostReceptor();
         Vec3 fallback = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
@@ -247,9 +252,16 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
         this.yawDegrees = clampYaw(input.getIntOr(TAG_YAW_DEGREES, receptor.defaultYawDegrees()));
         this.pitchDegrees = clampPitch(input.getIntOr(TAG_PITCH_DEGREES, receptor.defaultPitchDegrees()));
         //?} else {
-        /*this.yawDegrees = clampYaw((input.contains(TAG_YAW_DEGREES, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_YAW_DEGREES) : receptor.defaultYawDegrees()));
-        this.pitchDegrees = clampPitch(
-                (input.contains(TAG_PITCH_DEGREES, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_PITCH_DEGREES) : receptor.defaultPitchDegrees()));
+        /*this.yawDegrees =
+                clampYaw(
+                        (input.contains(TAG_YAW_DEGREES, Tag.TAG_ANY_NUMERIC)
+                                ? input.getInt(TAG_YAW_DEGREES)
+                                : receptor.defaultYawDegrees()));
+        this.pitchDegrees =
+                clampPitch(
+                        (input.contains(TAG_PITCH_DEGREES, Tag.TAG_ANY_NUMERIC)
+                                ? input.getInt(TAG_PITCH_DEGREES)
+                                : receptor.defaultPitchDegrees()));
         *///?}
         this.hexColor = readHexOrUnset(input);
         //? if >=1.21.5 {
@@ -266,7 +278,8 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
         //? if >=1.21.5 {
         this.customTargetDimension = input.getStringOr("custom_target_dimension", "");
         //?} else {
-        /*this.customTargetDimension = input.contains("custom_target_dimension", Tag.TAG_STRING) ? input.getString("custom_target_dimension") : "";
+        /*this.customTargetDimension =
+                input.contains("custom_target_dimension", Tag.TAG_STRING) ? input.getString("custom_target_dimension") : "";
         *///?}
     }
 
@@ -369,7 +382,10 @@ public class VocoPostBlockEntity extends BlockEntity implements HexSource {
         //? if >=1.21.5 {
         int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
         //?} else {
-        /*int loaded = (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? input.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
+        /*int loaded =
+                (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC)
+                        ? input.getInt(MusavaccaTints.HEX_COLOR_KEY)
+                        : MusavaccaTints.NO_TINT);
         *///?}
         return MusavaccaTints.stored(loaded);
     }

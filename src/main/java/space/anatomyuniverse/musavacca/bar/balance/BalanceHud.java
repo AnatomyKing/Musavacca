@@ -3,6 +3,11 @@ package space.anatomyuniverse.musavacca.bar.balance;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
 //? if >=26.1 {
 /*import net.minecraft.client.gui.GuiGraphicsExtractor;
 *///?} else {
@@ -17,11 +22,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.tags.FluidTags;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
 
 public final class BalanceHud {
     //? if >=1.21.11 {
@@ -29,7 +29,7 @@ public final class BalanceHud {
     *///?} else {
     private static final ResourceLocation[] PEARL_ICON_LAYERS = {
     //?}
-            sprite("hud/pearl_husk"), sprite("hud/pearl") };
+            sprite("hud/pearl_husk"), sprite("hud/pearl")};
 
     private BalanceHud() {}
 
@@ -59,7 +59,10 @@ public final class BalanceHud {
         *///?} else {
         return !minecraft.options.hideGui
         //?}
-                && player != null && ClientBalanceData.isActive() && !player.isSpectator() && !player.getAbilities().instabuild
+                && player != null
+                && ClientBalanceData.isActive()
+                && !player.isSpectator()
+                && !player.getAbilities().instabuild
                 && !hasVisibleMountHealth(player);
     }
 

@@ -1,15 +1,16 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+
+import java.util.Objects;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import java.util.Objects;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
 
 public final class ModelLocations {
     private ModelLocations() {}
@@ -109,7 +110,8 @@ public final class ModelLocations {
         if (suffix == null || suffix.isBlank()) throw new IllegalArgumentException("suffix must not be blank");
         var id = blockId(child);
         String path = id.getPath();
-        if (!path.endsWith(suffix)) throw new IllegalStateException("Cannot infer a base block for " + id + ": registry path does not end with " + suffix);
+        if (!path.endsWith(suffix))
+            throw new IllegalStateException("Cannot infer a base block for " + id + ": registry path does not end with " + suffix);
         String stem = path.substring(0, path.length() - suffix.length());
         Block planks = getBlockIfPresent(id.getNamespace(), stem + "_planks");
         if (planks != null) return planks;

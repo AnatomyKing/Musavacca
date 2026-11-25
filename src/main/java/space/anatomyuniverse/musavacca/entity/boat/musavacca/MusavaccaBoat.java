@@ -5,6 +5,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import space.anatomyuniverse.musavacca.item.ModItems;
 //? if >=1.21.11 {
 /*import net.minecraft.world.entity.vehicle.boat.Raft;
 *///?} else if >=1.21.2 <1.21.11 {
@@ -14,9 +17,6 @@ import net.minecraft.world.entity.vehicle.Raft;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 *///?}
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import space.anatomyuniverse.musavacca.item.ModItems;
 
 public final class MusavaccaBoat extends
         //? if >=1.21.2 {
@@ -53,11 +53,12 @@ public final class MusavaccaBoat extends
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity passenger, EntityDimensions dimensions, float scaleFactor) {
         int passengerIndex = this.getPassengers().indexOf(passenger);
-        double seatZ = switch (passengerIndex) {
-        case 1 -> 0.0D;
-        case 2 -> -SEAT_SPACING_Z;
-        default -> SEAT_SPACING_Z;
-        };
+        double seatZ =
+                switch (passengerIndex) {
+                    case 1 -> 0.0D;
+                    case 2 -> -SEAT_SPACING_Z;
+                    default -> SEAT_SPACING_Z;
+                };
         return new Vec3(0.0D, dimensions.height(), seatZ * scaleFactor).yRot(-this.getYRot() * Mth.DEG_TO_RAD);
     }
 

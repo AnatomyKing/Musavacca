@@ -29,10 +29,10 @@ public final class PotassiumArmorItem
         *///?}
 {
     //? if <1.21.2 {
-    /*private static final ResourceLocation HUMANOID_TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID,
-            "textures/entity/equipment/humanoid/potassium.png");
-    private static final ResourceLocation LEGGINGS_TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID,
-            "textures/entity/equipment/humanoid_leggings/potassium.png");
+    /*private static final ResourceLocation HUMANOID_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/equipment/humanoid/potassium.png");
+    private static final ResourceLocation LEGGINGS_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/equipment/humanoid_leggings/potassium.png");
 
     *///?}
     //? if >=1.21.2 {
@@ -63,7 +63,8 @@ public final class PotassiumArmorItem
 
     //? if <1.21.2 {
     /*@Override
-    public ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
+    public ResourceLocation getArmorTexture(
+            ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
         return innerModel ? LEGGINGS_TEXTURE : HUMANOID_TEXTURE;
     }
 

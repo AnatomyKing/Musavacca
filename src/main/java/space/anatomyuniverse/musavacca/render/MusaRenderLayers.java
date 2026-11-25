@@ -1,14 +1,15 @@
 package space.anatomyuniverse.musavacca.render;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 //? if <26.1 {
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -22,12 +23,14 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 //?}
 //? if <1.21.5 {
-/*import java.util.Map;
-import net.minecraft.client.renderer.block.BlockModelShaper;
+/*import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.common.util.TriState;
+
+import java.util.Map;
+
 *///?}
 //? if <1.21.4 {
 /*import net.neoforged.neoforge.client.model.BakedModelWrapper;
@@ -55,23 +58,38 @@ import net.minecraft.client.resources.model.sprite.Material;
 public final class MusaRenderLayers {
 
     //? if <26.1 {
-    private static final Set<Block> CUTOUT_BLOCKS = Set.of(ModBlocks.MUSAVACCA_EGG.get(), ModBlocks.HEX_BLOCK.get(), ModBlocks.PEARL_FIRE.get(),
-            ModBlocks.BANANA_PEARL_DUST.get(),
-            ModBlocks.VOCO_TABLE.get(), ModBlocks.MUSAVACCA_SPROUT.get(), ModBlocks.MUSAVACCA_SUCKER.get(), ModBlocks.MUSAVACCA_PLANT.get(),
-            ModBlocks.MUSAVACCA_PSEUDOSTEM.get(), ModBlocks.MUSAVACCA_TRAPDOOR.get(), ModBlocks.CAROTENE_GRASS.get(), ModBlocks.CAROTENE_SHORT_GRASS.get(),
-            ModBlocks.CAROTENE_TALL_GRASS.get(), ModBlocks.BANANA_PEARL_MASCARON.get(), ModBlocks.VOCO_POST.get());
+    private static final Set<Block> CUTOUT_BLOCKS =
+            Set.of(
+                    ModBlocks.MUSAVACCA_EGG.get(),
+                    ModBlocks.HEX_BLOCK.get(),
+                    ModBlocks.PEARL_FIRE.get(),
+                    ModBlocks.BANANA_PEARL_DUST.get(),
+                    ModBlocks.VOCO_TABLE.get(),
+                    ModBlocks.MUSAVACCA_SPROUT.get(),
+                    ModBlocks.MUSAVACCA_SUCKER.get(),
+                    ModBlocks.MUSAVACCA_PLANT.get(),
+                    ModBlocks.MUSAVACCA_PSEUDOSTEM.get(),
+                    ModBlocks.MUSAVACCA_TRAPDOOR.get(),
+                    ModBlocks.CAROTENE_GRASS.get(),
+                    ModBlocks.CAROTENE_SHORT_GRASS.get(),
+                    ModBlocks.CAROTENE_TALL_GRASS.get(),
+                    ModBlocks.BANANA_PEARL_MASCARON.get(),
+                    ModBlocks.VOCO_POST.get());
 
     private static final Set<Block> TRANSLUCENT_BLOCKS = Set.of(ModBlocks.PEARL_PORTAL.get(), ModBlocks.MUSAVACCA_DOOR.get());
     //?}
 
-    private static final Set<Block> NO_AO_BLOCKS = Set.of(ModBlocks.HEX_BLOCK.get(), ModBlocks.MUSAVACCA_LEAVES.get(), ModBlocks.PEARL_PORTAL.get());
+    private static final Set<Block> NO_AO_BLOCKS =
+            Set.of(ModBlocks.HEX_BLOCK.get(), ModBlocks.MUSAVACCA_LEAVES.get(), ModBlocks.PEARL_PORTAL.get());
 
     private static final Set<Block> NO_DIRECTIONAL_SHADE_BLOCKS = Set.of(ModBlocks.PEARL_PORTAL.get());
 
     private MusaRenderLayers() {}
 
     private record Properties(boolean noAo, boolean noShade) {
-        boolean any() { return noAo || noShade; }
+        boolean any() {
+            return noAo || noShade;
+        }
     }
 
     private static Properties properties(Block block) {
@@ -136,7 +154,8 @@ public final class MusaRenderLayers {
         }
 
         @Override
-        public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
+        public void collectParts(
+                BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
                 //? if >=26.1 {
                 /*List<BlockStateModelPart> output) {
                 *///?} else {
@@ -153,7 +172,9 @@ public final class MusaRenderLayers {
 
         //? if >=26.1 {
         /*@Override
-        public int materialFlags() { return delegate.materialFlags(); }
+        public int materialFlags() {
+            return delegate.materialFlags();
+        }
 
         @Override
         public int materialFlags(BlockAndTintGetter level, BlockPos pos, BlockState state) {
@@ -178,8 +199,21 @@ public final class MusaRenderLayers {
                 BakedQuad.MaterialInfo material = material(quad.materialInfo(), properties);
                 if (material == quad.materialInfo()) continue;
                 if (result == null) result = new ArrayList<>(source);
-                result.set(i, new BakedQuad(quad.position0(), quad.position1(), quad.position2(), quad.position3(), quad.packedUV0(), quad.packedUV1(),
-                        quad.packedUV2(), quad.packedUV3(), quad.direction(), material, quad.bakedNormals(), quad.bakedColors()));
+                result.set(
+                        i,
+                        new BakedQuad(
+                                quad.position0(),
+                                quad.position1(),
+                                quad.position2(),
+                                quad.position3(),
+                                quad.packedUV0(),
+                                quad.packedUV1(),
+                                quad.packedUV2(),
+                                quad.packedUV3(),
+                                quad.direction(),
+                                material,
+                                quad.bakedNormals(),
+                                quad.bakedColors()));
             }
             return result == null ? source : List.copyOf(result);
             *///?} else {
@@ -205,21 +239,29 @@ public final class MusaRenderLayers {
         }
 
         @Override
-        public int materialFlags() { return original.materialFlags(); }
+        public int materialFlags() {
+            return original.materialFlags();
+        }
         *///?} else {
         @Override
-        public TextureAtlasSprite particleIcon() { return original.particleIcon(); }
+        public TextureAtlasSprite particleIcon() {
+            return original.particleIcon();
+        }
 
         //? if >=1.21.6 {
         @Override
-        public ChunkSectionLayer getRenderType(BlockState state) { return original.getRenderType(state); }
+        public ChunkSectionLayer getRenderType(BlockState state) {
+            return original.getRenderType(state);
+        }
         //?} else {
         /*@Override
-        public RenderType getRenderType(BlockState state) { return original.getRenderType(state); }
+        public RenderType getRenderType(BlockState state) {
+            return original.getRenderType(state);
+        }
         *///?}
         //?}
     }
-    //?}
+        //?}
 
     //? if >=1.21.4 <1.21.5 {
     /*private static final class ForcedBakedModel extends DelegateBakedModel {
@@ -245,7 +287,7 @@ public final class MusaRenderLayers {
             return properties.noAo() ? TriState.FALSE : super.useAmbientOcclusion(state, data, type);
         }
     }
-    *///?}
+        *///?}
 
     //? if >=26.1 {
     /*private static BakedQuad.MaterialInfo material(BakedQuad.MaterialInfo info, Properties p) {
@@ -257,11 +299,18 @@ public final class MusaRenderLayers {
         var shade = !p.noShade() && info.shade();
         if (ao == info.ambientOcclusion() && shade == info.shade()) return info;
         //?}
-        return new BakedQuad.MaterialInfo(info.sprite(), info.layer(), info.itemRenderType(),
+        return new BakedQuad.MaterialInfo(
+                info.sprite(),
+                info.layer(),
+                info.itemRenderType(),
                 //? if >=26.3 {
-                /^info.itemGlintRenderType(), info.itemGlintSpecialRenderType(),
+                /^info.itemGlintRenderType(),
+                info.itemGlintSpecialRenderType(),
                 ^///?}
-                info.tintIndex(), shade, info.lightEmission(), ao);
+                info.tintIndex(),
+                shade,
+                info.lightEmission(),
+                ao);
     }
     *///?}
 
@@ -279,24 +328,56 @@ public final class MusaRenderLayers {
 
     //?}
     //? if >=1.21.5 <26.1 {
-    private static boolean shaded(BakedQuad quad) { return quad.shade(); }
+    private static boolean shaded(BakedQuad quad) {
+        return quad.shade();
+    }
     //?} else if <1.21.5 {
-    /*private static boolean shaded(BakedQuad quad) { return quad.isShade(); }
+    /*private static boolean shaded(BakedQuad quad) {
+        return quad.isShade();
+    }
     *///?}
 
     //? if <26.1 {
     private static BakedQuad copyWithoutShade(BakedQuad quad) {
         //? if >=1.21.11 {
-        /*return new BakedQuad(quad.position0(), quad.position1(), quad.position2(), quad.position3(), quad.packedUV0(), quad.packedUV1(), quad.packedUV2(),
-                quad.packedUV3(), quad.tintIndex(), quad.direction(), quad.sprite(), false, quad.lightEmission(), quad.bakedNormals(), quad.bakedColors(),
+        /*return new BakedQuad(
+                quad.position0(),
+                quad.position1(),
+                quad.position2(),
+                quad.position3(),
+                quad.packedUV0(),
+                quad.packedUV1(),
+                quad.packedUV2(),
+                quad.packedUV3(),
+                quad.tintIndex(),
+                quad.direction(),
+                quad.sprite(),
+                false,
+                quad.lightEmission(),
+                quad.bakedNormals(),
+                quad.bakedColors(),
                 quad.hasAmbientOcclusion());
         *///?} else if >=1.21.5 {
-        return new BakedQuad(quad.vertices(), quad.tintIndex(), quad.direction(), quad.sprite(), false, quad.lightEmission(), quad.hasAmbientOcclusion());
+        return new BakedQuad(
+                quad.vertices(),
+                quad.tintIndex(),
+                quad.direction(),
+                quad.sprite(),
+                false,
+                quad.lightEmission(),
+                quad.hasAmbientOcclusion());
         //?} else if >=1.21.3 {
-        /*return new BakedQuad(quad.getVertices(), quad.getTintIndex(), quad.getDirection(), quad.getSprite(), false, quad.getLightEmission(),
+        /*return new BakedQuad(
+                quad.getVertices(),
+                quad.getTintIndex(),
+                quad.getDirection(),
+                quad.getSprite(),
+                false,
+                quad.getLightEmission(),
                 quad.hasAmbientOcclusion());
         *///?} else {
-        /*return new BakedQuad(quad.getVertices(), quad.getTintIndex(), quad.getDirection(), quad.getSprite(), false, quad.hasAmbientOcclusion());
+        /*return new BakedQuad(
+                quad.getVertices(), quad.getTintIndex(), quad.getDirection(), quad.getSprite(), false, quad.hasAmbientOcclusion());
         *///?}
     }
     //?}

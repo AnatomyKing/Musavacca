@@ -13,19 +13,21 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import static net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH_REDSTONE;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.RedstoneSide;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.EAST_REDSTONE;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH_REDSTONE;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.SOUTH_REDSTONE;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WEST_REDSTONE;
+
 //? if >=26.3 {
 /*import static net.minecraft.world.level.block.RedstoneWireBlock.PROPERTY_BY_DIRECTION;
 *///?} else {
 import static net.minecraft.world.level.block.RedStoneWireBlock.PROPERTY_BY_DIRECTION;
 //?}
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.RedstoneSide;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 //? if >=1.21.2 {
 import net.minecraft.world.level.ScheduledTickAccess;
 //?} else {
@@ -37,11 +39,15 @@ public final class BananaPearlDustBlock extends Block {
     public static final MapCodec<BananaPearlDustBlock> CODEC = simpleCodec(BananaPearlDustBlock::new);
     //?}
 
-
     public BananaPearlDustBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(NORTH_REDSTONE, RedstoneSide.NONE).setValue(EAST_REDSTONE, RedstoneSide.NONE)
-                .setValue(SOUTH_REDSTONE, RedstoneSide.NONE).setValue(WEST_REDSTONE, RedstoneSide.NONE));
+        registerDefaultState(
+                stateDefinition
+                        .any()
+                        .setValue(NORTH_REDSTONE, RedstoneSide.NONE)
+                        .setValue(EAST_REDSTONE, RedstoneSide.NONE)
+                        .setValue(SOUTH_REDSTONE, RedstoneSide.NONE)
+                        .setValue(WEST_REDSTONE, RedstoneSide.NONE));
     }
 
     //? if <26.3 {
@@ -86,11 +92,18 @@ public final class BananaPearlDustBlock extends Block {
 
     @Override
     //? if >=1.21.2 {
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction direction,
-            BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+    protected BlockState updateShape(
+            BlockState state,
+            LevelReader level,
+            ScheduledTickAccess ticks,
+            BlockPos pos,
+            Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            RandomSource random) {
     //?} else {
-    /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos,
-            BlockPos neighborPos) {
+    /*protected BlockState updateShape(
+            BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
     *///?}
         return connections(state, level, pos);
     }

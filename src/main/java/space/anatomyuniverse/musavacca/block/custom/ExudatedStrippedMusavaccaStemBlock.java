@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
-import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -17,6 +16,9 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import space.anatomyuniverse.musavacca.item.ModItems;
+
+import java.util.function.Supplier;
+
 //? if >=1.21.2 {
 import net.minecraft.world.InteractionResult;
 //?} else {
@@ -35,9 +37,11 @@ public class ExudatedStrippedMusavaccaStemBlock extends RotatedPillarBlock {
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+    protected InteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
     //?} else {
-    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+    /*protected ItemInteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
     *///?}
             BlockHitResult hitResult) {
         //? if >=1.21.2 {

@@ -1,7 +1,5 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -10,6 +8,9 @@ import space.anatomyuniverse.musavacca.block.custom.BananaPearlDustBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class VocoDustRoute {
     private VocoDustRoute() {}

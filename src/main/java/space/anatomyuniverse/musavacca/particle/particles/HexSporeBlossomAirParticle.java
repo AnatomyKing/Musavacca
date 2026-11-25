@@ -4,6 +4,11 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
+
+import java.util.Optional;
 //? if >=1.21.4 {
 import net.minecraft.client.particle.SuspendedParticle;
 //?}
@@ -17,10 +22,6 @@ import net.minecraft.client.particle.TextureSheetParticle;
 //? if <1.21.9 {
 import net.minecraft.core.particles.ParticleGroup;
 //?}
-import java.util.Optional;
-import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
 
 //? if >=1.21.4 {
 public class HexSporeBlossomAirParticle extends SuspendedParticle {
@@ -36,7 +37,8 @@ public class HexSporeBlossomAirParticle extends SuspendedParticle {
 
     *///?}
     //? if >=1.21.4 {
-    protected HexSporeBlossomAirParticle(ClientLevel level, SpriteSet sprite, double x, double y, double z, HexColorParticleOptions options) {
+    protected HexSporeBlossomAirParticle(
+            ClientLevel level, SpriteSet sprite, double x, double y, double z, HexColorParticleOptions options) {
     //?} else {
     /*private HexSporeBlossomAirParticle(ClientLevel level, SpriteSet sprite, double x, double y, double z, double xd, double yd, double zd) {
     *///?}
@@ -73,7 +75,8 @@ public class HexSporeBlossomAirParticle extends SuspendedParticle {
 
     //?}
     //? if <1.21.4 {
-    /*protected HexSporeBlossomAirParticle(ClientLevel level, SpriteSet sprite, double x, double y, double z, HexColorParticleOptions options) {
+    /*protected HexSporeBlossomAirParticle(
+            ClientLevel level, SpriteSet sprite, double x, double y, double z, HexColorParticleOptions options) {
         this(level, sprite, x, y, z, 0.0D, -0.8D, 0.0D);
         this.lifetime = Mth.randomBetweenInclusive(level.getRandom(), 500, 1000);
         this.gravity = 0.01F;
@@ -110,9 +113,17 @@ public class HexSporeBlossomAirParticle extends SuspendedParticle {
         }
 
         @Override
-        public @Nullable Particle createParticle(HexColorParticleOptions options, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed,
+        public @Nullable Particle createParticle(
+                HexColorParticleOptions options,
+                ClientLevel level,
+                double x,
+                double y,
+                double z,
+                double xSpeed,
+                double ySpeed,
                 //? if >=1.21.9 {
-                /*double zSpeed, RandomSource random) {
+                /*double zSpeed,
+                RandomSource random) {
                 *///?} else {
                 double zSpeed) {
                 //?}

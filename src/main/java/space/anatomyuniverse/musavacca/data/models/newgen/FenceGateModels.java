@@ -13,7 +13,8 @@ import org.jetbrains.annotations.Nullable;
 public record FenceGateModels(ResourceLocation closed, ResourceLocation open, ResourceLocation wallClosed, ResourceLocation wallOpen) {
 //?}
     public FenceGateModels {
-        if (closed == null && open == null && wallClosed == null && wallOpen == null) throw new IllegalStateException("FenceGateModels requires at least one model");
+        if (closed == null && open == null && wallClosed == null && wallOpen == null)
+            throw new IllegalStateException("FenceGateModels requires at least one model");
     }
 
     public static Builder builder() {

@@ -5,8 +5,9 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import java.util.Objects;
 import net.minecraft.world.level.block.Block;
+
+import java.util.Objects;
 
 public final class PortalTextures {
     private PortalTextures() {}
@@ -43,7 +44,9 @@ public final class PortalTextures {
         }
     }
 
-    public static Builder of(Block block) { return new Builder(block); }
+    public static Builder of(Block block) {
+        return new Builder(block);
+    }
 
     public static final class Builder {
         private final Block block;
@@ -61,11 +64,17 @@ public final class PortalTextures {
             texture();
         }
 
-        public Builder texture() { return folder(TextureTokens.block(block).toString()); }
+        public Builder texture() {
+            return folder(TextureTokens.block(block).toString());
+        }
 
-        public Builder texture(String texture) { return folder(texture); }
+        public Builder texture(String texture) {
+            return folder(texture);
+        }
 
-        public Builder folder() { return texture(); }
+        public Builder folder() {
+            return texture();
+        }
 
         public Builder folder(String texture) {
             this.texture = TextureTokens.resolveBlock(block, texture);
@@ -79,6 +88,8 @@ public final class PortalTextures {
             return this;
         }
 
-        public Set build() { return new Set(texture, layerPrefix, null); }
+        public Set build() {
+            return new Set(texture, layerPrefix, null);
+        }
     }
 }

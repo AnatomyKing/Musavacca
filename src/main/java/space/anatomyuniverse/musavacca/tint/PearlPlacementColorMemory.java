@@ -1,9 +1,10 @@
 package space.anatomyuniverse.musavacca.tint;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class PearlPlacementColorMemory {
     private static final Map<Long, Entry> ENTRIES = new ConcurrentHashMap<>();

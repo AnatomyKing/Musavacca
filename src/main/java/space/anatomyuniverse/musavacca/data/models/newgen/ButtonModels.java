@@ -13,7 +13,8 @@ import org.jetbrains.annotations.Nullable;
 public record ButtonModels(ResourceLocation normal, ResourceLocation pressed, ResourceLocation inventory) {
 //?}
     public ButtonModels {
-        if (normal == null && pressed == null && inventory == null) throw new IllegalStateException("ButtonModels requires at least one model");
+        if (normal == null && pressed == null && inventory == null)
+            throw new IllegalStateException("ButtonModels requires at least one model");
     }
 
     public static Builder builder() {

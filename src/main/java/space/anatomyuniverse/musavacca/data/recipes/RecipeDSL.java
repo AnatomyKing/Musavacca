@@ -11,31 +11,27 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.ItemLike;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapedCrafting;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapelessCountFamily;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapelessCrafting;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.SmithingTransforms;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.Stonecutting;
+import space.anatomyuniverse.musavacca.data.recipes.dsl.StonecuttingFamily;
+
+import java.util.Objects;
+import java.util.function.Consumer;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.level.ItemLike;
-
-import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapedCrafting;
-import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapelessCountFamily;
-import space.anatomyuniverse.musavacca.data.recipes.dsl.ShapelessCrafting;
-
-import space.anatomyuniverse.musavacca.data.recipes.dsl.SmithingTransforms;
-
-import java.util.Objects;
-import java.util.function.Consumer;
-import space.anatomyuniverse.musavacca.data.recipes.dsl.Stonecutting;
-import space.anatomyuniverse.musavacca.data.recipes.dsl.StonecuttingFamily;
 
 public class RecipeDSL {
     public interface Unlocker {
@@ -109,7 +105,8 @@ public class RecipeDSL {
         return new SmithingTransforms(this);
     }
 
-    public ShapelessCrafting shapelessCountToCount(RecipeCategory category, ItemLike result, int resultCount, Object input, int inputCount) {
+    public ShapelessCrafting shapelessCountToCount(
+            RecipeCategory category, ItemLike result, int resultCount, Object input, int inputCount) {
         if (inputCount <= 0 || inputCount > 9) throw new IllegalArgumentException("inputCount must be in [1,9]");
         return shapeless(category, result, resultCount).requiresCount(input, inputCount);
     }

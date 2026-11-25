@@ -29,8 +29,10 @@ public final class MusavaccaDoorTeleportTransform {
         Vec3 targetMovement = transformVector(entity.getDeltaMovement(), sourceBasis, targetBasis);
         double targetFrontMovement = targetMovement.dot(targetBasis.front());
         double exitNudge = Math.abs(targetFrontMovement) >= 1.0E-6D ? Math.copySign(PORTAL_EXIT_NUDGE, targetFrontMovement) : 0.0D;
-        Vec3 targetPosition = new Vec3(target.portalCenter().x, target.pos().getY() + targetUp, target.portalCenter().z)
-                .add(targetBasis.right().scale(targetRight)).add(targetBasis.front().scale(exitNudge));
+        Vec3 targetPosition =
+                new Vec3(target.portalCenter().x, target.pos().getY() + targetUp, target.portalCenter().z)
+                        .add(targetBasis.right().scale(targetRight))
+                        .add(targetBasis.front().scale(exitNudge));
         Vec3 targetLook = transformVector(entity.getLookAngle(), sourceBasis, targetBasis);
         if (targetLook.lengthSqr() >= 1.0E-6D) {
             targetLook = targetLook.normalize();

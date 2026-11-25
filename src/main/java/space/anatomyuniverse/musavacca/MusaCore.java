@@ -2,15 +2,10 @@ package space.anatomyuniverse.musavacca;
 
 import com.mojang.logging.LogUtils;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-//? if >=1.21.9 {
-/*import net.neoforged.fml.loading.FMLEnvironment;
-*///?} else {
-import net.neoforged.fml.loading.FMLLoader;
-//?}
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import space.anatomyuniverse.musavacca.bar.ModAttachments;
@@ -19,21 +14,12 @@ import space.anatomyuniverse.musavacca.bar.balance.BalanceEvents;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerClientModEvents;
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerEvents;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
-//? if >=26.3 {
-/*import space.anatomyuniverse.musavacca.block.custom.StrippableLogBlock;
-*///?}
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableItemDisplayLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustInputs;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustReturn;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustRide;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableItemDisplayLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
-//? if <1.21.4 {
-/*import space.anatomyuniverse.musavacca.client.helmet.CustomHelmetModels;
-*///?}
-//? if <1.21.2 {
-/*import space.anatomyuniverse.musavacca.client.PearlIgniterModels;
-*///?}
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
 import space.anatomyuniverse.musavacca.economy.EconomyConfig;
@@ -42,15 +28,15 @@ import space.anatomyuniverse.musavacca.effect.ModMobEffects;
 import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusClient;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.ModEntityRenderers;
+import space.anatomyuniverse.musavacca.entity.projectile.PotassiumProjectileRenderer;
 import space.anatomyuniverse.musavacca.gui.ModMenuEvents;
 import space.anatomyuniverse.musavacca.gui.ModMenuRegistries;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraClientModEvents;
 import space.anatomyuniverse.musavacca.item.ModCreativeTabs;
 import space.anatomyuniverse.musavacca.item.ModItems;
-import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumThrow;
-import space.anatomyuniverse.musavacca.entity.projectile.PotassiumProjectileRenderer;
-import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumDropProtection;
 import space.anatomyuniverse.musavacca.item.PearlIgniterEvents;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumDropProtection;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumThrow;
 import space.anatomyuniverse.musavacca.particle.ModParticleProviders;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
@@ -58,6 +44,20 @@ import space.anatomyuniverse.musavacca.render.MusaRenderLayers;
 import space.anatomyuniverse.musavacca.tint.ModTints;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
+//? if >=1.21.9 {
+/*import net.neoforged.fml.loading.FMLEnvironment;
+*///?} else {
+import net.neoforged.fml.loading.FMLLoader;
+//?}
+//? if >=26.3 {
+/*import space.anatomyuniverse.musavacca.block.custom.StrippableLogBlock;
+*///?}
+//? if <1.21.4 {
+/*import space.anatomyuniverse.musavacca.client.helmet.CustomHelmetModels;
+*///?}
+//? if <1.21.2 {
+/*import space.anatomyuniverse.musavacca.client.PearlIgniterModels;
+*///?}
 
 @Mod(MusaCore.MOD_ID)
 public final class MusaCore {

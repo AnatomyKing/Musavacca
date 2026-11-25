@@ -1,7 +1,5 @@
 package space.anatomyuniverse.musavacca.basuke.craft;
 
-import java.util.List;
-import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -16,16 +14,36 @@ import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
+import java.util.List;
+import java.util.Set;
+
 public final class VocoTableCraftingRecipes {
     public static final int DEFAULT_EATING_TIME_TICKS = VocoTableEatingLogic.DEFAULT_EATING_TIME_TICKS;
-    private static final Set<String> WOOD_SHAPES = Set.of("stairs", "slab", "fence", "fence_gate", "door", "trapdoor", "button", "pressure_plate",
-            "sign", "hanging_sign", "mosaic", "mosaic_stairs", "mosaic_slab");
-    private static final List<Recipe> RECIPES = List.of(
-            recipe(ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE, ModItems.POTASSIUM_INGOT.get(), ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
-            recipe(ModItems.MUSAVACCA_DOOR, ModBlocks.HEX_BLOCK.get(), ModItems.MUSAVACCA_IMBUED_DOOR.get(), true),
-            recipe(ModItems.MUSAVACCA_IMBUED_DOOR, ModBlocks.HEX_BLOCK.get(), ModItems.MUSAVACCA_IMBUED_DOOR.get(), true),
-            recipe(ModBlocks.MUSAVACCA_TRAPDOOR.get(), ModBlocks.HEX_BLOCK.get(), ModBlocks.MUSAVACCA_TRAPDOOR.get(), true),
-            recipe(ModItems.SIM_CARD.get(), ModBlocks.HEX_BLOCK.get(), ModItems.SIM_CARD.get(), true));
+    private static final Set<String> WOOD_SHAPES =
+            Set.of(
+                    "stairs",
+                    "slab",
+                    "fence",
+                    "fence_gate",
+                    "door",
+                    "trapdoor",
+                    "button",
+                    "pressure_plate",
+                    "sign",
+                    "hanging_sign",
+                    "mosaic",
+                    "mosaic_stairs",
+                    "mosaic_slab");
+    private static final List<Recipe> RECIPES =
+            List.of(
+                    recipe(
+                            ModItems.FRACTURED_POTASSIUM_UPGRADE_SMITHING_TEMPLATE,
+                            ModItems.POTASSIUM_INGOT.get(),
+                            ModItems.POTASSIUM_UPGRADE_SMITHING_TEMPLATE.get()),
+                    recipe(ModItems.MUSAVACCA_DOOR, ModBlocks.HEX_BLOCK.get(), ModItems.MUSAVACCA_IMBUED_DOOR.get(), true),
+                    recipe(ModItems.MUSAVACCA_IMBUED_DOOR, ModBlocks.HEX_BLOCK.get(), ModItems.MUSAVACCA_IMBUED_DOOR.get(), true),
+                    recipe(ModBlocks.MUSAVACCA_TRAPDOOR.get(), ModBlocks.HEX_BLOCK.get(), ModBlocks.MUSAVACCA_TRAPDOOR.get(), true),
+                    recipe(ModItems.SIM_CARD.get(), ModBlocks.HEX_BLOCK.get(), ModItems.SIM_CARD.get(), true));
 
     private VocoTableCraftingRecipes() {}
 
@@ -72,8 +90,8 @@ public final class VocoTableCraftingRecipes {
         return new Recipe(display, edible, result, 1, hexColorInject);
     }
 
-    public record Recipe(@NotNull ItemLike display, @NotNull ItemLike edible, @NotNull ItemLike result, int resultCount,
-            boolean hexColorInject) {
+    public record Recipe(
+            @NotNull ItemLike display, @NotNull ItemLike edible, @NotNull ItemLike result, int resultCount, boolean hexColorInject) {
         public Recipe {
             if (resultCount <= 0) throw new IllegalArgumentException("Voco table crafting result count must be above 0.");
         }

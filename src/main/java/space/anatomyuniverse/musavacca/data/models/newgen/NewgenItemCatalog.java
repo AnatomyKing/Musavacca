@@ -1,9 +1,5 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.BlockState;
@@ -11,6 +7,11 @@ import space.anatomyuniverse.musavacca.data.models.NewModelSets;
 import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.FamilyItemMode;
 import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.ModelMode;
 import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class NewgenItemCatalog {
     private NewgenItemCatalog() {}
@@ -73,7 +74,8 @@ public final class NewgenItemCatalog {
                 Tints.ItemTintType type = tint.itemTintType();
                 if (type == null) continue;
                 Tints.ItemTintType previous = types.putIfAbsent(type.id(), type);
-                if (previous != null && previous.codec() != type.codec()) throw new IllegalStateException("Different item tint codecs use " + type.id());
+                if (previous != null && previous.codec() != type.codec())
+                    throw new IllegalStateException("Different item tint codecs use " + type.id());
             }
         }
         boolean usesArmorTrimTint = NewModelSets.armorItems().stream().anyMatch(entry -> entry.inventory().trims());
@@ -93,8 +95,10 @@ public final class NewgenItemCatalog {
                 continue;
             }
             List<? extends BlockFamily.ModelRule<?, ?>> rules = entry.mode() == ModelMode.MODELS ? entry.models() : entry.parts();
-            BlockFamily.ModelRule<?, ?> first = entry.mode() == ModelMode.MODELS ? rules.get(0)
-                    : rules.stream().filter(rule -> rule.conditions().isAlways()).findFirst().orElse(null);
+            BlockFamily.ModelRule<?, ?> first =
+                    entry.mode() == ModelMode.MODELS
+                            ? rules.get(0)
+                            : rules.stream().filter(rule -> rule.conditions().isAlways()).findFirst().orElse(null);
             if (first == null) continue;
             Tints.Tint tint = Tints.effective(entry.tint(), first.tint());
             if (tint.tinted()) {
@@ -129,8 +133,11 @@ public final class NewgenItemCatalog {
             }
         } else if (model.isBlockState() && item.asItem() instanceof BlockItem blockItem) {
             BlockState state = declarations ? null : SimpleItems.blockState(item);
-            SimpleBlocks.Entry entry = NewModelSets.simpleBlocks().stream().filter(candidate -> candidate.block() == blockItem.getBlock()).findFirst()
-                    .orElse(null);
+            SimpleBlocks.Entry entry =
+                    NewModelSets.simpleBlocks().stream()
+                            .filter(candidate -> candidate.block() == blockItem.getBlock())
+                            .findFirst()
+                            .orElse(null);
             if (entry != null) {
                 List<? extends BlockFamily.ModelRule<?, ?>> rules = entry.mode() == ModelMode.MODELS ? entry.models() : entry.parts();
                 for (BlockFamily.ModelRule<?, ?> part : rules) {
@@ -155,7 +162,8 @@ public final class NewgenItemCatalog {
         if (item == null || model == null || !model.hasAnyTint(item)) return;
         for (Binding existing : result) {
             if (existing.item().asItem() == item.asItem()) {
-                throw new IllegalStateException("NewGen declares legacy item tint handling more than once for " + ModelLocations.itemId(item));
+                throw new IllegalStateException(
+                        "NewGen declares legacy item tint handling more than once for " + ModelLocations.itemId(item));
             }
         }
         result.add(new Binding(item, model));

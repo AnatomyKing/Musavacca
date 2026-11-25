@@ -2,6 +2,13 @@ package space.anatomyuniverse.musavacca.item.custom.potassium;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
 //? if >=1.21.2 {
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.component.Consumable;
@@ -11,13 +18,6 @@ import net.minecraft.world.item.component.Consumable;
 //? if <1.21.6 {
 /*import net.minecraft.world.entity.EquipmentSlot;
 *///?}
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
 
 public class PotassiumItem extends Item {
     public PotassiumItem(Properties properties) {
@@ -81,7 +81,9 @@ public class PotassiumItem extends Item {
     }
 
     private static boolean canStartEating(ItemStack stack, Player player) {
-        return player.getAbilities().instabuild || !stack.isDamageableItem() || stack.getMaxDamage() - stack.getDamageValue() > getEatDurabilityDamage(stack);
+        return player.getAbilities().instabuild
+                || !stack.isDamageableItem()
+                || stack.getMaxDamage() - stack.getDamageValue() > getEatDurabilityDamage(stack);
     }
 
     static ItemStack finishEating(ItemStack stack, Level level, LivingEntity entity) {
@@ -103,7 +105,8 @@ public class PotassiumItem extends Item {
                 //? if >=1.21.6 {
                 stack.hurtAndBreak(eatDurabilityDamage, entity, hand);
                 //?} else {
-                /*stack.hurtAndBreak(eatDurabilityDamage, entity, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+                /*stack.hurtAndBreak(
+                        eatDurabilityDamage, entity, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
                 *///?}
             }
         }

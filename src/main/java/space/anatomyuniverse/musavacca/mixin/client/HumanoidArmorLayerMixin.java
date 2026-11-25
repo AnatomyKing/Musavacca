@@ -3,6 +3,16 @@ package space.anatomyuniverse.musavacca.mixin.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import space.anatomyuniverse.musavacca.client.helmet.CustomHelmetModels;
+import space.anatomyuniverse.musavacca.item.CustomHelmetArmorTrims;
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
@@ -10,7 +20,6 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.spongepowered.asm.mixin.Unique;
 //?}
-import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 //? if >=1.21.2 {
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.world.item.Items;
@@ -22,9 +31,6 @@ import net.minecraft.client.resources.model.EquipmentClientInfo;
 //?} else if >=1.21.2 {
 /*import net.minecraft.world.item.equipment.EquipmentModel;
 *///?}
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
 //? if <1.21.2 {
 /*import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.core.Holder;
@@ -38,27 +44,25 @@ import net.minecraft.world.item.equipment.trim.ArmorTrim;
 //?} else if <1.21.2 {
 /*import net.minecraft.world.item.armortrim.ArmorTrim;
 *///?}
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import space.anatomyuniverse.musavacca.client.helmet.CustomHelmetModels;
-import space.anatomyuniverse.musavacca.item.CustomHelmetArmorTrims;
 
 @Mixin(HumanoidArmorLayer.class)
 public abstract class HumanoidArmorLayerMixin {
     //? if >=1.21.2 {
-    @Shadow
-    @Final
-    private EquipmentLayerRenderer equipmentRenderer;
+    @Shadow @Final private EquipmentLayerRenderer equipmentRenderer;
 
     //? if >=1.21.9 {
     /*@Shadow
     protected abstract HumanoidModel<HumanoidRenderState> getArmorModel(HumanoidRenderState state, EquipmentSlot slot);
 
     @Inject(method = "renderArmorPiece", at = @At("HEAD"), cancellable = true)
-    private void musavacca$submitCustomHelmet(PoseStack pose, SubmitNodeCollector collector, ItemStack helmet, EquipmentSlot slot, int light,
-            HumanoidRenderState state, CallbackInfo callback) {
+    private void musavacca$submitCustomHelmet(
+            PoseStack pose,
+            SubmitNodeCollector collector,
+            ItemStack helmet,
+            EquipmentSlot slot,
+            int light,
+            HumanoidRenderState state,
+            CallbackInfo callback) {
         if (slot != EquipmentSlot.HEAD || !CustomHelmetModels.hasCustomHeadModel(helmet)) return;
         HumanoidModel<HumanoidRenderState> model = getArmorModel(state, slot);
         model.setupAnim(state);
@@ -77,19 +81,40 @@ public abstract class HumanoidArmorLayerMixin {
         if (trim != null) {
             ItemStack carrier = new ItemStack(Items.STICK);
             carrier.set(DataComponents.TRIM, trim);
-            equipmentRenderer.renderLayers(EquipmentClientInfo.LayerType.HUMANOID, CustomHelmetArmorTrims.TRIM_CARRIER_ASSET, model, state, carrier, pose,
-                    collector, light, state.outlineColor);
+            equipmentRenderer.renderLayers(
+                    EquipmentClientInfo.LayerType.HUMANOID,
+                    CustomHelmetArmorTrims.TRIM_CARRIER_ASSET,
+                    model,
+                    state,
+                    carrier,
+                    pose,
+                    collector,
+                    light,
+                    state.outlineColor);
         }
         callback.cancel();
     }
     *///?}
     //? if >=1.21.2 <1.21.9 {
-    @Unique
-    private final ItemStack musavacca$trimCarrier = new ItemStack(Items.STICK);
+    @Unique private final ItemStack musavacca$trimCarrier = new ItemStack(Items.STICK);
 
-    @Inject(method = "renderArmorPiece", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;setPartVisibility(Lnet/minecraft/client/model/HumanoidModel;Lnet/minecraft/world/entity/EquipmentSlot;)V", shift = At.Shift.AFTER), cancellable = true)
-    private void musavacca$renderCustomHelmet1212Plus(PoseStack poseStack, MultiBufferSource bufferSource, ItemStack helmet, EquipmentSlot slot,
-            int packedLight, HumanoidModel<?> armorModel, CallbackInfo callbackInfo) {
+    @Inject(
+            method = "renderArmorPiece",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;setPartVisibility(Lnet/minecraft/client/model/HumanoidModel;Lnet/minecraft/world/entity/EquipmentSlot;)V",
+                            shift = At.Shift.AFTER),
+            cancellable = true)
+    private void musavacca$renderCustomHelmet1212Plus(
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            ItemStack helmet,
+            EquipmentSlot slot,
+            int packedLight,
+            HumanoidModel<?> armorModel,
+            CallbackInfo callbackInfo) {
         if (slot != EquipmentSlot.HEAD) return;
         musavacca$renderCustomHelmet(helmet, packedLight, armorModel, poseStack, bufferSource, callbackInfo);
     }
@@ -98,18 +123,44 @@ public abstract class HumanoidArmorLayerMixin {
     //? if <1.21.9 {
 
     //? if <1.21.2 {
-    /*@Inject(method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;setPartVisibility(Lnet/minecraft/client/model/HumanoidModel;Lnet/minecraft/world/entity/EquipmentSlot;)V", shift = At.Shift.AFTER), cancellable = true)
-    private void musavacca$renderCustomHelmet1211(PoseStack poseStack, MultiBufferSource bufferSource, LivingEntity entity, EquipmentSlot slot, int packedLight,
-            HumanoidModel<?> armorModel, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch,
+    /*@Inject(
+            method =
+                    "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;FFFFFF)V",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;setPartVisibility(Lnet/minecraft/client/model/HumanoidModel;Lnet/minecraft/world/entity/EquipmentSlot;)V",
+                            shift = At.Shift.AFTER),
+            cancellable = true)
+    private void musavacca$renderCustomHelmet1211(
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            LivingEntity entity,
+            EquipmentSlot slot,
+            int packedLight,
+            HumanoidModel<?> armorModel,
+            float limbSwing,
+            float limbSwingAmount,
+            float partialTick,
+            float ageInTicks,
+            float netHeadYaw,
+            float headPitch,
             CallbackInfo callbackInfo) {
         if (slot != EquipmentSlot.HEAD) return;
-        musavacca$renderCustomHelmet(entity.getItemBySlot(EquipmentSlot.HEAD), packedLight, armorModel, poseStack, bufferSource, callbackInfo);
+        musavacca$renderCustomHelmet(
+                entity.getItemBySlot(EquipmentSlot.HEAD), packedLight, armorModel, poseStack, bufferSource, callbackInfo);
     }
 
     *///?}
     @Unique
-    private void musavacca$renderCustomHelmet(ItemStack helmet, int packedLight, HumanoidModel<?> armorModel, PoseStack poseStack,
-            MultiBufferSource bufferSource, CallbackInfo callbackInfo) {
+    private void musavacca$renderCustomHelmet(
+            ItemStack helmet,
+            int packedLight,
+            HumanoidModel<?> armorModel,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            CallbackInfo callbackInfo) {
         if (helmet.isEmpty() || !CustomHelmetModels.hasCustomHeadModel(helmet)) return;
         poseStack.pushPose();
         armorModel.head.translateAndRotate(poseStack);
@@ -127,17 +178,26 @@ public abstract class HumanoidArmorLayerMixin {
     }
 
     @Unique
-    private void musavacca$renderTrim(ItemStack helmet, HumanoidModel<?> armorModel, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+    private void musavacca$renderTrim(
+            ItemStack helmet, HumanoidModel<?> armorModel, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         ArmorTrim trim = helmet.get(DataComponents.TRIM);
         //? if >=1.21.2 <1.21.9 {
         if (trim == null) return;
         this.musavacca$trimCarrier.set(DataComponents.TRIM, trim);
         //? if >=1.21.4 <1.21.9 {
-        this.equipmentRenderer.renderLayers(EquipmentClientInfo.LayerType.HUMANOID, CustomHelmetArmorTrims.TRIM_CARRIER_ASSET,
+        this.equipmentRenderer.renderLayers(
+                EquipmentClientInfo.LayerType.HUMANOID,
+                CustomHelmetArmorTrims.TRIM_CARRIER_ASSET,
         //?} else {
-        /*this.equipmentRenderer.renderLayers(EquipmentModel.LayerType.HUMANOID, CustomHelmetArmorTrims.TRIM_CARRIER_ID,
+        /*this.equipmentRenderer.renderLayers(
+                EquipmentModel.LayerType.HUMANOID,
+                CustomHelmetArmorTrims.TRIM_CARRIER_ID,
         *///?}
-                armorModel, this.musavacca$trimCarrier, poseStack, bufferSource, packedLight);
+                armorModel,
+                this.musavacca$trimCarrier,
+                poseStack,
+                bufferSource,
+                packedLight);
         //?}
         //? if <1.21.2 {
         /*if (trim == null || !(helmet.getItem() instanceof ArmorItem armorItem)) {
@@ -161,8 +221,14 @@ public abstract class HumanoidArmorLayerMixin {
 
     //? if <1.21.2 {
     /*@Invoker("renderTrim")
-    protected abstract void musavacca$invokeVanillaRenderTrim(Holder<ArmorMaterial> armorMaterial, PoseStack poseStack, MultiBufferSource bufferSource,
-            int packedLight, ArmorTrim trim, HumanoidModel<?> armorModel, boolean leggings);
+    protected abstract void musavacca$invokeVanillaRenderTrim(
+            Holder<ArmorMaterial> armorMaterial,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            ArmorTrim trim,
+            HumanoidModel<?> armorModel,
+            boolean leggings);
     *///?}
     //?}
 }

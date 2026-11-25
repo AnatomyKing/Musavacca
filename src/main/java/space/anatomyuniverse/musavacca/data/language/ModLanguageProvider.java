@@ -1,10 +1,5 @@
 package space.anatomyuniverse.musavacca.data.language;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.effect.MobEffect;
@@ -14,8 +9,15 @@ import net.neoforged.neoforge.common.data.LanguageProvider;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.item.ModSmithingTemplates;
 
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 public final class ModLanguageProvider extends LanguageProvider {
     private static final Map<String, String> OVERRIDES = new LinkedHashMap<>();
+
     static {
         OVERRIDES.put("itemGroup." + MusaCore.MOD_ID + ".musavacca_tab", "Musavacca");
         OVERRIDES.put("block.musavacca.hex_block", "Lopha Flower");

@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumThrow;
 //? if <1.21.4 {
 /*import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -23,19 +25,17 @@ import net.minecraft.client.renderer.state.CameraRenderState;
 *///?} else {
 import net.minecraft.client.renderer.MultiBufferSource;
 //?}
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumThrow;
 
 public final class PotassiumProjectileRenderer extends ThrownItemRenderer<PotassiumProjectile> {
     //? if <1.21.4 {
     /*private final ItemRenderer itemRenderer;
-     *///?}
+    *///?}
 
     public PotassiumProjectileRenderer(EntityRendererProvider.Context context) {
         super(context);
         //? if <1.21.4 {
         /*itemRenderer = context.getItemRenderer();
-         *///?}
+        *///?}
     }
 
     public static void register(EntityRenderersEvent.RegisterRenderers event) {
@@ -73,7 +73,7 @@ public final class PotassiumProjectileRenderer extends ThrownItemRenderer<Potass
     //?}
 
     @Override
-            //? if >=1.21.9 {
+    //? if >=1.21.9 {
     /*public void submit(ThrownItemRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         pose.pushPose();
         rotate(pose, state.ageInTicks, ((ToolRenderState) state).heading);
@@ -98,7 +98,15 @@ public final class PotassiumProjectileRenderer extends ThrownItemRenderer<Potass
     /*public void render(PotassiumProjectile entity, float yaw, float partialTick, PoseStack pose, MultiBufferSource buffers, int light) {
         pose.pushPose();
         rotate(pose, entity.tickCount + partialTick, heading(entity));
-        itemRenderer.renderStatic(entity.getItem(), ItemDisplayContext.GROUND, light, OverlayTexture.NO_OVERLAY, pose, buffers, entity.level(), entity.getId());
+        itemRenderer.renderStatic(
+                entity.getItem(),
+                ItemDisplayContext.GROUND,
+                light,
+                OverlayTexture.NO_OVERLAY,
+                pose,
+                buffers,
+                entity.level(),
+                entity.getId());
         pose.popPose();
     }
     *///?}

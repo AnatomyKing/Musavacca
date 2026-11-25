@@ -47,14 +47,19 @@ public final class BreakHexLogic {
 
     public static boolean canHexBlockSurvive(LevelReader level, BlockPos pos) {
         BlockState aboveState = level.getBlockState(pos.above());
-        return BreakBlock.isAttachedStem(aboveState, ModBlocks.MUSAVACCA_EGG.get()) || Block.canSupportCenter(level, pos.above(), Direction.DOWN);
+        return BreakBlock.isAttachedStem(aboveState, ModBlocks.MUSAVACCA_EGG.get())
+                || Block.canSupportCenter(level, pos.above(), Direction.DOWN);
     }
 
     public static boolean canGrowHexIntoEggPair(LevelReader level, BlockPos pos, BlockState state) {
         BlockState aboveState = level.getBlockState(pos.above());
         BlockPos belowPos = pos.below();
-        return state.hasProperty(HexBlock.CLIPPED) && !state.getValue(HexBlock.CLIPPED) && !BreakBlock.isAttachedStem(aboveState, ModBlocks.MUSAVACCA_EGG.get())
-                && isMusavaccaStem(aboveState) && level.getBlockState(belowPos).isAir() && !level.isWaterAt(belowPos);
+        return state.hasProperty(HexBlock.CLIPPED)
+                && !state.getValue(HexBlock.CLIPPED)
+                && !BreakBlock.isAttachedStem(aboveState, ModBlocks.MUSAVACCA_EGG.get())
+                && isMusavaccaStem(aboveState)
+                && level.getBlockState(belowPos).isAir()
+                && !level.isWaterAt(belowPos);
     }
 
     public static void growHexIntoEggPair(ServerLevel level, BlockPos pos, BlockState hexState) {

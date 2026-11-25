@@ -1,37 +1,37 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
-import net.minecraft.nbt.NbtOps;
-
-//? if <1.21.5 {
-/*import net.minecraft.nbt.Tag;
-*///?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.world.level.block.CandleBlock;
-import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
-import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
-//? if >=1.21.5 {
-import net.minecraft.core.component.DataComponentGetter;
-//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if >=1.21.6 {
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-//?}
+import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
+import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+
+//? if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+*///?}
+//? if >=1.21.5 {
+import net.minecraft.core.component.DataComponentGetter;
+//?}
+//? if >=1.21.6 {
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+//?}
 
 public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
     private BlockState originalState;
@@ -117,7 +117,10 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
         //?} else {
         /*super.loadAdditional(input, provider);
         this.hexColor = readHexOrUnset(input);
-        loadOriginal(input.get("OriginalCandle") == null ? null : BlockState.CODEC.parse(NbtOps.INSTANCE, input.get("OriginalCandle")).result().orElse(null));
+        loadOriginal(
+                input.get("OriginalCandle") == null
+                        ? null
+                        : BlockState.CODEC.parse(NbtOps.INSTANCE, input.get("OriginalCandle")).result().orElse(null));
         *///?}
     }
 
@@ -209,7 +212,10 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
         //? if >=1.21.5 {
         int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
         //?} else {
-        /*int loaded = (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? input.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
+        /*int loaded =
+                (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC)
+                        ? input.getInt(MusavaccaTints.HEX_COLOR_KEY)
+                        : MusavaccaTints.NO_TINT);
         *///?}
         return MusavaccaTints.stored(loaded);
     }

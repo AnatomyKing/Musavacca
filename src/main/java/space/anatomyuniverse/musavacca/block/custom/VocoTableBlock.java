@@ -1,21 +1,20 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2 {
-/*import net.minecraft.world.ItemInteractionResult;
-*///?}
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
-*///?}
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -25,25 +24,25 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableVoxelShapes;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
-
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.item.BlockItem;
 import space.anatomyuniverse.musavacca.basuke.summon.BasukeSummon;
+import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustRide;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandle;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableHitboxes;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableItemDisplayLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableVoxelShapes;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
+//? if <1.21.2 {
+/*import net.minecraft.world.ItemInteractionResult;
+*///?}
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.block.RenderShape;
+*///?}
 
 public final class VocoTableBlock extends Block implements EntityBlock {
     public static final BooleanProperty LIT_NORTH_EAST = BooleanProperty.create("lit_north_east");
@@ -56,8 +55,8 @@ public final class VocoTableBlock extends Block implements EntityBlock {
     public static final BooleanProperty PORTAL_SOUTH_WEST = BooleanProperty.create("portal_south_west");
     public static final BooleanProperty ROTARY_DIALERS = BooleanProperty.create("rotary_dialers");
     public static final IntegerProperty CANDLE_LIGHT = IntegerProperty.create("candle_light", 0, 5);
-    public static final BooleanProperty[] RECEPTOR_LIGHTS = { LIT_NORTH_EAST, LIT_NORTH_WEST, LIT_SOUTH_EAST, LIT_SOUTH_WEST };
-    public static final BooleanProperty[] RECEPTOR_PORTALS = { PORTAL_NORTH_EAST, PORTAL_NORTH_WEST, PORTAL_SOUTH_EAST, PORTAL_SOUTH_WEST };
+    public static final BooleanProperty[] RECEPTOR_LIGHTS = {LIT_NORTH_EAST, LIT_NORTH_WEST, LIT_SOUTH_EAST, LIT_SOUTH_WEST};
+    public static final BooleanProperty[] RECEPTOR_PORTALS = {PORTAL_NORTH_EAST, PORTAL_NORTH_WEST, PORTAL_SOUTH_EAST, PORTAL_SOUTH_WEST};
 
     public VocoTableBlock(Properties properties) {
         super(properties.dynamicShape());
@@ -101,19 +100,19 @@ public final class VocoTableBlock extends Block implements EntityBlock {
 
     public static BooleanProperty lightProperty(ReceptorPosition receptor) {
         return switch (receptor) {
-        case NORTH_EAST -> LIT_NORTH_EAST;
-        case NORTH_WEST -> LIT_NORTH_WEST;
-        case SOUTH_EAST -> LIT_SOUTH_EAST;
-        case SOUTH_WEST -> LIT_SOUTH_WEST;
+            case NORTH_EAST -> LIT_NORTH_EAST;
+            case NORTH_WEST -> LIT_NORTH_WEST;
+            case SOUTH_EAST -> LIT_SOUTH_EAST;
+            case SOUTH_WEST -> LIT_SOUTH_WEST;
         };
     }
 
     public static BooleanProperty portalProperty(ReceptorPosition receptor) {
         return switch (receptor) {
-        case NORTH_EAST -> PORTAL_NORTH_EAST;
-        case NORTH_WEST -> PORTAL_NORTH_WEST;
-        case SOUTH_EAST -> PORTAL_SOUTH_EAST;
-        case SOUTH_WEST -> PORTAL_SOUTH_WEST;
+            case NORTH_EAST -> PORTAL_NORTH_EAST;
+            case NORTH_WEST -> PORTAL_NORTH_WEST;
+            case SOUTH_EAST -> PORTAL_SOUTH_EAST;
+            case SOUTH_WEST -> PORTAL_SOUTH_WEST;
         };
     }
 
@@ -139,7 +138,8 @@ public final class VocoTableBlock extends Block implements EntityBlock {
             return VocoTableItemDisplayLogic.useWithoutItem(level, pos, player, true);
         }
         if (candleHit != null) {
-            if (!player.getMainHandItem().isEmpty() || !player.getAbilities().mayBuild || player.isSpectator()) return InteractionResult.PASS;
+            if (!player.getMainHandItem().isEmpty() || !player.getAbilities().mayBuild || player.isSpectator())
+                return InteractionResult.PASS;
             if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity tableBe)) return InteractionResult.PASS;
             if (!tableBe.isCandleLit(candleHit)) return InteractionResult.PASS;
             if (!level.isClientSide()) {
@@ -159,7 +159,8 @@ public final class VocoTableBlock extends Block implements EntityBlock {
                 }
                 return InteractionResult.SUCCESS;
             }
-            if (level instanceof ServerLevel server && player instanceof ServerPlayer rider) VocoDustRide.start(rider, server, pos, receptorHit);
+            if (level instanceof ServerLevel server && player instanceof ServerPlayer rider)
+                VocoDustRide.start(rider, server, pos, receptorHit);
             return InteractionResult.SUCCESS;
         }
         if (!itemDisplayHit) return InteractionResult.PASS;
@@ -168,11 +169,11 @@ public final class VocoTableBlock extends Block implements EntityBlock {
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    protected InteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     //?} else {
-    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    /*protected ItemInteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     *///?}
         InteractionResult result = this.handleItemUse(stack, state, level, pos, player, hand, hit);
         //? if >=1.21.2 {
@@ -182,8 +183,8 @@ public final class VocoTableBlock extends Block implements EntityBlock {
         *///?}
     }
 
-    private InteractionResult handleItemUse(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    private InteractionResult handleItemUse(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         ReceptorPosition candleHit = VocoTableCandleLogic.detectExistingCandleHit(level, pos, hit, player);
         ReceptorPosition receptorHit = VocoTableHitboxes.receptorAt(pos, hit);
         boolean itemDisplayHit = VocoTableHitboxes.isItemDisplay(pos, hit);
@@ -215,8 +216,8 @@ public final class VocoTableBlock extends Block implements EntityBlock {
         return VocoTableItemDisplayLogic.useItemOn(stack, level, pos, player, hand, false);
     }
 
-    private static InteractionResult useReceptorCornerItem(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            ReceptorPosition receptor) {
+    private static InteractionResult useReceptorCornerItem(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ReceptorPosition receptor) {
         BooleanProperty litProperty = lightProperty(receptor);
         BooleanProperty portalProperty = portalProperty(receptor);
         PearlSlotIgnition.Slot pearlSlot = VocoReceptorLogic.pearlSlot(litProperty, portalProperty, receptor);
@@ -230,8 +231,11 @@ public final class VocoTableBlock extends Block implements EntityBlock {
 
     private static InteractionResult openDialerMenu(Level level, BlockPos pos, Player player) {
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.openMenu(new SimpleMenuProvider((containerId, playerInventory, ignoredPlayer) -> new VocoDialerMenu(containerId, playerInventory),
-                    Component.literal("Voco Table Dialer")), buffer -> buffer.writeBlockPos(pos));
+            serverPlayer.openMenu(
+                    new SimpleMenuProvider(
+                            (containerId, playerInventory, ignoredPlayer) -> new VocoDialerMenu(containerId, playerInventory),
+                            Component.literal("Voco Table Dialer")),
+                    buffer -> buffer.writeBlockPos(pos));
             VocoReceptorLogic.playUiClick(level, pos);
         }
         return InteractionResult.SUCCESS;

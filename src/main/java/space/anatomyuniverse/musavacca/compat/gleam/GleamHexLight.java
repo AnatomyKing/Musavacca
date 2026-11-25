@@ -17,7 +17,8 @@ public final class GleamHexLight {
 
     public static boolean handles(BlockState state) {
         Block block = state.getBlock();
-        return block == ModBlocks.PEARL_FIRE.get() || block == ModBlocks.PEARL_PORTAL.get()
+        return block == ModBlocks.PEARL_FIRE.get()
+                || block == ModBlocks.PEARL_PORTAL.get()
                 || block == ModBlocks.PEARL_CANDLE.get() && state.getValue(CandleBlock.LIT) && !state.getValue(CandleBlock.WATERLOGGED);
     }
 
@@ -25,8 +26,17 @@ public final class GleamHexLight {
         if (!(blockEntity instanceof HexSource source) || !source.hasHexColor()) return null;
         int color = MusavaccaTints.rgb(source.getHexColor());
         boolean blacklight = color == 0x000000;
-        return GleamLight.create(x + 0.5F, y + 0.5F, z + 0.5F, ((color >> 16) & 0xFF) * COLOR_SCALE, ((color >> 8) & 0xFF) * COLOR_SCALE,
-                (color & 0xFF) * COLOR_SCALE, 8.0F, 0.55F, blacklight, true);
+        return GleamLight.create(
+                x + 0.5F,
+                y + 0.5F,
+                z + 0.5F,
+                ((color >> 16) & 0xFF) * COLOR_SCALE,
+                ((color >> 8) & 0xFF) * COLOR_SCALE,
+                (color & 0xFF) * COLOR_SCALE,
+                8.0F,
+                0.55F,
+                blacklight,
+                true);
     }
 }
 *///?}

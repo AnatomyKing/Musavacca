@@ -40,7 +40,9 @@ public final class Variants {
 
     private static final Set SINGLE = of(option());
 
-    public static Set single() { return SINGLE; }
+    public static Set single() {
+        return SINGLE;
+    }
 
     public static Set randomY() {
         return of(option(), option().rotateY(90), option().rotateY(180), option().rotateY(270));

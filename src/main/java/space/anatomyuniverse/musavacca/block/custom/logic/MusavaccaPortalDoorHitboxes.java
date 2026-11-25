@@ -16,8 +16,10 @@ public final class MusavaccaPortalDoorHitboxes {
     private MusavaccaPortalDoorHitboxes() {}
 
     public static boolean hasOpenPortal(BlockState state) {
-        return state.hasProperty(MusavaccaPortalDoorBlock.PORTAL) && state.getValue(MusavaccaPortalDoorBlock.PORTAL)
-                && state.hasProperty(MusavaccaPortalDoorBlock.OPEN) && state.getValue(MusavaccaPortalDoorBlock.OPEN);
+        return state.hasProperty(MusavaccaPortalDoorBlock.PORTAL)
+                && state.getValue(MusavaccaPortalDoorBlock.PORTAL)
+                && state.hasProperty(MusavaccaPortalDoorBlock.OPEN)
+                && state.getValue(MusavaccaPortalDoorBlock.OPEN);
     }
 
     public static Direction portalFacing(BlockState state) {
@@ -28,11 +30,11 @@ public final class MusavaccaPortalDoorHitboxes {
         if (!hasOpenPortal(state)) return Shapes.empty();
         Direction facing = portalFacing(state);
         return switch (facing) {
-        case NORTH -> NORTH;
-        case EAST -> EAST;
-        case SOUTH -> SOUTH;
-        case WEST -> WEST;
-        default -> Shapes.empty();
+            case NORTH -> NORTH;
+            case EAST -> EAST;
+            case SOUTH -> SOUTH;
+            case WEST -> WEST;
+            default -> Shapes.empty();
         };
     }
 }

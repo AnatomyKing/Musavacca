@@ -11,7 +11,6 @@ import net.minecraft.world.item.component.BlockTransformers;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 *///?}
-import java.util.function.Supplier;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -19,6 +18,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Supplier;
 
 public class StrippableLogBlock extends RotatedPillarBlock {
     private final Supplier<? extends Block> stripped;
@@ -57,7 +58,9 @@ public class StrippableLogBlock extends RotatedPillarBlock {
         if (!level.isClientSide()) {
             level.setBlock(pos, stripped, Block.UPDATE_ALL);
             level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(player, stripped));
-            if (player != null) stack.hurtAndBreak(1, player, context.getHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+            if (player != null)
+                stack.hurtAndBreak(
+                        1, player, context.getHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
         }
         event.cancelWithResult(InteractionResult.SUCCESS);
     }

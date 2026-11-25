@@ -14,9 +14,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2 {
-/*import net.minecraft.world.ItemInteractionResult;
-*///?}
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -25,11 +22,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-//? if >=1.21.2 {
-import net.minecraft.world.level.ScheduledTickAccess;
-//?} else {
-/*import net.minecraft.world.level.LevelAccessor;
-*///?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -49,6 +41,14 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.particle.ModParticleTypes;
 import space.anatomyuniverse.musavacca.particle.utils.HexColorParticleOptions;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+//? if <1.21.2 {
+/*import net.minecraft.world.ItemInteractionResult;
+*///?}
+//? if >=1.21.2 {
+import net.minecraft.world.level.ScheduledTickAccess;
+//?} else {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?}
 
 public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     //? if <26.3 {
@@ -86,13 +86,26 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
     @Override
     //? if >=1.21.2 {
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos,
-            net.minecraft.core.Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+    protected BlockState updateShape(
+            BlockState state,
+            LevelReader level,
+            ScheduledTickAccess scheduledTickAccess,
+            BlockPos pos,
+            net.minecraft.core.Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            RandomSource random) {
     //?} else {
-    /*protected BlockState updateShape(BlockState state, net.minecraft.core.Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos,
+    /*protected BlockState updateShape(
+            BlockState state,
+            net.minecraft.core.Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
             BlockPos neighborPos) {
     *///?}
-        return net.minecraft.core.Direction.UP == direction && !this.canSurvive(state, level, pos) ? Blocks.AIR.defaultBlockState()
+        return net.minecraft.core.Direction.UP == direction && !this.canSurvive(state, level, pos)
+                ? Blocks.AIR.defaultBlockState()
                 //? if >=1.21.2 {
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
                 //?} else {
@@ -122,7 +135,8 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         if (!(level instanceof ServerLevel server)) return;
         Integer savedHex = stack.get(ModDataComponents.HEX_COLOR.get());
         if (savedHex == null) {
-            server.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5D, pos.getY() + 0.55D, pos.getZ() + 0.5D, 15, 0.26D, 0.13D, 0.26D, 0.0D);
+            server.sendParticles(
+                    ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5D, pos.getY() + 0.55D, pos.getZ() + 0.5D, 15, 0.26D, 0.13D, 0.26D, 0.0D);
             server.playSound(null, pos, SoundEvents.BONE_MEAL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
             return;
         }
@@ -134,11 +148,11 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    protected InteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     //?} else {
-    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    /*protected ItemInteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     *///?}
         if (!stack.is(Items.SHEARS) || state.getValue(CLIPPED)) {
             //? if >=1.21.2 {
@@ -169,7 +183,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
     }
 
     //?}
-//? if <1.21.5 {
+    //? if <1.21.5 {
     /*@Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock()) && newState.isAir()) {
@@ -178,7 +192,7 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-*///?}
+    *///?}
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(CLIPPED)) return;
@@ -192,9 +206,14 @@ public class HexBlock extends Block implements EntityBlock, BonemealableBlock {
             mutablePos.set(i + Mth.nextInt(random, -10, 10), j - random.nextInt(10), k + Mth.nextInt(random, -10, 10));
             BlockState blockState = level.getBlockState(mutablePos);
             if (!blockState.isCollisionShapeFullBlock(level, mutablePos)) {
-                level.addParticle(new HexColorParticleOptions(ModParticleTypes.HEX_SPORE_BLOSSOM_AIR.get(), rgb),
-                        (double) mutablePos.getX() + random.nextDouble(), (double) mutablePos.getY() + random.nextDouble(),
-                        (double) mutablePos.getZ() + random.nextDouble(), 0.0, 0.0, 0.0);
+                level.addParticle(
+                        new HexColorParticleOptions(ModParticleTypes.HEX_SPORE_BLOSSOM_AIR.get(), rgb),
+                        (double) mutablePos.getX() + random.nextDouble(),
+                        (double) mutablePos.getY() + random.nextDouble(),
+                        (double) mutablePos.getZ() + random.nextDouble(),
+                        0.0,
+                        0.0,
+                        0.0);
             }
         }
     }

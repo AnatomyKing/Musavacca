@@ -1,8 +1,5 @@
 package space.anatomyuniverse.musavacca.trapdoor;
 
-import java.util.UUID;
-import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -11,6 +8,9 @@ import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalTrapdoorBlock
 import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalTrapdoorBlockEntity;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
+import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
+
+import java.util.UUID;
 
 public final class MusavaccaTrapdoorTeleportNetwork {
     private MusavaccaTrapdoorTeleportNetwork() {}
@@ -21,8 +21,11 @@ public final class MusavaccaTrapdoorTeleportNetwork {
         }
         BlockPos trapdoorPos = trapdoor.getBlockPos();
         BlockState state = level.getBlockState(trapdoorPos);
-        if (!trapdoor.hasHexColor() || !(state.getBlock() instanceof MusavaccaPortalTrapdoorBlock) || !state.getValue(MusavaccaPortalTrapdoorBlock.LIT)
-                || !state.getValue(MusavaccaPortalTrapdoorBlock.LIT_PORTAL) || !state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)) {
+        if (!trapdoor.hasHexColor()
+                || !(state.getBlock() instanceof MusavaccaPortalTrapdoorBlock)
+                || !state.getValue(MusavaccaPortalTrapdoorBlock.LIT)
+                || !state.getValue(MusavaccaPortalTrapdoorBlock.LIT_PORTAL)
+                || !state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)) {
             removeTrapdoor(level, trapdoor.getDeviceId());
             return;
         }
@@ -34,10 +37,11 @@ public final class MusavaccaTrapdoorTeleportNetwork {
         int previousHex = previous == null ? -1 : previous.hexColor();
         int resolvedHex = HexTeleportDirectory.normalizeHex(trapdoor.getHexColor());
         //? if >=1.21.11 {
-        /*HexTeleportDirectory.Result result = directory.registerTrapdoorEndpoint(trapdoor.getDeviceId(), resolvedHex, level.dimension().identifier(),
-                trapdoorPos);
+        /*HexTeleportDirectory.Result result =
+                directory.registerTrapdoorEndpoint(trapdoor.getDeviceId(), resolvedHex, level.dimension().identifier(), trapdoorPos);
         *///?} else {
-        HexTeleportDirectory.Result result = directory.registerTrapdoorEndpoint(trapdoor.getDeviceId(), resolvedHex, level.dimension().location(), trapdoorPos);
+        HexTeleportDirectory.Result result =
+                directory.registerTrapdoorEndpoint(trapdoor.getDeviceId(), resolvedHex, level.dimension().location(), trapdoorPos);
         //?}
         if (!result.success() && previousHex >= 0 && previousHex != resolvedHex) {
             trapdoor.setHexColor(previousHex);

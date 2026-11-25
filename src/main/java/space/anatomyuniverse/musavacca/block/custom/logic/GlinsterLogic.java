@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
@@ -28,7 +27,15 @@ public final class GlinsterLogic {
     }
 
     public static void burst(ServerLevel level, BlockPos pos) {
-        level.sendParticles(ModParticleTypes.GLINSTER_BURST.get(), pos.getX() + 0.5D, pos.getY() + 1.20D, pos.getZ() + 0.5D, 8, 0.12D, 0.12D, 0.12D, 0.006D);
+        level.sendParticles(
+                ModParticleTypes.GLINSTER_BURST.get(),
+                pos.getX() + 0.5D,
+                pos.getY() + 1.20D,
+                pos.getZ() + 0.5D,
+                8,
+                0.12D,
+                0.12D,
+                0.12D,
+                0.006D);
     }
-
 }

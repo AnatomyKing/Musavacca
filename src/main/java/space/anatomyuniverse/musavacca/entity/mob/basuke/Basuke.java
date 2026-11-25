@@ -9,9 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-//? if <1.21.6 {
-/*import net.minecraft.nbt.CompoundTag;
-*///?}
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -33,11 +30,6 @@ import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-//? if >=1.21.6 {
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-//?}
-import java.util.EnumSet;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -45,11 +37,22 @@ import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic.Action
 import space.anatomyuniverse.musavacca.basuke.eating.VocoTableEatingLogic;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 
+import java.util.EnumSet;
+//? if <1.21.6 {
+/*import net.minecraft.nbt.CompoundTag;
+*///?}
+//? if >=1.21.6 {
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+//?}
+
 public class Basuke extends Allay {
     private static final String TAG_VOCO_TABLE_POS = "voco_table_pos";
     private static final long NO_TABLE_POS = Long.MIN_VALUE;
-    private static final EntityDataAccessor<Integer> DATA_EATING_TICKS = SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_EATING_TOTAL_TICKS = SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_EATING_TICKS =
+            SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_EATING_TOTAL_TICKS =
+            SynchedEntityData.defineId(Basuke.class, EntityDataSerializers.INT);
     public static final int EATING_CHEW_BEAT_TICKS = 4;
     public static final int MAX_EATING_TICKS = 20 * 60;
     private BlockPos vocoTablePos;
@@ -244,8 +247,8 @@ public class Basuke extends Allay {
         this.playBasukeSound(level, SoundEvents.GENERIC_EAT, volume, pitch);
     }
 
-    private void finishEatingHeldItem(@NotNull ServerLevel level, @NotNull ItemStack held, @NotNull ItemStack particleStack,
-            @NotNull Action action) {
+    private void finishEatingHeldItem(
+            @NotNull ServerLevel level, @NotNull ItemStack held, @NotNull ItemStack particleStack, @NotNull Action action) {
         boolean completed = action.complete(this, level, held);
         if (completed) {
             this.spawnEatingItemParticles(level, particleStack, 8);
@@ -274,7 +277,9 @@ public class Basuke extends Allay {
             flatForward = flatForward.normalize();
         }
         Vec3 right = new Vec3(-flatForward.z, 0.0D, flatForward.x);
-        return new Vec3(this.getX(), this.getY() + (this.getBbHeight() * 0.66D), this.getZ()).add(flatForward.scale(0.16D)).add(right.scale(-0.035D));
+        return new Vec3(this.getX(), this.getY() + (this.getBbHeight() * 0.66D), this.getZ())
+                .add(flatForward.scale(0.16D))
+                .add(right.scale(-0.035D));
     }
 
     private void playBasukeSound(@NotNull ServerLevel level, @NotNull SoundEvent sound, float volume, float pitch) {
@@ -282,7 +287,8 @@ public class Basuke extends Allay {
     }
 
     private void playBasukeSound(@NotNull ServerLevel level, @NotNull Holder<SoundEvent> sound, float volume, float pitch) {
-        level.playSeededSound(null, this.getX(), this.getY(), this.getZ(), sound, SoundSource.NEUTRAL, volume, pitch, this.getRandom().nextLong());
+        level.playSeededSound(
+                null, this.getX(), this.getY(), this.getZ(), sound, SoundSource.NEUTRAL, volume, pitch, this.getRandom().nextLong());
     }
 
     @Override
@@ -326,13 +332,21 @@ public class Basuke extends Allay {
 
     private AABB getAllowedArea() {
         BlockPos home = this.vocoTablePos;
-        return new AABB(home.getX() + 0.32D, home.getY() + 1.42D, home.getZ() + 0.32D, home.getX() + 0.68D, home.getY() + 2.36D, home.getZ() + 0.68D);
+        return new AABB(
+                home.getX() + 0.32D,
+                home.getY() + 1.42D,
+                home.getZ() + 0.32D,
+                home.getX() + 0.68D,
+                home.getY() + 2.36D,
+                home.getZ() + 0.68D);
     }
 
     private Vec3 randomPointInsideAllowedArea() {
         AABB box = this.getAllowedArea();
-        return new Vec3(Mth.lerp(this.random.nextDouble(), box.minX + 0.01D, box.maxX - 0.01D),
-                Mth.lerp(this.random.nextDouble(), box.minY + 0.05D, box.maxY - 0.05D), Mth.lerp(this.random.nextDouble(), box.minZ + 0.01D, box.maxZ - 0.01D));
+        return new Vec3(
+                Mth.lerp(this.random.nextDouble(), box.minX + 0.01D, box.maxX - 0.01D),
+                Mth.lerp(this.random.nextDouble(), box.minY + 0.05D, box.maxY - 0.05D),
+                Mth.lerp(this.random.nextDouble(), box.minZ + 0.01D, box.maxZ - 0.01D));
     }
 
     private static Vec3 clampToBox(Vec3 pos, AABB box) {
@@ -368,7 +382,8 @@ public class Basuke extends Allay {
         public void tick() {
             if (!this.basuke.isBoundToVocoTable()) return;
             AABB bounds = this.basuke.getAllowedArea();
-            if (!bounds.contains(this.targetPos.x, this.targetPos.y, this.targetPos.z) || this.retargetIn-- <= 0
+            if (!bounds.contains(this.targetPos.x, this.targetPos.y, this.targetPos.z)
+                    || this.retargetIn-- <= 0
                     || this.basuke.distanceToSqr(this.targetPos.x, this.targetPos.y, this.targetPos.z) < 0.01D) {
                 this.pickNewTarget();
             }

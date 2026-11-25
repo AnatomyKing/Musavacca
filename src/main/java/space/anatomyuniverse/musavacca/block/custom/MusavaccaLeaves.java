@@ -12,9 +12,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2 {
-/*import net.minecraft.world.ItemInteractionResult;
-*///?}
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -27,12 +24,6 @@ import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
-//? if >=1.21.5 {
-import net.minecraft.world.level.block.TintedParticleLeavesBlock;
-//?} else {
-/*import net.minecraft.world.level.block.LeavesBlock;
-*///?}
-
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -40,6 +31,14 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
+//? if <1.21.2 {
+/*import net.minecraft.world.ItemInteractionResult;
+*///?}
+//? if >=1.21.5 {
+import net.minecraft.world.level.block.TintedParticleLeavesBlock;
+//?} else {
+/*import net.minecraft.world.level.block.LeavesBlock;
+*///?}
 
 public class MusavaccaLeaves
         //? if >=1.21.5 {
@@ -87,11 +86,11 @@ public class MusavaccaLeaves
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    protected InteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     //?} else {
-    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    /*protected ItemInteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     *///?}
         if (!stack.is(Items.SHEARS) || state.getValue(AGE) <= 0) {
             //? if >=1.21.2 {

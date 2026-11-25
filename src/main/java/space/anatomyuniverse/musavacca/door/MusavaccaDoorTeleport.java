@@ -1,20 +1,11 @@
 package space.anatomyuniverse.musavacca.door;
 
-import java.util.Optional;
-//? if >=1.21.2 {
-import java.util.Set;
-//?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-//? if >=1.21.2 {
-import net.minecraft.world.level.portal.TeleportTransition;
-//?} else {
-/*import net.minecraft.world.level.portal.DimensionTransition;
-*///?}
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -27,6 +18,16 @@ import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportPreloader;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
+
+import java.util.Optional;
+//? if >=1.21.2 {
+import java.util.Set;
+//?}
+//? if >=1.21.2 {
+import net.minecraft.world.level.portal.TeleportTransition;
+//?} else {
+/*import net.minecraft.world.level.portal.DimensionTransition;
+*///?}
 
 public final class MusavaccaDoorTeleport {
     private MusavaccaDoorTeleport() {}
@@ -56,15 +57,22 @@ public final class MusavaccaDoorTeleport {
                 /*DimensionTransition
                 *///?}
                         .PLAY_PORTAL_SOUND.then(teleportedEntity -> {
-                            teleportedEntity.setPortalCooldown();
-                            teleportedEntity.setDeltaMovement(transform.deltaMovement());
-                            teleportedEntity.placePortalTicket(targetTicketPos);
-                        });
+                    teleportedEntity.setPortalCooldown();
+                    teleportedEntity.setDeltaMovement(transform.deltaMovement());
+                    teleportedEntity.placePortalTicket(targetTicketPos);
+                });
         //? if >=1.21.2 {
-        return new TeleportTransition(target.level(), transform.position(), transform.deltaMovement(), transform.yRot(), transform.xRot(), Set.of(),
+        return new TeleportTransition(
+                target.level(),
+                transform.position(),
+                transform.deltaMovement(),
+                transform.yRot(),
+                transform.xRot(),
+                Set.of(),
                 postTeleport);
         //?} else {
-        /*return new DimensionTransition(target.level(), transform.position(), transform.deltaMovement(), transform.yRot(), transform.xRot(), postTeleport);
+        /*return new DimensionTransition(
+                target.level(), transform.position(), transform.deltaMovement(), transform.yRot(), transform.xRot(), postTeleport);
         *///?}
     }
 
@@ -92,7 +100,8 @@ public final class MusavaccaDoorTeleport {
     }
 
     private static Optional<ResolvedDoor> resolveLinkedDoor(ResolvedDoor source) {
-        HexTeleportResolver.ResolvedDoorEndpoint loaded = HexTeleportResolver.resolveLinkedDoor(source.level(), source.ownerKey()).orElse(null);
+        HexTeleportResolver.ResolvedDoorEndpoint loaded =
+                HexTeleportResolver.resolveLinkedDoor(source.level(), source.ownerKey()).orElse(null);
         if (loaded == null) return Optional.empty();
         ServerLevel targetLevel = loaded.level();
         HexTeleportDirectory.DoorEndpoint targetEndpoint = loaded.endpoint();
@@ -112,13 +121,20 @@ public final class MusavaccaDoorTeleport {
     }
 
     private static ResolvedDoor resolvedDoor(String ownerKey, ServerLevel level, BlockPos lowerPos, BlockState state, int hexColor) {
-        return new ResolvedDoor(ownerKey, level, lowerPos, HexTeleportDirectory.normalizeHex(hexColor), state.getValue(MusavaccaPortalDoorBlock.FACING),
+        return new ResolvedDoor(
+                ownerKey,
+                level,
+                lowerPos,
+                HexTeleportDirectory.normalizeHex(hexColor),
+                state.getValue(MusavaccaPortalDoorBlock.FACING),
                 portalCenter(lowerPos, state));
     }
 
     private static boolean isOpenPortalDoor(BlockState state) {
-        return state.getBlock() instanceof MusavaccaPortalDoorBlock && state.getValue(MusavaccaPortalDoorBlock.HALF) == DoubleBlockHalf.LOWER
-                && state.getValue(MusavaccaPortalDoorBlock.PORTAL) && state.getValue(MusavaccaPortalDoorBlock.OPEN);
+        return state.getBlock() instanceof MusavaccaPortalDoorBlock
+                && state.getValue(MusavaccaPortalDoorBlock.HALF) == DoubleBlockHalf.LOWER
+                && state.getValue(MusavaccaPortalDoorBlock.PORTAL)
+                && state.getValue(MusavaccaPortalDoorBlock.OPEN);
     }
 
     private static Vec3 portalCenter(BlockPos pos, BlockState state) {

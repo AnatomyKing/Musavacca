@@ -2,23 +2,24 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.ModelMode;
 import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
+
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.ModelMode;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
 
 final class NewgenModels {
     private final NewgenOutput output;
@@ -61,7 +62,9 @@ final class NewgenModels {
             parts = List.copyOf(parts);
         }
 
-        ItemRender(List<ItemPart> parts) { this(parts, false); }
+        ItemRender(List<ItemPart> parts) {
+            this(parts, false);
+        }
     }
 
     NewgenModels(NewgenOutput output) {
@@ -75,18 +78,21 @@ final class NewgenModels {
     //?}
         if (source instanceof Models.Existing existing) return existing.model();
         Key key = new Key(source, Tints.modelKey(tint));
-        return resolved.computeIfAbsent(key, ignored -> {
-            if (source instanceof Models.Generated cube) return cube(cube, tint);
-            if (source instanceof PortalModels.Pane pane) return portal(pane, tint);
-            if (source instanceof CrossModels.Generated cross) {
-                Tints.GeneratedLayer layer = Tints.singleGeneratedLayer(tint, "CrossBlocks");
-                if (layer.tintIndex() > 0) {
-                    throw new IllegalStateException("The generated cross template requires tint index 0; use an authored model for offsets.");
-                }
-                return parent(cross.model(), tint.tinted() ? "tinted_cross" : "cross", Map.of("cross", cross.textures().texture()));
-            }
-            throw new IllegalArgumentException("Unsupported model source: " + source);
-        });
+        return resolved.computeIfAbsent(
+                key,
+                ignored -> {
+                    if (source instanceof Models.Generated cube) return cube(cube, tint);
+                    if (source instanceof PortalModels.Pane pane) return portal(pane, tint);
+                    if (source instanceof CrossModels.Generated cross) {
+                        Tints.GeneratedLayer layer = Tints.singleGeneratedLayer(tint, "CrossBlocks");
+                        if (layer.tintIndex() > 0) {
+                            throw new IllegalStateException(
+                                    "The generated cross template requires tint index 0; use an authored model for offsets.");
+                        }
+                        return parent(cross.model(), tint.tinted() ? "tinted_cross" : "cross", Map.of("cross", cross.textures().texture()));
+                    }
+                    throw new IllegalArgumentException("Unsupported model source: " + source);
+                });
     }
 
     //? if >=1.21.11 {
@@ -96,19 +102,23 @@ final class NewgenModels {
     //?}
         if (!Float.isFinite(yDegrees)) throw new IllegalArgumentException("Root Y rotation must be finite: " + yDegrees);
         if (Float.compare(yDegrees, 0.0F) == 0) return parent;
-        RootYKey key = new RootYKey(java.util.Objects.requireNonNull(owner, "owner"), java.util.Objects.requireNonNull(parent, "parent"), yDegrees);
-        return rootYModels.computeIfAbsent(key, ignored -> {
-            var id = rootTransformId(owner, parent, yDegrees);
-            JsonObject root = new JsonObject();
-            root.addProperty("parent", parent.toString());
-            JsonObject transform = new JsonObject();
-            transform.addProperty("origin", "center");
-            JsonObject rotation = new JsonObject();
-            rotation.addProperty("y", yDegrees);
-            transform.add("rotation", rotation);
-            root.add("transform", transform);
-            return output.model(id, root);
-        });
+        RootYKey key =
+                new RootYKey(
+                        java.util.Objects.requireNonNull(owner, "owner"), java.util.Objects.requireNonNull(parent, "parent"), yDegrees);
+        return rootYModels.computeIfAbsent(
+                key,
+                ignored -> {
+                    var id = rootTransformId(owner, parent, yDegrees);
+                    JsonObject root = new JsonObject();
+                    root.addProperty("parent", parent.toString());
+                    JsonObject transform = new JsonObject();
+                    transform.addProperty("origin", "center");
+                    JsonObject rotation = new JsonObject();
+                    rotation.addProperty("y", yDegrees);
+                    transform.add("rotation", rotation);
+                    root.add("transform", transform);
+                    return output.model(id, root);
+                });
     }
 
     //? if >=1.21.11 {
@@ -158,11 +168,12 @@ final class NewgenModels {
                 var layers = entry.getValue();
                 if (layer >= layers.size()) continue;
                 String direction = entry.getKey();
-                String baseKey = switch (direction) {
-                case "down" -> "bottom";
-                case "up" -> "top";
-                default -> direction;
-                };
+                String baseKey =
+                        switch (direction) {
+                            case "down" -> "bottom";
+                            case "up" -> "top";
+                            default -> direction;
+                        };
                 String textureKey = layer == 0 ? baseKey : baseKey + "_" + layer;
                 textures.put(textureKey, layers.get(layer));
                 JsonObject face = new JsonObject();
@@ -198,19 +209,21 @@ final class NewgenModels {
         //?}
         textures.put("particle", t.particle() != null ? t.particle() : t.source(tint, 0));
         JsonArray elements = new JsonArray();
-        List<String> directions = switch (pane.axis()) {
-        case X -> List.of("north", "south");
-        case Z -> List.of("east", "west");
-        case Y -> List.of("up", "down");
-        };
+        List<String> directions =
+                switch (pane.axis()) {
+                    case X -> List.of("north", "south");
+                    case Z -> List.of("east", "west");
+                    case Y -> List.of("up", "down");
+                };
         for (Tints.GeneratedLayer layer : layers) {
             String key = "portal_" + layer.sourceLayer();
             textures.put(key, t.source(tint, layer.sourceLayer()));
-            JsonObject element = switch (pane.axis()) {
-            case X -> element(0, 0, 6, 16, 16, 10);
-            case Z -> element(6, 0, 0, 10, 16, 16);
-            case Y -> element(0, 6, 0, 16, 10, 16);
-            };
+            JsonObject element =
+                    switch (pane.axis()) {
+                        case X -> element(0, 0, 6, 16, 16, 10);
+                        case Z -> element(6, 0, 0, 10, 16, 16);
+                        case Y -> element(0, 6, 0, 16, 10, 16);
+                    };
             JsonObject faces = new JsonObject();
             for (String direction : directions) {
                 JsonObject face = new JsonObject();
@@ -234,14 +247,21 @@ final class NewgenModels {
         if (spec.isMultipart()) {
             for (SimpleBlocks.Part part : spec.parts()) {
                 Variants.Option variant = part.variants().options().get(0);
-                parts.add(itemPart(item, part.source(), part.tint() == null ? Tints.none() : part.tint(),
-                        Rotations.combine(part.rotationX(), variant.rotationX()), Rotations.combine(part.rotationY(), variant.rotationY())));
+                parts.add(
+                        itemPart(
+                                item,
+                                part.source(),
+                                part.tint() == null ? Tints.none() : part.tint(),
+                                Rotations.combine(part.rotationX(), variant.rotationX()),
+                                Rotations.combine(part.rotationY(), variant.rotationY())));
             }
         } else {
             if (!(item instanceof BlockItem blockItem)) throw new IllegalStateException(".blockState() requires a BlockItem: " + item);
-            if (blockDefinition == null) throw new IllegalStateException("No NewGen block definition for " + blockItem.getBlock() + " used by " + item);
+            if (blockDefinition == null)
+                throw new IllegalStateException("No NewGen block definition for " + blockItem.getBlock() + " used by " + item);
             BlockState state = SimpleItems.blockState(item);
-            List<? extends BlockFamily.ModelRule<?, ?>> rules = blockDefinition.mode() == ModelMode.MODELS ? blockDefinition.models() : blockDefinition.parts();
+            List<? extends BlockFamily.ModelRule<?, ?>> rules =
+                    blockDefinition.mode() == ModelMode.MODELS ? blockDefinition.models() : blockDefinition.parts();
             for (BlockFamily.ModelRule<?, ?> part : rules) {
                 if (!part.conditions().matches(state)) continue;
                 if (!(part.source() instanceof Models.Source source))
@@ -250,9 +270,13 @@ final class NewgenModels {
                     throw new IllegalStateException("Blockstate-derived item cannot randomize model variants for " + item);
                 Rotations.Resolved rotation = blockDefinition.rotations().resolve(state);
                 Variants.Option variant = part.variants().options().get(0);
-                parts.add(itemPart(item, source, Tints.effective(blockDefinition.tint(), part.tint()),
-                        Rotations.combine(Rotations.combine(part.rotationX(), rotation.x()), variant.rotationX()),
-                        Rotations.combine(Rotations.combine(part.rotationY(), rotation.y()), variant.rotationY())));
+                parts.add(
+                        itemPart(
+                                item,
+                                source,
+                                Tints.effective(blockDefinition.tint(), part.tint()),
+                                Rotations.combine(Rotations.combine(part.rotationX(), rotation.x()), variant.rotationX()),
+                                Rotations.combine(Rotations.combine(part.rotationY(), rotation.y()), variant.rotationY())));
             }
         }
         if (parts.isEmpty()) throw new IllegalStateException("No item parts selected for " + item);
@@ -320,11 +344,14 @@ final class NewgenModels {
     }
 
     //? if >=1.21.11 {
-    /*private Identifier generatedItemModel(Identifier id, SimpleItems.Style style, List<Identifier> textures, boolean unlimitedLegacyLayers) {
+    /*private Identifier generatedItemModel(
+            Identifier id, SimpleItems.Style style, List<Identifier> textures, boolean unlimitedLegacyLayers) {
     *///?} else {
-    private ResourceLocation generatedItemModel(ResourceLocation id, SimpleItems.Style style, List<ResourceLocation> textures, boolean unlimitedLegacyLayers) {
+    private ResourceLocation generatedItemModel(
+            ResourceLocation id, SimpleItems.Style style, List<ResourceLocation> textures, boolean unlimitedLegacyLayers) {
     //?}
-        if (textures == null || textures.isEmpty()) throw new IllegalArgumentException("generated item model requires at least one texture");
+        if (textures == null || textures.isEmpty())
+            throw new IllegalArgumentException("generated item model requires at least one texture");
         if (!unlimitedLegacyLayers && textures.size() > 5) {
             throw new IllegalArgumentException("Vanilla generated item models support at most five texture layers");
         }
@@ -383,62 +410,81 @@ final class NewgenModels {
     SlabModels slab(SlabBlocks.Entry e) {
         var t = e.textures();
         var textures = Map.of("side", t.side(), "bottom", t.bottom(), "top", t.top());
-        return SlabModels.full(template(e.block(), "", "slab", textures), template(e.block(), "_top", "slab_top", textures),
+        return SlabModels.full(
+                template(e.block(), "", "slab", textures),
+                template(e.block(), "_top", "slab_top", textures),
                 template(e.block(), "_double", "cube_bottom_top", textures));
     }
 
     StairModels stair(StairBlocks.Entry e) {
         var t = e.textures();
         var textures = Map.of("side", t.side(), "bottom", t.bottom(), "top", t.top());
-        return StairModels.full(template(e.block(), "", "stairs", textures), template(e.block(), "_inner", "inner_stairs", textures),
+        return StairModels.full(
+                template(e.block(), "", "stairs", textures),
+                template(e.block(), "_inner", "inner_stairs", textures),
                 template(e.block(), "_outer", "outer_stairs", textures));
     }
 
     FenceModels fence(FenceBlocks.Entry e) {
         var textures = Map.of("texture", e.textures().texture());
-        return FenceModels.full(template(e.block(), "_post", "fence_post", textures), template(e.block(), "_side", "fence_side", textures),
+        return FenceModels.full(
+                template(e.block(), "_post", "fence_post", textures),
+                template(e.block(), "_side", "fence_side", textures),
                 template(e.block(), "_inventory", "fence_inventory", textures));
     }
 
     FenceGateModels fenceGate(FenceGateBlocks.Entry e) {
         var textures = Map.of("texture", e.textures().texture());
-        return FenceGateModels.full(template(e.block(), "", "template_fence_gate", textures),
-                template(e.block(), "_open", "template_fence_gate_open", textures), template(e.block(), "_wall", "template_fence_gate_wall", textures),
+        return FenceGateModels.full(
+                template(e.block(), "", "template_fence_gate", textures),
+                template(e.block(), "_open", "template_fence_gate_open", textures),
+                template(e.block(), "_wall", "template_fence_gate_wall", textures),
                 template(e.block(), "_wall_open", "template_fence_gate_wall_open", textures));
     }
 
     PressurePlateModels pressurePlate(PressurePlateBlocks.Entry e) {
         var textures = Map.of("texture", e.textures().texture());
-        return PressurePlateModels.full(template(e.block(), "", "pressure_plate_up", textures), template(e.block(), "_down", "pressure_plate_down", textures));
+        return PressurePlateModels.full(
+                template(e.block(), "", "pressure_plate_up", textures), template(e.block(), "_down", "pressure_plate_down", textures));
     }
 
     ButtonModels button(ButtonBlocks.Entry e) {
         var textures = Map.of("texture", e.textures().texture());
-        return ButtonModels.full(template(e.block(), "", "button", textures), template(e.block(), "_pressed", "button_pressed", textures),
+        return ButtonModels.full(
+                template(e.block(), "", "button", textures),
+                template(e.block(), "_pressed", "button_pressed", textures),
                 template(e.block(), "_inventory", "button_inventory", textures));
     }
 
     WallModels wall(WallBlocks.Entry e) {
         var textures = Map.of("wall", e.textures().texture());
-        return WallModels.full(template(e.block(), "_post", "template_wall_post", textures), template(e.block(), "_side", "template_wall_side", textures),
-                template(e.block(), "_side_tall", "template_wall_side_tall", textures), template(e.block(), "_inventory", "wall_inventory", textures));
+        return WallModels.full(
+                template(e.block(), "_post", "template_wall_post", textures),
+                template(e.block(), "_side", "template_wall_side", textures),
+                template(e.block(), "_side_tall", "template_wall_side_tall", textures),
+                template(e.block(), "_inventory", "wall_inventory", textures));
     }
 
     TrapdoorModels trapdoor(TrapdoorBlocks.Entry e) {
         var textures = Map.of("texture", e.textures().texture());
         String prefix = e.orientation() == TrapdoorBlocks.Orientation.ORIENTABLE ? "template_orientable_trapdoor_" : "template_trapdoor_";
-        return TrapdoorModels.full(template(e.block(), "_bottom", prefix + "bottom", textures), template(e.block(), "_top", prefix + "top", textures),
+        return TrapdoorModels.full(
+                template(e.block(), "_bottom", prefix + "bottom", textures),
+                template(e.block(), "_top", prefix + "top", textures),
                 template(e.block(), "_open", prefix + "open", textures));
     }
 
     DoorModels door(DoorBlocks.Entry e) {
         var textures = Map.of("bottom", e.textures().bottom(), "top", e.textures().top());
-        return DoorModels.full(doorTemplate(e.block(), "_bottom_left", "door_bottom_left", textures),
+        return DoorModels.full(
+                doorTemplate(e.block(), "_bottom_left", "door_bottom_left", textures),
                 doorTemplate(e.block(), "_bottom_left_open", "door_bottom_left_open", textures),
                 doorTemplate(e.block(), "_bottom_right", "door_bottom_right", textures),
                 doorTemplate(e.block(), "_bottom_right_open", "door_bottom_right_open", textures),
-                doorTemplate(e.block(), "_top_left", "door_top_left", textures), doorTemplate(e.block(), "_top_left_open", "door_top_left_open", textures),
-                doorTemplate(e.block(), "_top_right", "door_top_right", textures), doorTemplate(e.block(), "_top_right_open", "door_top_right_open", textures));
+                doorTemplate(e.block(), "_top_left", "door_top_left", textures),
+                doorTemplate(e.block(), "_top_left_open", "door_top_left_open", textures),
+                doorTemplate(e.block(), "_top_right", "door_top_right", textures),
+                doorTemplate(e.block(), "_top_right_open", "door_top_right_open", textures));
     }
 
     //? if >=1.21.11 {
@@ -492,7 +538,11 @@ final class NewgenModels {
     }
 
     enum Shape {
-        FLOOR, SIDE, SIDE_ALT, UP, UP_ALT
+        FLOOR,
+        SIDE,
+        SIDE_ALT,
+        UP,
+        UP_ALT
     }
 
     private static JsonObject fireJson(FireBlocks.Entry entry, Shape shape, int frame, List<Tints.GeneratedLayer> layers) {
@@ -506,11 +556,11 @@ final class NewgenModels {
         root.add("textures", textures);
         JsonArray elements = new JsonArray();
         switch (shape) {
-        case FLOOR -> addFloor(elements, layers);
-        case SIDE -> addSide(elements, layers, false);
-        case SIDE_ALT -> addSide(elements, layers, true);
-        case UP -> addUp(elements, layers, false);
-        case UP_ALT -> addUp(elements, layers, true);
+            case FLOOR -> addFloor(elements, layers);
+            case SIDE -> addSide(elements, layers, false);
+            case SIDE_ALT -> addSide(elements, layers, true);
+            case UP -> addUp(elements, layers, false);
+            case UP_ALT -> addUp(elements, layers, true);
         }
         root.add("elements", elements);
         return root;
@@ -549,8 +599,21 @@ final class NewgenModels {
         }
     }
 
-    private static JsonObject rotatedPlane(Tints.GeneratedLayer layer, float fromX, float fromY, float fromZ, float toX, float toY, float toZ, float originX,
-            float originY, float originZ, String axis, float angle, String faceDirection, int faceRotation) {
+    private static JsonObject rotatedPlane(
+            Tints.GeneratedLayer layer,
+            float fromX,
+            float fromY,
+            float fromZ,
+            float toX,
+            float toY,
+            float toZ,
+            float originX,
+            float originY,
+            float originZ,
+            String axis,
+            float angle,
+            String faceDirection,
+            int faceRotation) {
         JsonObject element = element(fromX, fromY, fromZ, toX, toY, toZ);
         setUnshaded(element);
         JsonObject rotation = new JsonObject();
@@ -611,7 +674,9 @@ final class NewgenModels {
     *///?} else {
     private static ResourceLocation textureForLayer(FireTextures.Set textures, Tints.Tint tint, int frame, Tints.GeneratedLayer layer) {
     //?}
-        return Tints.generatedLayerCount(tint) > 1 ? FireTextures.layer(textures, frame, layer.sourceLayer()) : FireTextures.frame(textures, frame);
+        return Tints.generatedLayerCount(tint) > 1
+                ? FireTextures.layer(textures, frame, layer.sourceLayer())
+                : FireTextures.frame(textures, frame);
     }
 
     private static String textureKey(Tints.GeneratedLayer layer) {

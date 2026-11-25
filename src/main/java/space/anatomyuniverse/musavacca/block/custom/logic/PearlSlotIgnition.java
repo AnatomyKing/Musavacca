@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
-import java.util.Objects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,13 +21,20 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceApi;
 import space.anatomyuniverse.musavacca.item.ModItems;
 
+import java.util.Objects;
+
 public final class PearlSlotIgnition {
     public static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
     public static final int DEFAULT_BALANCE_COST = 1;
 
     private PearlSlotIgnition() {}
 
-    public record Slot(BooleanProperty litProperty, @Nullable BooleanProperty linkedProperty, Vec3 pearlPopOffset, Vec3 pearlPopMotion, int balanceCost) {
+    public record Slot(
+            BooleanProperty litProperty,
+            @Nullable BooleanProperty linkedProperty,
+            Vec3 pearlPopOffset,
+            Vec3 pearlPopMotion,
+            int balanceCost) {
         public Slot {
             Objects.requireNonNull(litProperty, "litProperty");
             Objects.requireNonNull(pearlPopOffset, "pearlPopOffset");
@@ -36,11 +42,16 @@ public final class PearlSlotIgnition {
             if (balanceCost <= 0) throw new IllegalArgumentException("balanceCost must be greater than zero");
         }
 
-        public static Slot of(BooleanProperty litProperty, @Nullable BooleanProperty linkedProperty, Vec3 pearlPopOffset, Vec3 pearlPopMotion) {
+        public static Slot of(
+                BooleanProperty litProperty, @Nullable BooleanProperty linkedProperty, Vec3 pearlPopOffset, Vec3 pearlPopMotion) {
             return new Slot(litProperty, linkedProperty, pearlPopOffset, pearlPopMotion, DEFAULT_BALANCE_COST);
         }
 
-        public static Slot of(BooleanProperty litProperty, @Nullable BooleanProperty linkedProperty, Vec3 pearlPopOffset, Vec3 pearlPopMotion,
+        public static Slot of(
+                BooleanProperty litProperty,
+                @Nullable BooleanProperty linkedProperty,
+                Vec3 pearlPopOffset,
+                Vec3 pearlPopMotion,
                 int balanceCost) {
             return new Slot(litProperty, linkedProperty, pearlPopOffset, pearlPopMotion, balanceCost);
         }
@@ -50,8 +61,8 @@ public final class PearlSlotIgnition {
         }
     }
 
-    public static InteractionResult handleHeldItemUse(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            Slot slot) {
+    public static InteractionResult handleHeldItemUse(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, Slot slot) {
         validateState(state, slot);
         ItemStack mainHand = player.getMainHandItem();
         ItemStack offHand = player.getOffhandItem();
@@ -77,8 +88,15 @@ public final class PearlSlotIgnition {
         return InteractionResult.PASS;
     }
 
-    private static InteractionResult useBananaPearl(ItemStack pearl, ItemStack offHand, InteractionHand hand, BlockState state, Level level, BlockPos pos,
-            Player player, Slot slot) {
+    private static InteractionResult useBananaPearl(
+            ItemStack pearl,
+            ItemStack offHand,
+            InteractionHand hand,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            Slot slot) {
         if (!isLit(state, slot)) {
             if (!level.isClientSide()) {
                 igniteFromPearl(pearl, state, level, pos, player, slot);
@@ -123,7 +141,8 @@ public final class PearlSlotIgnition {
         return true;
     }
 
-    public static boolean shearPearl(ItemStack shears, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, Slot slot) {
+    public static boolean shearPearl(
+            ItemStack shears, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, Slot slot) {
         validateState(state, slot);
         if (!shears.is(Items.SHEARS) || !isLit(state, slot)) {
             return false;

@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
-import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
@@ -16,6 +15,8 @@ import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 import space.anatomyuniverse.musavacca.item.PearlIgniter;
 import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles;
+
+import java.util.function.Supplier;
 
 public final class PearlCandleConversion {
     private PearlCandleConversion() {}
@@ -39,15 +40,21 @@ public final class PearlCandleConversion {
     }
 
     public static int count(BlockState state) {
-        return state.getBlock().getStateDefinition().getProperty("candles") instanceof IntegerProperty property ? state.getValue(property) : 1;
+        return state.getBlock().getStateDefinition().getProperty("candles") instanceof IntegerProperty property
+                ? state.getValue(property)
+                : 1;
     }
 
     public static boolean canLight(BlockState state) {
-        return isCandle(state) && !(state.getBlock() instanceof PearlCandleBlock) && !value(state, "lit") && !value(state, "waterlogged")
+        return isCandle(state)
+                && !(state.getBlock() instanceof PearlCandleBlock)
+                && !value(state, "lit")
+                && !value(state, "waterlogged")
                 && !state.hasBlockEntity();
     }
 
-    public static InteractionResult useOn(Level level, Player player, ItemStack stack, BlockPos pos, Supplier<InteractionResult> interaction) {
+    public static InteractionResult useOn(
+            Level level, Player player, ItemStack stack, BlockPos pos, Supplier<InteractionResult> interaction) {
         if (!PearlIgniter.is(stack) || player.isSpectator() || !player.getAbilities().mayBuild) return interaction.get();
         BlockState before = level.getBlockState(pos);
         if (!canLight(before)) return interaction.get();
@@ -65,9 +72,12 @@ public final class PearlCandleConversion {
 
     private static void convert(Level level, BlockPos pos, int hex) {
         BlockState state = level.getBlockState(pos);
-        if (!isCandle(state) || state.getBlock() instanceof PearlCandleBlock || !value(state, "lit") || value(state, "waterlogged") || state.hasBlockEntity()
-                || level.getBlockEntity(pos) != null)
-            return;
+        if (!isCandle(state)
+                || state.getBlock() instanceof PearlCandleBlock
+                || !value(state, "lit")
+                || value(state, "waterlogged")
+                || state.hasBlockEntity()
+                || level.getBlockEntity(pos) != null) return;
 
         var block = ModBlocks.PEARL_CANDLE.get();
         if (!level.setBlock(pos, block.wrapState(state), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) return;

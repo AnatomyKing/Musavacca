@@ -5,9 +5,10 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import java.util.Objects;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+
+import java.util.Objects;
 
 public final class TextureTokens {
     private TextureTokens() {}

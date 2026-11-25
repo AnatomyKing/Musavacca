@@ -43,10 +43,13 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
     }
 
     @Override
-    public State createRenderState() { return new State(); }
+    public State createRenderState() {
+        return new State();
+    }
 
     @Override
-    public void extractRenderState(PearlCandleBlockEntity entity, State state, float partialTick, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
+    public void extractRenderState(
+            PearlCandleBlockEntity entity, State state, float partialTick, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, camera, overlay);
         //? if >=26.1 {
         /^context.blockModelResolver().update(state.model, entity.originalState(), BlockDisplayContext.create());
@@ -65,18 +68,32 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
     }
     *///?} else {
     @Override
-    public void render(PearlCandleBlockEntity entity, float partialTick, PoseStack pose, MultiBufferSource buffers, int light,
+    public void render(
+            PearlCandleBlockEntity entity,
+            float partialTick,
+            PoseStack pose,
+            MultiBufferSource buffers,
+            int light,
             //? if >=1.21.5 {
-            int overlay, Vec3 camera) {
+            int overlay,
+            Vec3 camera) {
             //?} else {
             /*int overlay) {
             *///?}
         if (entity.getLevel() == null) return;
         //? if >=1.21.5 {
-        context.getBlockRenderDispatcher().renderSingleBlock(entity.originalState(), pose, buffers, light, overlay, entity.getLevel(), entity.getBlockPos());
+        context.getBlockRenderDispatcher()
+                .renderSingleBlock(entity.originalState(), pose, buffers, light, overlay, entity.getLevel(), entity.getBlockPos());
         //?} else {
-        /*context.getBlockRenderDispatcher().renderSingleBlock(entity.originalState(), pose, buffers, light, overlay,
-                net.neoforged.neoforge.client.model.data.ModelData.EMPTY, null);
+        /*context.getBlockRenderDispatcher()
+                .renderSingleBlock(
+                        entity.originalState(),
+                        pose,
+                        buffers,
+                        light,
+                        overlay,
+                        net.neoforged.neoforge.client.model.data.ModelData.EMPTY,
+                        null);
         *///?}
     }
     //?}

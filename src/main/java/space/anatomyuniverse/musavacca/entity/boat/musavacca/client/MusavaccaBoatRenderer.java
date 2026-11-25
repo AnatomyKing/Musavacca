@@ -1,12 +1,12 @@
 package space.anatomyuniverse.musavacca.entity.boat.musavacca.client;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import space.anatomyuniverse.musavacca.MusaCore;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import space.anatomyuniverse.musavacca.MusaCore;
 //? if >=1.21.2 {
 import net.minecraft.client.model.EntityModel;
 //?}
@@ -35,7 +35,8 @@ public final class MusavaccaBoatRenderer extends
     //? if >=1.21.11 {
     /*private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/boat/musavacca.png");
     *///?} else {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/boat/musavacca.png");
+    private static final ResourceLocation TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/boat/musavacca.png");
     //?}
     private final MusavaccaBoatModel model;
 

@@ -44,8 +44,12 @@ public class SmallBananaPearlItem extends Item {
         BlockState placeTarget = level.getBlockState(placePos);
         if (!placeTarget.canBeReplaced(placeContext)) return InteractionResult.PASS;
         Direction facing = context.getHorizontalDirection().getOpposite();
-        BlockState newState = ModBlocks.SMALL_BANANA_PEARL_BLOCK.get().defaultBlockState().setValue(SmallBananaPearlBlock.FACING, facing)
-                .setValue(SmallBananaPearlBlock.SMALL_PEARL_AMOUNT, 1);
+        BlockState newState =
+                ModBlocks.SMALL_BANANA_PEARL_BLOCK
+                        .get()
+                        .defaultBlockState()
+                        .setValue(SmallBananaPearlBlock.FACING, facing)
+                        .setValue(SmallBananaPearlBlock.SMALL_PEARL_AMOUNT, 1);
         if (!level.isClientSide()) {
             boolean placed = level.setBlock(placePos, newState, Block.UPDATE_ALL);
             if (!placed) return InteractionResult.PASS;

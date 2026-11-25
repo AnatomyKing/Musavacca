@@ -41,7 +41,8 @@ public final class FenceBlocks {
         }
 
         public void validate() {
-            if (!(block() instanceof FenceBlock)) throw new IllegalStateException("FenceBlocks requires a FenceBlock: " + ModelLocations.blockId(block()));
+            if (!(block() instanceof FenceBlock))
+                throw new IllegalStateException("FenceBlocks requires a FenceBlock: " + ModelLocations.blockId(block()));
             Conditions.requireProperty(block(), FenceBlock.NORTH, "FenceBlocks");
             Conditions.requireProperty(block(), FenceBlock.EAST, "FenceBlocks");
             Conditions.requireProperty(block(), FenceBlock.SOUTH, "FenceBlocks");

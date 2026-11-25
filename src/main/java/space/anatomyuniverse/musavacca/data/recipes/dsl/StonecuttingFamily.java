@@ -1,18 +1,19 @@
 package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ItemLike;
-import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
 public final class StonecuttingFamily {
     private final RecipeDSL dsl;
@@ -96,7 +97,8 @@ public final class StonecuttingFamily {
             saveRecipe(this.input, result, this.count, siblingId(id, RecipeDSL.keyOf(result)));
         }
         if (!this.interchangeable) return;
-        if (!(this.input instanceof ItemLike familyRoot)) throw new IllegalStateException("Interchangeable stonecutting families require an ItemLike input");
+        if (!(this.input instanceof ItemLike familyRoot))
+            throw new IllegalStateException("Interchangeable stonecutting families require an ItemLike input");
         List<ItemLike> family = new ArrayList<>();
         addUnique(family, familyRoot);
         for (ItemLike result : results) {
@@ -106,7 +108,11 @@ public final class StonecuttingFamily {
             if (sameItem(familyInput, familyRoot)) continue;
             for (ItemLike familyResult : family) {
                 if (sameItem(familyInput, familyResult)) continue;
-                saveRecipe(familyInput, familyResult, this.count, siblingId(id, RecipeDSL.keyOf(familyResult) + "_from_" + RecipeDSL.keyOf(familyInput)));
+                saveRecipe(
+                        familyInput,
+                        familyResult,
+                        this.count,
+                        siblingId(id, RecipeDSL.keyOf(familyResult) + "_from_" + RecipeDSL.keyOf(familyInput)));
             }
         }
     }

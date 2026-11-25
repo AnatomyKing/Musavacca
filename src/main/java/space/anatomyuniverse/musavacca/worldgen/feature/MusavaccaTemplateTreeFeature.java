@@ -7,22 +7,29 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
+
+import java.util.ArrayList;
+import java.util.List;
 //? if <26.3 {
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 //?}
-import java.util.ArrayList;
-import java.util.List;
 //? if >=26.3 {
 
 /*public record MusavaccaTemplateTreeFeature(MusavaccaTemplateTreeConfiguration config) implements Feature {
-    public static final com.mojang.serialization.MapCodec<MusavaccaTemplateTreeFeature> CODEC = MusavaccaTemplateTreeConfiguration.CODEC.fieldOf("config")
-            .xmap(MusavaccaTemplateTreeFeature::new, MusavaccaTemplateTreeFeature::config);
+    public static final com.mojang.serialization.MapCodec<MusavaccaTemplateTreeFeature> CODEC =
+            MusavaccaTemplateTreeConfiguration.CODEC
+                    .fieldOf("config")
+                    .xmap(MusavaccaTemplateTreeFeature::new, MusavaccaTemplateTreeFeature::config);
 
     @Override
-    public com.mojang.serialization.MapCodec<MusavaccaTemplateTreeFeature> codec() { return CODEC; }
+    public com.mojang.serialization.MapCodec<MusavaccaTemplateTreeFeature> codec() {
+        return CODEC;
+    }
 
     @Override
-    public java.util.stream.Stream<net.minecraft.core.Holder<Feature>> getSubFeatures() { return java.util.stream.Stream.empty(); }
+    public java.util.stream.Stream<net.minecraft.core.Holder<Feature>> getSubFeatures() {
+        return java.util.stream.Stream.empty();
+    }
 
 *///?}
 //? if <26.3 {
@@ -34,7 +41,10 @@ public final class MusavaccaTemplateTreeFeature extends Feature<MusavaccaTemplat
 //?}
     @Override
     //? if >=26.3 {
-    /*public boolean place(WorldGenLevel level, net.minecraft.world.level.chunk.ChunkGenerator generator, net.minecraft.util.RandomSource random,
+    /*public boolean place(
+            WorldGenLevel level,
+            net.minecraft.world.level.chunk.ChunkGenerator generator,
+            net.minecraft.util.RandomSource random,
             BlockPos origin) {
     *///?} else {
     public boolean place(FeaturePlaceContext<MusavaccaTemplateTreeConfiguration> context) {

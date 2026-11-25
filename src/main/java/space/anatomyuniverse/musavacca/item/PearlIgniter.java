@@ -54,8 +54,7 @@ public final class PearlIgniter {
 
     //? if >=26.1 {
     /*public static net.minecraft.world.item.ItemStackTemplate recipeResult() {
-        return new net.minecraft.world.item.ItemStackTemplate(Items.FLINT_AND_STEEL.builtInRegistryHolder(), 1,
-                recipeComponents());
+        return new net.minecraft.world.item.ItemStackTemplate(Items.FLINT_AND_STEEL.builtInRegistryHolder(), 1, recipeComponents());
     }
     *///?} else {
     public static ItemStack recipeResult() {
@@ -72,12 +71,15 @@ public final class PearlIgniter {
     }
 
     private static DataComponentPatch.Builder configuration() {
-        var components = DataComponentPatch.builder().set(ModDataComponents.PEARL_IGNITER.get(), true).set(DataComponents.ITEM_NAME,
-                Component.translatable("item.musavacca.flint_and_pearl"));
+        var components =
+                DataComponentPatch.builder()
+                        .set(ModDataComponents.PEARL_IGNITER.get(), true)
+                        .set(DataComponents.ITEM_NAME, Component.translatable("item.musavacca.flint_and_pearl"));
         //? if >=1.21.11 {
         /*components.set(DataComponents.ITEM_MODEL, net.minecraft.resources.Identifier.fromNamespaceAndPath("musavacca", "flint_and_pearl"));
         *///?} else if >=1.21.2 {
-        components.set(DataComponents.ITEM_MODEL, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("musavacca", "flint_and_pearl"));
+        components.set(
+                DataComponents.ITEM_MODEL, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("musavacca", "flint_and_pearl"));
         //?}
         return components;
     }
@@ -96,8 +98,12 @@ public final class PearlIgniter {
 
     public static void openGui(ServerPlayer serverPlayer, InteractionHand hand, ItemStack stack) {
         int initialHex = getStoredHexOrDefault(stack);
-        serverPlayer.openMenu(new SimpleMenuProvider(
-                (containerId, playerInventory, openingPlayer) -> new FlintAndPearlMenu(containerId, playerInventory, hand, initialHex), TITLE), buf -> {
+        serverPlayer.openMenu(
+                new SimpleMenuProvider(
+                        (containerId, playerInventory, openingPlayer) ->
+                                new FlintAndPearlMenu(containerId, playerInventory, hand, initialHex),
+                        TITLE),
+                buf -> {
                     buf.writeBoolean(hand == InteractionHand.OFF_HAND);
                     buf.writeInt(initialHex);
                 });
@@ -225,4 +231,3 @@ public final class PearlIgniter {
         }
     }
 }
-

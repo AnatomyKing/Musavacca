@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
-
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
@@ -19,7 +18,8 @@ public final class VocoPostCandleLogic {
     private VocoPostCandleLogic() {}
 
     public static BlockState updateShape(BlockState state, LevelReader levelReader, BlockPos pos, Direction direction) {
-        if (direction == Direction.UP && levelReader instanceof Level level && !level.isClientSide()) return updatePortalStateFromTop(level, pos, state);
+        if (direction == Direction.UP && levelReader instanceof Level level && !level.isClientSide())
+            return updatePortalStateFromTop(level, pos, state);
         return state;
     }
 
@@ -48,8 +48,9 @@ public final class VocoPostCandleLogic {
             if (info.active()) {
                 shouldBePortal = postBe.setHexColor(info.hexColor());
                 if (shouldBePortal && level instanceof ServerLevel serverLevel) {
-                    VocoTeleportLogic.SyncResult result = VocoTeleportLogic.syncEndpointDetailed(serverLevel, postPos,
-                            VocoPostBlock.receptorPosition(postState), true, info.hexColor());
+                    VocoTeleportLogic.SyncResult result =
+                            VocoTeleportLogic.syncEndpointDetailed(
+                                    serverLevel, postPos, VocoPostBlock.receptorPosition(postState), true, info.hexColor());
                     shouldBePortal = result == VocoTeleportLogic.SyncResult.ACTIVE;
                     queued = result == VocoTeleportLogic.SyncResult.QUEUED;
                 }
@@ -76,10 +77,12 @@ public final class VocoPostCandleLogic {
         }
         BlockPos candlePos = postPos.above();
         BlockState candleState = level.getBlockState(candlePos);
-        if (!(candleState.getBlock() instanceof PearlCandleBlock) || !candleState.hasProperty(BlockStateProperties.LIT)
+        if (!(candleState.getBlock() instanceof PearlCandleBlock)
+                || !candleState.hasProperty(BlockStateProperties.LIT)
                 || !candleState.getValue(BlockStateProperties.LIT)
                 || candleState.hasProperty(BlockStateProperties.WATERLOGGED) && candleState.getValue(BlockStateProperties.WATERLOGGED)
-                || !(level.getBlockEntity(candlePos) instanceof PearlCandleBlockEntity pearlCandleBe) || !pearlCandleBe.hasHexColor()) {
+                || !(level.getBlockEntity(candlePos) instanceof PearlCandleBlockEntity pearlCandleBe)
+                || !pearlCandleBe.hasHexColor()) {
             return PortalInfo.INACTIVE;
         }
         return new PortalInfo(true, pearlCandleBe.getHexColor());

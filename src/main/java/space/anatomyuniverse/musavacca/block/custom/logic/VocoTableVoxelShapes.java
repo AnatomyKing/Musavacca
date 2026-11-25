@@ -13,9 +13,13 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 
 public final class VocoTableVoxelShapes {
-    private static final VoxelShape BODY_SHAPE = Shapes.or(Block.box(0.0D, 0.0D, 0.0D, 5.0D, 4.0D, 5.0D), Block.box(0.0D, 0.0D, 11.0D, 5.0D, 4.0D, 16.0D),
-            Block.box(11.0D, 0.0D, 11.0D, 16.0D, 4.0D, 16.0D), Block.box(11.0D, 0.0D, 0.0D, 16.0D, 4.0D, 5.0D),
-            Block.box(2.0D, 0.0D, 2.0D, 14.0D, 14.0D, 14.0D));
+    private static final VoxelShape BODY_SHAPE =
+            Shapes.or(
+                    Block.box(0.0D, 0.0D, 0.0D, 5.0D, 4.0D, 5.0D),
+                    Block.box(0.0D, 0.0D, 11.0D, 5.0D, 4.0D, 16.0D),
+                    Block.box(11.0D, 0.0D, 11.0D, 16.0D, 4.0D, 16.0D),
+                    Block.box(11.0D, 0.0D, 0.0D, 16.0D, 4.0D, 5.0D),
+                    Block.box(2.0D, 0.0D, 2.0D, 14.0D, 14.0D, 14.0D));
     public static final VoxelShape BASE_SHAPE = Shapes.or(BODY_SHAPE, VocoTableHitboxes.RECEPTOR_SHAPE);
     public static final VoxelShape ROTARY_DIALERS_SHAPE = VocoTableHitboxes.DIALER_SHAPE;
     private static final VoxelShape BASE_WITH_DIALERS = Shapes.or(BASE_SHAPE, ROTARY_DIALERS_SHAPE);
@@ -42,7 +46,8 @@ public final class VocoTableVoxelShapes {
         private volatile Entry outline;
         private volatile Entry collision;
 
-        private VoxelShape get(VoxelShape base, VocoTableBlockEntity table, BlockGetter level, BlockPos pos, CollisionContext context, boolean collision) {
+        private VoxelShape get(
+                VoxelShape base, VocoTableBlockEntity table, BlockGetter level, BlockPos pos, CollisionContext context, boolean collision) {
             Entry cached = collision ? this.collision : this.outline;
             VoxelShape[] candles = cached == null ? new VoxelShape[ReceptorPosition.COUNT] : null;
             BlockPos ground = pos.above();
@@ -53,7 +58,8 @@ public final class VocoTableVoxelShapes {
                     var state = candle.state();
                     shape = collision ? state.getCollisionShape(level, ground, context) : state.getShape(level, ground, context);
                 }
-                if (cached != null && (shape == cached.candles[i] || !Shapes.joinIsNotEmpty(shape, cached.candles[i], BooleanOp.NOT_SAME))) continue;
+                if (cached != null && (shape == cached.candles[i] || !Shapes.joinIsNotEmpty(shape, cached.candles[i], BooleanOp.NOT_SAME)))
+                    continue;
                 if (candles == null) candles = cached.candles.clone();
                 candles[i] = shape;
             }

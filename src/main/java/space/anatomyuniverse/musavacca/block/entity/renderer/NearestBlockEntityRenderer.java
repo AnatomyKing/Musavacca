@@ -3,10 +3,6 @@ package space.anatomyuniverse.musavacca.block.entity.renderer;
 //? if >=1.21.11 {
 /*import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -25,6 +21,12 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 *///?}
 //? if >=26.1 {
 /*import com.mojang.blaze3d.vertex.QuadInstance;
@@ -63,7 +65,9 @@ public final class NearestBlockEntityRenderer
     private final List<BlockModelPart> parts = new ArrayList<>();
 
     //?}
-    public NearestBlockEntityRenderer(BlockEntityRendererProvider.Context context) { this(context, 0); }
+    public NearestBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        this(context, 0);
+    }
 
     public NearestBlockEntityRenderer(BlockEntityRendererProvider.Context context, double boundsInflation) {
         if (!Double.isFinite(boundsInflation) || boundsInflation < 0) throw new IllegalArgumentException("Invalid bounds inflation");
@@ -90,7 +94,9 @@ public final class NearestBlockEntityRenderer
     //?}
     ^///?}
     @Override
-    public State createRenderState() { return new State(); }
+    public State createRenderState() {
+        return new State();
+    }
 
     @Override
     public void extractRenderState(T entity, State state, float partialTick, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
@@ -112,7 +118,9 @@ public final class NearestBlockEntityRenderer
         if (isLowerDoor(block)) {
             BlockPos above = pos.above();
             BlockState upper = level.getBlockState(above);
-            if (upper.is(block.getBlock()) && upper.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER && level.getBlockEntity(above) == null) {
+            if (upper.is(block.getBlock())
+                    && upper.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER
+                    && level.getBlockEntity(above) == null) {
                 upperDoor = upper;
                 extractModel(level, above, upper, 1, batches);
                 //? if >=26.1 {
@@ -121,7 +129,9 @@ public final class NearestBlockEntityRenderer
                 if (upperProgress != null && !upperProgress.isEmpty()) {
                 ¹^///?} else {
                 Minecraft mc = Minecraft.getInstance();
-                if (mc.gameMode != null && mc.gameMode.isDestroying() && mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult hit
+                if (mc.gameMode != null
+                        && mc.gameMode.isDestroying()
+                        && mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult hit
                         && hit.getBlockPos().equals(above)) {
                 //?}
                     //? if >=26.3 {
@@ -169,10 +179,19 @@ public final class NearestBlockEntityRenderer
         //?}
         //? if >=26.1 {
         /^var model = mc.getModelManager().getBlockStateModelSet().get(block);
-        tessellator.tesselateBlock((x, y, z, quad, lighting) -> {
-            if (capture.transform == null) capture.transform = new Matrix4f().translation(x, y, z);
-            capture.add(quad, quad.materialInfo().layer(), new LitQuad(quad, lighting));
-        }, 0, dy, 0, level, pos, block, model, block.getSeed(pos));
+        tessellator.tesselateBlock(
+                (x, y, z, quad, lighting) -> {
+                    if (capture.transform == null) capture.transform = new Matrix4f().translation(x, y, z);
+                    capture.add(quad, quad.materialInfo().layer(), new LitQuad(quad, lighting));
+                },
+                0,
+                dy,
+                0,
+                level,
+                pos,
+                block,
+                model,
+                block.getSeed(pos));
         ^///?}
         capture.groups.forEach((type, quads) -> output.add(new Batch(type, capture.transform, List.copyOf(quads))));
     }
@@ -204,9 +223,12 @@ public final class NearestBlockEntityRenderer
         for (Batch batch : state.batches) {
             pose.pushPose();
             pose.mulPose(batch.transform());
-            collector.submitCustomGeometry(pose, batch.type(), (p, vertices) -> {
-                for (LitQuad quad : batch.quads()) quad.draw(p, vertices);
-            });
+            collector.submitCustomGeometry(
+                    pose,
+                    batch.type(),
+                    (p, vertices) -> {
+                        for (LitQuad quad : batch.quads()) quad.draw(p, vertices);
+                    });
             pose.popPose();
         }
         //? if >=26.1 {
@@ -238,7 +260,9 @@ public final class NearestBlockEntityRenderer
     }
 
     @Override
-    public int getViewDistance() { return Minecraft.getInstance().options.getEffectiveRenderDistance() * 16; }
+    public int getViewDistance() {
+        return Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
+    }
 
     //? if >=26.1 {
     /^private record LitQuad(BakedQuad quad, QuadInstance lighting) {
@@ -252,7 +276,9 @@ public final class NearestBlockEntityRenderer
             lighting = copy;
         }
 
-        void draw(PoseStack.Pose pose, VertexConsumer vertices) { vertices.putBakedQuad(pose, quad, lighting); }
+        void draw(PoseStack.Pose pose, VertexConsumer vertices) {
+            vertices.putBakedQuad(pose, quad, lighting);
+        }
     ^///?}
     //? if >=1.21.11 <26.1 {
     /^private record LitQuad(BakedQuad quad, float[] brightness, float r, float g, float b, float a, int[] light, int overlay) {
@@ -287,39 +313,61 @@ public final class NearestBlockEntityRenderer
         //? if >=1.21.11 <26.1 {
         /^private ChunkSectionLayer layer;
 
-        VertexConsumer forLayer(ChunkSectionLayer layer) { this.layer = layer; return this; }
+        VertexConsumer forLayer(ChunkSectionLayer layer) {
+            this.layer = layer;
+            return this;
+        }
 
         @Override
-        public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] brightness, float r, float g, float b, float a, int[] light, int overlay) {
+        public void putBulkData(
+                PoseStack.Pose pose, BakedQuad quad, float[] brightness, float r, float g, float b, float a, int[] light, int overlay) {
             if (transform == null) transform = new Matrix4f(pose.pose());
             add(quad, layer, new LitQuad(quad, brightness, r, g, b, a, light, overlay));
         }
 
-        private static UnsupportedOperationException looseVertex() { return new UnsupportedOperationException("Expected a baked quad"); }
+        private static UnsupportedOperationException looseVertex() {
+            return new UnsupportedOperationException("Expected a baked quad");
+        }
 
         @Override
-        public VertexConsumer addVertex(float x, float y, float z) { throw looseVertex(); }
+        public VertexConsumer addVertex(float x, float y, float z) {
+            throw looseVertex();
+        }
 
         @Override
-        public VertexConsumer setColor(int color) { throw looseVertex(); }
+        public VertexConsumer setColor(int color) {
+            throw looseVertex();
+        }
 
         @Override
-        public VertexConsumer setColor(int r, int g, int b, int a) { throw looseVertex(); }
+        public VertexConsumer setColor(int r, int g, int b, int a) {
+            throw looseVertex();
+        }
 
         @Override
-        public VertexConsumer setUv(float u, float v) { throw looseVertex(); }
+        public VertexConsumer setUv(float u, float v) {
+            throw looseVertex();
+        }
 
         @Override
-        public VertexConsumer setUv1(int u, int v) { throw looseVertex(); }
+        public VertexConsumer setUv1(int u, int v) {
+            throw looseVertex();
+        }
 
         @Override
-        public VertexConsumer setUv2(int u, int v) { throw looseVertex(); }
+        public VertexConsumer setUv2(int u, int v) {
+            throw looseVertex();
+        }
 
         @Override
-        public VertexConsumer setNormal(float x, float y, float z) { throw looseVertex(); }
+        public VertexConsumer setNormal(float x, float y, float z) {
+            throw looseVertex();
+        }
 
         @Override
-        public VertexConsumer setLineWidth(float width) { throw looseVertex(); }
+        public VertexConsumer setLineWidth(float width) {
+            throw looseVertex();
+        }
         ^///?}
     }
     *///?}

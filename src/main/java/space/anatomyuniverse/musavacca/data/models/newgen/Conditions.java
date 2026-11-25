@@ -1,11 +1,12 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public final class Conditions {
     private Conditions() {}
@@ -91,7 +92,9 @@ public final class Conditions {
             }
         }
 
-        public List<Term<?>> terms() { return terms; }
+        public List<Term<?>> terms() {
+            return terms;
+        }
 
         @Override
         public boolean equals(Object other) {
@@ -106,7 +109,9 @@ public final class Conditions {
 
     private static final Match ALWAYS = new Match(List.of());
 
-    public static Match always() { return ALWAYS; }
+    public static Match always() {
+        return ALWAYS;
+    }
 
     public static <T extends Comparable<T>> Match when(Property<T> property, T value) {
         return always().and(property, value);

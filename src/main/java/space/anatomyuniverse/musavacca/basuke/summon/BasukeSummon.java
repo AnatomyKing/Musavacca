@@ -1,11 +1,7 @@
 package space.anatomyuniverse.musavacca.basuke.summon;
 
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-//? if >=1.21.2 {
-import net.minecraft.world.entity.EntitySpawnReason;
-//?}
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.item.ItemStack;
@@ -21,6 +17,12 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+
+import java.util.List;
+
+//? if >=1.21.2 {
+import net.minecraft.world.entity.EntitySpawnReason;
+//?}
 
 public final class BasukeSummon {
     private BasukeSummon() {}
@@ -54,19 +56,30 @@ public final class BasukeSummon {
     }
 
     private static List<Basuke> findPresentBoundBasukes(ServerLevel level, BlockPos tablePos) {
-        AABB searchArea = new AABB(tablePos.getX() - 0.5D, tablePos.getY(), tablePos.getZ() - 0.5D, tablePos.getX() + 1.5D, tablePos.getY() + 3.0D,
-                tablePos.getZ() + 1.5D);
-        return level.getEntitiesOfClass(Basuke.class, searchArea,
+        AABB searchArea =
+                new AABB(
+                        tablePos.getX() - 0.5D,
+                        tablePos.getY(),
+                        tablePos.getZ() - 0.5D,
+                        tablePos.getX() + 1.5D,
+                        tablePos.getY() + 3.0D,
+                        tablePos.getZ() + 1.5D);
+        return level.getEntitiesOfClass(
+                Basuke.class,
+                searchArea,
                 basuke -> basuke.isAlive() && basuke.isBoundToVocoTable() && tablePos.equals(basuke.getVocoTablePos()));
     }
 
-    private static void completeRitual(ServerLevel level, BlockPos pos, VocoTableBlockEntity table, boolean sealing, List<Basuke> boundBasukes) {
+    private static void completeRitual(
+            ServerLevel level, BlockPos pos, VocoTableBlockEntity table, boolean sealing, List<Basuke> boundBasukes) {
         if (sealing) table.setDisplayedItem(new ItemStack(ModItems.BANANA_PHONE.get()), 1);
         else table.removeDisplayedItems(1);
         table.extinguishAllCandlesForSummon();
         BlockState newState = level.getBlockState(pos);
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
-            newState = newState.setValue(VocoTableBlock.lightProperty(receptor), false).setValue(VocoTableBlock.portalProperty(receptor), false);
+            newState =
+                    newState.setValue(VocoTableBlock.lightProperty(receptor), false)
+                            .setValue(VocoTableBlock.portalProperty(receptor), false);
             VocoTeleportLogic.syncEndpoint(level, pos, receptor, false, MusavaccaTints.NO_TINT);
         }
         level.setBlock(pos, newState.setValue(VocoTableBlock.ROTARY_DIALERS, !sealing), VocoReceptorLogic.UPDATE_FLAGS);

@@ -17,7 +17,8 @@ public final class GlinsterParticle extends SimpleAnimatedParticle {
     private final SpriteSet sprites;
     private final boolean burst;
 
-    private GlinsterParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, SpriteSet sprites, boolean burst) {
+    private GlinsterParticle(
+            ClientLevel level, double x, double y, double z, double xd, double yd, double zd, SpriteSet sprites, boolean burst) {
         super(level, x, y, z, sprites, burst ? 0.002F : 0.0F);
         this.sprites = sprites;
         this.burst = burst;
@@ -63,9 +64,11 @@ public final class GlinsterParticle extends SimpleAnimatedParticle {
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd,
+        public Particle createParticle(
+                SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd,
                 //? if >=1.21.9 {
-                /*double zd, RandomSource random) {
+                /*double zd,
+                RandomSource random) {
                 *///?} else {
                 double zd) {
                 //?}

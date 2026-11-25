@@ -2,21 +2,23 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.FoliageColor;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.List;
+import java.util.Objects;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.item.ItemStack;
 //? if >=26.1 {
 /*import net.minecraft.client.renderer.block.BlockAndTintGetter;
 *///?} else {
 import net.minecraft.world.level.BlockAndTintGetter;
 //?}
-import java.util.List;
-import java.util.Objects;
-import net.minecraft.world.level.FoliageColor;
-import net.minecraft.world.level.block.state.BlockState;
+
 //? if >=1.21.4 {
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.color.item.ItemTintSource;
@@ -140,7 +142,8 @@ public final class Tints {
 
         public GeneratedLayer singleLayer(String family) {
             if (layers.size() != 1) {
-                throw new IllegalStateException(family + " generates one texture carrier per model, but tint requires " + layers.size() + " generated layers");
+                throw new IllegalStateException(
+                        family + " generates one texture carrier per model, but tint requires " + layers.size() + " generated layers");
             }
             return layers.get(0);
         }

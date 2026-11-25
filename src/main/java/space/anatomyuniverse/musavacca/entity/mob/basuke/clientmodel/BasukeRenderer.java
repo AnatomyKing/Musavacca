@@ -3,20 +3,20 @@ package space.anatomyuniverse.musavacca.entity.mob.basuke.clientmodel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 //? if >=1.21.4 {
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 //?}
-import net.minecraft.core.BlockPos;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 
 public final class BasukeRenderer extends
         //? if >=1.21.2 {
@@ -28,7 +28,8 @@ public final class BasukeRenderer extends
     //? if >=1.21.11 {
     /*private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/basuke/basuke.png");
     *///?} else {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/basuke/basuke.png");
+    private static final ResourceLocation TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "textures/entity/basuke/basuke.png");
 
     //?}
     //? if >=1.21.4 {

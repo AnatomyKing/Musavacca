@@ -44,7 +44,8 @@ public final class PressurePlateBlocks {
 
         public void validate() {
             if (!(block() instanceof BasePressurePlateBlock)) {
-                throw new IllegalStateException("PressurePlateBlocks requires a BasePressurePlateBlock: " + ModelLocations.blockId(block()));
+                throw new IllegalStateException(
+                        "PressurePlateBlocks requires a BasePressurePlateBlock: " + ModelLocations.blockId(block()));
             }
             if (!block().defaultBlockState().hasProperty(PressurePlateBlock.POWERED)) {
                 Conditions.requireProperty(block(), BlockStateProperties.POWER, "PressurePlateBlocks");

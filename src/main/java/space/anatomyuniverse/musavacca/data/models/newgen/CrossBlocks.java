@@ -1,9 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+import net.minecraft.world.level.block.Block;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import net.minecraft.world.level.block.Block;
 
 public final class CrossBlocks {
     private CrossBlocks() {}
@@ -54,7 +55,11 @@ public final class CrossBlocks {
 
     public static final class Entry extends BlockFamily.ModelFamilyEntry<Model, Part> {
         private Entry(Builder builder) {
-            super(builder, builder.generated ? List.of(Model.always(CrossModels.generated(builder.block, builder.generatedTextureConfig))) : builder.models,
+            super(
+                    builder,
+                    builder.generated
+                            ? List.of(Model.always(CrossModels.generated(builder.block, builder.generatedTextureConfig)))
+                            : builder.models,
                     builder.generated ? List.of() : builder.parts);
         }
 
@@ -79,8 +84,7 @@ public final class CrossBlocks {
         }
 
         public static final class Builder extends BlockFamily.ModelFamilyBuilder<Builder, Model, Part> {
-            private Consumer<FamilyTextures.Builder> generatedTextureConfig = textures -> {
-            };
+            private Consumer<FamilyTextures.Builder> generatedTextureConfig = textures -> {};
 
             private Builder(Block block) {
                 super(block);

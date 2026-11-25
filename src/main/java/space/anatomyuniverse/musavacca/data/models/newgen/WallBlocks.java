@@ -42,7 +42,8 @@ public final class WallBlocks {
         }
 
         public void validate() {
-            if (!(block() instanceof WallBlock)) throw new IllegalStateException("WallBlocks requires a WallBlock: " + ModelLocations.blockId(block()));
+            if (!(block() instanceof WallBlock))
+                throw new IllegalStateException("WallBlocks requires a WallBlock: " + ModelLocations.blockId(block()));
             Conditions.requireProperty(block(), BlockStateProperties.UP, "WallBlocks");
             Conditions.requireProperty(block(), BlockStateProperties.NORTH_WALL, "WallBlocks");
             Conditions.requireProperty(block(), BlockStateProperties.EAST_WALL, "WallBlocks");

@@ -29,7 +29,10 @@ public final class VocoReceptorLogic {
     private VocoReceptorLogic() {}
 
     public enum ReceptorPosition {
-        NORTH_EAST(0, -135, 0), NORTH_WEST(1, 135, 0), SOUTH_EAST(2, -45, 0), SOUTH_WEST(3, 45, 0);
+        NORTH_EAST(0, -135, 0),
+        NORTH_WEST(1, 135, 0),
+        SOUTH_EAST(2, -45, 0),
+        SOUTH_WEST(3, 45, 0);
 
         public static final int COUNT = 4;
         private static final ReceptorPosition[] BY_ID = values();
@@ -84,25 +87,26 @@ public final class VocoReceptorLogic {
         return player != null && player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty();
     }
 
-    public static PearlSlotIgnition.Slot pearlSlot(BooleanProperty litProperty, @Nullable BooleanProperty portalProperty, ReceptorPosition receptor) {
+    public static PearlSlotIgnition.Slot pearlSlot(
+            BooleanProperty litProperty, @Nullable BooleanProperty portalProperty, ReceptorPosition receptor) {
         return PearlSlotIgnition.Slot.of(litProperty, portalProperty, pearlPopOffset(receptor), pearlPopMotion(receptor));
     }
 
     private static Vec3 pearlPopOffset(ReceptorPosition receptor) {
         return switch (receptor) {
-        case NORTH_EAST -> new Vec3(0.8125D, 1.05D, 0.1875D);
-        case NORTH_WEST -> new Vec3(0.1875D, 1.05D, 0.1875D);
-        case SOUTH_EAST -> new Vec3(0.8125D, 1.05D, 0.8125D);
-        case SOUTH_WEST -> new Vec3(0.1875D, 1.05D, 0.8125D);
+            case NORTH_EAST -> new Vec3(0.8125D, 1.05D, 0.1875D);
+            case NORTH_WEST -> new Vec3(0.1875D, 1.05D, 0.1875D);
+            case SOUTH_EAST -> new Vec3(0.8125D, 1.05D, 0.8125D);
+            case SOUTH_WEST -> new Vec3(0.1875D, 1.05D, 0.8125D);
         };
     }
 
     private static Vec3 pearlPopMotion(ReceptorPosition receptor) {
         return switch (receptor) {
-        case NORTH_EAST -> new Vec3(0.08D, 0.18D, -0.08D);
-        case NORTH_WEST -> new Vec3(-0.08D, 0.18D, -0.08D);
-        case SOUTH_EAST -> new Vec3(0.08D, 0.18D, 0.08D);
-        case SOUTH_WEST -> new Vec3(-0.08D, 0.18D, 0.08D);
+            case NORTH_EAST -> new Vec3(0.08D, 0.18D, -0.08D);
+            case NORTH_WEST -> new Vec3(-0.08D, 0.18D, -0.08D);
+            case SOUTH_EAST -> new Vec3(0.08D, 0.18D, 0.08D);
+            case SOUTH_WEST -> new Vec3(-0.08D, 0.18D, 0.08D);
         };
     }
 

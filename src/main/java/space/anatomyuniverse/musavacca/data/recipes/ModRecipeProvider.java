@@ -5,7 +5,6 @@ package space.anatomyuniverse.musavacca.data.recipes;
 *///?} else {
 import net.minecraft.advancements.Criterion;
 //?}
-import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -19,6 +18,8 @@ import org.jetbrains.annotations.NotNull;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.item.PearlIgniter;
+
+import java.util.concurrent.CompletableFuture;
 
 public final class ModRecipeProvider extends RecipeProvider {
     public static final String MOD_ID = "musavacca";
@@ -101,7 +102,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .reversible()
                 .unlockedByHas(ModItems.BANANA_PEARL.get())
                 .save("misc");
-
 
         dsl.shaped(RecipeCategory.REDSTONE, ModItems.BANANA_PEARL_DUST.get(), 4)
                 .pattern(" d ")
@@ -241,7 +241,6 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .unlockedByHas(ModItems.BANANA_PELLIS.get())
                 .save("misc/banana_pellis_bundle");
 
-
         dsl.shapeless(RecipeCategory.MISC, PearlIgniter.recipeResult())
                 .requires(Items.FLINT, ModItems.BANANA_PEARL.get())
                 .unlockedByHas(Items.FLINT, ModItems.BANANA_PEARL.get())
@@ -360,5 +359,3 @@ public final class ModRecipeProvider extends RecipeProvider {
                 .save("smithing/fractured_potassium_upgrade_smithing_template_duplication");
     }
 }
-
-

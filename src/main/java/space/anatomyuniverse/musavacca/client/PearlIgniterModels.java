@@ -19,8 +19,8 @@ public final class PearlIgniterModels {
     private PearlIgniterModels() {}
 
     //? if <1.21.2 {
-    /*private static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(
-            ResourceLocation.fromNamespaceAndPath("musavacca", "item/flint_and_pearl"));
+    /*private static final ModelResourceLocation MODEL =
+            ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath("musavacca", "item/flint_and_pearl"));
 
     public static void register(IEventBus modBus) {
         modBus.addListener(PearlIgniterModels::registerAdditional);
@@ -36,19 +36,30 @@ public final class PearlIgniterModels {
         BakedModel vanilla = event.getModels().get(key);
         BakedModel pearl = event.getModels().get(MODEL);
         if (vanilla == null || pearl == null) return;
-        event.getModels().put(key, new BakedModelWrapper<BakedModel>(vanilla) {
-            private final ItemOverrides overrides = new ItemOverrides() {
-                @Override
-                public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
-                    BakedModel selected = PearlIgniter.is(stack) ? pearl : vanilla;
-                    BakedModel resolved = selected.getOverrides().resolve(selected, stack, level, entity, seed);
-                    return resolved == null ? selected : resolved;
-                }
-            };
+        event.getModels()
+                .put(
+                        key,
+                        new BakedModelWrapper<BakedModel>(vanilla) {
+                            private final ItemOverrides overrides =
+                                    new ItemOverrides() {
+                                        @Override
+                                        public BakedModel resolve(
+                                                BakedModel model,
+                                                ItemStack stack,
+                                                @Nullable ClientLevel level,
+                                                @Nullable LivingEntity entity,
+                                                int seed) {
+                                            BakedModel selected = PearlIgniter.is(stack) ? pearl : vanilla;
+                                            BakedModel resolved = selected.getOverrides().resolve(selected, stack, level, entity, seed);
+                                            return resolved == null ? selected : resolved;
+                                        }
+                                    };
 
-            @Override
-            public ItemOverrides getOverrides() { return overrides; }
-        });
+                            @Override
+                            public ItemOverrides getOverrides() {
+                                return overrides;
+                            }
+                        });
     }
     *///?}
 }

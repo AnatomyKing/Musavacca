@@ -1,6 +1,12 @@
 package space.anatomyuniverse.musavacca.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
+import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
+import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 //? if >=1.21.9 {
 /*import net.minecraft.client.input.MouseButtonEvent;
 *///?}
@@ -28,17 +34,11 @@ import net.minecraft.client.renderer.RenderPipelines;
 //?} else if <1.21.2 {
 /*import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 *///?}
-import net.minecraft.network.chat.Component;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.entity.player.Inventory;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
-import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
-import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 
 public final class VocoCallerScreen
         //? if >=1.21.2 {
@@ -122,7 +122,13 @@ public final class VocoCallerScreen
     //?}
         this.tickHeldArrow();
         this.tickSpaceButton();
-        blit(graphics, this.isPhoneScreenFlashing() ? PHONE_SCREEN_FLASH_TEXTURE : PHONE_SCREEN_TEXTURE, this.leftPos, this.topPos, 126, 206);
+        blit(
+                graphics,
+                this.isPhoneScreenFlashing() ? PHONE_SCREEN_FLASH_TEXTURE : PHONE_SCREEN_TEXTURE,
+                this.leftPos,
+                this.topPos,
+                126,
+                206);
         this.dialer.render(graphics, this.leftPos + 129, this.topPos + 42);
         nextLayer(graphics);
         blit(graphics, BUTTON_BAR_TEXTURE, this.leftPos + 129, this.topPos, 157, 39);
@@ -234,9 +240,11 @@ public final class VocoCallerScreen
         }
         this.clearPendingSpaceClick();
         //? if >=1.21.9 {
-        /*return this.dialer.mouseClicked(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42) || super.mouseClicked(event, doubleClick);
+        /*return this.dialer.mouseClicked(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42)
+                || super.mouseClicked(event, doubleClick);
         *///?} else {
-        return this.dialer.mouseClicked(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42) || super.mouseClicked(mouseX, mouseY, button);
+        return this.dialer.mouseClicked(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42)
+                || super.mouseClicked(mouseX, mouseY, button);
         //?}
     }
 
@@ -250,7 +258,8 @@ public final class VocoCallerScreen
         /*double mouseX = event.x();
         double mouseY = event.y();
         int button = event.button();
-        return this.dialer.mouseDragged(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42) || super.mouseDragged(event, dragX, dragY);
+        return this.dialer.mouseDragged(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42)
+                || super.mouseDragged(event, dragX, dragY);
         *///?} else {
         return this.dialer.mouseDragged(mouseX, mouseY, button, this.leftPos + 129, this.topPos + 42)
                 || super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
@@ -305,10 +314,9 @@ public final class VocoCallerScreen
 
     private void activateButton(CallerButton button) {
         switch (button) {
-        case LEFT -> this.moveSelection(-1);
-        case SPACE -> {
-        }
-        case RIGHT -> this.moveSelection(1);
+            case LEFT -> this.moveSelection(-1);
+            case SPACE -> {}
+            case RIGHT -> this.moveSelection(1);
         }
     }
 
@@ -366,7 +374,9 @@ public final class VocoCallerScreen
 
     private void tickSpaceButton() {
         long now = System.nanoTime();
-        if (this.pressedButton == CallerButton.SPACE && this.spacePressPosition >= 0 && !this.spacePressConsumed
+        if (this.pressedButton == CallerButton.SPACE
+                && this.spacePressPosition >= 0
+                && !this.spacePressConsumed
                 && now - this.spacePressStartNanos >= 650_000_000L) {
             this.clearPendingSpaceClick();
             this.spaceDoubleClick = false;
@@ -521,8 +531,12 @@ public final class VocoCallerScreen
             return;
         }
         String before = this.menu.getCurrentDialed();
-        boolean completesCall = buttonId > VocoDialerMenu.BUTTON_CLEAR
-                || buttonId >= VocoDialerMenu.BUTTON_HEX_0 && buttonId <= VocoDialerMenu.BUTTON_HEX_F && before != null && before.length() == 5;
+        boolean completesCall =
+                buttonId > VocoDialerMenu.BUTTON_CLEAR
+                        || buttonId >= VocoDialerMenu.BUTTON_HEX_0
+                                && buttonId <= VocoDialerMenu.BUTTON_HEX_F
+                                && before != null
+                                && before.length() == 5;
         if (!this.menu.clickMenuButton(this.minecraft.player, buttonId)) {
             return;
         }
@@ -533,8 +547,9 @@ public final class VocoCallerScreen
     }
 
     private void syncCallStateToServer() {
-        VocoCallerStatePayload payload = new VocoCallerStatePayload(this.menu.containerId, this.menu.getPhoneHex(), this.menu.copyRecentAddresses(),
-                this.menu.copySavedAddresses());
+        VocoCallerStatePayload payload =
+                new VocoCallerStatePayload(
+                        this.menu.containerId, this.menu.getPhoneHex(), this.menu.copyRecentAddresses(), this.menu.copySavedAddresses());
         //? if >=1.21.6 {
         ClientPacketDistributor.sendToServer(payload);
         //?} else {
@@ -651,7 +666,9 @@ public final class VocoCallerScreen
     }
 
     private enum CallerButton {
-        LEFT(155, 20), SPACE(183, 49), RIGHT(240, 20);
+        LEFT(155, 20),
+        SPACE(183, 49),
+        RIGHT(240, 20);
 
         private final int x;
         private final int width;
@@ -667,9 +684,9 @@ public final class VocoCallerScreen
         private ResourceLocation texture(boolean pressed) {
         //?}
             return switch (this) {
-            case LEFT -> pressed ? ARROW_LEFT_PRESSED_TEXTURE : ARROW_LEFT_TEXTURE;
-            case SPACE -> pressed ? SPACE_BUTTON_PRESSED_TEXTURE : SPACE_BUTTON_TEXTURE;
-            case RIGHT -> pressed ? ARROW_RIGHT_PRESSED_TEXTURE : ARROW_RIGHT_TEXTURE;
+                case LEFT -> pressed ? ARROW_LEFT_PRESSED_TEXTURE : ARROW_LEFT_TEXTURE;
+                case SPACE -> pressed ? SPACE_BUTTON_PRESSED_TEXTURE : SPACE_BUTTON_TEXTURE;
+                case RIGHT -> pressed ? ARROW_RIGHT_PRESSED_TEXTURE : ARROW_RIGHT_TEXTURE;
             };
         }
     }

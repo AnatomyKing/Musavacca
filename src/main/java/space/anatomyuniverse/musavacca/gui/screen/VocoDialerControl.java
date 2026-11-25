@@ -1,6 +1,11 @@
 package space.anatomyuniverse.musavacca.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.bar.balance.ClientBalanceData;
+import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
+
+import java.util.function.IntConsumer;
 //? if <1.21.2 {
 /*import com.mojang.blaze3d.systems.RenderSystem;
 *///?}
@@ -23,10 +28,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 //?}
-import java.util.function.IntConsumer;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.bar.balance.ClientBalanceData;
-import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
 
 public final class VocoDialerControl {
     //? if >=1.21.11 {
@@ -48,18 +49,18 @@ public final class VocoDialerControl {
     private static final float STOPPER_MAX_SWING_ANGLE_RADIANS = -(float) (Math.PI / 2.0D);
     private static final Rect MIDDLE_BUTTON = new Rect(66, 66, 90, 91);
     private static final DialEntry[] DIAL_ENTRIES = {
-            new DialEntry(new Hole(83, 33), 1, 10),
-            new DialEntry(new Hole(83, 8), 2, 11),
-            new DialEntry(new Hole(58, 8), 3, 12),
-            new DialEntry(new Hole(32, 8), 4, 13),
-            new DialEntry(new Hole(8, 8), 5, 14),
-            new DialEntry(new Hole(8, 33), 6, 15),
-            new DialEntry(new Hole(8, 58), 7, (-1)),
-            new DialEntry(new Hole(8, 83), 8, (-1)),
-            new DialEntry(new Hole(33, 83), 9, (-1)),
-            new DialEntry(new Hole(58, 83), 0, (-1))
+        new DialEntry(new Hole(83, 33), 1, 10),
+        new DialEntry(new Hole(83, 8), 2, 11),
+        new DialEntry(new Hole(58, 8), 3, 12),
+        new DialEntry(new Hole(32, 8), 4, 13),
+        new DialEntry(new Hole(8, 8), 5, 14),
+        new DialEntry(new Hole(8, 33), 6, 15),
+        new DialEntry(new Hole(8, 58), 7, (-1)),
+        new DialEntry(new Hole(8, 83), 8, (-1)),
+        new DialEntry(new Hole(33, 83), 9, (-1)),
+        new DialEntry(new Hole(58, 83), 0, (-1))
     };
-    private static final Rect[] STOPPER_RECTS = { new Rect(157, 85, 167, 94), new Rect(91, 94, 167, 106) };
+    private static final Rect[] STOPPER_RECTS = {new Rect(157, 85, 167, 94), new Rect(91, 94, 167, 106)};
     private final IntConsumer buttonSender;
     private float diskAngleRadians = 0.0F;
     private float previousDragMouseAngleRadians = 0.0F;
@@ -124,7 +125,8 @@ public final class VocoDialerControl {
     *///?} else {
     private void blitDisk(GuiGraphics graphics, int guiX, int guiY) {
     //?}
-        this.blitRotatedTexture(graphics, DISK_TEXTURE, guiX + DISK_X, guiY + DISK_Y, 105, 105, guiX + 78.0F, guiY + 78.0F, this.diskAngleRadians);
+        this.blitRotatedTexture(
+                graphics, DISK_TEXTURE, guiX + DISK_X, guiY + DISK_Y, 105, 105, guiX + 78.0F, guiY + 78.0F, this.diskAngleRadians);
     }
 
     //? if >=26.1 {
@@ -134,17 +136,34 @@ public final class VocoDialerControl {
     *///?} else {
     private void blitStopper(GuiGraphics graphics, ResourceLocation texture, int guiX, int guiY) {
     //?}
-        this.blitRotatedTexture(graphics, texture, guiX + 91, guiY + 85, 76, 21, guiX + 91 + 65.0F, guiY + 85 + 10.0F, this.stopperAngleRadians);
+        this.blitRotatedTexture(
+                graphics, texture, guiX + 91, guiY + 85, 76, 21, guiX + 91 + 65.0F, guiY + 85 + 10.0F, this.stopperAngleRadians);
     }
 
     //? if >=26.1 {
-    /*private void blitRotatedTexture(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width, int height, float axisX, float axisY,
+    /*private void blitRotatedTexture(
+            GuiGraphicsExtractor graphics,
+            Identifier texture,
+            int x,
+            int y,
+            int width,
+            int height,
+            float axisX,
+            float axisY,
             float angleRadians) {
     *///?} else if >=1.21.11 <26.1 {
-    /*private void blitRotatedTexture(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height, float axisX, float axisY,
-            float angleRadians) {
+    /*private void blitRotatedTexture(
+            GuiGraphics graphics, Identifier texture, int x, int y, int width, int height, float axisX, float axisY, float angleRadians) {
     *///?} else {
-    private void blitRotatedTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, float axisX, float axisY,
+    private void blitRotatedTexture(
+            GuiGraphics graphics,
+            ResourceLocation texture,
+            int x,
+            int y,
+            int width,
+            int height,
+            float axisX,
+            float axisY,
             float angleRadians) {
     //?}
         var pose = graphics.pose();
@@ -374,7 +393,8 @@ public final class VocoDialerControl {
                 double dy = unrotatedGuiY - 78.0F;
                 double rotatedGuiX = 78.0F + dx * cos - dy * sin;
                 double rotatedGuiY = 78.0F + dx * sin + dy * cos;
-                if (this.isGuiLocalPointInsideStopper(rotatedGuiX, rotatedGuiY) && ++coveredPixels >= DIAL_HOLE_HALF_COVERED_COUNT) return true;
+                if (this.isGuiLocalPointInsideStopper(rotatedGuiX, rotatedGuiY) && ++coveredPixels >= DIAL_HOLE_HALF_COVERED_COUNT)
+                    return true;
             }
         }
         return false;
@@ -417,7 +437,9 @@ public final class VocoDialerControl {
     }
 
     private enum ReturnReason {
-        NONE, RELEASED_EARLY, HIT_STOPPER
+        NONE,
+        RELEASED_EARLY,
+        HIT_STOPPER
     }
 
     private record Point(double x, double y) {}

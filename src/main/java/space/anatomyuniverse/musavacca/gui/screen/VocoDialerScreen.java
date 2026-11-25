@@ -4,14 +4,14 @@ package space.anatomyuniverse.musavacca.gui.screen;
 /*import net.minecraft.client.input.MouseButtonEvent;
 *///?}
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
 //? if >=26.1 {
 /*import net.minecraft.client.gui.GuiGraphicsExtractor;
 *///?} else {
 import net.minecraft.client.gui.GuiGraphics;
 //?}
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
 
 public class VocoDialerScreen extends AbstractContainerScreen<VocoDialerMenu> {
     private final VocoDialerControl dialer = new VocoDialerControl(this::sendMenuButton);
@@ -66,7 +66,8 @@ public class VocoDialerScreen extends AbstractContainerScreen<VocoDialerMenu> {
         int button = event.button();
         return this.dialer.mouseDragged(mouseX, mouseY, button, this.leftPos, this.topPos) || super.mouseDragged(event, dragX, dragY);
         *///?} else {
-        return this.dialer.mouseDragged(mouseX, mouseY, button, this.leftPos, this.topPos) || super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return this.dialer.mouseDragged(mouseX, mouseY, button, this.leftPos, this.topPos)
+                || super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
         //?}
     }
 

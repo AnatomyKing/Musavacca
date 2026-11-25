@@ -1,12 +1,13 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.List;
 
 public final class VocoHitboxes {
     private VocoHitboxes() {}
@@ -34,8 +35,12 @@ public final class VocoHitboxes {
 
     public record Box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         public boolean contains(Vec3 point) {
-            return point.x >= this.minX && point.x <= this.maxX && point.y >= this.minY && point.y <= this.maxY
-                    && point.z >= this.minZ && point.z <= this.maxZ;
+            return point.x >= this.minX
+                    && point.x <= this.maxX
+                    && point.y >= this.minY
+                    && point.y <= this.maxY
+                    && point.z >= this.minZ
+                    && point.z <= this.maxZ;
         }
 
         public VoxelShape toShape() {

@@ -14,8 +14,10 @@ public final class MusavaccaPortalTrapdoorHitboxes {
     private MusavaccaPortalTrapdoorHitboxes() {}
 
     public static boolean hasOpenPortal(BlockState state) {
-        return state.hasProperty(MusavaccaPortalTrapdoorBlock.PORTAL) && state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
-                && state.hasProperty(MusavaccaPortalTrapdoorBlock.OPEN) && state.getValue(MusavaccaPortalTrapdoorBlock.OPEN);
+        return state.hasProperty(MusavaccaPortalTrapdoorBlock.PORTAL)
+                && state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
+                && state.hasProperty(MusavaccaPortalTrapdoorBlock.OPEN)
+                && state.getValue(MusavaccaPortalTrapdoorBlock.OPEN);
     }
 
     public static VoxelShape portalPanel(BlockState state) {

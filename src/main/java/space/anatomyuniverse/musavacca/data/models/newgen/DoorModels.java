@@ -10,15 +10,35 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.Nullable;
 
 //? if >=1.21.11 {
-/*public record DoorModels(Identifier bottomLeft, Identifier bottomLeftOpen, Identifier bottomRight, Identifier bottomRightOpen,
-        Identifier topLeft, Identifier topLeftOpen, Identifier topRight, Identifier topRightOpen) {
+/*public record DoorModels(
+        Identifier bottomLeft,
+        Identifier bottomLeftOpen,
+        Identifier bottomRight,
+        Identifier bottomRightOpen,
+        Identifier topLeft,
+        Identifier topLeftOpen,
+        Identifier topRight,
+        Identifier topRightOpen) {
 *///?} else {
-public record DoorModels(ResourceLocation bottomLeft, ResourceLocation bottomLeftOpen, ResourceLocation bottomRight, ResourceLocation bottomRightOpen,
-        ResourceLocation topLeft, ResourceLocation topLeftOpen, ResourceLocation topRight, ResourceLocation topRightOpen) {
+public record DoorModels(
+        ResourceLocation bottomLeft,
+        ResourceLocation bottomLeftOpen,
+        ResourceLocation bottomRight,
+        ResourceLocation bottomRightOpen,
+        ResourceLocation topLeft,
+        ResourceLocation topLeftOpen,
+        ResourceLocation topRight,
+        ResourceLocation topRightOpen) {
 //?}
     public DoorModels {
-        if (bottomLeft == null && bottomLeftOpen == null && bottomRight == null && bottomRightOpen == null && topLeft == null
-                && topLeftOpen == null && topRight == null && topRightOpen == null) throw new IllegalStateException("DoorModels requires at least one model");
+        if (bottomLeft == null
+                && bottomLeftOpen == null
+                && bottomRight == null
+                && bottomRightOpen == null
+                && topLeft == null
+                && topLeftOpen == null
+                && topRight == null
+                && topRightOpen == null) throw new IllegalStateException("DoorModels requires at least one model");
     }
 
     public static Builder builder() {
@@ -26,13 +46,33 @@ public record DoorModels(ResourceLocation bottomLeft, ResourceLocation bottomLef
     }
 
     public static DoorModels lower(String bottomLeft, String bottomLeftOpen, String bottomRight, String bottomRightOpen) {
-        return builder().bottomLeft(bottomLeft).bottomLeftOpen(bottomLeftOpen).bottomRight(bottomRight).bottomRightOpen(bottomRightOpen).build();
+        return builder()
+                .bottomLeft(bottomLeft)
+                .bottomLeftOpen(bottomLeftOpen)
+                .bottomRight(bottomRight)
+                .bottomRightOpen(bottomRightOpen)
+                .build();
     }
 
-    public static DoorModels full(String bottomLeft, String bottomLeftOpen, String bottomRight, String bottomRightOpen, String topLeft, String topLeftOpen,
-            String topRight, String topRightOpen) {
-        return builder().bottomLeft(bottomLeft).bottomLeftOpen(bottomLeftOpen).bottomRight(bottomRight).bottomRightOpen(bottomRightOpen).topLeft(topLeft)
-                .topLeftOpen(topLeftOpen).topRight(topRight).topRightOpen(topRightOpen).build();
+    public static DoorModels full(
+            String bottomLeft,
+            String bottomLeftOpen,
+            String bottomRight,
+            String bottomRightOpen,
+            String topLeft,
+            String topLeftOpen,
+            String topRight,
+            String topRightOpen) {
+        return builder()
+                .bottomLeft(bottomLeft)
+                .bottomLeftOpen(bottomLeftOpen)
+                .bottomRight(bottomRight)
+                .bottomRightOpen(bottomRightOpen)
+                .topLeft(topLeft)
+                .topLeftOpen(topLeftOpen)
+                .topRight(topRight)
+                .topRightOpen(topRightOpen)
+                .build();
     }
 
     @Nullable

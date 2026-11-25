@@ -1,23 +1,12 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
-import java.util.Optional;
-import net.minecraft.nbt.NbtOps;
-import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
-import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
-import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-//? if >=1.21.5 {
-import net.minecraft.core.component.DataComponentGetter;
-//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-//? if <1.21.5 {
-/*import net.minecraft.nbt.Tag;
-*///?}
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -25,21 +14,12 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
-//? if >=1.21.2 {
-import net.minecraft.world.entity.EntitySpawnReason;
-//?}
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if >=1.21.6 {
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-//?}
-import java.util.List;
-import java.util.UUID;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
@@ -53,14 +33,37 @@ import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
 import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
+import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
+import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.MultiHexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+//? if >=1.21.5 {
+import net.minecraft.core.component.DataComponentGetter;
+//?}
+//? if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+*///?}
+//? if >=1.21.2 {
+import net.minecraft.world.entity.EntitySpawnReason;
+//?}
+//? if >=1.21.6 {
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+//?}
+
 public class VocoTableBlockEntity extends BlockEntity implements HexSource, MultiHexSource {
     private UUID deviceId = UUID.randomUUID();
 
-    public UUID getDeviceId() { return this.deviceId; }
+    public UUID getDeviceId() {
+        return this.deviceId;
+    }
 
     public void setDeviceId(UUID deviceId) {
         if (deviceId == null || deviceId.equals(this.deviceId)) return;
@@ -72,15 +75,23 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
     private static final String TAG_DISPLAYED_ITEM_COUNT = "displayed_item_count";
     private static final String TAG_LATEST_HEX_RECEPTOR_ID = "latest_hex_receptor_id";
-    private static final String[] TAG_YAW_DEGREES = { "yaw_north_east", "yaw_north_west", "yaw_south_east", "yaw_south_west" };
-    private static final String[] TAG_PITCH_DEGREES = { "pitch_north_east", "pitch_north_west", "pitch_south_east", "pitch_south_west" };
-    private static final String[] TAG_CUSTOM_TARGET = { "custom_target_north_east", "custom_target_north_west", "custom_target_south_east",
-            "custom_target_south_west" };
-    private static final String[] TAG_TARGET_X = { "target_x_north_east", "target_x_north_west", "target_x_south_east", "target_x_south_west" };
-    private static final String[] TAG_TARGET_Y = { "target_y_north_east", "target_y_north_west", "target_y_south_east", "target_y_south_west" };
-    private static final String[] TAG_TARGET_Z = { "target_z_north_east", "target_z_north_west", "target_z_south_east", "target_z_south_west" };
-    private static final ReceptorPosition[] MULTI_HEX_RECEPTORS = { ReceptorPosition.NORTH_EAST, ReceptorPosition.SOUTH_EAST, ReceptorPosition.SOUTH_WEST,
-            ReceptorPosition.NORTH_WEST };
+    private static final String[] TAG_YAW_DEGREES = {"yaw_north_east", "yaw_north_west", "yaw_south_east", "yaw_south_west"};
+    private static final String[] TAG_PITCH_DEGREES = {"pitch_north_east", "pitch_north_west", "pitch_south_east", "pitch_south_west"};
+    private static final String[] TAG_CUSTOM_TARGET = {
+        "custom_target_north_east", "custom_target_north_west", "custom_target_south_east", "custom_target_south_west"
+    };
+    private static final String[] TAG_TARGET_X = {
+        "target_x_north_east", "target_x_north_west", "target_x_south_east", "target_x_south_west"
+    };
+    private static final String[] TAG_TARGET_Y = {
+        "target_y_north_east", "target_y_north_west", "target_y_south_east", "target_y_south_west"
+    };
+    private static final String[] TAG_TARGET_Z = {
+        "target_z_north_east", "target_z_north_west", "target_z_south_east", "target_z_south_west"
+    };
+    private static final ReceptorPosition[] MULTI_HEX_RECEPTORS = {
+        ReceptorPosition.NORTH_EAST, ReceptorPosition.SOUTH_EAST, ReceptorPosition.SOUTH_WEST, ReceptorPosition.NORTH_WEST
+    };
     private final NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
     private int displayedItemCount = 0;
     private final int[] yawDegrees = new int[ReceptorPosition.COUNT];
@@ -95,8 +106,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     private int latestHexColor = MusavaccaTints.NO_TINT;
     private int latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
     private boolean basukeVisible = false;
-    @Nullable
-    private UUID basukeUuid = null;
+    @Nullable private UUID basukeUuid = null;
 
     public VocoTableBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.VOCO_TABLE_BLOCK_ENTITY.get(), pos, state);
@@ -131,7 +141,10 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     public boolean canMergeDisplayedItem(ItemStack stack) {
         ItemStack displayed = this.getDisplayedItem();
-        return this.hasDisplayedItem() && !stack.isEmpty() && displayed.getMaxStackSize() > 1 && ItemStack.isSameItemSameComponents(displayed, stack);
+        return this.hasDisplayedItem()
+                && !stack.isEmpty()
+                && displayed.getMaxStackSize() > 1
+                && ItemStack.isSameItemSameComponents(displayed, stack);
     }
 
     public int addDisplayedItems(ItemStack stack, int requestedAmount) {
@@ -376,7 +389,8 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     private void forceRotaryDialers(ServerLevel level, boolean active) {
         BlockState state = level.getBlockState(this.getBlockPos());
-        if (!(state.getBlock() instanceof VocoTableBlock) || !state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
+        if (!(state.getBlock() instanceof VocoTableBlock)
+                || !state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
                 || state.getValue(VocoTableBlock.ROTARY_DIALERS) == active) {
             return;
         }
@@ -411,7 +425,8 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         Level level = this.getLevel();
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockState state = this.getBlockState();
-        boolean portalActive = state.hasProperty(VocoTableBlock.portalProperty(receptor)) && state.getValue(VocoTableBlock.portalProperty(receptor));
+        boolean portalActive =
+                state.hasProperty(VocoTableBlock.portalProperty(receptor)) && state.getValue(VocoTableBlock.portalProperty(receptor));
         if (!portalActive) return;
         int hexColor = this.getPortalHexColorOrNoTint(receptor);
         if (hexColor == MusavaccaTints.NO_TINT) {
@@ -437,7 +452,8 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         BlockState newState = state;
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             if (isPearlCandleLit(receptor)) continue;
-            if (newState.hasProperty(VocoTableBlock.portalProperty(receptor)) && newState.getValue(VocoTableBlock.portalProperty(receptor))) {
+            if (newState.hasProperty(VocoTableBlock.portalProperty(receptor))
+                    && newState.getValue(VocoTableBlock.portalProperty(receptor))) {
                 newState = newState.setValue(VocoTableBlock.portalProperty(receptor), false);
             }
         }
@@ -541,7 +557,8 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         Level level = this.getLevel();
         if (level instanceof ServerLevel serverLevel) {
             for (ReceptorPosition receptor : ReceptorPosition.values()) {
-                HexTeleportAddressNetwork.releaseOwner(serverLevel.getServer(), HexTeleportDirectory.vocoTableReceptorCornerOwnerKey(this.deviceId, receptor));
+                HexTeleportAddressNetwork.releaseOwner(
+                        serverLevel.getServer(), HexTeleportDirectory.vocoTableReceptorCornerOwnerKey(this.deviceId, receptor));
             }
             this.removeBasuke(serverLevel);
         }
@@ -569,7 +586,9 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         //? if >=1.21.5 {
         this.deviceId = TeleportDeviceIdentity.read(input.getStringOr("musavacca_device_id", ""));
         //?} else {
-        /*this.deviceId = TeleportDeviceIdentity.read(input.contains("musavacca_device_id", Tag.TAG_STRING) ? input.getString("musavacca_device_id") : "");
+        /*this.deviceId =
+                TeleportDeviceIdentity.read(
+                        input.contains("musavacca_device_id", Tag.TAG_STRING) ? input.getString("musavacca_device_id") : "");
         *///?}
         this.items.clear();
         //? if >=1.21.6 {
@@ -580,8 +599,10 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         //? if >=1.21.5 {
         int loadedDisplayedItemCount = input.getIntOr(TAG_DISPLAYED_ITEM_COUNT, this.items.get(0).getCount());
         //?} else {
-        /*int loadedDisplayedItemCount = (input.contains(TAG_DISPLAYED_ITEM_COUNT, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_DISPLAYED_ITEM_COUNT)
-                : this.items.get(0).getCount());
+        /*int loadedDisplayedItemCount =
+                (input.contains(TAG_DISPLAYED_ITEM_COUNT, Tag.TAG_ANY_NUMERIC)
+                        ? input.getInt(TAG_DISPLAYED_ITEM_COUNT)
+                        : this.items.get(0).getCount());
         *///?}
         this.normalizeDisplayedItem(loadedDisplayedItemCount);
         //? if >=1.21.5 {
@@ -597,12 +618,19 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             int index = receptor.id();
             //? if >=1.21.5 {
             this.yawDegrees[index] = VocoReceptorLogic.clampYaw(input.getIntOr(TAG_YAW_DEGREES[index], receptor.defaultYawDegrees()));
-            this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(input.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees()));
+            this.pitchDegrees[index] =
+                    VocoReceptorLogic.clampPitch(input.getIntOr(TAG_PITCH_DEGREES[index], receptor.defaultPitchDegrees()));
             //?} else {
-            /*this.yawDegrees[index] = VocoReceptorLogic.clampYaw(
-                    (input.contains(TAG_YAW_DEGREES[index], Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_YAW_DEGREES[index]) : receptor.defaultYawDegrees()));
-            this.pitchDegrees[index] = VocoReceptorLogic.clampPitch(
-                    (input.contains(TAG_PITCH_DEGREES[index], Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_PITCH_DEGREES[index]) : receptor.defaultPitchDegrees()));
+            /*this.yawDegrees[index] =
+                    VocoReceptorLogic.clampYaw(
+                            (input.contains(TAG_YAW_DEGREES[index], Tag.TAG_ANY_NUMERIC)
+                                    ? input.getInt(TAG_YAW_DEGREES[index])
+                                    : receptor.defaultYawDegrees()));
+            this.pitchDegrees[index] =
+                    VocoReceptorLogic.clampPitch(
+                            (input.contains(TAG_PITCH_DEGREES[index], Tag.TAG_ANY_NUMERIC)
+                                    ? input.getInt(TAG_PITCH_DEGREES[index])
+                                    : receptor.defaultPitchDegrees()));
             *///?}
             Vec3 fallbackTarget = VocoTeleportLogic.getDefaultTeleportPosition(this.getBlockPos(), receptor);
             //? if >=1.21.5 {
@@ -611,35 +639,44 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             this.targetY[index] = input.getDoubleOr(TAG_TARGET_Y[index], fallbackTarget.y);
             this.targetZ[index] = input.getDoubleOr(TAG_TARGET_Z[index], fallbackTarget.z);
             //?} else {
-            /*this.customTargetEnabled[index] = (input.contains(TAG_CUSTOM_TARGET[index], Tag.TAG_ANY_NUMERIC) ? input.getBoolean(TAG_CUSTOM_TARGET[index])
-                    : false);
-            this.targetX[index] = (input.contains(TAG_TARGET_X[index], Tag.TAG_ANY_NUMERIC) ? input.getDouble(TAG_TARGET_X[index]) : fallbackTarget.x);
-            this.targetY[index] = (input.contains(TAG_TARGET_Y[index], Tag.TAG_ANY_NUMERIC) ? input.getDouble(TAG_TARGET_Y[index]) : fallbackTarget.y);
-            this.targetZ[index] = (input.contains(TAG_TARGET_Z[index], Tag.TAG_ANY_NUMERIC) ? input.getDouble(TAG_TARGET_Z[index]) : fallbackTarget.z);
+            /*this.customTargetEnabled[index] =
+                    (input.contains(TAG_CUSTOM_TARGET[index], Tag.TAG_ANY_NUMERIC) ? input.getBoolean(TAG_CUSTOM_TARGET[index]) : false);
+            this.targetX[index] =
+                    (input.contains(TAG_TARGET_X[index], Tag.TAG_ANY_NUMERIC) ? input.getDouble(TAG_TARGET_X[index]) : fallbackTarget.x);
+            this.targetY[index] =
+                    (input.contains(TAG_TARGET_Y[index], Tag.TAG_ANY_NUMERIC) ? input.getDouble(TAG_TARGET_Y[index]) : fallbackTarget.y);
+            this.targetZ[index] =
+                    (input.contains(TAG_TARGET_Z[index], Tag.TAG_ANY_NUMERIC) ? input.getDouble(TAG_TARGET_Z[index]) : fallbackTarget.z);
             *///?}
             //? if >=1.21.5 {
             this.customTargetDimension[index] = input.getStringOr("custom_target_dimension_" + index, "");
             //?} else {
-            /*this.customTargetDimension[index] = input.contains("custom_target_dimension_" + index, Tag.TAG_STRING)
-                    ? input.getString("custom_target_dimension_" + index)
-                    : "";
+            /*this.customTargetDimension[index] =
+                    input.contains("custom_target_dimension_" + index, Tag.TAG_STRING)
+                            ? input.getString("custom_target_dimension_" + index)
+                            : "";
             *///?}
             String key = "candle_slot_" + index;
             //? if >=1.21.6 {
             var loaded = input.read(key, VocoTableCandle.CODEC);
             //?} else {
             /*var value = input.get(key);
-            var loaded = value == null ? Optional.<VocoTableCandle>empty()
-                    : VocoTableCandle.CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), value).result();
+            var loaded =
+                    value == null
+                            ? Optional.<VocoTableCandle>empty()
+                            : VocoTableCandle.CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), value).result();
             *///?}
             candleSlots[index] = loaded.filter(candle -> VocoTableCandle.accepts(candle.state()) && candle.count() > 0).orElse(null);
         }
         //? if >=1.21.5 {
-        this.latestHexReceptorId = VocoReceptorLogic.clampReceptorId(input.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id()));
+        this.latestHexReceptorId =
+                VocoReceptorLogic.clampReceptorId(input.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id()));
         //?} else {
-        /*this.latestHexReceptorId = VocoReceptorLogic
-                .clampReceptorId((input.contains(TAG_LATEST_HEX_RECEPTOR_ID, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_LATEST_HEX_RECEPTOR_ID)
-                        : ReceptorPosition.NORTH_EAST.id()));
+        /*this.latestHexReceptorId =
+                VocoReceptorLogic.clampReceptorId(
+                        (input.contains(TAG_LATEST_HEX_RECEPTOR_ID, Tag.TAG_ANY_NUMERIC)
+                                ? input.getInt(TAG_LATEST_HEX_RECEPTOR_ID)
+                                : ReceptorPosition.NORTH_EAST.id()));
         *///?}
         this.refreshLatestHexFromLitCandles();
     }
@@ -685,8 +722,10 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             //? if >=1.21.6 {
             output.store(key, VocoTableCandle.CODEC, candle);
             //?} else {
-            /*VocoTableCandle.CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), candle)
-                    .resultOrPartial(com.mojang.logging.LogUtils.getLogger()::warn).ifPresent(value -> output.put(key, value));
+            /*VocoTableCandle.CODEC
+                    .encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), candle)
+                    .resultOrPartial(com.mojang.logging.LogUtils.getLogger()::warn)
+                    .ifPresent(value -> output.put(key, value));
             *///?}
         }
     }

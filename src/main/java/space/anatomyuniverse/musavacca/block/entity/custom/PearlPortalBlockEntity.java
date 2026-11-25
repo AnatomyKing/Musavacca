@@ -6,9 +6,6 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-//? if >=1.21.5 {
-import net.minecraft.core.component.DataComponentGetter;
-//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -20,11 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if >=1.21.6 {
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-//?}
-import java.util.UUID;
 import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
@@ -32,6 +24,15 @@ import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.portal.PearlPortalNetwork;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+
+import java.util.UUID;
+//? if >=1.21.5 {
+import net.minecraft.core.component.DataComponentGetter;
+//?}
+//? if >=1.21.6 {
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+//?}
 
 public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
     private static final String TAG_PORTAL_ID = "portal_id";
@@ -75,7 +76,10 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
     }
 
     public boolean hasPortalData() {
-        return this.portalId != null && this.originPos != null && this.width >= PearlPortalFrame.MIN_WIDTH && this.height >= PearlPortalFrame.MIN_HEIGHT
+        return this.portalId != null
+                && this.originPos != null
+                && this.width >= PearlPortalFrame.MIN_WIDTH
+                && this.height >= PearlPortalFrame.MIN_HEIGHT
                 && PearlPortalFrame.isValidFrontDirection(this.getPortalAxis(), this.getPortalFrontDirection())
                 && PearlPortalFrame.isValidUpDirection(this.getPortalAxis(), this.getPortalFrontDirection(), this.getPortalUpDirection());
     }
@@ -135,8 +139,14 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
     }
 
     public PearlPortalFrame.Shape getPortalShape() {
-        return new PearlPortalFrame.Shape(this.getPortalAxis(), this.getOriginPos(), this.getPortalWidth(), this.getPortalHeight(),
-                this.getPortalFrontDirection(), this.getPortalUpDirection(), this.exitAnchorPos);
+        return new PearlPortalFrame.Shape(
+                this.getPortalAxis(),
+                this.getOriginPos(),
+                this.getPortalWidth(),
+                this.getPortalHeight(),
+                this.getPortalFrontDirection(),
+                this.getPortalUpDirection(),
+                this.exitAnchorPos);
     }
 
     @Override
@@ -211,33 +221,47 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
         //? if >=1.21.5 {
         this.hexColor = MusavaccaTints.stored(input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.DEFAULT_TINT));
         //?} else {
-        /*this.hexColor = MusavaccaTints.stored(
-                (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? input.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.DEFAULT_TINT));
+        /*this.hexColor =
+                MusavaccaTints.stored(
+                        (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC)
+                                ? input.getInt(MusavaccaTints.HEX_COLOR_KEY)
+                                : MusavaccaTints.DEFAULT_TINT));
         *///?}
         this.originPos = readBlockPos(input, TAG_ORIGIN_X, TAG_ORIGIN_Y, TAG_ORIGIN_Z, this.getBlockPos());
         //? if >=1.21.5 {
         this.axis = axisFromString(input.getStringOr(TAG_AXIS, "x"));
-        this.frontDirection = PearlPortalFrame.normalizeFrontDirection(this.axis, directionFromString(input.getStringOr(TAG_FRONT_DIRECTION, "")));
+        this.frontDirection =
+                PearlPortalFrame.normalizeFrontDirection(this.axis, directionFromString(input.getStringOr(TAG_FRONT_DIRECTION, "")));
         //?} else {
         /*this.axis = axisFromString((input.contains(TAG_AXIS, Tag.TAG_STRING) ? input.getString(TAG_AXIS) : "x"));
-        this.frontDirection = PearlPortalFrame.normalizeFrontDirection(this.axis,
-                directionFromString((input.contains(TAG_FRONT_DIRECTION, Tag.TAG_STRING) ? input.getString(TAG_FRONT_DIRECTION) : "")));
+        this.frontDirection =
+                PearlPortalFrame.normalizeFrontDirection(
+                        this.axis,
+                        directionFromString(
+                                (input.contains(TAG_FRONT_DIRECTION, Tag.TAG_STRING) ? input.getString(TAG_FRONT_DIRECTION) : "")));
         *///?}
         //? if >=1.21.5 {
-        this.upDirection = PearlPortalFrame.normalizeUpDirection(this.axis, this.frontDirection, directionFromString(input.getStringOr(TAG_UP_DIRECTION, "")));
+        this.upDirection =
+                PearlPortalFrame.normalizeUpDirection(
+                        this.axis, this.frontDirection, directionFromString(input.getStringOr(TAG_UP_DIRECTION, "")));
         //?} else {
-        /*this.upDirection = PearlPortalFrame.normalizeUpDirection(this.axis, this.frontDirection,
-                directionFromString((input.contains(TAG_UP_DIRECTION, Tag.TAG_STRING) ? input.getString(TAG_UP_DIRECTION) : "")));
+        /*this.upDirection =
+                PearlPortalFrame.normalizeUpDirection(
+                        this.axis,
+                        this.frontDirection,
+                        directionFromString((input.contains(TAG_UP_DIRECTION, Tag.TAG_STRING) ? input.getString(TAG_UP_DIRECTION) : "")));
         *///?}
         //? if >=1.21.5 {
         this.width = clampWidth(input.getIntOr(TAG_WIDTH, PearlPortalFrame.MIN_WIDTH));
         this.height = clampHeight(input.getIntOr(TAG_HEIGHT, PearlPortalFrame.MIN_HEIGHT));
         //?} else {
         /*this.width = clampWidth((input.contains(TAG_WIDTH, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_WIDTH) : PearlPortalFrame.MIN_WIDTH));
-        this.height = clampHeight((input.contains(TAG_HEIGHT, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_HEIGHT) : PearlPortalFrame.MIN_HEIGHT));
+        this.height =
+                clampHeight((input.contains(TAG_HEIGHT, Tag.TAG_ANY_NUMERIC) ? input.getInt(TAG_HEIGHT) : PearlPortalFrame.MIN_HEIGHT));
         *///?}
-        PearlPortalFrame.Shape fallbackShape = new PearlPortalFrame.Shape(this.axis, this.getOriginPos(), this.width, this.height, this.frontDirection,
-                this.upDirection, null);
+        PearlPortalFrame.Shape fallbackShape =
+                new PearlPortalFrame.Shape(
+                        this.axis, this.getOriginPos(), this.width, this.height, this.frontDirection, this.upDirection, null);
         this.exitAnchorPos = readBlockPos(input, TAG_EXIT_ANCHOR_X, TAG_EXIT_ANCHOR_Y, TAG_EXIT_ANCHOR_Z, fallbackShape.exitAnchorPos());
     }
 
@@ -332,9 +356,11 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
     /*private static BlockPos readBlockPos(CompoundTag input, String xTag, String yTag, String zTag, BlockPos fallback) {
     *///?}
         //? if >=1.21.5 {
-        return new BlockPos(input.getIntOr(xTag, fallback.getX()), input.getIntOr(yTag, fallback.getY()), input.getIntOr(zTag, fallback.getZ()));
+        return new BlockPos(
+                input.getIntOr(xTag, fallback.getX()), input.getIntOr(yTag, fallback.getY()), input.getIntOr(zTag, fallback.getZ()));
         //?} else {
-        /*return new BlockPos((input.contains(xTag, Tag.TAG_ANY_NUMERIC) ? input.getInt(xTag) : fallback.getX()),
+        /*return new BlockPos(
+                (input.contains(xTag, Tag.TAG_ANY_NUMERIC) ? input.getInt(xTag) : fallback.getX()),
                 (input.contains(yTag, Tag.TAG_ANY_NUMERIC) ? input.getInt(yTag) : fallback.getY()),
                 (input.contains(zTag, Tag.TAG_ANY_NUMERIC) ? input.getInt(zTag) : fallback.getZ()));
         *///?}
@@ -360,40 +386,40 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
 
     private static Direction.Axis axisFromString(String text) {
         return switch ((text == null ? "" : text).toLowerCase()) {
-        case "y" -> Direction.Axis.Y;
-        case "z" -> Direction.Axis.Z;
-        default -> Direction.Axis.X;
+            case "y" -> Direction.Axis.Y;
+            case "z" -> Direction.Axis.Z;
+            default -> Direction.Axis.X;
         };
     }
 
     private static Direction directionFromString(String text) {
         return switch ((text == null ? "" : text).toLowerCase()) {
-        case "north" -> Direction.NORTH;
-        case "south" -> Direction.SOUTH;
-        case "west" -> Direction.WEST;
-        case "east" -> Direction.EAST;
-        case "up" -> Direction.UP;
-        case "down" -> Direction.DOWN;
-        default -> null;
+            case "north" -> Direction.NORTH;
+            case "south" -> Direction.SOUTH;
+            case "west" -> Direction.WEST;
+            case "east" -> Direction.EAST;
+            case "up" -> Direction.UP;
+            case "down" -> Direction.DOWN;
+            default -> null;
         };
     }
 
     private static String directionToString(Direction direction) {
         return switch (direction) {
-        case NORTH -> "north";
-        case SOUTH -> "south";
-        case WEST -> "west";
-        case EAST -> "east";
-        case UP -> "up";
-        case DOWN -> "down";
+            case NORTH -> "north";
+            case SOUTH -> "south";
+            case WEST -> "west";
+            case EAST -> "east";
+            case UP -> "up";
+            case DOWN -> "down";
         };
     }
 
     private static String axisToString(Direction.Axis axis) {
         return switch (axis) {
-        case X -> "x";
-        case Y -> "y";
-        case Z -> "z";
+            case X -> "x";
+            case Y -> "y";
+            case Z -> "z";
         };
     }
 

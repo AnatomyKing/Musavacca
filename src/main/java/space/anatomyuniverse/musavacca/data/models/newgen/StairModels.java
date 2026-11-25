@@ -32,9 +32,9 @@ public record StairModels(ResourceLocation straight, ResourceLocation inner, Res
     public ResourceLocation model(StairsShape shape) {
     //?}
         return switch (shape) {
-        case STRAIGHT -> straight;
-        case INNER_LEFT, INNER_RIGHT -> inner;
-        case OUTER_LEFT, OUTER_RIGHT -> outer;
+            case STRAIGHT -> straight;
+            case INNER_LEFT, INNER_RIGHT -> inner;
+            case OUTER_LEFT, OUTER_RIGHT -> outer;
         };
     }
 

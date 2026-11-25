@@ -1,9 +1,10 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import java.util.Objects;
-import java.util.function.Consumer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SlabBlock;
+
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public final class SlabBlocks {
     private SlabBlocks() {}
@@ -43,7 +44,8 @@ public final class SlabBlocks {
         }
 
         public void validate() {
-            if (!(block() instanceof SlabBlock)) throw new IllegalStateException("SlabBlocks requires a SlabBlock: " + ModelLocations.blockId(block()));
+            if (!(block() instanceof SlabBlock))
+                throw new IllegalStateException("SlabBlocks requires a SlabBlock: " + ModelLocations.blockId(block()));
             Conditions.requireProperty(block(), SlabBlock.TYPE, "SlabBlocks");
             if (!generated()) throw new IllegalStateException("No base model selected for " + ModelLocations.blockId(block()));
             if (textures == null) {

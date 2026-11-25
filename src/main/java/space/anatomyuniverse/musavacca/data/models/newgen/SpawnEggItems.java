@@ -1,7 +1,8 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import java.util.Objects;
 import net.minecraft.world.level.ItemLike;
+
+import java.util.Objects;
 
 public final class SpawnEggItems {
     private SpawnEggItems() {}
@@ -30,11 +31,17 @@ public final class SpawnEggItems {
             return new Builder(item);
         }
 
-        public ItemLike item() { return item; }
+        public ItemLike item() {
+            return item;
+        }
 
-        public int primaryColor() { return primaryColor; }
+        public int primaryColor() {
+            return primaryColor;
+        }
 
-        public int secondaryColor() { return secondaryColor; }
+        public int secondaryColor() {
+            return secondaryColor;
+        }
 
         SimpleItems.Model modernModel() {
             SimpleItems.Model model = SimpleItems.Model.generated().flat();
@@ -87,7 +94,9 @@ public final class SpawnEggItems {
         public Entry build() {
             if (!textureSelected) {
                 throw new IllegalStateException(
-                        "SpawnEggItems requires explicit texture handling for " + ModelLocations.itemId(item) + ": call .texture() or .texture(model)");
+                        "SpawnEggItems requires explicit texture handling for "
+                                + ModelLocations.itemId(item)
+                                + ": call .texture() or .texture(model)");
             }
             return new Entry(this);
         }

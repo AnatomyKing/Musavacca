@@ -2,33 +2,37 @@ package space.anatomyuniverse.musavacca.client.helmet;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import space.anatomyuniverse.musavacca.data.models.NewModelSets;
+import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
+
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Map;
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 *///?} else {
 import net.minecraft.client.renderer.MultiBufferSource;
 //?}
-import net.minecraft.client.renderer.texture.OverlayTexture;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
-import space.anatomyuniverse.musavacca.data.models.NewModelSets;
-import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
+
 //? if <1.21.4 {
-/*import java.util.HashSet;
-import java.util.Set;
-import net.minecraft.client.resources.model.BakedModel;
+/*import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ModelEvent;
+
+import java.util.HashSet;
+import java.util.Set;
+
 *///?}
 
 public final class CustomHelmetModels {
@@ -65,11 +69,22 @@ public final class CustomHelmetModels {
         minecraft.getItemModelResolver().updateForTopItem(state, stack, ItemDisplayContext.HEAD, minecraft.level, null, 0);
         state.submit(pose, collector, light, OverlayTexture.NO_OVERLAY, outlineColor);
         *///?} else if >=1.21.4 <1.21.9 {
-        minecraft.getItemRenderer().renderStatic(stack, ItemDisplayContext.HEAD, packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource,
-                minecraft.level, 0);
+        minecraft
+                .getItemRenderer()
+                .renderStatic(
+                        stack,
+                        ItemDisplayContext.HEAD,
+                        packedLight,
+                        OverlayTexture.NO_OVERLAY,
+                        poseStack,
+                        bufferSource,
+                        minecraft.level,
+                        0);
         //?} else {
         /*BakedModel model = minecraft.getModelManager().getModel(ModelResourceLocation.standalone(headModel(stack)));
-        minecraft.getItemRenderer().render(stack, ItemDisplayContext.HEAD, false, poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY, model);
+        minecraft
+                .getItemRenderer()
+                .render(stack, ItemDisplayContext.HEAD, false, poseStack, bufferSource, packedLight, OverlayTexture.NO_OVERLAY, model);
         *///?}
     }
 

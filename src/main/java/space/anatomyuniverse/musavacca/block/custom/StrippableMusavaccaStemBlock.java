@@ -1,14 +1,16 @@
 package space.anatomyuniverse.musavacca.block.custom;
 
-import java.util.function.Supplier;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.function.Supplier;
+
 public class StrippableMusavaccaStemBlock extends StrippableLogBlock {
     private final Supplier<? extends Block> exudatedStripped;
 
-    public StrippableMusavaccaStemBlock(Properties properties, Supplier<? extends Block> stripped, Supplier<? extends Block> exudatedStripped) {
+    public StrippableMusavaccaStemBlock(
+            Properties properties, Supplier<? extends Block> stripped, Supplier<? extends Block> exudatedStripped) {
         super(properties, stripped);
         this.exudatedStripped = exudatedStripped;
     }

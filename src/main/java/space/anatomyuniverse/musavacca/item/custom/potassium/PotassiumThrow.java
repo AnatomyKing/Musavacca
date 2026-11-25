@@ -10,11 +10,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -34,24 +29,50 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.entity.projectile.PotassiumProjectile;
 import space.anatomyuniverse.musavacca.item.ModItems;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
 
 public final class PotassiumThrow {
     public static final int COOLDOWN = 80;
     public static final int RECOVERY_TIME = 300;
     private static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Registries.ENTITY_TYPE, MusaCore.MOD_ID);
-    private static final DeferredRegister<DataComponentType<?>> COMPONENTS = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, MusaCore.MOD_ID);
-    public static final DeferredHolder<EntityType<?>, EntityType<PotassiumProjectile>> PROJECTILE = ENTITIES.register("potassium_sword_projectile",
-            () -> EntityType.Builder.<PotassiumProjectile>of(PotassiumProjectile::new, MobCategory.MISC)
-                    .sized(0.5F, 0.5F).clientTrackingRange(8).updateInterval(1).fireImmune().noSave().noSummon()
-                    //? if >=1.21.11 {
-                    /*.build(ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "potassium_sword_projectile"))));
-                    *///?} else if >=1.21.2 {
-                    .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "potassium_sword_projectile"))));
-                    //?} else {
-                    /*.build(MusaCore.MOD_ID + ":potassium_sword_projectile"));
-                    *///?}
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<StoredTool>> STORED_TOOL = COMPONENTS.register("stored_potassium_sword",
-            () -> DataComponentType.<StoredTool>builder().persistent(StoredTool.CODEC).networkSynchronized(StoredTool.STREAM_CODEC).build());
+    private static final DeferredRegister<DataComponentType<?>> COMPONENTS =
+            DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, MusaCore.MOD_ID);
+    public static final DeferredHolder<EntityType<?>, EntityType<PotassiumProjectile>> PROJECTILE =
+            ENTITIES.register(
+                    "potassium_sword_projectile",
+                    () ->
+                            EntityType.Builder.<PotassiumProjectile>of(PotassiumProjectile::new, MobCategory.MISC)
+                                    .sized(0.5F, 0.5F)
+                                    .clientTrackingRange(8)
+                                    .updateInterval(1)
+                                    .fireImmune()
+                                    .noSave()
+                                    .noSummon()
+                                    //? if >=1.21.11 {
+                                    /*.build(
+                                            ResourceKey.create(
+                                                    Registries.ENTITY_TYPE,
+                                                    Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "potassium_sword_projectile"))));
+                                    *///?} else if >=1.21.2 {
+                                    .build(
+                                            ResourceKey.create(
+                                                    Registries.ENTITY_TYPE,
+                                                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "potassium_sword_projectile"))));
+                                    //?} else {
+                                    /*.build(MusaCore.MOD_ID + ":potassium_sword_projectile"));
+                                    *///?}
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<StoredTool>> STORED_TOOL =
+            COMPONENTS.register(
+                    "stored_potassium_sword",
+                    () ->
+                            DataComponentType.<StoredTool>builder()
+                                    .persistent(StoredTool.CODEC)
+                                    .networkSynchronized(StoredTool.STREAM_CODEC)
+                                    .build());
 
     public static void register(IEventBus bus) {
         ENTITIES.register(bus);
@@ -73,7 +94,8 @@ public final class PotassiumThrow {
         player.getInventory().setItem(slot, placeholder);
         player.getInventory().setChanged();
         player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 0.7F, 1.1F);
+        level.playSound(
+                null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 0.7F, 1.1F);
         return true;
     }
 
@@ -116,13 +138,15 @@ public final class PotassiumThrow {
     }
 
     public record StoredTool(ItemStack tool, long deadline) {
-        public static final Codec<StoredTool> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ItemStack.OPTIONAL_CODEC.fieldOf("sword").forGetter(StoredTool::tool),
-                Codec.LONG.fieldOf("deadline").forGetter(StoredTool::deadline)
-        ).apply(instance, StoredTool::new));
-        public static final StreamCodec<RegistryFriendlyByteBuf, StoredTool> STREAM_CODEC = StreamCodec.composite(
-                ItemStack.OPTIONAL_STREAM_CODEC, StoredTool::tool,
-                ByteBufCodecs.VAR_LONG, StoredTool::deadline, StoredTool::new);
+        public static final Codec<StoredTool> CODEC =
+                RecordCodecBuilder.create(instance ->
+                        instance.group(
+                                        ItemStack.OPTIONAL_CODEC.fieldOf("sword").forGetter(StoredTool::tool),
+                                        Codec.LONG.fieldOf("deadline").forGetter(StoredTool::deadline))
+                                .apply(instance, StoredTool::new));
+        public static final StreamCodec<RegistryFriendlyByteBuf, StoredTool> STREAM_CODEC =
+                StreamCodec.composite(
+                        ItemStack.OPTIONAL_STREAM_CODEC, StoredTool::tool, ByteBufCodecs.VAR_LONG, StoredTool::deadline, StoredTool::new);
     }
 
     private PotassiumThrow() {}

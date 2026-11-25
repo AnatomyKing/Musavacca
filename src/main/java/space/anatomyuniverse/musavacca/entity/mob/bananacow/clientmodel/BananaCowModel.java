@@ -14,15 +14,15 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 
 public class BananaCowModel
         //? if >=1.21.2 {
@@ -31,11 +31,12 @@ public class BananaCowModel
         /*extends HierarchicalModel<BananaCow> {
         *///?}
     //? if >=1.21.11 {
-    /*public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "banana_cow"), "main");
+    /*public static final ModelLayerLocation LAYER_LOCATION =
+            new ModelLayerLocation(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "banana_cow"), "main");
 
     *///?} else {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "banana_cow"),
-            "main");
+    public static final ModelLayerLocation LAYER_LOCATION =
+            new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "banana_cow"), "main");
 
     //?}
     //? if >=1.21.2 {
@@ -104,53 +105,92 @@ public class BananaCowModel
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshDefinition = new MeshDefinition();
         PartDefinition partDefinition = meshDefinition.getRoot();
-        PartDefinition bananaCow = partDefinition.addOrReplaceChild("bananacow", CubeListBuilder.create(), PartPose.offset(0.0F, 25.0F, -1.0F));
-        bananaCow.addOrReplaceChild("h_head",
+        PartDefinition bananaCow =
+                partDefinition.addOrReplaceChild("bananacow", CubeListBuilder.create(), PartPose.offset(0.0F, 25.0F, -1.0F));
+        bananaCow.addOrReplaceChild(
+                "h_head",
                 CubeListBuilder.create()
-                        .texOffs(39, 31).addBox(-4.0F, -4.6159F, -7.0936F, 8.0F, 8.0F, 9.0F, new CubeDeformation(0.0F))
-                        .texOffs(5, 57).addBox(-3.0F, 0.3841F, -8.0936F, 6.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
-                        .texOffs(0, 57).addBox(4.0F, -4.6159F, -5.0936F, 1.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
-                        .texOffs(0, 57).mirror().addBox(-5.0F, -4.6159F, -5.0936F, 1.0F, 3.0F, 1.0F, new CubeDeformation(0.0F)).mirror(false),
+                        .texOffs(39, 31)
+                        .addBox(-4.0F, -4.6159F, -7.0936F, 8.0F, 8.0F, 9.0F, new CubeDeformation(0.0F))
+                        .texOffs(5, 57)
+                        .addBox(-3.0F, 0.3841F, -8.0936F, 6.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                        .texOffs(0, 57)
+                        .addBox(4.0F, -4.6159F, -5.0936F, 1.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                        .texOffs(0, 57)
+                        .mirror()
+                        .addBox(-5.0F, -4.6159F, -5.0936F, 1.0F, 3.0F, 1.0F, new CubeDeformation(0.0F))
+                        .mirror(false),
                 PartPose.offsetAndRotation(0.0F, -13.5183F, -8.3348F, -0.3927F, 0.0F, 0.0F));
-        PartDefinition torso = bananaCow.addOrReplaceChild("torso", CubeListBuilder.create(),
-                PartPose.offsetAndRotation(-1.0F, -19.0F, 2.0F, 1.5708F, 0.0F, 0.0F));
-        PartDefinition body = torso.addOrReplaceChild("body",
-                CubeListBuilder.create()
-                        .texOffs(0, 0).addBox(-5.5F, -9.0F, -5.0F, 11.0F, 19.0F, 11.0F, new CubeDeformation(0.0F))
-                        .texOffs(20, 57).addBox(-1.25F, 3.0F, -6.0F, 2.5F, 7.0F, 1.0F, new CubeDeformation(0.0F)),
-                PartPose.offset(1.0F, -1.0F, -6.0F));
-        PartDefinition bananaPeelFlaps = body.addOrReplaceChild("banana_peel_flaps", CubeListBuilder.create(), PartPose.offset(-5.499F, 1.0F, 0.5F));
-        bananaPeelFlaps.addOrReplaceChild("cube_r1",
+        PartDefinition torso =
+                bananaCow.addOrReplaceChild(
+                        "torso", CubeListBuilder.create(), PartPose.offsetAndRotation(-1.0F, -19.0F, 2.0F, 1.5708F, 0.0F, 0.0F));
+        PartDefinition body =
+                torso.addOrReplaceChild(
+                        "body",
+                        CubeListBuilder.create()
+                                .texOffs(0, 0)
+                                .addBox(-5.5F, -9.0F, -5.0F, 11.0F, 19.0F, 11.0F, new CubeDeformation(0.0F))
+                                .texOffs(20, 57)
+                                .addBox(-1.25F, 3.0F, -6.0F, 2.5F, 7.0F, 1.0F, new CubeDeformation(0.0F)),
+                        PartPose.offset(1.0F, -1.0F, -6.0F));
+        PartDefinition bananaPeelFlaps =
+                body.addOrReplaceChild("banana_peel_flaps", CubeListBuilder.create(), PartPose.offset(-5.499F, 1.0F, 0.5F));
+        bananaPeelFlaps.addOrReplaceChild(
+                "cube_r1",
                 CubeListBuilder.create().texOffs(1, 65).addBox(0.0F, 0.0F, -5.5F, 0.0F, 9.0F, 11.0F, new CubeDeformation(0.003F)),
                 PartPose.offsetAndRotation(10.999F, 0.0F, 0.0F, 0.0F, 0.0F, -0.3927F));
-        bananaPeelFlaps.addOrReplaceChild("cube_r2",
+        bananaPeelFlaps.addOrReplaceChild(
+                "cube_r2",
                 CubeListBuilder.create().texOffs(1, 86).addBox(-5.5F, 0.0F, 0.0F, 11.0F, 3.0F, 0.0F, new CubeDeformation(0.003F)),
                 PartPose.offsetAndRotation(5.499F, 0.0F, -5.5F, -1.1781F, 0.0F, 0.0F));
-        bananaPeelFlaps.addOrReplaceChild("cube_r3",
+        bananaPeelFlaps.addOrReplaceChild(
+                "cube_r3",
                 CubeListBuilder.create().texOffs(1, 66).addBox(-5.5F, 0.0F, 0.0F, 11.0F, 9.0F, 0.0F, new CubeDeformation(0.003F)),
                 PartPose.offsetAndRotation(5.499F, 0.0F, 5.499F, 0.7854F, 0.0F, 0.0F));
-        bananaPeelFlaps.addOrReplaceChild("cube_r4",
+        bananaPeelFlaps.addOrReplaceChild(
+                "cube_r4",
                 CubeListBuilder.create().texOffs(1, 79).addBox(0.0F, 0.0F, -5.5F, 0.0F, 9.0F, 11.0F, new CubeDeformation(0.003F)),
                 PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.3927F));
-        PartDefinition tail = torso.addOrReplaceChild("tail",
-                CubeListBuilder.create().texOffs(0, 31).addBox(-4.5F, -1.0965F, -4.75F, 9.0F, 15.0F, 10.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(1.0F, 7.25F, -5.75F, 0.3927F, 0.0F, 0.0F));
-        PartDefinition tip = tail.addOrReplaceChild("tip", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.0F, 14.2535F, 0.5186F, 0.6981F, 0.0F, 0.0F));
-        tip.addOrReplaceChild("cube_r5",
+        PartDefinition tail =
+                torso.addOrReplaceChild(
+                        "tail",
+                        CubeListBuilder.create()
+                                .texOffs(0, 31)
+                                .addBox(-4.5F, -1.0965F, -4.75F, 9.0F, 15.0F, 10.0F, new CubeDeformation(0.0F)),
+                        PartPose.offsetAndRotation(1.0F, 7.25F, -5.75F, 0.3927F, 0.0F, 0.0F));
+        PartDefinition tip =
+                tail.addOrReplaceChild(
+                        "tip", CubeListBuilder.create(), PartPose.offsetAndRotation(-2.0F, 14.2535F, 0.5186F, 0.6981F, 0.0F, 0.0F));
+        tip.addOrReplaceChild(
+                "cube_r5",
                 CubeListBuilder.create()
-                        .texOffs(45, 0).addBox(-4.0F, -2.3457F, -3.7758F, 7.0F, 7.0F, 8.0F, new CubeDeformation(0.0F))
-                        .texOffs(78, 0).addBox(-4.0F, 4.6543F, -3.7758F, 7.0F, 5.0F, 12.0F, new CubeDeformation(0.0F)),
+                        .texOffs(45, 0)
+                        .addBox(-4.0F, -2.3457F, -3.7758F, 7.0F, 7.0F, 8.0F, new CubeDeformation(0.0F))
+                        .texOffs(78, 0)
+                        .addBox(-4.0F, 4.6543F, -3.7758F, 7.0F, 5.0F, 12.0F, new CubeDeformation(0.0F)),
                 PartPose.offsetAndRotation(2.5F, -0.0671F, -0.4252F, -0.3927F, 0.0F, 0.0F));
-        bananaCow.addOrReplaceChild("right_back_leg",
-                CubeListBuilder.create().texOffs(58, 49).mirror().addBox(-2.248F, -1.75F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F)).mirror(false),
+        bananaCow.addOrReplaceChild(
+                "right_back_leg",
+                CubeListBuilder.create()
+                        .texOffs(58, 49)
+                        .mirror()
+                        .addBox(-2.248F, -1.75F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F))
+                        .mirror(false),
                 PartPose.offset(-3.0F, -7.25F, 7.0F));
-        bananaCow.addOrReplaceChild("left_back_leg",
+        bananaCow.addOrReplaceChild(
+                "left_back_leg",
                 CubeListBuilder.create().texOffs(58, 49).addBox(-1.75F, -1.5F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F)),
                 PartPose.offset(2.998F, -7.5F, 7.0F));
-        bananaCow.addOrReplaceChild("right_front_leg",
-                CubeListBuilder.create().texOffs(39, 49).mirror().addBox(-2.25F, -1.5F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F)).mirror(false),
+        bananaCow.addOrReplaceChild(
+                "right_front_leg",
+                CubeListBuilder.create()
+                        .texOffs(39, 49)
+                        .mirror()
+                        .addBox(-2.25F, -1.5F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F))
+                        .mirror(false),
                 PartPose.offset(-2.998F, -7.5F, -5.0F));
-        bananaCow.addOrReplaceChild("left_front_leg",
+        bananaCow.addOrReplaceChild(
+                "left_front_leg",
                 CubeListBuilder.create().texOffs(39, 49).addBox(-1.502F, -1.5F, -2.0F, 4.0F, 8.0F, 5.0F, new CubeDeformation(0.0F)),
                 PartPose.offset(2.75F, -7.5F, -5.0F));
         return LayerDefinition.create(meshDefinition, 128, 128);
@@ -185,7 +225,8 @@ public class BananaCowModel
     public void setupAnim(@NotNull State state) {
         this.hHead.yRot = state.headYawRad;
     //?} else {
-    /*public void setupAnim(@NotNull BananaCow entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    /*public void setupAnim(
+            @NotNull BananaCow entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         float clampedYaw = Mth.clamp(netHeadYaw, -90.0F, 90.0F);
         float clampedPitch = Mth.clamp(headPitch, -45.0F, 45.0F);
         this.hHead.yRot = clampedYaw * Mth.DEG_TO_RAD;

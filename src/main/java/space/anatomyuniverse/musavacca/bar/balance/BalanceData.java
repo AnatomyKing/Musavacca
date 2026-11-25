@@ -12,7 +12,7 @@ import net.neoforged.neoforge.common.util.ValueIOSerializable;
 /*import net.neoforged.neoforge.common.util.INBTSerializable;
 *///?}
 
-@SuppressWarnings({ "unused", "CommentedOutCode", "NullableProblems" })
+@SuppressWarnings({"unused", "CommentedOutCode", "NullableProblems"})
 //? if >=1.21.6 {
 public final class BalanceData implements ValueIOSerializable {
 //?} else {

@@ -1,15 +1,17 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import java.util.Objects;
-import java.util.function.Consumer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TrapDoorBlock;
+
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public final class TrapdoorBlocks {
     private TrapdoorBlocks() {}
 
     public enum Orientation {
-        NORMAL, ORIENTABLE
+        NORMAL,
+        ORIENTABLE
     }
 
     public static final class Part extends BlockFamily.ModelRule<TrapdoorModels, Part> {
@@ -17,11 +19,17 @@ public final class TrapdoorBlocks {
             super(source, conditions);
         }
 
-        public static Part always(TrapdoorModels source) { return new Part(source, Conditions.always()); }
+        public static Part always(TrapdoorModels source) {
+            return new Part(source, Conditions.always());
+        }
 
-        public static Part when(TrapdoorModels source, Conditions.Match conditions) { return new Part(source, conditions); }
+        public static Part when(TrapdoorModels source, Conditions.Match conditions) {
+            return new Part(source, conditions);
+        }
 
-        public TrapdoorModels models() { return source(); }
+        public TrapdoorModels models() {
+            return source();
+        }
     }
 
     public static final class Entry extends BlockFamily.StateFamilyEntry<Part> {
@@ -34,11 +42,17 @@ public final class TrapdoorBlocks {
             orientation = builder.orientation;
         }
 
-        public static Builder builder(Block block) { return new Builder(block); }
+        public static Builder builder(Block block) {
+            return new Builder(block);
+        }
 
-        public FamilyTextures.Set textures() { return textures; }
+        public FamilyTextures.Set textures() {
+            return textures;
+        }
 
-        public Orientation orientation() { return orientation; }
+        public Orientation orientation() {
+            return orientation;
+        }
 
         public void validate() {
             if (!(block() instanceof TrapDoorBlock)) {
@@ -58,7 +72,9 @@ public final class TrapdoorBlocks {
             private FamilyTextures.Set textures;
             private Orientation orientation = Orientation.NORMAL;
 
-            private Builder(Block block) { super(block); }
+            private Builder(Block block) {
+                super(block);
+            }
 
             public Builder generated() {
                 selectGenerated();

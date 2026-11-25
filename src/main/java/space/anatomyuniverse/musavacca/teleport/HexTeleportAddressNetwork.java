@@ -5,11 +5,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-
-import java.util.UUID;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic;
+
+import java.util.UUID;
 
 public final class HexTeleportAddressNetwork {
     private HexTeleportAddressNetwork() {}
@@ -69,11 +69,10 @@ public final class HexTeleportAddressNetwork {
 
     private static void refreshPendingCandidate(ServerLevel level, HexTeleportDirectory.Endpoint endpoint) {
         switch (endpoint.kind()) {
-        case VOCO_TABLE_RECEPTOR_CORNER ->
-            VocoTableCandleLogic.syncPortalStateFromCandles(level, endpoint.ownerPos(), ReceptorPosition.byId(endpoint.slotId()));
-        case VOCO_POST_RECEPTOR_CORNER -> VocoPostCandleLogic.refreshPortalAt(level, endpoint.ownerPos());
-        default -> {
-        }
+            case VOCO_TABLE_RECEPTOR_CORNER ->
+                    VocoTableCandleLogic.syncPortalStateFromCandles(level, endpoint.ownerPos(), ReceptorPosition.byId(endpoint.slotId()));
+            case VOCO_POST_RECEPTOR_CORNER -> VocoPostCandleLogic.refreshPortalAt(level, endpoint.ownerPos());
+            default -> {}
         }
     }
 }

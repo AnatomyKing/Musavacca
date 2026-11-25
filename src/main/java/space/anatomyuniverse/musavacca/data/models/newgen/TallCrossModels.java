@@ -1,8 +1,9 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+import net.minecraft.world.level.block.Block;
+
 import java.util.Objects;
 import java.util.function.Consumer;
-import net.minecraft.world.level.block.Block;
 
 public final class TallCrossModels {
     private TallCrossModels() {}
@@ -45,7 +46,9 @@ public final class TallCrossModels {
         String cleanSuffix = suffix == null || suffix.isBlank() ? "" : suffix;
         var lowerModel = ModelLocations.blockModel(block, cleanSuffix + "_bottom");
         var upperModel = ModelLocations.blockModel(block, cleanSuffix + "_top");
-        return new Generated(new CrossModels.Generated(lowerModel, new FamilyTextures.Set(set.bottom())),
-                new CrossModels.Generated(upperModel, new FamilyTextures.Set(set.top())), set);
+        return new Generated(
+                new CrossModels.Generated(lowerModel, new FamilyTextures.Set(set.bottom())),
+                new CrossModels.Generated(upperModel, new FamilyTextures.Set(set.top())),
+                set);
     }
 }

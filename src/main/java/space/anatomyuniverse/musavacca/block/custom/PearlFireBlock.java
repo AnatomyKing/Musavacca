@@ -13,23 +13,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-//? if >=1.21.2 {
-import net.minecraft.world.level.ScheduledTickAccess;
-//?} else {
-/*import net.minecraft.world.level.LevelAccessor;
-*///?}
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FireBlock;
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
-*///?}
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+//? if >=1.21.2 {
+import net.minecraft.world.level.ScheduledTickAccess;
+//?} else {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?}
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.block.RenderShape;
+*///?}
 
 public class PearlFireBlock extends FireBlock implements EntityBlock {
     public PearlFireBlock(Properties properties) {
@@ -68,12 +68,22 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
 
     @Override
     //? if >=1.21.2 {
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction,
-            BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+    protected BlockState updateShape(
+            BlockState state,
+            LevelReader level,
+            ScheduledTickAccess scheduledTickAccess,
+            BlockPos pos,
+            Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            RandomSource random) {
     //?} else {
-    /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    /*protected BlockState updateShape(
+            BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
     *///?}
-        return this.canSurvive(state, level, pos) ? this.getPearlStateWithAge(level, pos, state.getValue(AGE)) : Blocks.AIR.defaultBlockState();
+        return this.canSurvive(state, level, pos)
+                ? this.getPearlStateWithAge(level, pos, state.getValue(AGE))
+                : Blocks.AIR.defaultBlockState();
     }
 
     @Override
@@ -83,7 +93,8 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
         /*if (!level.canSpreadFireAround(pos)) return;
         *///?} else if >=1.21.5 <1.21.11 {
         if (!(level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)
-                && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS) || level.anyPlayerCloseEnoughForSpawning(pos)))) {
+                && (level.getGameRules().getBoolean(GameRules.RULE_ALLOWFIRETICKAWAYFROMPLAYERS)
+                        || level.anyPlayerCloseEnoughForSpawning(pos)))) {
             return;
         }
         //?} else {
@@ -121,7 +132,8 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
             }
         }
         //? if >=1.21.11 {
-        /*boolean burnoutBiome = level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.INCREASED_FIRE_BURNOUT, pos);
+        /*boolean burnoutBiome =
+                level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.INCREASED_FIRE_BURNOUT, pos);
         *///?} else {
         boolean burnoutBiome = level.getBiome(pos).is(BiomeTags.INCREASED_FIRE_BURNOUT);
         //?}
@@ -148,7 +160,9 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
                     if (burnoutBiome) {
                         spreadChance /= 2;
                     }
-                    if (spreadChance <= 0 || random.nextInt(chanceDivisor) > spreadChance || (level.isRaining() && this.isNearRain(level, mutable))) {
+                    if (spreadChance <= 0
+                            || random.nextInt(chanceDivisor) > spreadChance
+                            || (level.isRaining() && this.isNearRain(level, mutable))) {
                         continue;
                     }
                     int spreadAge = Math.min(15, age + random.nextInt(5) / 4);
@@ -226,7 +240,9 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     protected boolean canBurn(BlockState state) {
         var waterlogged = net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
         if (state.hasProperty(waterlogged) && state.getValue(waterlogged)) return false;
-        return state.is(ModBlocks.MUSAVACCA_PLANKS.get()) || state.is(ModBlocks.MUSAVACCA_STEM.get()) || state.is(ModBlocks.STRIPPED_MUSAVACCA_STEM.get())
+        return state.is(ModBlocks.MUSAVACCA_PLANKS.get())
+                || state.is(ModBlocks.MUSAVACCA_STEM.get())
+                || state.is(ModBlocks.STRIPPED_MUSAVACCA_STEM.get())
                 || state.is(ModBlocks.MUSAVACCA_LEAVES.get());
     }
 }

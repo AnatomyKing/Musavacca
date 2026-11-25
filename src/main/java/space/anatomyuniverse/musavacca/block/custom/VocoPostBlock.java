@@ -8,44 +8,43 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2 {
-/*import net.minecraft.world.ItemInteractionResult;
-*///?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-//? if >=1.21.2 {
-import net.minecraft.world.level.ScheduledTickAccess;
-//?} else {
-/*import net.minecraft.world.level.LevelAccessor;
-*///?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
-*///?}
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustRide;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostHitboxes;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
-
-import space.anatomyuniverse.musavacca.block.custom.logic.PearlSlotIgnition;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
+//? if <1.21.2 {
+/*import net.minecraft.world.ItemInteractionResult;
+*///?}
+//? if >=1.21.2 {
+import net.minecraft.world.level.ScheduledTickAccess;
+//?} else {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?}
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.block.RenderShape;
+*///?}
 
 public final class VocoPostBlock extends HorizontalDirectionalBlock implements EntityBlock {
     //? if <26.3 {
@@ -53,9 +52,11 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     //?}
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
     public static final BooleanProperty PORTAL = BooleanProperty.create("portal");
+
     public VocoPostBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, false).setValue(PORTAL, false));
+        this.registerDefaultState(
+                this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, false).setValue(PORTAL, false));
     }
 
     //? if <26.3 {
@@ -111,7 +112,8 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
         if (VocoReceptorLogic.tryOpenCameraEditor(level, pos, player, receptor)) return InteractionResult.SUCCESS;
         if (!VocoReceptorLogic.isCompletelyEmptyHanded(player)) return InteractionResult.PASS;
         if (state.getValue(LIT)) {
-            if (level instanceof ServerLevel server && player instanceof ServerPlayer rider) VocoDustRide.start(rider, server, pos, receptor);
+            if (level instanceof ServerLevel server && player instanceof ServerPlayer rider)
+                VocoDustRide.start(rider, server, pos, receptor);
             return InteractionResult.SUCCESS;
         }
         var slot = VocoReceptorLogic.pearlSlot(LIT, PORTAL, receptor);
@@ -123,11 +125,11 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    protected InteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     //?} else {
-    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    /*protected ItemInteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     *///?}
         InteractionResult result = this.handleItemUse(stack, state, level, pos, player, hand, hit);
         //? if >=1.21.2 {
@@ -137,8 +139,8 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
         *///?}
     }
 
-    private InteractionResult handleItemUse(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    private InteractionResult handleItemUse(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         //? if >=1.21.2 {
         if (stack.isEmpty()) return InteractionResult.TRY_WITH_EMPTY_HAND;
         //?} else {
@@ -164,7 +166,9 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (level.isClientSide()) return;
-        if (!oldState.is(this) || oldState.getValue(LIT) != state.getValue(LIT) || oldState.getValue(FACING) != state.getValue(FACING)
+        if (!oldState.is(this)
+                || oldState.getValue(LIT) != state.getValue(LIT)
+                || oldState.getValue(FACING) != state.getValue(FACING)
                 || oldState.getValue(PORTAL) != state.getValue(PORTAL)) {
             VocoPostCandleLogic.refreshPortalAt(level, pos);
         }
@@ -172,10 +176,22 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
 
     @Override
     //? if >=1.21.2 {
-    protected BlockState updateShape(BlockState state, LevelReader levelReader, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction,
-            BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+    protected BlockState updateShape(
+            BlockState state,
+            LevelReader levelReader,
+            ScheduledTickAccess scheduledTickAccess,
+            BlockPos pos,
+            Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            RandomSource random) {
     //?} else {
-    /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor levelReader, BlockPos pos,
+    /*protected BlockState updateShape(
+            BlockState state,
+            Direction direction,
+            BlockState neighborState,
+            LevelAccessor levelReader,
+            BlockPos pos,
             BlockPos neighborPos) {
     *///?}
         return VocoPostCandleLogic.updateShape(state, levelReader, pos, direction);
@@ -184,11 +200,11 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     public static ReceptorPosition receptorPosition(BlockState state) {
         Direction facing = state.hasProperty(FACING) ? state.getValue(FACING) : Direction.NORTH;
         return switch (facing) {
-        case NORTH -> ReceptorPosition.NORTH_EAST;
-        case EAST -> ReceptorPosition.SOUTH_EAST;
-        case SOUTH -> ReceptorPosition.SOUTH_WEST;
-        case WEST -> ReceptorPosition.NORTH_WEST;
-        default -> ReceptorPosition.NORTH_EAST;
+            case NORTH -> ReceptorPosition.NORTH_EAST;
+            case EAST -> ReceptorPosition.SOUTH_EAST;
+            case SOUTH -> ReceptorPosition.SOUTH_WEST;
+            case WEST -> ReceptorPosition.NORTH_WEST;
+            default -> ReceptorPosition.NORTH_EAST;
         };
     }
 }

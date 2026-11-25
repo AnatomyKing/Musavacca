@@ -9,14 +9,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else if <1.21.5 {
-/*import net.minecraft.nbt.Tag;
-*///?}
-//? if <1.21.11 {
-import net.minecraft.resources.ResourceLocation;
-//?}
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,17 +20,25 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.worldgen.ModFeatures;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+*///?}
+//? if <1.21.11 {
+import net.minecraft.resources.ResourceLocation;
+//?}
 
 public final class MusavaccaTreeFeatureProvider implements DataProvider {
     private static final String INPUT_FILE_NAME = "musavaccatree.nbt";
-    private static final Path SHARED_TEMPLATE_PATH = Path.of("src", "main", "resources", "data", MusaCore.MOD_ID, "structure", INPUT_FILE_NAME);
-    private static final Path SHARED_TEMPLATE_PATH_PLURAL = Path.of("src", "main", "resources", "data", MusaCore.MOD_ID, "structures", INPUT_FILE_NAME);
-    private static final Path VERSION_TEMPLATE_PATH = Path.of("versions", MusaCore.MINECRAFT, "src", "main", "resources", "data", MusaCore.MOD_ID, "structure",
-            INPUT_FILE_NAME);
-    private static final Path VERSION_TEMPLATE_PATH_PLURAL = Path.of("versions", MusaCore.MINECRAFT, "src", "main", "resources", "data", MusaCore.MOD_ID,
-            "structures", INPUT_FILE_NAME);
+    private static final Path SHARED_TEMPLATE_PATH =
+            Path.of("src", "main", "resources", "data", MusaCore.MOD_ID, "structure", INPUT_FILE_NAME);
+    private static final Path SHARED_TEMPLATE_PATH_PLURAL =
+            Path.of("src", "main", "resources", "data", MusaCore.MOD_ID, "structures", INPUT_FILE_NAME);
+    private static final Path VERSION_TEMPLATE_PATH =
+            Path.of("versions", MusaCore.MINECRAFT, "src", "main", "resources", "data", MusaCore.MOD_ID, "structure", INPUT_FILE_NAME);
+    private static final Path VERSION_TEMPLATE_PATH_PLURAL =
+            Path.of("versions", MusaCore.MINECRAFT, "src", "main", "resources", "data", MusaCore.MOD_ID, "structures", INPUT_FILE_NAME);
     private final PackOutput.PathProvider configuredFeaturePathProvider;
 
     public MusavaccaTreeFeatureProvider(PackOutput output) {
@@ -139,7 +142,13 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
             int stateIndex = getRequiredInt(blockTag, "state", "blocks[" + i + "].state");
             if (stateIndex < 0 || stateIndex >= palette.size()) {
                 throw new IOException(
-                        "Invalid structure NBT: state index " + stateIndex + " is outside palette size " + palette.size() + " at blocks[" + i + "].");
+                        "Invalid structure NBT: state index "
+                                + stateIndex
+                                + " is outside palette size "
+                                + palette.size()
+                                + " at blocks["
+                                + i
+                                + "].");
             }
             CompoundTag stateTag = getRequiredCompound(palette, stateIndex, "palette[" + stateIndex + "]");
             String blockName = getRequiredString(stateTag, "Name", "palette[" + stateIndex + "].Name");
@@ -174,7 +183,9 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
         CompoundTag propertiesTag = getOptionalCompound(stateTag, "Properties");
         if (propertiesTag != null) {
             JsonObject properties = new JsonObject();
-            tagKeys(propertiesTag).stream().sorted().forEach(key -> properties.addProperty(key, getRequiredPropertyString(propertiesTag, key)));
+            tagKeys(propertiesTag).stream()
+                    .sorted()
+                    .forEach(key -> properties.addProperty(key, getRequiredPropertyString(propertiesTag, key)));
             json.add("Properties", properties);
         }
         return json;
@@ -247,9 +258,11 @@ public final class MusavaccaTreeFeatureProvider implements DataProvider {
 
     private static String getRequiredPropertyString(CompoundTag tag, String key) {
         //? if >=1.21.5 {
-        return tag.getString(key).orElseThrow(() -> new IllegalStateException("Expected string property value for property '" + key + "'."));
+        return tag.getString(key)
+                .orElseThrow(() -> new IllegalStateException("Expected string property value for property '" + key + "'."));
         //?} else {
-        /*if (!tag.contains(key, Tag.TAG_STRING)) throw new IllegalStateException("Expected string property value for property '" + key + "'.");
+        /*if (!tag.contains(key, Tag.TAG_STRING))
+            throw new IllegalStateException("Expected string property value for property '" + key + "'.");
         return tag.getString(key);
         *///?}
     }

@@ -3,8 +3,6 @@ package space.anatomyuniverse.musavacca.basuke.summon;
 //? if >=26.1 {
 /*import net.minecraft.world.item.ItemStackTemplate;
 *///?}
-import java.util.List;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -30,12 +28,14 @@ import space.anatomyuniverse.musavacca.item.custom.OpenVocoCallerItem;
 import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 
+import java.util.List;
+import java.util.UUID;
+
 public final class BasukeVocoCalling {
     public static final int EATING_TIME_TICKS = VocoTableEatingLogic.DEFAULT_EATING_TIME_TICKS;
     private static final String TAG_CALLING_PLAYER_UUID = "musavacca_voco_calling_player_uuid";
 
-    private BasukeVocoCalling() {
-    }
+    private BasukeVocoCalling() {}
 
     @Nullable
     public static ActiveCalling findActiveCalling(@NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack simCardStack) {
@@ -47,7 +47,8 @@ public final class BasukeVocoCalling {
         BlockPos tablePos = basuke.getVocoTablePos();
         if (tablePos == null) return null;
         BlockState state = level.getBlockState(tablePos);
-        if (!(state.getBlock() instanceof VocoTableBlock) || !state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
+        if (!(state.getBlock() instanceof VocoTableBlock)
+                || !state.hasProperty(VocoTableBlock.ROTARY_DIALERS)
                 || !state.getValue(VocoTableBlock.ROTARY_DIALERS)) {
             return null;
         }
@@ -57,16 +58,16 @@ public final class BasukeVocoCalling {
         ItemStack displayedPhone = tableBe.getDisplayedItem();
         if (!isEmptyBananaPhone(displayedPhone)) return null;
         int hexColor = simCardStack.get(ModDataComponents.HEX_COLOR.get()) & 0xFFFFFF;
-        HexTeleportDirectory.PhoneRegistration registration = HexTeleportDirectory.get(level.getServer()).getPhoneRegistrationByHex(hexColor)
-                .orElse(null);
+        HexTeleportDirectory.PhoneRegistration registration =
+                HexTeleportDirectory.get(level.getServer()).getPhoneRegistrationByHex(hexColor).orElse(null);
         if (registration == null || !registration.ownerUuid().equals(givingPlayerUuid)) {
             return null;
         }
         return new ActiveCalling(hexColor, givingPlayerUuid);
     }
 
-    public static boolean completeActiveCalling(@NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack simCardStack,
-            @NotNull ActiveCalling expectedCalling) {
+    public static boolean completeActiveCalling(
+            @NotNull Basuke basuke, @NotNull ServerLevel level, @NotNull ItemStack simCardStack, @NotNull ActiveCalling expectedCalling) {
         ActiveCalling activeCalling = findActiveCalling(basuke, level, simCardStack);
         if (activeCalling == null || !activeCalling.equals(expectedCalling)) {
             return false;
@@ -141,15 +142,31 @@ public final class BasukeVocoCalling {
     }
 
     private static boolean isEmptyBananaPhone(@NotNull ItemStack stack) {
-        return !stack.isEmpty() && stack.is(ModItems.BANANA_PHONE.get()) && stack.getItem() instanceof OpenVocoCallerItem
+        return !stack.isEmpty()
+                && stack.is(ModItems.BANANA_PHONE.get())
+                && stack.getItem() instanceof OpenVocoCallerItem
                 && OpenVocoCallerItem.getSim(stack).isEmpty();
     }
 
     private static void playCallingSounds(@NotNull ServerLevel level, @NotNull BlockPos tablePos) {
         Vec3 itemDisplayCenter = new Vec3(tablePos.getX() + 0.5D, tablePos.getY() + 1.20D, tablePos.getZ() + 0.5D);
-        level.playSound(null, itemDisplayCenter.x, itemDisplayCenter.y, itemDisplayCenter.z, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 0.85F,
+        level.playSound(
+                null,
+                itemDisplayCenter.x,
+                itemDisplayCenter.y,
+                itemDisplayCenter.z,
+                SoundEvents.ENCHANTMENT_TABLE_USE,
+                SoundSource.BLOCKS,
+                0.85F,
                 1.35F);
-        level.playSound(null, itemDisplayCenter.x, itemDisplayCenter.y, itemDisplayCenter.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 0.65F,
+        level.playSound(
+                null,
+                itemDisplayCenter.x,
+                itemDisplayCenter.y,
+                itemDisplayCenter.z,
+                SoundEvents.AMETHYST_BLOCK_CHIME,
+                SoundSource.BLOCKS,
+                0.65F,
                 1.65F);
     }
 

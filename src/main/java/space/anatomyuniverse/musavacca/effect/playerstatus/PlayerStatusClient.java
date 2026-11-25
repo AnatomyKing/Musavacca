@@ -5,8 +5,27 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 //?} else {
 /*import net.neoforged.neoforge.network.PacketDistributor;
 *///?}
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientMobEffectExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.effect.ModMobEffects;
+import space.anatomyuniverse.musavacca.gui.screen.VocoCallerScreen;
+
+import java.util.List;
+import java.util.UUID;
 //? if >=26.2 {
 /*import net.minecraft.client.gui.Hud;
 *///?} else {
@@ -22,8 +41,6 @@ import net.minecraft.client.gui.GuiGraphics;
 *///?} else {
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 //?}
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 //? if >=1.21.2 {
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 //?}
@@ -35,30 +52,14 @@ import net.minecraft.client.renderer.RenderPipelines;
 //? if >=1.21.2 <1.21.6 {
 /*import net.minecraft.client.renderer.RenderType;
 *///?}
-import net.minecraft.network.chat.Component;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 //? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 //?}
-import com.mojang.blaze3d.platform.InputConstants;
-import java.util.List;
-import java.util.UUID;
-import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientMobEffectExtensions;
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.effect.ModMobEffects;
-import space.anatomyuniverse.musavacca.gui.screen.VocoCallerScreen;
 
 public final class PlayerStatusClient {
     private static final int BUTTON_ROW_WIDTH = 25 * 2 + 3;
@@ -71,60 +72,103 @@ public final class PlayerStatusClient {
     private static int ringTick;
     private static UUID callerId;
     private static String callerName = "";
-    private static final IClientMobEffectExtensions EXTENSIONS = new IClientMobEffectExtensions() {
-        @Override
-        //? if >=26.2 {
-        /*public boolean extractHudIcon(MobEffectInstance instance, Hud hud, GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
-        *///?} else if >=26.1 <26.2 {
-        /*public boolean extractGuiIcon(MobEffectInstance instance, Gui gui, GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
-        *///?} else {
-        public boolean renderGuiIcon(MobEffectInstance instance, Gui gui, GuiGraphics graphics, int x, int y, float z, float alpha) {
-        //?}
-            //? if >=26.1 {
-            /*return renderPlayerFaces(graphics, x + 3, y + 3, ((color >>> 24) & 255) / 255.0F);
-            *///?} else {
-            return renderPlayerFaces(graphics, x + 3, y + 3, alpha);
-            //?}
-        }
+    private static final IClientMobEffectExtensions EXTENSIONS =
+            new IClientMobEffectExtensions() {
+                @Override
+                //? if >=26.2 {
+                /*public boolean extractHudIcon(
+                        MobEffectInstance instance,
+                        Hud hud,
+                        GuiGraphicsExtractor graphics,
+                        int x,
+                        int y,
+                        int width,
+                        int height,
+                        int color) {
+                *///?} else if >=26.1 <26.2 {
+                /*public boolean extractGuiIcon(
+                        MobEffectInstance instance,
+                        Gui gui,
+                        GuiGraphicsExtractor graphics,
+                        int x,
+                        int y,
+                        int width,
+                        int height,
+                        int color) {
+                *///?} else {
+                public boolean renderGuiIcon(
+                        MobEffectInstance instance, Gui gui, GuiGraphics graphics, int x, int y, float z, float alpha) {
+                //?}
+                    //? if >=26.1 {
+                    /*return renderPlayerFaces(graphics, x + 3, y + 3, ((color >>> 24) & 255) / 255.0F);
+                    *///?} else {
+                    return renderPlayerFaces(graphics, x + 3, y + 3, alpha);
+                    //?}
+                }
 
-        @Override
-        //? if >=26.1 {
-        /*public boolean extractInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphicsExtractor graphics, int x, int y,
-                int width, int height, int color) {
-        *///?} else if >=1.21.2 <26.1 {
-        public boolean renderInventoryIcon(MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphics graphics, int x, int y, int blitOffset) {
-        //?} else {
-        /*public boolean renderInventoryIcon(MobEffectInstance instance, EffectRenderingInventoryScreen<?> screen, GuiGraphics graphics, int x, int y,
-                int blitOffset) {
-        *///?}
-            //? if >=26.1 {
-            /*return renderPlayerFaces(graphics, x, y + 7, ((color >>> 24) & 255) / 255.0F);
-            *///?} else {
-            return renderPlayerFaces(graphics, x, y + 7, 1.0F);
-            //?}
-        }
+                @Override
+                //? if >=26.1 {
+                /*public boolean extractInventoryIcon(
+                        MobEffectInstance instance,
+                        AbstractContainerScreen<?> screen,
+                        GuiGraphicsExtractor graphics,
+                        int x,
+                        int y,
+                        int width,
+                        int height,
+                        int color) {
+                *///?} else if >=1.21.2 <26.1 {
+                public boolean renderInventoryIcon(
+                        MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphics graphics, int x, int y, int blitOffset) {
+                //?} else {
+                /*public boolean renderInventoryIcon(
+                        MobEffectInstance instance,
+                        EffectRenderingInventoryScreen<?> screen,
+                        GuiGraphics graphics,
+                        int x,
+                        int y,
+                        int blitOffset) {
+                *///?}
+                    //? if >=26.1 {
+                    /*return renderPlayerFaces(graphics, x, y + 7, ((color >>> 24) & 255) / 255.0F);
+                    *///?} else {
+                    return renderPlayerFaces(graphics, x, y + 7, 1.0F);
+                    //?}
+                }
 
-        @Override
-        //? if >=26.1 {
-        /*public boolean extractInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphicsExtractor graphics, int x, int y,
-                int canvasWidth, int color) {
-        *///?} else if >=1.21.2 {
-        public boolean renderInventoryText(MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphics graphics, int x, int y, int blitOffset) {
-        //?} else {
-        /*public boolean renderInventoryText(MobEffectInstance instance, EffectRenderingInventoryScreen<?> screen, GuiGraphics graphics, int x, int y,
-                int blitOffset) {
-        *///?}
-            //? if >=26.1 {
-            /*return renderExpandedControls(instance, screen, graphics, x, y, canvasWidth, color);
-            *///?} else if >=1.21.11 {
-            /*int width = Minecraft.getInstance().font.width(instance.getEffect().value().getDisplayName());
-            return renderExpandedControls(instance, screen, graphics, x, y, width, 0xFFFFFFFF);
-            *///?} else {
-            drawControls(screen, graphics, x + 56, y + 15);
-            return false;
-            //?}
-        }
-    };
+                @Override
+                //? if >=26.1 {
+                /*public boolean extractInventoryText(
+                        MobEffectInstance instance,
+                        AbstractContainerScreen<?> screen,
+                        GuiGraphicsExtractor graphics,
+                        int x,
+                        int y,
+                        int canvasWidth,
+                        int color) {
+                *///?} else if >=1.21.2 {
+                public boolean renderInventoryText(
+                        MobEffectInstance instance, AbstractContainerScreen<?> screen, GuiGraphics graphics, int x, int y, int blitOffset) {
+                //?} else {
+                /*public boolean renderInventoryText(
+                        MobEffectInstance instance,
+                        EffectRenderingInventoryScreen<?> screen,
+                        GuiGraphics graphics,
+                        int x,
+                        int y,
+                        int blitOffset) {
+                *///?}
+                    //? if >=26.1 {
+                    /*return renderExpandedControls(instance, screen, graphics, x, y, canvasWidth, color);
+                    *///?} else if >=1.21.11 {
+                    /*int width = Minecraft.getInstance().font.width(instance.getEffect().value().getDisplayName());
+                    return renderExpandedControls(instance, screen, graphics, x, y, width, 0xFFFFFFFF);
+                    *///?} else {
+                    drawControls(screen, graphics, x + 56, y + 15);
+                    return false;
+                    //?}
+                }
+            };
 
     private PlayerStatusClient() {}
 
@@ -189,7 +233,10 @@ public final class PlayerStatusClient {
         int secondY = iconY + 9;
         var connection = minecraft.getConnection();
         var caller = callerId != null && connection != null ? connection.getPlayerInfo(callerId) : null;
-        var callerSkin = caller != null ? caller.getSkin() : DefaultPlayerSkin.get(callerId != null ? callerId : PlayerStatusCallerPayload.CLEAR.callerId());
+        var callerSkin =
+                caller != null
+                        ? caller.getSkin()
+                        : DefaultPlayerSkin.get(callerId != null ? callerId : PlayerStatusCallerPayload.CLEAR.callerId());
         //? if >=1.21.2 {
         int alphaChannel = Math.max(0, Math.min(255, Math.round(alpha * 255.0F)));
         int color = alphaChannel << 24 | 0x00FFFFFF;
@@ -211,9 +258,11 @@ public final class PlayerStatusClient {
 
     //? if >=1.21.11 {
     /*//? if >=26.1 {
-    /^private static boolean renderExpandedControls(MobEffectInstance instance, Screen screen, GuiGraphicsExtractor graphics, int x, int y, int availableWidth,
+    /^private static boolean renderExpandedControls(
+            MobEffectInstance instance, Screen screen, GuiGraphicsExtractor graphics, int x, int y, int availableWidth,
     ^///?} else {
-    private static boolean renderExpandedControls(MobEffectInstance instance, Screen screen, GuiGraphics graphics, int x, int y, int availableWidth,
+    private static boolean renderExpandedControls(
+            MobEffectInstance instance, Screen screen, GuiGraphics graphics, int x, int y, int availableWidth,
     //?}
             int textColor) {
         if (!supportsControls(screen)) return false;
@@ -306,7 +355,10 @@ public final class PlayerStatusClient {
 
     private static boolean hasActiveControls(Screen screen) {
         Minecraft minecraft = Minecraft.getInstance();
-        return supportsControls(screen) && buttonScreen == screen && minecraft.player != null && minecraft.player.hasEffect(ModMobEffects.PLAYER_STATUS);
+        return supportsControls(screen)
+                && buttonScreen == screen
+                && minecraft.player != null
+                && minecraft.player.hasEffect(ModMobEffects.PLAYER_STATUS);
     }
 
     private static StatusButton buttonAt(double mouseX, double mouseY) {

@@ -2,28 +2,30 @@ package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-//? if <1.21.6 {
-/*import net.minecraft.nbt.CompoundTag;
-*///?}
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.core.BlockPos;
-import java.util.Set;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-//? if >=1.21.6 {
-import net.minecraft.world.entity.player.Abilities;
-//?}
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+
+import java.util.Set;
+//? if <1.21.6 {
+/*import net.minecraft.nbt.CompoundTag;
+*///?}
+
+//? if >=1.21.6 {
+import net.minecraft.world.entity.player.Abilities;
+//?}
 
 public record VocoDustReturn(GameType mode, ResourceKey<Level> dimension, Vec3 pos, float yaw, float pitch,
         //? if >=1.21.6 {
@@ -32,18 +34,21 @@ public record VocoDustReturn(GameType mode, ResourceKey<Level> dimension, Vec3 p
         /*CompoundTag abilities) {
         *///?}
     private static final String KEY = "musavacca:voco_dust_return";
-    private static final Codec<VocoDustReturn> CODEC = RecordCodecBuilder.create(i -> i.group(
-            GameType.CODEC.fieldOf("mode").forGetter(VocoDustReturn::mode),
-            ResourceKey.codec(Registries.DIMENSION).fieldOf("dimension").forGetter(VocoDustReturn::dimension),
-            Vec3.CODEC.fieldOf("position").forGetter(VocoDustReturn::pos),
-            Codec.FLOAT.fieldOf("yaw").forGetter(VocoDustReturn::yaw),
-            Codec.FLOAT.fieldOf("pitch").forGetter(VocoDustReturn::pitch),
-            //? if >=1.21.6 {
-            Abilities.Packed.CODEC.fieldOf("abilities").forGetter(VocoDustReturn::abilities)
-            //?} else {
-            /*CompoundTag.CODEC.fieldOf("abilities").forGetter(VocoDustReturn::abilities)
-            *///?}
-    ).apply(i, VocoDustReturn::new));
+    private static final Codec<VocoDustReturn> CODEC =
+            RecordCodecBuilder.create(i ->
+                    i.group(
+                                    GameType.CODEC.fieldOf("mode").forGetter(VocoDustReturn::mode),
+                                    ResourceKey.codec(Registries.DIMENSION).fieldOf("dimension").forGetter(VocoDustReturn::dimension),
+                                    Vec3.CODEC.fieldOf("position").forGetter(VocoDustReturn::pos),
+                                    Codec.FLOAT.fieldOf("yaw").forGetter(VocoDustReturn::yaw),
+                                    Codec.FLOAT.fieldOf("pitch").forGetter(VocoDustReturn::pitch),
+                                    //? if >=1.21.6 {
+                                    Abilities.Packed.CODEC.fieldOf("abilities").forGetter(VocoDustReturn::abilities)
+                                    //?} else {
+                                    /*CompoundTag.CODEC.fieldOf("abilities").forGetter(VocoDustReturn::abilities)
+                                    *///?}
+    )
+                            .apply(i, VocoDustReturn::new));
 
     static VocoDustReturn capture(ServerPlayer player, ServerLevel level) {
         //? if >=1.21.6 {
@@ -52,8 +57,13 @@ public record VocoDustReturn(GameType mode, ResourceKey<Level> dimension, Vec3 p
         /*CompoundTag abilities = new CompoundTag();
         player.getAbilities().addSaveData(abilities);
         *///?}
-        return new VocoDustReturn(player.gameMode.getGameModeForPlayer(), level.dimension(), player.position(),
-                player.getYRot(), player.getXRot(), abilities);
+        return new VocoDustReturn(
+                player.gameMode.getGameModeForPlayer(),
+                level.dimension(),
+                player.position(),
+                player.getYRot(),
+                player.getXRot(),
+                abilities);
     }
 
     void save(ServerPlayer player) {

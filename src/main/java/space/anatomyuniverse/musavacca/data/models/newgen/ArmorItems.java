@@ -3,11 +3,9 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
+import net.minecraft.world.level.ItemLike;
+import space.anatomyuniverse.musavacca.item.CustomHelmetArmorTrims;
+
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +14,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import net.minecraft.world.level.ItemLike;
-import space.anatomyuniverse.musavacca.item.CustomHelmetArmorTrims;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
+
 //? if >=1.21.4 {
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 //?} else if >=1.21.2 <1.21.4 {
@@ -46,10 +48,10 @@ public final class ArmorItems {
     static ResourceLocation trimTexture(Piece piece) {
     //?}
         return switch (piece) {
-        case HELMET -> TRIM_ICON_HELMET;
-        case CHESTPLATE -> TRIM_ICON_CHESTPLATE;
-        case LEGGINGS -> TRIM_ICON_LEGGINGS;
-        case BOOTS -> TRIM_ICON_BOOTS;
+            case HELMET -> TRIM_ICON_HELMET;
+            case CHESTPLATE -> TRIM_ICON_CHESTPLATE;
+            case LEGGINGS -> TRIM_ICON_LEGGINGS;
+            case BOOTS -> TRIM_ICON_BOOTS;
         };
     }
 
@@ -63,7 +65,10 @@ public final class ArmorItems {
     }
 
     public enum Piece {
-        HELMET, CHESTPLATE, LEGGINGS, BOOTS
+        HELMET,
+        CHESTPLATE,
+        LEGGINGS,
+        BOOTS
     }
 
     public static final class Entry {
@@ -88,28 +93,48 @@ public final class ArmorItems {
             return new Builder();
         }
 
-        public ItemLike helmet() { return items.helmet(); }
+        public ItemLike helmet() {
+            return items.helmet();
+        }
 
-        public ItemLike chestplate() { return items.chestplate(); }
+        public ItemLike chestplate() {
+            return items.chestplate();
+        }
 
-        public ItemLike leggings() { return items.leggings(); }
+        public ItemLike leggings() {
+            return items.leggings();
+        }
 
-        public ItemLike boots() { return items.boots(); }
+        public ItemLike boots() {
+            return items.boots();
+        }
 
-        public ItemSet items() { return items; }
+        public ItemSet items() {
+            return items;
+        }
 
-        public Inventory inventory() { return inventory; }
+        public Inventory inventory() {
+            return inventory;
+        }
 
-        public Equipment equipment() { return equipment; }
+        public Equipment equipment() {
+            return equipment;
+        }
 
         //? if >=1.21.11 {
-        /*public Identifier helmetHeadModel() { return helmetHeadModel; }
+        /*public Identifier helmetHeadModel() {
+            return helmetHeadModel;
+        }
 
         *///?} else {
-        public ResourceLocation helmetHeadModel() { return helmetHeadModel; }
+        public ResourceLocation helmetHeadModel() {
+            return helmetHeadModel;
+        }
 
         //?}
-        public boolean hasHelmetHeadModel() { return helmetHeadModel != null; }
+        public boolean hasHelmetHeadModel() {
+            return helmetHeadModel != null;
+        }
 
         public ItemLike item(Piece piece) {
             return items.item(piece);
@@ -187,14 +212,16 @@ public final class ArmorItems {
             Objects.requireNonNull(boots, "boots");
         }
 
-        public static Builder builder() { return new Builder(); }
+        public static Builder builder() {
+            return new Builder();
+        }
 
         public ItemLike item(Piece piece) {
             return switch (piece) {
-            case HELMET -> helmet;
-            case CHESTPLATE -> chestplate;
-            case LEGGINGS -> leggings;
-            case BOOTS -> boots;
+                case HELMET -> helmet;
+                case CHESTPLATE -> chestplate;
+                case LEGGINGS -> leggings;
+                case BOOTS -> boots;
             };
         }
 
@@ -208,15 +235,29 @@ public final class ArmorItems {
             private ItemLike leggings;
             private ItemLike boots;
 
-            public Builder helmet(ItemLike item) { helmet = Objects.requireNonNull(item, "item"); return this; }
+            public Builder helmet(ItemLike item) {
+                helmet = Objects.requireNonNull(item, "item");
+                return this;
+            }
 
-            public Builder chestplate(ItemLike item) { chestplate = Objects.requireNonNull(item, "item"); return this; }
+            public Builder chestplate(ItemLike item) {
+                chestplate = Objects.requireNonNull(item, "item");
+                return this;
+            }
 
-            public Builder leggings(ItemLike item) { leggings = Objects.requireNonNull(item, "item"); return this; }
+            public Builder leggings(ItemLike item) {
+                leggings = Objects.requireNonNull(item, "item");
+                return this;
+            }
 
-            public Builder boots(ItemLike item) { boots = Objects.requireNonNull(item, "item"); return this; }
+            public Builder boots(ItemLike item) {
+                boots = Objects.requireNonNull(item, "item");
+                return this;
+            }
 
-            public ItemSet build() { return new ItemSet(helmet, chestplate, leggings, boots); }
+            public ItemSet build() {
+                return new ItemSet(helmet, chestplate, leggings, boots);
+            }
         }
     }
 
@@ -229,11 +270,17 @@ public final class ArmorItems {
             textures = Map.copyOf(builder.textures);
         }
 
-        public static Builder builder() { return new Builder(); }
+        public static Builder builder() {
+            return new Builder();
+        }
 
-        public boolean trims() { return trims; }
+        public boolean trims() {
+            return trims;
+        }
 
-        String texture(Piece piece) { return textures.get(piece); }
+        String texture(Piece piece) {
+            return textures.get(piece);
+        }
 
         public static final class Builder {
             private boolean generated;
@@ -267,15 +314,29 @@ public final class ArmorItems {
     public static final class PieceTextures {
         private final Map<Piece, String> values;
 
-        private PieceTextures(Map<Piece, String> values) { this.values = values; }
+        private PieceTextures(Map<Piece, String> values) {
+            this.values = values;
+        }
 
-        public PieceTextures helmet(String texture) { put(Piece.HELMET, texture); return this; }
+        public PieceTextures helmet(String texture) {
+            put(Piece.HELMET, texture);
+            return this;
+        }
 
-        public PieceTextures chestplate(String texture) { put(Piece.CHESTPLATE, texture); return this; }
+        public PieceTextures chestplate(String texture) {
+            put(Piece.CHESTPLATE, texture);
+            return this;
+        }
 
-        public PieceTextures leggings(String texture) { put(Piece.LEGGINGS, texture); return this; }
+        public PieceTextures leggings(String texture) {
+            put(Piece.LEGGINGS, texture);
+            return this;
+        }
 
-        public PieceTextures boots(String texture) { put(Piece.BOOTS, texture); return this; }
+        public PieceTextures boots(String texture) {
+            put(Piece.BOOTS, texture);
+            return this;
+        }
 
         private void put(Piece piece, String value) {
             if (value == null || value.isBlank()) throw new IllegalArgumentException("armor texture must not be blank");
@@ -293,7 +354,9 @@ public final class ArmorItems {
             Objects.requireNonNull(texture, "texture");
         }
 
-        public static Builder builder() { return new Builder(); }
+        public static Builder builder() {
+            return new Builder();
+        }
 
         public static final class Builder {
             //? if >=1.21.11 {
@@ -306,17 +369,29 @@ public final class ArmorItems {
 
             //?}
             //? if >=1.21.11 {
-            /*public Builder id(String id) { this.id = Identifier.parse(id); return this; }
+            /*public Builder id(String id) {
+                this.id = Identifier.parse(id);
+                return this;
+            }
 
             *///?} else {
-            public Builder id(String id) { this.id = ResourceLocation.parse(id); return this; }
+            public Builder id(String id) {
+                this.id = ResourceLocation.parse(id);
+                return this;
+            }
 
             //?}
             //? if >=1.21.11 {
-            /*public Builder texture(String texture) { this.texture = Identifier.parse(texture); return this; }
+            /*public Builder texture(String texture) {
+                this.texture = Identifier.parse(texture);
+                return this;
+            }
 
             *///?} else {
-            public Builder texture(String texture) { this.texture = ResourceLocation.parse(texture); return this; }
+            public Builder texture(String texture) {
+                this.texture = ResourceLocation.parse(texture);
+                return this;
+            }
 
             //?}
             public Equipment build() {
@@ -370,14 +445,19 @@ public final class ArmorItems {
         //?} else {
         /*private static void addTrimCarrier(Map<ResourceLocation, EquipmentModel> map) {
         *///?}
-            putUnique(map, CustomHelmetArmorTrims.TRIM_CARRIER_ID,
+            putUnique(
+                    map,
+                    CustomHelmetArmorTrims.TRIM_CARRIER_ID,
                     //? if >=1.21.4 {
                     EquipmentClientInfo.builder()
-                            .addLayers(EquipmentClientInfo.LayerType.HUMANOID,
+                            .addLayers(
+                                    EquipmentClientInfo.LayerType.HUMANOID,
                                     EquipmentClientInfo.Layer.onlyIfDyed(CustomHelmetArmorTrims.TRIM_CARRIER_ID, true))
                     //?} else {
                     /*EquipmentModel.builder()
-                            .addLayers(EquipmentModel.LayerType.HUMANOID, EquipmentModel.Layer.onlyIfDyed(CustomHelmetArmorTrims.TRIM_CARRIER_ID, true))
+                            .addLayers(
+                                    EquipmentModel.LayerType.HUMANOID,
+                                    EquipmentModel.Layer.onlyIfDyed(CustomHelmetArmorTrims.TRIM_CARRIER_ID, true))
                     *///?}
                             .build());
         }
@@ -395,12 +475,16 @@ public final class ArmorItems {
                 //?} else {
                 /*var layer = new EquipmentModel.Layer(entry.equipment().texture(), Optional.empty(), false);
                 *///?}
-                putUnique(map, entry.equipment().id(),
+                putUnique(
+                        map,
+                        entry.equipment().id(),
                         //? if >=1.21.4 {
-                        EquipmentClientInfo.builder().addLayers(EquipmentClientInfo.LayerType.HUMANOID, layer)
+                        EquipmentClientInfo.builder()
+                                .addLayers(EquipmentClientInfo.LayerType.HUMANOID, layer)
                                 .addLayers(EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS, layer)
                         //?} else {
-                        /*EquipmentModel.builder().addLayers(EquipmentModel.LayerType.HUMANOID, layer)
+                        /*EquipmentModel.builder()
+                                .addLayers(EquipmentModel.LayerType.HUMANOID, layer)
                                 .addLayers(EquipmentModel.LayerType.HUMANOID_LEGGINGS, layer)
                         *///?}
                                 .build());

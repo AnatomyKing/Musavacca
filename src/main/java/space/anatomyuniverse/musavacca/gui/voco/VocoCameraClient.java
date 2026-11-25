@@ -1,28 +1,28 @@
 package space.anatomyuniverse.musavacca.gui.voco;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-//? if >=26.1 {
-/*import net.minecraft.client.gui.GuiGraphicsExtractor;
-*///?} else {
-import net.minecraft.client.gui.GuiGraphics;
-//?}
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
-import net.neoforged.neoforge.event.entity.EntityEvent;
-import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.client.event.ViewportEvent;
-import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustRide;
-import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.neoforged.neoforge.event.entity.EntityEvent;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoDustRide;
+//? if >=26.1 {
+/*import net.minecraft.client.gui.GuiGraphicsExtractor;
+*///?} else {
+import net.minecraft.client.gui.GuiGraphics;
+//?}
 
 public final class VocoCameraClient {
     private static LocalPlayer rider;
@@ -210,7 +210,9 @@ public final class VocoCameraClient {
         float yaw = Mth.wrapDegrees(minecraft.player.getYRot());
         float pitch = Mth.clamp(minecraft.player.getXRot(), -90.0F, 90.0F);
         minecraft.player.connection.send(new VocoCameraSelectionPayload(session.pos(), session.receptorId(), yaw, pitch, resetToDefault));
-        Component message = Component.literal(resetToDefault ? "Voco receptor restored to its default arrival." : "Voco arrival position and view saved.");
+        Component message =
+                Component.literal(
+                        resetToDefault ? "Voco receptor restored to its default arrival." : "Voco arrival position and view saved.");
         //? if >=26.1 {
         /*minecraft.player.sendOverlayMessage(message);
         *///?} else {

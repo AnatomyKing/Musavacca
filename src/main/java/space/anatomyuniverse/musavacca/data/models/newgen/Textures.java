@@ -5,20 +5,33 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
+import net.minecraft.world.level.block.Block;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import net.minecraft.world.level.block.Block;
 
 public final class Textures {
     private Textures() {}
 
     //? if >=1.21.11 {
-    /*public record Set(List<Identifier> top, List<Identifier> bottom, List<Identifier> north, List<Identifier> south, List<Identifier> west,
-            List<Identifier> east, Identifier particle) {
+    /*public record Set(
+            List<Identifier> top,
+            List<Identifier> bottom,
+            List<Identifier> north,
+            List<Identifier> south,
+            List<Identifier> west,
+            List<Identifier> east,
+            Identifier particle) {
     *///?} else {
-    public record Set(List<ResourceLocation> top, List<ResourceLocation> bottom, List<ResourceLocation> north, List<ResourceLocation> south,
-            List<ResourceLocation> west, List<ResourceLocation> east, ResourceLocation particle) {
+    public record Set(
+            List<ResourceLocation> top,
+            List<ResourceLocation> bottom,
+            List<ResourceLocation> north,
+            List<ResourceLocation> south,
+            List<ResourceLocation> west,
+            List<ResourceLocation> east,
+            ResourceLocation particle) {
     //?}
         public Set {
             top = requireLayers(top, "top");
@@ -31,12 +44,20 @@ public final class Textures {
         }
 
         private Set(Builder b) {
-            this(first(b.top, b.ends, b.all), first(b.bottom, b.ends, b.all), first(b.north, b.sides, b.all), first(b.south, b.sides, b.all),
-                    first(b.west, b.sides, b.all), first(b.east, b.sides, b.all), first(b.north, b.sides, b.all).get(0));
+            this(
+                    first(b.top, b.ends, b.all),
+                    first(b.bottom, b.ends, b.all),
+                    first(b.north, b.sides, b.all),
+                    first(b.south, b.sides, b.all),
+                    first(b.west, b.sides, b.all),
+                    first(b.east, b.sides, b.all),
+                    first(b.north, b.sides, b.all).get(0));
         }
 
         public int layerCount() {
-            return Math.max(Math.max(Math.max(top.size(), bottom.size()), Math.max(north.size(), south.size())), Math.max(west.size(), east.size()));
+            return Math.max(
+                    Math.max(Math.max(top.size(), bottom.size()), Math.max(north.size(), south.size())),
+                    Math.max(west.size(), east.size()));
         }
 
         @SafeVarargs

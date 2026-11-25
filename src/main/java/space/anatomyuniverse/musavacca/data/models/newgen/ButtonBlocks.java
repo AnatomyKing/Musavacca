@@ -41,7 +41,8 @@ public final class ButtonBlocks {
         }
 
         public void validate() {
-            if (!(block() instanceof ButtonBlock)) throw new IllegalStateException("ButtonBlocks requires a ButtonBlock: " + ModelLocations.blockId(block()));
+            if (!(block() instanceof ButtonBlock))
+                throw new IllegalStateException("ButtonBlocks requires a ButtonBlock: " + ModelLocations.blockId(block()));
             Conditions.requireProperty(block(), ButtonBlock.FACE, "ButtonBlocks");
             Conditions.requireProperty(block(), ButtonBlock.FACING, "ButtonBlocks");
             Conditions.requireProperty(block(), ButtonBlock.POWERED, "ButtonBlocks");

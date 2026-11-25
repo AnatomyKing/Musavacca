@@ -1,6 +1,11 @@
 package space.anatomyuniverse.musavacca.data.recipes;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
+
+import java.util.Objects;
 
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
@@ -8,16 +13,15 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 //?}
 
-import java.util.Objects;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
-
 public final class CompatRecipeDSL extends RecipeDSL {
     private final String compatModId;
 
     CompatRecipeDSL(RecipeDSL parent, String compatModId) {
-        super(parent.output().withConditions(new ModLoadedCondition(requireModId(compatModId))), parent.modId(), parent.unlocker(), parent.registries(),
+        super(
+                parent.output().withConditions(new ModLoadedCondition(requireModId(compatModId))),
+                parent.modId(),
+                parent.unlocker(),
+                parent.registries(),
                 joinFolder(parent.recipePathPrefix(), "compat/" + requireModId(compatModId)));
         this.compatModId = requireModId(compatModId);
     }
@@ -57,6 +61,7 @@ public final class CompatRecipeDSL extends RecipeDSL {
     *///?} else {
     private static IllegalStateException missing(String type, ResourceLocation id) {
     //?}
-        return new IllegalStateException("Missing compat " + type + " '" + id + "' during datagen. Add the target mod to this version's compat runtime.");
+        return new IllegalStateException(
+                "Missing compat " + type + " '" + id + "' during datagen. Add the target mod to this version's compat runtime.");
     }
 }

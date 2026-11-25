@@ -11,8 +11,8 @@ public final class MusavaccaTrapdoorTeleportTransform {
 
     public record Result(Vec3 position, Vec3 deltaMovement, float yRot, float xRot) {}
 
-    public static Result calculate(Entity entity, MusavaccaTrapdoorTeleport.ResolvedTrapdoor source,
-            MusavaccaTrapdoorTeleport.ResolvedTrapdoor target) {
+    public static Result calculate(
+            Entity entity, MusavaccaTrapdoorTeleport.ResolvedTrapdoor source, MusavaccaTrapdoorTeleport.ResolvedTrapdoor target) {
         double entityHalfWidth = Math.max(0.0D, entity.getBbWidth() * 0.5D);
         Vec3 sourceRelative = entity.position().subtract(source.portalCenter());
         double maximumOffset = Math.max(0.0D, 0.5D - entityHalfWidth);

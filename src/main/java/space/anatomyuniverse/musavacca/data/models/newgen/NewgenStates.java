@@ -1,16 +1,17 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.properties.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.properties.*;
 
 final class NewgenStates {
     private NewgenStates() {}
@@ -22,7 +23,7 @@ final class NewgenStates {
     record Pose<M>(Conditions.Match when, Function<M, ResourceLocation> model, int x, int y, boolean uvLock) {}
 
     //?}
-    private static final boolean[] BOOLEANS = { false, true };
+    private static final boolean[] BOOLEANS = {false, true};
     static final List<Pose<SlabModels>> SLABS = slabs();
     static final List<Pose<StairModels>> STAIRS = stairs();
     static final List<Pose<DoorModels>> DOORS = doors();
@@ -47,7 +48,8 @@ final class NewgenStates {
                     int y = (int) facing.getClockWise().toYRot();
                     if (shape == StairsShape.INNER_LEFT || shape == StairsShape.OUTER_LEFT) y += 270;
                     if (shape != StairsShape.STRAIGHT && half == Half.TOP) y += 90;
-                    Conditions.Match when = Conditions.when(StairBlock.FACING, facing).and(StairBlock.HALF, half).and(StairBlock.SHAPE, shape);
+                    Conditions.Match when =
+                            Conditions.when(StairBlock.FACING, facing).and(StairBlock.HALF, half).and(StairBlock.SHAPE, shape);
                     poses.add(new Pose<>(when, m -> m.model(shape), half == Half.TOP ? 180 : 0, Rotations.quarterTurn(y), true));
                 }
             }
@@ -63,8 +65,11 @@ final class NewgenStates {
                     for (boolean open : BOOLEANS) {
                         int y = northY(facing) + 270;
                         if (open) y += hinge == DoorHingeSide.LEFT ? 90 : -90;
-                        Conditions.Match when = Conditions.when(DoorBlock.FACING, facing).and(DoorBlock.HALF, half).and(DoorBlock.HINGE, hinge)
-                                .and(DoorBlock.OPEN, open);
+                        Conditions.Match when =
+                                Conditions.when(DoorBlock.FACING, facing)
+                                        .and(DoorBlock.HALF, half)
+                                        .and(DoorBlock.HINGE, hinge)
+                                        .and(DoorBlock.OPEN, open);
                         poses.add(new Pose<>(when, m -> m.model(half, hinge, open), 0, Rotations.quarterTurn(y), false));
                     }
                 }
@@ -82,7 +87,8 @@ final class NewgenStates {
                     boolean flip = orientable && open && half == Half.TOP;
                     int y = orientable || open ? northY(facing) : 0;
                     if (flip) y += 180;
-                    Conditions.Match when = Conditions.when(TrapDoorBlock.FACING, facing).and(TrapDoorBlock.HALF, half).and(TrapDoorBlock.OPEN, open);
+                    Conditions.Match when =
+                            Conditions.when(TrapDoorBlock.FACING, facing).and(TrapDoorBlock.HALF, half).and(TrapDoorBlock.OPEN, open);
                     poses.add(new Pose<>(when, m -> m.model(half, open), flip ? 180 : 0, Rotations.quarterTurn(y), false));
                 }
             }
@@ -94,13 +100,14 @@ final class NewgenStates {
         List<Pose<FenceModels>> poses = new ArrayList<>();
         poses.add(new Pose<>(Conditions.always(), FenceModels::post, 0, 0, false));
         for (Direction facing : Rotations.HORIZONTAL) {
-            BooleanProperty property = switch (facing) {
-            case NORTH -> FenceBlock.NORTH;
-            case EAST -> FenceBlock.EAST;
-            case SOUTH -> FenceBlock.SOUTH;
-            case WEST -> FenceBlock.WEST;
-            default -> throw new IllegalArgumentException("Not horizontal: " + facing);
-            };
+            BooleanProperty property =
+                    switch (facing) {
+                        case NORTH -> FenceBlock.NORTH;
+                        case EAST -> FenceBlock.EAST;
+                        case SOUTH -> FenceBlock.SOUTH;
+                        case WEST -> FenceBlock.WEST;
+                        default -> throw new IllegalArgumentException("Not horizontal: " + facing);
+                    };
             poses.add(new Pose<>(Conditions.when(property, true), FenceModels::side, 0, northY(facing), true));
         }
         return List.copyOf(poses);
@@ -111,7 +118,10 @@ final class NewgenStates {
         for (Direction facing : Rotations.HORIZONTAL) {
             for (boolean open : BOOLEANS) {
                 for (boolean inWall : BOOLEANS) {
-                    Conditions.Match when = Conditions.when(FenceGateBlock.FACING, facing).and(FenceGateBlock.OPEN, open).and(FenceGateBlock.IN_WALL, inWall);
+                    Conditions.Match when =
+                            Conditions.when(FenceGateBlock.FACING, facing)
+                                    .and(FenceGateBlock.OPEN, open)
+                                    .and(FenceGateBlock.IN_WALL, inWall);
                     poses.add(new Pose<>(when, m -> m.model(open, inWall), 0, (int) facing.toYRot(), true));
                 }
             }
@@ -138,13 +148,15 @@ final class NewgenStates {
         for (Direction facing : Rotations.HORIZONTAL) {
             for (AttachFace face : AttachFace.values()) {
                 for (boolean powered : BOOLEANS) {
-                    int x = switch (face) {
-                    case FLOOR -> 0;
-                    case WALL -> 90;
-                    case CEILING -> 180;
-                    };
+                    int x =
+                            switch (face) {
+                                case FLOOR -> 0;
+                                case WALL -> 90;
+                                case CEILING -> 180;
+                            };
                     int y = face == AttachFace.CEILING ? (int) facing.toYRot() : northY(facing);
-                    Conditions.Match when = Conditions.when(ButtonBlock.FACE, face).and(ButtonBlock.FACING, facing).and(ButtonBlock.POWERED, powered);
+                    Conditions.Match when =
+                            Conditions.when(ButtonBlock.FACE, face).and(ButtonBlock.FACING, facing).and(ButtonBlock.POWERED, powered);
                     poses.add(new Pose<>(when, m -> m.model(powered), x, y, face == AttachFace.WALL));
                 }
             }
@@ -156,13 +168,14 @@ final class NewgenStates {
         List<Pose<WallModels>> poses = new ArrayList<>();
         poses.add(new Pose<>(Conditions.when(BlockStateProperties.UP, true), WallModels::post, 0, 0, false));
         for (Direction facing : Rotations.HORIZONTAL) {
-            EnumProperty<WallSide> property = switch (facing) {
-            case NORTH -> BlockStateProperties.NORTH_WALL;
-            case EAST -> BlockStateProperties.EAST_WALL;
-            case SOUTH -> BlockStateProperties.SOUTH_WALL;
-            case WEST -> BlockStateProperties.WEST_WALL;
-            default -> throw new IllegalArgumentException("Not horizontal: " + facing);
-            };
+            EnumProperty<WallSide> property =
+                    switch (facing) {
+                        case NORTH -> BlockStateProperties.NORTH_WALL;
+                        case EAST -> BlockStateProperties.EAST_WALL;
+                        case SOUTH -> BlockStateProperties.SOUTH_WALL;
+                        case WEST -> BlockStateProperties.WEST_WALL;
+                        default -> throw new IllegalArgumentException("Not horizontal: " + facing);
+                    };
             poses.add(new Pose<>(Conditions.when(property, WallSide.LOW), WallModels::lowSide, 0, northY(facing), true));
             poses.add(new Pose<>(Conditions.when(property, WallSide.TALL), WallModels::tallSide, 0, northY(facing), true));
         }
@@ -171,11 +184,11 @@ final class NewgenStates {
 
     static int northY(Direction direction) {
         return switch (direction) {
-        case NORTH -> 0;
-        case EAST -> 90;
-        case SOUTH -> 180;
-        case WEST -> 270;
-        default -> throw new IllegalArgumentException("Not horizontal: " + direction);
+            case NORTH -> 0;
+            case EAST -> 90;
+            case SOUTH -> 180;
+            case WEST -> 270;
+            default -> throw new IllegalArgumentException("Not horizontal: " + direction);
         };
     }
 }

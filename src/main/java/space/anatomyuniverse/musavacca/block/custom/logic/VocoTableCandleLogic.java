@@ -37,8 +37,15 @@ import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 public final class VocoTableCandleLogic {
     private VocoTableCandleLogic() {}
 
-    public static InteractionResult place(Level level, BlockPos pos, ReceptorPosition corner, Player player, InteractionHand hand, ItemStack stack,
-            BlockItem item, BlockHitResult hit) {
+    public static InteractionResult place(
+            Level level,
+            BlockPos pos,
+            ReceptorPosition corner,
+            Player player,
+            InteractionHand hand,
+            ItemStack stack,
+            BlockItem item,
+            BlockHitResult hit) {
         if (player.isSpectator() || !player.getAbilities().mayBuild || !(level.getBlockEntity(pos) instanceof VocoTableBlockEntity table)) {
             return InteractionResult.FAIL;
         }
@@ -57,13 +64,15 @@ public final class VocoTableCandleLogic {
             table.setCandle(corner, next);
             if (!player.getAbilities().instabuild) stack.consume(1, player);
             SoundType sound = next.state().getSoundType();
-            level.playSound(null, pos, sound.getPlaceSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
+            level.playSound(
+                    null, pos, sound.getPlaceSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
             level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         }
         return InteractionResult.SUCCESS;
     }
 
-    public static InteractionResult ignite(Level level, BlockPos pos, ReceptorPosition corner, Player player, InteractionHand hand, ItemStack stack) {
+    public static InteractionResult ignite(
+            Level level, BlockPos pos, ReceptorPosition corner, Player player, InteractionHand hand, ItemStack stack) {
         boolean pearl = PearlIgniter.is(stack);
         if (!pearl && !stack.is(Items.FLINT_AND_STEEL)) return InteractionResult.PASS;
         if (!(level.getBlockEntity(pos) instanceof VocoTableBlockEntity table)) return InteractionResult.PASS;
@@ -104,7 +113,8 @@ public final class VocoTableCandleLogic {
         }
     }
 
-    private static SyncResult syncEndpoint(Level level, BlockPos pos, ReceptorPosition receptor, boolean receptorLit, VocoTableBlockEntity tableBe) {
+    private static SyncResult syncEndpoint(
+            Level level, BlockPos pos, ReceptorPosition receptor, boolean receptorLit, VocoTableBlockEntity tableBe) {
         if (!receptorLit || !tableBe.isPearlCandleLit(receptor)) {
             removeEndpoint(level, pos, receptor);
             return SyncResult.INACTIVE;
@@ -127,7 +137,8 @@ public final class VocoTableCandleLogic {
     }
 
     public static boolean breakLookedAtCandle(Level level, BlockPos pos, Player player) {
-        if (player.isSpectator() || !player.getAbilities().mayBuild || !(level.getBlockEntity(pos) instanceof VocoTableBlockEntity table)) return false;
+        if (player.isSpectator() || !player.getAbilities().mayBuild || !(level.getBlockEntity(pos) instanceof VocoTableBlockEntity table))
+            return false;
         Vec3 eye = player.getEyePosition();
         Vec3 end = eye.add(player.getLookAngle().scale(player.blockInteractionRange()));
         var context = CollisionContext.of(player);
@@ -144,7 +155,15 @@ public final class VocoTableCandleLogic {
             level.addFreshEntity(item);
         }
         SoundType sound = candle.state().getSoundType();
-        level.playSound(null, drop.x, drop.y, drop.z, sound.getBreakSound(), SoundSource.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
+        level.playSound(
+                null,
+                drop.x,
+                drop.y,
+                drop.z,
+                sound.getBreakSound(),
+                SoundSource.BLOCKS,
+                (sound.getVolume() + 1.0F) / 2.0F,
+                sound.getPitch() * 0.8F);
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         return true;
     }
@@ -155,8 +174,8 @@ public final class VocoTableCandleLogic {
         for (var corner : ReceptorPosition.values()) {
             var candle = table.candle(corner);
             if (candle != null && candle.lit()) {
-                OriginalCandleParticles.animateMounted(candle.state(), level, ground, random, candle.hex(),
-                        VocoTableCandleVoxelShapes.renderTranslation(corner));
+                OriginalCandleParticles.animateMounted(
+                        candle.state(), level, ground, random, candle.hex(), VocoTableCandleVoxelShapes.renderTranslation(corner));
             }
         }
     }
@@ -201,5 +220,4 @@ public final class VocoTableCandleLogic {
         level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
     }
-
 }

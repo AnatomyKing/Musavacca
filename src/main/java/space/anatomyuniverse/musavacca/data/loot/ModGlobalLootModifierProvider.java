@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.data.loot;
 //? if >=26.3 {
 /*import net.minecraft.core.Holder;
 *///?}
-import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
@@ -14,6 +13,8 @@ import net.neoforged.neoforge.common.loot.AddTableLootModifier;
 import net.neoforged.neoforge.common.loot.LootTableIdCondition;
 import space.anatomyuniverse.musavacca.MusaCore;
 
+import java.util.concurrent.CompletableFuture;
+
 public final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
     public ModGlobalLootModifierProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries, MusaCore.MOD_ID);
@@ -21,8 +22,13 @@ public final class ModGlobalLootModifierProvider extends GlobalLootModifierProvi
 
     @Override
     protected void start() {
-        inject("inject_musavacca_pup_into_sniffer_digging", ModLootTables.VANILLA_SNIFFER_DIGGING, ModLootTables.SNIFFER_DIGGING_MUSAVACCA_PUP);
-        inject("inject_fractured_potassium_template_into_jungle_temple", ModLootTables.VANILLA_JUNGLE_TEMPLE,
+        inject(
+                "inject_musavacca_pup_into_sniffer_digging",
+                ModLootTables.VANILLA_SNIFFER_DIGGING,
+                ModLootTables.SNIFFER_DIGGING_MUSAVACCA_PUP);
+        inject(
+                "inject_fractured_potassium_template_into_jungle_temple",
+                ModLootTables.VANILLA_JUNGLE_TEMPLE,
                 ModLootTables.JUNGLE_TEMPLE_FRACTURED_POTASSIUM_TEMPLATE);
     }
 
@@ -36,7 +42,7 @@ public final class ModGlobalLootModifierProvider extends GlobalLootModifierProvi
                 //? if >=26.3 {
                 /*java.util.Optional.of(Holder.direct(condition)),
                 *///?} else {
-                new LootItemCondition[] { condition },
+                new LootItemCondition[] {condition},
                 //?}
                 //? if >=26.1 {
                 /*0,

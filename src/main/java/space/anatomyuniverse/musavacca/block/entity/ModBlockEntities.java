@@ -1,7 +1,5 @@
 package space.anatomyuniverse.musavacca.block.entity;
 
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -14,8 +12,12 @@ import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.*;
 
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+
 public final class ModBlockEntities {
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MusaCore.MOD_ID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
+            DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MusaCore.MOD_ID);
     public static final Supplier<BlockEntityType<HexBlockEntity>> HEX_BLOCK_ENTITY =
             register("hex_block_entity", HexBlockEntity::new, () -> ModBlocks.HEX_BLOCK.get());
     public static final Supplier<BlockEntityType<HardHexBlockEntity>> HARD_HEX_BLOCK_ENTITY =
@@ -37,8 +39,8 @@ public final class ModBlockEntities {
 
     private ModBlockEntities() {}
 
-    private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String name, BiFunction<BlockPos, BlockState, T> factory,
-            Supplier<? extends Block> block) {
+    private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(
+            String name, BiFunction<BlockPos, BlockState, T> factory, Supplier<? extends Block> block) {
         return BLOCK_ENTITY_TYPES.register(name, () ->
                 //? if >=1.21.4 {
                 new BlockEntityType<>(factory::apply, false, block.get())

@@ -5,9 +5,6 @@ package space.anatomyuniverse.musavacca.entity.mob.bananacow;
 *///?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-//? if <1.21.6 {
-/*import net.minecraft.nbt.CompoundTag;
-*///?}
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -21,24 +18,28 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-//? if >=1.21.11 {
-/*import net.minecraft.world.entity.animal.cow.Cow;
-*///?} else {
-import net.minecraft.world.entity.animal.Cow;
-//?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.IShearable;
+import org.jetbrains.annotations.NotNull;
+import space.anatomyuniverse.musavacca.item.ModItems;
+
+import java.util.List;
+//? if <1.21.6 {
+/*import net.minecraft.nbt.CompoundTag;
+*///?}
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.animal.cow.Cow;
+*///?} else {
+import net.minecraft.world.entity.animal.Cow;
+//?}
 //? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
-import java.util.List;
-import org.jetbrains.annotations.NotNull;
-import space.anatomyuniverse.musavacca.item.ModItems;
 
 public class BananaCow extends Cow implements IShearable {
     public static final int PEEL_STAGE_DEFAULT = 0;
@@ -50,8 +51,10 @@ public class BananaCow extends Cow implements IShearable {
     private static final String TAG_EATEN_BITES = "BananaCowEatenBites";
     private static final byte EAT_ANIMATION_EVENT = 10;
     private static final float EAT_HEAD_DOWN_ANGLE = Mth.PI / 5.0F;
-    private static final EntityDataAccessor<Integer> DATA_PEEL_STAGE = SynchedEntityData.defineId(BananaCow.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_EATEN_BITES = SynchedEntityData.defineId(BananaCow.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_PEEL_STAGE =
+            SynchedEntityData.defineId(BananaCow.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_EATEN_BITES =
+            SynchedEntityData.defineId(BananaCow.class, EntityDataSerializers.INT);
     private BananaCowGrazeGoal eatBlockGoal;
     private int eatAnimationTick;
 
@@ -60,8 +63,11 @@ public class BananaCow extends Cow implements IShearable {
     }
 
     public static @NotNull AttributeSupplier.Builder createAttributes() {
-        AttributeSupplier.Builder builder = Cow.createLivingAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(Attributes.FOLLOW_RANGE, 16.0D);
+        AttributeSupplier.Builder builder =
+                Cow.createLivingAttributes()
+                        .add(Attributes.MAX_HEALTH, 10.0D)
+                        .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                        .add(Attributes.FOLLOW_RANGE, 16.0D);
         //? if >=1.21.2 {
         builder.add(Attributes.TEMPT_RANGE, 10.0D);
         //?}
@@ -222,7 +228,8 @@ public class BananaCow extends Cow implements IShearable {
     }
 
     private void playBananaCowSound(@NotNull ServerLevel level, @NotNull Holder<SoundEvent> sound, float volume, float pitch) {
-        level.playSeededSound(null, this.getX(), this.getY(), this.getZ(), sound, SoundSource.NEUTRAL, volume, pitch, this.getRandom().nextLong());
+        level.playSeededSound(
+                null, this.getX(), this.getY(), this.getZ(), sound, SoundSource.NEUTRAL, volume, pitch, this.getRandom().nextLong());
     }
 
     @Override
@@ -259,7 +266,9 @@ public class BananaCow extends Cow implements IShearable {
 
     //? if >=26.2 {
     /*@Override
-    protected boolean canBeABaby() { return false; }
+    protected boolean canBeABaby() {
+        return false;
+    }
     *///?}
     //? if <26.2 {
     @Override
@@ -268,7 +277,6 @@ public class BananaCow extends Cow implements IShearable {
     }
 
     @Override
-    public void setBaby(boolean isBaby) {
-    }
+    public void setBaby(boolean isBaby) {}
     //?}
 }

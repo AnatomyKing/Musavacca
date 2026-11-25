@@ -3,37 +3,40 @@ package space.anatomyuniverse.musavacca.gui.menu.payloads;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.gui.menu.VocoCallerMenu;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
 
 public record VocoCallerStatePayload(int containerId, int phoneHex, int[] recent, int[] saved) implements CustomPacketPayload {
     //? if >=1.21.11 {
-    /*public static final Type<VocoCallerStatePayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_caller_state"));
+    /*public static final Type<VocoCallerStatePayload> TYPE =
+            new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_caller_state"));
     *///?} else {
-    public static final Type<VocoCallerStatePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_caller_state"));
+    public static final Type<VocoCallerStatePayload> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_caller_state"));
     //?}
-    public static final StreamCodec<ByteBuf, VocoCallerStatePayload> STREAM_CODEC = new StreamCodec<>() {
-        @Override
-        public VocoCallerStatePayload decode(ByteBuf buffer) {
-            return new VocoCallerStatePayload(buffer.readInt(), buffer.readInt(), readAddresses(buffer), readAddresses(buffer));
-        }
+    public static final StreamCodec<ByteBuf, VocoCallerStatePayload> STREAM_CODEC =
+            new StreamCodec<>() {
+                @Override
+                public VocoCallerStatePayload decode(ByteBuf buffer) {
+                    return new VocoCallerStatePayload(buffer.readInt(), buffer.readInt(), readAddresses(buffer), readAddresses(buffer));
+                }
 
-        @Override
-        public void encode(ByteBuf buffer, VocoCallerStatePayload payload) {
-            buffer.writeInt(payload.containerId());
-            buffer.writeInt(payload.phoneHex());
-            writeAddresses(buffer, payload.recent());
-            writeAddresses(buffer, payload.saved());
-        }
-    };
+                @Override
+                public void encode(ByteBuf buffer, VocoCallerStatePayload payload) {
+                    buffer.writeInt(payload.containerId());
+                    buffer.writeInt(payload.phoneHex());
+                    writeAddresses(buffer, payload.recent());
+                    writeAddresses(buffer, payload.saved());
+                }
+            };
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
@@ -41,8 +44,10 @@ public record VocoCallerStatePayload(int containerId, int phoneHex, int[] recent
     }
 
     public static void handle(VocoCallerStatePayload payload, IPayloadContext context) {
-        if (!(context.player() instanceof ServerPlayer player) || !(player.containerMenu instanceof VocoCallerMenu menu)
-                || player.containerMenu.containerId != payload.containerId() || menu.getPhoneHex() != (payload.phoneHex() & 0xFFFFFF)) {
+        if (!(context.player() instanceof ServerPlayer player)
+                || !(player.containerMenu instanceof VocoCallerMenu menu)
+                || player.containerMenu.containerId != payload.containerId()
+                || menu.getPhoneHex() != (payload.phoneHex() & 0xFFFFFF)) {
             return;
         }
         menu.applyClientState(player, payload.recent(), payload.saved());

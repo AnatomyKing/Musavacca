@@ -1,17 +1,9 @@
 package space.anatomyuniverse.musavacca.tint;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.world.item.ItemStack;
-//? if >=26.1 {
-/*import net.minecraft.client.renderer.block.BlockAndTintGetter;
-*///?} else {
-import net.minecraft.world.level.BlockAndTintGetter;
-//?}
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,6 +12,16 @@ import space.anatomyuniverse.musavacca.block.custom.PearlFireBlock;
 import space.anatomyuniverse.musavacca.block.custom.PearlPortalBlock;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+//? if >=26.1 {
+/*import net.minecraft.client.renderer.block.BlockAndTintGetter;
+*///?} else {
+import net.minecraft.world.level.BlockAndTintGetter;
+//?}
+
 //? if >=1.21.4 {
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
@@ -29,12 +31,14 @@ import net.minecraft.resources.ResourceLocation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Optional;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.MusaCore;
+
+import java.util.Optional;
+
 //?}
 
 public final class MusavaccaModelTints {
@@ -84,7 +88,8 @@ public final class MusavaccaModelTints {
             Objects.requireNonNull(profile, "profile");
             if (multiIndex < -1) throw new IllegalArgumentException("multiIndex must be >= -1");
             if (physicalLayer < -1) throw new IllegalArgumentException("physicalLayer must be >= -1");
-            if (physicalLayer >= 0 && !profile.supports(physicalLayer)) throw new IllegalArgumentException("physicalLayer is outside the profile");
+            if (physicalLayer >= 0 && !profile.supports(physicalLayer))
+                throw new IllegalArgumentException("physicalLayer is outside the profile");
         }
 
         public PearlFire multi(int index) {
@@ -190,24 +195,35 @@ public final class MusavaccaModelTints {
             //? if >=1.21.11 {
             /*new Tints.ItemTintType(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, MusavaccaTints.HEX_COLOR_KEY), ItemTint.MAP_CODEC);
             *///?} else {
-            new Tints.ItemTintType(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, MusavaccaTints.HEX_COLOR_KEY), ItemTint.MAP_CODEC);
+            new Tints.ItemTintType(
+                    ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, MusavaccaTints.HEX_COLOR_KEY), ItemTint.MAP_CODEC);
             //?}
 
     public record ItemTint(PearlFireTintProfiles.Profile profile, int layer, int multiIndex) implements ItemTintSource {
         public static final ItemTint INSTANCE = new ItemTint(null, 0, -1);
-        private static final Codec<PearlFireTintProfiles.Profile> PROFILE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.FLOAT.fieldOf("core_to_tail_lightness").forGetter(PearlFireTintProfiles.Profile::coreToTailLightness),
-                Codec.FLOAT.fieldOf("color_jumpiness").forGetter(PearlFireTintProfiles.Profile::colorJumpiness),
-                Codec.FLOAT.fieldOf("color_amount_take_over").forGetter(PearlFireTintProfiles.Profile::colorAmountTakeOver),
-                Codec.FLOAT.fieldOf("vibrancy_darkening").forGetter(PearlFireTintProfiles.Profile::vibrancyDarkening),
-                Codec.FLOAT.fieldOf("layer_contrast").forGetter(PearlFireTintProfiles.Profile::layerContrast),
-                Codec.FLOAT.listOf().fieldOf("gray_factors").forGetter(ItemTint::grayFactors)
-        ).apply(instance, ItemTint::decodeProfile));
-        public static final MapCodec<ItemTint> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                PROFILE_CODEC.optionalFieldOf("profile").forGetter(source -> Optional.ofNullable(source.profile)),
-                Codec.INT.optionalFieldOf("layer", 0).forGetter(source -> source.layer),
-                Codec.INT.optionalFieldOf("multi_index", -1).forGetter(source -> source.multiIndex)
-        ).apply(instance, ItemTint::decode));
+        private static final Codec<PearlFireTintProfiles.Profile> PROFILE_CODEC =
+                RecordCodecBuilder.create(instance ->
+                        instance.group(
+                                        Codec.FLOAT
+                                                .fieldOf("core_to_tail_lightness")
+                                                .forGetter(PearlFireTintProfiles.Profile::coreToTailLightness),
+                                        Codec.FLOAT.fieldOf("color_jumpiness").forGetter(PearlFireTintProfiles.Profile::colorJumpiness),
+                                        Codec.FLOAT
+                                                .fieldOf("color_amount_take_over")
+                                                .forGetter(PearlFireTintProfiles.Profile::colorAmountTakeOver),
+                                        Codec.FLOAT
+                                                .fieldOf("vibrancy_darkening")
+                                                .forGetter(PearlFireTintProfiles.Profile::vibrancyDarkening),
+                                        Codec.FLOAT.fieldOf("layer_contrast").forGetter(PearlFireTintProfiles.Profile::layerContrast),
+                                        Codec.FLOAT.listOf().fieldOf("gray_factors").forGetter(ItemTint::grayFactors))
+                                .apply(instance, ItemTint::decodeProfile));
+        public static final MapCodec<ItemTint> MAP_CODEC =
+                RecordCodecBuilder.mapCodec(instance ->
+                        instance.group(
+                                        PROFILE_CODEC.optionalFieldOf("profile").forGetter(source -> Optional.ofNullable(source.profile)),
+                                        Codec.INT.optionalFieldOf("layer", 0).forGetter(source -> source.layer),
+                                        Codec.INT.optionalFieldOf("multi_index", -1).forGetter(source -> source.multiIndex))
+                                .apply(instance, ItemTint::decode));
 
         public ItemTint {
             if (layer < 0) throw new IllegalArgumentException("layer must be >= 0");
@@ -238,15 +254,22 @@ public final class MusavaccaModelTints {
             return profile.isPresent() ? pearlFire(profile.get(), layer, multiIndex) : multiIndex >= 0 ? multi(multiIndex) : INSTANCE;
         }
 
-        private static PearlFireTintProfiles.Profile decodeProfile(float coreToTailLightness, float colorJumpiness, float colorAmountTakeOver,
-                float vibrancyDarkening, float layerContrast, List<Float> grayFactors) {
+        private static PearlFireTintProfiles.Profile decodeProfile(
+                float coreToTailLightness,
+                float colorJumpiness,
+                float colorAmountTakeOver,
+                float vibrancyDarkening,
+                float layerContrast,
+                List<Float> grayFactors) {
             if (grayFactors == null || grayFactors.isEmpty()) throw new IllegalArgumentException("gray_factors must not be empty");
             float[] grays = new float[grayFactors.size()];
             for (int i = 0; i < grayFactors.size(); i++) {
                 grays[i] = grayFactors.get(i);
             }
             return new PearlFireTintProfiles.Profile(
-                    new PearlFireTintProfiles.Settings(coreToTailLightness, colorJumpiness, colorAmountTakeOver, vibrancyDarkening, layerContrast), grays);
+                    new PearlFireTintProfiles.Settings(
+                            coreToTailLightness, colorJumpiness, colorAmountTakeOver, vibrancyDarkening, layerContrast),
+                    grays);
         }
 
         private static List<Float> grayFactors(PearlFireTintProfiles.Profile profile) {

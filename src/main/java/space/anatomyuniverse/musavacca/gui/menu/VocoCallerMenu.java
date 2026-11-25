@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.gui.menu;
 
-import java.util.Locale;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +13,8 @@ import space.anatomyuniverse.musavacca.item.custom.OpenVocoCallerItem;
 import space.anatomyuniverse.musavacca.item.custom.SimCardItem;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerPhonebook;
+
+import java.util.Locale;
 
 public final class VocoCallerMenu extends VocoDialerMenu {
     public static final int ROW_COUNT = VocoCallerPhonebook.ROW_COUNT;
@@ -47,7 +48,8 @@ public final class VocoCallerMenu extends VocoDialerMenu {
         int phoneHex = OpenVocoCallerItem.getSimHex(phone);
         VocoCallerPhonebook phonebook = SimCardItem.getPhonebook(sim);
         player.openMenu(
-                new SimpleMenuProvider((containerId, inventory, ignoredPlayer) -> new VocoCallerMenu(containerId, phoneHex, phonebook, openingSlot, phone),
+                new SimpleMenuProvider(
+                        (containerId, inventory, ignoredPlayer) -> new VocoCallerMenu(containerId, phoneHex, phonebook, openingSlot, phone),
                         Component.literal("Voco Caller")),
                 buffer -> {
                     buffer.writeInt(phoneHex);
@@ -275,12 +277,14 @@ public final class VocoCallerMenu extends VocoDialerMenu {
         }
         String moving = this.savedNumbers[row];
         if (step > 0) {
-            for (int index = filledCount - 1; index > 0; index--) this.savedNumbers[filledRows[index]] = this.savedNumbers[filledRows[index - 1]];
+            for (int index = filledCount - 1; index > 0; index--)
+                this.savedNumbers[filledRows[index]] = this.savedNumbers[filledRows[index - 1]];
             int targetRow = filledRows[0];
             this.savedNumbers[targetRow] = moving;
             return targetRow;
         }
-        for (int index = 0; index < filledCount - 1; index++) this.savedNumbers[filledRows[index]] = this.savedNumbers[filledRows[index + 1]];
+        for (int index = 0; index < filledCount - 1; index++)
+            this.savedNumbers[filledRows[index]] = this.savedNumbers[filledRows[index + 1]];
         int targetRow = filledRows[filledCount - 1];
         this.savedNumbers[targetRow] = moving;
         return targetRow;
@@ -357,6 +361,7 @@ public final class VocoCallerMenu extends VocoDialerMenu {
     }
 
     private static void checkRow(int row) {
-        if (row < 0 || row >= ROW_COUNT) throw new IndexOutOfBoundsException("Voco Caller row must be between 0 and " + (ROW_COUNT - 1) + ", got " + row);
+        if (row < 0 || row >= ROW_COUNT)
+            throw new IndexOutOfBoundsException("Voco Caller row must be between 0 and " + (ROW_COUNT - 1) + ", got " + row);
     }
 }

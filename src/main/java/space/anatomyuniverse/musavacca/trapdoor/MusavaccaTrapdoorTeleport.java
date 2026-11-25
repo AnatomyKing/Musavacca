@@ -1,20 +1,11 @@
 package space.anatomyuniverse.musavacca.trapdoor;
 
-import java.util.Optional;
-//? if >=1.21.2 {
-import java.util.Set;
-//?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Half;
-//? if >=1.21.2 {
-import net.minecraft.world.level.portal.TeleportTransition;
-//?} else {
-/*import net.minecraft.world.level.portal.DimensionTransition;
-*///?}
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -28,10 +19,21 @@ import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportPreloader;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
 
+import java.util.Optional;
+//? if >=1.21.2 {
+import java.util.Set;
+//?}
+//? if >=1.21.2 {
+import net.minecraft.world.level.portal.TeleportTransition;
+//?} else {
+/*import net.minecraft.world.level.portal.DimensionTransition;
+*///?}
+
 public final class MusavaccaTrapdoorTeleport {
     private MusavaccaTrapdoorTeleport() {}
 
-    public record ResolvedTrapdoor(String ownerKey, ServerLevel level, BlockPos pos, int hexColor, Direction facing, Half half, Vec3 portalCenter) {}
+    public record ResolvedTrapdoor(
+            String ownerKey, ServerLevel level, BlockPos pos, int hexColor, Direction facing, Half half, Vec3 portalCenter) {}
 
     @Nullable
     public static
@@ -56,15 +58,22 @@ public final class MusavaccaTrapdoorTeleport {
                 /*DimensionTransition
                 *///?}
                         .PLAY_PORTAL_SOUND.then(teleportedEntity -> {
-                            teleportedEntity.setPortalCooldown();
-                            teleportedEntity.setDeltaMovement(transform.deltaMovement());
-                            teleportedEntity.placePortalTicket(targetTicketPos);
-                        });
+                    teleportedEntity.setPortalCooldown();
+                    teleportedEntity.setDeltaMovement(transform.deltaMovement());
+                    teleportedEntity.placePortalTicket(targetTicketPos);
+                });
         //? if >=1.21.2 {
-        return new TeleportTransition(target.level(), transform.position(), transform.deltaMovement(), transform.yRot(), transform.xRot(), Set.of(),
+        return new TeleportTransition(
+                target.level(),
+                transform.position(),
+                transform.deltaMovement(),
+                transform.yRot(),
+                transform.xRot(),
+                Set.of(),
                 postTeleport);
         //?} else {
-        /*return new DimensionTransition(target.level(), transform.position(), transform.deltaMovement(), transform.yRot(), transform.xRot(), postTeleport);
+        /*return new DimensionTransition(
+                target.level(), transform.position(), transform.deltaMovement(), transform.yRot(), transform.xRot(), postTeleport);
         *///?}
     }
 
@@ -87,7 +96,8 @@ public final class MusavaccaTrapdoorTeleport {
     }
 
     private static Optional<ResolvedTrapdoor> resolveLinkedTrapdoor(ResolvedTrapdoor source) {
-        HexTeleportResolver.ResolvedTrapdoorEndpoint loaded = HexTeleportResolver.resolveLinkedTrapdoor(source.level(), source.ownerKey()).orElse(null);
+        HexTeleportResolver.ResolvedTrapdoorEndpoint loaded =
+                HexTeleportResolver.resolveLinkedTrapdoor(source.level(), source.ownerKey()).orElse(null);
         if (loaded == null) return Optional.empty();
         ServerLevel targetLevel = loaded.level();
         HexTeleportDirectory.DoorEndpoint targetEndpoint = loaded.endpoint();
@@ -107,12 +117,19 @@ public final class MusavaccaTrapdoorTeleport {
     }
 
     private static ResolvedTrapdoor resolvedTrapdoor(String ownerKey, ServerLevel level, BlockPos pos, BlockState state, int hexColor) {
-        return new ResolvedTrapdoor(ownerKey, level, pos, HexTeleportDirectory.normalizeHex(hexColor), state.getValue(MusavaccaPortalTrapdoorBlock.FACING),
-                state.getValue(MusavaccaPortalTrapdoorBlock.HALF), portalCenter(pos, state));
+        return new ResolvedTrapdoor(
+                ownerKey,
+                level,
+                pos,
+                HexTeleportDirectory.normalizeHex(hexColor),
+                state.getValue(MusavaccaPortalTrapdoorBlock.FACING),
+                state.getValue(MusavaccaPortalTrapdoorBlock.HALF),
+                portalCenter(pos, state));
     }
 
     private static boolean isOpenPortalTrapdoor(BlockState state) {
-        return state.getBlock() instanceof MusavaccaPortalTrapdoorBlock && state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
+        return state.getBlock() instanceof MusavaccaPortalTrapdoorBlock
+                && state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
                 && state.getValue(MusavaccaPortalTrapdoorBlock.OPEN);
     }
 
@@ -120,7 +137,9 @@ public final class MusavaccaTrapdoorTeleport {
         VoxelShape panel = MusavaccaPortalTrapdoorHitboxes.portalPanel(state);
         if (panel.isEmpty()) throw new IllegalStateException("Active Musavacca portal trapdoor has no portal panel.");
         AABB bounds = panel.bounds();
-        return new Vec3(pos.getX() + (bounds.minX + bounds.maxX) * 0.5D, pos.getY() + (bounds.minY + bounds.maxY) * 0.5D,
+        return new Vec3(
+                pos.getX() + (bounds.minX + bounds.maxX) * 0.5D,
+                pos.getY() + (bounds.minY + bounds.maxY) * 0.5D,
                 pos.getZ() + (bounds.minZ + bounds.maxZ) * 0.5D);
     }
 }

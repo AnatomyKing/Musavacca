@@ -45,7 +45,8 @@ public final class VocoTableItemDisplayLogic {
         return removeDisplayedItem(level, pos, player, tableBe, bulk) ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
     }
 
-    public static InteractionResult useItemOn(ItemStack stack, Level level, BlockPos pos, Player player, InteractionHand hand, boolean bulk) {
+    public static InteractionResult useItemOn(
+            ItemStack stack, Level level, BlockPos pos, Player player, InteractionHand hand, boolean bulk) {
         if (hand == InteractionHand.OFF_HAND || stack.isEmpty()) {
             return InteractionResult.CONSUME;
         }
@@ -54,12 +55,13 @@ public final class VocoTableItemDisplayLogic {
         }
         TransferAction action = transferAction(tableBe, stack);
         if (level.isClientSide()) return action == TransferAction.NONE ? InteractionResult.CONSUME : InteractionResult.SUCCESS;
-        boolean changed = switch (action) {
-        case INSERT -> addDisplayedItem(level, pos, player, tableBe, stack, bulk, SoundEvents.ITEM_FRAME_ADD_ITEM);
-        case MERGE -> addDisplayedItem(level, pos, player, tableBe, stack, bulk, SoundEvents.ITEM_FRAME_ROTATE_ITEM);
-        case SWAP -> swapDisplayedItem(level, pos, player, tableBe, stack, hand);
-        case NONE -> false;
-        };
+        boolean changed =
+                switch (action) {
+                    case INSERT -> addDisplayedItem(level, pos, player, tableBe, stack, bulk, SoundEvents.ITEM_FRAME_ADD_ITEM);
+                    case MERGE -> addDisplayedItem(level, pos, player, tableBe, stack, bulk, SoundEvents.ITEM_FRAME_ROTATE_ITEM);
+                    case SWAP -> swapDisplayedItem(level, pos, player, tableBe, stack, hand);
+                    case NONE -> false;
+                };
         if (changed) {
             BasukeSummon.trySummonFromVocoTable(level, pos);
         }
@@ -70,15 +72,16 @@ public final class VocoTableItemDisplayLogic {
         if (stack.isEmpty()) return TransferAction.NONE;
         ItemStack displayed = tableBe.getDisplayedItem();
         if (!tableBe.hasDisplayedItem()) return TransferAction.INSERT;
-        if (tableBe.canMergeDisplayedItem(stack)) return tableBe.getDisplayedItemCount() < Integer.MAX_VALUE ? TransferAction.MERGE : TransferAction.NONE;
+        if (tableBe.canMergeDisplayedItem(stack))
+            return tableBe.getDisplayedItemCount() < Integer.MAX_VALUE ? TransferAction.MERGE : TransferAction.NONE;
         if (ItemStack.isSameItemSameComponents(displayed, stack)) {
             return TransferAction.NONE;
         }
         return tableBe.getDisplayedItemCount() <= displayed.getMaxStackSize() ? TransferAction.SWAP : TransferAction.NONE;
     }
 
-    private static boolean addDisplayedItem(Level level, BlockPos pos, Player player, VocoTableBlockEntity tableBe, ItemStack stack, boolean bulk,
-            SoundEvent sound) {
+    private static boolean addDisplayedItem(
+            Level level, BlockPos pos, Player player, VocoTableBlockEntity tableBe, ItemStack stack, boolean bulk, SoundEvent sound) {
         int amount = bulk ? Math.min(stack.getCount(), stack.getMaxStackSize()) : 1;
         int moved = tableBe.addDisplayedItems(stack, amount);
         if (moved <= 0) return false;
@@ -87,7 +90,8 @@ public final class VocoTableItemDisplayLogic {
         return true;
     }
 
-    private static boolean swapDisplayedItem(Level level, BlockPos pos, Player player, VocoTableBlockEntity tableBe, ItemStack stack, InteractionHand hand) {
+    private static boolean swapDisplayedItem(
+            Level level, BlockPos pos, Player player, VocoTableBlockEntity tableBe, ItemStack stack, InteractionHand hand) {
         ItemStack displayed = tableBe.getDisplayedItem();
         int displayedCount = tableBe.getDisplayedItemCount();
         if (displayed.isEmpty() || displayedCount <= 0 || displayedCount > displayed.getMaxStackSize()) {
@@ -122,6 +126,9 @@ public final class VocoTableItemDisplayLogic {
     }
 
     private enum TransferAction {
-        NONE, INSERT, MERGE, SWAP
+        NONE,
+        INSERT,
+        MERGE,
+        SWAP
     }
 }

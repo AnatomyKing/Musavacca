@@ -16,8 +16,9 @@ public final class PearlIgniterEvents {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!PearlIgniter.is(event.getItemStack()) || event.getEntity().isSpectator()) return;
-        InteractionResult result = PearlIgniter.tryPickBlockColor(event.getItemStack(),
-                new UseOnContext(event.getEntity(), event.getHand(), event.getHitVec()));
+        InteractionResult result =
+                PearlIgniter.tryPickBlockColor(
+                        event.getItemStack(), new UseOnContext(event.getEntity(), event.getHand(), event.getHitVec()));
         if (result == InteractionResult.PASS) return;
         event.setCancellationResult(result);
         event.setCanceled(true);
@@ -27,7 +28,9 @@ public final class PearlIgniterEvents {
     public static void onUseItemOnBlock(UseItemOnBlockEvent event) {
         if (event.getUsePhase() != UseItemOnBlockEvent.UsePhase.ITEM_AFTER_BLOCK || !PearlIgniter.is(event.getItemStack())) return;
         var state = event.getLevel().getBlockState(event.getPos());
-        if (PearlCandleConversion.isCandle(state) && !PearlCandleConversion.value(state, "lit") && !PearlCandleConversion.value(state, "waterlogged")) return;
+        if (PearlCandleConversion.isCandle(state)
+                && !PearlCandleConversion.value(state, "lit")
+                && !PearlCandleConversion.value(state, "waterlogged")) return;
         InteractionResult result = PearlIgniter.useOn(event.getUseOnContext());
         //? if >=1.21.2 {
         event.cancelWithResult(result);

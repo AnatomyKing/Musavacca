@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.entity.mob.bananacow;
 
-import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -14,6 +13,8 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.neoforged.neoforge.event.EventHooks;
 import space.anatomyuniverse.musavacca.block.ModBlockTags;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+
+import java.util.EnumSet;
 
 final class BananaCowGrazeGoal extends Goal {
     private static final byte EAT_ANIMATION_EVENT = 10;
@@ -30,7 +31,8 @@ final class BananaCowGrazeGoal extends Goal {
         if (!this.cow.isBananaSheared()) return false;
         if (this.cow.getRandom().nextInt(1000) != 0) return false;
         BlockPos pos = this.cow.blockPosition();
-        return isEdibleVegetation(this.cow.level().getBlockState(pos)) || this.cow.level().getBlockState(pos.below()).is(ModBlocks.CAROTENE_GRASS.get());
+        return isEdibleVegetation(this.cow.level().getBlockState(pos))
+                || this.cow.level().getBlockState(pos.below()).is(ModBlocks.CAROTENE_GRASS.get());
     }
 
     @Override

@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.portal;
 
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -16,12 +15,15 @@ import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntit
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
+import java.util.UUID;
+
 public final class PearlPortalCreator {
     private PearlPortalCreator() {}
 
     private static final int PORTAL_SET_FLAGS = Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS;
 
-    public static boolean tryCreatePortal(Level level, BlockPos insidePos, int hexColor, @Nullable Player player, @Nullable Direction ignitionFace) {
+    public static boolean tryCreatePortal(
+            Level level, BlockPos insidePos, int hexColor, @Nullable Player player, @Nullable Direction ignitionFace) {
         var optionalShape = PearlPortalFrame.findIgnitableShape(level, insidePos);
         if (optionalShape.isEmpty()) return false;
         if (level.isClientSide()) return true;
@@ -50,9 +52,11 @@ public final class PearlPortalCreator {
             return false;
         }
         //? if >=1.21.11 {
-        /*HexTeleportDirectory.Result result = directory.registerPortalEndpoint(portalId, normalizedHex, serverLevel.dimension().identifier(), shape);
+        /*HexTeleportDirectory.Result result =
+                directory.registerPortalEndpoint(portalId, normalizedHex, serverLevel.dimension().identifier(), shape);
         *///?} else {
-        HexTeleportDirectory.Result result = directory.registerPortalEndpoint(portalId, normalizedHex, serverLevel.dimension().location(), shape);
+        HexTeleportDirectory.Result result =
+                directory.registerPortalEndpoint(portalId, normalizedHex, serverLevel.dimension().location(), shape);
         //?}
         if (!result.success()) {
             rollbackPlacedPortal(serverLevel, shape, portalId);
@@ -63,12 +67,14 @@ public final class PearlPortalCreator {
         return true;
     }
 
-    private static Direction determineFrontDirection(PearlPortalFrame.Shape shape, @Nullable Direction ignitionFace, @Nullable Player player) {
+    private static Direction determineFrontDirection(
+            PearlPortalFrame.Shape shape, @Nullable Direction ignitionFace, @Nullable Player player) {
         if (PearlPortalFrame.isValidFrontDirection(shape.axis(), ignitionFace)) return ignitionFace;
         return player == null ? PearlPortalFrame.defaultFrontDirection(shape.axis()) : shape.frontDirectionFromPosition(player.position());
     }
 
-    private static Direction determineUpDirection(PearlPortalFrame.Shape shape, BlockPos exitAnchor, BlockPos insidePos, @Nullable Player player) {
+    private static Direction determineUpDirection(
+            PearlPortalFrame.Shape shape, BlockPos exitAnchor, BlockPos insidePos, @Nullable Player player) {
         if (!shape.isFlat()) return Direction.UP;
         Direction fromAnchor = shape.upDirectionFromAnchor(exitAnchor);
         if (PearlPortalFrame.isValidUpDirection(shape.axis(), shape.frontDirection(), fromAnchor)) return fromAnchor;
@@ -78,7 +84,8 @@ public final class PearlPortalCreator {
         return PearlPortalFrame.defaultUpDirection(shape.axis());
     }
 
-    private static BlockPos determineExitAnchor(PearlPortalFrame.Shape shape, BlockPos insidePos, @Nullable Direction ignitionFace, @Nullable Player player) {
+    private static BlockPos determineExitAnchor(
+            PearlPortalFrame.Shape shape, BlockPos insidePos, @Nullable Direction ignitionFace, @Nullable Player player) {
         Vec3 reference;
         if (player != null) {
             reference = player.position();
@@ -91,12 +98,13 @@ public final class PearlPortalCreator {
     }
 
     private static void placePortalBlocks(ServerLevel level, PearlPortalFrame.Shape shape) {
-        BlockState portalState = ModBlocks.PEARL_PORTAL.get().defaultBlockState().setValue(ModBlocks.PEARL_PORTAL.get().getAxisProperty(), shape.axis());
+        BlockState portalState =
+                ModBlocks.PEARL_PORTAL.get().defaultBlockState().setValue(ModBlocks.PEARL_PORTAL.get().getAxisProperty(), shape.axis());
         shape.forEachInteriorBlock(pos -> level.setBlock(pos, portalState, PORTAL_SET_FLAGS));
     }
 
     private static boolean initializePortalBlockEntities(ServerLevel level, PearlPortalFrame.Shape shape, UUID portalId, int hexColor) {
-        boolean[] missingBlockEntity = { false };
+        boolean[] missingBlockEntity = {false};
         shape.forEachInteriorBlock(pos -> {
             if (level.getBlockEntity(pos) instanceof PearlPortalBlockEntity portalBlockEntity) {
                 portalBlockEntity.initializePortal(portalId, hexColor, shape);
@@ -108,7 +116,7 @@ public final class PearlPortalCreator {
     }
 
     private static boolean containsExistingPortalBlock(ServerLevel level, PearlPortalFrame.Shape shape) {
-        boolean[] foundExistingPortal = { false };
+        boolean[] foundExistingPortal = {false};
         shape.forEachInteriorBlock(pos -> {
             if (level.getBlockState(pos).is(ModBlocks.PEARL_PORTAL.get())) {
                 foundExistingPortal[0] = true;
@@ -118,7 +126,7 @@ public final class PearlPortalCreator {
     }
 
     private static void rollbackPlacedPortal(ServerLevel level, PearlPortalFrame.Shape shape, UUID portalId) {
-        boolean[] triggeredPhysicalCollapse = { false };
+        boolean[] triggeredPhysicalCollapse = {false};
         shape.forEachInteriorBlock(pos -> {
             if (triggeredPhysicalCollapse[0]) return;
             if (level.getBlockState(pos).is(ModBlocks.PEARL_PORTAL.get())) {

@@ -1,6 +1,7 @@
 package space.anatomyuniverse.musavacca.item;
 
 import net.minecraft.resources.ResourceKey;
+import space.anatomyuniverse.musavacca.MusaCore;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
@@ -10,13 +11,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.EquipmentAssets;
 //?}
-import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class CustomHelmetArmorTrims {
     //? if >=1.21.11 {
     /*public static final Identifier TRIM_CARRIER_ID = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "custom_helmet_trim_carrier");
     *///?} else {
-    public static final ResourceLocation TRIM_CARRIER_ID = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "custom_helmet_trim_carrier");
+    public static final ResourceLocation TRIM_CARRIER_ID =
+            ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "custom_helmet_trim_carrier");
 
     //?}
     //? if >=1.21.4 {

@@ -3,9 +3,6 @@ package space.anatomyuniverse.musavacca.bar.balance;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-//? if >=26.3 {
-/*import net.minecraft.util.Prediction;
-*///?}
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -13,6 +10,9 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import space.anatomyuniverse.musavacca.item.ModItems;
+//? if >=26.3 {
+/*import net.minecraft.util.Prediction;
+*///?}
 
 public final class BalanceEvents {
     private BalanceEvents() {}
@@ -48,8 +48,7 @@ public final class BalanceEvents {
             BalanceApi.addBalance(player, amount);
             return;
         }
-        player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(), SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.8F, 1.0F);
+        player.level()
+                .playSound(null, player.getX(), player.getEyeY(), player.getZ(), SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.8F, 1.0F);
     }
 }
-
-

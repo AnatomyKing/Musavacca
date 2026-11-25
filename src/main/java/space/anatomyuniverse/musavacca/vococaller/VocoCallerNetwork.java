@@ -1,9 +1,5 @@
 package space.anatomyuniverse.musavacca.vococaller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -29,6 +25,11 @@ import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public final class VocoCallerNetwork {
     private static final int PLAYER_STATUS_DURATION_TICKS = 30 * 20;
     private static final Map<UUID, PendingCall> PENDING_CALLS = new HashMap<>();
@@ -37,7 +38,9 @@ public final class VocoCallerNetwork {
 
     @SubscribeEvent
     public static void onEffectApplicable(MobEffectEvent.Applicable event) {
-        if (event.getEffectInstance().is(ModMobEffects.PLAYER_STATUS) && event.getEntity() instanceof ServerPlayer player && !hasBananaPhone(player)) {
+        if (event.getEffectInstance().is(ModMobEffects.PLAYER_STATUS)
+                && event.getEntity() instanceof ServerPlayer player
+                && !hasBananaPhone(player)) {
             event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
         }
     }
@@ -85,7 +88,9 @@ public final class VocoCallerNetwork {
         MinecraftServer server = player.level().getServer();
         if (server == null) return true;
         int hex = SimCardItem.getStoredHexOrFallback(sim, 0);
-        return HexTeleportDirectory.get(server).getPhoneRegistrationByHex(hex).map(registration -> registration.ownerUuid().equals(player.getUUID()))
+        return HexTeleportDirectory.get(server)
+                .getPhoneRegistrationByHex(hex)
+                .map(registration -> registration.ownerUuid().equals(player.getUUID()))
                 .orElse(true);
     }
 
@@ -96,7 +101,8 @@ public final class VocoCallerNetwork {
         MinecraftServer server = player.level().getServer();
         if (server == null) return;
         int hex = SimCardItem.getStoredHexOrFallback(sim, 0);
-        HexTeleportDirectory.PhoneRegistration removed = HexTeleportDirectory.get(server).removePhoneRegistration(hex, player.getUUID()).orElse(null);
+        HexTeleportDirectory.PhoneRegistration removed =
+                HexTeleportDirectory.get(server).removePhoneRegistration(hex, player.getUUID()).orElse(null);
         if (removed != null) {
             HexTeleportAddressNetwork.promotePendingForHex(server, removed.hexColor());
         }
@@ -146,16 +152,25 @@ public final class VocoCallerNetwork {
         MinecraftServer server = caller.level().getServer();
         if (server == null || isCalling(caller.getUUID())) return false;
         for (ServerPlayer recipient : server.getPlayerList().getPlayers()) {
-            if (!recipient.isAlive() || !carriesPhone(recipient, registration.hexColor()) || PENDING_CALLS.containsKey(recipient.getUUID())
+            if (!recipient.isAlive()
+                    || !carriesPhone(recipient, registration.hexColor())
+                    || PENDING_CALLS.containsKey(recipient.getUUID())
                     || recipient.hasEffect(ModMobEffects.PLAYER_STATUS)) {
                 continue;
             }
             if (!TeleportEconomy.canAfford(caller, cost)) return false;
-            if (!recipient.addEffect(new MobEffectInstance(ModMobEffects.PLAYER_STATUS, PLAYER_STATUS_DURATION_TICKS, 0, false, false, true))) continue;
+            if (!recipient.addEffect(
+                    new MobEffectInstance(ModMobEffects.PLAYER_STATUS, PLAYER_STATUS_DURATION_TICKS, 0, false, false, true))) continue;
             MobEffectInstance effect = recipient.getEffect(ModMobEffects.PLAYER_STATUS);
             if (effect == null) continue;
-            PENDING_CALLS.put(recipient.getUUID(), new PendingCall(caller.getUUID(), registration.hexColor(), Math.max(0, cost),
-                    server.overworld().getGameTime() + PLAYER_STATUS_DURATION_TICKS, effect));
+            PENDING_CALLS.put(
+                    recipient.getUUID(),
+                    new PendingCall(
+                            caller.getUUID(),
+                            registration.hexColor(),
+                            Math.max(0, cost),
+                            server.overworld().getGameTime() + PLAYER_STATUS_DURATION_TICKS,
+                            effect));
             PacketDistributor.sendToPlayer(recipient, new PlayerStatusCallerPayload(caller.getUUID(), caller.getName().getString()));
             return true;
         }
@@ -178,8 +193,12 @@ public final class VocoCallerNetwork {
         ServerPlayer caller = server.getPlayerList().getPlayer(call.callerId());
         ServerLevel targetLevel = server.getLevel(recipient.level().dimension());
         if (caller == null || targetLevel == null) return false;
-        return TeleportEconomy.tryTeleport(caller, call.cost(),
-                () -> HexTeleportResolver.teleportToTarget(caller, targetLevel, recipient.position(), recipient.getYRot(), recipient.getXRot()));
+        return TeleportEconomy.tryTeleport(
+                caller,
+                call.cost(),
+                () ->
+                        HexTeleportResolver.teleportToTarget(
+                                caller, targetLevel, recipient.position(), recipient.getYRot(), recipient.getXRot()));
     }
 
     private static void tickCall(ServerPlayer recipient) {
@@ -193,7 +212,9 @@ public final class VocoCallerNetwork {
 
     private static boolean isValidCall(ServerPlayer recipient, PendingCall call) {
         MinecraftServer server = recipient.level().getServer();
-        if (server == null || !recipient.isAlive() || recipient.getEffect(ModMobEffects.PLAYER_STATUS) != call.effect()
+        if (server == null
+                || !recipient.isAlive()
+                || recipient.getEffect(ModMobEffects.PLAYER_STATUS) != call.effect()
                 || server.overworld().getGameTime() >= call.expiresAt()) {
             return false;
         }

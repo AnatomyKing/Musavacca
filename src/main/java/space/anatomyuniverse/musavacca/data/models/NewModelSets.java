@@ -1,5 +1,18 @@
 package space.anatomyuniverse.musavacca.data.models;
 
+import net.minecraft.world.level.block.CandleBlock;
+import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.*;
+import space.anatomyuniverse.musavacca.data.models.newgen.*;
+import space.anatomyuniverse.musavacca.item.ModItems;
+import space.anatomyuniverse.musavacca.tint.MusavaccaModelTints;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.EAST_REDSTONE;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.NORTH_REDSTONE;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.SOUTH_REDSTONE;
@@ -8,22 +21,11 @@ import static net.minecraft.world.level.block.state.properties.RedstoneSide.NONE
 import static net.minecraft.world.level.block.state.properties.RedstoneSide.SIDE;
 import static net.minecraft.world.level.block.state.properties.RedstoneSide.UP;
 
-import net.minecraft.world.level.block.CandleBlock;
 //? if >=26.1 {
 /*import net.minecraft.world.level.block.SnowyBlock;
 *///?} else {
 import net.minecraft.world.level.block.SnowyDirtBlock;
 //?}
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import space.anatomyuniverse.musavacca.block.ModBlocks;
-import space.anatomyuniverse.musavacca.block.custom.*;
-import space.anatomyuniverse.musavacca.data.models.newgen.*;
-import space.anatomyuniverse.musavacca.item.ModItems;
-import space.anatomyuniverse.musavacca.tint.MusavaccaModelTints;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
-import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 
 public final class NewModelSets {
     private NewModelSets() {}

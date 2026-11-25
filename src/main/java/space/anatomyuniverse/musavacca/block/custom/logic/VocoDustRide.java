@@ -1,13 +1,5 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -19,13 +11,23 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import space.anatomyuniverse.musavacca.block.custom.VocoTableBlock;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 //? if >=26.2 {
 /*import net.minecraft.world.entity.EntityTypes;
 *///?} else {
@@ -56,7 +58,8 @@ public final class VocoDustRide extends Display.BlockDisplay {
     private boolean reversing;
     private boolean onStep;
 
-    private VocoDustRide(ServerLevel level, VocoDustRoute.Node source, VocoDustReturn departure, VocoDustInputs controls, ServerPlayer player) {
+    private VocoDustRide(
+            ServerLevel level, VocoDustRoute.Node source, VocoDustReturn departure, VocoDustInputs controls, ServerPlayer player) {
         //? if >=26.2 {
         /*super(EntityTypes.BLOCK_DISPLAY, level);
         *///?} else {
@@ -127,7 +130,12 @@ public final class VocoDustRide extends Display.BlockDisplay {
     }
 
     public static void start(ServerPlayer player, ServerLevel level, BlockPos pos, ReceptorPosition receptor) {
-        if (player instanceof FakePlayer || active(player) || player.isSpectator() || player.isPassenger() || player.isSleeping() || !player.isAlive()) return;
+        if (player instanceof FakePlayer
+                || active(player)
+                || player.isSpectator()
+                || player.isPassenger()
+                || player.isSleeping()
+                || !player.isAlive()) return;
         var source = new VocoDustRoute.Node(pos, receptor);
         if (VocoDustRoute.neighbors(level, source).isEmpty()) return;
         var controls = VocoDustInputs.install(player);
@@ -158,8 +166,7 @@ public final class VocoDustRide extends Display.BlockDisplay {
     }
 
     private void advance() {
-        if (rider.level() != world || !rider.isAlive() || !rider.isSpectator() || rider.getCamera() != this
-                || isRemoved()) {
+        if (rider.level() != world || !rider.isAlive() || !rider.isSpectator() || rider.getCamera() != this || isRemoved()) {
             finish(false);
             return;
         }
@@ -199,7 +206,9 @@ public final class VocoDustRide extends Display.BlockDisplay {
             HexTeleportResolver.keepChunkLoaded(world, to);
         }
         if (!onStep && !current.isReceptor() && !pending.isReceptor() && from.getY() != to.getY()) {
-            setPos((from.getX() + (double) to.getX() + 1) * 0.5, Math.max(from.getY(), to.getY()) + 0.52 - TRAIL_EYE_HEIGHT,
+            setPos(
+                    (from.getX() + (double) to.getX() + 1) * 0.5,
+                    Math.max(from.getY(), to.getY()) + 0.52 - TRAIL_EYE_HEIGHT,
                     (from.getZ() + (double) to.getZ() + 1) * 0.5);
             onStep = true;
             return;

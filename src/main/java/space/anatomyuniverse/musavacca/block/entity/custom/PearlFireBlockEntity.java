@@ -4,11 +4,7 @@ package space.anatomyuniverse.musavacca.block.entity.custom;
 /*import net.minecraft.nbt.Tag;
 *///?}
 import net.minecraft.core.BlockPos;
-
 import net.minecraft.core.HolderLookup;
-//? if >=1.21.5 {
-import net.minecraft.core.component.DataComponentGetter;
-//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -19,14 +15,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if >=1.21.6 {
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-//?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+//? if >=1.21.5 {
+import net.minecraft.core.component.DataComponentGetter;
+//?}
+//? if >=1.21.6 {
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+//?}
 
 public class PearlFireBlockEntity extends BlockEntity implements HexSource {
     private int hexColor = MusavaccaTints.NO_TINT;
@@ -79,7 +78,10 @@ public class PearlFireBlockEntity extends BlockEntity implements HexSource {
         //? if >=1.21.5 {
         int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
         //?} else {
-        /*int loaded = (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? input.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
+        /*int loaded =
+                (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC)
+                        ? input.getInt(MusavaccaTints.HEX_COLOR_KEY)
+                        : MusavaccaTints.NO_TINT);
         *///?}
         this.hexColor = MusavaccaTints.stored(loaded);
     }

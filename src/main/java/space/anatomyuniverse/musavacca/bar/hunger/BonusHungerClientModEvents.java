@@ -8,10 +8,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import space.anatomyuniverse.musavacca.MusaCore;
 //? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 //?}
-import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class BonusHungerClientModEvents {
     //? if >=1.21.11 {
@@ -31,7 +31,9 @@ public final class BonusHungerClientModEvents {
 
     //? if >=1.21.6 {
     private static void registerClientPayloads(RegisterClientPayloadHandlersEvent event) {
-        event.register(BonusHungerSyncPayload.TYPE, (payload, context) -> ClientBonusHungerData.set(payload.food(), payload.saturation(), payload.active()));
+        event.register(
+                BonusHungerSyncPayload.TYPE,
+                (payload, context) -> ClientBonusHungerData.set(payload.food(), payload.saturation(), payload.active()));
     }
     //?}
 

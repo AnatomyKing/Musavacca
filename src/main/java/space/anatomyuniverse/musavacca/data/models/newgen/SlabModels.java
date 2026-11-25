@@ -32,9 +32,9 @@ public record SlabModels(ResourceLocation bottom, ResourceLocation top, Resource
     public ResourceLocation model(SlabType type) {
     //?}
         return switch (type) {
-        case BOTTOM -> bottom;
-        case TOP -> top;
-        case DOUBLE -> doubleModel;
+            case BOTTOM -> bottom;
+            case TOP -> top;
+            case DOUBLE -> doubleModel;
         };
     }
 

@@ -2,16 +2,9 @@ package space.anatomyuniverse.musavacca.block.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-//? if <1.21.2 {
-/*import net.minecraft.world.ItemInteractionResult;
-*///?}
 import net.minecraft.world.entity.Entity;
-//? if >=1.21.5 {
-import net.minecraft.world.entity.InsideBlockEffectApplier;
-//?}
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -21,9 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
-*///?}
 import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,11 +23,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-//? if >=1.21.2 {
-import net.minecraft.world.level.portal.TeleportTransition;
-//?} else {
-/*import net.minecraft.world.level.portal.DimensionTransition;
-*///?}
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -53,6 +38,20 @@ import space.anatomyuniverse.musavacca.item.ModItems;
 import space.anatomyuniverse.musavacca.trapdoor.MusavaccaTrapdoorTeleport;
 import space.anatomyuniverse.musavacca.trapdoor.MusavaccaTrapdoorTeleportNetwork;
 import space.anatomyuniverse.musavacca.trapdoor.MusavaccaTrapdoorTeleportTransform;
+//? if <1.21.2 {
+/*import net.minecraft.world.ItemInteractionResult;
+*///?}
+//? if >=1.21.5 {
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+//?}
+//? if >=1.21.11 {
+/*import net.minecraft.world.level.block.RenderShape;
+*///?}
+//? if >=1.21.2 {
+import net.minecraft.world.level.portal.TeleportTransition;
+//?} else {
+/*import net.minecraft.world.level.portal.DimensionTransition;
+*///?}
 
 public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements EntityBlock, Portal {
     public static final BooleanProperty LIT = BooleanProperty.create("lit");
@@ -60,7 +59,8 @@ public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements
     public static final BooleanProperty PORTAL = BooleanProperty.create("portal");
     private static final int UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_IMMEDIATE;
     private static final double PORTAL_TRIGGER_EPSILON = 1.0D / 1024.0D;
-    private static final PearlSlotIgnition.Slot PEARL_SLOT = PearlSlotIgnition.Slot.of(LIT, PORTAL, new Vec3(0.5D, 0.5D, 0.5D), new Vec3(0.0D, 0.18D, 0.0D));
+    private static final PearlSlotIgnition.Slot PEARL_SLOT =
+            PearlSlotIgnition.Slot.of(LIT, PORTAL, new Vec3(0.5D, 0.5D, 0.5D), new Vec3(0.0D, 0.18D, 0.0D));
 
     public MusavaccaPortalTrapdoorBlock(BlockSetType blockSetType, Properties properties) {
         super(blockSetType, properties);
@@ -76,7 +76,9 @@ public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         VoxelShape trapdoorShape = super.getShape(state, level, pos, context);
-        return MusavaccaPortalTrapdoorHitboxes.hasOpenPortal(state) ? Shapes.or(trapdoorShape, MusavaccaPortalTrapdoorHitboxes.portalPanel(state)) : trapdoorShape;
+        return MusavaccaPortalTrapdoorHitboxes.hasOpenPortal(state)
+                ? Shapes.or(trapdoorShape, MusavaccaPortalTrapdoorHitboxes.portalPanel(state))
+                : trapdoorShape;
     }
 
     @Override
@@ -126,7 +128,8 @@ public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements
 
     @Override
     //? if >=1.21.9 {
-    /*protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean intersects) {
+    /*protected void entityInside(
+            BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean intersects) {
     *///?} else if >=1.21.5 <1.21.9 {
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier) {
     //?} else {
@@ -149,7 +152,8 @@ public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements
     //? if <1.21.5 {
     /*@Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.getBlock() != newState.getBlock() && level.getBlockEntity(pos) instanceof MusavaccaPortalTrapdoorBlockEntity blockEntity) {
+        if (state.getBlock() != newState.getBlock()
+                && level.getBlockEntity(pos) instanceof MusavaccaPortalTrapdoorBlockEntity blockEntity) {
             blockEntity.cleanupBeforeRemoval();
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
@@ -184,8 +188,13 @@ public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements
         double entranceNudge = Math.max(0.0D, MusavaccaTrapdoorTeleportTransform.PORTAL_ENTRANCE_NUDGE);
         double centerY = (portalBox.minY + portalBox.maxY) * 0.5D;
         return Shapes.create(
-                new AABB(portalBox.minX - PORTAL_TRIGGER_EPSILON, centerY - entranceNudge - PORTAL_TRIGGER_EPSILON, portalBox.minZ - PORTAL_TRIGGER_EPSILON,
-                        portalBox.maxX + PORTAL_TRIGGER_EPSILON, centerY + entranceNudge + PORTAL_TRIGGER_EPSILON, portalBox.maxZ + PORTAL_TRIGGER_EPSILON));
+                new AABB(
+                        portalBox.minX - PORTAL_TRIGGER_EPSILON,
+                        centerY - entranceNudge - PORTAL_TRIGGER_EPSILON,
+                        portalBox.minZ - PORTAL_TRIGGER_EPSILON,
+                        portalBox.maxX + PORTAL_TRIGGER_EPSILON,
+                        centerY + entranceNudge + PORTAL_TRIGGER_EPSILON,
+                        portalBox.maxZ + PORTAL_TRIGGER_EPSILON));
     }
 
     private static boolean isApproachingPortalPlane(Entity entity, BlockState state, BlockPos pos) {
@@ -238,11 +247,11 @@ public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements
 
     @Override
     //? if >=1.21.2 {
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    protected InteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     //?} else {
-    /*protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
-            BlockHitResult hit) {
+    /*protected ItemInteractionResult useItemOn(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
     *///?}
         if (!isPearlSlotItem(stack)) return super.useItemOn(stack, state, level, pos, player, hand, hit);
         //? if >=1.21.2 {
@@ -256,7 +265,8 @@ public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements
         return stack.is(ModItems.BANANA_PEARL.get()) || stack.is(Items.SHEARS);
     }
 
-    private InteractionResult handlePearlSlotItem(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand) {
+    private InteractionResult handlePearlSlotItem(
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand) {
         InteractionResult result = PearlSlotIgnition.handleHeldItemUse(stack, state, level, pos, player, hand, PEARL_SLOT);
         if (result == InteractionResult.SUCCESS && !level.isClientSide()) {
             synchronizePearlState(level, pos);

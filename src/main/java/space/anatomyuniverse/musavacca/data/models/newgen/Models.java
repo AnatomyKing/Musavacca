@@ -5,15 +5,15 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
+import net.minecraft.world.level.block.Block;
+
 import java.util.Objects;
 import java.util.function.Consumer;
-import net.minecraft.world.level.block.Block;
 
 public final class Models {
     private Models() {}
 
-    public interface Source {
-    }
+    public interface Source {}
 
     //? if >=1.21.11 {
     /*public record Existing(Identifier model) implements Source {

@@ -1,10 +1,11 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import java.util.Objects;
-import java.util.function.Consumer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FireBlock;
 import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.FamilyItemMode;
+
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public final class FireBlocks {
     private FireBlocks() {}
@@ -26,19 +27,33 @@ public final class FireBlocks {
             item = builder.item == null ? null : builder.item.copy();
         }
 
-        public static Builder builder(Block block) { return new Builder(block); }
+        public static Builder builder(Block block) {
+            return new Builder(block);
+        }
 
-        public Block block() { return block; }
+        public Block block() {
+            return block;
+        }
 
-        public FireTextures.Set textures() { return textures; }
+        public FireTextures.Set textures() {
+            return textures;
+        }
 
-        public Tints.Tint tint() { return tint; }
+        public Tints.Tint tint() {
+            return tint;
+        }
 
-        public Variants.Set variants() { return variants; }
+        public Variants.Set variants() {
+            return variants;
+        }
 
-        FamilyItemMode itemMode() { return itemMode; }
+        FamilyItemMode itemMode() {
+            return itemMode;
+        }
 
-        SimpleItems.Model item() { return item; }
+        SimpleItems.Model item() {
+            return item;
+        }
 
         public void validate() {
             if (textures == null) throw new IllegalStateException("No texture configured for " + ModelLocations.blockId(block));
@@ -59,9 +74,14 @@ public final class FireBlocks {
             private SimpleItems.Model item;
             private boolean explicitItem;
 
-            private Builder(Block block) { this.block = Objects.requireNonNull(block, "block"); }
+            private Builder(Block block) {
+                this.block = Objects.requireNonNull(block, "block");
+            }
 
-            public Builder generated() { generated = true; return this; }
+            public Builder generated() {
+                generated = true;
+                return this;
+            }
 
             public Builder texture() {
                 requireGeneratedTextures();
@@ -84,9 +104,15 @@ public final class FireBlocks {
                 return this;
             }
 
-            public Builder tint(Tints.Tint tint) { this.tint = Objects.requireNonNull(tint, "tint"); return this; }
+            public Builder tint(Tints.Tint tint) {
+                this.tint = Objects.requireNonNull(tint, "tint");
+                return this;
+            }
 
-            public Builder variants(Variants.Set variants) { this.variants = Objects.requireNonNull(variants, "variants"); return this; }
+            public Builder variants(Variants.Set variants) {
+                this.variants = Objects.requireNonNull(variants, "variants");
+                return this;
+            }
 
             public Builder item() {
                 requireItem();
@@ -95,7 +121,9 @@ public final class FireBlocks {
                 return this;
             }
 
-            public Builder item(String model) { return item(SimpleItems.Model.existing(model)); }
+            public Builder item(String model) {
+                return item(SimpleItems.Model.existing(model));
+            }
 
             public Builder item(SimpleItems.Model model) {
                 requireItem();
@@ -123,7 +151,8 @@ public final class FireBlocks {
             public Entry build() {
                 if (!generated) {
                     throw new IllegalStateException(
-                            "FireBlocks currently represents generated Minecraft fire geometry; call .generated() for " + ModelLocations.blockId(block));
+                            "FireBlocks currently represents generated Minecraft fire geometry; call .generated() for "
+                                    + ModelLocations.blockId(block));
                 }
                 Entry entry = new Entry(this);
                 entry.validate();

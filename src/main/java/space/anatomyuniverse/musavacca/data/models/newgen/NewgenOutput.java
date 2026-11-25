@@ -1,7 +1,19 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import com.google.gson.JsonObject;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.Property;
 import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 //? if >=1.21.4 {
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.renderer.item.ItemModels;
@@ -11,17 +23,7 @@ import net.minecraft.client.renderer.item.ItemModels;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.properties.Property;
+
 //? if >=1.21.4 {
 import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.color.item.ItemTintSource;
@@ -115,7 +117,8 @@ final class NewgenOutput {
     //?}
         JsonObject previous = models.putIfAbsent(id, json);
         if (previous != null) {
-            if (!previous.equals(json)) throw new IllegalStateException("Different generated models share " + id + ". Give their sources different suffixes.");
+            if (!previous.equals(json))
+                throw new IllegalStateException("Different generated models share " + id + ". Give their sources different suffixes.");
             return id;
         }
         //? if >=1.21.4 {
@@ -124,17 +127,27 @@ final class NewgenOutput {
         /*if (id.getPath().startsWith("item/")) {
             if (items.generatedModels.containsKey(id)) throw duplicate(id);
             items.getBuilder(id.toString());
-            items.generatedModels.put(id, new ItemModelBuilder(id, items.existingFileHelper) {
-                @Override
-                public JsonObject toJson() { return json; }
-            });
+            items.generatedModels.put(
+                    id,
+                    new ItemModelBuilder(id, items.existingFileHelper) {
+                        @Override
+                        public JsonObject toJson() {
+                            return json;
+                        }
+                    });
         } else {
             if (blocks.models().generatedModels.containsKey(id)) throw duplicate(id);
             blocks.models().getBuilder(id.toString());
-            blocks.models().generatedModels.put(id, new BlockModelBuilder(id, blocks.models().existingFileHelper) {
-                @Override
-                public JsonObject toJson() { return json; }
-            });
+            blocks.models()
+                    .generatedModels
+                    .put(
+                            id,
+                            new BlockModelBuilder(id, blocks.models().existingFileHelper) {
+                                @Override
+                                public JsonObject toJson() {
+                                    return json;
+                                }
+                            });
         }
         *///?}
         return id;
@@ -160,8 +173,12 @@ final class NewgenOutput {
         items.itemModelOutput.accept(item, itemModel(render));
         //?} else {
         /*if (render.parts().size() > 1) {
-            List<List<Tints.Tint>> tinted = render.parts().stream().map(NewgenModels.ItemPart::tints)
-                    .filter(tints -> tints.stream().anyMatch(Tints.Tint::tinted)).distinct().toList();
+            List<List<Tints.Tint>> tinted =
+                    render.parts().stream()
+                            .map(NewgenModels.ItemPart::tints)
+                            .filter(tints -> tints.stream().anyMatch(Tints.Tint::tinted))
+                            .distinct()
+                            .toList();
             if (tinted.size() > 1) throw new IllegalStateException("Legacy composite items require compatible tint indices: " + item);
             JsonObject json = new JsonObject();
             json.addProperty("loader", "neoforge:composite");
@@ -188,15 +205,20 @@ final class NewgenOutput {
     }
 
     //? if >=1.21.11 {
-    /*Map<Identifier, JsonObject> namedDefinitions() { return Map.copyOf(namedDefinitions); }
+    /*Map<Identifier, JsonObject> namedDefinitions() {
+        return Map.copyOf(namedDefinitions);
+    }
 
     void namedItem(Identifier id, NewgenModels.ItemRender render) {
     *///?} else {
-    Map<ResourceLocation, JsonObject> namedDefinitions() { return Map.copyOf(namedDefinitions); }
+    Map<ResourceLocation, JsonObject> namedDefinitions() {
+        return Map.copyOf(namedDefinitions);
+    }
 
     void namedItem(ResourceLocation id, NewgenModels.ItemRender render) {
     //?}
-        if (!id.getNamespace().equals("musavacca")) throw new IllegalArgumentException("Named item model must use the musavacca namespace: " + id);
+        if (!id.getNamespace().equals("musavacca"))
+            throw new IllegalArgumentException("Named item model must use the musavacca namespace: " + id);
         //? if >=1.21.4 {
         JsonObject definition = new JsonObject();
         definition.add("model", ItemModels.CODEC.encodeStart(JsonOps.INSTANCE, itemModel(render)).getOrThrow());
@@ -206,13 +228,17 @@ final class NewgenOutput {
 
     //? if >=1.21.4 {
     private static ItemModel.Unbaked itemModel(NewgenModels.ItemRender render) {
-        List<ItemModel.Unbaked> children = render.parts().stream()
-                //? if >=26.1 {
-                /*.map(part -> (ItemModel.Unbaked) new CuboidItemModelWrapper.Unbaked(part.model(), java.util.Optional.empty(), itemTints(part.tints())))
-                *///?} else {
-                .map(part -> (ItemModel.Unbaked) new BlockModelWrapper.Unbaked(part.model(), itemTints(part.tints())))
-                //?}
-                .toList();
+        List<ItemModel.Unbaked> children =
+                render.parts().stream()
+                        //? if >=26.1 {
+                        /*.map(part ->
+                                (ItemModel.Unbaked)
+                                        new CuboidItemModelWrapper.Unbaked(
+                                                part.model(), java.util.Optional.empty(), itemTints(part.tints())))
+                        *///?} else {
+                        .map(part -> (ItemModel.Unbaked) new BlockModelWrapper.Unbaked(part.model(), itemTints(part.tints())))
+                        //?}
+                        .toList();
         //? if >=26.1 {
         /*return children.size() == 1 ? children.get(0) : new CompositeModel.Unbaked(children, java.util.Optional.empty());
         *///?} else {
@@ -257,7 +283,8 @@ final class NewgenOutput {
     void armorItem(Item item, ResourceLocation baseModel, ResourceLocation trimmedModel, ResourceLocation headModel) {
     //?}
         if (item == Items.AIR) throw new IllegalStateException("Cannot generate armor model for air");
-        ItemRequest request = new ItemRequest(List.of(new NewgenModels.ItemPart(baseModel, List.of())), "armor:" + trimmedModel + ":" + headModel, false);
+        ItemRequest request =
+                new ItemRequest(List.of(new NewgenModels.ItemPart(baseModel, List.of())), "armor:" + trimmedModel + ":" + headModel, false);
         ItemRequest previous = generatedItems.putIfAbsent(item, request);
         if (previous != null) {
             if (!previous.equals(request)) throw new IllegalStateException("Conflicting item models for " + item);
@@ -268,17 +295,26 @@ final class NewgenOutput {
         ItemModel.Unbaked inventory = base;
         if (trimmedModel != null) {
             //? if >=26.1 {
-            /*ItemModel.Unbaked trimmed = new CuboidItemModelWrapper.Unbaked(trimmedModel, java.util.Optional.empty(),
-                    List.of(new Constant(0xFFFFFFFF), ArmorTrimItemTintSource.itemTintSource()));
+            /*ItemModel.Unbaked trimmed =
+                    new CuboidItemModelWrapper.Unbaked(
+                            trimmedModel,
+                            java.util.Optional.empty(),
+                            List.of(new Constant(0xFFFFFFFF), ArmorTrimItemTintSource.itemTintSource()));
             *///?} else {
-            ItemModel.Unbaked trimmed = new BlockModelWrapper.Unbaked(trimmedModel,
-                    List.of(new Constant(0xFFFFFFFF), ArmorTrimItemTintSource.itemTintSource()));
+            ItemModel.Unbaked trimmed =
+                    new BlockModelWrapper.Unbaked(
+                            trimmedModel, List.of(new Constant(0xFFFFFFFF), ArmorTrimItemTintSource.itemTintSource()));
             //?}
             inventory = ItemModelUtils.conditional(new HasComponent(DataComponents.TRIM, false), trimmed, base);
         }
         if (headModel != null) {
-            inventory = ItemModelUtils.select(new DisplayContext(), inventory,
-                    List.of(new SelectItemModel.SwitchCase<>(List.of(ItemDisplayContext.HEAD), ItemModelUtils.plainModel(headModel))));
+            inventory =
+                    ItemModelUtils.select(
+                            new DisplayContext(),
+                            inventory,
+                            List.of(
+                                    new SelectItemModel.SwitchCase<>(
+                                            List.of(ItemDisplayContext.HEAD), ItemModelUtils.plainModel(headModel))));
         }
         items.itemModelOutput.accept(item, inventory);
         //?} else {
@@ -314,7 +350,9 @@ final class NewgenOutput {
         private final Block block;
         private final Map<Application, List<Conditions.Match>> parts = new LinkedHashMap<>();
 
-        private State(Block block) { this.block = block; }
+        private State(Block block) {
+            this.block = block;
+        }
 
         //? if >=1.21.11 {
         /*void add(Identifier model, Conditions.Match when, int x, int y, Variants.Set variants, boolean uvLock) {
@@ -372,8 +410,12 @@ final class NewgenOutput {
                 int remaining = apply.models().size() * apply.variants().options().size();
                 for (var model : apply.models()) {
                     for (Variants.Option option : apply.variants().options()) {
-                        builder = builder.modelFile(new ModelFile.UncheckedModelFile(model)).rotationX(Rotations.combine(apply.x(), option.rotationX()))
-                                .rotationY(Rotations.combine(apply.y(), option.rotationY())).weight(option.weight()).uvLock(apply.uvLock());
+                        builder =
+                                builder.modelFile(new ModelFile.UncheckedModelFile(model))
+                                        .rotationX(Rotations.combine(apply.x(), option.rotationX()))
+                                        .rotationY(Rotations.combine(apply.y(), option.rotationY()))
+                                        .weight(option.weight())
+                                        .uvLock(apply.uvLock());
                         if (--remaining > 0) builder = builder.nextModel();
                     }
                 }
@@ -404,7 +446,7 @@ final class NewgenOutput {
     *///?}
 
     //? if >=1.21.4 {
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     //? if >=1.21.5 {
     private static ConditionBuilder condition(Conditions.Match match) {
         var condition = BlockModelGenerators.condition();
@@ -426,14 +468,19 @@ final class NewgenOutput {
         for (var model : apply.models()) {
             for (Variants.Option option : apply.variants().options()) {
                 //? if >=1.21.5 {
-                Variant variant = new Variant(model).withXRot(QUADRANTS[Rotations.combine(apply.x(), option.rotationX()) / 90])
-                        .withYRot(QUADRANTS[Rotations.combine(apply.y(), option.rotationY()) / 90]).withUvLock(apply.uvLock());
+                Variant variant =
+                        new Variant(model)
+                                .withXRot(QUADRANTS[Rotations.combine(apply.x(), option.rotationX()) / 90])
+                                .withYRot(QUADRANTS[Rotations.combine(apply.y(), option.rotationY()) / 90])
+                                .withUvLock(apply.uvLock());
                 result.add(variant, option.weight());
                 //?} else {
-                /*Variant variant = Variant.variant().with(VariantProperties.MODEL, model)
-                        .with(VariantProperties.X_ROT, ROTATIONS[Rotations.combine(apply.x(), option.rotationX()) / 90])
-                        .with(VariantProperties.Y_ROT, ROTATIONS[Rotations.combine(apply.y(), option.rotationY()) / 90])
-                        .with(VariantProperties.WEIGHT, option.weight());
+                /*Variant variant =
+                        Variant.variant()
+                                .with(VariantProperties.MODEL, model)
+                                .with(VariantProperties.X_ROT, ROTATIONS[Rotations.combine(apply.x(), option.rotationX()) / 90])
+                                .with(VariantProperties.Y_ROT, ROTATIONS[Rotations.combine(apply.y(), option.rotationY()) / 90])
+                                .with(VariantProperties.WEIGHT, option.weight());
                 if (apply.uvLock()) variant = variant.with(VariantProperties.UV_LOCK, true);
                 result.add(variant);
                 *///?}
@@ -450,12 +497,12 @@ final class NewgenOutput {
         return new IllegalStateException("Another generator already owns model " + id);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void term(MultiPartBlockStateBuilder.PartBuilder part, Conditions.Term<?> term) {
         part.condition((Property) term.property(), (Comparable) term.value());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void term(MultiPartBlockStateBuilder.PartBuilder.ConditionGroup group, Conditions.Term<?> term) {
         group.condition((Property) term.property(), (Comparable) term.value());
     }

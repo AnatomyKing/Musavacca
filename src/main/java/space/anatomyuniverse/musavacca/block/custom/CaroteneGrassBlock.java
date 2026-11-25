@@ -15,11 +15,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
-//? if >=1.21.5 {
-import net.minecraft.util.TriState;
-//?} else {
-/*import net.neoforged.neoforge.common.util.TriState;
-*///?}
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -27,6 +22,11 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LightEngine;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+//? if >=1.21.5 {
+import net.minecraft.util.TriState;
+//?} else {
+/*import net.neoforged.neoforge.common.util.TriState;
+*///?}
 //? if >=26.1 {
 
 /*public final class CaroteneGrassBlock extends SpreadingSnowyBlock implements BonemealableBlock {
@@ -85,7 +85,8 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
         *///?} else if >=1.21.2 <26.1 {
         int lightBlock = LightEngine.getLightBlockInto(state, above, Direction.UP, above.getLightBlock());
         //?} else {
-        /*int lightBlock = LightEngine.getLightBlockInto(level, state, pos, above, abovePos, Direction.UP, above.getLightBlock(level, abovePos));
+        /*int lightBlock =
+                LightEngine.getLightBlockInto(level, state, pos, above, abovePos, Direction.UP, above.getLightBlock(level, abovePos));
         *///?}
         return lightBlock < LightEngine.MAX_LEVEL;
     }
@@ -98,7 +99,10 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
     public TriState canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, BlockState plant) {
         Block block = plant.getBlock();
         if (facing == Direction.UP
-                && (block instanceof CropBlock || block instanceof StemBlock || block instanceof AttachedStemBlock || block instanceof PitcherCropBlock)) {
+                && (block instanceof CropBlock
+                        || block instanceof StemBlock
+                        || block instanceof AttachedStemBlock
+                        || block instanceof PitcherCropBlock)) {
             return TriState.TRUE;
         }
         return TriState.DEFAULT;
@@ -134,7 +138,8 @@ public final class CaroteneGrassBlock extends SpreadingSnowyDirtBlock implements
     public void performBonemeal(ServerLevel level, RandomSource random, BlockPos pos, BlockState state) {
     //?}
         BlockPos start = pos.above();
-        outer: for (int i = 0; i < 128; ++i) {
+        outer:
+        for (int i = 0; i < 128; ++i) {
             BlockPos target = start;
             for (int j = 0; j < i / 16; ++j) {
                 target = target.offset(random.nextInt(3) - 1, (random.nextInt(3) - 1) * random.nextInt(3) / 2, random.nextInt(3) - 1);

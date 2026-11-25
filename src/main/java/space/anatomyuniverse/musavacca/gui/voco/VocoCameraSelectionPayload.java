@@ -5,11 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,21 +17,34 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
 
 public record VocoCameraSelectionPayload(BlockPos pos, int receptorId, float yawDegrees, float pitchDegrees, boolean resetToDefault)
         implements CustomPacketPayload {
     //? if >=1.21.11 {
-    /*public static final Type<VocoCameraSelectionPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
+    /*public static final Type<VocoCameraSelectionPayload> TYPE =
+            new Type<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
     *///?} else {
-    public static final Type<VocoCameraSelectionPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
+    public static final Type<VocoCameraSelectionPayload> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "voco_camera_selection"));
     //?}
-    public static final StreamCodec<FriendlyByteBuf, VocoCameraSelectionPayload> STREAM_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, VocoCameraSelectionPayload::pos,
-            ByteBufCodecs.VAR_INT, VocoCameraSelectionPayload::receptorId,
-            ByteBufCodecs.FLOAT, VocoCameraSelectionPayload::yawDegrees,
-            ByteBufCodecs.FLOAT, VocoCameraSelectionPayload::pitchDegrees,
-            ByteBufCodecs.BOOL, VocoCameraSelectionPayload::resetToDefault,
-            VocoCameraSelectionPayload::new);
+    public static final StreamCodec<FriendlyByteBuf, VocoCameraSelectionPayload> STREAM_CODEC =
+            StreamCodec.composite(
+                    BlockPos.STREAM_CODEC,
+                    VocoCameraSelectionPayload::pos,
+                    ByteBufCodecs.VAR_INT,
+                    VocoCameraSelectionPayload::receptorId,
+                    ByteBufCodecs.FLOAT,
+                    VocoCameraSelectionPayload::yawDegrees,
+                    ByteBufCodecs.FLOAT,
+                    VocoCameraSelectionPayload::pitchDegrees,
+                    ByteBufCodecs.BOOL,
+                    VocoCameraSelectionPayload::resetToDefault,
+                    VocoCameraSelectionPayload::new);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
@@ -62,7 +70,8 @@ public record VocoCameraSelectionPayload(BlockPos pos, int receptorId, float yaw
             if (payload.resetToDefault()) {
                 postBe.resetCustomTarget();
             } else {
-                postBe.setCustomTarget(session.capturedTarget(), normalizeYaw(payload.yawDegrees()), normalizePitch(payload.pitchDegrees()));
+                postBe.setCustomTarget(
+                        session.capturedTarget(), normalizeYaw(payload.yawDegrees()), normalizePitch(payload.pitchDegrees()));
             }
             VocoReceptorLogic.playUiClick(player.level(), pos);
             return;
@@ -74,7 +83,8 @@ public record VocoCameraSelectionPayload(BlockPos pos, int receptorId, float yaw
         if (payload.resetToDefault()) {
             tableBe.resetCustomTarget(receptor);
         } else {
-            tableBe.setCustomTarget(receptor, session.capturedTarget(), normalizeYaw(payload.yawDegrees()), normalizePitch(payload.pitchDegrees()));
+            tableBe.setCustomTarget(
+                    receptor, session.capturedTarget(), normalizeYaw(payload.yawDegrees()), normalizePitch(payload.pitchDegrees()));
         }
         VocoReceptorLogic.playUiClick(player.level(), pos);
     }

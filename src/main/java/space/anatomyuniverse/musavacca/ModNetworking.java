@@ -3,23 +3,23 @@ package space.anatomyuniverse.musavacca;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceSyncPayload;
-//? if <1.21.6 {
-/*import space.anatomyuniverse.musavacca.bar.balance.ClientBalanceData;
-*///?}
 import space.anatomyuniverse.musavacca.bar.hunger.BonusHungerSyncPayload;
-//? if <1.21.6 {
-/*import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
-*///?}
 import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusActionPayload;
 import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusCallerPayload;
-//? if <1.21.6 {
-/*import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusClient;
-*///?}
 import space.anatomyuniverse.musavacca.gui.menu.payloads.FlintAndPearlColorPayload;
 import space.anatomyuniverse.musavacca.gui.menu.payloads.VocoCallerStatePayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraSelectionPayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoCameraStartPayload;
 import space.anatomyuniverse.musavacca.gui.voco.VocoDustRideCancelPayload;
+//? if <1.21.6 {
+/*import space.anatomyuniverse.musavacca.bar.balance.ClientBalanceData;
+*///?}
+//? if <1.21.6 {
+/*import space.anatomyuniverse.musavacca.bar.hunger.ClientBonusHungerData;
+*///?}
+//? if <1.21.6 {
+/*import space.anatomyuniverse.musavacca.effect.playerstatus.PlayerStatusClient;
+*///?}
 //? if <1.21.6 {
 /*import space.anatomyuniverse.musavacca.gui.voco.VocoCameraClient;
 *///?}
@@ -39,13 +39,22 @@ public final class ModNetworking {
                 .playToClient(BalanceSyncPayload.TYPE, BalanceSyncPayload.STREAM_CODEC)
                 .playToClient(VocoCameraStartPayload.TYPE, VocoCameraStartPayload.STREAM_CODEC)
                 //?} else {
-                /*.playToClient(PlayerStatusCallerPayload.TYPE, PlayerStatusCallerPayload.STREAM_CODEC,
+                /*.playToClient(
+                        PlayerStatusCallerPayload.TYPE,
+                        PlayerStatusCallerPayload.STREAM_CODEC,
                         (payload, context) -> PlayerStatusClient.setCaller(payload))
-                .playToClient(BonusHungerSyncPayload.TYPE, BonusHungerSyncPayload.STREAM_CODEC,
+                .playToClient(
+                        BonusHungerSyncPayload.TYPE,
+                        BonusHungerSyncPayload.STREAM_CODEC,
                         (payload, context) -> ClientBonusHungerData.set(payload.food(), payload.saturation(), payload.active()))
-                .playToClient(BalanceSyncPayload.TYPE, BalanceSyncPayload.STREAM_CODEC,
+                .playToClient(
+                        BalanceSyncPayload.TYPE,
+                        BalanceSyncPayload.STREAM_CODEC,
                         (payload, context) -> ClientBalanceData.set(payload.balance(), payload.active()))
-                .playToClient(VocoCameraStartPayload.TYPE, VocoCameraStartPayload.STREAM_CODEC, (payload, context) -> VocoCameraClient.start(payload))
+                .playToClient(
+                        VocoCameraStartPayload.TYPE,
+                        VocoCameraStartPayload.STREAM_CODEC,
+                        (payload, context) -> VocoCameraClient.start(payload))
                 *///?}
                 .playToServer(VocoCameraSelectionPayload.TYPE, VocoCameraSelectionPayload.STREAM_CODEC, VocoCameraSelectionPayload::handle)
                 .playToServer(FlintAndPearlColorPayload.TYPE, FlintAndPearlColorPayload.STREAM_CODEC, FlintAndPearlColorPayload::handle)

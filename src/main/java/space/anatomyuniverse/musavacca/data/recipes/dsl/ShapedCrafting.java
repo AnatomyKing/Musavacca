@@ -2,17 +2,18 @@ package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-//? if >=1.21.11 {
-/*import net.minecraft.resources.Identifier;
-*///?} else {
-import net.minecraft.resources.ResourceLocation;
-//?}
-import java.util.Objects;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
+
+import java.util.Objects;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
 
 public final class ShapedCrafting {
     private final RecipeDSL dsl;
@@ -21,7 +22,8 @@ public final class ShapedCrafting {
     public ShapedCrafting(RecipeDSL dsl, RecipeCategory category, ItemLike result, int count) {
         this.dsl = dsl;
         //? if >=26.1 {
-        /*this.builder = ShapedRecipeBuilder.shaped(dsl.items(), category, new net.minecraft.world.item.ItemStackTemplate(result.asItem(), count));
+        /*this.builder =
+                ShapedRecipeBuilder.shaped(dsl.items(), category, new net.minecraft.world.item.ItemStackTemplate(result.asItem(), count));
         *///?} else if >=1.21.2 <26.1 {
         this.builder = ShapedRecipeBuilder.shaped(dsl.items(), category, new ItemStack(result.asItem(), count));
         //?} else {

@@ -2,14 +2,13 @@ package space.anatomyuniverse.musavacca.data.recipes.dsl;
 
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
+import net.minecraft.world.level.ItemLike;
+import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-
-import net.minecraft.world.level.ItemLike;
-import space.anatomyuniverse.musavacca.data.recipes.RecipeDSL;
 
 public final class SmithingTransforms {
     private final RecipeDSL dsl;
@@ -20,8 +19,9 @@ public final class SmithingTransforms {
     }
 
     public SmithingTransforms of(Object template, Object base, Object addition, RecipeCategory category, ItemLike result) {
-        this.builder = SmithingTransformRecipeBuilder.smithing(this.dsl.ingredient(template), this.dsl.ingredient(base), this.dsl.ingredient(addition),
-                category, result.asItem());
+        this.builder =
+                SmithingTransformRecipeBuilder.smithing(
+                        this.dsl.ingredient(template), this.dsl.ingredient(base), this.dsl.ingredient(addition), category, result.asItem());
         return this;
     }
 

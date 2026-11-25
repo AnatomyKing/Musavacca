@@ -2,20 +2,22 @@ package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.ItemStack;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.world.item.ItemStack;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
 //? if <1.21.4 {
-/*import java.util.List;
-import net.minecraft.client.renderer.item.ItemProperties;
+/*import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import space.anatomyuniverse.musavacca.data.models.newgen.ArmorItems;
+
+import java.util.List;
+
 *///?}
 //? if >=1.21.2 {
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
@@ -81,7 +83,8 @@ public final class ArmorTrimItemTintSource
 
     private static void registerLegacyTrimProperty(ItemLike item) {
         if (item == null) return;
-        ItemProperties.register(item.asItem(), HAS_TRIM_PROPERTY, (stack, level, entity, seed) -> stack.has(DataComponents.TRIM) ? 1.0F : 0.0F);
+        ItemProperties.register(
+                item.asItem(), HAS_TRIM_PROPERTY, (stack, level, entity, seed) -> stack.has(DataComponents.TRIM) ? 1.0F : 0.0F);
     }
 
     *///?}

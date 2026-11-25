@@ -1,7 +1,5 @@
 package space.anatomyuniverse.musavacca.item.custom.potassium;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,6 +10,9 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 import net.neoforged.neoforge.event.entity.player.SweepAttackEvent;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public final class PotassiumCombat {
     private static final Field ATTACK_TICKER = field("attackStrengthTicker");

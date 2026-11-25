@@ -1,10 +1,11 @@
 package space.anatomyuniverse.musavacca.economy;
 
-import java.util.function.BooleanSupplier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import space.anatomyuniverse.musavacca.bar.balance.BalanceApi;
+
+import java.util.function.BooleanSupplier;
 
 public final class TeleportEconomy {
     private TeleportEconomy() {}

@@ -1,21 +1,23 @@
 package space.anatomyuniverse.musavacca.tint;
 
 import net.minecraft.core.BlockPos;
-//? if >=26.1 {
-/*import java.util.ArrayList;
-import java.util.Set;
-import net.minecraft.client.color.block.BlockTintSource;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
-import net.minecraft.world.level.block.state.properties.Property;
-*///?} else {
-import net.minecraft.world.level.BlockAndTintGetter;
-//?}
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import space.anatomyuniverse.musavacca.data.models.newgen.NewgenBlockTintCatalog;
 import space.anatomyuniverse.musavacca.data.models.newgen.NewgenItemCatalog;
 import space.anatomyuniverse.musavacca.data.models.newgen.Tints;
+//? if >=26.1 {
+/*import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.properties.Property;
+
+import java.util.ArrayList;
+import java.util.Set;
+
+*///?} else {
+import net.minecraft.world.level.BlockAndTintGetter;
+//?}
 //? if <1.21.4 {
 /*import net.minecraft.world.level.ItemLike;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -44,31 +46,37 @@ public final class ModTints {
     //?}
         //? if >=26.1 {
         /*for (var binding : NewgenBlockTintCatalog.bindings()) {
-            int maximum = binding.rules().stream().flatMap(rule -> rule.generatedLayers().stream()).mapToInt(Tints.GeneratedLayer::tintIndex).max().orElse(-1);
+            int maximum =
+                    binding.rules().stream()
+                            .flatMap(rule -> rule.generatedLayers().stream())
+                            .mapToInt(Tints.GeneratedLayer::tintIndex)
+                            .max()
+                            .orElse(-1);
             var sources = new ArrayList<BlockTintSource>();
             for (int i = 0; i <= maximum; i++) {
                 final int index = i;
-                sources.add(new BlockTintSource() {
-                    @Override
-                    public int color(BlockState state) {
-                        return blockTint(state, null, null, index);
-                    }
+                sources.add(
+                        new BlockTintSource() {
+                            @Override
+                            public int color(BlockState state) {
+                                return blockTint(state, null, null, index);
+                            }
 
-                    @Override
-                    public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
-                        return blockTint(state, level, pos, index);
-                    }
+                            @Override
+                            public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+                                return blockTint(state, level, pos, index);
+                            }
 
-                    @Override
-                    public int colorAsTerrainParticle(BlockState state, BlockAndTintGetter level, BlockPos pos) {
-                        return blockTint(state, level, pos, index);
-                    }
+                            @Override
+                            public int colorAsTerrainParticle(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+                                return blockTint(state, level, pos, index);
+                            }
 
-                    @Override
-                    public Set<Property<?>> relevantProperties() {
-                        return Set.copyOf(binding.block().getStateDefinition().getProperties());
-                    }
-                });
+                            @Override
+                            public Set<Property<?>> relevantProperties() {
+                                return Set.copyOf(binding.block().getStateDefinition().getProperties());
+                            }
+                        });
             }
             event.register(sources, binding.block());
         }
@@ -100,7 +108,9 @@ public final class ModTints {
 
     public static void registerItemColorHandlers(RegisterColorHandlersEvent.Item event) {
         for (NewgenItemCatalog.Binding binding : NewgenItemCatalog.tintBindings()) {
-            event.register((stack, tintIndex) -> SimpleItems.legacyTintColor(binding.item(), binding.model(), stack, tintIndex), binding.item().asItem());
+            event.register(
+                    (stack, tintIndex) -> SimpleItems.legacyTintColor(binding.item(), binding.model(), stack, tintIndex),
+                    binding.item().asItem());
         }
         for (ArmorItems.Entry entry : NewModelSets.armorItems()) {
             registerLegacyArmorTint(event, entry.helmet());

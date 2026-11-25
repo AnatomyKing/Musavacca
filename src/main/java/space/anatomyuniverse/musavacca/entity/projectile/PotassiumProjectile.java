@@ -21,7 +21,8 @@ import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumCombat;
 import space.anatomyuniverse.musavacca.item.custom.potassium.PotassiumThrow;
 
 public final class PotassiumProjectile extends Projectile implements ItemSupplier {
-    private static final EntityDataAccessor<ItemStack> ITEM = SynchedEntityData.defineId(PotassiumProjectile.class, EntityDataSerializers.ITEM_STACK);
+    private static final EntityDataAccessor<ItemStack> ITEM =
+            SynchedEntityData.defineId(PotassiumProjectile.class, EntityDataSerializers.ITEM_STACK);
     private int slot;
     private long deadline;
     private int returnTimer = 8;
@@ -72,8 +73,11 @@ public final class PotassiumProjectile extends Projectile implements ItemSupplie
         var block = level.clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
         boolean blocked = block.getType() == HitResult.Type.BLOCK;
         if (blocked) end = block.getLocation();
-        for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().expandTowards(movement).inflate(0.5),
-                entity -> entity != owner && entity.isAlive() && entity.isPickable())) {
+        for (LivingEntity target :
+                level.getEntitiesOfClass(
+                        LivingEntity.class,
+                        getBoundingBox().expandTowards(movement).inflate(0.5),
+                        entity -> entity != owner && entity.isAlive() && entity.isPickable())) {
             var box = target.getBoundingBox().inflate(0.25);
             if (!box.contains(start) && box.clip(start, end).isEmpty()) continue;
             if (PotassiumCombat.attack(owner, target, slot, deadline)) returnTimer += 2;
@@ -93,7 +97,8 @@ public final class PotassiumProjectile extends Projectile implements ItemSupplie
         if (--returnTimer <= 0) {
             if (distanceTo(owner) < 3.0F) {
                 PotassiumThrow.restore(owner, slot, deadline);
-                level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), SoundEvents.TRIDENT_RETURN, SoundSource.PLAYERS, 0.6F, 1.1F);
+                level.playSound(
+                        null, owner.getX(), owner.getY(), owner.getZ(), SoundEvents.TRIDENT_RETURN, SoundSource.PLAYERS, 0.6F, 1.1F);
                 discard();
                 return;
             }
@@ -102,5 +107,4 @@ public final class PotassiumProjectile extends Projectile implements ItemSupplie
             setDeltaMovement(current.lerp(home.normalize().scale(speed), 0.1));
         }
     }
-
 }

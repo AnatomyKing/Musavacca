@@ -1,13 +1,15 @@
 package space.anatomyuniverse.musavacca.block.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.world.phys.Vec3;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 *///?} else {
 import net.minecraft.client.renderer.MultiBufferSource;
 //?}
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
@@ -20,8 +22,6 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.item.ItemStackRenderState;
 *///?}
-import net.minecraft.world.phys.Vec3;
-import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 //? if >=1.21.9 {
 /*import java.util.ArrayList;
 import java.util.List;
@@ -74,9 +74,15 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
     *///?}
     //? if <1.21.9 {
     @Override
-    public void render(VocoTableBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
+    public void render(
+            VocoTableBlockEntity blockEntity,
+            float partialTick,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
             //? if >=1.21.5 <1.21.9 {
-            int packedOverlay, Vec3 cameraPos) {
+            int packedOverlay,
+            Vec3 cameraPos) {
             //?} else {
             /*int packedOverlay) {
             *///?}
@@ -90,10 +96,13 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
     //?}
     //? if >=1.21.9 {
     /*@Override
-    public State createRenderState() { return new State(); }
+    public State createRenderState() {
+        return new State();
+    }
 
     @Override
-    public void extractRenderState(VocoTableBlockEntity entity, State state, float partialTick, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
+    public void extractRenderState(
+            VocoTableBlockEntity entity, State state, float partialTick, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
         //? if >=1.21.11 {
         /^nearest.extractRenderState(entity, state, partialTick, camera, overlay);
         ^///?} else {
@@ -105,8 +114,14 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
 
     *///?}
     //? if <1.21.9 {
-    private void renderContents(VocoTableBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
-            int packedOverlay, Vec3 cameraPos) {
+    private void renderContents(
+            VocoTableBlockEntity blockEntity,
+            float partialTick,
+            PoseStack poseStack,
+            MultiBufferSource bufferSource,
+            int packedLight,
+            int packedOverlay,
+            Vec3 cameraPos) {
         this.candleRenderer.render(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay, cameraPos);
         this.itemRenderer.render(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay, cameraPos);
     }

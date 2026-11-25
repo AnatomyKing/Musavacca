@@ -1,4 +1,3 @@
-
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.world.entity.item.ItemEntity;
@@ -44,7 +43,14 @@ public final class VocoTableDrops {
         while (remaining > 0) {
             int count = Math.min(remaining, maxStackSize);
 
-            event.getDrops().add(new ItemEntity(event.getLevel(), pos.getX() + 0.5D, pos.getY() + 1.0D, pos.getZ() + 0.5D, displayed.copyWithCount(count)));
+            event.getDrops()
+                    .add(
+                            new ItemEntity(
+                                    event.getLevel(),
+                                    pos.getX() + 0.5D,
+                                    pos.getY() + 1.0D,
+                                    pos.getZ() + 0.5D,
+                                    displayed.copyWithCount(count)));
 
             remaining -= count;
         }

@@ -1,6 +1,5 @@
 package space.anatomyuniverse.musavacca.gui.menu;
 
-import java.util.Arrays;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +13,8 @@ import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.gui.ModMenuRegistries;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
+
+import java.util.Arrays;
 
 public class VocoDialerMenu extends AbstractContainerMenu {
     public static final int BUTTON_HEX_0 = 0;
@@ -35,8 +36,10 @@ public class VocoDialerMenu extends AbstractContainerMenu {
     }
 
     public static void open(ServerPlayer player) {
-        player.openMenu(new SimpleMenuProvider((containerId, inventory, ignoredPlayer) -> new VocoDialerMenu(containerId, inventory),
-                Component.literal("Rotary Test GUI")));
+        player.openMenu(
+                new SimpleMenuProvider(
+                        (containerId, inventory, ignoredPlayer) -> new VocoDialerMenu(containerId, inventory),
+                        Component.literal("Rotary Test GUI")));
     }
 
     @Override

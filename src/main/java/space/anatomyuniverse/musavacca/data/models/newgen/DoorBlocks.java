@@ -1,11 +1,12 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DoorBlock;
 
 public final class DoorBlocks {
     private DoorBlocks() {}
@@ -51,7 +52,8 @@ public final class DoorBlocks {
         }
 
         public void validate() {
-            if (!(block() instanceof DoorBlock)) throw new IllegalStateException("DoorBlocks requires a DoorBlock: " + ModelLocations.blockId(block()));
+            if (!(block() instanceof DoorBlock))
+                throw new IllegalStateException("DoorBlocks requires a DoorBlock: " + ModelLocations.blockId(block()));
             Conditions.requireProperty(block(), DoorBlock.FACING, "DoorBlocks");
             Conditions.requireProperty(block(), DoorBlock.HALF, "DoorBlocks");
             Conditions.requireProperty(block(), DoorBlock.HINGE, "DoorBlocks");

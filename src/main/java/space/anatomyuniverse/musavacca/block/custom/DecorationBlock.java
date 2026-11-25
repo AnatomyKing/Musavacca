@@ -3,7 +3,6 @@ package space.anatomyuniverse.musavacca.block.custom;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -12,7 +11,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -45,7 +43,11 @@ public class DecorationBlock extends Block {
         this.options = options == null ? Options.allRotating() : options.sanitized();
         this.shapes = this.options.shapes().toShapeGrid();
         this.registerDefaultState(
-                this.stateDefinition.any().setValue(PLACEMENT, this.options.firstEnabled()).setValue(ROTATION, 0).setValue(FACING, DEFAULT_FACING));
+                this.stateDefinition
+                        .any()
+                        .setValue(PLACEMENT, this.options.firstEnabled())
+                        .setValue(ROTATION, 0)
+                        .setValue(FACING, DEFAULT_FACING));
     }
 
     //? if <26.3 {
@@ -69,10 +71,13 @@ public class DecorationBlock extends Block {
         Direction clickedFace = context.getClickedFace();
         BlockPos pos = context.getClickedPos();
         if (clickedFace.getAxis().isHorizontal() && this.options.side()) {
-            return survivalChecked(context, pos,
+            return survivalChecked(
+                    context,
+                    pos,
                     this.defaultBlockState().setValue(PLACEMENT, Placement.SIDE).setValue(FACING, clickedFace).setValue(ROTATION, 0));
         }
-        if (clickedFace == Direction.DOWN && this.options.roof()) return survivalChecked(context, pos, stateForPlacement(Placement.ROOF, context, pos));
+        if (clickedFace == Direction.DOWN && this.options.roof())
+            return survivalChecked(context, pos, stateForPlacement(Placement.ROOF, context, pos));
         Placement placement = this.options.standingPlacement(context.getPlayer() != null && context.getPlayer().isShiftKeyDown());
         return placement == null ? null : survivalChecked(context, pos, stateForPlacement(placement, context, pos));
     }
@@ -84,12 +89,19 @@ public class DecorationBlock extends Block {
 
     private BlockState stateForPlacement(Placement placement, BlockPlaceContext context, BlockPos pos) {
         return switch (this.options.orientation(placement)) {
-        case FIXED -> this.defaultBlockState().setValue(PLACEMENT, placement).setValue(ROTATION, 0).setValue(FACING, DEFAULT_FACING);
-        case FACING -> this.defaultBlockState().setValue(PLACEMENT, placement).setValue(ROTATION, 0).setValue(FACING, frontFacesPlayerFacing(context, pos));
-        case ROTATION -> {
-            int rotation = frontFacesPlayerRotation(context, pos);
-            yield this.defaultBlockState().setValue(PLACEMENT, placement).setValue(ROTATION, rotation).setValue(FACING, directionFromRotation(rotation));
-        }
+            case FIXED -> this.defaultBlockState().setValue(PLACEMENT, placement).setValue(ROTATION, 0).setValue(FACING, DEFAULT_FACING);
+            case FACING ->
+                    this.defaultBlockState()
+                            .setValue(PLACEMENT, placement)
+                            .setValue(ROTATION, 0)
+                            .setValue(FACING, frontFacesPlayerFacing(context, pos));
+            case ROTATION -> {
+                int rotation = frontFacesPlayerRotation(context, pos);
+                yield this.defaultBlockState()
+                        .setValue(PLACEMENT, placement)
+                        .setValue(ROTATION, rotation)
+                        .setValue(FACING, directionFromRotation(rotation));
+            }
         };
     }
 
@@ -123,11 +135,11 @@ public class DecorationBlock extends Block {
 
     private static Direction directionFromRotation(int rotation) {
         return switch (Math.floorMod(rotation + 2, 16) / 4) {
-        case 0 -> Direction.SOUTH;
-        case 1 -> Direction.WEST;
-        case 2 -> Direction.NORTH;
-        case 3 -> Direction.EAST;
-        default -> DEFAULT_FACING;
+            case 0 -> Direction.SOUTH;
+            case 1 -> Direction.WEST;
+            case 2 -> Direction.NORTH;
+            case 3 -> Direction.EAST;
+            default -> DEFAULT_FACING;
         };
     }
 
@@ -136,12 +148,12 @@ public class DecorationBlock extends Block {
         Placement placement = state.getValue(PLACEMENT);
         if (!this.options.isEnabled(placement)) return false;
         return switch (placement) {
-        case FLOOR, SNEAK -> Block.canSupportCenter(level, pos.below(), Direction.UP);
-        case ROOF -> sturdy(level, pos.above(), Direction.DOWN);
-        case SIDE -> {
-            Direction facing = state.getValue(FACING);
-            yield sturdy(level, pos.relative(facing.getOpposite()), facing);
-        }
+            case FLOOR, SNEAK -> Block.canSupportCenter(level, pos.below(), Direction.UP);
+            case ROOF -> sturdy(level, pos.above(), Direction.DOWN);
+            case SIDE -> {
+                Direction facing = state.getValue(FACING);
+                yield sturdy(level, pos.relative(facing.getOpposite()), facing);
+            }
         };
     }
 
@@ -153,12 +165,12 @@ public class DecorationBlock extends Block {
     protected BlockState rotate(BlockState state, Rotation rotation) {
         Placement placement = state.getValue(PLACEMENT);
         return switch (this.options.orientation(placement)) {
-        case FIXED -> state;
-        case FACING -> state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
-        case ROTATION -> {
-            int nextRotation = rotation.rotate(state.getValue(ROTATION), 16);
-            yield state.setValue(ROTATION, nextRotation).setValue(FACING, directionFromRotation(nextRotation));
-        }
+            case FIXED -> state;
+            case FACING -> state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+            case ROTATION -> {
+                int nextRotation = rotation.rotate(state.getValue(ROTATION), 16);
+                yield state.setValue(ROTATION, nextRotation).setValue(FACING, directionFromRotation(nextRotation));
+            }
         };
     }
 
@@ -166,12 +178,12 @@ public class DecorationBlock extends Block {
     protected BlockState mirror(BlockState state, Mirror mirror) {
         Placement placement = state.getValue(PLACEMENT);
         return switch (this.options.orientation(placement)) {
-        case FIXED -> state;
-        case FACING -> state.rotate(mirror.getRotation(state.getValue(FACING)));
-        case ROTATION -> {
-            int nextRotation = mirror.mirror(state.getValue(ROTATION), 16);
-            yield state.setValue(ROTATION, nextRotation).setValue(FACING, directionFromRotation(nextRotation));
-        }
+            case FIXED -> state;
+            case FACING -> state.rotate(mirror.getRotation(state.getValue(FACING)));
+            case ROTATION -> {
+                int nextRotation = mirror.mirror(state.getValue(ROTATION), 16);
+                yield state.setValue(ROTATION, nextRotation).setValue(FACING, directionFromRotation(nextRotation));
+            }
         };
     }
 
@@ -204,11 +216,11 @@ public class DecorationBlock extends Block {
 
     private static int horizontalIndex(Direction direction) {
         return switch (direction) {
-        case NORTH -> 0;
-        case EAST -> 1;
-        case SOUTH -> 2;
-        case WEST -> 3;
-        default -> 0;
+            case NORTH -> 0;
+            case EAST -> 1;
+            case SOUTH -> 2;
+            case WEST -> 3;
+            default -> 0;
         };
     }
 
@@ -222,14 +234,17 @@ public class DecorationBlock extends Block {
     }
 
     private static VoxelShape rotateShapeY90(VoxelShape shape) {
-        VoxelShape[] result = { Shapes.empty() };
-        shape.forAllBoxes(
-                (minX, minY, minZ, maxX, maxY, maxZ) -> result[0] = Shapes.or(result[0], Shapes.box(1.0D - maxZ, minY, minX, 1.0D - minZ, maxY, maxX)));
+        VoxelShape[] result = {Shapes.empty()};
+        shape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) ->
+                result[0] = Shapes.or(result[0], Shapes.box(1.0D - maxZ, minY, minX, 1.0D - minZ, maxY, maxX)));
         return result[0].optimize();
     }
 
     public enum Placement implements StringRepresentable {
-        FLOOR("floor"), SNEAK("sneak"), SIDE("side"), ROOF("roof");
+        FLOOR("floor"),
+        SNEAK("sneak"),
+        SIDE("side"),
+        ROOF("roof");
 
         private final String name;
 
@@ -244,7 +259,9 @@ public class DecorationBlock extends Block {
     }
 
     public enum Orientation {
-        FIXED, FACING, ROTATION
+        FIXED,
+        FACING,
+        ROTATION
     }
 
     public record Options(int placementMask, int facingMask, int rotationMask, ShapeSet shapes) {

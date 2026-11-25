@@ -12,7 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 public record WallModels(ResourceLocation post, ResourceLocation lowSide, ResourceLocation tallSide, ResourceLocation inventory) {
 //?}
     public WallModels {
-        if (post == null && lowSide == null && tallSide == null && inventory == null) throw new IllegalStateException("WallModels requires at least one model");
+        if (post == null && lowSide == null && tallSide == null && inventory == null)
+            throw new IllegalStateException("WallModels requires at least one model");
     }
 
     public static Builder builder() {

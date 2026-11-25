@@ -1,18 +1,20 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+
+import java.util.Objects;
+import java.util.function.Consumer;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import java.util.Objects;
-import java.util.function.Consumer;
-import net.minecraft.world.level.block.Block;
 
 public record PortalModels(Models.Source northSouth, Models.Source eastWest, Models.Source upDown) {
     public PortalModels {
-        if (northSouth == null && eastWest == null && upDown == null) throw new IllegalArgumentException("PortalModels requires at least one orientation");
+        if (northSouth == null && eastWest == null && upDown == null)
+            throw new IllegalArgumentException("PortalModels requires at least one orientation");
         validate(northSouth, Direction.Axis.X);
         validate(eastWest, Direction.Axis.Z);
         validate(upDown, Direction.Axis.Y);
@@ -26,9 +28,9 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
 
     public Models.Source model(Direction.Axis axis) {
         return switch (axis) {
-        case X -> northSouth;
-        case Z -> eastWest;
-        case Y -> upDown;
+            case X -> northSouth;
+            case Z -> eastWest;
+            case Y -> upDown;
         };
     }
 
@@ -51,7 +53,9 @@ public record PortalModels(Models.Source northSouth, Models.Source eastWest, Mod
         PortalTextures.Builder builder = PortalTextures.of(block);
         textures.accept(builder);
         PortalTextures.Set set = builder.build();
-        return new PortalModels(pane(modelStem, "_ns", Direction.Axis.X, set), pane(modelStem, "_ew", Direction.Axis.Z, set),
+        return new PortalModels(
+                pane(modelStem, "_ns", Direction.Axis.X, set),
+                pane(modelStem, "_ew", Direction.Axis.Z, set),
                 pane(modelStem, "_ud", Direction.Axis.Y, set));
     }
 

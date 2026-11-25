@@ -4,12 +4,12 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import space.anatomyuniverse.musavacca.MusaCore;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import space.anatomyuniverse.musavacca.MusaCore;
 
 public record BalanceSyncPayload(int balance, boolean active) implements CustomPacketPayload {
     //? if >=1.21.11 {
@@ -17,8 +17,13 @@ public record BalanceSyncPayload(int balance, boolean active) implements CustomP
     *///?} else {
     public static final Type<BalanceSyncPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "balance_sync"));
     //?}
-    public static final StreamCodec<ByteBuf, BalanceSyncPayload> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.VAR_INT, BalanceSyncPayload::balance,
-            ByteBufCodecs.BOOL, BalanceSyncPayload::active, BalanceSyncPayload::new);
+    public static final StreamCodec<ByteBuf, BalanceSyncPayload> STREAM_CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.VAR_INT,
+                    BalanceSyncPayload::balance,
+                    ByteBufCodecs.BOOL,
+                    BalanceSyncPayload::active,
+                    BalanceSyncPayload::new);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

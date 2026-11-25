@@ -1,17 +1,7 @@
 package space.anatomyuniverse.musavacca.block.entity.custom;
 
-import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
-
-import java.util.UUID;
-
-//? if <1.21.5 {
-/*import net.minecraft.nbt.Tag;
-*///?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-//? if >=1.21.5 {
-import net.minecraft.core.component.DataComponentGetter;
-//?}
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -23,21 +13,33 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
+import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
+import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.door.MusavaccaDoorTeleportNetwork;
+import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+
+import java.util.UUID;
+
+//? if <1.21.5 {
+/*import net.minecraft.nbt.Tag;
+*///?}
+//? if >=1.21.5 {
+import net.minecraft.core.component.DataComponentGetter;
+//?}
 //? if >=1.21.6 {
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
-import space.anatomyuniverse.musavacca.block.custom.MusavaccaPortalDoorBlock;
-import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
-import space.anatomyuniverse.musavacca.component.ModDataComponents;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class MusavaccaPortalDoorBlockEntity extends BlockEntity implements HexSource {
     private UUID deviceId = UUID.randomUUID();
 
-    public UUID getDeviceId() { return this.deviceId; }
+    public UUID getDeviceId() {
+        return this.deviceId;
+    }
 
     public void setDeviceId(UUID deviceId) {
         if (deviceId == null || deviceId.equals(this.deviceId)) return;
@@ -133,12 +135,17 @@ public final class MusavaccaPortalDoorBlockEntity extends BlockEntity implements
         //? if >=1.21.5 {
         this.deviceId = TeleportDeviceIdentity.read(input.getStringOr("musavacca_device_id", ""));
         //?} else {
-        /*this.deviceId = TeleportDeviceIdentity.read(input.contains("musavacca_device_id", Tag.TAG_STRING) ? input.getString("musavacca_device_id") : "");
+        /*this.deviceId =
+                TeleportDeviceIdentity.read(
+                        input.contains("musavacca_device_id", Tag.TAG_STRING) ? input.getString("musavacca_device_id") : "");
         *///?}
         //? if >=1.21.5 {
         int loaded = input.getIntOr(MusavaccaTints.HEX_COLOR_KEY, MusavaccaTints.NO_TINT);
         //?} else {
-        /*int loaded = (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC) ? input.getInt(MusavaccaTints.HEX_COLOR_KEY) : MusavaccaTints.NO_TINT);
+        /*int loaded =
+                (input.contains(MusavaccaTints.HEX_COLOR_KEY, Tag.TAG_ANY_NUMERIC)
+                        ? input.getInt(MusavaccaTints.HEX_COLOR_KEY)
+                        : MusavaccaTints.NO_TINT);
         *///?}
         this.hexColor = MusavaccaTints.stored(loaded);
     }

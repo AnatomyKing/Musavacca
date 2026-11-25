@@ -1,14 +1,15 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.data.models.NewModelSets;
 import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.ModelMode;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class NewgenBlockTintCatalog {
     private NewgenBlockTintCatalog() {}
@@ -45,8 +46,15 @@ public final class NewgenBlockTintCatalog {
             for (Rule rule : rules) {
                 if (!rule.handles(state, tintIndex)) continue;
                 if (resolved != null && !resolved.equals(rule.tint())) {
-                    throw new IllegalStateException("Conflicting active NewGen tints for " + ModelLocations.blockId(block) + " tintIndex=" + tintIndex + ": "
-                            + resolved + " vs " + rule.tint());
+                    throw new IllegalStateException(
+                            "Conflicting active NewGen tints for "
+                                    + ModelLocations.blockId(block)
+                                    + " tintIndex="
+                                    + tintIndex
+                                    + ": "
+                                    + resolved
+                                    + " vs "
+                                    + rule.tint());
                 }
                 resolved = rule.tint();
             }
@@ -133,7 +141,8 @@ public final class NewgenBlockTintCatalog {
             for (Binding binding : bindings) {
                 Binding previous = result.put(binding.block(), binding);
                 if (previous != null) {
-                    throw new IllegalStateException("NewGen block tint binding declared twice for " + ModelLocations.blockId(binding.block()));
+                    throw new IllegalStateException(
+                            "NewGen block tint binding declared twice for " + ModelLocations.blockId(binding.block()));
                 }
             }
             return Map.copyOf(result);

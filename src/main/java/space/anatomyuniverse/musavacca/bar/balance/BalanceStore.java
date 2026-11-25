@@ -1,7 +1,12 @@
 package space.anatomyuniverse.musavacca.bar.balance;
 
 //? if >=26.1 {
-/*import java.io.IOException;
+/*import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.storage.LevelResource;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.mixin.SavedDataStorageAccessor;
+
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
@@ -10,10 +15,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.storage.LevelResource;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.mixin.SavedDataStorageAccessor;
+
 *///?}
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -21,17 +23,18 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 //? if >=1.21.5 {
 import net.minecraft.world.level.saveddata.SavedDataType;
 //?} else {
 /*import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 *///?}
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 public final class BalanceStore extends SavedData {
     public static final String STORAGE_ID = "musavacca_balance_store";
@@ -41,14 +44,15 @@ public final class BalanceStore extends SavedData {
     private static final Codec<UUID> UUID_CODEC = Codec.STRING.comapFlatMap(BalanceStore::readUuid, UUID::toString);
     private static final Codec<Map<UUID, Integer>> BALANCES_CODEC = Codec.unboundedMap(UUID_CODEC, Codec.INT);
     private static final Codec<Map<String, UUID>> KNOWN_NAMES_CODEC = Codec.unboundedMap(Codec.STRING, UUID_CODEC);
-    public static final Codec<BalanceStore> CODEC = RecordCodecBuilder
-            .create(instance -> instance
-                    .group(BALANCES_CODEC.optionalFieldOf(BALANCES_TAG, Map.of()).forGetter(store -> store.balances),
-                            KNOWN_NAMES_CODEC.optionalFieldOf(KNOWN_NAMES_TAG, Map.of()).forGetter(store -> store.knownNames))
-                    .apply(instance, BalanceStore::new));
+    public static final Codec<BalanceStore> CODEC =
+            RecordCodecBuilder.create(instance ->
+                    instance.group(
+                                    BALANCES_CODEC.optionalFieldOf(BALANCES_TAG, Map.of()).forGetter(store -> store.balances),
+                                    KNOWN_NAMES_CODEC.optionalFieldOf(KNOWN_NAMES_TAG, Map.of()).forGetter(store -> store.knownNames))
+                            .apply(instance, BalanceStore::new));
     //? if >=26.1 {
-    /*public static final SavedDataType<BalanceStore> TYPE = new SavedDataType<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID), BalanceStore::new,
-            CODEC);
+    /*public static final SavedDataType<BalanceStore> TYPE =
+            new SavedDataType<>(Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID), BalanceStore::new, CODEC);
     *///?} else if >=1.21.5 <26.1 {
     public static final SavedDataType<BalanceStore> TYPE = new SavedDataType<>(STORAGE_ID, BalanceStore::new, CODEC);
     //?} else {
@@ -133,7 +137,8 @@ public final class BalanceStore extends SavedData {
         if (playerUuid == null) return;
         String cleanName = normalizeName(playerName);
         if (cleanName.isEmpty()) return;
-        boolean removedOldNames = this.knownNames.entrySet().removeIf(entry -> entry.getValue().equals(playerUuid) && !entry.getKey().equals(cleanName));
+        boolean removedOldNames =
+                this.knownNames.entrySet().removeIf(entry -> entry.getValue().equals(playerUuid) && !entry.getKey().equals(cleanName));
         UUID oldUuid = this.knownNames.put(cleanName, playerUuid);
         if (removedOldNames || !playerUuid.equals(oldUuid)) {
             this.setDirty();

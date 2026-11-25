@@ -3,21 +3,23 @@ package space.anatomyuniverse.musavacca.particle.tinted;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
+import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.client.renderer.texture.SpriteContents;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.GsonHelper;
-import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
 
 public final class CandleSpriteLayers {
     private CandleSpriteLayers() {}
@@ -186,10 +188,12 @@ public final class CandleSpriteLayers {
 
     //? if >=1.21.11 {
     /*private static Identifier id(Identifier source, int layer) {
-        return Identifier.fromNamespaceAndPath("musavacca", "generated/candle/" + source.getNamespace() + "/" + source.getPath() + "/" + layer);
+        return Identifier.fromNamespaceAndPath(
+                "musavacca", "generated/candle/" + source.getNamespace() + "/" + source.getPath() + "/" + layer);
     *///?} else {
     private static ResourceLocation id(ResourceLocation source, int layer) {
-        return ResourceLocation.fromNamespaceAndPath("musavacca", "generated/candle/" + source.getNamespace() + "/" + source.getPath() + "/" + layer);
+        return ResourceLocation.fromNamespaceAndPath(
+                "musavacca", "generated/candle/" + source.getNamespace() + "/" + source.getPath() + "/" + layer);
     //?}
     }
 

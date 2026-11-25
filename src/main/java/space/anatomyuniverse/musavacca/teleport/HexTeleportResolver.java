@@ -30,6 +30,7 @@ import space.anatomyuniverse.musavacca.block.entity.custom.MusavaccaPortalTrapdo
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
+import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 import space.anatomyuniverse.musavacca.vococaller.VocoCallerNetwork;
 
 import java.util.HashSet;
@@ -37,12 +38,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import space.anatomyuniverse.musavacca.economy.TeleportEconomy;
 
 public final class HexTeleportResolver {
     private HexTeleportResolver() {}
 
-    public record ResolvedEndpoint(UUID endpointId, ServerLevel level, HexTeleportDirectory.Endpoint endpoint, Vec3 targetPos, float yaw, float pitch) {}
+    public record ResolvedEndpoint(
+            UUID endpointId, ServerLevel level, HexTeleportDirectory.Endpoint endpoint, Vec3 targetPos, float yaw, float pitch) {}
 
     public record ResolvedDoorEndpoint(ServerLevel level, HexTeleportDirectory.DoorEndpoint endpoint) {}
 
@@ -71,12 +72,13 @@ public final class HexTeleportResolver {
                 ResolvedEndpoint target = resolved.get();
                 return TeleportEconomy.tryTeleport(player, cost, () -> teleport(player, target));
             }
-
         }
         //? if >=26.1 {
-        /*player.sendOverlayMessage(Component.literal("No active teleport address found for #" + HexTeleportDirectory.toHex(normalizedHex) + "."));
+        /*player.sendOverlayMessage(
+                Component.literal("No active teleport address found for #" + HexTeleportDirectory.toHex(normalizedHex) + "."));
         *///?} else {
-        player.displayClientMessage(Component.literal("No active teleport address found for #" + HexTeleportDirectory.toHex(normalizedHex) + "."), true);
+        player.displayClientMessage(
+                Component.literal("No active teleport address found for #" + HexTeleportDirectory.toHex(normalizedHex) + "."), true);
         //?}
         return false;
     }
@@ -120,8 +122,8 @@ public final class HexTeleportResolver {
             if (!(ownerLevel.getBlockEntity(endpoint.ownerPos()) instanceof PearlPortalBlockEntity portal)) return Optional.empty();
             targetPos = portal.getPortalShape().center();
         } else if (endpoint.kind().isVoco()) {
-            VocoTeleportLogic.EndpointTarget target = VocoTeleportLogic.getEndpointTarget(ownerLevel, endpoint.ownerPos(),
-                    ReceptorPosition.byId(endpoint.slotId()));
+            VocoTeleportLogic.EndpointTarget target =
+                    VocoTeleportLogic.getEndpointTarget(ownerLevel, endpoint.ownerPos(), ReceptorPosition.byId(endpoint.slotId()));
             targetPos = target.pos();
             yaw = target.facing().yawDegrees();
             pitch = target.facing().pitchDegrees();
@@ -146,7 +148,8 @@ public final class HexTeleportResolver {
         return Optional.of(new ResolvedDoorEndpoint(level, endpoint));
     }
 
-    public static Optional<ResolvedTrapdoorEndpoint> resolveTrapdoorEndpoint(MinecraftServer server, HexTeleportDirectory.DoorEndpoint endpoint) {
+    public static Optional<ResolvedTrapdoorEndpoint> resolveTrapdoorEndpoint(
+            MinecraftServer server, HexTeleportDirectory.DoorEndpoint endpoint) {
         if (server == null || endpoint == null || endpoint.dimensionId() == null) {
             return Optional.empty();
         }
@@ -164,25 +167,28 @@ public final class HexTeleportResolver {
         BlockPos pos = endpoint.ownerPos();
         BlockState state = level.getBlockState(pos);
         return switch (endpoint.kind()) {
-        case PEARL_PORTAL -> isValidPearlPortalEndpoint(level, pos, endpoint);
-        case VOCO_POST_RECEPTOR_CORNER -> isValidVocoPostReceptorCornerEndpoint(level, pos, state, endpoint);
-        case VOCO_TABLE_RECEPTOR_CORNER -> isValidVocoTableReceptorCornerEndpoint(level, pos, state, endpoint);
-        default -> false;
+            case PEARL_PORTAL -> isValidPearlPortalEndpoint(level, pos, endpoint);
+            case VOCO_POST_RECEPTOR_CORNER -> isValidVocoPostReceptorCornerEndpoint(level, pos, state, endpoint);
+            case VOCO_TABLE_RECEPTOR_CORNER -> isValidVocoTableReceptorCornerEndpoint(level, pos, state, endpoint);
+            default -> false;
         };
     }
 
     private static boolean isDoorEndpointStillValid(ServerLevel level, HexTeleportDirectory.DoorEndpoint endpoint) {
         BlockPos pos = endpoint.ownerPos();
         BlockState state = level.getBlockState(pos);
-        if (!(state.getBlock() instanceof MusavaccaPortalDoorBlock) || state.getValue(MusavaccaPortalDoorBlock.HALF) != DoubleBlockHalf.LOWER) {
+        if (!(state.getBlock() instanceof MusavaccaPortalDoorBlock)
+                || state.getValue(MusavaccaPortalDoorBlock.HALF) != DoubleBlockHalf.LOWER) {
             return false;
         }
         if (!(level.getBlockEntity(pos) instanceof MusavaccaPortalDoorBlockEntity doorBe) || !doorBe.hasHexColor()) {
             return false;
         }
 
-        return endpoint.deviceId().equals(doorBe.getDeviceId()) && state.getValue(MusavaccaPortalDoorBlock.LIT)
-                && state.getValue(MusavaccaPortalDoorBlock.LIT_PORTAL) && state.getValue(MusavaccaPortalDoorBlock.PORTAL)
+        return endpoint.deviceId().equals(doorBe.getDeviceId())
+                && state.getValue(MusavaccaPortalDoorBlock.LIT)
+                && state.getValue(MusavaccaPortalDoorBlock.LIT_PORTAL)
+                && state.getValue(MusavaccaPortalDoorBlock.PORTAL)
                 && HexTeleportDirectory.normalizeHex(doorBe.getHexColor()) == endpoint.hexColor();
     }
 
@@ -196,8 +202,10 @@ public final class HexTeleportResolver {
             return false;
         }
 
-        return endpoint.deviceId().equals(trapdoorBe.getDeviceId()) && state.getValue(MusavaccaPortalTrapdoorBlock.LIT)
-                && state.getValue(MusavaccaPortalTrapdoorBlock.LIT_PORTAL) && state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
+        return endpoint.deviceId().equals(trapdoorBe.getDeviceId())
+                && state.getValue(MusavaccaPortalTrapdoorBlock.LIT)
+                && state.getValue(MusavaccaPortalTrapdoorBlock.LIT_PORTAL)
+                && state.getValue(MusavaccaPortalTrapdoorBlock.PORTAL)
                 && HexTeleportDirectory.normalizeHex(trapdoorBe.getHexColor()) == endpoint.hexColor();
     }
 
@@ -208,11 +216,13 @@ public final class HexTeleportResolver {
         if (!(level.getBlockEntity(pos) instanceof PearlPortalBlockEntity portalBe)) {
             return false;
         }
-        return portalBe.isValidPortalTile() && endpoint.endpointId().equals(portalBe.getPortalId())
+        return portalBe.isValidPortalTile()
+                && endpoint.endpointId().equals(portalBe.getPortalId())
                 && HexTeleportDirectory.normalizeHex(portalBe.getHexColor()) == endpoint.hexColor();
     }
 
-    private static boolean isValidVocoPostReceptorCornerEndpoint(ServerLevel level, BlockPos pos, BlockState state, HexTeleportDirectory.Endpoint endpoint) {
+    private static boolean isValidVocoPostReceptorCornerEndpoint(
+            ServerLevel level, BlockPos pos, BlockState state, HexTeleportDirectory.Endpoint endpoint) {
         if (!(state.getBlock() instanceof VocoPostBlock)) {
             return false;
         }
@@ -222,11 +232,13 @@ public final class HexTeleportResolver {
         if (!(level.getBlockEntity(pos) instanceof VocoPostBlockEntity postBe)) {
             return false;
         }
-        return endpoint.deviceId().equals(postBe.getDeviceId()) && postBe.hasHexColor()
+        return endpoint.deviceId().equals(postBe.getDeviceId())
+                && postBe.hasHexColor()
                 && HexTeleportDirectory.normalizeHex(postBe.getHexColor()) == endpoint.hexColor();
     }
 
-    private static boolean isValidVocoTableReceptorCornerEndpoint(ServerLevel level, BlockPos pos, BlockState state, HexTeleportDirectory.Endpoint endpoint) {
+    private static boolean isValidVocoTableReceptorCornerEndpoint(
+            ServerLevel level, BlockPos pos, BlockState state, HexTeleportDirectory.Endpoint endpoint) {
         if (!(state.getBlock() instanceof VocoTableBlock)) {
             return false;
         }

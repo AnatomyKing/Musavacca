@@ -2,6 +2,11 @@ package space.anatomyuniverse.musavacca.bar.hunger;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 //? if >=26.1 {
 /*import net.minecraft.client.gui.GuiGraphicsExtractor;
 *///?} else {
@@ -16,11 +21,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.tags.FluidTags;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 
 public final class BonusHungerHud {
     private static final RandomSource RANDOM = RandomSource.create();
@@ -108,13 +108,25 @@ public final class BonusHungerHud {
     }
 
     //? if >=26.1 {
-    /*private static void drawFoodIcon(GuiGraphicsExtractor graphics, int x, int y, int pointsInSlot, Identifier emptySprite, Identifier halfSprite,
+    /*private static void drawFoodIcon(
+            GuiGraphicsExtractor graphics,
+            int x,
+            int y,
+            int pointsInSlot,
+            Identifier emptySprite,
+            Identifier halfSprite,
             Identifier fullSprite) {
     *///?} else if >=1.21.11 {
-    /*private static void drawFoodIcon(GuiGraphics graphics, int x, int y, int pointsInSlot, Identifier emptySprite, Identifier halfSprite,
-            Identifier fullSprite) {
+    /*private static void drawFoodIcon(
+            GuiGraphics graphics, int x, int y, int pointsInSlot, Identifier emptySprite, Identifier halfSprite, Identifier fullSprite) {
     *///?} else {
-    private static void drawFoodIcon(GuiGraphics graphics, int x, int y, int pointsInSlot, ResourceLocation emptySprite, ResourceLocation halfSprite,
+    private static void drawFoodIcon(
+            GuiGraphics graphics,
+            int x,
+            int y,
+            int pointsInSlot,
+            ResourceLocation emptySprite,
+            ResourceLocation halfSprite,
             ResourceLocation fullSprite) {
     //?}
         drawSprite(graphics, emptySprite, x, y);

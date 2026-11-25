@@ -3,19 +3,20 @@ package space.anatomyuniverse.musavacca.particle.particles;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-//? if <1.21.9 {
-import net.minecraft.client.particle.ParticleRenderType;
-//?}
 import net.minecraft.client.particle.PortalParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.SimpleParticleType;
+//? if <1.21.9 {
+import net.minecraft.client.particle.ParticleRenderType;
+//?}
 //? if >=1.21.9 {
 /*import net.minecraft.util.RandomSource;
 *///?}
 
 public final class PearlGlyphPortalParticle extends PortalParticle {
-    private PearlGlyphPortalParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, TextureAtlasSprite sprite) {
+    private PearlGlyphPortalParticle(
+            ClientLevel level, double x, double y, double z, double xd, double yd, double zd, TextureAtlasSprite sprite) {
         //? if >=1.21.9 {
         /*super(level, x, y, z, xd, yd, zd, sprite);
         *///?} else {
@@ -46,9 +47,11 @@ public final class PearlGlyphPortalParticle extends PortalParticle {
         }
 
         @Override
-        public Particle createParticle(SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd,
+        public Particle createParticle(
+                SimpleParticleType options, ClientLevel level, double x, double y, double z, double xd, double yd,
                 //? if >=1.21.9 {
-                /*double zd, RandomSource random) {
+                /*double zd,
+                RandomSource random) {
                 *///?} else {
                 double zd) {
                 //?}

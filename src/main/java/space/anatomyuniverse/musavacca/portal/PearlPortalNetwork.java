@@ -1,11 +1,5 @@
 package space.anatomyuniverse.musavacca.portal;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -20,6 +14,13 @@ import space.anatomyuniverse.musavacca.block.entity.custom.PearlPortalBlockEntit
 import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportResolver;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 public final class PearlPortalNetwork {
     private PearlPortalNetwork() {}
@@ -52,10 +53,17 @@ public final class PearlPortalNetwork {
         if (portalBlockEntity.isOriginBlock()) {
             HexTeleportDirectory.get(serverLevel.getServer())
                     //? if >=1.21.11 {
-                    /*.registerPortalEndpoint(portalId, portalBlockEntity.getHexColor(), serverLevel.dimension().identifier(),
+                    /*.registerPortalEndpoint(
+                            portalId,
+                            portalBlockEntity.getHexColor(),
+                            serverLevel.dimension().identifier(),
                             portalBlockEntity.getPortalShape());
                     *///?} else {
-                    .registerPortalEndpoint(portalId, portalBlockEntity.getHexColor(), serverLevel.dimension().location(), portalBlockEntity.getPortalShape());
+                    .registerPortalEndpoint(
+                            portalId,
+                            portalBlockEntity.getHexColor(),
+                            serverLevel.dimension().location(),
+                            portalBlockEntity.getPortalShape());
                     //?}
         }
     }
@@ -104,11 +112,13 @@ public final class PearlPortalNetwork {
     }
 
     public static Optional<Portal> resolveLinkedPortal(ServerLevel sourceLevel, UUID sourcePortalId) {
-        return HexTeleportResolver.resolveLinkedPortal(sourceLevel, sourcePortalId).flatMap(resolved -> {
-            HexTeleportDirectory.Endpoint endpoint = resolved.endpoint();
-            if (!(resolved.level().getBlockEntity(endpoint.ownerPos()) instanceof PearlPortalBlockEntity portal)) return Optional.empty();
-            return Optional.of(new Portal(endpoint.endpointId(), resolved.level(), portal.getPortalShape(), endpoint.hexColor()));
-        });
+        return HexTeleportResolver.resolveLinkedPortal(sourceLevel, sourcePortalId)
+                .flatMap(resolved -> {
+                    HexTeleportDirectory.Endpoint endpoint = resolved.endpoint();
+                    if (!(resolved.level().getBlockEntity(endpoint.ownerPos()) instanceof PearlPortalBlockEntity portal))
+                        return Optional.empty();
+                    return Optional.of(new Portal(endpoint.endpointId(), resolved.level(), portal.getPortalShape(), endpoint.hexColor()));
+                });
     }
 
     @Nullable
@@ -134,7 +144,7 @@ public final class PearlPortalNetwork {
 
     @Nullable
     private static PearlPortalBlockEntity findAnyValidPortalTile(ServerLevel level, PearlPortalFrame.Shape shape) {
-        PearlPortalBlockEntity[] found = { null };
+        PearlPortalBlockEntity[] found = {null};
         shape.forEachInteriorBlock(pos -> {
             if (found[0] != null) return;
             if (level.getBlockEntity(pos) instanceof PearlPortalBlockEntity portalBlockEntity && portalBlockEntity.isValidPortalTile()) {

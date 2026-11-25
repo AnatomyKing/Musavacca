@@ -18,7 +18,6 @@ import net.minecraft.advancements.criterion.NbtPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.NbtPredicate;
 //?}
-import java.util.function.BiConsumer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.nbt.CompoundTag;
@@ -35,6 +34,8 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyC
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 import space.anatomyuniverse.musavacca.item.ModItems;
+
+import java.util.function.BiConsumer;
 
 public final class ModMobLootProvider implements LootTableSubProvider {
     //? if >=26.3 {
@@ -57,29 +58,32 @@ public final class ModMobLootProvider implements LootTableSubProvider {
     *///?} else {
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output) {
     //?}
-        output.accept(ModLootTables.BANANA_COW, LootTable.lootTable()
-                .withPool(createVacacaPool(BananaCow.PEEL_STAGE_DEFAULT, 0.60F))
-                .withPool(createVacacaPool(BananaCow.PEEL_STAGE_SHEARED, 0.20F))
-                .withPool(createVacacaPool(BananaCow.PEEL_STAGE_PEELD, 0.20F))
-                .withPool(createLeatherPool()));
+        output.accept(
+                ModLootTables.BANANA_COW,
+                LootTable.lootTable()
+                        .withPool(createVacacaPool(BananaCow.PEEL_STAGE_DEFAULT, 0.60F))
+                        .withPool(createVacacaPool(BananaCow.PEEL_STAGE_SHEARED, 0.20F))
+                        .withPool(createVacacaPool(BananaCow.PEEL_STAGE_PEELD, 0.20F))
+                        .withPool(createLeatherPool()));
     }
 
     private LootPool.Builder createLeatherPool() {
         //? if >=26.3 {
         /*var count = ContextIntProviders.between(0, 2);
-        var looting = EnchantedCountIncreaseFunction.lootingMultiplier(output.lookup(Registries.ENCHANTMENT), ContextFloatProviders.between(0.0F, 1.0F));
+        var looting =
+                EnchantedCountIncreaseFunction.lootingMultiplier(
+                        output.lookup(Registries.ENCHANTMENT), ContextFloatProviders.between(0.0F, 1.0F));
         *///?} else {
         var count = UniformGenerator.between(0.0F, 2.0F);
         var looting = EnchantedCountIncreaseFunction.lootingMultiplier(registries, UniformGenerator.between(0.0F, 1.0F));
         //?}
-        return singleRollPool().add(LootItem.lootTableItem(Items.LEATHER)
-                .apply(SetItemCountFunction.setCount(count))
-                .apply(looting));
+        return singleRollPool().add(LootItem.lootTableItem(Items.LEATHER).apply(SetItemCountFunction.setCount(count)).apply(looting));
     }
 
     private static LootPool.Builder createVacacaPool(int requiredPeelStage, float chance) {
         return singleRollPool()
-                .when(peelStageIs(requiredPeelStage)).when(LootItemRandomChanceCondition.randomChance(chance))
+                .when(peelStageIs(requiredPeelStage))
+                .when(LootItemRandomChanceCondition.randomChance(chance))
                 .add(LootItem.lootTableItem(ModItems.VACACA.get()));
     }
 
@@ -94,7 +98,7 @@ public final class ModMobLootProvider implements LootTableSubProvider {
     private static LootItemCondition.Builder peelStageIs(int requiredPeelStage) {
         CompoundTag expectedEntityData = new CompoundTag();
         expectedEntityData.putInt(BananaCow.TAG_PEEL_STAGE, requiredPeelStage);
-        return LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS,
-                EntityPredicate.Builder.entity().nbt(new NbtPredicate(expectedEntityData)));
+        return LootItemEntityPropertyCondition.hasProperties(
+                LootContext.EntityTarget.THIS, EntityPredicate.Builder.entity().nbt(new NbtPredicate(expectedEntityData)));
     }
 }

@@ -1,7 +1,5 @@
 package space.anatomyuniverse.musavacca.data;
 
-import java.util.List;
-import java.util.Set;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -20,6 +18,10 @@ import space.anatomyuniverse.musavacca.data.tags.ModBlockTagsProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModItemTagsProvider;
 import space.anatomyuniverse.musavacca.data.tags.ModMobEffectTagsProvider;
 import space.anatomyuniverse.musavacca.data.worldgen.MusavaccaTreeFeatureProvider;
+
+import java.util.List;
+import java.util.Set;
+
 //? if <1.21.4 {
 /*import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -31,10 +33,12 @@ public final class ModDataGenerators {
     //?} else {
     /*public static void gatherData(final GatherDataEvent event) {
     *///?}
-        var lootTables = List.of(new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK),
-                new LootTableProvider.SubProviderEntry(ModMobLootProvider::new, LootContextParamSets.ENTITY),
-                new LootTableProvider.SubProviderEntry(ModSnifferDiggingLootProvider::new, LootContextParamSets.GIFT),
-                new LootTableProvider.SubProviderEntry(ModJungleTempleLootProvider::new, LootContextParamSets.CHEST));
+        var lootTables =
+                List.of(
+                        new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK),
+                        new LootTableProvider.SubProviderEntry(ModMobLootProvider::new, LootContextParamSets.ENTITY),
+                        new LootTableProvider.SubProviderEntry(ModSnifferDiggingLootProvider::new, LootContextParamSets.GIFT),
+                        new LootTableProvider.SubProviderEntry(ModJungleTempleLootProvider::new, LootContextParamSets.CHEST));
         //? if >=1.21.4 {
         verifyClientMixins();
         event.createProvider(output -> new ModLanguageProvider(output, "en_us"));
@@ -55,10 +59,12 @@ public final class ModDataGenerators {
         //? if >=26.3 {
         /*var registries = event.getWorldLookupProvider();
         event.getDefaultPackGenerator()
-                .createReloadableRegistryObjects(new net.minecraft.core.RegistrySetBuilder()
-                        .add(net.minecraft.data.recipes.RecipeProvider.asBootstrap(
-                                (recipes, advancements) -> new ModRecipeProvider(recipes, advancements, registries.join())))
-                        .add(net.minecraft.core.registries.Registries.LOOT_TABLE, new LootTableProvider(Set.of(), lootTables)));
+                .createReloadableRegistryObjects(
+                        new net.minecraft.core.RegistrySetBuilder()
+                                .add(
+                                        net.minecraft.data.recipes.RecipeProvider.asBootstrap(
+                                                (recipes, advancements) -> new ModRecipeProvider(recipes, advancements, registries.join())))
+                                .add(net.minecraft.core.registries.Registries.LOOT_TABLE, new LootTableProvider(Set.of(), lootTables)));
         *///?} else {
         event.createProvider((output, lookup) -> new LootTableProvider(output, Set.of(), lootTables, lookup));
         //?}
@@ -79,7 +85,8 @@ public final class ModDataGenerators {
             ModBlockTagsProvider blockTagsProvider = new ModBlockTagsProvider(output, event.getLookupProvider(), efh);
             event.getGenerator().addProvider(true, blockTagsProvider);
             event.getGenerator().addProvider(true, new ModMobEffectTagsProvider(output, event.getLookupProvider(), efh));
-            event.getGenerator().addProvider(true, new ModItemTagsProvider(output, event.getLookupProvider(), blockTagsProvider.contentsGetter()));
+            event.getGenerator()
+                    .addProvider(true, new ModItemTagsProvider(output, event.getLookupProvider(), blockTagsProvider.contentsGetter()));
             //? if >=1.21.2 {
             event.getGenerator().addProvider(true, new ArmorItems.Provider(output, NewModelSets.armorItems()));
             //?}
@@ -94,8 +101,11 @@ public final class ModDataGenerators {
 
     private static void verifyClientMixins() {
         var loader = ModDataGenerators.class.getClassLoader();
-        for (String target : new String[] { "net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer",
-                "net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip" }) {
+        for (String target :
+                new String[] {
+                    "net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer",
+                    "net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip"
+                }) {
             try {
                 Class.forName(target, false, loader);
             } catch (ClassNotFoundException error) {

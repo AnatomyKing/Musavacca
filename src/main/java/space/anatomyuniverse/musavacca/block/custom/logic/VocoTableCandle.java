@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.Collections;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BlockItem;
@@ -14,15 +13,24 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
+import java.util.Collections;
+
 public record VocoTableCandle(BlockState state, ItemStack item, int hex) {
-    public static final Codec<VocoTableCandle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BlockState.CODEC.fieldOf("state").forGetter(VocoTableCandle::state),
-            ItemStack.CODEC.fieldOf("item").forGetter(VocoTableCandle::item),
-            Codec.intRange(-1, 0xFFFFFF).optionalFieldOf("hex", MusavaccaTints.NO_TINT).forGetter(VocoTableCandle::hex)
-    ).apply(instance, VocoTableCandle::new));
+    public static final Codec<VocoTableCandle> CODEC =
+            RecordCodecBuilder.create(instance ->
+                    instance.group(
+                                    BlockState.CODEC.fieldOf("state").forGetter(VocoTableCandle::state),
+                                    ItemStack.CODEC.fieldOf("item").forGetter(VocoTableCandle::item),
+                                    Codec.intRange(-1, 0xFFFFFF)
+                                            .optionalFieldOf("hex", MusavaccaTints.NO_TINT)
+                                            .forGetter(VocoTableCandle::hex))
+                            .apply(instance, VocoTableCandle::new));
 
     public static boolean accepts(BlockState state) {
-        return state.is(BlockTags.CANDLES) && !state.is(BlockTags.CANDLE_CAKES) && !state.hasBlockEntity() && !(state.getBlock() instanceof PearlCandleBlock)
+        return state.is(BlockTags.CANDLES)
+                && !state.is(BlockTags.CANDLE_CAKES)
+                && !state.hasBlockEntity()
+                && !(state.getBlock() instanceof PearlCandleBlock)
                 && PearlCandleConversion.flag(state, "lit") != null;
     }
 
@@ -46,7 +54,8 @@ public record VocoTableCandle(BlockState state, ItemStack item, int hex) {
     }
 
     public VocoTableCandle withFlame(boolean lit, int color) {
-        return new VocoTableCandle(PearlCandleConversion.withFlag(state, "lit", lit), item, lit ? MusavaccaTints.resolve(color) : MusavaccaTints.NO_TINT);
+        return new VocoTableCandle(
+                PearlCandleConversion.withFlag(state, "lit", lit), item, lit ? MusavaccaTints.resolve(color) : MusavaccaTints.NO_TINT);
     }
 
     public int count() {

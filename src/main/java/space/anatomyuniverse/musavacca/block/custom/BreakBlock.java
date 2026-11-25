@@ -11,13 +11,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-//? if >=1.21.2 {
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.level.ScheduledTickAccess;
-//?} else {
-/*import net.minecraft.world.level.LevelAccessor;
-*///?}
-import javax.annotation.Nullable;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -39,6 +32,14 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import space.anatomyuniverse.musavacca.block.custom.logic.BreakHexLogic;
 import space.anatomyuniverse.musavacca.entity.ModEntities;
+
+import javax.annotation.Nullable;
+//? if >=1.21.2 {
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.level.ScheduledTickAccess;
+//?} else {
+/*import net.minecraft.world.level.LevelAccessor;
+*///?}
 
 public class BreakBlock extends Block implements BonemealableBlock {
     public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 2);
@@ -86,12 +87,21 @@ public class BreakBlock extends Block implements BonemealableBlock {
 
     @Override
     //? if >=1.21.2 {
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction,
-            BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+    protected BlockState updateShape(
+            BlockState state,
+            LevelReader level,
+            ScheduledTickAccess scheduledTickAccess,
+            BlockPos pos,
+            Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            RandomSource random) {
     //?} else {
-    /*protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    /*protected BlockState updateShape(
+            BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
     *///?}
-        return BreakHexLogic.shouldBreakBreakBlockOnNeighborChange(state, direction, level, pos) ? Blocks.AIR.defaultBlockState()
+        return BreakHexLogic.shouldBreakBreakBlockOnNeighborChange(state, direction, level, pos)
+                ? Blocks.AIR.defaultBlockState()
                 //? if >=1.21.2 {
                 : super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
                 //?} else {
@@ -101,10 +111,10 @@ public class BreakBlock extends Block implements BonemealableBlock {
 
     private static VoxelShape shapeFor(BlockState state) {
         return switch (state.getValue(AGE)) {
-        case 0 -> SHAPE_STAGE0;
-        case 1 -> SHAPE_STAGE1;
-        case 2 -> SHAPE_STAGE2;
-        default -> SHAPE_STAGE0;
+            case 0 -> SHAPE_STAGE0;
+            case 1 -> SHAPE_STAGE1;
+            case 2 -> SHAPE_STAGE2;
+            default -> SHAPE_STAGE0;
         };
     }
 
@@ -134,7 +144,8 @@ public class BreakBlock extends Block implements BonemealableBlock {
         //? if >=1.21.2 {
         Holder<Enchantment> silkTouch = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH);
         //?} else {
-        /*Holder<Enchantment> silkTouch = level.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.SILK_TOUCH);
+        /*Holder<Enchantment> silkTouch =
+                level.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.SILK_TOUCH);
         *///?}
         if (stack.getEnchantmentLevel(silkTouch) > 0) return;
         boolean attached = state.getValue(ATTACHED);

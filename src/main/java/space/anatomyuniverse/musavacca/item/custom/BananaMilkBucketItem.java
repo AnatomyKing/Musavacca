@@ -6,11 +6,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
 //? if >=1.21.2 {
-import java.util.List;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.Consumables;
+
+import java.util.List;
+
 //?} else {
 /*import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,10 +33,17 @@ public final class BananaMilkBucketItem extends
     private static final int BLESSING_DURATION = 20 * 90;
 
     public BananaMilkBucketItem(Properties properties) {
-        super(properties
+        super(
+                properties
                 //? if >=1.21.2 {
-                .component(DataComponents.CONSUMABLE, new Consumable(Consumables.MILK_BUCKET.consumeSeconds(), Consumables.MILK_BUCKET.animation(),
-                        Consumables.MILK_BUCKET.sound(), Consumables.MILK_BUCKET.hasConsumeParticles(), List.of()))
+                .component(
+                        DataComponents.CONSUMABLE,
+                        new Consumable(
+                                Consumables.MILK_BUCKET.consumeSeconds(),
+                                Consumables.MILK_BUCKET.animation(),
+                                Consumables.MILK_BUCKET.sound(),
+                                Consumables.MILK_BUCKET.hasConsumeParticles(),
+                                List.of()))
                 //?}
         );
     }

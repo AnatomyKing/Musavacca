@@ -32,7 +32,9 @@ public final class OriginalCandleParticles {
     }
 
     @Nullable
-    public static Integer color() { return COLOR.get(); }
+    public static Integer color() {
+        return COLOR.get();
+    }
 
     public static Vec3 mountOffset() {
         var offset = MOUNT.get();
