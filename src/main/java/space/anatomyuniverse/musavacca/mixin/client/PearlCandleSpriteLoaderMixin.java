@@ -53,7 +53,7 @@ public abstract class PearlCandleSpriteLoaderMixin {
                 (Function<List<SpriteContents>, SpriteLoader.Preparations>)
                         sprites -> {
                             var prepared = stitch.apply(CandleSpriteLayers.prepare(sprites, resources, blocks));
-                            CandleSpriteLayers.link(prepared.regions());
+                            CandleSpriteLayers.link(prepared.regions(), blocks);
                             return prepared;
                         });
     }

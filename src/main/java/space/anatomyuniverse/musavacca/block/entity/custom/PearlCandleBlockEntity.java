@@ -95,7 +95,7 @@ public class PearlCandleBlockEntity extends BlockEntity implements HexSource {
         CampfireBlockEntity campfire = candle.campfire();
         if (campfire == null || !candle.hasHexColor() || !state.getValue(CandleBlock.LIT)
                 || state.getValue(CandleBlock.WATERLOGGED)) return;
-        Integer previous = OriginalCandleParticles.swap(candle.getHexColor());
+        var previous = OriginalCandleParticles.swap(OriginalCandleParticles.context(candle.originalState(), candle.getHexColor()));
         try {
             CampfireBlockEntity.particleTick(level, pos, campfire.getBlockState(), campfire);
         } finally {

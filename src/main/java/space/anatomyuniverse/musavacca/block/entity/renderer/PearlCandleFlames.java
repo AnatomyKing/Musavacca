@@ -8,10 +8,9 @@ import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
 import space.anatomyuniverse.musavacca.particle.tinted.CandleSpriteLayers;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
-import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
+import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles.Context;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -27,25 +26,15 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 *///?}
 
 final class PearlCandleFlames {
-    private static final int CACHE_LIMIT = 256;
     private static final Map<BakedQuad, List<Layer>> QUADS = new WeakHashMap<>();
-    private static final LinkedHashMap<Integer, int[]> PALETTES = new LinkedHashMap<>(16, 0.75F, true);
 
     private PearlCandleFlames() {}
 
     private record Layer(BakedQuad quad, int index) {}
 
-    static synchronized int[] palette(BlockState state, int hex) {
+    static Context palette(BlockState state, int hex) {
         if (!MusavaccaTints.hasTint(hex) || !PearlCandleConversion.value(state, "lit")) return null;
-        int[] cached = PALETTES.get(hex);
-        if (cached != null) return cached;
-        var profile = PearlFireTintProfiles.PEARL_CANDLE;
-        int[] colors = new int[profile.layerCount()];
-        for (int i = 0; i < colors.length; i++)
-            colors[i] = MusavaccaTints.rgb(PearlFireTintSource.profileTint(hex, i, profile));
-        if (PALETTES.size() >= CACHE_LIMIT) PALETTES.pollFirstEntry();
-        PALETTES.put(hex, colors);
-        return colors;
+        return new Context(hex, PearlFireTintProfiles.PEARL_CANDLE);
     }
 
     static TextureAtlasSprite sprite(BakedQuad quad) {
@@ -58,12 +47,15 @@ final class PearlCandleFlames {
         *///?}
     }
 
-    private static List<Layer> layers(BakedQuad quad) {
+    private static CandleSpriteLayers.Layers spriteLayers(BakedQuad quad) {
         TextureAtlasSprite sprite = sprite(quad);
-        if (!sprite.contents().name().getPath().contains("_fire")) return List.of();
-        if (!((Object) sprite.contents() instanceof CandleSpriteLayers.Source source)) return List.of();
-        TextureAtlasSprite[] sprites = source.musavacca$layers();
-        if (sprites == null) return List.of();
+        if (!sprite.contents().name().getPath().contains("_fire")) return null;
+        if (!((Object) sprite.contents() instanceof CandleSpriteLayers.Source source)) return null;
+        return source.musavacca$layers();
+    }
+
+    private static List<Layer> layers(BakedQuad quad, TextureAtlasSprite[] sprites) {
+        TextureAtlasSprite sprite = sprite(quad);
         synchronized (QUADS) {
             return QUADS.computeIfAbsent(quad, key -> {
                 List<Layer> result = new ArrayList<>();
@@ -75,13 +67,19 @@ final class PearlCandleFlames {
         }
     }
 
-    static void emit(BakedQuad quad, int[] palette, BiConsumer<BakedQuad, Integer> output) {
-        List<Layer> layers = palette == null ? List.of() : layers(quad);
+    static void emit(BakedQuad quad, Context palette, BiConsumer<BakedQuad, Integer> output) {
+        var data = palette == null ? null : spriteLayers(quad);
+        if (data == null || data.sprites() == null) {
+            output.accept(quad, MusavaccaTints.NO_TINT);
+            return;
+        }
+        List<Layer> layers = layers(quad, data.sprites());
         if (layers.isEmpty()) {
             output.accept(quad, MusavaccaTints.NO_TINT);
             return;
         }
-        for (Layer layer : layers) output.accept(layer.quad(), palette[layer.index()]);
+        int[] colors = CandleSpriteLayers.palette(palette, data.tones());
+        for (Layer layer : layers) output.accept(layer.quad(), colors[layer.index()]);
     }
 
     private static float remap(float value, float from0, float from1, float to0, float to1) {
@@ -158,9 +156,9 @@ final class PearlCandleFlames {
     }
     *///?} else {
     abstract static class QuadOutput implements VertexConsumer {
-        private final int[] palette;
+        private final Context palette;
 
-        QuadOutput(int[] palette) {
+        QuadOutput(Context palette) {
             this.palette = palette;
         }
 

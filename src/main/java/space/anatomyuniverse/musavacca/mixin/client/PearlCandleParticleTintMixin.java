@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticle;
+import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles.Context;
 //? if <1.21.9 {
 import net.minecraft.client.particle.TextureSheetParticle;
 //?}
@@ -41,8 +42,8 @@ public abstract class PearlCandleParticleTintMixin extends Particle implements O
     }
 
     @Override
-    public Particle musavacca$wrap(int color) {
-        return this.sprite == null ? this : new OriginalCandleParticle(this.level, (SingleQuadParticle) (Object) this, this.sprite, color);
+    public Particle musavacca$wrap(Context context) {
+        return this.sprite == null ? this : new OriginalCandleParticle(this.level, (SingleQuadParticle) (Object) this, this.sprite, context);
     }
 
     @Override

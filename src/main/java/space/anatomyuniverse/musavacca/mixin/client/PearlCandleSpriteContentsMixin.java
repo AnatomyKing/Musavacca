@@ -2,7 +2,6 @@ package space.anatomyuniverse.musavacca.mixin.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.SpriteContents;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +29,7 @@ import java.util.Optional;
 @Mixin(SpriteContents.class)
 public abstract class PearlCandleSpriteContentsMixin implements CandleSpriteLayers.Source {
     @Shadow @Final private NativeImage originalImage;
-    @Unique private TextureAtlasSprite[] musavacca$layers;
+    @Unique private CandleSpriteLayers.Layers musavacca$layers;
     //? if >=1.21.9 {
     /*@Unique private Optional<AnimationMetadataSection> musavacca$animation = Optional.empty();
     @Shadow @Final private List<MetadataSectionType.WithValue<?>> additionalMetadata;
@@ -99,12 +98,12 @@ public abstract class PearlCandleSpriteContentsMixin implements CandleSpriteLaye
     }
 
     @Override
-    public TextureAtlasSprite[] musavacca$layers() {
+    public CandleSpriteLayers.Layers musavacca$layers() {
         return this.musavacca$layers;
     }
 
     @Override
-    public void musavacca$layers(TextureAtlasSprite[] layers) {
+    public void musavacca$layers(CandleSpriteLayers.Layers layers) {
         this.musavacca$layers = layers;
     }
 }

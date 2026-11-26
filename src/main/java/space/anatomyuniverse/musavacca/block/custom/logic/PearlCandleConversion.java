@@ -64,7 +64,7 @@ public final class PearlCandleConversion {
                 && !(level.getBlockEntity(pos) instanceof CampfireBlockEntity)) return interaction.get();
         int hex = PearlIgniter.getStoredHexOrDefault(stack);
         boolean client = level.isClientSide();
-        Integer previous = client ? OriginalCandleParticles.swap(hex) : null;
+        var previous = client ? OriginalCandleParticles.swap(OriginalCandleParticles.context(before, hex)) : null;
         try {
             InteractionResult result = interaction.get();
             if (result.consumesAction() && level.getBlockState(pos).getBlock() == before.getBlock()) convert(level, pos, hex);

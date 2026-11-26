@@ -44,7 +44,9 @@ public final class PearlFireTintProfiles {
     public static final Profile PORTAL_BLOCK =
             of(settings(2.0F, 0.5F, 0.62F, 0.27F, 0.86F), 255, 247, 242, 232, 225, 217, 207, 203, 199, 195, 189, 181, 171, 164, 157);
 
-    public static final Profile PEARL_CANDLE = of(settings(1.0F, 0.5F, 0.0F, 0.86F), 255, 238, 221, 202, 190, 177);
+    public static final Settings PEARL_CANDLE = settings(1.0F, 0.5F, 0.0F, 0.86F);
+    public static final Settings PEARL_CANDLE_CAKE = settings(1.0F, 0.5F, 0.0F, 0.86F);
+    public static final Settings PEARL_CAMPFIRE = settings(1.0F, 0.5F, 0.0F, 0.86F);
 
     public static final Profile SIM_CARD_TINT = of(settings(1.25F, 0.64F, 0.36F, 0.34F, 0.47F), 255, 234, 210, 184, 174, 138, 112);
 

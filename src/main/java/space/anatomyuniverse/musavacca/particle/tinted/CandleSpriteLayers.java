@@ -8,12 +8,16 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
+import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
+import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles.Context;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
@@ -22,55 +26,99 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 
 public final class CandleSpriteLayers {
+    private static final int MAX_LAYERS = 16;
+    private static final int CACHE_LIMIT = 256;
+    private static final LinkedHashMap<PaletteKey, int[]> PALETTES = new LinkedHashMap<>(16, 0.75F, true);
+
     private CandleSpriteLayers() {}
+
+    public record Tones(List<Integer> grays) {
+        public Tones {
+            grays = List.copyOf(grays);
+        }
+
+        private int[] lookup() {
+            int[] result = new int[256];
+            for (int gray = 0; gray < result.length; gray++) {
+                int best = 0;
+                for (int i = 1; i < grays.size(); i++) {
+                    if (Math.abs(gray - grays.get(i)) < Math.abs(gray - grays.get(best))) best = i;
+                }
+                result[gray] = best;
+            }
+            return result;
+        }
+    }
+
+    public record Layers(Tones tones, TextureAtlasSprite[] sprites) {}
+
+    private record PaletteKey(Context context, Tones tones) {}
+
+    public static synchronized int[] palette(Context context, Tones tones) {
+        PaletteKey key = new PaletteKey(context, tones);
+        int[] cached = PALETTES.get(key);
+        if (cached != null) return cached;
+        var profile = PearlFireTintProfiles.of(context.settings(), tones.grays().stream().mapToInt(Integer::intValue).toArray());
+        int[] colors = new int[profile.layerCount()];
+        for (int i = 0; i < colors.length; i++)
+            colors[i] = MusavaccaTints.rgb(PearlFireTintSource.profileTint(context.color(), i, profile));
+        if (PALETTES.size() >= CACHE_LIMIT) PALETTES.pollFirstEntry();
+        PALETTES.put(key, colors);
+        return colors;
+    }
 
     public static List<SpriteContents> prepare(List<SpriteContents> sprites, ResourceManager resources, boolean blocks) {
         List<SpriteContents> result = new ArrayList<>(sprites);
-        var profile = PearlFireTintProfiles.PEARL_CANDLE;
-        int[] grays = new int[profile.layerCount()];
-        for (int i = 0; i < grays.length; i++) grays[i] = Math.round(profile.grayFactor(i) * 255);
         Map<
                 //? if >=1.21.11 {
                 /*Identifier,
                 *///?} else {
                 ResourceLocation,
                 //?}
-                Range> ranges = new HashMap<>();
+                Histogram> ranges = new HashMap<>();
         for (SpriteContents source : sprites) {
-            if (eligible(source, blocks)) ranges.put(source.name(), range(((Source) source).musavacca$image()));
+            if (eligible(source, blocks)) ranges.put(source.name(), histogram(((Source) source).musavacca$image()));
         }
         if (!blocks) group(resources, ranges);
         for (SpriteContents source : sprites) {
             if (!eligible(source, blocks)) continue;
-            NativeImage image = ((Source) source).musavacca$image();
-            int width = image.getWidth(), height = image.getHeight();
-            Range range = ranges.get(source.name()).root();
-            NativeImage[] masks = new NativeImage[grays.length];
-            try {
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        int rgba = pixel(image, x, y);
-                        if ((rgba >>> 24) == 0) continue;
-                        int layer = layer(gray(rgba), range.min, range.max, grays.length);
-                        if (masks[layer] == null) masks[layer] = new NativeImage(width, height, true);
-                        int color = (rgba & 0xFF000000) | grays[layer] * 0x010101;
-                        //? if >=1.21.2 {
-                        masks[layer].setPixel(x, y, color);
-                        //?} else {
-                        /*masks[layer].setPixelRGBA(x, y, color);
-                        *///?}
-                    }
-                }
-                for (int i = 0; i < masks.length; i++) {
-                    if (masks[i] == null) continue;
-                    result.add(((Source) source).musavacca$layer(id(source.name(), i), masks[i]));
-                    masks[i] = null;
-                }
-            } finally {
-                for (NativeImage mask : masks) if (mask != null) mask.close();
-            }
+            Histogram group = ranges.get(source.name()).root();
+            Tones tones = group.tones();
+            if (tones.grays().isEmpty()) continue;
+            generate(source, tones, group.lookup(), result);
         }
         return result;
+    }
+
+    private static void generate(SpriteContents source, Tones tones, int[] lookup, List<SpriteContents> result) {
+        NativeImage image = ((Source) source).musavacca$image();
+        int width = image.getWidth(), height = image.getHeight();
+        List<Integer> grays = tones.grays();
+        NativeImage[] masks = new NativeImage[grays.size()];
+        try {
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int rgba = pixel(image, x, y);
+                    if ((rgba >>> 24) == 0) continue;
+                    int layer = lookup[gray(rgba)];
+                    if (masks[layer] == null) masks[layer] = new NativeImage(width, height, true);
+                    int color = (rgba & 0xFF000000) | grays.get(layer) * 0x010101;
+                    //? if >=1.21.2 {
+                    masks[layer].setPixel(x, y, color);
+                    //?} else {
+                    /*masks[layer].setPixelRGBA(x, y, color);
+                    *///?}
+                }
+            }
+            for (int i = 0; i < masks.length; i++) {
+                if (masks[i] == null) continue;
+                result.add(((Source) source).musavacca$layer(id(source.name(), i), masks[i]));
+                masks[i] = null;
+            }
+            ((Source) source).musavacca$layers(new Layers(tones, null));
+        } finally {
+            for (NativeImage mask : masks) if (mask != null) mask.close();
+        }
     }
 
     public static void link(Map<
@@ -79,16 +127,19 @@ public final class CandleSpriteLayers {
             *///?} else {
             ResourceLocation,
             //?}
-            TextureAtlasSprite> sprites) {
+            TextureAtlasSprite> sprites, boolean blocks) {
         for (TextureAtlasSprite sprite : sprites.values()) {
-            if (generated(sprite.contents().name())) continue;
-            TextureAtlasSprite[] layers = new TextureAtlasSprite[PearlFireTintProfiles.PEARL_CANDLE.layerCount()];
+            if (!eligible(sprite.contents(), blocks)) continue;
+            Source source = (Source) sprite.contents();
+            Layers data = source.musavacca$layers();
+            if (data == null) continue;
+            TextureAtlasSprite[] layers = new TextureAtlasSprite[data.tones().grays().size()];
             boolean found = false;
             for (int i = 0; i < layers.length; i++) {
                 layers[i] = sprites.get(id(sprite.contents().name(), i));
                 found |= layers[i] != null;
             }
-            if (found) ((Source) sprite.contents()).musavacca$layers(layers);
+            source.musavacca$layers(found ? new Layers(data.tones(), layers) : null);
         }
     }
 
@@ -96,18 +147,15 @@ public final class CandleSpriteLayers {
         return !generated(source.name()) && (!blocks || source.name().getPath().contains("_fire"));
     }
 
-    private static Range range(NativeImage image) {
-        Range range = new Range();
+    private static Histogram histogram(NativeImage image) {
+        Histogram histogram = new Histogram();
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
                 int argb = pixel(image, x, y);
-                if ((argb >>> 24) == 0) continue;
-                float gray = gray(argb);
-                range.min = Math.min(range.min, gray);
-                range.max = Math.max(range.max, gray);
+                if ((argb >>> 24) != 0) histogram.counts[gray(argb)]++;
             }
         }
-        return range;
+        return histogram;
     }
 
     private static void group(ResourceManager resources, Map<
@@ -116,12 +164,12 @@ public final class CandleSpriteLayers {
             *///?} else {
             ResourceLocation,
             //?}
-            Range> ranges) {
+            Histogram> ranges) {
         for (var entry : resources.listResources("particles", id -> id.getPath().endsWith(".json")).entrySet()) {
             try (var reader = entry.getValue().openAsReader()) {
                 var textures = GsonHelper.parse(reader).getAsJsonArray("textures");
                 if (textures == null) continue;
-                List<Range> frames = new ArrayList<>();
+                List<Histogram> frames = new ArrayList<>();
                 for (JsonElement texture : textures) {
                     var id =
                             //? if >=1.21.11 {
@@ -129,7 +177,7 @@ public final class CandleSpriteLayers {
                             *///?} else {
                             ResourceLocation.parse(GsonHelper.convertToString(texture, "texture"));
                             //?}
-                    Range range = ranges.get(id);
+                    Histogram range = ranges.get(id);
                     if (range != null) frames.add(range);
                 }
                 for (int i = 1; i < frames.size(); i++) frames.get(0).merge(frames.get(i));
@@ -139,35 +187,55 @@ public final class CandleSpriteLayers {
         }
     }
 
-    static float gray(int argb) {
-        return (54 * ((argb >>> 16) & 255) + 183 * ((argb >>> 8) & 255) + 19 * (argb & 255)) / 256.0F;
+    private static int gray(int argb) {
+        return (54 * ((argb >>> 16) & 255) + 183 * ((argb >>> 8) & 255) + 19 * (argb & 255) + 128) >> 8;
     }
 
-    static int layer(float gray, float min, float max, int count) {
-        if (count <= 1) return 0;
-        float position = max > min ? (max - gray) / (max - min) : 1.0F - gray / 255.0F;
-        return Math.max(0, Math.min(count - 1, Math.round(position * (count - 1))));
-    }
+    private static final class Histogram {
+        private Histogram parent = this;
+        private final long[] counts = new long[256];
+        private Tones tones;
+        private int[] lookup;
 
-    private static final class Range {
-        private Range parent = this;
-        private float min = 255.0F, max = 0.0F;
-
-        private Range root() {
-            Range range = this;
-            while (range.parent != range) {
-                range.parent = range.parent.parent;
-                range = range.parent;
+        private Histogram root() {
+            Histogram histogram = this;
+            while (histogram.parent != histogram) {
+                histogram.parent = histogram.parent.parent;
+                histogram = histogram.parent;
             }
-            return range;
+            return histogram;
         }
 
-        private void merge(Range other) {
-            Range first = this.root(), second = other.root();
+        private void merge(Histogram other) {
+            Histogram first = root(), second = other.root();
             if (first == second) return;
             second.parent = first;
-            first.min = Math.min(first.min, second.min);
-            first.max = Math.max(first.max, second.max);
+            for (int i = 0; i < first.counts.length; i++) first.counts[i] += second.counts[i];
+        }
+
+        private Tones tones() {
+            if (tones != null) return tones;
+            List<Integer> values = new ArrayList<>();
+            for (int gray = 255; gray >= 0; gray--) if (counts[gray] != 0) values.add(gray);
+            if (values.size() > MAX_LAYERS) {
+                int max = values.getFirst(), min = values.getLast();
+                long[] weights = new long[MAX_LAYERS], sums = new long[MAX_LAYERS];
+                for (int gray : values) {
+                    int bucket = Math.round((max - gray) * (MAX_LAYERS - 1.0F) / (max - min));
+                    weights[bucket] += counts[gray];
+                    sums[bucket] += counts[gray] * gray;
+                }
+                values.clear();
+                for (int i = 0; i < MAX_LAYERS; i++) {
+                    if (weights[i] != 0) values.add((int) Math.round(sums[i] / (double) weights[i]));
+                }
+            }
+            return tones = new Tones(values);
+        }
+
+        private int[] lookup() {
+            if (lookup == null) lookup = tones().lookup();
+            return lookup;
         }
     }
 
@@ -193,11 +261,11 @@ public final class CandleSpriteLayers {
     //? if >=1.21.11 {
     /*private static Identifier id(Identifier source, int layer) {
         return Identifier.fromNamespaceAndPath(
-                "musavacca", "generated/candle/" + source.getNamespace() + "/" + source.getPath() + "/" + layer);
+                "musavacca", "generated/candle/" + source.getNamespace() + "/" + source.getPath() + "/0/" + layer);
     *///?} else {
     private static ResourceLocation id(ResourceLocation source, int layer) {
         return ResourceLocation.fromNamespaceAndPath(
-                "musavacca", "generated/candle/" + source.getNamespace() + "/" + source.getPath() + "/" + layer);
+                "musavacca", "generated/candle/" + source.getNamespace() + "/" + source.getPath() + "/0/" + layer);
     //?}
     }
 
@@ -212,8 +280,8 @@ public final class CandleSpriteLayers {
                 //?}
                 NativeImage image);
 
-        TextureAtlasSprite[] musavacca$layers();
+        Layers musavacca$layers();
 
-        void musavacca$layers(TextureAtlasSprite[] layers);
+        void musavacca$layers(Layers layers);
     }
 }

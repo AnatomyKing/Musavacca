@@ -34,12 +34,12 @@ public abstract class PearlCandleParticleCaptureMixin {
 
     @ModifyVariable(method = "add(Lnet/minecraft/client/particle/Particle;)V", at = @At("HEAD"), argsOnly = true, ordinal = 0, require = 1)
     private Particle musavacca$wrapCandleParticle(Particle particle) {
-        Integer color = OriginalCandleParticles.color();
-        if (color == null
+        var context = OriginalCandleParticles.context();
+        if (context == null
                 || !particle.isAlive()
                 || particle instanceof OriginalCandleParticle
                 || particle instanceof SmokeParticle
                 || particle instanceof CampfireSmokeParticle) return particle;
-        return particle instanceof OriginalCandleParticle.Source source ? source.musavacca$wrap(color) : particle;
+        return particle instanceof OriginalCandleParticle.Source source ? source.musavacca$wrap(context) : particle;
     }
 }

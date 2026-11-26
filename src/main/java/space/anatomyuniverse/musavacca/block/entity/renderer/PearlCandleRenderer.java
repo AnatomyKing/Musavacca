@@ -36,6 +36,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles.Context;
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;
@@ -89,7 +90,7 @@ public final class PearlCandleRenderer {
                     }
                 }
             }
-            int[] palette = PearlCandleFlames.palette(original, hex);
+            Context palette = PearlCandleFlames.palette(original, hex);
             if (palette != null) this.batches = capture(this, level, original, pos, palette);
         }
 
@@ -162,7 +163,7 @@ public final class PearlCandleRenderer {
 
     private record Batch(RenderType type, Matrix4f transform, List<Draw> quads) {}
 
-    private static List<Batch> capture(Model world, ClientLevel level, BlockState original, BlockPos pos, int[] palette) {
+    private static List<Batch> capture(Model world, ClientLevel level, BlockState original, BlockPos pos, Context palette) {
         Minecraft mc = Minecraft.getInstance();
         Map<RenderType, List<Draw>> groups = new LinkedHashMap<>();
         Matrix4f transform = new Matrix4f();
@@ -191,8 +192,8 @@ public final class PearlCandleRenderer {
                     void write(PoseStack.Pose p, BakedQuad quad, float[] brightness, float r, float g, float b,
                                float a, int[] light, int overlay, boolean colored
                                //? if <1.21.11 {
-                               , boolean readColor
-                               //?}
+                               /^, boolean readColor
+                               ^///?}
                     ) {
                         transform.set(p.pose());
                         var renderLayer = colored && layer == ChunkSectionLayer.SOLID ? ChunkSectionLayer.CUTOUT : layer;
@@ -206,8 +207,8 @@ public final class PearlCandleRenderer {
                         groups.computeIfAbsent(type, ignored -> new ArrayList<>()).add((pose, vertices) ->
                                 vertices.putBulkData(pose, quad, shades, r, g, b, a, lights, overlay
                                         //? if <1.21.11 {
-                                        , readColor
-                                        //?}
+                                        /^, readColor
+                                        ^///?}
                                 ));
                     }
                 }, false, OverlayTexture.NO_OVERLAY);
@@ -244,7 +245,7 @@ public final class PearlCandleRenderer {
     }
 
     public void render(ClientLevel level, BlockPos pos, BlockState original, int hex, Vec3 translation, PoseStack pose, MultiBufferSource buffers, int overlay) {
-        int[] palette = PearlCandleFlames.palette(original, hex);
+        Context palette = PearlCandleFlames.palette(original, hex);
         long seed = original.getSeed(pos);
         var model = dispatcher.getBlockModel(original);
         random.setSeed(seed);
@@ -285,7 +286,7 @@ public final class PearlCandleRenderer {
             //?} else {
             /*RenderType layer,
             *///?}
-            int[] palette) {
+            Context palette) {
         RenderType base = RenderTypeHelper.getMovingBlockRenderType(layer);
         if (palette == null) return buffers.getBuffer(base);
         //? if >=1.21.6 {
@@ -308,3 +309,5 @@ public final class PearlCandleRenderer {
     }
     //?}
 }
+
+
