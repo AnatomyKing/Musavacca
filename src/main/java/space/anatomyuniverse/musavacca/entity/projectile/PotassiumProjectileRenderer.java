@@ -21,21 +21,21 @@ import net.minecraft.client.renderer.entity.state.ThrownItemRenderState;
 /^import net.minecraft.client.renderer.state.level.CameraRenderState;
 ^///?} else {
 import net.minecraft.client.renderer.state.CameraRenderState;
-//?}
+ //?}
 *///?} else {
 import net.minecraft.client.renderer.MultiBufferSource;
-//?}
+ //?}
 
 public final class PotassiumProjectileRenderer extends ThrownItemRenderer<PotassiumProjectile> {
     //? if <1.21.4 {
     /*private final ItemRenderer itemRenderer;
-    *///?}
+     *///?}
 
     public PotassiumProjectileRenderer(EntityRendererProvider.Context context) {
         super(context);
         //? if <1.21.4 {
         /*itemRenderer = context.getItemRenderer();
-        *///?}
+         *///?}
     }
 
     public static void register(EntityRenderersEvent.RegisterRenderers event) {
@@ -51,8 +51,13 @@ public final class PotassiumProjectileRenderer extends ThrownItemRenderer<Potass
     private static void rotate(PoseStack pose, float age, float heading) {
         pose.translate(0, 0.25F, 0);
         pose.scale(2.0F, 2.0F, 2.0F);
+        //? if >=26.3 {
+        /*pose.rotateDegrees(Axis.YP, heading);
+        pose.rotateDegrees(Axis.ZP, -age * 40.0F);
+        *///?} else {
         pose.mulPose(Axis.YP.rotationDegrees(heading));
         pose.mulPose(Axis.ZP.rotationDegrees(-age * 40.0F));
+        //?}
     }
 
     //? if >=1.21.2 {
@@ -73,7 +78,7 @@ public final class PotassiumProjectileRenderer extends ThrownItemRenderer<Potass
     //?}
 
     @Override
-    //? if >=1.21.9 {
+            //? if >=1.21.9 {
     /*public void submit(ThrownItemRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         pose.pushPose();
         rotate(pose, state.ageInTicks, ((ToolRenderState) state).heading);

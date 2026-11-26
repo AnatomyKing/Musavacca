@@ -24,7 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 public final class CandleSpriteLayers {
     private CandleSpriteLayers() {}
 
-    public static List<SpriteContents> prepare(List<SpriteContents> sprites, ResourceManager resources) {
+    public static List<SpriteContents> prepare(List<SpriteContents> sprites, ResourceManager resources, boolean blocks) {
         List<SpriteContents> result = new ArrayList<>(sprites);
         var profile = PearlFireTintProfiles.PEARL_CANDLE;
         int[] grays = new int[profile.layerCount()];
@@ -37,11 +37,11 @@ public final class CandleSpriteLayers {
                 //?}
                 Range> ranges = new HashMap<>();
         for (SpriteContents source : sprites) {
-            if (!generated(source.name())) ranges.put(source.name(), range(((Source) source).musavacca$image()));
+            if (eligible(source, blocks)) ranges.put(source.name(), range(((Source) source).musavacca$image()));
         }
-        group(resources, ranges);
+        if (!blocks) group(resources, ranges);
         for (SpriteContents source : sprites) {
-            if (generated(source.name())) continue;
+            if (!eligible(source, blocks)) continue;
             NativeImage image = ((Source) source).musavacca$image();
             int width = image.getWidth(), height = image.getHeight();
             Range range = ranges.get(source.name()).root();
@@ -90,6 +90,10 @@ public final class CandleSpriteLayers {
             }
             if (found) ((Source) sprite.contents()).musavacca$layers(layers);
         }
+    }
+
+    private static boolean eligible(SpriteContents source, boolean blocks) {
+        return !generated(source.name()) && (!blocks || source.name().getPath().contains("_fire"));
     }
 
     private static Range range(NativeImage image) {

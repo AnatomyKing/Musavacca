@@ -1,14 +1,14 @@
 package space.anatomyuniverse.musavacca.block;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
+import space.anatomyuniverse.musavacca.MusaCore;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.block.Block;
-import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class ModBlockTags {
     public static final TagKey<Block> PEARL_PORTAL_FRAME = create("pearl_portal_frame");

@@ -46,12 +46,13 @@ public abstract class PearlCandleSpriteLoaderMixin {
             Function<List<SpriteContents>, SpriteLoader.Preparations> stitch,
             Operation<CompletableFuture<SpriteLoader.Preparations>> original,
             @Local(argsOnly = true) ResourceManager resources) {
-        if (!this.location.equals(TextureAtlas.LOCATION_PARTICLES)) return original.call(future, stitch);
+        boolean blocks = this.location.equals(TextureAtlas.LOCATION_BLOCKS);
+        if (!blocks && !this.location.equals(TextureAtlas.LOCATION_PARTICLES)) return original.call(future, stitch);
         return original.call(
                 future,
                 (Function<List<SpriteContents>, SpriteLoader.Preparations>)
                         sprites -> {
-                            var prepared = stitch.apply(CandleSpriteLayers.prepare(sprites, resources));
+                            var prepared = stitch.apply(CandleSpriteLayers.prepare(sprites, resources, blocks));
                             CandleSpriteLayers.link(prepared.regions());
                             return prepared;
                         });

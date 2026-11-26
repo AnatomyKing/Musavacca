@@ -58,7 +58,7 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
             state.campfire = null;
             return;
         }
-        state.model.extract(level, entity.getBlockPos(), entity.originalState(), Vec3.ZERO);
+        state.model.extract(level, entity.getBlockPos(), entity.originalState(), entity.getHexColor(), Vec3.ZERO);
         var campfire = entity.campfire();
         if (campfire == null) state.campfire = null;
         else {
@@ -87,7 +87,7 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
             /*int overlay) {
             *///?}
         if (!(entity.getLevel() instanceof ClientLevel level)) return;
-        candleRenderer.render(level, entity.getBlockPos(), entity.originalState(), Vec3.ZERO, pose, buffers, overlay);
+        candleRenderer.render(level, entity.getBlockPos(), entity.originalState(), entity.getHexColor(), Vec3.ZERO, pose, buffers, overlay);
         var campfire = entity.campfire();
         if (campfire != null) {
             //? if >=1.21.5 {

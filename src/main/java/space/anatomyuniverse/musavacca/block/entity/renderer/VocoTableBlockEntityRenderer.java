@@ -121,7 +121,7 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
             }
             var model = state.candles[index];
             if (model == null) state.candles[index] = model = new PearlCandleRenderer.Model();
-            model.extract(level, pos, candle.state(), VocoTableCandleVoxelShapes.renderTranslation(receptor));
+            model.extract(level, pos, candle.state(), candle.hex(), VocoTableCandleVoxelShapes.renderTranslation(receptor));
         }
     }
 
@@ -140,7 +140,7 @@ public class VocoTableBlockEntityRenderer implements BlockEntityRenderer<VocoTab
             for (var receptor : ReceptorPosition.values()) {
                 var candle = blockEntity.candle(receptor);
                 if (candle == null) continue;
-                candleRenderer.render(level, pos, candle.state(), VocoTableCandleVoxelShapes.renderTranslation(receptor),
+                candleRenderer.render(level, pos, candle.state(), candle.hex(), VocoTableCandleVoxelShapes.renderTranslation(receptor),
                         poseStack, bufferSource, packedOverlay);
             }
         }
