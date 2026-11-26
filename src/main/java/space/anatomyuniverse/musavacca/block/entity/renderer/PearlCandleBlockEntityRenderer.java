@@ -1,23 +1,22 @@
 package space.anatomyuniverse.musavacca.block.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.blockentity.CampfireRenderer;
 import net.minecraft.world.phys.Vec3;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.blockentity.state.CampfireRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 *///?} else {
 import net.minecraft.client.renderer.MultiBufferSource;
 //?}
 //? if >=26.1 {
-/*import net.minecraft.client.renderer.block.BlockModelRenderState;
-import net.minecraft.client.renderer.block.model.BlockDisplayContext;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
+/*import net.minecraft.client.renderer.state.level.CameraRenderState;
 *///?} else if >=1.21.9 {
 /*import net.minecraft.client.renderer.state.CameraRenderState;
 *///?}
@@ -27,19 +26,22 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
         /*, PearlCandleBlockEntityRenderer.State
         *///?}
 > {
-    private final BlockEntityRendererProvider.Context context;
+    private final CampfireRenderer campfireRenderer;
+    //? if <1.21.9 {
+    private final PearlCandleRenderer candleRenderer;
+    //?}
 
     public PearlCandleBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-        this.context = context;
+        this.campfireRenderer = new CampfireRenderer(context);
+        //? if <1.21.9 {
+        this.candleRenderer = new PearlCandleRenderer(context);
+        //?}
     }
 
     //? if >=1.21.9 {
     /*public static final class State extends BlockEntityRenderState {
-        //? if >=26.1 {
-        /^public final BlockModelRenderState model = new BlockModelRenderState();
-        ^///?} else {
-        public BlockState model;
-        //?}
+        private final PearlCandleRenderer.Model model = new PearlCandleRenderer.Model();
+        public CampfireRenderState campfire;
     }
 
     @Override
@@ -51,20 +53,24 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
     public void extractRenderState(
             PearlCandleBlockEntity entity, State state, float partialTick, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay overlay) {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, camera, overlay);
-        //? if >=26.1 {
-        /^context.blockModelResolver().update(state.model, entity.originalState(), BlockDisplayContext.create());
-        ^///?} else {
-        state.model = entity.originalState();
-        //?}
+        state.model.clear();
+        if (!(entity.getLevel() instanceof ClientLevel level)) {
+            state.campfire = null;
+            return;
+        }
+        state.model.extract(level, entity.getBlockPos(), entity.originalState(), Vec3.ZERO);
+        var campfire = entity.campfire();
+        if (campfire == null) state.campfire = null;
+        else {
+            if (state.campfire == null) state.campfire = campfireRenderer.createRenderState();
+            campfireRenderer.extractRenderState(campfire, state.campfire, partialTick, camera, overlay);
+        }
     }
 
     @Override
     public void submit(State state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
-        //? if >=26.1 {
-        /^state.model.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-        ^///?} else {
-        collector.submitBlock(pose, state.model, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-        //?}
+        state.model.submit(pose, collector);
+        if (state.campfire != null) campfireRenderer.submit(state.campfire, pose, collector, camera);
     }
     *///?} else {
     @Override
@@ -80,21 +86,16 @@ public final class PearlCandleBlockEntityRenderer implements BlockEntityRenderer
             //?} else {
             /*int overlay) {
             *///?}
-        if (entity.getLevel() == null) return;
-        //? if >=1.21.5 {
-        context.getBlockRenderDispatcher()
-                .renderSingleBlock(entity.originalState(), pose, buffers, light, overlay, entity.getLevel(), entity.getBlockPos());
-        //?} else {
-        /*context.getBlockRenderDispatcher()
-                .renderSingleBlock(
-                        entity.originalState(),
-                        pose,
-                        buffers,
-                        light,
-                        overlay,
-                        net.neoforged.neoforge.client.model.data.ModelData.EMPTY,
-                        null);
-        *///?}
+        if (!(entity.getLevel() instanceof ClientLevel level)) return;
+        candleRenderer.render(level, entity.getBlockPos(), entity.originalState(), Vec3.ZERO, pose, buffers, overlay);
+        var campfire = entity.campfire();
+        if (campfire != null) {
+            //? if >=1.21.5 {
+            campfireRenderer.render(campfire, partialTick, pose, buffers, light, overlay, camera);
+            //?} else {
+            /*campfireRenderer.render(campfire, partialTick, pose, buffers, light, overlay);
+            *///?}
+        }
     }
     //?}
 }

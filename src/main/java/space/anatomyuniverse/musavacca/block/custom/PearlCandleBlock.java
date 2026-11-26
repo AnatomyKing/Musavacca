@@ -5,6 +5,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.EquipmentSlot;
+//? if >=1.21.5 {
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+//?}
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -22,6 +28,8 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -35,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
 import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoPostCandleLogic;
+import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
 import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles;
 
@@ -101,13 +110,18 @@ public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
         if (!(candle instanceof PearlCandleBlockEntity pearl)) return List.of();
         BlockState original = pearl.originalState();
         builder.withParameter(LootContextParams.BLOCK_STATE, original);
+        if (pearl.campfire() != null && original.hasBlockEntity())
+            builder.withParameter(LootContextParams.BLOCK_ENTITY, pearl.campfire());
         return original.getDrops(builder);
     }
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(LIT)) return;
-        level.setBlock(pos, originalState(state, level, pos), Block.UPDATE_ALL);
+        BlockState original = originalState(state, level, pos);
+        if (original.is(BlockTags.CAMPFIRES) && level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle)
+            candle.restoreOriginal(level, original);
+        else level.setBlock(pos, original, Block.UPDATE_ALL);
         VocoPostCandleLogic.refreshPostBelowCandle(level, pos);
     }
 
@@ -138,6 +152,17 @@ public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
         return new PearlCandleBlockEntity(pos, state);
     }
 
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        if (!state.getValue(LIT) || state.getValue(WATERLOGGED)
+                || type != ModBlockEntities.PEARL_CANDLE_BLOCK_ENTITY.get()) return null;
+        if (level.isClientSide()) return (tickLevel, pos, tickState, entity) ->
+                PearlCandleBlockEntity.particleTick(tickLevel, pos, tickState, (PearlCandleBlockEntity) entity);
+        return (tickLevel, pos, tickState, entity) ->
+                PearlCandleBlockEntity.cookTick(tickLevel, pos, tickState, (PearlCandleBlockEntity) entity);
+    }
+
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
@@ -153,6 +178,16 @@ public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
             ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
     *///?}
             BlockHitResult hitResult) {
+        BlockState original = originalState(state, level, pos);
+        if (original.is(BlockTags.CANDLE_CAKES)) return original.useItemOn(stack, level, player, hand, hitResult);
+        if (original.is(BlockTags.CAMPFIRES)) {
+            InteractionResult result = useCampfire(stack, level, pos, player, hand, original);
+            //? if >=1.21.2 {
+            return result;
+            //?} else {
+            /*return InteractionResultCompat.forItemUse(result);
+            *///?}
+        }
         InteractionResult result = this.handleInteraction(stack, state, level, pos, player);
         //? if >=1.21.2 {
         return result == InteractionResult.PASS ? super.useItemOn(stack, state, level, pos, player, hand, hitResult) : result;
@@ -165,7 +200,62 @@ public final class PearlCandleBlock extends CandleBlock implements EntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        BlockState original = originalState(state, level, pos);
+        if (original.is(BlockTags.CANDLE_CAKES)) return original.useWithoutItem(level, player, hit);
+        if (original.is(BlockTags.CAMPFIRES)) return InteractionResult.PASS;
         return this.handleInteraction(ItemStack.EMPTY, state, level, pos, player);
+    }
+
+    private InteractionResult useCampfire(ItemStack stack, Level level, BlockPos pos, Player player, InteractionHand hand, BlockState original) {
+        if (!(level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle)
+                || !player.getAbilities().mayBuild || player.isSpectator()) return InteractionResult.PASS;
+        if (stack.is(ItemTags.SHOVELS) && PearlCandleConversion.value(original, "lit")) {
+            if (!level.isClientSide() && candle.restoreOriginal(level, PearlCandleConversion.withFlag(original, "lit", false))) {
+                level.levelEvent(1009, pos, 0);
+                VocoPostCandleLogic.refreshPostBelowCandle(level, pos);
+                if (!player.getAbilities().instabuild)
+                    stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+            }
+            return InteractionResult.SUCCESS;
+        }
+        return candle.placeCampfireFood(player, stack);
+    }
+
+    //? if <1.21.5 {
+    /*@Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle)
+            candle.dropCampfireFood();
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+    *///?}
+
+    @Override
+    //? if >=1.21.9 {
+    /*protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effects, boolean intersects) {
+    *///?} else if >=1.21.5 <1.21.9 {
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effects) {
+    //?} else {
+    /*protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    *///?}
+        BlockState original = originalState(state, level, pos);
+        if (original.is(BlockTags.CAMPFIRES)) {
+            //? if >=1.21.9 {
+            /*original.entityInside(level, pos, entity, effects, intersects);
+            *///?} else if >=1.21.5 <1.21.9 {
+            original.entityInside(level, pos, entity, effects);
+            //?} else {
+            /*original.entityInside(level, pos, entity);
+            *///?}
+            return;
+        }
+        //? if >=1.21.9 {
+        /*super.entityInside(state, level, pos, entity, effects, intersects);
+        *///?} else if >=1.21.5 <1.21.9 {
+        super.entityInside(state, level, pos, entity, effects);
+        //?} else {
+        /*super.entityInside(state, level, pos, entity);
+        *///?}
     }
 
     private InteractionResult handleInteraction(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player) {

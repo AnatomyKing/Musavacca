@@ -1,6 +1,7 @@
 package space.anatomyuniverse.musavacca.block.custom.logic;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -8,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
@@ -36,7 +38,7 @@ public final class PearlCandleConversion {
     }
 
     public static boolean isCandle(BlockState state) {
-        return (state.is(BlockTags.CANDLES) || state.is(BlockTags.CANDLE_CAKES)) && flag(state, "lit") != null;
+        return (state.is(BlockTags.CANDLES) || state.is(BlockTags.CANDLE_CAKES) || state.is(BlockTags.CAMPFIRES)) && flag(state, "lit") != null;
     }
 
     public static int count(BlockState state) {
@@ -49,8 +51,7 @@ public final class PearlCandleConversion {
         return isCandle(state)
                 && !(state.getBlock() instanceof PearlCandleBlock)
                 && !value(state, "lit")
-                && !value(state, "waterlogged")
-                && !state.hasBlockEntity();
+                && !value(state, "waterlogged");
     }
 
     public static InteractionResult useOn(
@@ -58,6 +59,9 @@ public final class PearlCandleConversion {
         if (!PearlIgniter.is(stack) || player.isSpectator() || !player.getAbilities().mayBuild) return interaction.get();
         BlockState before = level.getBlockState(pos);
         if (!canLight(before)) return interaction.get();
+        // An unknown campfire block entity cannot safely be converted into a vanilla cooking inventory.
+        if (before.is(BlockTags.CAMPFIRES) && before.hasBlockEntity()
+                && !(level.getBlockEntity(pos) instanceof CampfireBlockEntity)) return interaction.get();
         int hex = PearlIgniter.getStoredHexOrDefault(stack);
         boolean client = level.isClientSide();
         Integer previous = client ? OriginalCandleParticles.swap(hex) : null;
@@ -75,20 +79,37 @@ public final class PearlCandleConversion {
         if (!isCandle(state)
                 || state.getBlock() instanceof PearlCandleBlock
                 || !value(state, "lit")
-                || value(state, "waterlogged")
-                || state.hasBlockEntity()
-                || level.getBlockEntity(pos) != null) return;
+                || value(state, "waterlogged")) return;
+
+        CompoundTag campfireData = null;
+        CampfireBlockEntity source = null;
+        if (state.is(BlockTags.CAMPFIRES)) {
+            if (level.getBlockEntity(pos) instanceof CampfireBlockEntity campfire) {
+                source = campfire;
+                campfireData = campfire.saveWithoutMetadata(level.registryAccess());
+                campfire.clearContent();
+            } else if (state.hasBlockEntity() || level.getBlockEntity(pos) != null) return;
+        }
 
         var block = ModBlocks.PEARL_CANDLE.get();
-        if (!level.setBlock(pos, block.wrapState(state), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) return;
+        if (!level.setBlock(pos, block.wrapState(state), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
+            if (source != null) PearlCandleBlockEntity.loadCampfireData(source, campfireData, level);
+            return;
+        }
         if (level.getBlockEntity(pos) instanceof PearlCandleBlockEntity candle) {
             candle.setCandle(state, hex);
+            if (campfireData != null) candle.importCampfireData(campfireData);
             if (!level.isClientSide()) {
                 level.updateNeighborsAt(pos, block);
                 VocoPostCandleLogic.refreshPostBelowCandle(level, pos);
             }
         } else {
             level.setBlock(pos, state, Block.UPDATE_ALL);
+            if (campfireData != null && level.getBlockEntity(pos) instanceof CampfireBlockEntity campfire) {
+                PearlCandleBlockEntity.loadCampfireData(campfire, campfireData, level);
+                campfire.setChanged();
+                level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+            }
         }
     }
 }

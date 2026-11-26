@@ -2,15 +2,15 @@ package space.anatomyuniverse.musavacca.entity.mob.bananacow.clientmodel;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
+import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 //? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
 *///?} else {
 import net.minecraft.resources.ResourceLocation;
 //?}
-import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
-import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.entity.mob.bananacow.BananaCow;
 
 public final class BananaCowRenderer extends MobRenderer<BananaCow,
         //? if >=1.21.2 {

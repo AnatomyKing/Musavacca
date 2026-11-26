@@ -8,11 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.common.NeoForge;
+import space.anatomyuniverse.musavacca.MusaCore;
 //? if >=1.21.6 {
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 //?}
-import net.neoforged.neoforge.common.NeoForge;
-import space.anatomyuniverse.musavacca.MusaCore;
 
 public final class VocoCameraClientModEvents {
     //? if >=1.21.11 {

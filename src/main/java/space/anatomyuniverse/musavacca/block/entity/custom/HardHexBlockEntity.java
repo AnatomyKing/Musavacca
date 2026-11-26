@@ -9,13 +9,13 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-//? if >=1.21.6 {
-import net.minecraft.world.level.storage.ValueOutput;
-//?}
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
+//? if >=1.21.6 {
+import net.minecraft.world.level.storage.ValueOutput;
+//?}
 
 public class HardHexBlockEntity extends BlockEntity implements HexSource {
     public HardHexBlockEntity(BlockPos pos, BlockState state) {
