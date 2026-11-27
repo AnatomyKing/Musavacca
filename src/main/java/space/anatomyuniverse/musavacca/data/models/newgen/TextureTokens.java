@@ -78,19 +78,6 @@ public final class TextureTokens {
     }
 
     //? if >=1.21.11 {
-    /*public static Identifier itemLayer(Identifier base, int layer) {
-    *///?} else {
-    public static ResourceLocation itemLayer(ResourceLocation base, int layer) {
-    //?}
-        if (layer < 0) throw new IllegalArgumentException("layer must be >= 0");
-        //? if >=1.21.11 {
-        /*return Identifier.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + layer);
-        *///?} else {
-        return ResourceLocation.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + layer);
-        //?}
-    }
-
-    //? if >=1.21.11 {
     /*public static Identifier resolveItem(ItemLike item, String token) {
     *///?} else {
     public static ResourceLocation resolveItem(ItemLike item, String token) {

@@ -118,6 +118,8 @@ public final class ModBlockTagsProvider extends BlockTagsProvider {
         addBlocks(Tags.Blocks.VILLAGER_FARMLANDS, ModBlocks.CAROTENE_GRASS.get());
         addBlocks(BlockTags.FIRE, ModBlocks.PEARL_FIRE.get());
         addBlocks(BlockTags.CANDLES, ModBlocks.PEARL_CANDLE.get());
+        addBlocks(BlockTags.CANDLE_CAKES, ModBlocks.PEARL_CANDLE_CAKE.get());
+        addBlocks(BlockTags.CAMPFIRES, ModBlocks.PEARL_CAMPFIRE.get());
     }
 
     private void addBlocks(TagKey<Block> tag, Block... blocks) {

@@ -16,6 +16,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Portal;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,9 +45,6 @@ import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.level.ScheduledTickAccess;
 //?} else {
 /*import net.minecraft.world.level.LevelAccessor;
-*///?}
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
 *///?}
 //? if >=1.21.2 {
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -88,17 +86,15 @@ public class PearlPortalBlock extends Block implements Portal, EntityBlock {
     }
 
     //?}
-    //? if >=1.21.11 {
-    /*@Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
-    }
-
-    *///?}
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new PearlPortalBlockEntity(pos, state);
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
     }
 
     @Override

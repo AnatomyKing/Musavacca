@@ -87,6 +87,8 @@ public final class ModBlockLootProvider extends BlockLootSubProvider {
         vocoTableDrops(ModBlocks.VOCO_TABLE.get());
         musavaccaTrapdoorDrops(ModBlocks.MUSAVACCA_TRAPDOOR.get());
         this.add(ModBlocks.PEARL_CANDLE.get(), LootTable.lootTable());
+        this.add(ModBlocks.PEARL_CANDLE_CAKE.get(), LootTable.lootTable());
+        this.add(ModBlocks.PEARL_CAMPFIRE.get(), LootTable.lootTable());
         silkTouchMusavaccaEggByAge(ModBlocks.MUSAVACCA_EGG.get());
         lophaFlowerDrops(ModBlocks.HEX_BLOCK.get());
         //? if >=26.3 {

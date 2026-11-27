@@ -1,0 +1,20 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "minecraft:block/candle_cake"
+      },
+      "when": {
+        "lit": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/candle_cake_lit"
+      },
+      "when": {
+        "lit": "true"
+      }
+    }
+  ]
+}

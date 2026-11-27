@@ -1,0 +1,74 @@
+{
+  "format_version": "1.21.11",
+  "credit": "AnatomyKing(\ud835\udd4f\ud83d\udc26@LuukMus,\u1d48\u1da6\u02e2\u1d9c\u1d52\u02b3\u1d48@anatomyking)",
+  "elements": [
+    {
+      "from": [
+        0.02,
+        -0.02,
+        0.02
+      ],
+      "to": [
+        16.02,
+        15.98,
+        2.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#portal"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            16
+          ],
+          "texture": "#portal"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#portal"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            16
+          ],
+          "texture": "#portal"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#portal"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#portal"
+        }
+      }
+    }
+  ]
+}

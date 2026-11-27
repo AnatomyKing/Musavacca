@@ -7,10 +7,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
+import space.anatomyuniverse.musavacca.block.custom.PearlFlameBlock;
 import space.anatomyuniverse.musavacca.block.custom.VocoPostBlock;
-import space.anatomyuniverse.musavacca.block.entity.custom.PearlCandleBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.PearlCopycatBlockEntity;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoPostBlockEntity;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
@@ -77,11 +76,9 @@ public final class VocoPostCandleLogic {
         }
         BlockPos candlePos = postPos.above();
         BlockState candleState = level.getBlockState(candlePos);
-        if (!(candleState.getBlock() instanceof PearlCandleBlock)
-                || !candleState.hasProperty(BlockStateProperties.LIT)
-                || !candleState.getValue(BlockStateProperties.LIT)
-                || candleState.hasProperty(BlockStateProperties.WATERLOGGED) && candleState.getValue(BlockStateProperties.WATERLOGGED)
-                || !(level.getBlockEntity(candlePos) instanceof PearlCandleBlockEntity pearlCandleBe)
+        if (!(candleState.getBlock() instanceof PearlFlameBlock)
+                || !PearlFlameBlock.isLit(candleState)
+                || !(level.getBlockEntity(candlePos) instanceof PearlCopycatBlockEntity pearlCandleBe)
                 || !pearlCandleBe.hasHexColor()) {
             return PortalInfo.INACTIVE;
         }

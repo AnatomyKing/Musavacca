@@ -22,6 +22,7 @@ import space.anatomyuniverse.musavacca.block.entity.ModBlockEntities;
 import space.anatomyuniverse.musavacca.block.entity.ModBlockEntityRenderers;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.data.ModDataGenerators;
+import space.anatomyuniverse.musavacca.data.MusaSavedData;
 import space.anatomyuniverse.musavacca.economy.EconomyConfig;
 import space.anatomyuniverse.musavacca.effect.BananaCowBlessingEvents;
 import space.anatomyuniverse.musavacca.effect.ModMobEffects;
@@ -93,6 +94,7 @@ public final class MusaCore {
         NeoForge.EVENT_BUS.addListener(PearlPortalNetwork::onServerStopping);
         NeoForge.EVENT_BUS.register(BonusHungerEvents.class);
         NeoForge.EVENT_BUS.register(BalanceEvents.class);
+        NeoForge.EVENT_BUS.register(MusaSavedData.class);
         NeoForge.EVENT_BUS.register(BananaCowBlessingEvents.class);
         NeoForge.EVENT_BUS.register(VocoCallerNetwork.class);
         NeoForge.EVENT_BUS.register(PearlIgniterEvents.class);

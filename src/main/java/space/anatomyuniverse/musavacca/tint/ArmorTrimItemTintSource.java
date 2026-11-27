@@ -39,9 +39,9 @@ public final class ArmorTrimItemTintSource
         /*{
         *///?}
     //? if >=1.21.11 {
-    /*private static final Identifier TINT_ID = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color");
+    /*public static final Identifier TINT_ID = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color");
     *///?} else if >=1.21.4 {
-    private static final ResourceLocation TINT_ID = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color");
+    public static final ResourceLocation TINT_ID = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "armor_trim_color");
     //?}
     //? if <1.21.4 {
     /*private static final ResourceLocation HAS_TRIM_PROPERTY = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "has_armor_trim");
@@ -50,7 +50,6 @@ public final class ArmorTrimItemTintSource
 
     //? if >=1.21.4 {
     public static final MapCodec<ArmorTrimItemTintSource> MAP_CODEC = MapCodec.unit(INSTANCE);
-    private static final Tints.ItemTintType TINT_TYPE = new Tints.ItemTintType(TINT_ID, MAP_CODEC);
 
     //?}
     private ArmorTrimItemTintSource() {}
@@ -88,12 +87,6 @@ public final class ArmorTrimItemTintSource
     }
 
     *///?}
-    //? if >=1.21.4 {
-    public static Tints.ItemTintType itemTintType() {
-        return TINT_TYPE;
-    }
-
-    //?}
     //? if <1.21.4 {
     /*public static ResourceLocation legacyTrimPropertyId() {
         return HAS_TRIM_PROPERTY;

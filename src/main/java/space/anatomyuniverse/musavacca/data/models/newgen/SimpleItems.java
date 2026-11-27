@@ -7,14 +7,13 @@ import net.minecraft.resources.ResourceLocation;
 //?}
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 //? if >=26.1 {
@@ -59,17 +58,6 @@ public final class SimpleItems {
         BLOCK_STATE
     }
 
-    //? if >=1.21.11 {
-    /*public record PhysicalLayer(Identifier texture, Tints.Tint tint) {
-    *///?} else {
-    public record PhysicalLayer(ResourceLocation texture, Tints.Tint tint) {
-    //?}
-        public PhysicalLayer {
-            Objects.requireNonNull(texture, "texture");
-            Objects.requireNonNull(tint, "tint");
-        }
-    }
-
     public static final class Model {
         private final Mode mode;
         //? if >=1.21.11 {
@@ -83,7 +71,7 @@ public final class SimpleItems {
         private boolean inferSingleTexture;
         private List<String> textureTokens;
         private Tints.Tint tint = Tints.none();
-        private final Map<Integer, Tints.Tint> layerTints = new LinkedHashMap<>();
+        private final Map<Integer, Tints.Tint> layerTints = new HashMap<>();
 
         private Model(Mode mode) {
             this.mode = Objects.requireNonNull(mode, "mode");
@@ -201,6 +189,12 @@ public final class SimpleItems {
             return this;
         }
 
+        List<Tints.Tint> textureTints(int count) {
+            List<Tints.Tint> result = new ArrayList<>(count);
+            for (int i = 0; i < count; i++) result.add(layerTints.getOrDefault(i, tint));
+            return List.copyOf(result);
+        }
+
         Mode mode() {
             return mode;
         }
@@ -229,22 +223,10 @@ public final class SimpleItems {
             return tint;
         }
 
-        public Tints.Tint tintForLogicalLayer(int layer) {
-            return layerTints.getOrDefault(layer, tint);
-        }
-
         //? if >=1.21.11 {
-        /*public List<Identifier> logicalTextures(ItemLike item) {
-            return logicalTextures(ModelLocations.itemId(item));
-        }
-
-        public List<Identifier> logicalTextures(Identifier id) {
+        /*public List<Identifier> textures(Identifier id) {
         *///?} else {
-        public List<ResourceLocation> logicalTextures(ItemLike item) {
-            return logicalTextures(ModelLocations.itemId(item));
-        }
-
-        public List<ResourceLocation> logicalTextures(ResourceLocation id) {
+        public List<ResourceLocation> textures(ResourceLocation id) {
         //?}
             if (!isGenerated()) return List.of();
             if (textureTokens == null) throw new IllegalStateException("No texture configured for item " + id);
@@ -259,50 +241,6 @@ public final class SimpleItems {
                 //?}
             }
             return textureTokens.stream().map(token -> resolveTexture(id, token)).toList();
-        }
-
-        public List<PhysicalLayer> physicalLayers(ItemLike item) {
-            return physicalLayers(ModelLocations.itemId(item));
-        }
-
-        //? if >=1.21.11 {
-        /*public List<PhysicalLayer> physicalLayers(Identifier id) {
-        *///?} else {
-        public List<PhysicalLayer> physicalLayers(ResourceLocation id) {
-        //?}
-            validate(id);
-            if (isExisting()) {
-                var texture = ModelLocations.itemModel(id);
-                return physicalTintList(tint).stream().map(layerTint -> new PhysicalLayer(texture, layerTint)).toList();
-            }
-            if (isMultipart() || isBlockState()) return List.of();
-            var logical = logicalTextures(id);
-            List<PhysicalLayer> physical = new ArrayList<>();
-            for (int i = 0; i < logical.size(); i++) {
-                var base = logical.get(i);
-                Tints.Tint layerTint = tintForLogicalLayer(i);
-                List<Tints.GeneratedLayer> generatedLayers = Tints.generatedLayers(layerTint);
-                for (Tints.GeneratedLayer generated : generatedLayers) {
-                    var texture =
-                            generatedLayers.size() == 1 && generated.sourceLayer() == 0
-                                    ? base
-                                    : TextureTokens.itemLayer(base, generated.sourceLayer());
-                    physical.add(new PhysicalLayer(texture, layerTint.physicalLayer(generated)));
-                }
-            }
-            return List.copyOf(physical);
-        }
-
-        public List<Tints.Tint> existingTints() {
-            if (!isExisting()) throw new IllegalStateException("existingTints() requires an existing item model");
-            return physicalTintList(tint);
-        }
-
-        public boolean hasAnyTint(ItemLike item) {
-            if (isExisting()) return existingTints().stream().anyMatch(Tints.Tint::tinted);
-            if (isMultipart() || isBlockState())
-                return NewgenItemCatalog.declaredItemTints(item, this).stream().anyMatch(Tints.Tint::tinted);
-            return physicalLayers(item).stream().map(PhysicalLayer::tint).anyMatch(Tints.Tint::tinted);
         }
 
         public Model copy() {
@@ -336,7 +274,7 @@ public final class SimpleItems {
             if (isExisting()) {
                 if (existingModel == null) throw new IllegalStateException("Existing item model is missing its model id");
                 if (style != null || folder || textureTokens != null || !layerTints.isEmpty()) {
-                    throw new IllegalStateException("Existing item models cannot use generated style/folder/texture/layerTint options");
+                    throw new IllegalStateException("Existing item models cannot use generated style/folder/texture options");
                 }
                 return;
             }
@@ -344,12 +282,11 @@ public final class SimpleItems {
             if (textureTokens == null) {
                 throw new IllegalStateException("Generated item " + id + " requires .texture() or .textures(...)");
             }
-            int logicalCount = inferSingleTexture ? 1 : textureTokens.size();
-            for (Integer layer : layerTints.keySet()) {
-                if (layer >= logicalCount) {
-                    throw new IllegalStateException(
-                            "Logical tint layer " + layer + " is outside the " + logicalCount + " texture layers for " + id);
-                }
+            if (!inferSingleTexture && textureTokens.size() > 5)
+                throw new IllegalStateException("Generated item " + id + " supports at most five texture layers");
+            int count = inferSingleTexture ? 1 : textureTokens.size();
+            for (int layer : layerTints.keySet()) {
+                if (layer >= count) throw new IllegalStateException("Tint layer " + layer + " is outside the " + count + " textures for " + id);
             }
         }
 
@@ -369,10 +306,6 @@ public final class SimpleItems {
 
         private void requireGenerated(String operation) {
             if (!isGenerated()) throw new IllegalStateException(operation + " requires SimpleItems.Model.generated()");
-        }
-
-        private static List<Tints.Tint> physicalTintList(Tints.Tint tint) {
-            return Tints.generatedLayers(tint).stream().map(tint::physicalLayer).toList();
         }
     }
 
@@ -497,11 +430,5 @@ public final class SimpleItems {
             if (model == null) throw new IllegalStateException("Call .generated(), .model(...), .multipart(...) or .blockState() first");
             return model;
         }
-    }
-
-    public static int legacyTintColor(ItemLike item, Model model, ItemStack stack, int tintIndex) {
-        if (tintIndex < 0) return Tints.NO_TINT;
-        List<Tints.Tint> tints = NewgenItemCatalog.itemTints(item, model);
-        return tintIndex < tints.size() ? tints.get(tintIndex).itemColor(stack) : Tints.NO_TINT;
     }
 }

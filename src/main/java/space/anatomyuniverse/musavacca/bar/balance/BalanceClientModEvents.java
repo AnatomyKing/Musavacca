@@ -75,23 +75,23 @@ public final class BalanceClientModEvents {
         if (withdraw == null) return;
         Minecraft minecraft = Minecraft.getInstance();
         while (withdraw.consumeClick()) {
-            //? if >=26.3 {
+            //? if >=26.2 {
             /*if (minecraft.player == null || minecraft.gui.screen() != null) continue;
             *///?} else {
             if (minecraft.player == null || minecraft.screen != null) continue;
-            //?}
+             //?}
 
             //? if >=1.21.9 {
             /*boolean bulk = minecraft.hasShiftDown();
             *///?} else {
             boolean bulk = Screen.hasShiftDown();
-            //?}
+             //?}
 
             //? if >=1.21.7 {
             ClientPacketDistributor.sendToServer(new BalanceWithdrawPayload(bulk));
             //?} else {
             /*PacketDistributor.sendToServer(new BalanceWithdrawPayload(bulk));
-            *///?}
+             *///?}
         }
     }
 }

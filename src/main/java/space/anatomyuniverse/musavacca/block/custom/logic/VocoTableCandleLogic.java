@@ -31,7 +31,6 @@ import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.Rece
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoTeleportLogic.SyncResult;
 import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.item.PearlIgniter;
-import space.anatomyuniverse.musavacca.particle.tinted.OriginalCandleParticles;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 public final class VocoTableCandleLogic {
@@ -106,11 +105,7 @@ public final class VocoTableCandleLogic {
             level.setBlock(pos, state.setValue(portalProperty, portal), VocoReceptorLogic.UPDATE_FLAGS);
             PearlSlotIgnition.playPortalStateChangeSound(level, pos, wasPortal, portal);
         }
-        if (portal) {
-            tableBe.activatePortal(receptor);
-        } else {
-            tableBe.refreshLatestHexFromLitCandles();
-        }
+        if (portal) tableBe.markChangedAndSync();
     }
 
     private static SyncResult syncEndpoint(
@@ -174,8 +169,9 @@ public final class VocoTableCandleLogic {
         for (var corner : ReceptorPosition.values()) {
             var candle = table.candle(corner);
             if (candle != null && candle.lit()) {
-                OriginalCandleParticles.animateMounted(
-                        candle.state(), level, ground, random, candle.hex(), VocoTableCandleVoxelShapes.renderTranslation(corner));
+                Vec3 offset = VocoTableCandleVoxelShapes.renderTranslation(corner);
+                PearlFlameParticles.animateMounted(
+                        candle.state(), level, ground, random, candle.hex(), new Vec3(offset.x, 0, offset.z));
             }
         }
     }

@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
-import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
+import space.anatomyuniverse.musavacca.block.custom.logic.PearlFlameConversion;
 
 @Mixin(ServerPlayerGameMode.class)
 public abstract class PearlCandleServerInteractionMixin {
@@ -22,6 +22,6 @@ public abstract class PearlCandleServerInteractionMixin {
             InteractionHand hand,
             BlockHitResult hit,
             Operation<InteractionResult> original) {
-        return PearlCandleConversion.useOn(level, player, stack, hit.getBlockPos(), () -> original.call(player, level, stack, hand, hit));
+        return PearlFlameConversion.useOn(level, player, stack, hit.getBlockPos(), () -> original.call(player, level, stack, hand, hit));
     }
 }

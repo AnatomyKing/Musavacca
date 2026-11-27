@@ -16,6 +16,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
@@ -27,22 +28,12 @@ import net.minecraft.world.level.ScheduledTickAccess;
 //?} else {
 /*import net.minecraft.world.level.LevelAccessor;
 *///?}
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
-*///?}
 
 public class PearlFireBlock extends FireBlock implements EntityBlock {
     public PearlFireBlock(Properties properties) {
         super(properties);
     }
 
-    //? if >=1.21.11 {
-    /*@Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
-    }
-
-    *///?}
     public BlockState getPlacementState(BlockGetter level, BlockPos pos) {
         return this.getStateForPlacement(level, pos);
     }
@@ -50,6 +41,11 @@ public class PearlFireBlock extends FireBlock implements EntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new PearlFireBlockEntity(pos, state);
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
     }
 
     @Override

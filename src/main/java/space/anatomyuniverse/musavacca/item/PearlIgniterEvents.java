@@ -2,13 +2,12 @@ package space.anatomyuniverse.musavacca.item;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.context.UseOnContext;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import space.anatomyuniverse.musavacca.block.custom.logic.InteractionResultCompat;
-import space.anatomyuniverse.musavacca.block.custom.logic.PearlCandleConversion;
+import space.anatomyuniverse.musavacca.block.custom.logic.PearlFlameConversion;
 
 public final class PearlIgniterEvents {
     private PearlIgniterEvents() {}
@@ -16,9 +15,7 @@ public final class PearlIgniterEvents {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!PearlIgniter.is(event.getItemStack()) || event.getEntity().isSpectator()) return;
-        InteractionResult result =
-                PearlIgniter.tryPickBlockColor(
-                        event.getItemStack(), new UseOnContext(event.getEntity(), event.getHand(), event.getHitVec()));
+        InteractionResult result = PearlIgniter.tryPickBlockColor(event.getItemStack(), event.getEntity(), event.getHitVec());
         if (result == InteractionResult.PASS) return;
         event.setCancellationResult(result);
         event.setCanceled(true);
@@ -28,9 +25,9 @@ public final class PearlIgniterEvents {
     public static void onUseItemOnBlock(UseItemOnBlockEvent event) {
         if (event.getUsePhase() != UseItemOnBlockEvent.UsePhase.ITEM_AFTER_BLOCK || !PearlIgniter.is(event.getItemStack())) return;
         var state = event.getLevel().getBlockState(event.getPos());
-        if (PearlCandleConversion.isCandle(state)
-                && !PearlCandleConversion.value(state, "lit")
-                && !PearlCandleConversion.value(state, "waterlogged")) return;
+        if (PearlFlameConversion.isCandle(state)
+                && !PearlFlameConversion.value(state, "lit")
+                && !PearlFlameConversion.value(state, "waterlogged")) return;
         InteractionResult result = PearlIgniter.useOn(event.getUseOnContext());
         //? if >=1.21.2 {
         event.cancelWithResult(result);

@@ -1,0 +1,47 @@
+{
+  "format_version": "1.21.11",
+  "credit": "AnatomyKing(\ud835\udd4f\ud83d\udc26@LuukMus,\u1d48\u1da6\u02e2\u1d9c\u1d52\u02b3\u1d48@anatomyking)",
+  "elements": [
+    {
+      "from": [
+        5,
+        12.98,
+        1
+      ],
+      "to": [
+        11,
+        16.02,
+        3
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          8,
+          14.5,
+          2
+        ]
+      },
+      "faces": {
+        "up": {
+          "uv": [
+            11,
+            15,
+            5,
+            13
+          ],
+          "texture": "#portal"
+        },
+        "down": {
+          "uv": [
+            5,
+            13,
+            11,
+            15
+          ],
+          "texture": "#portal"
+        }
+      }
+    }
+  ]
+}

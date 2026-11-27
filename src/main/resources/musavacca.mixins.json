@@ -5,7 +5,6 @@
   "plugin": "space.anatomyuniverse.musavacca.mixin.OptionalCompatMixinPlugin",
   "compatibilityLevel": "${java}",
   "mixins": [
-    "SavedDataStorageAccessor",
     "AbstractBoatFloatMixin",
     "PearlCandleServerInteractionMixin"
   ],
@@ -13,10 +12,10 @@
     "client.HumanoidArmorLayerMixin",
     "client.ClientBundleTooltipAccessor",
     "compat.gleam.GleamEmitterRegistryMixin",
-    "client.PearlCandleParticleCaptureMixin",
-    "client.PearlCandleParticleTintMixin",
-    "client.PearlCandleSpriteContentsMixin",
-    "client.PearlCandleSpriteLoaderMixin",
+    "client.ParticleCaptureMixin",
+    "client.ParticleSourceMixin",
+    "client.SpriteContentsMixin",
+    "client.SpriteLoaderMixin",
     "client.PearlCandleClientInteractionMixin"
   ],
   "injectors": {

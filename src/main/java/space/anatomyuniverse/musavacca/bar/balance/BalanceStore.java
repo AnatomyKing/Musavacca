@@ -2,20 +2,7 @@ package space.anatomyuniverse.musavacca.bar.balance;
 
 //? if >=26.1 {
 /*import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.storage.LevelResource;
 import space.anatomyuniverse.musavacca.MusaCore;
-import space.anatomyuniverse.musavacca.mixin.SavedDataStorageAccessor;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.Collections;
-import java.util.Set;
-import java.util.WeakHashMap;
-
 *///?}
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -23,6 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
+import space.anatomyuniverse.musavacca.data.MusaSavedData;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -34,10 +22,12 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 //?} else {
 /*import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 *///?}
 
 public final class BalanceStore extends SavedData {
-    public static final String STORAGE_ID = "musavacca_balance_store";
+    public static final String STORAGE_ID = "balance";
     private static final String BALANCES_TAG = "balances";
     private static final String KNOWN_NAMES_TAG = "known_names";
     private static final int MAX_BALANCE = Integer.MAX_VALUE;
@@ -86,45 +76,24 @@ public final class BalanceStore extends SavedData {
 
     //? if <1.21.5 {
     /*private static BalanceStore load(CompoundTag tag, HolderLookup.Provider registries) {
-        Map<UUID, Integer> loadedBalances = new HashMap<>();
-        Map<String, UUID> loadedKnownNames = new HashMap<>();
-        CompoundTag balancesTag = tag.getCompound(BALANCES_TAG);
-        for (String rawUuid : balancesTag.getAllKeys()) {
-            UUID playerUuid = parseUuidOrNull(rawUuid);
-            if (playerUuid != null) {
-                loadedBalances.put(playerUuid, balancesTag.getInt(rawUuid));
-            }
-        }
-        CompoundTag knownNamesTag = tag.getCompound(KNOWN_NAMES_TAG);
-        for (String playerName : knownNamesTag.getAllKeys()) {
-            UUID playerUuid = parseUuidOrNull(knownNamesTag.getString(playerName));
-            if (playerUuid != null) {
-                loadedKnownNames.put(playerName, playerUuid);
-            }
-        }
-        return new BalanceStore(loadedBalances, loadedKnownNames);
+        return CODEC.parse(NbtOps.INSTANCE, tag).result()
+                .orElseThrow(() -> new IllegalStateException("Invalid Musavacca balance store"));
     }
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        CompoundTag balancesTag = new CompoundTag();
-        this.balances.forEach((playerUuid, balance) -> balancesTag.putInt(playerUuid.toString(), balance));
-        tag.put(BALANCES_TAG, balancesTag);
-        CompoundTag knownNamesTag = new CompoundTag();
-        this.knownNames.forEach((playerName, playerUuid) -> knownNamesTag.putString(playerName, playerUuid.toString()));
-        tag.put(KNOWN_NAMES_TAG, knownNamesTag);
-        return tag;
+        Tag saved = CODEC.encodeStart(NbtOps.INSTANCE, this).result()
+                .orElseThrow(() -> new IllegalStateException("Cannot save Musavacca balance store"));
+        if (saved instanceof CompoundTag compound) return compound;
+        throw new IllegalStateException("Balance store codec returned an invalid tag");
     }
-
     *///?}
+
     public static BalanceStore get(MinecraftServer server) {
-        //? if >=26.1 {
-        /*migrateLegacyData(server);
-        *///?}
         //? if >=1.21.5 {
-        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
+        return MusaSavedData.storage(server).computeIfAbsent(TYPE);
         //?} else {
-        /*return server.overworld().getDataStorage().computeIfAbsent(FACTORY, STORAGE_ID);
+        /*return MusaSavedData.storage(server).computeIfAbsent(FACTORY, STORAGE_ID);
         *///?}
     }
 
@@ -149,10 +118,6 @@ public final class BalanceStore extends SavedData {
         String cleanName = normalizeName(playerName);
         if (cleanName.isEmpty()) return Optional.empty();
         return Optional.ofNullable(this.knownNames.get(cleanName));
-    }
-
-    public boolean containsBalance(UUID playerUuid) {
-        return playerUuid != null && this.balances.containsKey(playerUuid);
     }
 
     public int getBalance(UUID playerUuid) {
@@ -225,40 +190,4 @@ public final class BalanceStore extends SavedData {
         if (playerUuid != null) return DataResult.success(playerUuid);
         return DataResult.error(() -> "Invalid balance UUID: " + rawUuid);
     }
-
-    //? if >=26.1 {
-    /*private static final Set<Object> CHECKED = Collections.newSetFromMap(new WeakHashMap<>());
-
-    private static synchronized void migrateLegacyData(MinecraftServer server) {
-        var storage = server.overworld().getDataStorage();
-        if (CHECKED.contains(storage)) return;
-        var directory = ((SavedDataStorageAccessor) storage).musavacca$dataFolder();
-        var target = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, STORAGE_ID + ".dat").resolveAgainst(directory);
-        try {
-            copyLegacyData(directory.resolve(STORAGE_ID + ".dat"), target);
-            copyLegacyData(server.getWorldPath(LevelResource.ROOT).resolve("data").resolve(STORAGE_ID + ".dat"), target);
-        } catch (IOException error) {
-            throw new UncheckedIOException("Cannot migrate Musavacca saved data " + STORAGE_ID + "; original retained", error);
-        }
-        CHECKED.add(storage);
-    }
-
-    private static void copyLegacyData(Path legacy, Path target) throws IOException {
-        if (Files.exists(target) || !Files.isRegularFile(legacy)) return;
-        Files.createDirectories(target.getParent());
-        Path temporary = Files.createTempFile(target.getParent(), target.getFileName().toString(), ".migrating");
-        try {
-            Files.copy(legacy, temporary, StandardCopyOption.REPLACE_EXISTING);
-            if (!Files.exists(target)) {
-                try {
-                    Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
-                } catch (AtomicMoveNotSupportedException ignored) {
-                    Files.move(temporary, target);
-                }
-            }
-        } finally {
-            Files.deleteIfExists(temporary);
-        }
-    }
-    *///?}
 }

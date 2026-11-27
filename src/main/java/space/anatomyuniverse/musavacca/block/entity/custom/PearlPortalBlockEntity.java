@@ -182,28 +182,18 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
         Level level = this.getLevel();
         if (level == null) return;
         if (level.isClientSide()) {
-            this.rerenderClientNow();
+            this.registerClientPortal();
             return;
         }
-        this.sendBlockUpdate(false);
+        BlockState state = this.getBlockState();
+        level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
-    private void rerenderClientNow() {
+    private void registerClientPortal() {
         Level level = this.getLevel();
-        if (level == null || !level.isClientSide()) return;
-        this.sendBlockUpdate(true);
-        if (this.isValidPortalTile()) {
+        if (level != null && level.isClientSide() && this.isValidPortalTile()) {
             PearlPortalNetwork.registerPortalBlock(this);
         }
-    }
-
-    private void sendBlockUpdate(boolean clientOnly) {
-        Level level = this.getLevel();
-        if (level == null) return;
-        if (clientOnly && !level.isClientSide()) return;
-        BlockPos pos = this.getBlockPos();
-        BlockState state = this.getBlockState();
-        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
     }
 
     @Override
@@ -333,7 +323,7 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
         //?} else {
         /*super.handleUpdateTag(input, provider);
         *///?}
-        this.rerenderClientNow();
+        this.registerClientPortal();
     }
 
     @Override
@@ -347,7 +337,7 @@ public class PearlPortalBlockEntity extends BlockEntity implements HexSource {
         //?} else {
         /*super.onDataPacket(connection, packet, provider);
         *///?}
-        this.rerenderClientNow();
+        this.registerClientPortal();
     }
 
     //? if >=1.21.6 {

@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "musavacca:block/hex_block"
+        "model": "musavacca:block/hard_hex_block"
       }
     }
   ]

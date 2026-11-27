@@ -186,23 +186,27 @@
 		{
 			"name": "cross",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [0, 1]
 		},
 		{
 			"name": "paddles",
 			"origin": [5.65, 15.5, 4.1],
+			"scope": 0,
 			"color": 0,
 			"children": [
 				{
 					"name": "big",
 					"origin": [5.65, 15.5, 4.1],
+					"scope": 0,
 					"color": 0,
 					"children": [2, 3, 4, 5]
 				},
 				{
 					"name": "small",
 					"origin": [12.35, 14.05, 4.15],
+					"scope": 0,
 					"color": 0,
 					"children": [6, 7, 8, 9]
 				}
@@ -211,6 +215,7 @@
 		{
 			"name": "leaves",
 			"origin": [8.15, 16.25, 11.75],
+			"scope": 0,
 			"color": 0,
 			"children": [10, 11, 12, 13]
 		}

@@ -39,23 +39,6 @@ public final class FireTextures {
         //?}
     }
 
-    //? if >=1.21.11 {
-    /*public static Identifier layer(Set textures, int frame, int layer) {
-    *///?} else {
-    public static ResourceLocation layer(Set textures, int frame, int layer) {
-    //?}
-        var base = textures.base();
-        String path = base.getPath();
-        int slash = path.lastIndexOf('/');
-        String stem = slash >= 0 ? path.substring(slash + 1) : path;
-        String frameStem = stem + "_" + frame;
-        //? if >=1.21.11 {
-        /*return Identifier.fromNamespaceAndPath(base.getNamespace(), path + "/" + frameStem + "/" + frameStem + "_" + layer);
-        *///?} else {
-        return ResourceLocation.fromNamespaceAndPath(base.getNamespace(), path + "/" + frameStem + "/" + frameStem + "_" + layer);
-        //?}
-    }
-
     public static final class Builder {
         private final Block block;
         //? if >=1.21.11 {

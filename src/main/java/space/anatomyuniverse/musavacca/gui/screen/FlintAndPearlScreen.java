@@ -7,6 +7,11 @@ import net.minecraft.client.input.MouseButtonEvent;
 *///?}
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+//? if >=1.21.9 {
+/*import net.minecraft.data.AtlasIds;
+*///?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +22,7 @@ import space.anatomyuniverse.musavacca.gui.menu.payloads.FlintAndPearlColorPaylo
 import space.anatomyuniverse.musavacca.item.PearlIgniter;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles;
-import space.anatomyuniverse.musavacca.tint.PearlFireTintSource;
+import space.anatomyuniverse.musavacca.tint.SpriteTintLayers;
 
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
@@ -67,8 +72,8 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
     private static final Identifier ARROW_UP_PRESSED = guiTexture("arrow_up_pressed");
     private static final Identifier ARROW_DOWN = guiTexture("arrow_down");
     private static final Identifier ARROW_DOWN_PRESSED = guiTexture("arrow_down_pressed");
-    private static final Identifier[] PEARL = textureArray("flint_and_pearl_", 13);
-    private static final Identifier[] PEARL_PRESSED = textureArray("flint_and_pearl_pressed_", 13);
+    private static final Identifier PEARL = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl");
+    private static final Identifier PEARL_PRESSED = Identifier.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl_pressed");
     private static final Identifier[] SYMBOLS = symbolArray();
     *///?} else {
     private static final ResourceLocation HEX_NORMAL = guiTexture("hex_bar");
@@ -84,8 +89,8 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
     private static final ResourceLocation ARROW_UP_PRESSED = guiTexture("arrow_up_pressed");
     private static final ResourceLocation ARROW_DOWN = guiTexture("arrow_down");
     private static final ResourceLocation ARROW_DOWN_PRESSED = guiTexture("arrow_down_pressed");
-    private static final ResourceLocation[] PEARL = textureArray("flint_and_pearl_", 13);
-    private static final ResourceLocation[] PEARL_PRESSED = textureArray("flint_and_pearl_pressed_", 13);
+    private static final ResourceLocation PEARL = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl");
+    private static final ResourceLocation PEARL_PRESSED = ResourceLocation.fromNamespaceAndPath(MusaCore.MOD_ID, "flint_and_pearl_pressed");
     private static final ResourceLocation[] SYMBOLS = symbolArray();
     //?}
     private static final ArrowButton[] ARROWS = arrows();
@@ -149,19 +154,6 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
     }
 
     //? if >=1.21.11 {
-    /*private static Identifier[] textureArray(String prefix, int count) {
-        Identifier[] textures = new Identifier[count];
-    *///?} else {
-    private static ResourceLocation[] textureArray(String prefix, int count) {
-        ResourceLocation[] textures = new ResourceLocation[count];
-    //?}
-        for (int i = 0; i < count; i++) {
-            textures[i] = guiTexture(prefix + i);
-        }
-        return textures;
-    }
-
-    //? if >=1.21.11 {
     /*private static Identifier[] symbolArray() {
         Identifier[] textures = new Identifier[16];
     *///?} else {
@@ -213,22 +205,40 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
     *///?} else {
     private void blitPearl(GuiGraphics graphics, int guiX, int guiY, int rgb) {
     //?}
-        //? if >=1.21.11 {
-        /*Identifier[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
+        var sprite = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
+        var minecraft = Minecraft.getInstance();
+        //? if >=1.21.9 {
+        /*var source = minecraft.getAtlasManager().getAtlasOrThrow(AtlasIds.GUI).getSprite(sprite);
         *///?} else {
-        ResourceLocation[] textures = this.isPressed(PEARL_TARGET) ? PEARL_PRESSED : PEARL;
+        var source = minecraft.getGuiSprites().getSprite(sprite);
         //?}
-        for (int layer = 0; layer < textures.length; layer++) {
-            int tint = PearlFireTintSource.profileTint(rgb, layer, PearlFireTintProfiles.FLINT_AND_PEARL);
-            this.blitColored(
-                    graphics,
-                    textures[layer],
-                    guiX + 5,
-                    guiY + 10,
-                    124,
-                    156,
-                    tint == MusavaccaTints.NO_TINT ? 0xFFFFFFFF : 0xFF000000 | MusavaccaTints.rgb(tint));
+        var layers = SpriteTintLayers.layers(source);
+        if (layers != null && layers.sprites() != null) {
+            int[] colors = SpriteTintLayers.palette(rgb, PearlFireTintProfiles.FIRE_BLOCK, layers.tones());
+            boolean rendered = false;
+            for (int i = 0; i < layers.sprites().length; i++) {
+                TextureAtlasSprite layer = layers.sprites()[i];
+                if (layer == null) continue;
+                int color = colors[i];
+                //? if >=1.21.6 {
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, layer, guiX + 5, guiY + 10, 124, 156, 0xFF000000 | color);
+                //?} else if >=1.21.2 <1.21.6 {
+                /*graphics.blitSprite(RenderType::guiTextured, layer, guiX + 5, guiY + 10, 124, 156, 0xFF000000 | color);
+                *///?} else {
+                /*graphics.blit(guiX + 5, guiY + 10, 0, 124, 156, layer,
+                        ((color >> 16) & 255) / 255.0F, ((color >> 8) & 255) / 255.0F, (color & 255) / 255.0F, 1.0F);
+                *///?}
+                rendered = true;
+            }
+            if (rendered) return;
         }
+        //? if >=1.21.6 {
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, guiX + 5, guiY + 10, 124, 156);
+        //?} else if >=1.21.2 {
+        /*graphics.blitSprite(RenderType::guiTextured, sprite, guiX + 5, guiY + 10, 124, 156);
+        *///?} else {
+        /*graphics.blitSprite(sprite, guiX + 5, guiY + 10, 124, 156);
+        *///?}
     }
 
     //? if >=26.1 {
@@ -355,28 +365,12 @@ public class FlintAndPearlScreen extends AbstractContainerScreen<FlintAndPearlMe
     *///?} else {
     private void blit(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height) {
     //?}
-        this.blitColored(graphics, texture, x, y, width, height, 0xFFFFFFFF);
-    }
-
-    //? if >=26.1 {
-    /*private void blitColored(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width, int height, int color) {
-    *///?} else if >=1.21.11 <26.1 {
-    /*private void blitColored(GuiGraphics graphics, Identifier texture, int x, int y, int width, int height, int color) {
-    *///?} else {
-    private void blitColored(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width, int height, int color) {
-    //?}
         //? if >=1.21.6 {
-        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0F, 0.0F, width, height, width, height, color);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0F, 0.0F, width, height, width, height);
         //?} else if >=1.21.2 <1.21.6 {
-        /*graphics.blit(RenderType::guiTextured, texture, x, y, 0.0F, 0.0F, width, height, width, height, color);
+        /*graphics.blit(RenderType::guiTextured, texture, x, y, 0.0F, 0.0F, width, height, width, height);
         *///?} else {
-        /*float alpha = ((color >> 24) & 0xFF) / 255.0F;
-        float red = ((color >> 16) & 0xFF) / 255.0F;
-        float green = ((color >> 8) & 0xFF) / 255.0F;
-        float blue = (color & 0xFF) / 255.0F;
-        graphics.setColor(red, green, blue, alpha);
-        graphics.blit(texture, x, y, 0.0F, 0.0F, width, height, width, height);
-        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        /*graphics.blit(texture, x, y, 0.0F, 0.0F, width, height, width, height);
         *///?}
     }
 

@@ -12,6 +12,7 @@ import space.anatomyuniverse.musavacca.MusaCore;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
 import space.anatomyuniverse.musavacca.block.entity.custom.*;
 
+import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -28,8 +29,10 @@ public final class ModBlockEntities {
             register("musavacca_door_block_entity", MusavaccaPortalDoorBlockEntity::new, () -> ModBlocks.MUSAVACCA_DOOR.get());
     public static final Supplier<BlockEntityType<MusavaccaPortalTrapdoorBlockEntity>> MUSAVACCA_TRAPDOOR_BLOCK_ENTITY =
             register("musavacca_trapdoor_block_entity", MusavaccaPortalTrapdoorBlockEntity::new, () -> ModBlocks.MUSAVACCA_TRAPDOOR.get());
-    public static final Supplier<BlockEntityType<PearlCandleBlockEntity>> PEARL_CANDLE_BLOCK_ENTITY =
-            register("pearl_candle_block_entity", PearlCandleBlockEntity::new, () -> ModBlocks.PEARL_CANDLE.get());
+    public static final Supplier<BlockEntityType<PearlCopycatBlockEntity>> PEARL_CANDLE_BLOCK_ENTITY =
+            register("pearl_candle_block_entity", ModBlockEntities::createPearlCandle, ModBlocks.PEARL_CANDLE::get, ModBlocks.PEARL_CANDLE_CAKE::get);
+    public static final Supplier<BlockEntityType<PearlCampfireBlockEntity>> PEARL_CAMPFIRE_BLOCK_ENTITY =
+            register("pearl_campfire_block_entity", PearlCampfireBlockEntity::new, ModBlocks.PEARL_CAMPFIRE::get);
     public static final Supplier<BlockEntityType<VocoPostBlockEntity>> VOCO_POST_BLOCK_ENTITY =
             register("voco_post_block_entity", VocoPostBlockEntity::new, () -> ModBlocks.VOCO_POST.get());
     public static final Supplier<BlockEntityType<VocoTableBlockEntity>> VOCO_TABLE_BLOCK_ENTITY =
@@ -39,17 +42,23 @@ public final class ModBlockEntities {
 
     private ModBlockEntities() {}
 
+    private static PearlCopycatBlockEntity createPearlCandle(BlockPos pos, BlockState state) {
+        return new PearlCopycatBlockEntity(PEARL_CANDLE_BLOCK_ENTITY.get(), pos, state);
+    }
+
+    @SafeVarargs
     private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(
-            String name, BiFunction<BlockPos, BlockState, T> factory, Supplier<? extends Block> block) {
-        return BLOCK_ENTITY_TYPES.register(name, () ->
-                //? if >=1.21.4 {
-                new BlockEntityType<>(factory::apply, false, block.get())
-                //?} else if >=1.21.2 <1.21.4 {
-                /*new BlockEntityType<>(factory::apply, block.get())
-                *///?} else {
-                /*BlockEntityType.Builder.<T>of(factory::apply, block.get()).build(null)
-                *///?}
-        );
+            String name, BiFunction<BlockPos, BlockState, T> factory, Supplier<? extends Block>... blocks) {
+        return BLOCK_ENTITY_TYPES.register(name, () -> {
+            Block[] validBlocks = Arrays.stream(blocks).map(Supplier::get).toArray(Block[]::new);
+            //? if >=1.21.4 {
+            return new BlockEntityType<>(factory::apply, false, validBlocks);
+            //?} else if >=1.21.2 <1.21.4 {
+            /*return new BlockEntityType<>(factory::apply, validBlocks);
+            *///?} else {
+            /*return BlockEntityType.Builder.<T>of(factory::apply, validBlocks).build(null);
+            *///?}
+        });
     }
 
     public static void register(IEventBus modBus) {

@@ -36,7 +36,6 @@ import space.anatomyuniverse.musavacca.entity.mob.basuke.Basuke;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportAddressNetwork;
 import space.anatomyuniverse.musavacca.teleport.HexTeleportDirectory;
 import space.anatomyuniverse.musavacca.teleport.TeleportDeviceIdentity;
-import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.MultiHexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
@@ -58,7 +57,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
 
-public class VocoTableBlockEntity extends BlockEntity implements HexSource, MultiHexSource {
+public class VocoTableBlockEntity extends BlockEntity implements MultiHexSource {
     private UUID deviceId = UUID.randomUUID();
 
     public UUID getDeviceId() {
@@ -74,7 +73,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     private static final String TAG_BASUKE_VISIBLE = "basuke_visible";
     private static final String TAG_BASUKE_UUID = "basuke_uuid";
     private static final String TAG_DISPLAYED_ITEM_COUNT = "displayed_item_count";
-    private static final String TAG_LATEST_HEX_RECEPTOR_ID = "latest_hex_receptor_id";
     private static final String[] TAG_YAW_DEGREES = {"yaw_north_east", "yaw_north_west", "yaw_south_east", "yaw_south_west"};
     private static final String[] TAG_PITCH_DEGREES = {"pitch_north_east", "pitch_north_west", "pitch_south_east", "pitch_south_west"};
     private static final String[] TAG_CUSTOM_TARGET = {
@@ -103,8 +101,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
     private final double[] targetZ = new double[ReceptorPosition.COUNT];
     private final VocoTableCandle[] candleSlots = new VocoTableCandle[ReceptorPosition.COUNT];
     private final VocoTableVoxelShapes.Cache shapeCache = new VocoTableVoxelShapes.Cache();
-    private int latestHexColor = MusavaccaTints.NO_TINT;
-    private int latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
     private boolean basukeVisible = false;
     @Nullable private UUID basukeUuid = null;
 
@@ -254,15 +250,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         this.resyncEndpoint(receptor);
     }
 
-    public boolean hasLatestHexColor() {
-        return this.latestHexColor != MusavaccaTints.NO_TINT;
-    }
-
-    @Override
-    public int getHexColor() {
-        return this.latestHexColor;
-    }
-
     public int getCornerHexColor(ReceptorPosition receptor) {
         var candle = candle(receptor);
         return candle != null && candle.lit() ? candle.hex() : MusavaccaTints.NO_TINT;
@@ -299,30 +286,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         return List.of(this.getHexColor(0), this.getHexColor(1), this.getHexColor(2), this.getHexColor(3));
     }
 
-    public void activatePortal(ReceptorPosition receptor) {
-        int hex = getCornerHexColor(receptor);
-        if (hex == MusavaccaTints.NO_TINT) {
-            refreshLatestHexFromLitCandles();
-            return;
-        }
-        setLatest(receptor, hex);
-        markChangedAndSync();
-    }
-
-    public void refreshLatestHexFromLitCandles() {
-        var current = ReceptorPosition.byId(latestHexReceptorId);
-        latestHexColor = getCornerHexColor(current);
-        if (latestHexColor != MusavaccaTints.NO_TINT) return;
-        for (var receptor : ReceptorPosition.values()) {
-            int hex = getCornerHexColor(receptor);
-            if (hex != MusavaccaTints.NO_TINT) {
-                setLatest(receptor, hex);
-                return;
-            }
-        }
-        latestHexReceptorId = ReceptorPosition.NORTH_EAST.id();
-    }
-
     public int candleLightLevel() {
         int count = 0;
         for (var candle : candleSlots) {
@@ -352,7 +315,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
 
     public void setCandle(ReceptorPosition receptor, @Nullable VocoTableCandle candle) {
         candleSlots[receptor.id()] = candle;
-        refreshLatestHexFromLitCandles();
         markCandleChanged();
         VocoTableCandleLogic.syncPortalStateFromCandles(level, getBlockPos(), receptor);
     }
@@ -368,7 +330,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         }
         if (!changed) return;
         clearPortalPropertiesForUnlitCandles();
-        refreshLatestHexFromLitCandles();
         markCandleChanged();
     }
 
@@ -395,11 +356,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             return;
         }
         level.setBlock(this.getBlockPos(), state.setValue(VocoTableBlock.ROTARY_DIALERS, active), VocoReceptorLogic.UPDATE_FLAGS);
-    }
-
-    private void setLatest(ReceptorPosition receptor, int hexColor) {
-        this.latestHexReceptorId = receptor.id();
-        this.latestHexColor = MusavaccaTints.resolve(hexColor);
     }
 
     private void resetFacingDefaults() {
@@ -525,7 +481,7 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         serverLevel.setBlock(pos, state.setValue(VocoTableBlock.CANDLE_LIGHT, light), Block.UPDATE_ALL);
     }
 
-    private void markChangedAndSync() {
+    public void markChangedAndSync() {
         this.setChanged();
         this.syncToClientAndRerender();
     }
@@ -668,17 +624,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
             *///?}
             candleSlots[index] = loaded.filter(candle -> VocoTableCandle.accepts(candle.state()) && candle.count() > 0).orElse(null);
         }
-        //? if >=1.21.5 {
-        this.latestHexReceptorId =
-                VocoReceptorLogic.clampReceptorId(input.getIntOr(TAG_LATEST_HEX_RECEPTOR_ID, ReceptorPosition.NORTH_EAST.id()));
-        //?} else {
-        /*this.latestHexReceptorId =
-                VocoReceptorLogic.clampReceptorId(
-                        (input.contains(TAG_LATEST_HEX_RECEPTOR_ID, Tag.TAG_ANY_NUMERIC)
-                                ? input.getInt(TAG_LATEST_HEX_RECEPTOR_ID)
-                                : ReceptorPosition.NORTH_EAST.id()));
-        *///?}
-        this.refreshLatestHexFromLitCandles();
     }
 
     @Override
@@ -701,9 +646,6 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         output.putBoolean(TAG_BASUKE_VISIBLE, this.basukeVisible);
         if (this.basukeUuid != null) {
             output.putString(TAG_BASUKE_UUID, this.basukeUuid.toString());
-        }
-        if (this.hasLatestHexColor()) {
-            output.putInt(TAG_LATEST_HEX_RECEPTOR_ID, this.latestHexReceptorId);
         }
         for (ReceptorPosition receptor : ReceptorPosition.values()) {
             int index = receptor.id();
@@ -739,17 +681,12 @@ public class VocoTableBlockEntity extends BlockEntity implements HexSource, Mult
         super.applyImplicitComponents(input);
         input.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY).copyInto(this.items);
         this.normalizeDisplayedItem(this.items.get(0).getCount());
-        Integer savedHex = input.get(ModDataComponents.HEX_COLOR.get());
-        this.latestHexColor = savedHex == null ? MusavaccaTints.NO_TINT : MusavaccaTints.stored(savedHex);
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
         components.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.items));
-        if (this.hasLatestHexColor()) {
-            components.set(ModDataComponents.HEX_COLOR.get(), this.latestHexColor);
-        }
         components.set(ModDataComponents.MULTI_HEX_COLOR.get(), this.getMultiHexColors());
     }
 

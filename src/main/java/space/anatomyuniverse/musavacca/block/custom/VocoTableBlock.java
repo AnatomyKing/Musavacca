@@ -40,9 +40,6 @@ import space.anatomyuniverse.musavacca.gui.menu.VocoDialerMenu;
 //? if <1.21.2 {
 /*import net.minecraft.world.ItemInteractionResult;
 *///?}
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
-*///?}
 
 public final class VocoTableBlock extends Block implements EntityBlock {
     public static final BooleanProperty LIT_NORTH_EAST = BooleanProperty.create("lit_north_east");
@@ -66,13 +63,6 @@ public final class VocoTableBlock extends Block implements EntityBlock {
         this.registerDefaultState(state.setValue(ROTARY_DIALERS, false).setValue(CANDLE_LIGHT, 0));
     }
 
-    //? if >=1.21.11 {
-    /*@Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
-    }
-
-    *///?}
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

@@ -1,0 +1,20 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "minecraft:block/campfire_off"
+      },
+      "when": {
+        "lit": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/campfire"
+      },
+      "when": {
+        "lit": "true"
+      }
+    }
+  ]
+}

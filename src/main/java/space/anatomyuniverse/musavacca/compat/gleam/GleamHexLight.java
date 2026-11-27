@@ -2,11 +2,11 @@ package space.anatomyuniverse.musavacca.compat.gleam;
 
 //? if <1.21.2 {
 /*import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.thatmaidenjaden.gleam.client.lighting.GleamLight;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.PearlFlameBlock;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints.HexSource;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
@@ -19,7 +19,7 @@ public final class GleamHexLight {
         Block block = state.getBlock();
         return block == ModBlocks.PEARL_FIRE.get()
                 || block == ModBlocks.PEARL_PORTAL.get()
-                || block == ModBlocks.PEARL_CANDLE.get() && state.getValue(CandleBlock.LIT) && !state.getValue(CandleBlock.WATERLOGGED);
+                || block instanceof PearlFlameBlock && PearlFlameBlock.isLit(state);
     }
 
     public static GleamLight create(BlockEntity blockEntity, int x, int y, int z) {

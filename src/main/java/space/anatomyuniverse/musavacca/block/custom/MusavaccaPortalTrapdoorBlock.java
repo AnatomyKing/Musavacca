@@ -44,9 +44,6 @@ import space.anatomyuniverse.musavacca.trapdoor.MusavaccaTrapdoorTeleportTransfo
 //? if >=1.21.5 {
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 //?}
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
-*///?}
 //? if >=1.21.2 {
 import net.minecraft.world.level.portal.TeleportTransition;
 //?} else {
@@ -101,13 +98,6 @@ public final class MusavaccaPortalTrapdoorBlock extends TrapDoorBlock implements
         *///?}
     }
 
-    //? if >=1.21.11 {
-    /*@Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
-    }
-
-    *///?}
     //?}
     @Nullable
     @Override

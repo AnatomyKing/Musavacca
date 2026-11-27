@@ -3,6 +3,7 @@ package space.anatomyuniverse.musavacca.data.models.newgen;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import space.anatomyuniverse.musavacca.block.custom.DecorationBlock;
 import space.anatomyuniverse.musavacca.data.models.NewModelSets;
 import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.ModelMode;
 
@@ -14,23 +15,9 @@ import java.util.Map;
 public final class NewgenBlockTintCatalog {
     private NewgenBlockTintCatalog() {}
 
-    public record Rule(Conditions.Match conditions, Tints.Tint tint, List<Tints.GeneratedLayer> generatedLayers) {
-        public Rule(Conditions.Match conditions, Tints.Tint tint) {
-            this(conditions, tint, Tints.generatedLayers(tint));
-        }
-
-        public Rule {
-            if (conditions == null) throw new NullPointerException("conditions");
-            if (tint == null) throw new NullPointerException("tint");
-            generatedLayers = List.copyOf(generatedLayers);
-        }
-
+    public record Rule(Conditions.Match conditions, Tints.Tint tint) {
         boolean handles(BlockState state, int tintIndex) {
-            if (!conditions.matches(state)) return false;
-            for (Tints.GeneratedLayer layer : generatedLayers) {
-                if (layer.tintIndex() == tintIndex) return true;
-            }
-            return false;
+            return tint.tintIndex() == tintIndex && conditions.matches(state);
         }
     }
 
@@ -63,19 +50,6 @@ public final class NewgenBlockTintCatalog {
     }
 
     public static List<Binding> bindings() {
-        return Holder.BINDINGS;
-    }
-
-    public static Block[] blocks() {
-        return Holder.BLOCKS.clone();
-    }
-
-    @Nullable
-    public static Binding binding(Block block) {
-        return Holder.BY_BLOCK.get(block);
-    }
-
-    private static List<Binding> buildBindings() {
         LinkedHashMap<Block, List<Rule>> rulesByBlock = new LinkedHashMap<>();
         addModelFamilies(rulesByBlock, NewModelSets.simpleBlocks());
         addModelFamilies(rulesByBlock, NewModelSets.crossBlocks());
@@ -95,7 +69,8 @@ public final class NewgenBlockTintCatalog {
         }
         for (DecorationBlocks.Entry entry : NewModelSets.decorationBlocks()) {
             for (DecorationBlocks.Model model : entry.models()) {
-                addRule(rulesByBlock, entry.block(), model.conditions(), Tints.effective(entry.tint(), model.tint()));
+                addRule(rulesByBlock, entry.block(), model.conditions().and(DecorationBlock.PLACEMENT, model.placement()),
+                        Tints.effective(entry.tint(), model.tint()));
             }
         }
         ArrayList<Binding> bindings = new ArrayList<>(rulesByBlock.size());
@@ -129,23 +104,5 @@ public final class NewgenBlockTintCatalog {
     private static void addRule(Map<Block, List<Rule>> result, Block block, Conditions.Match conditions, Tints.Tint tint) {
         if (tint == null || !tint.tinted()) return;
         result.computeIfAbsent(block, ignored -> new ArrayList<>()).add(new Rule(conditions, tint));
-    }
-
-    private static final class Holder {
-        private static final List<Binding> BINDINGS = buildBindings();
-        private static final Map<Block, Binding> BY_BLOCK = buildIndex(BINDINGS);
-        private static final Block[] BLOCKS = BINDINGS.stream().map(Binding::block).toArray(Block[]::new);
-
-        private static Map<Block, Binding> buildIndex(List<Binding> bindings) {
-            LinkedHashMap<Block, Binding> result = new LinkedHashMap<>();
-            for (Binding binding : bindings) {
-                Binding previous = result.put(binding.block(), binding);
-                if (previous != null) {
-                    throw new IllegalStateException(
-                            "NewGen block tint binding declared twice for " + ModelLocations.blockId(binding.block()));
-                }
-            }
-            return Map.copyOf(result);
-        }
     }
 }

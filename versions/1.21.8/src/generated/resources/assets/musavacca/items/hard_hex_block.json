@@ -1,7 +1,7 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "musavacca:block/hex_block",
+    "model": "musavacca:block/hard_hex_block",
     "tints": [
       {
         "type": "minecraft:constant",

@@ -1,22 +1,24 @@
 package space.anatomyuniverse.musavacca.data.models.newgen;
 
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.BlockState;
 import space.anatomyuniverse.musavacca.data.models.NewModelSets;
 import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.FamilyItemMode;
 import space.anatomyuniverse.musavacca.data.models.newgen.BlockFamily.ModelMode;
-import space.anatomyuniverse.musavacca.tint.ArmorTrimItemTintSource;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public final class NewgenItemCatalog {
     private NewgenItemCatalog() {}
 
-    public record Binding(ItemLike item, SimpleItems.Model model) {}
+    public record Binding(ItemLike item, List<Tints.Tint> tints) {
+        public int color(ItemStack stack, int index) {
+            return index >= 0 && index < tints.size() ? tints.get(index).itemColor(stack) : Tints.NO_TINT;
+        }
+    }
 
     public static List<Binding> tintBindings() {
         List<Binding> result = new ArrayList<>();
@@ -61,32 +63,6 @@ public final class NewgenItemCatalog {
         return List.copyOf(result);
     }
 
-    //? if >=1.21.4 {
-    public static List<Tints.ItemTintType> itemTintTypes() {
-        //? if >=1.21.11 {
-        /*Map<net.minecraft.resources.Identifier, Tints.ItemTintType> types = new LinkedHashMap<>();
-        *///?} else {
-        Map<net.minecraft.resources.ResourceLocation, Tints.ItemTintType> types = new LinkedHashMap<>();
-        //?}
-        for (Binding binding : tintBindings()) {
-            List<Tints.Tint> tints = declaredItemTints(binding.item(), binding.model());
-            for (Tints.Tint tint : tints) {
-                Tints.ItemTintType type = tint.itemTintType();
-                if (type == null) continue;
-                Tints.ItemTintType previous = types.putIfAbsent(type.id(), type);
-                if (previous != null && previous.codec() != type.codec())
-                    throw new IllegalStateException("Different item tint codecs use " + type.id());
-            }
-        }
-        boolean usesArmorTrimTint = NewModelSets.armorItems().stream().anyMatch(entry -> entry.inventory().trims());
-        if (usesArmorTrimTint) {
-            Tints.ItemTintType type = ArmorTrimItemTintSource.itemTintType();
-            types.putIfAbsent(type.id(), type);
-        }
-        return List.copyOf(types.values());
-    }
-
-    //?}
     private static void addModelFamilyItems(List<Binding> result, List<? extends BlockFamily.ModelFamilyEntry<?, ?>> entries) {
         for (BlockFamily.ModelFamilyEntry<?, ?> entry : entries) {
             if (entry.familyItemMode() == FamilyItemMode.NONE) continue;
@@ -114,58 +90,47 @@ public final class NewgenItemCatalog {
         }
     }
 
-    static List<Tints.Tint> itemTints(ItemLike item, SimpleItems.Model model) {
-        return itemTints(item, model, false);
-    }
-
-    static List<Tints.Tint> declaredItemTints(ItemLike item, SimpleItems.Model model) {
-        return itemTints(item, model, true);
-    }
-
-    private static List<Tints.Tint> itemTints(ItemLike item, SimpleItems.Model model, boolean declarations) {
-        if (model.isExisting()) return model.existingTints();
-        if (model.isGenerated()) return model.physicalLayers(item).stream().map(SimpleItems.PhysicalLayer::tint).toList();
-        List<List<Tints.Tint>> palettes = new ArrayList<>();
+    private static List<Tints.Tint> itemTints(ItemLike item, SimpleItems.Model model) {
+        if (model.isExisting()) return List.of(model.tint());
+        if (model.isGenerated()) return model.textureTints(model.textures(ModelLocations.itemId(item)).size());
+        List<Tints.Tint> tints = new ArrayList<>();
         if (model.isMultipart()) {
             for (SimpleBlocks.Part part : model.parts()) {
-                Tints.Tint tint = part.tint() == null ? Tints.none() : part.tint();
-                palettes.add(Tints.generatedLayers(tint).stream().map(tint::physicalLayer).toList());
+                tints.add(Tints.effective(Tints.none(), part.tint()));
             }
         } else if (model.isBlockState() && item.asItem() instanceof BlockItem blockItem) {
-            BlockState state = declarations ? null : SimpleItems.blockState(item);
-            SimpleBlocks.Entry entry =
-                    NewModelSets.simpleBlocks().stream()
-                            .filter(candidate -> candidate.block() == blockItem.getBlock())
-                            .findFirst()
-                            .orElse(null);
+            BlockState state = SimpleItems.blockState(item);
+            var entry = blockDefinition(blockItem);
             if (entry != null) {
                 List<? extends BlockFamily.ModelRule<?, ?>> rules = entry.mode() == ModelMode.MODELS ? entry.models() : entry.parts();
-                for (BlockFamily.ModelRule<?, ?> part : rules) {
-                    if (state != null && !part.conditions().matches(state)) continue;
-                    Tints.Tint tint = Tints.effective(entry.tint(), part.tint());
-                    palettes.add(Tints.generatedLayers(tint).stream().map(tint::physicalLayer).toList());
+                for (var part : rules) {
+                    if (part.conditions().matches(state)) tints.add(Tints.effective(entry.tint(), part.tint()));
                 }
             }
         }
-        List<List<Tints.Tint>> tinted = palettes.stream().filter(palette -> palette.stream().anyMatch(Tints.Tint::tinted)).toList();
-        //? if <1.21.4 {
-        /*if (declarations) return tinted.stream().flatMap(List::stream).toList();
-        if (tinted.size() > 1 && tinted.stream().distinct().count() > 1)
-            throw new IllegalStateException("Legacy composite item has incompatible tint palettes: " + item);
-        return tinted.isEmpty() ? List.of() : tinted.get(0);
-        *///?} else {
-        return tinted.stream().flatMap(List::stream).toList();
-        //?}
+        var tinted = tints.stream().filter(Tints.Tint::tinted).distinct().toList();
+        if (tinted.size() > 1) throw new IllegalStateException("Legacy composite item has incompatible tint palettes: " + item);
+        return tinted;
+    }
+
+    private static BlockFamily.ModelFamilyEntry<?, ?> blockDefinition(BlockItem item) {
+        for (List<? extends BlockFamily.ModelFamilyEntry<?, ?>> entries : List.<List<? extends BlockFamily.ModelFamilyEntry<?, ?>>>of(
+                NewModelSets.simpleBlocks(), NewModelSets.crossBlocks(), NewModelSets.tallCrossBlocks(), NewModelSets.portalBlocks())) {
+            for (var entry : entries) if (entry.block() == item.getBlock()) return entry;
+        }
+        return null;
     }
 
     private static void addIfTinted(List<Binding> result, ItemLike item, SimpleItems.Model model) {
-        if (item == null || model == null || !model.hasAnyTint(item)) return;
+        if (item == null || model == null) return;
+        var tints = itemTints(item, model);
+        if (tints.stream().noneMatch(Tints.Tint::tinted)) return;
         for (Binding existing : result) {
             if (existing.item().asItem() == item.asItem()) {
                 throw new IllegalStateException(
                         "NewGen declares legacy item tint handling more than once for " + ModelLocations.itemId(item));
             }
         }
-        result.add(new Binding(item, model));
+        result.add(new Binding(item, tints));
     }
 }

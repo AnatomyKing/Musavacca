@@ -5,7 +5,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
-import space.anatomyuniverse.musavacca.bar.ModAttachments;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -116,11 +115,7 @@ public final class BalanceApi {
         if (server == null) return;
         BalanceStore store = BalanceStore.get(server);
         store.rememberPlayer(player);
-        BalanceData oldAttachment = player.getData(ModAttachments.BALANCE);
-        if (!store.containsBalance(player.getUUID()) && oldAttachment.getBalance() > 0) {
-            store.setBalance(player.getUUID(), oldAttachment.getBalance());
-        }
-        sync(player);
+        syncPlayer(player, store.getBalance(player.getUUID()));
     }
 
     public static void sync(ServerPlayer player) {
@@ -138,10 +133,7 @@ public final class BalanceApi {
     }
 
     private static void syncPlayer(ServerPlayer player, int balance) {
-        BalanceData data = player.getData(ModAttachments.BALANCE);
-        data.setBalance(balance);
-        player.setData(ModAttachments.BALANCE, data);
-        PacketDistributor.sendToPlayer(player, new BalanceSyncPayload(data.getBalance(), data.isVisible()));
+        PacketDistributor.sendToPlayer(player, new BalanceSyncPayload(balance, balance > 0));
     }
 
     private static Optional<UUID> findKnownUuid(MinecraftServer server, String playerName) {

@@ -2,6 +2,6 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "musavacca:item/musavacca_door",
-    "layer1": "musavacca:item/musavacca_door_portal"
+    "layer1": "musavacca:item/musavacca_door_knob_portal"
   }
 }

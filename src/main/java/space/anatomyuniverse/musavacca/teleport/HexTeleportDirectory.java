@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import space.anatomyuniverse.musavacca.MusaCore;
+import space.anatomyuniverse.musavacca.data.MusaSavedData;
 import space.anatomyuniverse.musavacca.block.custom.logic.VocoReceptorLogic.ReceptorPosition;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 
@@ -35,7 +36,7 @@ import net.minecraft.nbt.Tag;
 *///?}
 
 public final class HexTeleportDirectory extends SavedData {
-    public static final String STORAGE_ID = "musavacca_unified_teleports";
+    public static final String STORAGE_ID = "teleport_directory";
     private static final Codec<UUID> UUID_CODEC =
             Codec.STRING.comapFlatMap(
                     text -> {
@@ -248,9 +249,9 @@ public final class HexTeleportDirectory extends SavedData {
 
     public static HexTeleportDirectory get(MinecraftServer server) {
         //? if >=1.21.5 {
-        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
+        return MusaSavedData.storage(server).computeIfAbsent(TYPE);
         //?} else {
-        /*return server.overworld().getDataStorage().computeIfAbsent(FACTORY, STORAGE_ID);
+        /*return MusaSavedData.storage(server).computeIfAbsent(FACTORY, STORAGE_ID);
         *///?}
     }
 

@@ -53,9 +53,6 @@ import net.minecraft.world.entity.InsideBlockEffectApplier;
 //? if >=1.21.2 {
 import net.minecraft.world.level.ScheduledTickAccess;
 //?}
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
-*///?}
 //? if >=1.21.2 {
 import net.minecraft.world.level.portal.TeleportTransition;
 //?} else {
@@ -76,13 +73,6 @@ public final class MusavaccaPortalDoorBlock extends DoorBlock implements EntityB
         this.registerDefaultState(this.defaultBlockState().setValue(LIT, false).setValue(LIT_PORTAL, false).setValue(PORTAL, false));
     }
 
-    //? if >=1.21.11 {
-    /*@Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
-    }
-
-    *///?}
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

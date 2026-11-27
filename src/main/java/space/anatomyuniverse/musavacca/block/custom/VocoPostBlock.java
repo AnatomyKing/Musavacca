@@ -42,9 +42,6 @@ import net.minecraft.world.level.ScheduledTickAccess;
 //?} else {
 /*import net.minecraft.world.level.LevelAccessor;
 *///?}
-//? if >=1.21.11 {
-/*import net.minecraft.world.level.block.RenderShape;
-*///?}
 
 public final class VocoPostBlock extends HorizontalDirectionalBlock implements EntityBlock {
     //? if <26.3 {
@@ -66,13 +63,6 @@ public final class VocoPostBlock extends HorizontalDirectionalBlock implements E
     }
 
     //?}
-    //? if >=1.21.11 {
-    /*@Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
-    }
-
-    *///?}
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

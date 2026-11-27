@@ -335,12 +335,11 @@ public final class Newgen {
     }
 
     void fire(FireBlocks.Entry entry) {
-        List<Tints.GeneratedLayer> layers = Tints.generatedLayers(entry.tint());
-        var floor = fireModels(entry, layers, NewgenModels.Shape.FLOOR, "floor");
-        var sides = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.SIDE, "side"));
-        sides.addAll(fireModels(entry, layers, NewgenModels.Shape.SIDE_ALT, "side_alt"));
-        var up = new java.util.ArrayList<>(fireModels(entry, layers, NewgenModels.Shape.UP, "up"));
-        up.addAll(fireModels(entry, layers, NewgenModels.Shape.UP_ALT, "up_alt"));
+        var floor = fireModels(entry, NewgenModels.Shape.FLOOR, "floor");
+        var sides = new java.util.ArrayList<>(fireModels(entry, NewgenModels.Shape.SIDE, "side"));
+        sides.addAll(fireModels(entry, NewgenModels.Shape.SIDE_ALT, "side_alt"));
+        var up = new java.util.ArrayList<>(fireModels(entry, NewgenModels.Shape.UP, "up"));
+        up.addAll(fireModels(entry, NewgenModels.Shape.UP_ALT, "up_alt"));
         Conditions.Match noFaces =
                 Conditions.when(FireBlock.NORTH, false)
                         .and(FireBlock.EAST, false)
@@ -365,12 +364,12 @@ public final class Newgen {
 
     //? if >=1.21.11 {
     /*private List<Identifier> fireModels(
-            FireBlocks.Entry entry, List<Tints.GeneratedLayer> layers, NewgenModels.Shape shape, String suffix) {
+            FireBlocks.Entry entry, NewgenModels.Shape shape, String suffix) {
     *///?} else {
     private List<ResourceLocation> fireModels(
-            FireBlocks.Entry entry, List<Tints.GeneratedLayer> layers, NewgenModels.Shape shape, String suffix) {
+            FireBlocks.Entry entry, NewgenModels.Shape shape, String suffix) {
     //?}
-        return List.of(models.fire(entry, suffix + "0", shape, 0, layers), models.fire(entry, suffix + "1", shape, 1, layers));
+        return List.of(models.fire(entry, suffix + "0", shape, 0), models.fire(entry, suffix + "1", shape, 1));
     }
 
     //? if >=1.21.11 {

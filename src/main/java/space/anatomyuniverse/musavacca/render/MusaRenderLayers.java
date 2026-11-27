@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.entity.renderer.LayeredBlockTint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,15 +87,46 @@ public final class MusaRenderLayers {
 
     private MusaRenderLayers() {}
 
-    private record Properties(boolean noAo, boolean noShade) {
+    private enum PortalFaces { ALL, BASE, OVERLAY }
+
+    private record Properties(boolean noAo, boolean noShade, PortalFaces portalFaces) {
         boolean any() {
-            return noAo || noShade;
+            return noAo || noShade || portalFaces != PortalFaces.ALL;
+        }
+
+        Properties overlay() {
+            return new Properties(noAo, noShade, PortalFaces.OVERLAY);
         }
     }
 
-    private static Properties properties(Block block) {
-        return new Properties(NO_AO_BLOCKS.contains(block), NO_DIRECTIONAL_SHADE_BLOCKS.contains(block));
+    private static Properties properties(BlockState state) {
+        Block block = state.getBlock();
+        return new Properties(NO_AO_BLOCKS.contains(block), NO_DIRECTIONAL_SHADE_BLOCKS.contains(block),
+                LayeredBlockTint.hasPortalOverlay(state) ? PortalFaces.BASE : PortalFaces.ALL);
     }
+
+    private static List<BakedQuad> filterPortalFaces(List<BakedQuad> source, Properties properties) {
+        if (properties.portalFaces() == PortalFaces.ALL) return source;
+        boolean overlay = properties.portalFaces() == PortalFaces.OVERLAY;
+        List<BakedQuad> result = null;
+        for (int i = 0; i < source.size(); i++) {
+            BakedQuad quad = source.get(i);
+            if (LayeredBlockTint.isPortalQuad(quad) != overlay) {
+                if (result == null) result = new ArrayList<>(source.subList(0, i));
+            } else if (result != null) result.add(quad);
+        }
+        return result == null ? source : result;
+    }
+
+    //? if >=1.21.5 {
+    public static BlockStateModel portalModel(BlockStateModel model) {
+        return model instanceof ForcedStateModel wrapped ? wrapped.portalModel : null;
+    }
+    //?} else {
+    /*public static BakedModel portalModel(BakedModel model) {
+        return model instanceof ForcedBakedModel wrapped ? wrapped.portalModel : null;
+    }
+    *///?}
 
     //? if <26.1 {
     public static void onClientSetup(FMLClientSetupEvent event) {
@@ -119,7 +151,7 @@ public final class MusaRenderLayers {
         //? if >=1.21.5 {
         var models = event.getBakingResult().blockStateModels();
         models.replaceAll((state, original) -> {
-            Properties p = properties(state.getBlock());
+            Properties p = properties(state);
             return p.any() ? new ForcedStateModel(original, p) : original;
         });
         //?} else if >=1.21.4 {
@@ -133,11 +165,16 @@ public final class MusaRenderLayers {
     /*private static void replaceModels(Map<ModelResourceLocation, BakedModel> models) {
         for (Block block : NO_AO_BLOCKS) wrapModels(models, block);
         for (Block block : NO_DIRECTIONAL_SHADE_BLOCKS) if (!NO_AO_BLOCKS.contains(block)) wrapModels(models, block);
+        wrapModels(models, ModBlocks.VOCO_POST.get());
+        wrapModels(models, ModBlocks.VOCO_TABLE.get());
+        wrapModels(models, ModBlocks.MUSAVACCA_DOOR.get());
+        wrapModels(models, ModBlocks.MUSAVACCA_TRAPDOOR.get());
     }
 
     private static void wrapModels(Map<ModelResourceLocation, BakedModel> models, Block block) {
-        Properties p = properties(block);
         for (BlockState state : block.getStateDefinition().getPossibleStates()) {
+            Properties p = properties(state);
+            if (!p.any()) continue;
             ModelResourceLocation id = BlockModelShaper.stateToModelLocation(state);
             models.computeIfPresent(id, (key, original) -> new ForcedBakedModel(original, p));
         }
@@ -147,10 +184,27 @@ public final class MusaRenderLayers {
     //? if >=1.21.5 {
     private static final class ForcedStateModel extends DelegateBlockStateModel {
         private final Properties properties;
+        private final BlockStateModel portalModel;
 
         ForcedStateModel(BlockStateModel original, Properties properties) {
             super(original);
             this.properties = properties;
+            this.portalModel = properties.portalFaces() == PortalFaces.BASE
+                    ? new ForcedStateModel(original, properties.overlay()) : null;
+        }
+
+        @Override
+        public void collectParts(RandomSource random,
+                //? if >=26.1 {
+                /*List<BlockStateModelPart> output) {
+                *///?} else {
+                List<BlockModelPart> output) {
+                //?}
+            int start = output.size();
+            delegate.collectParts(random, output);
+            if (properties.portalFaces() != PortalFaces.ALL) {
+                for (int i = start; i < output.size(); i++) output.set(i, new ForcedPart(output.get(i), properties));
+            }
         }
 
         @Override
@@ -193,7 +247,7 @@ public final class MusaRenderLayers {
         @Override
         public List<BakedQuad> getQuads(Direction face) {
             //? if >=26.1 {
-            /*List<BakedQuad> source = original.getQuads(face), result = null;
+            /*List<BakedQuad> source = filterPortalFaces(original.getQuads(face), properties), result = null;
             for (int i = 0; i < source.size(); i++) {
                 BakedQuad quad = source.get(i);
                 BakedQuad.MaterialInfo material = material(quad.materialInfo(), properties);
@@ -217,7 +271,7 @@ public final class MusaRenderLayers {
             }
             return result == null ? source : List.copyOf(result);
             *///?} else {
-            List<BakedQuad> quads = original.getQuads(face);
+            List<BakedQuad> quads = filterPortalFaces(original.getQuads(face), properties);
             return properties.noShade() ? withoutShade(quads) : quads;
             //?}
         }
@@ -270,15 +324,23 @@ public final class MusaRenderLayers {
     *///?}
         //? if <1.21.5 {
         /*private final Properties properties;
+        private final BakedModel portalModel;
 
         ForcedBakedModel(BakedModel original, Properties properties) {
             super(original);
             this.properties = properties;
+            this.portalModel = properties.portalFaces() == PortalFaces.BASE
+                    ? new ForcedBakedModel(original, properties.overlay()) : null;
+        }
+
+        @Override
+        public List<BakedQuad> getQuads(BlockState state, Direction face, RandomSource random) {
+            return filterPortalFaces(super.getQuads(state, face, random), properties);
         }
 
         @Override
         public List<BakedQuad> getQuads(BlockState state, Direction face, RandomSource random, ModelData data, RenderType type) {
-            List<BakedQuad> quads = super.getQuads(state, face, random, data, type);
+            List<BakedQuad> quads = filterPortalFaces(super.getQuads(state, face, random, data, type), properties);
             return properties.noShade() ? withoutShade(quads) : quads;
         }
 

@@ -67,7 +67,13 @@ public final class MusavaccaPortalTrapdoorBlockEntity extends BlockEntity implem
         if (this.hexColor == resolved) return;
         this.hexColor = resolved;
         this.setChanged();
+        BlockState previous = this.getBlockState();
         this.syncTrapdoor(true);
+        Level level = this.getLevel();
+        BlockState state = this.getBlockState();
+        if (level != null && !level.isClientSide() && state == previous) {
+            level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_CLIENTS | Block.UPDATE_IMMEDIATE);
+        }
     }
 
     public void clearHexColor() {

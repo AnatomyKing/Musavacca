@@ -595,22 +595,24 @@ public final class ModBlocks {
                                             //?}
             ));
     public static final DeferredBlock<PearlCandleBlock> PEARL_CANDLE =
-            BLOCKS.registerBlock(
-                    "pearl_candle",
-                    props ->
-                            new PearlCandleBlock(
-                                    props.mapColor(MapColor.WOOL)
-                                            .strength(0.1F)
-                                            .sound(SoundType.CANDLE)
-                                            .noOcclusion()
-                                            .dynamicShape()
-                                            .lightLevel(PearlCandleBlock::candleLightLevel)
-                                            //? if >=26.3 {
-                                            /*.pushReaction(PushReaction.POPPED)
-                                            *///?} else {
-                                            .pushReaction(PushReaction.DESTROY)
-                                            //?}
-            ));
+            BLOCKS.registerBlock("pearl_candle", props -> new PearlCandleBlock(pearlFlameProperties(props)
+                    .lightLevel(PearlCandleBlock::candleLightLevel)));
+    public static final DeferredBlock<PearlCandleCakeBlock> PEARL_CANDLE_CAKE =
+            BLOCKS.registerBlock("pearl_candle_cake", props -> new PearlCandleCakeBlock(pearlFlameProperties(props)
+                    .lightLevel(PearlCandleCakeBlock::candleLightLevel)));
+    public static final DeferredBlock<PearlCampfireBlock> PEARL_CAMPFIRE =
+            BLOCKS.registerBlock("pearl_campfire", props -> new PearlCampfireBlock(pearlFlameProperties(props)
+                    .lightLevel(PearlCampfireBlock::campfireLightLevel)));
+
+    private static BlockBehaviour.Properties pearlFlameProperties(BlockBehaviour.Properties props) {
+        return props.mapColor(MapColor.WOOL).strength(0.1F).sound(SoundType.CANDLE).noOcclusion().dynamicShape()
+                //? if >=26.3 {
+                /*.pushReaction(PushReaction.POPPED);
+                *///?} else {
+                .pushReaction(PushReaction.DESTROY);
+                //?}
+    }
+
     public static final DeferredBlock<CaroteneGrassBlock> CAROTENE_GRASS =
             BLOCKS.registerBlock(
                     "carotene_grass",
@@ -680,6 +682,8 @@ public final class ModBlocks {
                     MUSAVACCA_DOOR,
                     VOCO_TABLE,
                     PEARL_CANDLE,
+                    PEARL_CANDLE_CAKE,
+                    PEARL_CAMPFIRE,
                     BANANA_PEARL_DUST);
 
     static {

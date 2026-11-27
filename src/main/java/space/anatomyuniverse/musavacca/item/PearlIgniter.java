@@ -25,17 +25,20 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.ItemAbilities;
 import org.jetbrains.annotations.Nullable;
 import space.anatomyuniverse.musavacca.block.ModBlocks;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableCandleLogic;
+import space.anatomyuniverse.musavacca.block.custom.logic.VocoTableHitboxes;
 import space.anatomyuniverse.musavacca.block.entity.custom.PearlFireBlockEntity;
+import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 import space.anatomyuniverse.musavacca.component.ModDataComponents;
 import space.anatomyuniverse.musavacca.gui.menu.FlintAndPearlMenu;
 import space.anatomyuniverse.musavacca.portal.PearlPortalCreator;
 import space.anatomyuniverse.musavacca.portal.PearlPortalFrame;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
-import space.anatomyuniverse.musavacca.tint.PearlPlacementColorMemory;
 
 public final class PearlIgniter {
     private static final Component TITLE = Component.literal("Pearl Fire Hex");
@@ -121,11 +124,20 @@ public final class PearlIgniter {
         }
     }
 
-    public static InteractionResult tryPickBlockColor(ItemStack stack, UseOnContext context) {
-        Player player = context.getPlayer();
+    public static InteractionResult tryPickBlockColor(ItemStack stack, Player player, BlockHitResult hit) {
         if (player == null || !player.isShiftKeyDown()) return InteractionResult.PASS;
-        Level level = context.getLevel();
-        int hexColor = MusavaccaTints.blockEntityHexColor(level.getBlockEntity(context.getClickedPos()));
+        Level level = player.level();
+        BlockPos pos = hit.getBlockPos();
+        var blockEntity = level.getBlockEntity(pos);
+        int hexColor;
+        if (blockEntity instanceof VocoTableBlockEntity table) {
+            var receptor = VocoTableCandleLogic.detectExistingCandleHit(level, pos, hit, player);
+            if (receptor == null) receptor = VocoTableHitboxes.receptorAt(pos, hit);
+            if (receptor == null) return InteractionResult.PASS;
+            hexColor = table.getCornerHexColor(receptor);
+        } else {
+            hexColor = MusavaccaTints.blockEntityHexColor(blockEntity);
+        }
         if (!MusavaccaTints.hasTint(hexColor)) return InteractionResult.PASS;
         if (!level.isClientSide()) {
             stack.set(ModDataComponents.HEX_COLOR.get(), hexColor);
@@ -144,7 +156,7 @@ public final class PearlIgniter {
         if (modifiedState != null) return useVanillaFirestarterBehavior(context, modifiedState);
         BlockPos placePos = clickedPos.relative(context.getClickedFace());
         int hexColor = getStoredHexOrDefault(stack);
-        if (level.isClientSide()) return previewClientPlacement(level, placePos, hexColor);
+        if (level.isClientSide()) return previewClientPlacement(level, placePos);
         if (PearlPortalCreator.tryCreatePortal(level, placePos, hexColor, player, context.getClickedFace())) {
             playUseEffects(level, player, placePos, GameEvent.BLOCK_PLACE);
             triggerPlacedBlockCriterion(player, placePos, stack);
@@ -154,16 +166,11 @@ public final class PearlIgniter {
         return placePearlFire(context, placePos, hexColor);
     }
 
-    private static InteractionResult previewClientPlacement(Level level, BlockPos placePos, int hexColor) {
-        var portalShape = PearlPortalFrame.findIgnitableShape(level, placePos);
-        if (portalShape.isPresent()) {
-            portalShape.get().forEachInteriorBlock(pos -> PearlPlacementColorMemory.remember(level, pos, hexColor));
-            return successResult(level);
-        }
+    private static InteractionResult previewClientPlacement(Level level, BlockPos placePos) {
+        if (PearlPortalFrame.findIgnitableShape(level, placePos).isPresent()) return successResult(level);
         if (!level.getBlockState(placePos).canBeReplaced()) return InteractionResult.FAIL;
         BlockState fireState = getCustomFireState(level, placePos);
         if (!fireState.canSurvive(level, placePos)) return InteractionResult.FAIL;
-        PearlPlacementColorMemory.remember(level, placePos, hexColor);
         return successResult(level);
     }
 

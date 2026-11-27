@@ -13,34 +13,12 @@ public final class PortalTextures {
     private PortalTextures() {}
 
     //? if >=1.21.11 {
-    /*public record Set(Identifier texture, Identifier layerPrefix, Identifier particle) {
+    /*public record Set(Identifier texture) {
     *///?} else {
-    public record Set(ResourceLocation texture, ResourceLocation layerPrefix, ResourceLocation particle) {
+    public record Set(ResourceLocation texture) {
     //?}
         public Set {
             Objects.requireNonNull(texture, "texture");
-            Objects.requireNonNull(layerPrefix, "layerPrefix");
-        }
-
-        //? if >=1.21.11 {
-        /*public Identifier layer(int layer) {
-        *///?} else {
-        public ResourceLocation layer(int layer) {
-        //?}
-            if (layer < 0) throw new IllegalArgumentException("layer must be >= 0");
-            //? if >=1.21.11 {
-            /*return Identifier.fromNamespaceAndPath(layerPrefix.getNamespace(), layerPrefix.getPath() + "_" + layer);
-            *///?} else {
-            return ResourceLocation.fromNamespaceAndPath(layerPrefix.getNamespace(), layerPrefix.getPath() + "_" + layer);
-            //?}
-        }
-
-        //? if >=1.21.11 {
-        /*Identifier source(Tints.Tint tint, int layer) {
-        *///?} else {
-        ResourceLocation source(Tints.Tint tint, int layer) {
-        //?}
-            return Tints.generatedLayerCount(tint) > 1 ? layer(layer) : texture;
         }
     }
 
@@ -52,12 +30,8 @@ public final class PortalTextures {
         private final Block block;
         //? if >=1.21.11 {
         /*private Identifier texture;
-        private Identifier layerPrefix;
-
         *///?} else {
         private ResourceLocation texture;
-        private ResourceLocation layerPrefix;
-
         //?}
         private Builder(Block block) {
             this.block = Objects.requireNonNull(block, "block");
@@ -65,31 +39,17 @@ public final class PortalTextures {
         }
 
         public Builder texture() {
-            return folder(TextureTokens.block(block).toString());
+            this.texture = TextureTokens.block(block);
+            return this;
         }
 
         public Builder texture(String texture) {
-            return folder(texture);
-        }
-
-        public Builder folder() {
-            return texture();
-        }
-
-        public Builder folder(String texture) {
             this.texture = TextureTokens.resolveBlock(block, texture);
-            String path = this.texture.getPath();
-            String name = path.substring(path.lastIndexOf('/') + 1);
-            //? if >=1.21.11 {
-            /*layerPrefix = Identifier.fromNamespaceAndPath(this.texture.getNamespace(), path + "/" + name);
-            *///?} else {
-            layerPrefix = ResourceLocation.fromNamespaceAndPath(this.texture.getNamespace(), path + "/" + name);
-            //?}
             return this;
         }
 
         public Set build() {
-            return new Set(texture, layerPrefix, null);
+            return new Set(texture);
         }
     }
 }

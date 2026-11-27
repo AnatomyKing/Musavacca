@@ -1,38 +1,51 @@
 package space.anatomyuniverse.musavacca.tint;
 
+import java.util.List;
+
+import space.anatomyuniverse.musavacca.tint.PearlFireTintProfiles.Settings;
+
 public final class PearlFireTintSource {
     private static final float PALETTE_ANCHOR_LIGHTNESS = perceptualGrayLightness(0.80F);
 
     private PearlFireTintSource() {}
 
-    public static int profileTint(int baseRgb, int tintIndex, PearlFireTintProfiles.Profile profile) {
-        if (profile == null || !profile.supports(tintIndex) || !MusavaccaTints.hasTint(baseRgb)) return MusavaccaTints.NO_TINT;
-        float gray = profile.grayFactor(tintIndex);
-        int layerCount = profile.layerCount();
-        float proceduralT = layerCount <= 1 ? 0.0F : tintIndex / (float) (layerCount - 1);
-        float paletteT = grayTonePosition(gray);
-        float paletteActivation = paletteActivation(profile.colorAmountTakeOver());
-        float t = mix(proceduralT, paletteT, paletteActivation);
-        int desired = desiredLayerRgb(MusavaccaTints.rgb(baseRgb), t, gray, paletteActivation, profile);
-        if (gray > 0.0F && gray < 1.0F) {
-            desired = paletteActivation > 0.0005F ? compensateGrayCarrier(desired, gray) : unMultiplyGray(desired, gray);
+    public static int[] palette(int color, Settings settings, List<Integer> grays) {
+        int[] colors = new int[grays.size()];
+        if (!MusavaccaTints.hasTint(color)) {
+            java.util.Arrays.fill(colors, MusavaccaTints.rgb(MusavaccaTints.NO_TINT));
+            return colors;
         }
-        return MusavaccaTints.opaqueRgb(desired);
+        int rgb = MusavaccaTints.rgb(color);
+        Oklch base = rgbToOklch(rgb);
+        float activation = paletteActivation(settings.colorAmountTakeOver());
+        float[] linear = new float[3];
+        float baseChromaLimit = activation == 0.0F && Float.isFinite(settings.layerContrast())
+                ? 0.0F : gamutChromaLimit(clamp01(base.l()), wrap360(base.h()), linear);
+        for (int i = 0; i < colors.length; i++) {
+            float gray = clamp01(grays.get(i) / 255.0F);
+            float proceduralT = colors.length <= 1 ? 0.0F : i / (float) (colors.length - 1);
+            float t = mix(proceduralT, grayTonePosition(gray), activation);
+            int desired = desiredLayerRgb(rgb, base, baseChromaLimit, t, gray, activation, settings, linear);
+            if (gray > 0.0F && gray < 1.0F) {
+                desired = activation > 0.0005F ? compensateGrayCarrier(desired, gray) : unMultiplyGray(desired, gray);
+            }
+            colors[i] = MusavaccaTints.rgb(desired);
+        }
+        return colors;
     }
 
     private static int desiredLayerRgb(
-            int baseRgb, float t, float grayFactor, float paletteActivation, PearlFireTintProfiles.Profile profile) {
+            int baseRgb, Oklch base, float baseChromaLimit, float t, float grayFactor, float paletteActivation, Settings settings, float[] linear) {
         t = clamp01(t);
-        float configuredWhiteCore = Math.max(0.0F, profile.coreToTailLightness());
-        float colorAmountTakeOver = clamp01(profile.colorAmountTakeOver());
+        float configuredWhiteCore = Math.max(0.0F, settings.coreToTailLightness());
+        float colorAmountTakeOver = clamp01(settings.colorAmountTakeOver());
         float whiteCore = configuredWhiteCore * mix(1.0F, 0.15F, colorAmountTakeOver);
         float colorWhiteCore = configuredWhiteCore * (1.0F - colorAmountTakeOver);
-        float vibrancyDarkening = clamp01(profile.vibrancyDarkening());
-        float jumpiness = Math.max(0.0F, profile.colorJumpiness());
-        float layerContrast = Math.max(0.0F, profile.layerContrast());
+        float vibrancyDarkening = clamp01(settings.vibrancyDarkening());
+        float jumpiness = Math.max(0.0F, settings.colorJumpiness());
+        float layerContrast = Math.max(0.0F, settings.layerContrast());
         float jumpCurve = jumpiness / (1.0F + jumpiness);
         float jumpScale = jumpiness * (2.0F + (0.65F * Math.max(0.0F, jumpiness - 1.0F)));
-        Oklch base = rgbToOklch(baseRgb);
         float baseL = clamp01(base.l());
         float baseC = Math.max(0.0F, base.c());
         float baseH = wrap360(base.h());
@@ -216,7 +229,7 @@ public final class PearlFireTintSource {
                         + (0.065F * ink * (0.42F + (0.58F * tail)))
                         + (0.030F * glow * (0.30F + (0.70F * core)));
         h = angleMix(h, baseH, anchor);
-        if (paletteActivation == 0.0F && Float.isFinite(layerContrast)) return oklchToRgb(l, c, h);
+        if (paletteActivation == 0.0F && Float.isFinite(layerContrast)) return oklchToRgb(l, c, h, linear);
         float carrierL = perceptualGrayLightness(grayFactor);
         float structuredL;
         if (carrierL >= PALETTE_ANCHOR_LIGHTNESS) {
@@ -230,7 +243,6 @@ public final class PearlFireTintSource {
         float adaptiveTakeOver =
                 colorAmountTakeOver + ((1.0F - colorAmountTakeOver) * sourceDarkness * vividness * 0.78F * paletteActivation);
         float paletteBlend = clamp01(adaptiveTakeOver * mix(0.56F, 1.0F, vividness) * paletteActivation);
-        float baseChromaLimit = gamutChromaLimit(baseL, baseH);
         float relativeSaturation = baseChromaLimit <= 0.0005F ? 0.0F : clamp01(baseC / baseChromaLimit);
         if (hasColor > 0.0F && paletteActivation > 0.0F && structuredL > baseL) {
             float whiteIntent = clamp01(colorWhiteCore);
@@ -238,14 +250,14 @@ public final class PearlFireTintSource {
             chromaRetention *= mix(1.0F, 0.72F, whiteIntent);
             chromaRetention *= mix(0.72F, 1.0F, colorAmountTakeOver);
             float minimumHighlightChroma = baseC * chromaRetention * paletteActivation;
-            float chromaticLightnessCeiling = highestLightnessHoldingChroma(baseL, baseH, minimumHighlightChroma);
+            float chromaticLightnessCeiling = highestLightnessHoldingChroma(baseL, baseH, minimumHighlightChroma, linear);
             structuredL = Math.min(structuredL, chromaticLightnessCeiling);
         }
-        float structuredChroma = gamutChromaLimit(structuredL, baseH) * relativeSaturation;
+        float structuredChroma = gamutChromaLimit(structuredL, baseH, linear) * relativeSaturation;
         l = mix(l, structuredL, paletteBlend);
         c = mix(c, structuredChroma, paletteBlend);
         h = angleMix(h, baseH, paletteBlend);
-        return oklchToRgb(l, c, h);
+        return oklchToRgb(l, c, h, linear);
     }
 
     private static float paletteActivation(float colorAmountTakeOver) {
@@ -263,10 +275,10 @@ public final class PearlFireTintSource {
         return (float) Math.cbrt(srgbToLinear(clamp01(grayFactor)));
     }
 
-    private static float gamutChromaLimit(float l, float h) {
+    private static float gamutChromaLimit(float l, float h, float[] linear) {
         l = clamp01(l);
         if (l <= 0.0005F || l >= 1.0F - 0.0005F) return 0.0F;
-        return maxChroma(l, 0.5F, h);
+        return maxChroma(l, 0.5F, Hue.of(h), linear);
     }
 
     private static float waveJump(float t, float hue, float body, float tail, float jumpiness) {
@@ -279,15 +291,16 @@ public final class PearlFireTintSource {
                         + ((float) Math.sin((t * 6.2831855F * 1.92F) + phaseB) * tail * 20.0F));
     }
 
-    private static float highestLightnessHoldingChroma(float baseL, float hue, float minimumChroma) {
+    private static float highestLightnessHoldingChroma(float baseL, float hue, float minimumChroma, float[] linear) {
         if (minimumChroma <= 0.0005F) return 1.0F;
         float low = clamp01(baseL);
         float high = 1.0F - 0.0005F;
-        if (!isOklchInGamut(low, minimumChroma, hue)) return low;
-        if (isOklchInGamut(high, minimumChroma, hue)) return high;
+        Hue direction = Hue.of(hue);
+        if (!isOklchInGamut(low, minimumChroma, direction, linear)) return low;
+        if (isOklchInGamut(high, minimumChroma, direction, linear)) return high;
         for (int i = 0; i < 14; i++) {
             float mid = (low + high) * 0.5F;
-            if (isOklchInGamut(mid, minimumChroma, hue)) {
+            if (isOklchInGamut(mid, minimumChroma, direction, linear)) {
                 low = mid;
             } else {
                 high = mid;
@@ -337,20 +350,19 @@ public final class PearlFireTintSource {
         return new Oklch(okL, c, h);
     }
 
-    private static int oklchToRgb(float l, float c, float h) {
+    private static int oklchToRgb(float l, float c, float h, float[] linear) {
         l = clamp01(l);
         c = Math.max(0.0F, c);
-        h = wrap360(h);
-        float[] direct = oklchToLinearRgb(l, c, h);
-        if (inGamut(direct[0], direct[1], direct[2])) return linearRgbToInt(direct[0], direct[1], direct[2]);
+        Hue direction = Hue.of(wrap360(h));
+        if (isOklchInGamut(l, c, direction, linear)) return linearRgbToInt(linear[0], linear[1], linear[2]);
         float bestL = l;
-        float bestC = maxChroma(l, c, h);
+        float bestC = maxChroma(l, c, direction, linear);
         float bestScore = c <= 0.0005F ? 1.0F : bestC / c;
         float maxMove = 0.020F + (0.065F * (1.0F - clamp01(bestScore)));
         for (int i = -5; i <= 5; i++) {
             if (i == 0) continue;
             float nextL = clamp01(l + ((i / 5.0F) * maxMove));
-            float nextC = maxChroma(nextL, c, h);
+            float nextC = maxChroma(nextL, c, direction, linear);
             float keep = c <= 0.0005F ? 1.0F : nextC / c;
             float move = Math.abs(nextL - l);
             float penalty = move * (nextL < l ? 2.35F : 1.75F);
@@ -361,18 +373,18 @@ public final class PearlFireTintSource {
                 bestC = nextC;
             }
         }
-        float[] fitted = oklchToLinearRgb(bestL, bestC, h);
-        return linearRgbToInt(fitted[0], fitted[1], fitted[2]);
+        toLinearRgb(bestL, bestC, direction, linear);
+        return linearRgbToInt(linear[0], linear[1], linear[2]);
     }
 
-    private static float maxChroma(float l, float wantedC, float h) {
+    private static float maxChroma(float l, float wantedC, Hue hue, float[] linear) {
         if (wantedC <= 0.0F) return 0.0F;
-        if (isOklchInGamut(l, wantedC, h)) return wantedC;
+        if (isOklchInGamut(l, wantedC, hue, linear)) return wantedC;
         float low = 0.0F;
         float high = wantedC;
         for (int i = 0; i < 18; i++) {
             float mid = (low + high) * 0.5F;
-            if (isOklchInGamut(l, mid, h)) {
+            if (isOklchInGamut(l, mid, hue, linear)) {
                 low = mid;
             } else {
                 high = mid;
@@ -381,37 +393,29 @@ public final class PearlFireTintSource {
         return low;
     }
 
-    private static boolean isOklchInGamut(float l, float c, float hDegrees) {
-        float h = rad(hDegrees);
-        float a = c * (float) Math.cos(h);
-        float b = c * (float) Math.sin(h);
-        float l3 = l + 0.3963377774F * a + 0.2158037573F * b;
-        float m3 = l - 0.1055613458F * a - 0.0638541728F * b;
-        float s3 = l - 0.0894841775F * a - 1.2914855480F * b;
-        float ll = l3 * l3 * l3;
-        float mm = m3 * m3 * m3;
-        float ss = s3 * s3 * s3;
-        float r = 4.0767416621F * ll - 3.3077115913F * mm + 0.2309699292F * ss;
-        float g = -1.2684380046F * ll + 2.6097574011F * mm - 0.3413193965F * ss;
-        float blue = -0.0041960863F * ll - 0.7034186147F * mm + 1.7076147010F * ss;
-        return inGamut(r, g, blue);
+    private static boolean isOklchInGamut(float l, float c, Hue hue, float[] linear) {
+        toLinearRgb(l, c, hue, linear);
+        return inGamut(linear[0], linear[1], linear[2]);
     }
 
-    private static float[] oklchToLinearRgb(float l, float c, float hDegrees) {
-        float h = rad(hDegrees);
-        float a = c * (float) Math.cos(h);
-        float b = c * (float) Math.sin(h);
+    private static void toLinearRgb(float l, float c, Hue hue, float[] linear) {
+        float a = c * hue.cos(), b = c * hue.sin();
         float l3 = l + 0.3963377774F * a + 0.2158037573F * b;
         float m3 = l - 0.1055613458F * a - 0.0638541728F * b;
         float s3 = l - 0.0894841775F * a - 1.2914855480F * b;
         float ll = l3 * l3 * l3;
         float mm = m3 * m3 * m3;
         float ss = s3 * s3 * s3;
-        return new float[] {
-            4.0767416621F * ll - 3.3077115913F * mm + 0.2309699292F * ss,
-            -1.2684380046F * ll + 2.6097574011F * mm - 0.3413193965F * ss,
-            -0.0041960863F * ll - 0.7034186147F * mm + 1.7076147010F * ss
-        };
+        linear[0] = 4.0767416621F * ll - 3.3077115913F * mm + 0.2309699292F * ss;
+        linear[1] = -1.2684380046F * ll + 2.6097574011F * mm - 0.3413193965F * ss;
+        linear[2] = -0.0041960863F * ll - 0.7034186147F * mm + 1.7076147010F * ss;
+    }
+
+    private record Hue(float cos, float sin) {
+        static Hue of(float degrees) {
+            float h = rad(degrees);
+            return new Hue((float) Math.cos(h), (float) Math.sin(h));
+        }
     }
 
     private static boolean inGamut(float r, float g, float b) {

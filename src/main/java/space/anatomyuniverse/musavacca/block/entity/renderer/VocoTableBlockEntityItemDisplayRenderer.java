@@ -10,11 +10,11 @@ import space.anatomyuniverse.musavacca.block.entity.custom.VocoTableBlockEntity;
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 *///?} else {
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 //?}
 //? if >=1.21.4 <1.21.9 {
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -34,16 +34,25 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
     }
 
     //? if >=1.21.9 {
-    /*public void extract(VocoTableBlockEntity entity, VocoTableBlockEntityRenderer.State state, float partialTick) {
-        state.item.clear();
-        if (entity.getLevel() == null || entity.getDisplayedItem().isEmpty()) return;
-        resolver.updateForTopItem(state.item, entity.getDisplayedItem(), ItemDisplayContext.GROUND, entity.getLevel(), null, 0);
-        state.itemRotation = (((entity.getLevel().getGameTime() % 400L) + partialTick) * 2.7F) % 360.0F;
+    /*static final class State {
+        private final ItemStackRenderState item = new ItemStackRenderState();
+        private float rotation;
+
+        void clear() {
+            item.clear();
+        }
     }
 
-    public static void submit(VocoTableBlockEntityRenderer.State state, PoseStack pose, SubmitNodeCollector collector) {
+    void extract(VocoTableBlockEntity entity, State state, float partialTick) {
+        state.clear();
+        if (entity.getLevel() == null || entity.getDisplayedItem().isEmpty()) return;
+        resolver.updateForTopItem(state.item, entity.getDisplayedItem(), ItemDisplayContext.GROUND, entity.getLevel(), null, 0);
+        state.rotation = (((entity.getLevel().getGameTime() % 400L) + partialTick) * 2.7F) % 360.0F;
+    }
+
+    static void submit(State state, PoseStack pose, SubmitNodeCollector collector, int light) {
         if (state.item.isEmpty()) return;
-        float rotation = state.itemRotation;
+        float rotation = state.rotation;
     *///?} else {
     public void render(
             VocoTableBlockEntity entity,
@@ -51,8 +60,7 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
             PoseStack pose,
             MultiBufferSource buffer,
             int light,
-            int overlay,
-            Vec3 cameraPos) {
+            int overlay) {
         ItemStack stack = entity.getDisplayedItem();
         if (stack.isEmpty() || entity.getLevel() == null) return;
         float rotation = (((entity.getLevel().getGameTime() % 400L) + partialTick) * 2.7F) % 360.0F;
@@ -66,7 +74,7 @@ public final class VocoTableBlockEntityItemDisplayRenderer {
         //?}
         pose.scale(0.82F, 0.82F, 0.82F);
         //? if >=1.21.9 {
-        /*state.item.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        /*state.item.submit(pose, collector, light, OverlayTexture.NO_OVERLAY, 0);
         *///?} else if >=1.21.4 {
         Minecraft.getInstance()
                 .getItemModelResolver()

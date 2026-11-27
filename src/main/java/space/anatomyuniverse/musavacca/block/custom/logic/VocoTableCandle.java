@@ -10,7 +10,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
-import space.anatomyuniverse.musavacca.block.custom.PearlCandleBlock;
+import space.anatomyuniverse.musavacca.block.custom.PearlCopycatBlock;
 import space.anatomyuniverse.musavacca.tint.MusavaccaTints;
 
 import java.util.Collections;
@@ -30,8 +30,8 @@ public record VocoTableCandle(BlockState state, ItemStack item, int hex) {
         return state.is(BlockTags.CANDLES)
                 && !state.is(BlockTags.CANDLE_CAKES)
                 && !state.hasBlockEntity()
-                && !(state.getBlock() instanceof PearlCandleBlock)
-                && PearlCandleConversion.flag(state, "lit") != null;
+                && !(state.getBlock() instanceof PearlCopycatBlock)
+                && PearlFlameConversion.flag(state, "lit") != null;
     }
 
     @Nullable
@@ -42,31 +42,31 @@ public record VocoTableCandle(BlockState state, ItemStack item, int hex) {
         var properties = stack.get(DataComponents.BLOCK_STATE);
         if (properties != null) state = properties.apply(state);
         if (!accepts(state)) return null;
-        var count = countProperty(state);
+        var count = PearlFlameConversion.countProperty(state);
         if (count != null) state = state.setValue(count, first(count));
-        state = PearlCandleConversion.withFlag(state, "lit", false);
-        state = PearlCandleConversion.withFlag(state, "waterlogged", false);
+        state = PearlFlameConversion.withFlag(state, "lit", false);
+        state = PearlFlameConversion.withFlag(state, "waterlogged", false);
         return new VocoTableCandle(state, stack.copyWithCount(1), MusavaccaTints.NO_TINT);
     }
 
     public boolean lit() {
-        return PearlCandleConversion.value(state, "lit");
+        return PearlFlameConversion.value(state, "lit");
     }
 
     public VocoTableCandle withFlame(boolean lit, int color) {
         return new VocoTableCandle(
-                PearlCandleConversion.withFlag(state, "lit", lit), item, lit ? MusavaccaTints.resolve(color) : MusavaccaTints.NO_TINT);
+                PearlFlameConversion.withFlag(state, "lit", lit), item, lit ? MusavaccaTints.resolve(color) : MusavaccaTints.NO_TINT);
     }
 
     public int count() {
-        var property = countProperty(state);
+        var property = PearlFlameConversion.countProperty(state);
         return property == null ? 1 : state.getValue(property) - first(property) + 1;
     }
 
     @Nullable
     public VocoTableCandle addOne(ItemStack held) {
         if (!ItemStack.isSameItemSameComponents(item, held)) return null;
-        var property = countProperty(state);
+        var property = PearlFlameConversion.countProperty(state);
         if (property == null) return null;
         int next = state.getValue(property) + 1;
         return property.getPossibleValues().contains(next) ? new VocoTableCandle(state.setValue(property, next), item, hex) : null;
@@ -74,14 +74,9 @@ public record VocoTableCandle(BlockState state, ItemStack item, int hex) {
 
     @Nullable
     public VocoTableCandle removeOne() {
-        var property = countProperty(state);
+        var property = PearlFlameConversion.countProperty(state);
         if (property == null || state.getValue(property) <= first(property)) return null;
         return new VocoTableCandle(state.setValue(property, state.getValue(property) - 1), item, hex);
-    }
-
-    @Nullable
-    private static IntegerProperty countProperty(BlockState state) {
-        return state.getBlock().getStateDefinition().getProperty("candles") instanceof IntegerProperty count ? count : null;
     }
 
     private static int first(IntegerProperty count) {
